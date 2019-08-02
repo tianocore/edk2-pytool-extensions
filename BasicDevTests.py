@@ -50,6 +50,7 @@ def TestLineEndingsOk(apath, Windows: bool):
             return False
         return True
 
+
 def TestFilenameLowercase(apath):
     if apath != apath.lower():
         logging.critical(f"Lowercase failure: file {apath} not lower case path")
@@ -98,9 +99,9 @@ for a in pyfiles:
         error += 1
     if(not TestRequiredLicense(a)):
         error += 1
-        
+
     # Don't check EOL.  Use .gitattributes
-    #if(not TestLineEndingsOk(a, True)):
+    # if(not TestLineEndingsOk(a, True)):
     #    error += 1
 
 logging.critical(f"Found {error} error(s) in {len(pyfiles)} file(s)")
