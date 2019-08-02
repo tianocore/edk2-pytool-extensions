@@ -1,0 +1,7 @@
+exclude *.yml
+exclude *.md
+exclude *.txt
+exclude .flake8
+exclude .coveragerc
+exclude .gitignore
+include edk2toolext/bin/NuGet.exe

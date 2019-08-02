@@ -1,0 +1,110 @@
+workspace:
+  clean: all
+
+trigger: none # will disable CI builds entirely
+
+steps:
+- checkout: self
+  clean: true
+  
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.7.x'
+    architecture: 'x64'
+
+- script: python -m pip install --upgrade pip
+  displayName: 'Install/Upgrade pip'
+
+- script: pip uninstall -y edk2_pytool_extensions
+  displayName: 'Remove existing version of self'
+
+- script: pip install --upgrade -r requirements.txt
+  displayName: 'Install requirements'
+
+- script: pip install -e .
+  displayName: 'Install from Source'
+
+- script: pytest -v --junitxml=test.junit.xml --html=pytest_report.html --self-contained-html --cov=edk2toolext --cov-report html:cov_html --cov-report xml:cov.xml --cov-config .coveragerc
+  displayName: 'Run UnitTests'
+
+# Publish Test Results to Azure Pipelines/TFS
+- task: PublishTestResults@2
+  displayName: 'Publish junit test results'
+  continueOnError: true
+  condition: succeededOrFailed()
+  inputs:
+    testResultsFormat: 'JUnit' # Options: JUnit, NUnit, VSTest, xUnit
+    testResultsFiles: 'test.junit.xml' 
+    mergeTestResults: true # Optional
+    publishRunAttachments: true # Optional
+
+# Publish Build Artifacts
+# Publish build artifacts to Azure Pipelines/TFS or a file share
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: 'pytest_report.html' 
+    artifactName: 'Edk2_pytool_extensions unit test report' 
+  continueOnError: true
+  condition: succeededOrFailed()
+
+# Publish Code Coverage Results
+# Publish Cobertura code coverage results
+- task: PublishCodeCoverageResults@1
+  inputs:
+    codeCoverageTool: 'cobertura' # Options: cobertura, jaCoCo
+    summaryFileLocation: $(System.DefaultWorkingDirectory)/cov.xml
+    reportDirectory: $(System.DefaultWorkingDirectory)/cov_html
+  condition: succeededOrFailed()
+
+- script: flake8 .
+  displayName: 'Run flake8'
+  condition: succeededOrFailed()
+
+# Only capture and archive the lint log on failures.
+- script: flake8 . > flake8.err.log
+  displayName: 'Capture flake8 failures'
+  condition: Failed()
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: 'flake8.err.log' 
+    artifactName: 'Flake8 Error log file'
+  continueOnError: true
+  condition: Failed() 
+
+- task: PythonScript@0
+  inputs:
+    scriptSource: 'filePath'
+    scriptPath: 'BasicDevTests.py'
+    #script: # Required when scriptSource == Inline
+    #arguments: # Optional
+    #pythonInterpreter: # Optional
+    #workingDirectory: # Optional
+    #failOnStderr: false # Optional
+  displayName: 'Check basic file and folder tests'
+  condition: succeededOrFailed()
+
+- script: pip install --upgrade -r requirements.publisher.txt
+  displayName: 'Install PyPI publishing requirements'
+
+- script: python setup.py sdist bdist_wheel
+  displayName: 'Build a wheel'
+
+# Python Script
+# Run a Python script.
+- task: PythonScript@0
+  displayName: 'Confirm Version and Tag'
+  inputs:
+    scriptSource: 'filePath' # Options: filePath, inline
+    scriptPath: ConfirmVersionAndTag.py
+    #arguments: # Optional
+    #pythonInterpreter: # Optional
+    #workingDirectory: # Optional
+    failOnStderr: true # Optional
+
+- task: TwineAuthenticate@0
+  inputs:
+    externalFeeds: 'Pypi-edk2-pytool-library'
+
+- script: 'twine upload -r Pypi-edk2-pytool-library --config-file $(PYPIRC_PATH) dist/*'
+  displayName: 'Publish to pypi'

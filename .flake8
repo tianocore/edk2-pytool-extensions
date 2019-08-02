@@ -1,0 +1,5 @@
+[flake8]
+#E266 too many leading '#' for block comment
+#E722 do not use bare 'except'
+ignore = E266,E722
+max_line_length = 120
