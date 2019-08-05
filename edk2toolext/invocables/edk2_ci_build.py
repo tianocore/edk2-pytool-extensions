@@ -151,12 +151,19 @@ class Edk2CiBuild(Edk2Invocable):
         env = shell_environment.GetBuildVars()
 
         # Bind our current execution environment into the shell vars.
-        shell_env.set_shell_var("PYTHON_HOME", os.path.dirname(sys.executable))
-        # PYTHON_COMMAND is required to be set for Linux
-        shell_env.set_shell_var("PYTHON_COMMAND", sys.executable)
+        ph = os.path.dirname(sys.executable)
+        if " " in ph:
+            ph = '"' + ph + '"'
+        shell_env.set_shell_var("PYTHON_HOME", ph)
+        # PYTHON_COMMAND is required to be set for using edk2 python builds.  
+        # todo: work with edk2 to remove the bat file and move to native python calls
+        pc = sys.executable
+        if " " in pc:
+            pc = '"' + pc + '"'
+        shell_env.set_shell_var("PYTHON_COMMAND", pc)
 
         archSupported = " ".join(self.PlatformSettings.GetArchSupported())
-        env.SetValue("TARGET_ARCH", archSupported, "Platform Hardcoded")
+        env.SetValue("TARGET_ARCH", archSupported, "from PlatformSettings.GetArchSupported()")
 
         _targets = " ".join(self.PlatformSettings.GetTargetsSupported())
 

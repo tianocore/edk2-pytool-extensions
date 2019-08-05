@@ -98,9 +98,16 @@ class Edk2PlatformBuild(Edk2Invocable):
             self.GetWorkspaceRoot(), self.GetActiveScopes())
 
         # Bind our current execution environment into the shell vars.
-        shell_env.set_shell_var("PYTHON_HOME", os.path.dirname(sys.executable))
-        # PYTHON_COMMAND is required to be set for Linux
-        shell_env.set_shell_var("PYTHON_COMMAND", sys.executable)
+        ph = os.path.dirname(sys.executable)
+        if " " in ph:
+            ph = '"' + ph + '"'
+        shell_env.set_shell_var("PYTHON_HOME", ph)
+        # PYTHON_COMMAND is required to be set for using edk2 python builds.
+        # todo: work with edk2 to remove the bat file and move to native python calls
+        pc = sys.executable
+        if " " in pc:
+            pc = '"' + pc + '"'
+        shell_env.set_shell_var("PYTHON_COMMAND", pc)
 
         # Load plugins
         logging.log(edk2_logging.SECTION, "Loading Plugins")
