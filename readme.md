@@ -2,17 +2,17 @@
 
 This is a Tianocore maintained project consisting of command line and other python tools and extensions for building and maintaining an Edk2 based UEFI firmware code tree.  This package's intent is to provide tools, scripts, and a plugin based environment for use within the tools and scripts.  This environment has command line interfaces to support building a product, building CI, running tests, and downloading dependencies.  This environment also provides the building blocks for developers to write their own tools to launch in the environment and leverage the capabilities provided by the environment.  The unique capabilities provided help support building products with multiple repositories and having each repository contribute/plugin to the build process in a scalable way.  The environment will scan the files in the code tree (multiple repos) and discover plugins, dependencies, path adjustments, environment variable settings, etc.  This provides easy methods for common repositories to share build tools/steps.
 
-Inclusion of this package is best managed using Pip/Pypi.  This package makes use of edk2-pytool-library. 
+Inclusion of this package is best managed using Pip/Pypi.  This package makes use of edk2-pytool-library.
 
 This is a supplemental package and is not required to be used for edk2 builds.
 
 ## Content
 
-The package contains cli tools and a basic common environment for running tools.  This common environment supports extensions, subclassing, and plugin to allow great flexibility for building and maintaining a code tree.  
+The package contains cli tools and a basic common environment for running tools.  This common environment supports extensions, subclassing, and plugin to allow great flexibility for building and maintaining a code tree.
 
 Examples:
 
-* CI build support with plugin 
+* CI build support with plugin
 * Binary dependency resolution (nuget, urls, git repos)
 * Loggers (markdown, file, memory, and colored console)
 * Plugins (pre/post build, function injection)
@@ -33,6 +33,7 @@ NOTE: It is strongly recommended that you use python virtual environments.  Virt
 
 * To install run `pip install --upgrade edk2-pytool-extensions`
 * To use in your python code
+
     ```python
     from edk2toolext.<module> import <class>
     ```
@@ -43,7 +44,7 @@ NOTE: It is strongly recommended that you use python virtual environments.  Virt
 
 Initial release ported from Project Mu.
 For history and documentation prior to this see the original Project Mu project
-https://github.com/microsoft/mu_pip_python_environment and https://github.com/microsoft/mu_pip_build
+<https://github.com/microsoft/mu_pip_environment> and <https://github.com/microsoft/mu_pip_build>
 
 ## Current Status
 
@@ -54,7 +55,7 @@ https://github.com/microsoft/mu_pip_python_environment and https://github.com/mi
 
 ## Contribution Process
 
-This project welcomes all types of contributions.  
+This project welcomes all types of contributions.
 For issues, bugs, and questions it is best to open a [github issue](https://github.com/tianocore/edk2-pytool-extensions/issues).
 
 ### Code Contributions
@@ -70,7 +71,7 @@ For best success please follow the below process.
 6. Contributor submits PR to master branch of tianocore/edk2-pytool-extensions
     1. PR reviewers will provide feedback on change.  If any modifications are required, contributor will make changes and push updates.
     2. PR automation will run and validate tests pass
-    3. If all comments resolved, maintainers approved, and tests pass the PR will be squash merged and closed by the maintainers.  
+    3. If all comments resolved, maintainers approved, and tests pass the PR will be squash merged and closed by the maintainers.
 
 ## Maintainers
 

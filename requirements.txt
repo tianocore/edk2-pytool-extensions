@@ -1,0 +1,4 @@
+pytest
+pytest-html
+pytest-cov
+flake8
