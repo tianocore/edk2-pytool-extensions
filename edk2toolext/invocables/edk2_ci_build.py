@@ -155,7 +155,7 @@ class Edk2CiBuild(Edk2Invocable):
         if " " in ph:
             ph = '"' + ph + '"'
         shell_env.set_shell_var("PYTHON_HOME", ph)
-        # PYTHON_COMMAND is required to be set for using edk2 python builds.  
+        # PYTHON_COMMAND is required to be set for using edk2 python builds.
         # todo: work with edk2 to remove the bat file and move to native python calls
         pc = sys.executable
         if " " in pc:

@@ -53,7 +53,6 @@ steps:
   inputs:
     codeCoverageTool: 'cobertura' # Options: cobertura, jaCoCo
     summaryFileLocation: $(System.DefaultWorkingDirectory)/cov.xml
-    reportDirectory: $(System.DefaultWorkingDirectory)/cov_html
   condition: succeededOrFailed()
 
 - script: flake8 .
@@ -104,7 +103,7 @@ steps:
 
 - task: TwineAuthenticate@0
   inputs:
-    externalFeeds: 'Pypi-edk2-pytool-library'
+    externalFeeds: 'Pypi-edk2-pytool-extensions'
 
-- script: 'twine upload -r Pypi-edk2-pytool-library --config-file $(PYPIRC_PATH) dist/*'
+- script: 'twine upload -r Pypi-edk2-pytool-extensions --config-file $(PYPIRC_PATH) dist/*'
   displayName: 'Publish to pypi'
