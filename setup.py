@@ -50,6 +50,7 @@ setuptools.setup(
     author_email="sean.brogan@microsoft.com",
     description="Python tools supporting UEFI EDK2 firmware development",
     long_description=long_description,
+    long_description_content_type="text/markdown",
     url="https://github.com/tianocore/edk2-pytool-extensions",
     license='BSD-2-Clause-Patent',
     packages=setuptools.find_packages(),
@@ -67,7 +68,8 @@ setuptools.setup(
                             'stuart_build=edk2toolext.invocables.edk2_platform_build:main',
                             'stuart_ci_build=edk2toolext.invocables.edk2_ci_build:main',
                             'stuart_ci_setup=edk2toolext.invocables.edk2_ci_setup:main',
-                            'omnicache=edk2toolext.omnicache:main']
+                            'omnicache=edk2toolext.omnicache:main',
+                            'nuget-publish=edk2toolext.nuget_publishing:go']
     },
     install_requires=[
         'pyyaml',
