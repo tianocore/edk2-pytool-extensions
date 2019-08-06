@@ -40,6 +40,15 @@ NOTE: It is strongly recommended that you use python virtual environments.  Virt
 
 ## Release Version History
 
+### Version 0.9.1
+
+* Features
+  * Add documentation
+* Bugs
+  * Incorrect import statement in module uefi_build
+  * clean up EOL and use gitattributes
+  * Add nuget_publish cli (missing from initial port)
+
 ### Version 0.9.00
 
 Initial release ported from Project Mu.
