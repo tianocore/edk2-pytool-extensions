@@ -47,8 +47,15 @@ class Edk2Invocable(BaseAbstractInvocable):
         txt  == plain text file logging
         md   == markdown file logging
         '''
+        try:
+            level = self.PlatformSettings.GetLoggingLevel(loggerType)
+            if level is not None:
+                return level
+        except:
+            pass
+
         if(loggerType == "con") and not self.Verbose:
-            return logging.INFO
+            return logging.WARN
         return logging.DEBUG
 
     def AddCommandLineOptions(self, parserObj):

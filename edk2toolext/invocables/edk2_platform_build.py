@@ -44,6 +44,15 @@ class BuildSettingsManager():
         '''  Implement in subclass to retrieve command line options from the argparser '''
         pass
 
+    def GetLoggingLevel(self, loggerType):
+        ''' Get the logging level for a given type
+        base == lowest logging level supported
+        con  == Screen logging
+        txt  == plain text file logging
+        md   == markdown file logging
+        '''
+        pass
+
 
 #
 # Pass in a list of pip package names and they will be printed as well as

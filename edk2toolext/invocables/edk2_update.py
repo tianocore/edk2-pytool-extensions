@@ -31,6 +31,15 @@ class UpdateSettingsManager():
         '''  Implement in subclass to retrieve command line options from the argparser '''
         pass
 
+    def GetLoggingLevel(self, loggerType):
+        ''' Get the logging level for a given type
+        base == lowest logging level supported
+        con  == Screen logging
+        txt  == plain text file logging
+        md   == markdown file logging
+        '''
+        pass
+
 
 def build_env_changed(build_env, build_env_2):
     ''' return True if build_env has changed '''
