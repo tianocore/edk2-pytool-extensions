@@ -68,6 +68,11 @@ class VarDict(object):
         return new_copy
 
     def GetValue(self, k, default=None):
+        if(k is None):
+            logging.debug(
+                "GetValue - Invalid Parameter key is None.")
+            return None
+
         key = k.upper()
         en = self.GetEntry(key)
         if(en is not None):
