@@ -189,20 +189,20 @@ class ConfMgmt():
         # internal functions
         def GetVsInstallPath(vsversion, varname):
             # check if already specified
-            path = shell_environment.ShellEnvironment.get_shell_var(varname)
+            path = shell_environment.GetEnvironment().get_shell_var(varname)
             if(path is None):
                 # Not specified...find latest
                 (rc, path) = FindWithVsWhere(vs_version=vsversion)
                 if rc == 0 and path is not None:
                     self.Logger.debug("Found VS instance for %s", vsversion)
-                    shell_environment.ShellEnvironment.set_shell_var(varname, path)
+                    shell_environment.GetEnvironment().set_shell_var(varname, path)
                 else:
                     self.Logger.error("Failed to find VS instance with VsWhere (%d)" % rc)
             return path
 
         def GetVcVersion(path, varname):
             # check if already specified
-            vc_ver = shell_environment.ShellEnvironment.get_shell_var(varname)
+            vc_ver = shell_environment.GetEnvironment().get_shell_var(varname)
             if(vc_ver is None):
                 # Not specified...find latest
                 p2 = os.path.join(path, "VC", "Tools", "MSVC")
@@ -212,7 +212,7 @@ class ConfMgmt():
                     return vc_ver
                 vc_ver = os.listdir(p2)[-1].strip()  # get last in list
                 self.Logger.debug("Found VC Tool version is %s" % vc_ver)
-                shell_environment.ShellEnvironment.set_shell_var(varname, vc_ver)
+                shell_environment.GetEnvironment().set_shell_var(varname, vc_ver)
 
             if(vc_ver):
                 version_aggregator.GetVersionAggregator().ReportVersion(
