@@ -228,7 +228,9 @@ class UefiBuilder(object):
         params = "-p " + self.env.GetValue("ACTIVE_PLATFORM")
         params += " -b " + BuildType
         params += " -t " + self.env.GetValue("TOOL_CHAIN_TAG")
-        params += " -n " + self.env.GetValue("MAX_CONCURRENT_THREAD_NUMBER")
+        # Thread number is now optional and not set in default tianocore target.txt
+        if self.env.GetValue("MAX_CONCURRENT_THREAD_NUMBER") is not None:
+            params += " -n " + self.env.GetValue("MAX_CONCURRENT_THREAD_NUMBER")
 
         # Set the arch flags.  Multiple are split by space
         rt = self.env.GetValue("TARGET_ARCH").split(" ")

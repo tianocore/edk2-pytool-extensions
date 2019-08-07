@@ -40,6 +40,11 @@ NOTE: It is strongly recommended that you use python virtual environments.  Virt
 
 ## Release Version History
 
+### Version 0.9.2-dev
+
+* Bugs
+  * Issue 11 - MAX_CONCURRENT_THREAD_NUMBER is not required in Target.txt
+
 ### Version 0.9.1
 
 * Features
