@@ -92,6 +92,7 @@ class ConfMgmt():
             Tag = self.env.GetValue("TOOL_CHAIN_TAG")
 
             if Tag is None:
+                self.Logger.warn("Can't use ToolChain specific template files since Tag is not defined")
                 Tag = ""
 
             #
