@@ -252,8 +252,17 @@ class Edk2CiBuild(Edk2Invocable):
                     # perhaps we should ask the validator to run on the package for this target
 
                     # Still need to see if the package decided this should be skipped
-                    if pkg_plugin_configuration is None or\
-                            "skip" in pkg_plugin_configuration and pkg_plugin_configuration["skip"]:
+                    should_skip = False
+                    if pkg_plugin_configuration is None:
+                        should_skip = True
+                    elif "skip" in pkg_plugin_configuration and pkg_plugin_configuration["skip"]:
+                        should_skip = True
+
+                    val = env.GetValue(Descriptor.Module.upper())
+                    if val and val == "skip":
+                        should_skip = True
+
+                    if should_skip:
                         tc.SetSkipped()
                         edk2_logging.log_progress("--->Test Skipped by package! %s" % Descriptor.Name)
 

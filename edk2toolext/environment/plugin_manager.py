@@ -33,17 +33,12 @@ class PluginManager(object):
     # Pass tuple of Environment Descriptor dictionaries to be loaded as plugins
     #
     def SetListOfEnvironmentDescriptors(self, newlist):
-        env = shell_environment.GetBuildVars()
         failed = []
         if newlist is None:
             return []
         for a in newlist:
             b = PluginDescriptor(a)
             if(self._load(b) == 0):
-                val = env.GetValue(b.Module.upper())
-                if val and val == "skip":
-                    logging.info(f"{b.Module} turned off by environment variable")
-                    continue
                 self.Descriptors.append(b)
             else:
                 failed.append(a)
