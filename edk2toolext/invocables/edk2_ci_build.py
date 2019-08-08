@@ -12,6 +12,8 @@ import sys
 import logging
 import yaml
 import traceback
+import re
+import argparse
 from edk2toollib.uefi.edk2.path_utilities import Edk2Path
 from edk2toollib.log.junit_report_format import JunitTestReport
 from edk2toolext.edk2_invocable import Edk2Invocable
@@ -113,14 +115,23 @@ class Edk2CiBuild(Edk2Invocable):
         return logging.DEBUG
 
     def AddCommandLineOptions(self, parser):
-
-        parser.add_argument('-p', '--pkg', '--pkg-dir', dest='packageList', nargs="+", type=str,
-                            help='A package or folder you want to test (abs path or cwd relative).  '
-                            'Can list multiple by doing -p <pkg1> <pkg2> <pkg3>', default=[])
+        # Make sure the packages passed in match
+        def package_regex_type(s, pat=re.compile(r"[a-zA-Z0-9_]*Pkg(,\s*[a-zA-Z0-9_]*Pkg)*")):
+            if not pat.match(s):
+                raise argparse.ArgumentTypeError
+            return s
+        parser.add_argument('-p', '--pkg', '--pkg-dir', dest='packageList', type=package_regex_type,
+                            help='A package or folder you want to test (abs path or cwd relative).'
+                            'Can list multiple by doing -p <pkg1>,<pkg2> or -p <pkg3> -p <pkg4>. It must end in Pkg.', action="append")
 
     def RetrieveCommandLineOptions(self, args):
         '''  Retrieve command line options from the argparser '''
-        self.packageList = args.packageList
+        packageListSet = set()
+        for item in args.packageList:  # Parse out the individual packages
+            item_list = item.split(",")
+            for indiv_item in item_list:
+                packageListSet.add(indiv_item)
+        self.packageList = list(packageListSet)
 
     def GetSettingsClass(self):
         return CiBuildSettingsManager
@@ -191,6 +202,8 @@ class Edk2CiBuild(Edk2Invocable):
             self.packageList.extend(self.PlatformSettings.GetPackages())
 
         for pkgToRunOn in self.packageList:
+
+            # TODO: figure out if this package is a valid package
             #
             # run all loaded Edk2CiBuild Plugins/Tests
             #
