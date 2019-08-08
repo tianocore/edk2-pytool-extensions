@@ -197,7 +197,7 @@ class Edk2CiBuild(Edk2Invocable):
             logging.log(edk2_logging.SECTION, f"Building {pkgToRunOn} Package")
             logging.info(f"Running on Package: {pkgToRunOn}")
             ts = JunitReport.create_new_testsuite(pkgToRunOn,
-                                                  f"Edk2CiBuild.{self.PlatformSettings.GetGroupName}.{pkgToRunOn}")
+                                                  f"Edk2CiBuild.{self.PlatformSettings.GetGroupName()}.{pkgToRunOn}")
             packagebuildlog_path = os.path.join(log_directory, pkgToRunOn)
             _, txthandle = edk2_logging.setup_txt_logger(
                 packagebuildlog_path, f"BUILDLOG_{pkgToRunOn}", logging_level=logging.DEBUG, isVerbose=True)
