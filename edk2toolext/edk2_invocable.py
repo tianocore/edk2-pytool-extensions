@@ -161,7 +161,6 @@ Key=value will get passed to build process for given build type)'''
         i = 0
         while i < len(unknown_args):
             unknown_arg = unknown_args[i]
-            print(f"unknown arg {unknown_arg}")
             if(unknown_arg.count("=") == 1):
                 tokens = unknown_arg.strip().split("=")
                 env.SetValue(tokens[0].strip().upper(), tokens[1].strip(), "From CmdLine")
