@@ -10,7 +10,6 @@ import sys
 import os
 import imp
 import logging
-from edk2toolext.environment import shell_environment
 
 
 class PluginDescriptor(object):
