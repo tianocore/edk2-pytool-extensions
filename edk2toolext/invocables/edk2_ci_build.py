@@ -289,8 +289,10 @@ class Edk2CiBuild(Edk2Invocable):
                             tc.SetError("Exception: {0}".format(
                                 exp), "UNEXPECTED EXCEPTION")
                             rc = 1
-
-                        if(rc != 0):
+                        
+                        if tc.Status == JunitTestReport.JunitReportTestCase.SKIPPED:
+                            edk2_logging.log_progress("--->Test Skipped by plugin! %s" % Descriptor.Name)
+                        elif (rc != 0):
                             failure_num += 1
                             if(rc is None):
                                 logging.error(
