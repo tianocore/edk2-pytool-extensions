@@ -12,8 +12,6 @@ import sys
 import logging
 import yaml
 import traceback
-import re
-import argparse
 from edk2toollib.uefi.edk2.path_utilities import Edk2Path
 from edk2toollib.log.junit_report_format import JunitTestReport
 from edk2toolext.edk2_invocable import Edk2Invocable
