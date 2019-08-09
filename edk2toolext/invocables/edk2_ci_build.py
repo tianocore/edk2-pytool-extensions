@@ -115,12 +115,9 @@ class Edk2CiBuild(Edk2Invocable):
         return logging.DEBUG
 
     def AddCommandLineOptions(self, parser):
-        # Make sure the packages passed in match
-        def package_regex_type(s, pat=re.compile(r"[a-zA-Z0-9_]*Pkg(,\s*[a-zA-Z0-9_]*Pkg)*")):
-            if not pat.match(s):
-                raise argparse.ArgumentTypeError
-            return s
-        parser.add_argument('-p', '--pkg', '--pkg-dir', dest='packageList', type=package_regex_type,
+        '''  Add command line options to the argparser '''
+        # This will parse the packages that we are going to build
+        parser.add_argument('-p', '--pkg', '--pkg-dir', dest='packageList', type=str,
                             help='A package or folder you want to test (abs path or cwd relative).'
                             'Can list multiple by doing -p <pkg1>,<pkg2> or -p <pkg3> -p <pkg4>. It must end in Pkg.',
                             action="append")
