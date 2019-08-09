@@ -14,6 +14,7 @@ import yaml
 import traceback
 from edk2toollib.uefi.edk2.path_utilities import Edk2Path
 from edk2toollib.log.junit_report_format import JunitTestReport
+from edk2toollib.log.junit_report_format import JunitReportTestCase
 from edk2toolext.edk2_invocable import Edk2Invocable
 from edk2toolext.environment import self_describing_environment
 from edk2toolext.environment.plugintypes.ci_build_plugin import ICiBuildPlugin
@@ -290,7 +291,7 @@ class Edk2CiBuild(Edk2Invocable):
                                 exp), "UNEXPECTED EXCEPTION")
                             rc = 1
 
-                        if tc.Status == JunitTestReport.JunitReportTestCase.SKIPPED:
+                        if tc.Status == JunitReportTestCase.SKIPPED:
                             edk2_logging.log_progress("--->Test Skipped by plugin! %s" % Descriptor.Name)
                         elif (rc != 0):
                             failure_num += 1
