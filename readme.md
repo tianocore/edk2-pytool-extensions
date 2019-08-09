@@ -40,6 +40,11 @@ NOTE: It is strongly recommended that you use python virtual environments.  Virt
 
 ## Release Version History
 
+### Version 0.9.4
+
+* Bugs
+  * Issue 14 - XML log created by Stuart_ci_build has incorrect fields
+
 ### Version 0.9.3
 
 * Bugs
