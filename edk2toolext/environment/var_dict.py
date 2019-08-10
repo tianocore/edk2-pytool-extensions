@@ -29,7 +29,7 @@ class EnvEntry(object):
     #
 
     def SetValue(self, value, comment, overridable=False):
-        if (value == self.Value):
+        if (value == self.Value) and (overridable == self.Overrideable):
             return True
 
         if(not self.Overrideable):
@@ -40,6 +40,10 @@ class EnvEntry(object):
         self.Value = value
         self.Comment = comment
         self.Overrideable = overridable
+        return True
+
+    def AllowOverride(self):
+        self.Overrideable = True
         return True
 
     def GetValue(self):
@@ -94,6 +98,15 @@ class VarDict(object):
             return True
 
         return en.SetValue(value, comment, overridable)
+
+    def AllowOverride(self, k):
+        key = k.upper()
+        en = self.GetEntry(key)
+        if(en is not None):
+            self.Logger.warn("Allowing Override for key %s" % k)
+            en.AllowOverride()
+            return True
+        return False
 
     #
     # function used to get a build var value for given key and buildtype
