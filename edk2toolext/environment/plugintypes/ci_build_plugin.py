@@ -22,8 +22,14 @@ class ICiBuildPlugin(object):
     #   - EnvConfig Object
     #   - Plugin Manager Instance
     #   - Plugin Helper Obj Instance
-    #   - Junit Logger
+    #   - tc - test case that needs state configured for reporting by plugin.
     #   - output_stream the StringIO output stream from this plugin via logging
+    #
+    #   Returns  >0 : number of errors found
+    #             0 : passed successfully
+    #            -1 : skipped for missing prereq
+    #
+    #
     def RunBuildPlugin(self, packagename, Edk2pathObj, pkgconfig, environment, PLM, PLMHelper, tc, output_stream):
         pass
 
