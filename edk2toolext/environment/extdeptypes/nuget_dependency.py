@@ -139,6 +139,7 @@ class NugetDependency(ExternalDependency):
         cmd += ["-ExcludeVersion"]
         cmd += ["-Version", self.version]
         cmd += ["-Verbosity", "detailed"]
+        cmd += ["-NonInteractive"]
         cmd += ["-OutputDirectory", '"' + temp_directory + '"']
         RunCmd(cmd[0], " ".join(cmd[1:]))
 
