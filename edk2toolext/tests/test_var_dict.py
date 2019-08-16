@@ -61,6 +61,23 @@ class TestVarDict(unittest.TestCase):
         vv = v.GetValue("test1")
         self.assertEqual("value2", vv)
 
+    def test_var_dict_can_change_override_state_with_same_set(self):
+        v = var_dict.VarDict()
+        v.SetValue("test1", "value1", "test 1 comment", True)
+        v.SetValue("test1", "value1", "Change override to false", False)
+        v.SetValue("test1", "value2", "this should fail", False)
+        self.assertNotEqual(v.GetValue("test1"), "value2")
+
+    def test_var_dict_can_change_override_state_with_allow_override(self):
+        v = var_dict.VarDict()
+        v.SetValue("test1", "value1", "test 1 comment", False)
+        v.AllowOverride("test1")
+        v.SetValue("test1", "value2", "this should be allowed", False)
+        self.assertEqual(v.GetValue("test1"), "value2")
+        ## since override was set to False should not change again
+        v.SetValue("test1", "value3", "this should not be allowed", False)
+        self.assertEqual(v.GetValue("test1"), "value2")
+
     def test_var_dict_key_not_case_sensitive(self):
         v = var_dict.VarDict()
         v.SetValue("test1", "value1", "test 1 comment")
