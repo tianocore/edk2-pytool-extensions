@@ -99,7 +99,8 @@ class Edk2PlatformSetup(Edk2Invocable):
                 RunCmd("git", "reset --hard", workingdir=workspace_path,
                        logging_level=logging.DEBUG, raise_exception_on_nonzero=True)
                 # Because logging is running right now, we have to skip the files that are open.
-                ignore_files = "-e Build/%s.txt -e Build/%s.md" % (self.GetLoggingFileName('txt'), self.GetLoggingFileName('md'))
+                ignore_files = "-e Build/%s.txt -e Build/%s.md" % (self.GetLoggingFileName('txt'),
+                                                                   self.GetLoggingFileName('md'))
                 RunCmd("git", "clean -xffd %s" % ignore_files, workingdir=workspace_path,
                        logging_level=logging.DEBUG, raise_exception_on_nonzero=True)
                 edk2_logging.log_progress("Done.\n")
