@@ -109,7 +109,6 @@ class Edk2CiBuild(Edk2Invocable):
         return logging.DEBUG
 
     def AddCommandLineOptions(self, parser):
-
         parser.add_argument('-p', '--pkg', '--pkg-dir', dest='packageList', nargs="+", type=str,
                             help='A package or folder you want to test (abs path or cwd relative).  '
                             'Can list multiple by doing -p <pkg1> <pkg2> <pkg3>', default=[])
@@ -195,8 +194,8 @@ class Edk2CiBuild(Edk2Invocable):
             #
             logging.log(edk2_logging.SECTION, f"Building {pkgToRunOn} Package")
             logging.info(f"Running on Package: {pkgToRunOn}")
-            ts = JunitReport.create_new_testsuite(pkgToRunOn,
-                                                  f"Edk2CiBuild.{self.PlatformSettings.GetName()}.{pkgToRunOn}")
+            package_class_name = f"Edk2CiBuild.{self.PlatformSettings.GetName()}.{pkgToRunOn}"
+            ts = JunitReport.create_new_testsuite(pkgToRunOn, package_class_name)
             packagebuildlog_path = os.path.join(log_directory, pkgToRunOn)
             _, txthandle = edk2_logging.setup_txt_logger(
                 packagebuildlog_path, f"BUILDLOG_{pkgToRunOn}", logging_level=logging.DEBUG, isVerbose=True)
@@ -238,7 +237,7 @@ class Edk2CiBuild(Edk2Invocable):
                     env = shell_environment.GetBuildVars()
 
                     env.SetValue("TARGET", target, "Edk2CiBuild.py before RunBuildPlugin")
-                    (testcasename, testclassname) = Descriptor.Obj.GetTestName(pkgToRunOn, env)
+                    (testcasename, testclassname) = Descriptor.Obj.GetTestName(package_class_name, env)
                     tc = ts.create_new_testcase(testcasename, testclassname)
 
                     # create the stream for the build log
