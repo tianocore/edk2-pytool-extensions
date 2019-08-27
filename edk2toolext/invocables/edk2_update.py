@@ -52,6 +52,8 @@ def build_env_changed(build_env, build_env_2):
 class Edk2Update(Edk2Invocable):
     ''' Updates dependencies in workspace for active scopes '''
 
+    MAX_RETRY_COUNT = 10
+
     def PerformUpdate(self):
         (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(
             self.GetWorkspaceRoot(), self.GetActiveScopes())
@@ -78,7 +80,7 @@ class Edk2Update(Edk2Invocable):
         self_describing_environment.DestroyEnvironment()
 
         # TODO revisit this depth
-        while RetryCount < 10:  # we should put a sensible limit on the retry count for handling recursive dependencies.
+        while RetryCount < MAX_RETRY_COUNT:  # we should put a sensible limit on the retry count for handling recursive dependencies.
             (build_env, shell_env) = self.PerformUpdate()
 
             if not build_env_changed(build_env, build_env_old):  # check if the environment changed on our last update
@@ -91,6 +93,9 @@ class Edk2Update(Edk2Invocable):
             build_env_old = build_env
             self_describing_environment.DestroyEnvironment()
 
+        if RetryCount >= MAX_RETRY_COUNT:
+            logging.error(f"We did an update more than {MAX_RETRY_COUNT} times. Please check your dependencies and make sure you don't have any circular ones.")
+            return 1
         return 0
 
 
