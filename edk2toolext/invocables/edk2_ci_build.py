@@ -51,12 +51,8 @@ class CiBuildSettingsManager():
         ''' get WorkspacePath '''
         raise NotImplementedError()
 
-    def GetGroupName(self):
-        '''  '''
-        raise NotImplementedError()
-
     def GetName(self):
-        '''  '''
+        ''' Get the name of the repo, platform, or product being build by CI '''
         raise NotImplementedError()
 
     def AddCommandLineOptions(self, parserObj):
@@ -114,7 +110,6 @@ class Edk2CiBuild(Edk2Invocable):
         return logging.DEBUG
 
     def AddCommandLineOptions(self, parser):
-
         parser.add_argument('-p', '--pkg', '--pkg-dir', dest='packageList', nargs="+", type=str,
                             help='A package or folder you want to test (abs path or cwd relative).  '
                             'Can list multiple by doing -p <pkg1> <pkg2> <pkg3>', default=[])
@@ -145,7 +140,7 @@ class Edk2CiBuild(Edk2Invocable):
         try:
             edk2path = Edk2Path(self.GetWorkspaceRoot(), pplist)
         except Exception as e:
-            logging.error("You need to run stewart_ci_setup to resolve all repos.")
+            logging.error("Src Tree is invalid.  Did you Setup correctly?")
             raise e
 
         logging.info(f"Running CI Build: {self.PlatformSettings.GetName()}")
@@ -155,7 +150,7 @@ class Edk2CiBuild(Edk2Invocable):
         # logging.info("mu_python_library version: " + pkg_resources.get_distribution("mu_python_library").version)
         # logging.info("mu_environment version: " + pkg_resources.get_distribution("mu_environment").version)
         # Bring up the common minimum environment.
-        logging.log(edk2_logging.SECTION, "Getting Enviroment")
+        logging.log(edk2_logging.SECTION, "Getting Environment")
         (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(
             self.GetWorkspaceRoot(), self.GetActiveScopes())
         env = shell_environment.GetBuildVars()
@@ -166,7 +161,10 @@ class Edk2CiBuild(Edk2Invocable):
             ph = '"' + ph + '"'
         shell_env.set_shell_var("PYTHON_HOME", ph)
         # PYTHON_COMMAND is required to be set for using edk2 python builds.
-        # todo: work with edk2 to remove the bat file and move to native python calls
+        # todo: work with edk2 to remove the bat file and move to native python calls.
+        #       This would be better in an edk2 plugin so that it could be modified/controlled
+        #       more easily
+        #
         pc = sys.executable
         if " " in pc:
             pc = '"' + pc + '"'
@@ -197,8 +195,8 @@ class Edk2CiBuild(Edk2Invocable):
             #
             logging.log(edk2_logging.SECTION, f"Building {pkgToRunOn} Package")
             logging.info(f"Running on Package: {pkgToRunOn}")
-            ts = JunitReport.create_new_testsuite(pkgToRunOn,
-                                                  f"Edk2CiBuild.{self.PlatformSettings.GetGroupName()}.{pkgToRunOn}")
+            package_class_name = f"Edk2CiBuild.{self.PlatformSettings.GetName()}.{pkgToRunOn}"
+            ts = JunitReport.create_new_testsuite(pkgToRunOn, package_class_name)
             packagebuildlog_path = os.path.join(log_directory, pkgToRunOn)
             _, txthandle = edk2_logging.setup_txt_logger(
                 packagebuildlog_path, f"BUILDLOG_{pkgToRunOn}", logging_level=logging.DEBUG, isVerbose=True)
@@ -240,7 +238,7 @@ class Edk2CiBuild(Edk2Invocable):
                     env = shell_environment.GetBuildVars()
 
                     env.SetValue("TARGET", target, "Edk2CiBuild.py before RunBuildPlugin")
-                    (testcasename, testclassname) = Descriptor.Obj.GetTestName(pkgToRunOn, env)
+                    (testcasename, testclassname) = Descriptor.Obj.GetTestName(package_class_name, env)
                     tc = ts.create_new_testcase(testcasename, testclassname)
 
                     # create the stream for the build log
@@ -297,12 +295,14 @@ class Edk2CiBuild(Edk2Invocable):
                             failure_num += 1
                             if(rc is None):
                                 logging.error(
-                                    "--->Test Failed: %s returned NoneType" % Descriptor.Name)
+                                    f"--->Test Failed: {Descriptor.Name} {target} returned NoneType")
                             else:
                                 logging.error(
-                                    "--->Test Failed: %s returned %d" % (Descriptor.Name, rc))
+                                    f"--->Test Failed: {Descriptor.Name} {target} returned {rc}")
+                        elif(rc < 0):
+                            logging.warn(f"--->Test Skipped: in plugin! {Descriptor.Name} {target}")
                         else:
-                            edk2_logging.log_progress(f"--->Test Success {Descriptor.Name} {target}")
+                            edk2_logging.log_progress(f"--->Test Success: {Descriptor.Name} {target}")
 
                     # revert to the checkpoint we created previously
                     shell_environment.RevertBuildVars()
