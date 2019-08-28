@@ -80,7 +80,8 @@ class Edk2Update(Edk2Invocable):
         self_describing_environment.DestroyEnvironment()
 
         # TODO revisit this depth
-        while RetryCount < Edk2Update.MAX_RETRY_COUNT:  # we should put a sensible limit on the retry count for handling recursive dependencies.
+        # we should put a sensible limit on the retry count for handling recursive dependencies.
+        while RetryCount < Edk2Update.MAX_RETRY_COUNT:
             (build_env, shell_env) = self.PerformUpdate()
 
             if not build_env_changed(build_env, build_env_old):  # check if the environment changed on our last update
@@ -88,14 +89,14 @@ class Edk2Update(Edk2Invocable):
             # if the environment has changed, increment the retry count and notify user
             RetryCount += 1
             logging.log(edk2_logging.SECTION,
-                        f"Something in the environment changed. Updating the environment again. Pass #{RetryCount}")
+                        f"Something in the environment changed. Updating environment again. Pass #{RetryCount}")
 
             build_env_old = build_env
             self_describing_environment.DestroyEnvironment()
 
         if RetryCount >= Edk2Update.MAX_RETRY_COUNT:
-            logging.error(
-                f"We did an update more than {Edk2Update.MAX_RETRY_COUNT} times. Please check your dependencies and make sure you don't have any circular ones.")
+            logging.error(f"We did an update more than {Edk2Update.MAX_RETRY_COUNT} times.")
+            logging.error("Please check your dependencies and make sure you don't have any circular ones.")
             return 1
         return 0
 
