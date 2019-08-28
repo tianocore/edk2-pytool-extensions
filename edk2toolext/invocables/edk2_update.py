@@ -80,7 +80,7 @@ class Edk2Update(Edk2Invocable):
         self_describing_environment.DestroyEnvironment()
 
         # TODO revisit this depth
-        while RetryCount < MAX_RETRY_COUNT:  # we should put a sensible limit on the retry count for handling recursive dependencies.
+        while RetryCount < Edk2Update.MAX_RETRY_COUNT:  # we should put a sensible limit on the retry count for handling recursive dependencies.
             (build_env, shell_env) = self.PerformUpdate()
 
             if not build_env_changed(build_env, build_env_old):  # check if the environment changed on our last update
