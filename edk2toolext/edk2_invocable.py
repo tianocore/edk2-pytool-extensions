@@ -105,7 +105,7 @@ Key=value will get passed to build process for given build type)'''
             self.PlatformModule = import_module_by_file_name(os.path.abspath(settingsArg.platform_module))
             self.PlatformSettings = locate_class_in_module(
                 self.PlatformModule, self.GetSettingsClass())()
-        except (TypeError) as e:
+        except (TypeError):
             # Gracefully exit if the file we loaded isn't the right type
             class_name = self.GetSettingsClass().__name__
             print(f"Unable to use {settingsArg.platform_module} as a {class_name}")
@@ -128,13 +128,13 @@ Key=value will get passed to build process for given build type)'''
             settingsParserObj.print_help()
             sys.exit(1)
 
-        except (FileNotFoundError) as e:
+        except (FileNotFoundError):
             # Gracefully exit if we can't find the file
             print(f"We weren't able to find {settingsArg.platform_module}")
             settingsParserObj.print_help()
             sys.exit(2)
 
-        except (Exception) as e:
+        except (Exception):
             print(f"Error: We had trouble loading {settingsArg.platform_module}. Is the path correct?")
             # Gracefully exit if setup doesn't go well.
             settingsParserObj.print_help()
