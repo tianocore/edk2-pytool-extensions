@@ -132,8 +132,10 @@ class Edk2CiBuild(Edk2Invocable):
         pplist = self.PlatformSettings.GetPackagesPath() if self.PlatformSettings.GetPackagesPath() else []
 
         # Check Dependencies for Repo
+        # Generally we want the dependencies to be on the package path but not explictly
         for dependency in self.PlatformSettings.GetDependencies():
-            pplist.append(dependency["Path"])
+            if dependency["Path"] not in pplist:
+                logging.warning(f"{dependency["Path"]} is not on dependency path")
 
         # make Edk2Path object to handle all path operations
         try:
