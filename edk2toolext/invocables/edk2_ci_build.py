@@ -112,9 +112,9 @@ class Edk2CiBuild(Edk2Invocable):
         '''  Add command line options to the argparser '''
         # This will parse the packages that we are going to build
         parser.add_argument('-p', '--pkg', '--pkg-dir', dest='packageList', type=str,
-                            help='A package or folder you want to test (abs path or cwd relative).'
-                            'Can list multiple by doing -p <pkg1>,<pkg2> or -p <pkg3> -p <pkg4>. It must end in Pkg.',
-                            action="append")
+                            help='A package or folder you want to test (workspace relative).'
+                            'Can list multiple by doing -p <pkg1>,<pkg2> or -p <pkg3> -p <pkg4>',
+                            action="append", default=[])
 
     def RetrieveCommandLineOptions(self, args):
         '''  Retrieve command line options from the argparser '''
