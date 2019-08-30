@@ -123,8 +123,8 @@ class TestWebDependency(unittest.TestCase):
         first_level_dir_name = "first_dir"
         second_level_dir_name = "second_dir"
         inner_dir_path = os.path.join(outer_dir, first_level_dir_name)
-        self.assertEqual(WebDependency.get_internal_path_root(outer_dir,
-                                                              os.path.join(first_level_dir_name, second_level_dir_name)), inner_dir_path)
+        inner_second_dir_path = os.path.join(first_level_dir_name, second_level_dir_name)
+        self.assertEqual(WebDependency.get_internal_path_root(outer_dir, inner_second_dir_path), inner_dir_path)
 
     # Test that a single file zipped is able to be processed by unpack.
     def test_unpack_zip_file(self):
