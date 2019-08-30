@@ -1,4 +1,4 @@
-## @file test_web_dependency.py
+# @file test_web_dependency.py
 # Unit test suite for the WebDependency class.
 #
 ##
@@ -30,6 +30,17 @@ bad_json_file = '''
   "internal_path": "/mu_pip_environment-0.3.7",
   "compression_type":"tar",
   "sha256":"68f2335344c3f7689f8d69125d182404a3515b8daa53a9c330f115739889f998"
+}
+'''
+single_file_json_file = '''
+{
+    "scope": "global",
+    "type": "web",
+    "name": "ucode",
+    "source": "https://github.com/tianocore/edk2-non-osi/blob/master/Silicon/Intel/KabylakeSiliconBinPkg/Microcode/mC0806EA_000000B4.mcb?raw=true",
+    "version": "20190805",
+    "flags": [],
+    "internal_path":"microcode.bin"
 }
 '''
 
@@ -81,6 +92,16 @@ class TestWebDependency(unittest.TestCase):
             ext_dep.fetch()
             self.fail("should have thrown an Exception")
 
+    # try to download a single file from github
+    def test_single_file(self):
+        ext_dep_file_path = os.path.join(test_dir, "good_ext_dep.json")
+        with open(ext_dep_file_path, "w+") as ext_dep_file:
+            ext_dep_file.write(single_file_json_file)
+
+        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep = WebDependency(ext_dep_descriptor)
+        ext_dep.fetch()
+
     # Test that get_internal_path_root works the way we expect with a flat directory structure.
     # test_dir\inner_dir - test_dir\inner_dir should be the root.
     def test_get_internal_path_root_flat(self):
@@ -97,7 +118,7 @@ class TestWebDependency(unittest.TestCase):
         second_level_dir_name = "second_dir"
         inner_dir_path = os.path.join(outer_dir, first_level_dir_name)
         self.assertEqual(WebDependency.get_internal_path_root(outer_dir,
-                         os.path.join(first_level_dir_name, second_level_dir_name)), inner_dir_path)
+                                                              os.path.join(first_level_dir_name, second_level_dir_name)), inner_dir_path)
 
     # Test that a single file zipped is able to be processed by unpack.
     def test_unpack_zip_file(self):
