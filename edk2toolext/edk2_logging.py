@@ -222,7 +222,7 @@ def scan_compiler_output(output_stream):
         source = line[:start]
         error = line[end:]
         num = match.group(1)
-        return  f"{start_txt} #{num} from {source} {error}"
+        return f"{start_txt} #{num} from {source} {error}"
     problems = []
     output_stream.seek(0, 0)
     error_exp = re.compile(r"error [A-EG-Z]?(\d+):")
