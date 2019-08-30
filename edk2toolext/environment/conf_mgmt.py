@@ -194,7 +194,7 @@ class ConfMgmt():
             if(path is None):
                 # Not specified...find latest
                 (rc, path) = FindWithVsWhere(vs_version=vsversion)
-                if rc == 0 and path is not None:
+                if rc == 0 and path is not None and len(path) > 0:
                     self.Logger.debug("Found VS instance for %s", vsversion)
                     shell_environment.GetEnvironment().set_shell_var(varname, path)
                 else:
@@ -231,5 +231,5 @@ class ConfMgmt():
             return (ipath is not None) and (iver is not None)
 
         else:
-            logging.warning("No dynameic support for this VS toolchain")
+            logging.warning("No dynamic support for this VS toolchain")
             return False
