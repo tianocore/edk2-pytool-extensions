@@ -102,7 +102,6 @@ class TestWebDependency(unittest.TestCase):
 
         ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
         ext_dep = WebDependency(ext_dep_descriptor)
-        print("Output to "+test_dir)
         ext_dep.fetch()
 
         file_path = os.path.join(test_dir, "test_extdep", "test.txt")
