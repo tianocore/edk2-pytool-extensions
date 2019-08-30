@@ -39,7 +39,7 @@ single_file_json_file = '''
     "scope": "global",
     "type": "web",
     "name": "test",
-    "source": "https://www.google.com/",
+    "source": "https://www.bing.com/",
     "version": "20190805",
     "flags": [],
     "internal_path":"test.txt"
