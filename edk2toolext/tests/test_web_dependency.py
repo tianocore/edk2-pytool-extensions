@@ -32,15 +32,17 @@ bad_json_file = '''
   "sha256":"68f2335344c3f7689f8d69125d182404a3515b8daa53a9c330f115739889f998"
 }
 '''
+# JSON file that describes a single file to download from the internet
+# Google.com was choosen as it's probably not going anywhere soon and it's small.
 single_file_json_file = '''
 {
     "scope": "global",
     "type": "web",
-    "name": "ucode",
-    "source": "https://github.com/tianocore/edk2-non-osi/blob/master/Silicon/Intel/KabylakeSiliconBinPkg/Microcode/mC0806EA_000000B4.mcb?raw=true",
+    "name": "test",
+    "source": "https://www.google.com/",
     "version": "20190805",
     "flags": [],
-    "internal_path":"microcode.bin"
+    "internal_path":"test.txt"
 }
 '''
 
@@ -100,7 +102,12 @@ class TestWebDependency(unittest.TestCase):
 
         ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
         ext_dep = WebDependency(ext_dep_descriptor)
+        print("Output to "+test_dir)
         ext_dep.fetch()
+
+        file_path = os.path.join(test_dir, "test_extdep", "test.txt")
+        if not os.path.isfile(file_path):
+            self.fail("The downloaded file isn't there")
 
     # Test that get_internal_path_root works the way we expect with a flat directory structure.
     # test_dir\inner_dir - test_dir\inner_dir should be the root.
