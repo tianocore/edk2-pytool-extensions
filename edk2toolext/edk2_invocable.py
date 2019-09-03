@@ -15,6 +15,7 @@ from edk2toolext.environment import shell_environment
 from edk2toollib.utility_functions import GetHostInfo
 from edk2toollib.utility_functions import locate_class_in_module
 from edk2toollib.utility_functions import import_module_by_file_name
+from edk2toollib.utility_functions import is_instance
 from edk2toolext.base_abstract_invocable import BaseAbstractInvocable
 
 
@@ -119,11 +120,12 @@ Key=value will get passed to build process for given build type)'''
                 # Filter through the Module, we're only looking for classes.
                 classList = [getattr(Module, obj) for obj in module_contents if inspect.isclass(getattr(Module, obj))]
                 # Get the name of all the classes
-                classNameList = [obj.__name__ for obj in classList]
+                classNameList = [obj.__name__ for obj in classList if is_instance(obj)]
                 imported_classes = ", ".join(classNameList)  # Join the classes together
                 print(f"The module you imported contains {imported_classes}")
             except:
                 # Otherwise, oh well we'll just ignore this.
+                raise
                 pass
             settingsParserObj.print_help()
             sys.exit(1)
