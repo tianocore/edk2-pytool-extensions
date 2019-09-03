@@ -121,6 +121,7 @@ Key=value will get passed to build process for given build type)'''
                 classList = [getattr(Module, obj) for obj in module_contents if inspect.isclass(getattr(Module, obj))]
                 # Get the name of all the classes
                 classNameList = [obj.__name__ for obj in classList if is_instance(obj)]
+                # TODO improve is_instance as it catches imports as well as declared classes
                 imported_classes = ", ".join(classNameList)  # Join the classes together
                 print(f"The module you imported contains {imported_classes}")
             except:
