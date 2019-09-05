@@ -109,13 +109,21 @@ class Edk2CiBuild(Edk2Invocable):
         return logging.DEBUG
 
     def AddCommandLineOptions(self, parser):
-        parser.add_argument('-p', '--pkg', '--pkg-dir', dest='packageList', nargs="+", type=str,
-                            help='A package or folder you want to test (abs path or cwd relative).  '
-                            'Can list multiple by doing -p <pkg1> <pkg2> <pkg3>', default=[])
+        '''  Add command line options to the argparser '''
+        # This will parse the packages that we are going to build
+        parser.add_argument('-p', '--pkg', '--pkg-dir', dest='packageList', type=str,
+                            help='A package or folder you want to test (workspace relative).'
+                            'Can list multiple by doing -p <pkg1>,<pkg2> or -p <pkg3> -p <pkg4>',
+                            action="append", default=[])
 
     def RetrieveCommandLineOptions(self, args):
         '''  Retrieve command line options from the argparser '''
-        self.packageList = args.packageList
+        packageListSet = set()
+        for item in args.packageList:  # Parse out the individual packages
+            item_list = item.split(",")
+            for indiv_item in item_list:
+                packageListSet.add(indiv_item.strip())
+        self.packageList = list(packageListSet)
 
     def GetSettingsClass(self):
         return CiBuildSettingsManager
@@ -192,6 +200,8 @@ class Edk2CiBuild(Edk2Invocable):
             self.packageList.extend(self.PlatformSettings.GetPackages())
 
         for pkgToRunOn in self.packageList:
+
+            # TODO: figure out if this package is a valid package
             #
             # run all loaded Edk2CiBuild Plugins/Tests
             #
