@@ -194,7 +194,7 @@ class ConfMgmt():
             if(path is None):
                 # Not specified...find latest
                 (rc, path) = FindWithVsWhere(vs_version=vsversion)
-                if rc == 0 and path is not None and len(path) > 0:
+                if rc == 0 and path is not None and os.path.exists(path):
                     self.Logger.debug("Found VS instance for %s", vsversion)
                     shell_environment.GetEnvironment().set_shell_var(varname, path)
                 else:
