@@ -14,6 +14,7 @@ import shutil
 import tarfile
 import zipfile
 import tempfile
+import json
 import urllib.request
 from edk2toolext.environment import environment_descriptor_files as EDF
 from edk2toolext.environment.extdeptypes.web_dependency import WebDependency
@@ -33,18 +34,16 @@ bad_json_file = '''
 }
 '''
 # JSON file that describes a single file to download from the internet
-# Google.com was choosen as it's probably not going anywhere soon and it's small.
-single_file_json_file = '''
-{
+# bing.com was choosen as it's probably not going anywhere soon and it's small file to download
+single_file_extdep = {
     "scope": "global",
     "type": "web",
     "name": "test",
     "source": "https://www.bing.com/",
     "version": "20190805",
     "flags": [],
-    "internal_path":"test.txt"
+    "internal_path": "test.txt"
 }
-'''
 
 
 def prep_workspace():
@@ -94,17 +93,18 @@ class TestWebDependency(unittest.TestCase):
             ext_dep.fetch()
             self.fail("should have thrown an Exception")
 
-    # try to download a single file from github
+    # try to download a single file from the internet
     def test_single_file(self):
         ext_dep_file_path = os.path.join(test_dir, "good_ext_dep.json")
         with open(ext_dep_file_path, "w+") as ext_dep_file:
-            ext_dep_file.write(single_file_json_file)
+            ext_dep_file.write(json.dumps(single_file_extdep))  # dump to a file
 
         ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
         ext_dep = WebDependency(ext_dep_descriptor)
         ext_dep.fetch()
 
-        file_path = os.path.join(test_dir, "test_extdep", "test.txt")
+        ext_dep_name = single_file_extdep['name'] + "_extdep"
+        file_path = os.path.join(test_dir, ext_dep_name, single_file_extdep['internal_path'])
         if not os.path.isfile(file_path):
             self.fail("The downloaded file isn't there")
 
