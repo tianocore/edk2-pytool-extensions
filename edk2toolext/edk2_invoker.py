@@ -10,6 +10,12 @@ from edk2toolext.invocables.edk2_update import Edk2Update
 from edk2toolext.invocables.edk2_platform_build import Edk2PlatformBuild
 from edk2toolext.invocables.edk2_ci_build import Edk2CiBuild
 from edk2toollib.utility_functions import import_module_by_file_name
+try:
+    from importlib import reload  # Python 3.4+ only.
+except ImportError:
+    print("You need at least Python 3.4+. Please upgrade!")
+    raise
+
 
 def GetInvokableClasses(rawInvokableList=[]):
     packageListSet = set()
@@ -18,10 +24,9 @@ def GetInvokableClasses(rawInvokableList=[]):
         for indiv_item in item_list:
             packageListSet.add(indiv_item.strip().lower())
     requestedInvokeList = list(packageListSet)
-    print(requestedInvokeList)
 
     invokablesToTry = {
-      "setup":Edk2PlatformSetup,
+      "setup": Edk2PlatformSetup,
       "ci_setup": Edk2CiBuildSetup,
       "update": Edk2Update,
       "build": Edk2PlatformBuild,
@@ -38,15 +43,16 @@ def GetInvokableClasses(rawInvokableList=[]):
 
     return invokablesSupported
 
+
 def GetInvokableIsSupported(settingsModule, invokable):
   ''' Given a settings module, figure out if the invokable supported '''
   module_contents = dir(settingsModule)
-  moduleClassList = [getattr(settingsModule, obj)]
+  moduleClassList = [getattr(settingsModule, obj) for obj in module_contents if inspect.isclass(getattr(settingsModule, obj))]
   invokableSettingsClass = invokable().GetSettingsClass()
-  for obj in module_contents if inspect.isclass(getattr(settingsModule, obj))]
+  for obj in moduleClassList:
     if obj == invokableSettingsClass:
-      return true
-  return false
+      return True
+  return False
 
 def main():
     print("     ) _     _")
@@ -59,36 +65,56 @@ def main():
     settingsParserObj = argparse.ArgumentParser(add_help=False)
 
     invokeParser.add_argument("-invoke", "--i", dest="invokables", default=[], type=str, action="append",
-                           help="The invokable you want to invoke (setup, build, ci_build, ci_setup, update)")
+                           help = "The invokable you want to invoke (setup, build, ci_build, ci_setup, update)")
 
-    settingsParserObj.add_argument('-c', '--platform_module', dest='platform_module',
-                                   default="PlatformBuild.py", type=str,
-                                   help='Provide the Platform Module relative to the current working directory.')
+    settingsParserObj.add_argument('-c', '--platform_module', dest = 'platform_module',
+                                   default = "PlatformBuild.py", type = str,
+                                   help = 'Provide the Platform Module relative to the current working directory.')
     # first parse the invoke parser
-    invokeSettings, remaining_args = invokeParser.parse_known_args()
+    invokeSettings, remaining_args=invokeParser.parse_known_args()
     # then the platform settings parser
-    settingsArg, _ = settingsParserObj.parse_known_args(remaining_args)
+    settingsArg, _=settingsParserObj.parse_known_args(remaining_args)
     # get the invokable classes the user is requested
-    invokableClasses = GetInvokableClasses(invokeSettings.invokables)
+    invokableClasses=GetInvokableClasses(invokeSettings.invokables)
+    # keep track of if we requested invokables
+    requestedInvokables = len(invokeSettings.invokables) > 0
 
-    moduleClassList = []
+
+    moduleClassList=[]
     try:
-        settingsFilePath = os.path.abspath(settingsArg.platform_module)
-        settingsModule = import_module_by_file_name(settingsFilePath)
+        settingsFilePath=os.path.abspath(settingsArg.platform_module)
+        settingsModule=import_module_by_file_name(settingsFilePath)
     except (TypeError, FileNotFoundError) as e:
         print(f"We were unable to load your settings file: {settingsFilePath}")
         return 1
 
+    args = sys.argv
     # go through each of the invokable class and see if they're in the our settings file
-    for invokable in invokableClasses:
+    for invokable_key in invokableClasses:
+        sys.argv = args
+        print("================ STUART ================")
+        print(f" Invoking: {invokable_key}")
+        invokable = invokableClasses[invokable_key]
         if GetInvokableIsSupported(settingsModule, invokable):
-          print("Attempting to call "+str(invokable))
+          try:
+            invokable().Invoke()
+          except SystemExit as e:
+            if e.code != 0:
+              print(f"We failed with a nonzero error code from {invokable_key}")
+              raise e
+          finally:
+            # this is hacky to close logging and restart it back to a default state
+            logging.disable(logging.NOTSET)
+            logging.shutdown()
+            reload(logging)  # otherwise we get errors trying to talk to closed handlers
 
+        elif requestedInvokables:
+            print("WARNING: We can't do " + str(invokable_key))
+            raise RuntimeError(f"Invalid invokable {invokable_key}")
         else:
-            print("We can't do " + str(invokable))
-
+            print("Skipping")
 
 if __name__ == '__main__':
-    retcode = main()
+    retcode=main()
     logging.shutdown()
     sys.exit(retcode)
