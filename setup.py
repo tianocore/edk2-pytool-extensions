@@ -63,7 +63,8 @@ setuptools.setup(
     },
     include_package_data=True,
     entry_points={
-        'console_scripts': ['stuart_setup=edk2toolext.invocables.edk2_setup:main',
+        'console_scripts': ['stuart=edk2toolext.edk2_invoker:main',
+                            'stuart_setup=edk2toolext.invocables.edk2_setup:main',
                             'stuart_update=edk2toolext.invocables.edk2_update:main',
                             'stuart_build=edk2toolext.invocables.edk2_platform_build:main',
                             'stuart_ci_build=edk2toolext.invocables.edk2_ci_build:main',
