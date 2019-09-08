@@ -32,12 +32,15 @@ class CiBuildSettingsManager():
     def GetDependencies(self):
         pass
 
+    def GetPackagesPath(self):
+        pass
+
+    # ####################################################################################### #
+    #                        Default Support for this Ci Build                                #
+    # ####################################################################################### #
     def GetPackagesSupported(self) -> iterable:
         ''' return iterable of edk2 packages supported by this build. 
         These should be edk2 workspace relative paths '''
-        pass
-
-    def GetPackagesPath(self):
         pass
 
     def GetArchitecturesSupported(self) -> iterable:
@@ -77,19 +80,22 @@ class CiBuildSettingsManager():
         '''  Implement in subclass to pass dictionary of settings for individual plugins '''
         return {}
 
+    # ####################################################################################### #
+    #                     Verify and Save requested Ci Build Config                           #
+    # ####################################################################################### #
     def SetToPackage(self, list_of_requested_packages):
         ''' Confirm the requests package list is valid and configure SettingsManager
         to build only the requested packages.
 
-        Raise UnsupportedException if a requested_package is not supported
+        Raise Exception if a requested_package is not supported
         '''
         pass
 
-    def SetToArch(self, list_of_requested_arch):
+    def SetToArchitecture(self, list_of_requested_architectures):
         ''' Confirm the requests architecture list is valid and configure SettingsManager
         to run only the requested architectures.
 
-        Raise UnsupportedException if a requested_arch is not supported
+        Raise Exception if a list_of_requested_architectures is not supported
         '''
         pass
 
@@ -97,7 +103,7 @@ class CiBuildSettingsManager():
         ''' Confirm the requests target list is valid and configure SettingsManager
         to run only the requested targets.
 
-        Raise UnsupportedException if a requested_target is not supported
+        Raise Exception if a requested_target is not supported
         '''
         pass
 

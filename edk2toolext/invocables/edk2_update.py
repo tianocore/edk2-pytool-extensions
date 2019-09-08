@@ -39,6 +39,49 @@ class UpdateSettingsManager():
         md   == markdown file logging
         '''
         pass
+    
+    # ####################################################################################### #
+    #                           Supported Values and Defaults                                 #
+    # ####################################################################################### #
+    def GetPackagesSupported(self) -> iterable:
+        ''' return iterable of edk2 packages supported by this build. 
+        These should be edk2 workspace relative paths '''
+        raise NotImplementedError()
+
+    def GetArchitecturesSupported(self) -> iterable:
+        ''' return iterable of edk2 architectures supported by this build ''' 
+        raise NotImplementedError()
+
+    def GetTargetsSupported(self):
+        ''' return iterable of edk2 target tags supported by this build '''
+        raise NotImplementedError()
+
+    # ####################################################################################### #
+    #                     Verify and Save requested Config                                    #
+    # ####################################################################################### #
+    def SetToPackage(self, list_of_requested_packages):
+        ''' Confirm the requests package list is valid and configure SettingsManager
+        to build only the requested packages.
+
+        Raise Exception if a requested_package is not supported
+        '''
+        pass
+
+    def SetToArchitecture(self, list_of_requested_architectures):
+        ''' Confirm the requests architecture list is valid and configure SettingsManager
+        to run only the requested architectures.
+
+        Raise Exception if a list_of_requested_architectures is not supported
+        '''
+        pass
+
+    def SetToTarget(self, list_of_requested_target):
+        ''' Confirm the requests target list is valid and configure SettingsManager
+        to run only the requested targets.
+
+        Raise Exception if a requested_target is not supported
+        '''
+        pass
 
 
 def build_env_changed(build_env, build_env_2):
