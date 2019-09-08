@@ -66,6 +66,12 @@ class Edk2Invocable(BaseAbstractInvocable):
         '''  Implement in subclass to retrieve command line options from the argparser '''
         pass
 
+    def NotifySettingsManager(self):
+        '''Do any necessary notification to the Settings Manager class
+            prior to parsing the environment.
+        '''
+        pass
+
     def GetSettingsClass(self):
         '''  Child class should provide the class that contains their required settings '''
         raise NotImplementedError()

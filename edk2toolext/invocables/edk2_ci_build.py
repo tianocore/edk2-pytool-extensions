@@ -17,11 +17,9 @@ from edk2toollib.log.junit_report_format import JunitTestReport
 from edk2toolext.edk2_invocable import Edk2Invocable
 from edk2toolext.environment import self_describing_environment
 from edk2toolext.environment.plugintypes.ci_build_plugin import ICiBuildPlugin
-# from edk2toolext.environment import plugin_manager
 from edk2toolext.environment import shell_environment
 from edk2toolext import edk2_logging
 from edk2toolext import config_validator
-# import pkg_resources
 
 
 class CiBuildSettingsManager():
@@ -34,16 +32,20 @@ class CiBuildSettingsManager():
     def GetDependencies(self):
         pass
 
-    def GetPackages(self):
+    def GetPackagesSupported(self) -> iterable:
+        ''' return iterable of edk2 packages supported by this build. 
+        These should be edk2 workspace relative paths '''
         pass
 
     def GetPackagesPath(self):
         pass
 
-    def GetArchSupported(self):
+    def GetArchitecturesSupported(self) -> iterable:
+        ''' return iterable of edk2 architectures supported by this build ''' 
         raise NotImplementedError()
 
     def GetTargetsSupported(self):
+        ''' return iterable of edk2 target tags supported by this build '''
         raise NotImplementedError()
 
     def GetWorkspaceRoot(self):
@@ -74,6 +76,30 @@ class CiBuildSettingsManager():
     def GetPluginSettings(self):
         '''  Implement in subclass to pass dictionary of settings for individual plugins '''
         return {}
+
+    def SetToPackage(self, list_of_requested_packages):
+        ''' Confirm the requests package list is valid and configure SettingsManager
+        to build only the requested packages.
+
+        Raise UnsupportedException if a requested_package is not supported
+        '''
+        pass
+
+    def SetToArch(self, list_of_requested_arch):
+        ''' Confirm the requests architecture list is valid and configure SettingsManager
+        to run only the requested architectures.
+
+        Raise UnsupportedException if a requested_arch is not supported
+        '''
+        pass
+
+    def SetToTarget(self, list_of_requested_target):
+        ''' Confirm the requests target list is valid and configure SettingsManager
+        to run only the requested targets.
+
+        Raise UnsupportedException if a requested_target is not supported
+        '''
+        pass
 
 
 def merge_config(config, pkg_config, descriptor={}):
@@ -115,6 +141,10 @@ class Edk2CiBuild(Edk2Invocable):
                             help='A package or folder you want to test (workspace relative).'
                             'Can list multiple by doing -p <pkg1>,<pkg2> or -p <pkg3> -p <pkg4>',
                             action="append", default=[])
+        parser.add_argument('-a', '--arch', dest="requested_arch", type=str, default=None,
+                            help="CSV of architecutres requested to build. Example: -a X64,AARCH64")
+        parser.add_argument('-t', '--target', dest='requested_target', type=str, default=None,
+                            help="csv of targets requested to build.  Example: -t DEBUG,NOOPT")
 
     def RetrieveCommandLineOptions(self, args):
         '''  Retrieve command line options from the argparser '''
@@ -122,8 +152,25 @@ class Edk2CiBuild(Edk2Invocable):
         for item in args.packageList:  # Parse out the individual packages
             item_list = item.split(",")
             for indiv_item in item_list:
+                indiv_item = indiv_item.replace("\\", "/")  # in case cmdline caller used Windows folder slashes
                 packageListSet.add(indiv_item.strip())
-        self.packageList = list(packageListSet)
+        self.requested_package_list = list(packageListSet)
+        self.requested_arch_list = args.requested_arch.upper().split(",")
+        self.requested_target_list = args.requested_target.upper().split(",")
+
+    def NotifySettingsManager(self):
+        ''' Notify settings manager of Requested packages, arch, and targets'''
+        if(len(self.requested_package_list) == 0):
+            self.requested_package_list = list(self.PlatformSettings.GetPackages())
+        self.PlatformSettings.SetToPackage(self.requested_package_list)
+        
+        if(len(self.requested_arch_list) == 0):
+            self.requested_arch_list = list(self.PlatformSettings.GetArchSupported())
+        PlatformSettings.SetToArch(self.requested_arch)
+
+        if(len(self.requested_target_list) == 0):
+            self.requested_target_list = list(self.PlatformSettings.GetTargetsSupported())
+        PlatformSettings.SetToTarget(self.requested_target)
 
     def GetSettingsClass(self):
         return CiBuildSettingsManager
@@ -153,9 +200,6 @@ class Edk2CiBuild(Edk2Invocable):
         logging.info(f"Running CI Build: {self.PlatformSettings.GetName()}")
         logging.info(f"WorkSpace: {self.GetWorkspaceRoot()}")
         logging.info(f"Package Path: {self.PlatformSettings.GetPackagesPath()}")
-        # logging.info("mu_build version: {0}".format(pkg_resources.get_distribution("mu_build").version))
-        # logging.info("mu_python_library version: " + pkg_resources.get_distribution("mu_python_library").version)
-        # logging.info("mu_environment version: " + pkg_resources.get_distribution("mu_environment").version)
         # Bring up the common minimum environment.
         logging.log(edk2_logging.SECTION, "Getting Environment")
         (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(
@@ -193,12 +237,8 @@ class Edk2CiBuild(Edk2Invocable):
         logging.log(edk2_logging.SECTION, "Loading plugins")
 
         pluginList = self.plugin_manager.GetPluginsOfClass(ICiBuildPlugin)
-        if len(self.packageList) == 0:
-            self.packageList.extend(self.PlatformSettings.GetPackages())
 
-        for pkgToRunOn in self.packageList:
-
-            # TODO: figure out if this package is a valid package
+        for pkgToRunOn in self.requested_package_list:
             #
             # run all loaded Edk2CiBuild Plugins/Tests
             #
