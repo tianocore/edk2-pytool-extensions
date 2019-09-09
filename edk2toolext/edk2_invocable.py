@@ -1,5 +1,5 @@
 # @file edk2_invocable
-# Class Object providing Edk2 specific Invocable functionality 
+# Class Object providing Edk2 specific Invocable functionality
 #
 # This should not be instantiated but should be used as baseclass
 ##
