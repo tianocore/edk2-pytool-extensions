@@ -155,8 +155,11 @@ Key=value will get passed to build process for given build type)'''
             with open(BuildConfig) as file:
                 for line in file:
                     stripped_line = line.strip()
-                    if not stripped_line.startswith("#"):
-                        unknown_args.append(line)
+                    if stripped_line.startswith("#"):
+                        continue
+                    if len(stripped_line) == 0:
+                        continue
+                    unknown_args.append(stripped_line)
 
         i = 0
         while i < len(unknown_args):
