@@ -10,6 +10,7 @@ import os
 import sys
 import logging
 import argparse
+import re
 from edk2toolext.environment import shell_environment
 from edk2toollib.utility_functions import GetHostInfo
 from edk2toollib.utility_functions import locate_class_in_module
@@ -151,12 +152,13 @@ Key=value will get passed to build process for given build type)'''
         env = shell_environment.GetBuildVars()
         BuildConfig = os.path.abspath(args.build_config)
 
+        comment_re = re.compile(r"#.+$")
+
         if os.path.isfile(BuildConfig):
             with open(BuildConfig) as file:
                 for line in file:
                     stripped_line = line.strip()
-                    if stripped_line.startswith("#"):
-                        continue
+                    stripped_line = comment_re.sub("", stripped_line)
                     if len(stripped_line) == 0:
                         continue
                     unknown_args.append(stripped_line)
