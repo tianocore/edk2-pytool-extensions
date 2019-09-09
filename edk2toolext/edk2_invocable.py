@@ -9,6 +9,7 @@
 import os
 import sys
 import logging
+import inspect
 import argparse
 from edk2toolext.environment import shell_environment
 from edk2toollib.utility_functions import GetHostInfo
@@ -104,18 +105,42 @@ Key=value will get passed to build process for given build type)'''
             self.PlatformModule = import_module_by_file_name(os.path.abspath(settingsArg.platform_module))
             self.PlatformSettings = locate_class_in_module(
                 self.PlatformModule, self.GetSettingsClass())()
-        except (TypeError, FileNotFoundError) as e:
-            # Gracefully exit if setup doesn't go well.
+        except (TypeError):
+            # Gracefully exit if the file we loaded isn't the right type
+            class_name = self.GetSettingsClass().__name__
+            print(f"Unable to use {settingsArg.platform_module} as a {class_name}")
+            print("Did you mean to use a different kind of invokable?")
             try:
                 # If this works, we can provide help for whatever special functions
                 # the subclass is offering.
                 self.AddCommandLineOptions(settingsParserObj)
-            except:
-                # If it didn't work, oh well.
+                Module = self.PlatformModule
+                module_contents = dir(Module)
+                # Filter through the Module, we're only looking for classes.
+                classList = [getattr(Module, obj) for obj in module_contents if inspect.isclass(getattr(Module, obj))]
+                # Get the name of all the classes
+                classNameList = [obj.__name__ for obj in classList]
+                # TODO improve filter to no longer catch imports as well as declared classes
+                imported_classes = ", ".join(classNameList)  # Join the classes together
+                print(f"The module you imported contains {imported_classes}")
+            except Exception:
+                # Otherwise, oh well we'll just ignore this.
+                raise
                 pass
-            print(e)
             settingsParserObj.print_help()
-            sys.exit(0)
+            sys.exit(1)
+
+        except (FileNotFoundError):
+            # Gracefully exit if we can't find the file
+            print(f"We weren't able to find {settingsArg.platform_module}")
+            settingsParserObj.print_help()
+            sys.exit(2)
+
+        except (Exception):
+            print(f"Error: We had trouble loading {settingsArg.platform_module}. Is the path correct?")
+            # Gracefully exit if setup doesn't go well.
+            settingsParserObj.print_help()
+            sys.exit(2)
 
         # now to get the big arg parser going...
         # first pass it to the subclass
