@@ -161,22 +161,22 @@ class Edk2CiBuild(Edk2Invocable):
                 indiv_item = indiv_item.replace("\\", "/")  # in case cmdline caller used Windows folder slashes
                 packageListSet.add(indiv_item.strip())
         self.requested_package_list = list(packageListSet)
-        self.requested_arch_list = args.requested_arch.upper().split(",")
+        self.requested_architecture_list = args.requested_arch.upper().split(",")
         self.requested_target_list = args.requested_target.upper().split(",")
 
     def NotifySettingsManager(self):
         ''' Notify settings manager of Requested packages, arch, and targets'''
         if(len(self.requested_package_list) == 0):
-            self.requested_package_list = list(self.PlatformSettings.GetPackages())
+            self.requested_package_list = list(self.PlatformSettings.GetPackagesSupported())
         self.PlatformSettings.SetToPackage(self.requested_package_list)
         
-        if(len(self.requested_arch_list) == 0):
-            self.requested_arch_list = list(self.PlatformSettings.GetArchSupported())
-        PlatformSettings.SetToArch(self.requested_arch)
+        if(len(self.requested_architecture_list) == 0):
+            self.requested_architecture_list = list(self.PlatformSettings.GetArchitecturesSupported())
+        PlatformSettings.SetToArchitecture(self.requested_architecture_list)
 
         if(len(self.requested_target_list) == 0):
             self.requested_target_list = list(self.PlatformSettings.GetTargetsSupported())
-        PlatformSettings.SetToTarget(self.requested_target)
+        PlatformSettings.SetToTarget(self.requested_target_list)
 
     def GetSettingsClass(self):
         return CiBuildSettingsManager
@@ -187,14 +187,9 @@ class Edk2CiBuild(Edk2Invocable):
     def Go(self):
         log_directory = os.path.join(self.GetWorkspaceRoot(), self.GetLoggingFolderRelativeToRoot())
 
-        # SET PACKAGE PATH
         #
         # Get Package Path from config file
         pplist = self.PlatformSettings.GetPackagesPath() if self.PlatformSettings.GetPackagesPath() else []
-
-        # Check Dependencies for Repo
-        for dependency in self.PlatformSettings.GetDependencies():
-            pplist.append(dependency["Path"])
 
         # make Edk2Path object to handle all path operations
         try:
@@ -205,7 +200,7 @@ class Edk2CiBuild(Edk2Invocable):
 
         logging.info(f"Running CI Build: {self.PlatformSettings.GetName()}")
         logging.info(f"WorkSpace: {self.GetWorkspaceRoot()}")
-        logging.info(f"Package Path: {self.PlatformSettings.GetPackagesPath()}")
+        logging.info(f"Package Path: {pplist}")
         # Bring up the common minimum environment.
         logging.log(edk2_logging.SECTION, "Getting Environment")
         (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(
@@ -227,10 +222,8 @@ class Edk2CiBuild(Edk2Invocable):
             pc = '"' + pc + '"'
         shell_env.set_shell_var("PYTHON_COMMAND", pc)
 
-        archSupported = " ".join(self.PlatformSettings.GetArchSupported())
-        env.SetValue("TARGET_ARCH", archSupported, "from PlatformSettings.GetArchSupported()")
 
-        _targets = " ".join(self.PlatformSettings.GetTargetsSupported())
+        env.SetValue("TARGET_ARCH", " ".join(self.requested_architecture_list), "from edk2 ci build.py")
 
         # Generate consumable XML object- junit format
         JunitReport = JunitTestReport()
@@ -280,13 +273,10 @@ class Edk2CiBuild(Edk2Invocable):
                     definition = pkg_config["Defines"][definition_key]
                     env.SetValue(definition_key, definition, "Edk2CiBuild.py from PkgConfig yaml", False)
 
+            # For each plugin
             for Descriptor in pluginList:
-                # Get our targets
-                targets = ["DEBUG"]
-                if Descriptor.Obj.IsTargetDependent() and _targets:
-                    targets = self.PlatformSettings.GetTargetsSupported()
-
-                for target in targets:
+                # For each target
+                for target in self.requested_target_list:
                     edk2_logging.log_progress(f"--Running {pkgToRunOn}: {Descriptor.Name} {target} --")
                     total_num += 1
                     shell_environment.CheckpointBuildVars()
@@ -302,8 +292,6 @@ class Edk2CiBuild(Edk2Invocable):
                     # merge the repo level and package level for this specific plugin
                     pkg_plugin_configuration = merge_config(self.PlatformSettings.GetPluginSettings(),
                                                             pkg_config, Descriptor.descriptor)
-
-                    # perhaps we should ask the validator to run on the package for this target
 
                     # Still need to see if the package decided this should be skipped
                     if pkg_plugin_configuration is None or\
@@ -352,6 +340,10 @@ class Edk2CiBuild(Edk2Invocable):
                     shell_environment.RevertBuildVars()
                     # remove the logger
                     edk2_logging.remove_output_stream(plugin_output_stream)
+
+                    if not Descriptor.Obj.IsTargetDependent():
+                        # Plugin isn't Target Dependent -- break out of loop
+                        break
                 # finished target loop
             # Finished plugin loop
 

@@ -108,11 +108,49 @@ class Edk2Update(Edk2Invocable):
         return False
 
     def GetSettingsClass(self):
-        '''  Providing UpddateSettingsManger '''
+        '''  Providing UpdateSettingsManger '''
         return UpdateSettingsManager
 
     def GetLoggingFileName(self, loggerType):
         return "UPDATE_LOG"
+
+    def AddCommandLineOptions(self, parserObj):
+        ''' adds command line options to the argparser '''
+        # This will parse the packages that we are going to update
+        parser.add_argument('-p', '--pkg', '--pkg-dir', dest='packageList', type=str,
+                            help='Optional - A package or folder you want to update (workspace relative).'
+                            'Can list multiple by doing -p <pkg1>,<pkg2> or -p <pkg3> -p <pkg4>',
+                            action="append", default=[])
+        parser.add_argument('-a', '--arch', dest="requested_arch", type=str, default=None,
+                            help="Optional - CSV of architecutres requested to update. Example: -a X64,AARCH64")
+        parser.add_argument('-t', '--target', dest='requested_target', type=str, default=None,
+                            help="Optional - CSV of targets requested to update.  Example: -t DEBUG,NOOPT")
+
+    def RetrieveCommandLineOptions(self, args):
+        '''  Retrieve command line options from the argparser '''
+        packageListSet = set()
+        for item in args.packageList:  # Parse out the individual packages
+            item_list = item.split(",")
+            for indiv_item in item_list:
+                indiv_item = indiv_item.replace("\\", "/")  # in case cmd line caller used Windows folder slashes
+                packageListSet.add(indiv_item.strip())
+        self.requested_package_list = list(packageListSet)
+        self.requested_architecture_list = args.requested_arch.upper().split(",")
+        self.requested_target_list = args.requested_target.upper().split(",")
+
+    def NotifySettingsManager(self):
+        ''' Notify settings manager of Requested packages, arch, and targets'''
+        if(len(self.requested_package_list) == 0):
+            self.requested_package_list = list(self.PlatformSettings.GetPackagesSupported())
+        self.PlatformSettings.SetToPackage(self.requested_package_list)
+        
+        if(len(self.requested_architecture_list) == 0):
+            self.requested_architecture_list = list(self.PlatformSettings.GetArchitecturesSupported())
+        PlatformSettings.SetToArchitecture(self.requested_architecture_list)
+
+        if(len(self.requested_target_list) == 0):
+            self.requested_target_list = list(self.PlatformSettings.GetTargetsSupported())
+        PlatformSettings.SetToTarget(self.requested_target_list)
 
     def Go(self):
         # Get the environment set up.
@@ -122,8 +160,9 @@ class Edk2Update(Edk2Invocable):
         (build_env_old, shell_env_old) = self.PerformUpdate()
         self_describing_environment.DestroyEnvironment()
 
-        # TODO revisit this depth
-        # we should put a sensible limit on the retry count for handling recursive dependencies.
+        # Loop updating dependencies until there are 0 new dependencies or
+        # we have exceeded retry count.  This allows dependencies to carry 
+        # files that influence the SDE.
         while RetryCount < Edk2Update.MAX_RETRY_COUNT:
             (build_env, shell_env) = self.PerformUpdate()
 
