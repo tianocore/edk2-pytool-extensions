@@ -39,17 +39,17 @@ class UpdateSettingsManager():
         md   == markdown file logging
         '''
         pass
-    
+
     # ####################################################################################### #
     #                           Supported Values and Defaults                                 #
     # ####################################################################################### #
     def GetPackagesSupported(self):
-        ''' return iterable of edk2 packages supported by this build. 
+        ''' return iterable of edk2 packages supported by this build.
         These should be edk2 workspace relative paths '''
         raise NotImplementedError()
 
     def GetArchitecturesSupported(self):
-        ''' return iterable of edk2 architectures supported by this build ''' 
+        ''' return iterable of edk2 architectures supported by this build '''
         raise NotImplementedError()
 
     def GetTargetsSupported(self):
@@ -118,13 +118,13 @@ class Edk2Update(Edk2Invocable):
         ''' adds command line options to the argparser '''
         # This will parse the packages that we are going to update
         parserObj.add_argument('-p', '--pkg', '--pkg-dir', dest='packageList', type=str,
-                            help='Optional - A package or folder you want to update (workspace relative).'
-                            'Can list multiple by doing -p <pkg1>,<pkg2> or -p <pkg3> -p <pkg4>',
-                            action="append", default=[])
+                               help='Optional - A package or folder you want to update (workspace relative).'
+                               'Can list multiple by doing -p <pkg1>,<pkg2> or -p <pkg3> -p <pkg4>',
+                               action="append", default=[])
         parserObj.add_argument('-a', '--arch', dest="requested_arch", type=str, default=None,
-                            help="Optional - CSV of architecutres requested to update. Example: -a X64,AARCH64")
+                               help="Optional - CSV of architecutres requested to update. Example: -a X64,AARCH64")
         parserObj.add_argument('-t', '--target', dest='requested_target', type=str, default=None,
-                            help="Optional - CSV of targets requested to update.  Example: -t DEBUG,NOOPT")
+                               help="Optional - CSV of targets requested to update.  Example: -t DEBUG,NOOPT")
 
     def RetrieveCommandLineOptions(self, args):
         '''  Retrieve command line options from the argparser '''
@@ -135,16 +135,22 @@ class Edk2Update(Edk2Invocable):
                 indiv_item = indiv_item.replace("\\", "/")  # in case cmd line caller used Windows folder slashes
                 packageListSet.add(indiv_item.strip())
         self.requested_package_list = list(packageListSet)
-        self.requested_architecture_list = args.requested_arch.upper().split(",") if (args.requested_arch is not None) else []
-        self.requested_target_list = args.requested_target.upper().split(",") if (args.requested_target is not None) else []
+        if args.requested_arch is not None:
+            self.requested_architecture_list = args.requested_arch.upper().split(",")
+        else:
+            self.requested_architecture_list = []
 
+        if args.requested_target is not None:
+            self.requested_target_list = args.requested_target.upper().split(",")
+        else:
+            self.requested_target_list = []
 
     def NotifySettingsManager(self):
         ''' Notify settings manager of Requested packages, arch, and targets'''
         if(len(self.requested_package_list) == 0):
             self.requested_package_list = list(self.PlatformSettings.GetPackagesSupported())
         self.PlatformSettings.SetToPackage(self.requested_package_list)
-        
+
         if(len(self.requested_architecture_list) == 0):
             self.requested_architecture_list = list(self.PlatformSettings.GetArchitecturesSupported())
         self.PlatformSettings.SetToArchitecture(self.requested_architecture_list)
@@ -162,7 +168,7 @@ class Edk2Update(Edk2Invocable):
         self_describing_environment.DestroyEnvironment()
 
         # Loop updating dependencies until there are 0 new dependencies or
-        # we have exceeded retry count.  This allows dependencies to carry 
+        # we have exceeded retry count.  This allows dependencies to carry
         # files that influence the SDE.
         while RetryCount < Edk2Update.MAX_RETRY_COUNT:
             (build_env, shell_env) = self.PerformUpdate()

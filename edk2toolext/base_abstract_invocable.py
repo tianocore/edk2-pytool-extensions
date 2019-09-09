@@ -103,7 +103,7 @@ class BaseAbstractInvocable(object):
         ''' Main process function.  Should not need to be overwritten '''
 
         self.ParseCommandLineOptions()
-        # Notify Settings Manager of any important settings that might be used to 
+        # Notify Settings Manager of any important settings that might be used to
         # configure how environment is parsed
         self.NotifySettingsManager()
         self.ConfigureLogging()

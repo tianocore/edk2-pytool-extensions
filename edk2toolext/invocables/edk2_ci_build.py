@@ -39,12 +39,12 @@ class CiBuildSettingsManager():
     #                        Default Support for this Ci Build                                #
     # ####################################################################################### #
     def GetPackagesSupported(self):
-        ''' return iterable of edk2 packages supported by this build. 
+        ''' return iterable of edk2 packages supported by this build.
         These should be edk2 workspace relative paths '''
         pass
 
     def GetArchitecturesSupported(self):
-        ''' return iterable of edk2 architectures supported by this build ''' 
+        ''' return iterable of edk2 architectures supported by this build '''
         raise NotImplementedError()
 
     def GetTargetsSupported(self):
@@ -161,16 +161,23 @@ class Edk2CiBuild(Edk2Invocable):
                 indiv_item = indiv_item.replace("\\", "/")  # in case cmdline caller used Windows folder slashes
                 packageListSet.add(indiv_item.strip())
         self.requested_package_list = list(packageListSet)
-        self.requested_architecture_list = args.requested_arch.upper().split(",") if (args.requested_arch is not None) else []
-        self.requested_target_list = args.requested_target.upper().split(",") if (args.requested_target is not None) else []
 
+        if args.requested_arch is not None:
+            self.requested_architecture_list = args.requested_arch.upper().split(",")
+        else:
+            self.requested_architecture_list = []
+
+        if args.requested_target is not None:
+            self.requested_target_list = args.requested_target.upper().split(",")
+        else:
+            self.requested_target_list = []
 
     def NotifySettingsManager(self):
         ''' Notify settings manager of Requested packages, arch, and targets'''
         if(len(self.requested_package_list) == 0):
             self.requested_package_list = list(self.PlatformSettings.GetPackagesSupported())
         self.PlatformSettings.SetToPackage(self.requested_package_list)
-        
+
         if(len(self.requested_architecture_list) == 0):
             self.requested_architecture_list = list(self.PlatformSettings.GetArchitecturesSupported())
         self.PlatformSettings.SetToArchitecture(self.requested_architecture_list)
@@ -222,7 +229,6 @@ class Edk2CiBuild(Edk2Invocable):
         if " " in pc:
             pc = '"' + pc + '"'
         shell_env.set_shell_var("PYTHON_COMMAND", pc)
-
 
         env.SetValue("TARGET_ARCH", " ".join(self.requested_architecture_list), "from edk2 ci build.py")
 
