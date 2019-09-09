@@ -19,7 +19,6 @@ from edk2toolext.environment import self_describing_environment
 from edk2toolext.environment.plugintypes.ci_build_plugin import ICiBuildPlugin
 from edk2toolext.environment import shell_environment
 from edk2toolext import edk2_logging
-from edk2toolext import config_validator
 
 
 class CiBuildSettingsManager():
@@ -262,18 +261,15 @@ class Edk2CiBuild(Edk2Invocable):
             shell_environment.CheckpointBuildVars()
             env = shell_environment.GetBuildVars()
 
-            # load the package level .mu.json
+            # load the package level .ci.yaml
             pkg_config_file = edk2path.GetAbsolutePathOnThisSytemFromEdk2RelativePath(
-                os.path.join(pkgToRunOn, pkgToRunOn + ".mu.yaml"))
+                os.path.join(pkgToRunOn, pkgToRunOn + ".ci.yaml"))
             if(pkg_config_file):
                 with open(pkg_config_file, 'r') as f:
                     pkg_config = yaml.safe_load(f)
             else:
                 logging.info(f"No Pkg Config file for {pkgToRunOn}")
                 pkg_config = dict()
-
-            # check the resulting configuration
-            config_validator.check_package_confg(pkgToRunOn, pkg_config, pluginList)
 
             # get all the defines from the package configuration
             if "Defines" in pkg_config:

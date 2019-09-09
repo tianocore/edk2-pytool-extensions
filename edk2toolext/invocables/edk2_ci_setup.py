@@ -88,7 +88,7 @@ class CiSetupSettingsManager():
         pass
 
 
-def merge_config(mu_config, pkg_config, descriptor={}):
+def merge_config(in_config, pkg_config, descriptor={}):
     plugin_name = ""
     config = dict()
     if "module" in descriptor:
@@ -99,8 +99,8 @@ def merge_config(mu_config, pkg_config, descriptor={}):
     if plugin_name == "":
         return config
 
-    if plugin_name in mu_config:
-        config.update(mu_config[plugin_name])
+    if plugin_name in in_config:
+        config.update(in_config[plugin_name])
 
     if plugin_name in pkg_config:
         config.update(pkg_config[plugin_name])
@@ -179,7 +179,6 @@ class Edk2CiBuildSetup(Edk2Invocable):
     def GetLoggingFileName(self, loggerType):
         return "CISETUP"
 
-    # get_mu_config
     def Go(self):
         # Parse command line arguments
 
