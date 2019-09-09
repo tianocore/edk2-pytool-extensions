@@ -1,5 +1,7 @@
 # @file edk2_invocable
-# Middle layer providing Project MU specific parsing to Invocable tools.
+# Class Object providing Edk2 specific Invocable functionality
+#
+# This should not be instantiated but should be used as baseclass
 ##
 # Copyright (c) Microsoft Corporation
 #

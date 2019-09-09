@@ -89,18 +89,10 @@ class CharEncodingCheck(ICiBuildPlugin):
         else:
           tc.SetSuccess()
         return overall_status
-
-    def ValidateConfig(self, config, name):
-      validOptions = ["IgnoreFiles", "skip"]
-      for key in config:
-        if key not in validOptions:
-          raise Exception("Invalid config option {0} in {1}".format(key, name))
 ```
 
 Some things to notice are the class that this is inheriting from: ICiBuildPlugin.
 
-Validate Config is the way that a plugin can validate the configuration they will receive. The repo config and the package config is later passed into the RunBuildPlugin method.
-The validate step is run before build happens so we don't waste a user's time only to bail halfway through the build process.
 
 There is also this idea of the tc, which is the test unit class. You can set this particular CiBuild step as failed, skipped, or successful. Logging standard out or error out gets placed in the JUnit report that is later picked up by the CI system.
 

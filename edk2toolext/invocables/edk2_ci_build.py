@@ -17,11 +17,8 @@ from edk2toollib.log.junit_report_format import JunitTestReport
 from edk2toolext.edk2_invocable import Edk2Invocable
 from edk2toolext.environment import self_describing_environment
 from edk2toolext.environment.plugintypes.ci_build_plugin import ICiBuildPlugin
-# from edk2toolext.environment import plugin_manager
 from edk2toolext.environment import shell_environment
 from edk2toolext import edk2_logging
-from edk2toolext import config_validator
-# import pkg_resources
 
 
 class CiBuildSettingsManager():
@@ -153,10 +150,6 @@ class Edk2CiBuild(Edk2Invocable):
         logging.info(f"Running CI Build: {self.PlatformSettings.GetName()}")
         logging.info(f"WorkSpace: {self.GetWorkspaceRoot()}")
         logging.info(f"Package Path: {self.PlatformSettings.GetPackagesPath()}")
-        # logging.info("mu_build version: {0}".format(pkg_resources.get_distribution("mu_build").version))
-        # logging.info("mu_python_library version: " + pkg_resources.get_distribution("mu_python_library").version)
-        # logging.info("mu_environment version: " + pkg_resources.get_distribution("mu_environment").version)
-        # Bring up the common minimum environment.
         logging.log(edk2_logging.SECTION, "Getting Environment")
         (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(
             self.GetWorkspaceRoot(), self.GetActiveScopes())
@@ -215,18 +208,15 @@ class Edk2CiBuild(Edk2Invocable):
             shell_environment.CheckpointBuildVars()
             env = shell_environment.GetBuildVars()
 
-            # load the package level .mu.json
+            # load the package level .ci.yaml
             pkg_config_file = edk2path.GetAbsolutePathOnThisSytemFromEdk2RelativePath(
-                os.path.join(pkgToRunOn, pkgToRunOn + ".mu.yaml"))
+                os.path.join(pkgToRunOn, pkgToRunOn + ".ci.yaml"))
             if(pkg_config_file):
                 with open(pkg_config_file, 'r') as f:
                     pkg_config = yaml.safe_load(f)
             else:
                 logging.info(f"No Pkg Config file for {pkgToRunOn}")
                 pkg_config = dict()
-
-            # check the resulting configuration
-            config_validator.check_package_confg(pkgToRunOn, pkg_config, pluginList)
 
             # get all the defines from the package configuration
             if "Defines" in pkg_config:
