@@ -43,12 +43,12 @@ class UpdateSettingsManager():
     # ####################################################################################### #
     #                           Supported Values and Defaults                                 #
     # ####################################################################################### #
-    def GetPackagesSupported(self) -> iterable:
+    def GetPackagesSupported(self):
         ''' return iterable of edk2 packages supported by this build. 
         These should be edk2 workspace relative paths '''
         raise NotImplementedError()
 
-    def GetArchitecturesSupported(self) -> iterable:
+    def GetArchitecturesSupported(self):
         ''' return iterable of edk2 architectures supported by this build ''' 
         raise NotImplementedError()
 
@@ -117,13 +117,13 @@ class Edk2Update(Edk2Invocable):
     def AddCommandLineOptions(self, parserObj):
         ''' adds command line options to the argparser '''
         # This will parse the packages that we are going to update
-        parser.add_argument('-p', '--pkg', '--pkg-dir', dest='packageList', type=str,
+        parserObj.add_argument('-p', '--pkg', '--pkg-dir', dest='packageList', type=str,
                             help='Optional - A package or folder you want to update (workspace relative).'
                             'Can list multiple by doing -p <pkg1>,<pkg2> or -p <pkg3> -p <pkg4>',
                             action="append", default=[])
-        parser.add_argument('-a', '--arch', dest="requested_arch", type=str, default=None,
+        parserObj.add_argument('-a', '--arch', dest="requested_arch", type=str, default=None,
                             help="Optional - CSV of architecutres requested to update. Example: -a X64,AARCH64")
-        parser.add_argument('-t', '--target', dest='requested_target', type=str, default=None,
+        parserObj.add_argument('-t', '--target', dest='requested_target', type=str, default=None,
                             help="Optional - CSV of targets requested to update.  Example: -t DEBUG,NOOPT")
 
     def RetrieveCommandLineOptions(self, args):
@@ -135,8 +135,9 @@ class Edk2Update(Edk2Invocable):
                 indiv_item = indiv_item.replace("\\", "/")  # in case cmd line caller used Windows folder slashes
                 packageListSet.add(indiv_item.strip())
         self.requested_package_list = list(packageListSet)
-        self.requested_architecture_list = args.requested_arch.upper().split(",")
-        self.requested_target_list = args.requested_target.upper().split(",")
+        self.requested_architecture_list = args.requested_arch.upper().split(",") if (args.requested_arch is not None) else []
+        self.requested_target_list = args.requested_target.upper().split(",") if (args.requested_target is not None) else []
+
 
     def NotifySettingsManager(self):
         ''' Notify settings manager of Requested packages, arch, and targets'''
@@ -146,11 +147,11 @@ class Edk2Update(Edk2Invocable):
         
         if(len(self.requested_architecture_list) == 0):
             self.requested_architecture_list = list(self.PlatformSettings.GetArchitecturesSupported())
-        PlatformSettings.SetToArchitecture(self.requested_architecture_list)
+        self.PlatformSettings.SetToArchitecture(self.requested_architecture_list)
 
         if(len(self.requested_target_list) == 0):
             self.requested_target_list = list(self.PlatformSettings.GetTargetsSupported())
-        PlatformSettings.SetToTarget(self.requested_target_list)
+        self.PlatformSettings.SetToTarget(self.requested_target_list)
 
     def Go(self):
         # Get the environment set up.

@@ -47,12 +47,12 @@ class CiSetupSettingsManager():
     # ####################################################################################### #
     #                           Supported Values and Defaults                                 #
     # ####################################################################################### #
-    def GetPackagesSupported(self) -> iterable:
+    def GetPackagesSupported(self):
         ''' return iterable of edk2 packages supported by this build. 
         These should be edk2 workspace relative paths '''
         raise NotImplementedError()
 
-    def GetArchitecturesSupported(self) -> iterable:
+    def GetArchitecturesSupported(self):
         ''' return iterable of edk2 architectures supported by this build ''' 
         raise NotImplementedError()
 

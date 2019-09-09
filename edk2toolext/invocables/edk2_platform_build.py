@@ -80,7 +80,7 @@ class Edk2PlatformBuild(Edk2Invocable):
             except (TypeError):
                 raise RuntimeError(f"UefiBuild not found in module:\n{dir(self.PlatformModule)}")
 
-        # If PlatformBuilder and PlatformSettings are seperate, give CommandLineOptions to PlatformBuilder
+        # If PlatformBuilder and PlatformSettings are separate, give CommandLineOptions to PlatformBuilder
         if self.PlatformBuilder is not self.PlatformSettings:
             self.PlatformBuilder.AddCommandLineOptions(parserObj)
 

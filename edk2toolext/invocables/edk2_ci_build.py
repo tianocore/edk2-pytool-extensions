@@ -38,12 +38,12 @@ class CiBuildSettingsManager():
     # ####################################################################################### #
     #                        Default Support for this Ci Build                                #
     # ####################################################################################### #
-    def GetPackagesSupported(self) -> iterable:
+    def GetPackagesSupported(self):
         ''' return iterable of edk2 packages supported by this build. 
         These should be edk2 workspace relative paths '''
         pass
 
-    def GetArchitecturesSupported(self) -> iterable:
+    def GetArchitecturesSupported(self):
         ''' return iterable of edk2 architectures supported by this build ''' 
         raise NotImplementedError()
 
@@ -161,8 +161,9 @@ class Edk2CiBuild(Edk2Invocable):
                 indiv_item = indiv_item.replace("\\", "/")  # in case cmdline caller used Windows folder slashes
                 packageListSet.add(indiv_item.strip())
         self.requested_package_list = list(packageListSet)
-        self.requested_architecture_list = args.requested_arch.upper().split(",")
-        self.requested_target_list = args.requested_target.upper().split(",")
+        self.requested_architecture_list = args.requested_arch.upper().split(",") if (args.requested_arch is not None) else []
+        self.requested_target_list = args.requested_target.upper().split(",") if (args.requested_target is not None) else []
+
 
     def NotifySettingsManager(self):
         ''' Notify settings manager of Requested packages, arch, and targets'''
@@ -172,11 +173,11 @@ class Edk2CiBuild(Edk2Invocable):
         
         if(len(self.requested_architecture_list) == 0):
             self.requested_architecture_list = list(self.PlatformSettings.GetArchitecturesSupported())
-        PlatformSettings.SetToArchitecture(self.requested_architecture_list)
+        self.PlatformSettings.SetToArchitecture(self.requested_architecture_list)
 
         if(len(self.requested_target_list) == 0):
             self.requested_target_list = list(self.PlatformSettings.GetTargetsSupported())
-        PlatformSettings.SetToTarget(self.requested_target_list)
+        self.PlatformSettings.SetToTarget(self.requested_target_list)
 
     def GetSettingsClass(self):
         return CiBuildSettingsManager
