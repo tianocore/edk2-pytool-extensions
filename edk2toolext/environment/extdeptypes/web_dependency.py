@@ -142,6 +142,8 @@ class WebDependency(ExternalDependency):
         # If we just downloaded a file, we need to create a directory named self.contents_dir,
         # copy the file inside, and name it self.internal_path
         else:
+            os.makedirs(self.contents_dir, exist_ok=True)
+            complete_internal_path = os.path.join(self.contents_dir, self.internal_path)
             logging.info(f"Copying file to {complete_internal_path}")
             shutil.move(temp_file_path, complete_internal_path)
 
