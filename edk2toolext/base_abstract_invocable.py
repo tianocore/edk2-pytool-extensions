@@ -45,10 +45,8 @@ class BaseAbstractInvocable(object):
         ''' Return a path to folder for log files '''
         raise NotImplementedError()
 
-    def NotifySettingsManager(self):
-        '''Do any necessary notification to the Settings Manager class
-            prior to parsing the environment.
-        '''
+    def InputParametersConfigured(self):
+        ''' Do any necessary work once all the input parameters are configured. '''
         pass
 
     def GetVerifyCheckRequired(self):
@@ -103,9 +101,7 @@ class BaseAbstractInvocable(object):
         ''' Main process function.  Should not need to be overwritten '''
 
         self.ParseCommandLineOptions()
-        # Notify Settings Manager of any important settings that might be used to
-        # configure how environment is parsed
-        self.NotifySettingsManager()
+        self.InputParametersConfigured()
         self.ConfigureLogging()
 
         logging.log(edk2_logging.SECTION, "Init SDE")

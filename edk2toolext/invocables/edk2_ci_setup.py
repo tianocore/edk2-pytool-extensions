@@ -154,8 +154,9 @@ class Edk2CiBuildSetup(Edk2Invocable):
         else:
             self.requested_target_list = []
 
-    def NotifySettingsManager(self):
-        ''' Notify settings manager of Requested packages, arch, and targets'''
+    def InputParametersConfigured(self):
+        ''' Do any necessary work once all the input parameters are configured.
+            Notify settings manager of Requested packages, arch, and targets '''
         if(len(self.requested_package_list) == 0):
             self.requested_package_list = list(self.PlatformSettings.GetPackagesSupported())
         self.PlatformSettings.SetToPackage(self.requested_package_list)
