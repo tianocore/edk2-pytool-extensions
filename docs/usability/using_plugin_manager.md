@@ -89,12 +89,6 @@ class CharEncodingCheck(ICiBuildPlugin):
         else:
           tc.SetSuccess()
         return overall_status
-
-    def ValidateConfig(self, config, name):
-      validOptions = ["IgnoreFiles", "skip"]
-      for key in config:
-        if key not in validOptions:
-          raise Exception("Invalid config option {0} in {1}".format(key, name))
 ```
 
 Some things to notice are the class that this is inheriting from: ICiBuildPlugin.
