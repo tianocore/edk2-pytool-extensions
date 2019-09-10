@@ -9,11 +9,12 @@
 import os
 import logging
 
-from edk2toolext.edk2_invocable import Edk2Invocable
+from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable
+from edk2toolext.invocables.edk2_multipkg_aware_invocable import MultiPkgAwareSettingsInterface
 from edk2toolext.environment import repo_resolver
 
 
-class CiSetupSettingsManager():
+class CiSetupSettingsManager(MultiPkgAwareSettingsInterface):
     ''' Platform settings will be accessed through this implementation. '''
 
     def GetDependencies(self):
@@ -45,27 +46,7 @@ class CiSetupSettingsManager():
         pass
 
 
-def merge_config(in_config, pkg_config, descriptor={}):
-    plugin_name = ""
-    config = dict()
-    if "module" in descriptor:
-        plugin_name = descriptor["module"]
-    if "config_name" in descriptor:
-        plugin_name = descriptor["config_name"]
-
-    if plugin_name == "":
-        return config
-
-    if plugin_name in in_config:
-        config.update(in_config[plugin_name])
-
-    if plugin_name in pkg_config:
-        config.update(pkg_config[plugin_name])
-
-    return config
-
-
-class Edk2CiBuildSetup(Edk2Invocable):
+class Edk2CiBuildSetup(Edk2MultiPkgAwareInvocable):
 
     def AddCommandLineOptions(self, parser):
         parser.add_argument('-ignore', '--ignore-git', dest="git_ignore", action="store_true",
@@ -76,10 +57,7 @@ class Edk2CiBuildSetup(Edk2Invocable):
                             help="Whether to force git repos to clone in the git cloing process", default=False)
         parser.add_argument('-update-git', '--update-git', dest="git_update", action="store_true",
                             help="Whether to update git repos as needed in the git cloing process", default=False)
-
-    def GetVerifyCheckRequired(self):
-        ''' Will not verify environemnt '''
-        return False
+        super().AddCommandLineOptions(parser)
 
     def RetrieveCommandLineOptions(self, args):
         '''  Retrieve command line options from the argparser '''
@@ -87,6 +65,12 @@ class Edk2CiBuildSetup(Edk2Invocable):
         self.omnicache_path = args.omnicache_path
         self.git_force = args.git_force
         self.git_update = args.git_update
+
+        super().RetrieveCommandLineOptions(args)
+
+    def GetVerifyCheckRequired(self):
+        ''' Will not verify environment '''
+        return False
 
     def GetSettingsClass(self):
         return CiSetupSettingsManager

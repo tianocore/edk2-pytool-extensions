@@ -41,10 +41,19 @@ class ICiBuildPlugin(object):
         pass
 
     ##
-    # Returns true or false if plugin would like to be called for each target
+    # Returns a list of edk2 TARGETs that this plugin would like to run on
+    #
+    # KNOWN TARGET VALUES:
+    #  DEBUG
+    #  RELEASE
+    #  NOOPT
+    #  NO-TARGET
+    #
+    # If the plugin is not Target specific it should return a list of
+    # one element of "NO-TARGET"
     ##
-    def IsTargetDependent(self):
-        return False
+    def RunsOnTargetList(self):
+        return ["NO-TARGET"]
 
     #
     # Walks a directory for all items ending in certain extension

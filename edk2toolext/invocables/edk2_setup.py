@@ -11,12 +11,13 @@ import logging
 from io import StringIO
 from edk2toolext import edk2_logging
 from edk2toolext.environment import version_aggregator
-from edk2toolext.edk2_invocable import Edk2Invocable
+from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable
+from edk2toolext.invocables.edk2_multipkg_aware_invocable import MultiPkgAwareSettingsInterface
 from edk2toollib.utility_functions import RunCmd
 from edk2toollib.utility_functions import version_compare
 
 
-class SetupSettingsManager():
+class SetupSettingsManager(MultiPkgAwareSettingsInterface):
     ''' Platform settings will be accessed through this implementation. '''
 
     def GetActiveScopes(self):
@@ -49,7 +50,7 @@ class SetupSettingsManager():
         pass
 
 
-class Edk2PlatformSetup(Edk2Invocable):
+class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
     ''' Updates git submodules listed in required_repos '''
 
     def AddCommandLineOptions(self, parserObj):
@@ -58,10 +59,14 @@ class Edk2PlatformSetup(Edk2Invocable):
         parserObj.add_argument('--omnicache', '--OMNICACHE', '--Omnicache', dest='omnicache_path',
                                default=os.environ.get('OMNICACHE_PATH'))
 
+        super().AddCommandLineOptions(parserObj)
+
     def RetrieveCommandLineOptions(self, args):
         '''  Retrieve command line options from the argparser '''
         self.force_it = args.force
         self.omnicache_path = args.omnicache_path
+
+        super().RetrieveCommandLineOptions(args)
 
     def GetVerifyCheckRequired(self):
         ''' Will not call self_describing_environment.VerifyEnvironment because it hasn't been set up yet '''

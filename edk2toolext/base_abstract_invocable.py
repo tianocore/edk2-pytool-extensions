@@ -45,6 +45,12 @@ class BaseAbstractInvocable(object):
         ''' Return a path to folder for log files '''
         raise NotImplementedError()
 
+    def InputParametersConfiguredCallback(self):
+        ''' This function is called once all the input parameters
+        are collected and can be used to initialize environment
+        '''
+        pass
+
     def GetVerifyCheckRequired(self):
         ''' Will call self_describing_environment.VerifyEnvironment if this returns True '''
         return True
@@ -98,6 +104,7 @@ class BaseAbstractInvocable(object):
 
         self.ParseCommandLineOptions()
         self.ConfigureLogging()
+        self.InputParametersConfiguredCallback()
 
         logging.log(edk2_logging.SECTION, "Init SDE")
 
@@ -107,7 +114,7 @@ class BaseAbstractInvocable(object):
         (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(
             self.GetWorkspaceRoot(), self.GetActiveScopes())
 
-        # Make sure the environment verifies IF it is required for this invokation
+        # Make sure the environment verifies IF it is required for this invocation
         if self.GetVerifyCheckRequired() and not self_describing_environment.VerifyEnvironment(
                 self.GetWorkspaceRoot(), self.GetActiveScopes()):
             raise RuntimeError("SDE is not current.  Please update your env before running this tool.")
