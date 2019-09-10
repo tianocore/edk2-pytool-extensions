@@ -202,6 +202,10 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
             for Descriptor in pluginList:
                 # For each target
                 for target in self.requested_target_list:
+
+                    if(target not in Descriptor.Obj.RunsOnTargetList()):
+                        continue
+
                     edk2_logging.log_progress(f"--Running {pkgToRunOn}: {Descriptor.Name} {target} --")
                     total_num += 1
                     shell_environment.CheckpointBuildVars()
@@ -265,10 +269,6 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
                     shell_environment.RevertBuildVars()
                     # remove the logger
                     edk2_logging.remove_output_stream(plugin_output_stream)
-
-                    if not Descriptor.Obj.IsTargetDependent():
-                        # Plugin isn't Target Dependent -- break out of loop
-                        break
                 # finished target loop
             # Finished plugin loop
 
