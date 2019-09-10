@@ -43,10 +43,17 @@ class ICiBuildPlugin(object):
     ##
     # Returns a list of edk2 TARGETs that this plugin would like to run on
     #
-    # If the plugin is not Target specific it should return a list with one element of "ONCE"
+    # KNOWN TARGET VALUES:
+    #  DEBUG
+    #  RELEASE
+    #  NOOPT
+    #  NO-TARGET  
+    #
+    # If the plugin is not Target specific it should return a list of
+    # one element of "NO-TARGET"
     ##
     def RunsOnTargetList(self):
-        return ["ONCE"]
+        return ["NO-TARGET"]
 
     #
     # Walks a directory for all items ending in certain extension
