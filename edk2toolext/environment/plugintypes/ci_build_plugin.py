@@ -47,7 +47,7 @@ class ICiBuildPlugin(object):
     #  DEBUG
     #  RELEASE
     #  NOOPT
-    #  NO-TARGET  
+    #  NO-TARGET
     #
     # If the plugin is not Target specific it should return a list of
     # one element of "NO-TARGET"
