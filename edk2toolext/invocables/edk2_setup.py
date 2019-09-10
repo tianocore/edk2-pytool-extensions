@@ -11,7 +11,8 @@ import logging
 from io import StringIO
 from edk2toolext import edk2_logging
 from edk2toolext.environment import version_aggregator
-from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable, MultiPkgAwareSettingsInterface 
+from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable
+from edk2toolext.invocables.edk2_multipkg_aware_invocable import MultiPkgAwareSettingsInterface
 from edk2toollib.utility_functions import RunCmd
 from edk2toollib.utility_functions import version_compare
 

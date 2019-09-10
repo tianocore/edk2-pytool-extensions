@@ -3,7 +3,7 @@
 # invocable process.
 #
 # Add cmdline parameter handling, a base settings manager class,
-# and a Callback.  
+# and a Callback.
 #
 ##
 # Copyright (c) Microsoft Corporation
@@ -14,10 +14,10 @@ from edk2toolext.edk2_invocable import Edk2Invocable
 
 
 class MultiPkgAwareSettingsInterface():
-    ''' Settings to support Multi-Pkg functionality. 
-        This is an interface definition only 
-        to show which functions are required to be implemented 
-        and which functions can be implemented.  
+    ''' Settings to support Multi-Pkg functionality.
+        This is an interface definition only
+        to show which functions are required to be implemented
+        and which functions can be implemented.
      '''
 
     # ####################################################################################### #
@@ -106,7 +106,9 @@ class Edk2MultiPkgAwareInvocable(Edk2Invocable):
             self.requested_target_list = []
 
     def InputParametersConfiguredCallback(self):
-        ''' This function is called once all the input parameters are collected and can be used to initialize environment '''
+        ''' This function is called once all the input parameters are collected
+            and can be used to initialize environment
+        '''
         if(len(self.requested_package_list) == 0):
             self.requested_package_list = list(self.PlatformSettings.GetPackagesSupported())
         self.PlatformSettings.SetPackages(self.requested_package_list)

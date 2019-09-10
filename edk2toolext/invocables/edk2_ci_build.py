@@ -14,7 +14,8 @@ import yaml
 import traceback
 from edk2toollib.uefi.edk2.path_utilities import Edk2Path
 from edk2toollib.log.junit_report_format import JunitTestReport
-from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable, MultiPkgAwareSettingsInterface
+from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable
+from edk2toolext.invocables.edk2_multipkg_aware_invocable import MultiPkgAwareSettingsInterface
 from edk2toolext.environment import self_describing_environment
 from edk2toolext.environment.plugintypes.ci_build_plugin import ICiBuildPlugin
 from edk2toolext.environment import shell_environment
@@ -65,26 +66,6 @@ class CiBuildSettingsManager(MultiPkgAwareSettingsInterface):
     def GetPluginSettings(self):
         '''  Implement in subclass to pass dictionary of settings for individual plugins '''
         return {}
-
-
-def merge_config(config, pkg_config, descriptor={}):
-    plugin_name = ""
-    config = dict()
-    if "module" in descriptor:
-        plugin_name = descriptor["module"]
-    if "config_name" in descriptor:
-        plugin_name = descriptor["config_name"]
-
-    if plugin_name == "":
-        return config
-
-    if plugin_name in config:
-        config.update(config[plugin_name])
-
-    if plugin_name in pkg_config:
-        config.update(pkg_config[plugin_name])
-
-    return config
 
 
 class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
@@ -219,8 +200,8 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
                     plugin_output_stream = edk2_logging.create_output_stream()
 
                     # merge the repo level and package level for this specific plugin
-                    pkg_plugin_configuration = merge_config(self.PlatformSettings.GetPluginSettings(),
-                                                            pkg_config, Descriptor.descriptor)
+                    pkg_plugin_configuration = self.merge_config(self.PlatformSettings.GetPluginSettings(),
+                                                                 pkg_config, Descriptor.descriptor)
 
                     # Still need to see if the package decided this should be skipped
                     if pkg_plugin_configuration is None or\
@@ -286,6 +267,29 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
             edk2_logging.log_progress("Overall Build Status: Success")
 
         return failure_num
+
+    def merge_config(self, config, pkg_config, descriptor={}):
+        ''' Merge two configurations.  One global and one specific
+            to the package to create the proper config for a plugin
+            to execute.
+        '''
+        plugin_name = ""
+        config = dict()
+        if "module" in descriptor:
+            plugin_name = descriptor["module"]
+        if "config_name" in descriptor:
+            plugin_name = descriptor["config_name"]
+
+        if plugin_name == "":
+            return config
+
+        if plugin_name in config:
+            config.update(config[plugin_name])
+
+        if plugin_name in pkg_config:
+            config.update(pkg_config[plugin_name])
+
+        return config
 
 
 def main():

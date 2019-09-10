@@ -9,7 +9,8 @@
 import os
 import logging
 
-from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable, MultiPkgAwareSettingsInterface 
+from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable
+from edk2toolext.invocables.edk2_multipkg_aware_invocable import MultiPkgAwareSettingsInterface
 from edk2toolext.environment import repo_resolver
 
 
@@ -43,25 +44,6 @@ class CiSetupSettingsManager(MultiPkgAwareSettingsInterface):
         md   == markdown file logging
         '''
         pass
-
-def merge_config(in_config, pkg_config, descriptor={}):
-    plugin_name = ""
-    config = dict()
-    if "module" in descriptor:
-        plugin_name = descriptor["module"]
-    if "config_name" in descriptor:
-        plugin_name = descriptor["config_name"]
-
-    if plugin_name == "":
-        return config
-
-    if plugin_name in in_config:
-        config.update(in_config[plugin_name])
-
-    if plugin_name in pkg_config:
-        config.update(pkg_config[plugin_name])
-
-    return config
 
 
 class Edk2CiBuildSetup(Edk2MultiPkgAwareInvocable):

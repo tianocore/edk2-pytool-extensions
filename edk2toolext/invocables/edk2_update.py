@@ -9,7 +9,8 @@
 import logging
 from edk2toolext import edk2_logging
 from edk2toolext.environment import self_describing_environment
-from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable, MultiPkgAwareSettingsInterface
+from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable
+from edk2toolext.invocables.edk2_multipkg_aware_invocable import MultiPkgAwareSettingsInterface
 
 
 class UpdateSettingsManager(MultiPkgAwareSettingsInterface):

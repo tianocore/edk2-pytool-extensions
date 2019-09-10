@@ -46,7 +46,9 @@ class BaseAbstractInvocable(object):
         raise NotImplementedError()
 
     def InputParametersConfiguredCallback(self):
-        ''' This function is called once all the input parameters are collected and can be used to initialize environment '''
+        ''' This function is called once all the input parameters
+        are collected and can be used to initialize environment
+        '''
         pass
 
     def GetVerifyCheckRequired(self):
