@@ -13,8 +13,12 @@
 from edk2toolext.edk2_invocable import Edk2Invocable
 
 
-class MultiPkgAwareSettings():
-    ''' Settings to support Multi-Pkg functionality. '''
+class MultiPkgAwareSettingsInterface():
+    ''' Settings to support Multi-Pkg functionality. 
+        This is an interface definition only 
+        to show which functions are required to be implemented 
+        and which functions can be implemented.  
+     '''
 
     # ####################################################################################### #
     #                           Supported Values and Defaults                                 #
@@ -61,7 +65,13 @@ class MultiPkgAwareSettings():
 
 
 class Edk2MultiPkgAwareInvocable(Edk2Invocable):
-    ''' Base class for Multi-Pkg aware invocables '''
+    ''' Base class for Multi-Pkg aware invocable '''
+
+    def __init__(self):
+        self.requested_architecture_list = []
+        self.requested_package_list = []
+        self.requested_target_list = []
+        super().__init__()
 
     def AddCommandLineOptions(self, parserObj):
         ''' adds command line options to the argparser '''
@@ -84,6 +94,7 @@ class Edk2MultiPkgAwareInvocable(Edk2Invocable):
                 indiv_item = indiv_item.replace("\\", "/")  # in case cmd line caller used Windows folder slashes
                 packageListSet.add(indiv_item.strip())
         self.requested_package_list = list(packageListSet)
+
         if args.requested_arch is not None:
             self.requested_architecture_list = args.requested_arch.upper().split(",")
         else:
@@ -98,12 +109,12 @@ class Edk2MultiPkgAwareInvocable(Edk2Invocable):
         ''' This function is called once all the input parameters are collected and can be used to initialize environment '''
         if(len(self.requested_package_list) == 0):
             self.requested_package_list = list(self.PlatformSettings.GetPackagesSupported())
-        self.PlatformSettings.SetToPackage(self.requested_package_list)
+        self.PlatformSettings.SetPackages(self.requested_package_list)
 
         if(len(self.requested_architecture_list) == 0):
             self.requested_architecture_list = list(self.PlatformSettings.GetArchitecturesSupported())
-        self.PlatformSettings.SetToArchitecture(self.requested_architecture_list)
+        self.PlatformSettings.SetArchitectures(self.requested_architecture_list)
 
         if(len(self.requested_target_list) == 0):
             self.requested_target_list = list(self.PlatformSettings.GetTargetsSupported())
-        self.PlatformSettings.SetToTarget(self.requested_target_list)
+        self.PlatformSettings.SetTargets(self.requested_target_list)
