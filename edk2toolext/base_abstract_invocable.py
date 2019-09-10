@@ -45,8 +45,8 @@ class BaseAbstractInvocable(object):
         ''' Return a path to folder for log files '''
         raise NotImplementedError()
 
-    def InputParametersConfigured(self):
-        ''' Do any necessary work once all the input parameters are configured. '''
+    def InputParametersConfiguredCallback(self):
+        ''' This function is called once all the input parameters are collected and can be used to initialize environment '''
         pass
 
     def GetVerifyCheckRequired(self):
@@ -101,8 +101,8 @@ class BaseAbstractInvocable(object):
         ''' Main process function.  Should not need to be overwritten '''
 
         self.ParseCommandLineOptions()
-        self.InputParametersConfigured()
         self.ConfigureLogging()
+        self.InputParametersConfiguredCallback()
 
         logging.log(edk2_logging.SECTION, "Init SDE")
 

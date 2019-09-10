@@ -133,9 +133,8 @@ class Edk2PlatformSetup(Edk2Invocable):
         else:
             self.requested_target_list = []
 
-    def InputParametersConfigured(self):
-        ''' Do any necessary work once all the input parameters are configured.
-            Notify settings manager of Requested packages, arch, and targets '''
+    def InputParametersConfiguredCallback(self):
+        ''' This function is called once all the input parameters are collected and can be used to initialize environment '''
         if(len(self.requested_package_list) == 0):
             self.requested_package_list = list(self.PlatformSettings.GetPackagesSupported())
         self.PlatformSettings.SetToPackage(self.requested_package_list)

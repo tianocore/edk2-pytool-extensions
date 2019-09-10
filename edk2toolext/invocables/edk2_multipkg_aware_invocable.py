@@ -1,44 +1,20 @@
-# @file Edk2Update
-# Updates external dependencies for project_scope in workspace_path
-# as listed in Platform Config file.
+# @file edk2_multipkg_aware_invocable
+# An intermediate class that supports a multi-package aware
+# invocable process.
+#
+# Add cmdline parameter handling, a base settings manager class,
+# and a Callback.  
+#
 ##
 # Copyright (c) Microsoft Corporation
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
-import logging
-from edk2toolext import edk2_logging
-from edk2toolext.environment import self_describing_environment
 from edk2toolext.edk2_invocable import Edk2Invocable
 
 
-class UpdateSettingsManager():
-    ''' Platform settings will be accessed through this implementation. '''
-
-    def GetActiveScopes(self):
-        ''' get scope '''
-        raise NotImplementedError()
-
-    def GetWorkspaceRoot(self):
-        ''' get WorkspacePath '''
-        raise NotImplementedError()
-
-    def AddCommandLineOptions(self, parserObj):
-        ''' Implement in subclass to add command line options to the argparser '''
-        pass
-
-    def RetrieveCommandLineOptions(self, args):
-        '''  Implement in subclass to retrieve command line options from the argparser '''
-        pass
-
-    def GetLoggingLevel(self, loggerType):
-        ''' Get the logging level for a given type
-        base == lowest logging level supported
-        con  == Screen logging
-        txt  == plain text file logging
-        md   == markdown file logging
-        '''
-        pass
+class MultiPkgAwareSettings():
+    ''' Settings to support Multi-Pkg functionality. '''
 
     # ####################################################################################### #
     #                           Supported Values and Defaults                                 #
@@ -59,7 +35,7 @@ class UpdateSettingsManager():
     # ####################################################################################### #
     #                     Verify and Save requested Config                                    #
     # ####################################################################################### #
-    def SetToPackage(self, list_of_requested_packages):
+    def SetPackages(self, list_of_requested_packages):
         ''' Confirm the requests package list is valid and configure SettingsManager
         to build only the requested packages.
 
@@ -67,15 +43,15 @@ class UpdateSettingsManager():
         '''
         pass
 
-    def SetToArchitecture(self, list_of_requested_architectures):
+    def SetArchitectures(self, list_of_requested_architectures):
         ''' Confirm the requests architecture list is valid and configure SettingsManager
         to run only the requested architectures.
 
-        Raise Exception if a list_of_requested_architectures is not supported
+        Raise Exception if a requested_architecture is not supported
         '''
         pass
 
-    def SetToTarget(self, list_of_requested_target):
+    def SetTargets(self, list_of_requested_target):
         ''' Confirm the requests target list is valid and configure SettingsManager
         to run only the requested targets.
 
@@ -84,35 +60,8 @@ class UpdateSettingsManager():
         pass
 
 
-def build_env_changed(build_env, build_env_2):
-    ''' return True if build_env has changed '''
-
-    return (build_env.paths != build_env_2.paths) or \
-           (build_env.extdeps != build_env_2.extdeps) or \
-           (build_env.plugins != build_env_2.plugins)
-
-
-class Edk2Update(Edk2Invocable):
-    ''' Updates dependencies in workspace for active scopes '''
-
-    MAX_RETRY_COUNT = 10
-
-    def PerformUpdate(self):
-        (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(
-            self.GetWorkspaceRoot(), self.GetActiveScopes())
-        self_describing_environment.UpdateDependencies(self.GetWorkspaceRoot(), self.GetActiveScopes())
-        return (build_env, shell_env)
-
-    def GetVerifyCheckRequired(self):
-        ''' Will not call self_describing_environment.VerifyEnvironment because ext_deps haven't been unpacked yet '''
-        return False
-
-    def GetSettingsClass(self):
-        '''  Providing UpdateSettingsManger '''
-        return UpdateSettingsManager
-
-    def GetLoggingFileName(self, loggerType):
-        return "UPDATE_LOG"
+class Edk2MultiPkgAwareInvocable(Edk2Invocable):
+    ''' Base class for Multi-Pkg aware invocables '''
 
     def AddCommandLineOptions(self, parserObj):
         ''' adds command line options to the argparser '''
@@ -158,37 +107,3 @@ class Edk2Update(Edk2Invocable):
         if(len(self.requested_target_list) == 0):
             self.requested_target_list = list(self.PlatformSettings.GetTargetsSupported())
         self.PlatformSettings.SetToTarget(self.requested_target_list)
-
-    def Go(self):
-        # Get the environment set up.
-        RetryCount = 0
-        logging.log(edk2_logging.SECTION, "Initial update of environment")
-
-        (build_env_old, shell_env_old) = self.PerformUpdate()
-        self_describing_environment.DestroyEnvironment()
-
-        # Loop updating dependencies until there are 0 new dependencies or
-        # we have exceeded retry count.  This allows dependencies to carry
-        # files that influence the SDE.
-        while RetryCount < Edk2Update.MAX_RETRY_COUNT:
-            (build_env, shell_env) = self.PerformUpdate()
-
-            if not build_env_changed(build_env, build_env_old):  # check if the environment changed on our last update
-                break
-            # if the environment has changed, increment the retry count and notify user
-            RetryCount += 1
-            logging.log(edk2_logging.SECTION,
-                        f"Something in the environment changed. Updating environment again. Pass #{RetryCount}")
-
-            build_env_old = build_env
-            self_describing_environment.DestroyEnvironment()
-
-        if RetryCount >= Edk2Update.MAX_RETRY_COUNT:
-            logging.error(f"We did an update more than {Edk2Update.MAX_RETRY_COUNT} times.")
-            logging.error("Please check your dependencies and make sure you don't have any circular ones.")
-            return 1
-        return 0
-
-
-def main():
-    Edk2Update().Invoke()
