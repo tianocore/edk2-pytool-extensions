@@ -61,7 +61,7 @@ def clean_workspace():
         test_dir = None
 
 
-class TestGitDependency(unittest.TestCase):
+class TestNugetDependency(unittest.TestCase):
     def setUp(self):
         prep_workspace()
 
@@ -94,6 +94,8 @@ class TestGitDependency(unittest.TestCase):
         ext_dep.fetch()
         self.assertTrue(ext_dep.verify())
         self.assertEqual(ext_dep.version, good_version)
+        # make sure we clean up after ourselves
+        ext_dep.clean()
 
     # bad case
     def test_download_bad_nuget(self):
