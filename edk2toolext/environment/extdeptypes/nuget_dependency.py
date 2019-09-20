@@ -61,7 +61,7 @@ class NugetDependency(ExternalDependency):
 
         # Remove extra trailing zeros (beyond 3 elements).
         if len(version_parts) == 4 and version_parts[3] == 0:
-            version_parts = version_parts[0:2]
+            version_parts = version_parts[0:3]  # drop the last item
 
         # Add missing trailing zeros (below 3 elements).
         if len(version_parts) < 3:
@@ -140,7 +140,9 @@ class NugetDependency(ExternalDependency):
         cmd += ["-Version", self.version]
         cmd += ["-Verbosity", "detailed"]
         cmd += ["-OutputDirectory", '"' + temp_directory + '"']
-        RunCmd(cmd[0], " ".join(cmd[1:]))
+        ret = RunCmd(cmd[0], " ".join(cmd[1:]))
+        if ret != 0:
+            raise RuntimeError(f"[Nuget] We failed to install this version {self.version} of {package_name}")
 
         #
         # Next, copy the contents of the package to the

@@ -16,9 +16,9 @@ URL = "https://dist.nuget.org/win-x86-commandline/v{}/nuget.exe".format(VERSION)
 SHA256 = "0ace4f53493332c9a75291ee96acd76b371b4e687175e4852bf85948176d7152"
 
 
-def DownloadNuget(unpack_folder=None):
+def DownloadNuget(unpack_folder: str = None) -> list:
     '''
-     Downloads a version of NuGet to the specific folder as NuGet.exe 
+     Downloads a version of NuGet to the specific folder as NuGet.exe
      If the file already exists, it won't be redownloaded.
      The file will be checked against a SHA256 hash for accuracy
     '''
