@@ -51,7 +51,7 @@ class version_aggregator(object):
         Returns a copy of the aggregated information.
         """
         return copy.deepcopy(self.Versions)
-    
+
     def Reset(self):
         self.Versions = {}
 
