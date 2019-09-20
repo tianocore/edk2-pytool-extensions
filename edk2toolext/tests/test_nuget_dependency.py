@@ -7,6 +7,7 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 import os
+import sys
 import unittest
 import logging
 import shutil
@@ -82,7 +83,7 @@ class TestNugetDependency(unittest.TestCase):
 
     def test_can_get_nuget_path(self):
         nuget_cmd = NugetDependency.GetNugetCmd()[0]
-        ret = RunCmd(nuget_cmd[0], '')
+        ret = RunCmd(nuget_cmd, '', outstream=sys.stdout)
         self.assertEqual(ret, 0)  # make sure we have a zero return code
 
     # good case
