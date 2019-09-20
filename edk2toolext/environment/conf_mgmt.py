@@ -205,7 +205,7 @@ class ConfMgmt():
             # check if already specified
             vc_ver = shell_environment.GetEnvironment().get_shell_var(varname)
             if (path is None):
-                self.Logger.critical("Failed to find VC tools.  Might need to check for VS install")
+                self.Logger.critical("Failed to find Visual Studio tools.  Might need to check for VS install")
                 return vc_ver
             if(vc_ver is None):
                 # Not specified...find latest
