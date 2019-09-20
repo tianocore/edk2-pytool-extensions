@@ -12,6 +12,7 @@ import logging
 import shutil
 import stat
 import tempfile
+from edk2toollib.utility_functions import RunCmd
 from edk2toolext.environment import environment_descriptor_files as EDF
 from edk2toolext.environment.extdeptypes.nuget_dependency import NugetDependency
 from edk2toolext.environment import version_aggregator
@@ -81,7 +82,8 @@ class TestNugetDependency(unittest.TestCase):
 
     def test_can_get_nuget_path(self):
         nuget_cmd = NugetDependency.GetNugetCmd()[0]
-        self.assertTrue(os.path.exists(nuget_cmd))
+        ret = RunCmd(nuget_cmd[0], '')
+        self.assertEqual(ret, 0)  # make sure we have a zero return code
 
     # good case
     def test_download_good_nuget(self):
