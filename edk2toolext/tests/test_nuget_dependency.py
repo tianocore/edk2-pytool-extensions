@@ -74,7 +74,7 @@ class TestGitDependency(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         clean_workspace()
-    
+
     def tearDown(self):
         # we need to reset the version aggregator each time
         version_aggregator.GetVersionAggregator().Reset()

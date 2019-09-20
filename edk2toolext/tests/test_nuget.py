@@ -19,7 +19,7 @@ class Test_nuget(unittest.TestCase):
         self.assertFalse(os.path.exists(nuget_path))
         nuget.DownloadNuget(test_dir)
         self.assertTrue(os.path.exists(nuget_path))
-    
+
     def test_checks_nuget_sha(self):
         test_dir = tempfile.mkdtemp()
         nuget_path = os.path.join(test_dir, "NuGet.exe")
@@ -28,4 +28,3 @@ class Test_nuget(unittest.TestCase):
         file.close()
         with self.assertRaises(RuntimeError):
             nuget.DownloadNuget(test_dir)
-        
