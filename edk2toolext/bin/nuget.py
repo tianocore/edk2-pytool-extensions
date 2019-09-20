@@ -17,6 +17,11 @@ SHA256 = "0ace4f53493332c9a75291ee96acd76b371b4e687175e4852bf85948176d7152"
 
 
 def DownloadNuget(unpack_folder=None):
+    '''
+     Downloads a version of NuGet to the specific folder as NuGet.exe 
+     If the file already exists, it won't be redownloaded.
+     The file will be checked against a SHA256 hash for accuracy
+    '''
     if unpack_folder is None:
         unpack_folder = os.path.dirname(__file__)
 
