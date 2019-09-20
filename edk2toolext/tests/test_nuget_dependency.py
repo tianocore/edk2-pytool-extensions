@@ -82,8 +82,9 @@ class TestNugetDependency(unittest.TestCase):
         version_aggregator.GetVersionAggregator().Reset()
 
     def test_can_get_nuget_path(self):
-        nuget_cmd = " ".join(NugetDependency.GetNugetCmd())
-        ret = RunCmd(nuget_cmd, '', outstream=sys.stdout)
+        nuget_cmd = NugetDependency.GetNugetCmd()
+        nuget_cmd += ["locals", "global-packages", "-list"]
+        ret = RunCmd(nuget_cmd[0], ' '.join(nuget_cmd[1:]), outstream=sys.stdout)
         self.assertEqual(ret, 0)  # make sure we have a zero return code
 
     # good case
