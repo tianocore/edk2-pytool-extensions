@@ -199,8 +199,24 @@ class Edk2BinaryBuild(Edk2Invocable):
 - _RetrieveCommandLineOptions_ similar to above
 - _GetSettingsClass_ the class that we want to look for
 - _GetLoggingFileName_ the name of the file we want to create for txt and markdown files.
+- _Go_ is the business logic of the invocable.
 
-Go is the main bread and butter so to speak of an invocable. If we were to run this right now, we would see this as output (assuming you created an empty settings class).
+Now let's implement an actual method to handle main and being called from the commandline or a pip link.
+
+```python
+def main():
+    Edk2BinaryBuild().Invoke()
+
+
+if __name__ == "__main__":
+    DriverBuilder.main()  # otherwise we're in __main__ context
+```
+As you can see, we call oursevles via import rather than just directly calling main.
+This is a quirk/design flaw that might be revisited in the future, but in the meantime, this is a workaround.
+
+Now that we have a way to invoke this and execute our go, we can call if from teh commandline.
+
+If we were to run this right now, we would see this as output (assuming you created an empty settings class).
 ```console
 SECTION - Init SDE
 SECTION - Loading Plugins
@@ -284,19 +300,9 @@ Here's what we will be importing:
 
 ```python
 import os
-from edk2toolext.environment import shell_environment
 import logging
-import shutil
-from edk2toolext.environment.uefi_build import UefiBuilder
 from edk2toolext.invocables.edk2_ci_setup import CiSetupSettingsManager
 from edk2toolext.invocables.edk2_update import UpdateSettingsManager
-from edk2toollib.utility_functions import RunCmd
-from edk2toollib.utility_functions import RunPythonScript
-from edk2toolext.environment.extdeptypes.nuget_dependency import NugetDependency
-import glob
-from io import StringIO
-import re
-import tempfile
 try:
     from DriverBuilder import BinaryBuildSettingsManager
 except Exception:
@@ -309,4 +315,371 @@ from edk2toollib.utility_functions import GetHostInfo
 
 One of the key features of settings class is that it can implement multiple settings managers, or you can have multiple classes in the file that implement that particular settingsmanagerclass.
 The invokable finds the first instancable class that implements that particular settings class that we care about.
-We're going to
+Now that we have our imports, we will create a settingsmanager class that implements CiSetupSettingsManager, UpdateSettingsManager, and BinaryBuildSettingsManager.
+
+```python
+#
+# ==========================================================================
+# PLATFORM BUILD ENVIRONMENT CONFIGURATION
+#
+
+class SettingsManager(UpdateSettingsManager, CiSetupSettingsManager, BinaryBuildSettingsManager):
+    def __init__(self):
+        SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
+
+        WORKSPACE_PATH = os.path.dirname(os.path.dirname(SCRIPT_PATH))
+
+        self.OUTPUT_DIR = os.path.join(WORKSPACE_PATH, "Build", ".NugetOutput")
+        self.ws = WORKSPACE_PATH
+        pass
+
+    def GetActiveScopes(self):
+        ''' get scope '''
+        scopes = ("corebuild", "sharednetworking_build", )
+        return scopes
+
+```
+
+We implementing GetActiveScopes and the init function. Let's implement the hooks.
+
+```python
+class SettingsManager(UpdateSettingsManager, CiSetupSettingsManager, BinaryBuildSettingsManager):
+
+    ...
+
+    def PreFirstBuildHook(self):
+        output_dir = self.OUTPUT_DIR
+        try:
+            if os.path.exists(output_dir):
+                logging.warning(f"Deleting {output_dir}")
+                shutil.rmtree(output_dir, ignore_errors=True)
+            os.makedirs(output_dir)
+        except:
+            pass
+
+        self.nuget_version = self._GetNextVersion(self.nuget_version)
+        return 0
+
+    def PostBuildHook(self, ret):
+        if ret == 0:
+            ret = self._CollectNuget()
+        if ret != 0:
+            logging.error("Error occured in post build hook")
+        return ret
+
+    def PostFinalBuildHook(self, ret):
+        if ret != 0:
+            logging.error(
+                "There was failure along the way aborting NUGET publish")
+            return
+        self._PublishNuget()
+```
+
+Some of the functions such as _CollectNuget have been redacted for brevity.
+On PostBuild we collect the files into the nuget package.
+On prebuild we figure out the next version of our nuget package and delete what we've previously collected.
+On the final build, we publish the nuget file.
+
+Now we will implement a few more pieces needed
+```python
+class SettingsManager(UpdateSettingsManager, CiSetupSettingsManager, BinaryBuildSettingsManager):
+
+    ...
+
+     def GetConfigurations(self):
+        TARGETS = self.GetTargetsSupported()
+        ARCHS = self.GetArchitecturesSupported()
+        # combine options together
+        for target in TARGETS:
+            for arch in ARCHS:
+                self.target = target
+                self.arch = arch
+                yield({"TARGET": target, "TARGET_ARCH": arch, "ACTIVE_PLATFORM": "NetworkPkg/SharedNetworking/SharedNetworkPkg.dsc"})
+```
+
+We use a generator to yield the settings we want each configuration to be.
+We iterate through these in the invocable and apply them to the environment.
+Since you own the invocable, you can modify this as you see fit, which makes this very modular.
+
+Let's add in functions for the other SettingsManagers.
+```python
+class SettingsManager(UpdateSettingsManager, CiSetupSettingsManager, BinaryBuildSettingsManager):
+
+    ...
+
+    def GetWorkspaceRoot(self):
+        ''' get WorkspacePath '''
+        return self.ws
+
+    def GetModulePkgsPath(self):
+        ''' get module packages path '''
+        return self.pp
+
+    def GetRequiredRepos(self):
+        ''' get required repos '''
+        return self.rr
+
+    def GetName(self):
+        return "SharedNetworking"
+
+    def GetPackagesSupported(self):
+        return "NetworkPkg"
+
+    def GetArchitecturesSupported(self):
+        return ["IA32", "AARCH64", "X64"]
+
+    def GetTargetsSupported(self):
+        return ["DEBUG", "RELEASE"]
+
+    def GetDependencies(self):
+        return []
+
+```
+
+The methods implemented here are a mix of our own settings class and other invocables such as stuart_update or stuart_setup.
+Hopefully they're straightforward and easy to follow.
+
+## Conclusion
+
+That brings us to the end of the tutorial, you should have a working invocable and a settings file (well with some methods missing).
+Here they are for easy copy and pasting:
+
+### DriverBuilder.py
+```python
+# @file Edk2BinaryBuild.py
+# This module contains code that supports building of binary files
+# This is the main entry for the build and test process of binary builds
+##
+# Copyright (c) Microsoft Corporation
+#
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+import os
+import logging
+from edk2toolext.environment import plugin_manager
+from edk2toolext.environment.plugintypes.uefi_helper_plugin import HelperFunctions
+from edk2toolext.edk2_invocable import Edk2Invocable
+from edk2toolext.environment import self_describing_environment
+from edk2toolext.environment import shell_environment
+from edk2toolext.environment.uefi_build import UefiBuilder
+from edk2toolext import edk2_logging
+import DriverBuilder  # this is a little weird
+
+
+class BinaryBuildSettingsManager():
+    ''' Platform settings will be accessed through this implementation. '''
+
+    def GetActiveScopes(self):
+        ''' get scope '''
+        raise NotImplementedError()
+
+    def GetWorkspaceRoot(self):
+        ''' get WorkspacePath '''
+        raise NotImplementedError()
+
+    def GetPackagesPath(self):
+        pass
+
+    def GetConfigurations(self):
+        '''
+        Gets the next configuration of this run
+        This is a generator pattern - use yield
+        '''
+        raise NotImplementedError()
+
+    def PreFirstBuildHook(self):
+        ''' Called after the before the first build '''
+        return 0
+
+    def PostFinalBuildHook(self, ret):
+        ''' Called after the final build with the summed return code '''
+        return 0
+
+    def PostBuildHook(self, ret):
+        ''' Called after each build with the return code '''
+        return 0
+
+    def PreBuildHook(self):
+        ''' Called before each build '''
+        return 0
+
+    def GetName(self):
+        ''' Get the name of the repo, platform, or product being build by CI '''
+        raise NotImplementedError()
+
+    def AddCommandLineOptions(self, parserObj):
+        ''' Implement in subclass to add command line options to the argparser '''
+        pass
+
+    def RetrieveCommandLineOptions(self, args):
+        '''  Implement in subclass to retrieve command line options from the argparser '''
+        pass
+
+
+class Edk2BinaryBuild(Edk2Invocable):
+    def GetLoggingLevel(self, loggerType):
+        ''' Get the logging level for a given type
+        base == lowest logging level supported
+        con  == Screen logging
+        txt  == plain text file logging
+        md   == markdown file logging
+        '''
+        if(loggerType == "con") and not self.Verbose:
+            return logging.WARNING
+        return logging.DEBUG
+
+    def AddCommandLineOptions(self, parser):
+        pass
+
+    def RetrieveCommandLineOptions(self, args):
+        '''  Retrieve command line options from the argparser '''
+        pass
+
+    def GetSettingsClass(self):
+        return BinaryBuildSettingsManager
+
+    def GetLoggingFileName(self, loggerType):
+        return "BINARY_BUILDLOG"
+
+    def Go(self):
+        return 0
+
+
+def main():
+    Edk2BinaryBuild().Invoke()
+
+
+if __name__ == "__main__":
+    DriverBuilder.main()  # otherwise we're in __main__ context
+```
+
+### SharedNetworkingSettings
+
+```python
+##
+# Script to Build Shared Crypto Driver
+# Copyright Microsoft Corporation, 2019
+#
+# This is to build the SharedNetworking binaries for NuGet publishing
+##
+import os
+import logging
+from edk2toolext.environment.uefi_build import UefiBuilder
+from edk2toolext.invocables.edk2_ci_setup import CiSetupSettingsManager
+from edk2toolext.invocables.edk2_update import UpdateSettingsManager
+try:
+    from DriverBuilder_temp import BinaryBuildSettingsManager
+except Exception:
+    class BinaryBuildSettingsManager:
+        def __init__():
+            raise RuntimeError("You shouldn't be including this")
+    pass
+from edk2toollib.utility_functions import GetHostInfo
+
+#
+# ==========================================================================
+# PLATFORM BUILD ENVIRONMENT CONFIGURATION
+#
+
+class SettingsManager(UpdateSettingsManager, CiSetupSettingsManager, BinaryBuildSettingsManager):
+    def __init__(self):
+        SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
+
+        WORKSPACE_PATH = os.path.dirname(os.path.dirname(SCRIPT_PATH))
+        REQUIRED_REPOS = ('Common/MU_TIANO',
+                          "Silicon/Arm/MU_TIANO")  # todo fix this
+
+        MODULE_PKG_PATHS = ";".join(os.path.join(
+            WORKSPACE_PATH, pkg_name) for pkg_name in REQUIRED_REPOS)
+
+        self.OUTPUT_DIR = os.path.join(WORKSPACE_PATH, "Build", ".NugetOutput")
+        self.ws = WORKSPACE_PATH
+        self.pp = MODULE_PKG_PATHS
+        self.rr = REQUIRED_REPOS
+        self.sp = SCRIPT_PATH
+        self.nuget_version = None
+        pass
+
+    def GetActiveScopes(self):
+        ''' get scope '''
+        scopes = ("corebuild", "sharednetworking_build", )
+        return scopes
+
+    def PreFirstBuildHook(self):
+        output_dir = self.OUTPUT_DIR
+        try:
+            if os.path.exists(output_dir):
+                logging.warning(f"Deleting {output_dir}")
+                shutil.rmtree(output_dir, ignore_errors=True)
+            os.makedirs(output_dir)
+        except:
+            pass
+
+        self.nuget_version = self._GetNextVersion(self.nuget_version)
+        return 0
+
+    def PostBuildHook(self, ret):
+        if ret == 0:
+            ret = self._CollectNuget()
+        if ret != 0:
+            logging.error("Error occured in post build hook")
+        return ret
+
+    def PostFinalBuildHook(self, ret):
+        if ret != 0:
+            logging.error(
+                "There was failure along the way aborting NUGET publish")
+            return
+        self._PublishNuget()
+
+    def GetWorkspaceRoot(self):
+        ''' get WorkspacePath '''
+        return self.ws
+
+    def GetModulePkgsPath(self):
+        ''' get module packages path '''
+        return self.pp
+
+    def GetRequiredRepos(self):
+        ''' get required repos '''
+        return self.rr
+
+    def GetName(self):
+        return "SharedNetworking"
+
+    def GetPackagesSupported(self):
+        return "NetworkPkg"
+
+    def GetArchitecturesSupported(self):
+        return ["IA32", "AARCH64", "X64"]
+
+    def GetTargetsSupported(self):
+        return ["DEBUG", "RELEASE"]
+
+    def GetConfigurations(self):
+        TARGETS = self.GetTargetsSupported()
+        ARCHS = self.GetArchitecturesSupported()
+        # combine options together
+        for target in TARGETS:
+            for arch in ARCHS:
+                self.target = target
+                self.arch = arch
+                yield({"TARGET": target, "TARGET_ARCH": arch, "ACTIVE_PLATFORM": "NetworkPkg/SharedNetworking/SharedNetworkPkg.dsc"})
+
+    def GetDependencies(self):
+        return []
+
+    def AddCommandLineOptions(self, parserObj):
+        ''' Add command line options to the argparser '''
+        parserObj.add_argument('-d', '--dump_version', '--dump-version', dest='dump_version',
+                               type=bool, default=False, help='Should I dump nuget information?')
+        parserObj.add_argument("-nv", "--nuget_version", "--nuget-version", dest="nug_ver",
+                               type=str, default=None, help="Nuget Version for package")
+
+    def RetrieveCommandLineOptions(self, args):
+        '''  Retrieve command line options from the argparser '''
+        shell_environment.GetBuildVars().SetValue(
+            "TOOL_CHAIN_TAG", "VS2017", "Set default")
+        self.nuget_version = args.nug_ver
+        self.should_dump_version = args.dump_version
+```
