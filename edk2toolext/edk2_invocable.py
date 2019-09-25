@@ -1,5 +1,7 @@
 # @file edk2_invocable
-# Middle layer providing Project MU specific parsing to Invocable tools.
+# Class Object providing Edk2 specific Invocable functionality
+#
+# This should not be instantiated but should be used as baseclass
 ##
 # Copyright (c) Microsoft Corporation
 #
@@ -176,23 +178,24 @@ Key=value will get passed to build process for given build type)'''
         env = shell_environment.GetBuildVars()
         BuildConfig = os.path.abspath(args.build_config)
 
+        for argument in unknown_args:
+            if argument.count("=") != 1:
+                raise RuntimeError(f"Unknown variable passed in via CLI: {argument}")
+            tokens = argument.strip().split("=")
+            env.SetValue(tokens[0].strip().upper(), tokens[1].strip(), "From CmdLine")
+
+        unknown_args.clear()  # remove the arguments we've already consumed
+
         if os.path.isfile(BuildConfig):
             with open(BuildConfig) as file:
                 for line in file:
-                    stripped_line = line.strip()
-                    if not stripped_line.startswith("#"):
-                        unknown_args.append(line)
+                    stripped_line = line.strip().partition("#")[0]
+                    if len(stripped_line) == 0:
+                        continue
+                    unknown_args.append(stripped_line)
 
-        i = 0
-        while i < len(unknown_args):
-            unknown_arg = unknown_args[i]
-            if(unknown_arg.count("=") == 1):
-                tokens = unknown_arg.strip().split("=")
-                env.SetValue(tokens[0].strip().upper(), tokens[1].strip(), "From CmdLine")
-                del unknown_args[i]
-            else:
-                i += 1
-
-        if len(unknown_args) > 0:
-            parserObj.print_help()
-            raise RuntimeError(f"Unknown variables passed in: {unknown_args}")
+        for argument in unknown_args:
+            if argument.count("=") != 1:
+                raise RuntimeError(f"Unknown variable passed in via BuildConfig: {argument}")
+            tokens = argument.strip().split("=")
+            env.SetValue(tokens[0].strip().upper(), tokens[1].strip(), "From BuildConf")

@@ -15,7 +15,7 @@ import xml.etree.ElementTree as etree
 import shutil
 import datetime
 from io import StringIO
-from edk2toolext.NugetDependency import NugetDependency
+from edk2toolext.environment.extdeptypes.nuget_dependency import NugetDependency
 from edk2toollib.utility_functions import RunCmd
 
 OPEN_SOURCE_INITIATIVE_URL = "https://opensource.org/licenses/"

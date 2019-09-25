@@ -61,12 +61,11 @@ def get_progress_level():
     return PROGRESS
 
 
-def get_mu_filter(verbose=False):
-    # gMuFilter = MuLogFilter.instance()
-    gMuFilter = MuLogFilter()
+def get_edk2_filter(verbose=False):
+    gEdk2Filter = Edk2LogFilter()
     if verbose:
-        gMuFilter.setVerbose(verbose)
-    return gMuFilter
+        gEdk2Filter.setVerbose(verbose)
+    return gEdk2Filter
 
 
 def log_progress(message):
@@ -105,7 +104,7 @@ def setup_txt_logger(directory, filename="log", logging_level=logging.INFO,
     filelogger.setFormatter(log_formatter)
     logger.addHandler(filelogger)
 
-    filelogger.addFilter(get_mu_filter(isVerbose))
+    filelogger.addFilter(get_edk2_filter(isVerbose))
 
     return logfile_path, filelogger
 
@@ -134,7 +133,7 @@ def setup_markdown_logger(directory, filename="log", logging_level=logging.INFO,
     if logging_level <= logging.DEBUG:
         logging_level = logging.INFO  # we don't show debugging output in markdown since it gets too full
 
-    markdownHandler.addFilter(get_mu_filter(isVerbose))
+    markdownHandler.addFilter(get_edk2_filter(isVerbose))
 
     markdownHandler.setLevel(logging_level)
     logger.addHandler(markdownHandler)
@@ -158,7 +157,7 @@ def setup_console_logging(logging_level=logging.INFO, formatter=None, logging_na
     # create a safe handler so that any logging emitted when creating the ansi logger is handled
     safeHandler = logging.StreamHandler()
     safeHandler.setLevel(logging_level)
-    safeHandler.addFilter(get_mu_filter(isVerbose))
+    safeHandler.addFilter(get_edk2_filter(isVerbose))
     safeHandler.setFormatter(formatter)
     logger = logging.getLogger(logging_namespace)
     logger.addHandler(safeHandler)
@@ -168,7 +167,7 @@ def setup_console_logging(logging_level=logging.INFO, formatter=None, logging_na
         formatter = ansi_handler.ColoredFormatter(formatter_msg, use_azure=use_azure_colors)
         coloredHandler = ansi_handler.ColoredStreamHandler()
         coloredHandler.setLevel(logging_level)
-        coloredHandler.addFilter(get_mu_filter(isVerbose))
+        coloredHandler.addFilter(get_edk2_filter(isVerbose))
         coloredHandler.setFormatter(formatter)
         # make sure to remove the safe handler so we don't have two handlers
         logger.removeHandler(safeHandler)
@@ -212,8 +211,6 @@ def remove_output_stream(handler, logging_namespace=''):
     else:
         logger.removeHandler(handler)
 
-# TODO: how to merge this into mu_build since this is copy and pasted
-
 
 def scan_compiler_output(output_stream):
     # seek to the start of the output stream
@@ -255,7 +252,7 @@ def scan_compiler_output(output_stream):
     return problems
 
 
-class MuLogFilter(logging.Filter):
+class Edk2LogFilter(logging.Filter):
     _allowedLoggers = ["root"]
 
     def __init__(self):
@@ -269,11 +266,11 @@ class MuLogFilter(logging.Filter):
     def addSection(self, section):
         # TODO request the global singleton?
         # how to make this class static
-        MuLogFilter._allowedLoggers.append(section)
+        Edk2LogFilter._allowedLoggers.append(section)
 
     def filter(self, record):
         # check to make sure we haven't already filtered this record
-        if record.name not in MuLogFilter._allowedLoggers and record.levelno < logging.CRITICAL and not self._verbose:
+        if record.name not in Edk2LogFilter._allowedLoggers and record.levelno < logging.CRITICAL and not self._verbose:
             return False
 
         return True
