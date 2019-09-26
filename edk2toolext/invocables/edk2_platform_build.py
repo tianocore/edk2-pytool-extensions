@@ -105,7 +105,7 @@ class Edk2PlatformBuild(Edk2Invocable):
         display_pip_package_info(PIP_PACKAGES_LIST)
         # Get the current python version
         cur_py = "%d.%d.%d" % sys.version_info[:3]
-        VersionAggregator.GetVersionAggregator().ReportVersion("Python", cur_py, VersionAggregator.VersionTypes.TOOL)
+        version_aggregator.GetVersionAggregator().ReportVersion("Python", cur_py, VersionAggregator.VersionTypes.TOOL)
 
         (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(
             self.GetWorkspaceRoot(), self.GetActiveScopes())
