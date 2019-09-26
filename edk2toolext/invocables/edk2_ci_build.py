@@ -132,7 +132,12 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
             pc = '"' + pc + '"'
         shell_env.set_shell_var("PYTHON_COMMAND", pc)
 
-        env.SetValue("TARGET_ARCH", " ".join(self.requested_architecture_list), "from edk2 ci build.py")
+        try:
+            arches = self.PlatformSettings.ActualTargets
+        except NameError:
+            arches = self.requested_architecture_list
+
+        env.SetValue("TARGET_ARCH", " ".join(arches), "from edk2 ci build.py")
 
         # Generate consumable XML object- junit format
         JunitReport = JunitTestReport()
