@@ -61,12 +61,11 @@ def get_progress_level():
     return PROGRESS
 
 
-def get_mu_filter(verbose=False):
-    # gMuFilter = MuLogFilter.instance()
-    gMuFilter = MuLogFilter()
+def get_edk2_filter(verbose=False):
+    gEdk2Filter = Edk2LogFilter()
     if verbose:
-        gMuFilter.setVerbose(verbose)
-    return gMuFilter
+        gEdk2Filter.setVerbose(verbose)
+    return gEdk2Filter
 
 
 def log_progress(message):
@@ -105,7 +104,7 @@ def setup_txt_logger(directory, filename="log", logging_level=logging.INFO,
     filelogger.setFormatter(log_formatter)
     logger.addHandler(filelogger)
 
-    filelogger.addFilter(get_mu_filter(isVerbose))
+    filelogger.addFilter(get_edk2_filter(isVerbose))
 
     return logfile_path, filelogger
 
@@ -134,7 +133,7 @@ def setup_markdown_logger(directory, filename="log", logging_level=logging.INFO,
     if logging_level <= logging.DEBUG:
         logging_level = logging.INFO  # we don't show debugging output in markdown since it gets too full
 
-    markdownHandler.addFilter(get_mu_filter(isVerbose))
+    markdownHandler.addFilter(get_edk2_filter(isVerbose))
 
     markdownHandler.setLevel(logging_level)
     logger.addHandler(markdownHandler)
@@ -158,7 +157,7 @@ def setup_console_logging(logging_level=logging.INFO, formatter=None, logging_na
     # create a safe handler so that any logging emitted when creating the ansi logger is handled
     safeHandler = logging.StreamHandler()
     safeHandler.setLevel(logging_level)
-    safeHandler.addFilter(get_mu_filter(isVerbose))
+    safeHandler.addFilter(get_edk2_filter(isVerbose))
     safeHandler.setFormatter(formatter)
     logger = logging.getLogger(logging_namespace)
     logger.addHandler(safeHandler)
@@ -168,7 +167,7 @@ def setup_console_logging(logging_level=logging.INFO, formatter=None, logging_na
         formatter = ansi_handler.ColoredFormatter(formatter_msg, use_azure=use_azure_colors)
         coloredHandler = ansi_handler.ColoredStreamHandler()
         coloredHandler.setLevel(logging_level)
-        coloredHandler.addFilter(get_mu_filter(isVerbose))
+        coloredHandler.addFilter(get_edk2_filter(isVerbose))
         coloredHandler.setFormatter(formatter)
         # make sure to remove the safe handler so we don't have two handlers
         logger.removeHandler(safeHandler)
@@ -212,39 +211,48 @@ def remove_output_stream(handler, logging_namespace=''):
     else:
         logger.removeHandler(handler)
 
-# TODO: how to merge this into mu_build since this is copy and pasted
-
 
 def scan_compiler_output(output_stream):
     # seek to the start of the output stream
+    def output_compiler_error(match, line, start_txt="Compiler"):
+        start, end = match.span()
+        source = line[:start]
+        error = line[end:]
+        num = match.group(1)
+        return f"{start_txt} #{num} from {source} {error}"
     problems = []
     output_stream.seek(0, 0)
-    error_exp = re.compile(r"error C(\d+):")
+    error_exp = re.compile(r"error [A-EG-Z]?(\d+):")
     edk2_error_exp = re.compile(r"error F(\d+):")
     buildpy_error_exp = re.compile(r"error (\d+)E:")
     linker_error_exp = re.compile(r"error LNK(\d+):")
-    warning_exp = re.compile(r"warning C(\d+):")
+    warning_exp = re.compile(r"warning [A-Z]?(\d+):")
     for raw_line in output_stream.readlines():
         line = raw_line.strip("\n").strip()
         match = error_exp.search(line)
         if match is not None:
-            problems.append((logging.ERROR, "Compile: Error: {0}".format(line)))
+            error = output_compiler_error(match, line, "Compiler")
+            problems.append((logging.ERROR, error))
         match = warning_exp.search(line)
         if match is not None:
-            problems.append((logging.WARNING, "Compile: Warning: {0}".format(line)))
+            error = output_compiler_error(match, line, "Compiler")
+            problems.append((logging.WARNING, error))
         match = linker_error_exp.search(line)
         if match is not None:
-            problems.append((logging.ERROR, "Linker: Error: {0}".format(line)))
+            error = output_compiler_error(match, line, "Linker")
+            problems.append((logging.ERROR, error))
         match = edk2_error_exp.search(line)
         if match is not None:
-            problems.append((logging.ERROR, "EDK2: Error: {0}".format(line)))
+            error = output_compiler_error(match, line, "EDK2")
+            problems.append((logging.ERROR, error))
         match = buildpy_error_exp.search(line)
         if match is not None:
-            problems.append((logging.ERROR, "Build.py: Error: {0}".format(line)))
+            error = output_compiler_error(match, line, "Build.py")
+            problems.append((logging.ERROR, error))
     return problems
 
 
-class MuLogFilter(logging.Filter):
+class Edk2LogFilter(logging.Filter):
     _allowedLoggers = ["root"]
 
     def __init__(self):
@@ -258,11 +266,11 @@ class MuLogFilter(logging.Filter):
     def addSection(self, section):
         # TODO request the global singleton?
         # how to make this class static
-        MuLogFilter._allowedLoggers.append(section)
+        Edk2LogFilter._allowedLoggers.append(section)
 
     def filter(self, record):
         # check to make sure we haven't already filtered this record
-        if record.name not in MuLogFilter._allowedLoggers and record.levelno < logging.CRITICAL and not self._verbose:
+        if record.name not in Edk2LogFilter._allowedLoggers and record.levelno < logging.CRITICAL and not self._verbose:
             return False
 
         return True

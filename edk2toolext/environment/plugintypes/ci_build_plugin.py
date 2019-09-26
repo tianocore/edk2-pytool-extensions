@@ -41,20 +41,19 @@ class ICiBuildPlugin(object):
         pass
 
     ##
-    # Returns true or false if plugin would like to be called for each target
+    # Returns a list of edk2 TARGETs that this plugin would like to run on
+    #
+    # KNOWN TARGET VALUES:
+    #  DEBUG
+    #  RELEASE
+    #  NOOPT
+    #  NO-TARGET
+    #
+    # If the plugin is not Target specific it should return a list of
+    # one element of "NO-TARGET"
     ##
-    def IsTargetDependent(self):
-        return False
-
-    ##
-    # Validates a configurations package .mu.json
-    ##
-
-    def ValidateConfig(self, config, name=""):
-        # rather than doing the validation in the plugin, perhaps the plugin
-        # can return their required list and their optional list
-        # raise an exception if error is found
-        pass
+    def RunsOnTargetList(self):
+        return ["NO-TARGET"]
 
     #
     # Walks a directory for all items ending in certain extension
@@ -102,30 +101,3 @@ class ICiBuildPlugin(object):
                             returnlist.append(os.path.join(Root, File))
 
         return returnlist
-
-    # Gets the first DSC it can find in a particular folder (currently doesn't handle .mu.dsc.yamls)
-    # returns None when none are found
-    def get_dsc_name_in_dir(self, folderpath):
-        dsc_list = self.get_dscs_in_dir(folderpath)
-        if len(dsc_list) == 0:
-            return None
-        else:
-            return dsc_list[0]
-
-    # Gets the DSC's for a particular folder (currently doesn't handle .mu.dsc.yamls)
-    # returns an empty list when none ar efound
-    def get_dscs_in_dir(self, folderpath):
-        try:
-            directory = folderpath
-            allEntries = os.listdir(directory)
-            dscsFound = []
-            for entry in allEntries:
-                if entry.endswith(".dsc"):
-                    dscsFound.append(os.path.join(directory, entry))
-                if entry.endswith(".mu.dsc.yaml"):
-                    jsonFile = entry
-                    logging.info("We should create a DSC from the JSON file on the fly: {0}".format(jsonFile))
-            return dscsFound
-        except Exception:
-            logging.error("Unable to find DSC for package:{0}".format(folderpath))
-            return []

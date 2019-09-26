@@ -1,4 +1,4 @@
-## @file test_web_dependency.py
+# @file test_web_dependency.py
 # Unit test suite for the WebDependency class.
 #
 ##
@@ -14,6 +14,7 @@ import shutil
 import tarfile
 import zipfile
 import tempfile
+import json
 import urllib.request
 from edk2toolext.environment import environment_descriptor_files as EDF
 from edk2toolext.environment.extdeptypes.web_dependency import WebDependency
@@ -32,6 +33,17 @@ bad_json_file = '''
   "sha256":"68f2335344c3f7689f8d69125d182404a3515b8daa53a9c330f115739889f998"
 }
 '''
+# JSON file that describes a single file to download from the internet
+# bing.com was choosen as it's probably not going anywhere soon and it's small file to download
+single_file_extdep = {
+    "scope": "global",
+    "type": "web",
+    "name": "test",
+    "source": "https://www.bing.com/",
+    "version": "20190805",
+    "flags": [],
+    "internal_path": "test.txt"
+}
 
 
 def prep_workspace():
@@ -81,6 +93,21 @@ class TestWebDependency(unittest.TestCase):
             ext_dep.fetch()
             self.fail("should have thrown an Exception")
 
+    # try to download a single file from the internet
+    def test_single_file(self):
+        ext_dep_file_path = os.path.join(test_dir, "good_ext_dep.json")
+        with open(ext_dep_file_path, "w+") as ext_dep_file:
+            ext_dep_file.write(json.dumps(single_file_extdep))  # dump to a file
+
+        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep = WebDependency(ext_dep_descriptor)
+        ext_dep.fetch()
+
+        ext_dep_name = single_file_extdep['name'] + "_extdep"
+        file_path = os.path.join(test_dir, ext_dep_name, single_file_extdep['internal_path'])
+        if not os.path.isfile(file_path):
+            self.fail("The downloaded file isn't there")
+
     # Test that get_internal_path_root works the way we expect with a flat directory structure.
     # test_dir\inner_dir - test_dir\inner_dir should be the root.
     def test_get_internal_path_root_flat(self):
@@ -96,8 +123,8 @@ class TestWebDependency(unittest.TestCase):
         first_level_dir_name = "first_dir"
         second_level_dir_name = "second_dir"
         inner_dir_path = os.path.join(outer_dir, first_level_dir_name)
-        self.assertEqual(WebDependency.get_internal_path_root(outer_dir,
-                         os.path.join(first_level_dir_name, second_level_dir_name)), inner_dir_path)
+        inner_second_dir_path = os.path.join(first_level_dir_name, second_level_dir_name)
+        self.assertEqual(WebDependency.get_internal_path_root(outer_dir, inner_second_dir_path), inner_dir_path)
 
     # Test that a single file zipped is able to be processed by unpack.
     def test_unpack_zip_file(self):

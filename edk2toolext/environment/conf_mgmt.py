@@ -194,7 +194,7 @@ class ConfMgmt():
             if(path is None):
                 # Not specified...find latest
                 (rc, path) = FindWithVsWhere(vs_version=vsversion)
-                if rc == 0 and path is not None:
+                if rc == 0 and path is not None and os.path.exists(path):
                     self.Logger.debug("Found VS instance for %s", vsversion)
                     shell_environment.GetEnvironment().set_shell_var(varname, path)
                 else:
@@ -204,6 +204,9 @@ class ConfMgmt():
         def GetVcVersion(path, varname):
             # check if already specified
             vc_ver = shell_environment.GetEnvironment().get_shell_var(varname)
+            if (path is None):
+                self.Logger.critical("Failed to find Visual Studio tools.  Might need to check for VS install")
+                return vc_ver
             if(vc_ver is None):
                 # Not specified...find latest
                 p2 = os.path.join(path, "VC", "Tools", "MSVC")
@@ -231,5 +234,5 @@ class ConfMgmt():
             return (ipath is not None) and (iver is not None)
 
         else:
-            logging.warning("No dynameic support for this VS toolchain")
+            logging.warning("No dynamic support for this VS toolchain")
             return False

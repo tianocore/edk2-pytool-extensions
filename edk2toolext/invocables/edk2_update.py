@@ -9,10 +9,11 @@
 import logging
 from edk2toolext import edk2_logging
 from edk2toolext.environment import self_describing_environment
-from edk2toolext.edk2_invocable import Edk2Invocable
+from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable
+from edk2toolext.invocables.edk2_multipkg_aware_invocable import MultiPkgAwareSettingsInterface
 
 
-class UpdateSettingsManager():
+class UpdateSettingsManager(MultiPkgAwareSettingsInterface):
     ''' Platform settings will be accessed through this implementation. '''
 
     def GetActiveScopes(self):
@@ -49,7 +50,7 @@ def build_env_changed(build_env, build_env_2):
            (build_env.plugins != build_env_2.plugins)
 
 
-class Edk2Update(Edk2Invocable):
+class Edk2Update(Edk2MultiPkgAwareInvocable):
     ''' Updates dependencies in workspace for active scopes '''
 
     MAX_RETRY_COUNT = 10
@@ -65,11 +66,19 @@ class Edk2Update(Edk2Invocable):
         return False
 
     def GetSettingsClass(self):
-        '''  Providing UpddateSettingsManger '''
+        '''  Providing UpdateSettingsManger '''
         return UpdateSettingsManager
 
     def GetLoggingFileName(self, loggerType):
         return "UPDATE_LOG"
+
+    def AddCommandLineOptions(self, parserObj):
+        ''' adds command line options to the argparser '''
+        super().AddCommandLineOptions(parserObj)
+
+    def RetrieveCommandLineOptions(self, args):
+        '''  Retrieve command line options from the argparser '''
+        super().RetrieveCommandLineOptions(args)
 
     def Go(self):
         # Get the environment set up.
@@ -79,8 +88,9 @@ class Edk2Update(Edk2Invocable):
         (build_env_old, shell_env_old) = self.PerformUpdate()
         self_describing_environment.DestroyEnvironment()
 
-        # TODO revisit this depth
-        # we should put a sensible limit on the retry count for handling recursive dependencies.
+        # Loop updating dependencies until there are 0 new dependencies or
+        # we have exceeded retry count.  This allows dependencies to carry
+        # files that influence the SDE.
         while RetryCount < Edk2Update.MAX_RETRY_COUNT:
             (build_env, shell_env) = self.PerformUpdate()
 

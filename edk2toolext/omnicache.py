@@ -408,7 +408,7 @@ def main():
             rstring = "Name: {0}\n  Url: {1}\n  Sync Tags: {2}".format(remote["name"], remote["url"], ("tag" in remote))
             print(" " + rstring + "\n\n")
 
-    print("To use your OMNICACHE with Project Mu builds set the env variable:")
+    print("To use your OMNICACHE set the env variable:")
     print("set OMNICACHE_PATH=" + args.cache_dir)
 
     return ErrorCode

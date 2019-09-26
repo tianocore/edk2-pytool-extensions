@@ -14,17 +14,15 @@ import yaml
 import traceback
 from edk2toollib.uefi.edk2.path_utilities import Edk2Path
 from edk2toollib.log.junit_report_format import JunitTestReport
-from edk2toolext.edk2_invocable import Edk2Invocable
+from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable
+from edk2toolext.invocables.edk2_multipkg_aware_invocable import MultiPkgAwareSettingsInterface
 from edk2toolext.environment import self_describing_environment
 from edk2toolext.environment.plugintypes.ci_build_plugin import ICiBuildPlugin
-# from edk2toolext.environment import plugin_manager
 from edk2toolext.environment import shell_environment
 from edk2toolext import edk2_logging
-from edk2toolext import config_validator
-# import pkg_resources
 
 
-class CiBuildSettingsManager():
+class CiBuildSettingsManager(MultiPkgAwareSettingsInterface):
     ''' Platform settings will be accessed through this implementation. '''
 
     def GetActiveScopes(self):
@@ -34,18 +32,12 @@ class CiBuildSettingsManager():
     def GetDependencies(self):
         pass
 
-    def GetPackages(self):
-        pass
-
     def GetPackagesPath(self):
         pass
 
-    def GetArchSupported(self):
-        raise NotImplementedError()
-
-    def GetTargetsSupported(self):
-        raise NotImplementedError()
-
+    # ####################################################################################### #
+    #                        Default Support for this Ci Build                                #
+    # ####################################################################################### #
     def GetWorkspaceRoot(self):
         ''' get WorkspacePath '''
         raise NotImplementedError()
@@ -56,11 +48,11 @@ class CiBuildSettingsManager():
 
     def AddCommandLineOptions(self, parserObj):
         ''' Implement in subclass to add command line options to the argparser '''
-        pass
+        super().AddCommandLineOptions(parserObj)
 
     def RetrieveCommandLineOptions(self, args):
         '''  Implement in subclass to retrieve command line options from the argparser '''
-        pass
+        super().RetrieveCommandLineOptions(args)
 
     def GetLoggingLevel(self, loggerType):
         ''' Get the logging level for a given type
@@ -76,27 +68,7 @@ class CiBuildSettingsManager():
         return {}
 
 
-def merge_config(config, pkg_config, descriptor={}):
-    plugin_name = ""
-    config = dict()
-    if "module" in descriptor:
-        plugin_name = descriptor["module"]
-    if "config_name" in descriptor:
-        plugin_name = descriptor["config_name"]
-
-    if plugin_name == "":
-        return config
-
-    if plugin_name in config:
-        config.update(config[plugin_name])
-
-    if plugin_name in pkg_config:
-        config.update(pkg_config[plugin_name])
-
-    return config
-
-
-class Edk2CiBuild(Edk2Invocable):
+class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
     def GetLoggingLevel(self, loggerType):
         ''' Get the logging level for a given type
         base == lowest logging level supported
@@ -109,13 +81,12 @@ class Edk2CiBuild(Edk2Invocable):
         return logging.DEBUG
 
     def AddCommandLineOptions(self, parser):
-        parser.add_argument('-p', '--pkg', '--pkg-dir', dest='packageList', nargs="+", type=str,
-                            help='A package or folder you want to test (abs path or cwd relative).  '
-                            'Can list multiple by doing -p <pkg1> <pkg2> <pkg3>', default=[])
+        '''  Add command line options to the argparser '''
+        super().AddCommandLineOptions(parser)
 
     def RetrieveCommandLineOptions(self, args):
         '''  Retrieve command line options from the argparser '''
-        self.packageList = args.packageList
+        super().RetrieveCommandLineOptions(args)
 
     def GetSettingsClass(self):
         return CiBuildSettingsManager
@@ -126,14 +97,9 @@ class Edk2CiBuild(Edk2Invocable):
     def Go(self):
         log_directory = os.path.join(self.GetWorkspaceRoot(), self.GetLoggingFolderRelativeToRoot())
 
-        # SET PACKAGE PATH
         #
         # Get Package Path from config file
         pplist = self.PlatformSettings.GetPackagesPath() if self.PlatformSettings.GetPackagesPath() else []
-
-        # Check Dependencies for Repo
-        for dependency in self.PlatformSettings.GetDependencies():
-            pplist.append(dependency["Path"])
 
         # make Edk2Path object to handle all path operations
         try:
@@ -144,10 +110,7 @@ class Edk2CiBuild(Edk2Invocable):
 
         logging.info(f"Running CI Build: {self.PlatformSettings.GetName()}")
         logging.info(f"WorkSpace: {self.GetWorkspaceRoot()}")
-        logging.info(f"Package Path: {self.PlatformSettings.GetPackagesPath()}")
-        # logging.info("mu_build version: {0}".format(pkg_resources.get_distribution("mu_build").version))
-        # logging.info("mu_python_library version: " + pkg_resources.get_distribution("mu_python_library").version)
-        # logging.info("mu_environment version: " + pkg_resources.get_distribution("mu_environment").version)
+        logging.info(f"Package Path: {pplist}")
         # Bring up the common minimum environment.
         logging.log(edk2_logging.SECTION, "Getting Environment")
         (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(
@@ -169,10 +132,7 @@ class Edk2CiBuild(Edk2Invocable):
             pc = '"' + pc + '"'
         shell_env.set_shell_var("PYTHON_COMMAND", pc)
 
-        archSupported = " ".join(self.PlatformSettings.GetArchSupported())
-        env.SetValue("TARGET_ARCH", archSupported, "from PlatformSettings.GetArchSupported()")
-
-        _targets = " ".join(self.PlatformSettings.GetTargetsSupported())
+        env.SetValue("TARGET_ARCH", " ".join(self.requested_architecture_list), "from edk2 ci build.py")
 
         # Generate consumable XML object- junit format
         JunitReport = JunitTestReport()
@@ -185,10 +145,8 @@ class Edk2CiBuild(Edk2Invocable):
         logging.log(edk2_logging.SECTION, "Loading plugins")
 
         pluginList = self.plugin_manager.GetPluginsOfClass(ICiBuildPlugin)
-        if len(self.packageList) == 0:
-            self.packageList.extend(self.PlatformSettings.GetPackages())
 
-        for pkgToRunOn in self.packageList:
+        for pkgToRunOn in self.requested_package_list:
             #
             # run all loaded Edk2CiBuild Plugins/Tests
             #
@@ -205,9 +163,9 @@ class Edk2CiBuild(Edk2Invocable):
             shell_environment.CheckpointBuildVars()
             env = shell_environment.GetBuildVars()
 
-            # load the package level .mu.json
+            # load the package level .ci.yaml
             pkg_config_file = edk2path.GetAbsolutePathOnThisSytemFromEdk2RelativePath(
-                os.path.join(pkgToRunOn, pkgToRunOn + ".mu.yaml"))
+                os.path.join(pkgToRunOn, pkgToRunOn + ".ci.yaml"))
             if(pkg_config_file):
                 with open(pkg_config_file, 'r') as f:
                     pkg_config = yaml.safe_load(f)
@@ -215,22 +173,20 @@ class Edk2CiBuild(Edk2Invocable):
                 logging.info(f"No Pkg Config file for {pkgToRunOn}")
                 pkg_config = dict()
 
-            # check the resulting configuration
-            config_validator.check_package_confg(pkgToRunOn, pkg_config, pluginList)
-
             # get all the defines from the package configuration
             if "Defines" in pkg_config:
                 for definition_key in pkg_config["Defines"]:
                     definition = pkg_config["Defines"][definition_key]
                     env.SetValue(definition_key, definition, "Edk2CiBuild.py from PkgConfig yaml", False)
 
+            # For each plugin
             for Descriptor in pluginList:
-                # Get our targets
-                targets = ["DEBUG"]
-                if Descriptor.Obj.IsTargetDependent() and _targets:
-                    targets = self.PlatformSettings.GetTargetsSupported()
+                # For each target
+                for target in self.requested_target_list:
 
-                for target in targets:
+                    if(target not in Descriptor.Obj.RunsOnTargetList()):
+                        continue
+
                     edk2_logging.log_progress(f"--Running {pkgToRunOn}: {Descriptor.Name} {target} --")
                     total_num += 1
                     shell_environment.CheckpointBuildVars()
@@ -244,10 +200,8 @@ class Edk2CiBuild(Edk2Invocable):
                     plugin_output_stream = edk2_logging.create_output_stream()
 
                     # merge the repo level and package level for this specific plugin
-                    pkg_plugin_configuration = merge_config(self.PlatformSettings.GetPluginSettings(),
-                                                            pkg_config, Descriptor.descriptor)
-
-                    # perhaps we should ask the validator to run on the package for this target
+                    pkg_plugin_configuration = self.merge_config(self.PlatformSettings.GetPluginSettings(),
+                                                                 pkg_config, Descriptor.descriptor)
 
                     # Still need to see if the package decided this should be skipped
                     if pkg_plugin_configuration is None or\
@@ -313,6 +267,29 @@ class Edk2CiBuild(Edk2Invocable):
             edk2_logging.log_progress("Overall Build Status: Success")
 
         return failure_num
+
+    def merge_config(self, config, pkg_config, descriptor={}):
+        ''' Merge two configurations.  One global and one specific
+            to the package to create the proper config for a plugin
+            to execute.
+        '''
+        plugin_name = ""
+        config = dict()
+        if "module" in descriptor:
+            plugin_name = descriptor["module"]
+        if "config_name" in descriptor:
+            plugin_name = descriptor["config_name"]
+
+        if plugin_name == "":
+            return config
+
+        if plugin_name in config:
+            config.update(config[plugin_name])
+
+        if plugin_name in pkg_config:
+            config.update(pkg_config[plugin_name])
+
+        return config
 
 
 def main():
