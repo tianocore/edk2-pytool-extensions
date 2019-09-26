@@ -40,6 +40,19 @@ NOTE: It is strongly recommended that you use python virtual environments.  Virt
 
 ## Release Version History
 
+### Version 0.10.0
+
+* Features:
+  * BREAKING CHANGE - PR 48 - Refactor for consistent multi-pkg support in invocables.
+* Bugs
+  * Issue 49 - Build.Conf not parsed correctly
+  * Issue 47 - Setup, Update, and Build SettingsManager can't optimize based on user supplied CLI options because there is no sharing of that back to settings manager
+  * Issue 40 - web dependency doesn't work on single files
+  * Issue 31 - stuart_ci_build should not put all dependency in the PackagesPath
+  * Issue 23 - Stuart doesn't give a good error when trying to use the wrong invocable
+  * Issue 15 - Stuart_ci_build -p parameter eats all positional parameters following it
+
+
 ### Version 0.9.5
 
 * Features:
