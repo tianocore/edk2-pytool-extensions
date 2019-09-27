@@ -73,6 +73,20 @@ class test_nuget_publish(unittest.TestCase):
         ret = nuget.Pack(version, tempfolder_out, tempfolder_in, "Packing via test")
         self.assertEqual(ret, 1)
 
+    def test_change_copyright(self):
+        nuget = nuget_publishing.NugetSupport("test")
+        nuget.UpdateCopyright("ALL RIGHTS RESERVED.")
+        self.assertTrue(nuget.ConfigChanged)
+
+    def test_push(self):
+        nuget = nuget_publishing.NugetSupport("test")
+        nuget.SetBasicData("EDK2", "https://BSD2", "https://project_url", "descr", "https://server", "copyright")
+        tempfolder_out = tempfile.mkdtemp()
+        spec = os.path.join(tempfolder_out, "test.nuspec")
+        test_nuget_publish.write_to_file(spec, ["This is a legic nuget file lol", ])
+        ret = nuget.Push(spec, "")
+        self.assertEqual(ret, 1)
+
     def test_pack(self):
         nuget = nuget_publishing.NugetSupport("test")
         version = "1.1.1"
@@ -80,9 +94,13 @@ class test_nuget_publish(unittest.TestCase):
         tempfolder_in = tempfile.mkdtemp()
         tempfolder_out = tempfile.mkdtemp()
         outfile = os.path.join(tempfolder_in, "readme.txt")
-        test_nuget_publish.write_to_file(outfile, ["This will be packaged into nuget"])
-
-        ret = nuget.Pack(version, tempfolder_out, tempfolder_in, "Packing via test")
+        # Create a very long release notes
+        release_notes = ""
+        while len(release_notes) <= nuget_publishing.NugetSupport.RELEASE_NOTE_SHORT_STRING_MAX_LENGTH:
+            release_notes += f"This is now {len(release_notes)} characters long. "
+        # write a file that can be packaged by nuget
+        test_nuget_publish.write_to_file(outfile, [release_notes, ])
+        ret = nuget.Pack(version, tempfolder_out, tempfolder_in, release_notes)
         self.assertEqual(ret, 0)
         spec = os.path.join(tempfolder_out, "test.nuspec")
         self.assertTrue(os.path.exists(spec))
