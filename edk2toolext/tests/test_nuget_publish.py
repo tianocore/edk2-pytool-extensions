@@ -10,6 +10,7 @@ import unittest
 from edk2toolext import nuget_publishing
 import sys
 import tempfile
+import os
 
 
 class test_nuget_publish(unittest.TestCase):
@@ -26,6 +27,13 @@ class test_nuget_publish(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         pass
+
+    @classmethod
+    def write_to_file(cls, path, contents, close=True):
+        f = open(path, "w")
+        f.writelines(contents)
+        if close:
+            f.close()
 
     def test_init(self):
         nuget = nuget_publishing.NugetSupport("test")
@@ -50,6 +58,34 @@ class test_nuget_publish(unittest.TestCase):
             # we'll fail because we don't pass in any arguments
             pass
         sys.argv = args
+
+    def test_print(self):
+        nuget = nuget_publishing.NugetSupport("test")
+        nuget.Print()
+
+    def test_empty_pack(self):
+        nuget = nuget_publishing.NugetSupport("test")
+        version = "1.1.1"
+        nuget.SetBasicData("EDK2", "https://BSD2", "https://project_url", "descr", "server", "copyright")
+        tempfolder_in = tempfile.mkdtemp()
+        tempfolder_out = tempfile.mkdtemp()
+        # this should fail because we don't have anything to pack
+        ret = nuget.Pack(version, tempfolder_out, tempfolder_in, "Packing via test")
+        self.assertEqual(ret, 1)
+
+    def test_pack(self):
+        nuget = nuget_publishing.NugetSupport("test")
+        version = "1.1.1"
+        nuget.SetBasicData("EDK2", "https://BSD2", "https://project_url", "descr", "server", "copyright")
+        tempfolder_in = tempfile.mkdtemp()
+        tempfolder_out = tempfile.mkdtemp()
+        outfile = os.path.join(tempfolder_in, "readme.txt")
+        test_nuget_publish.write_to_file(outfile, ["This will be packaged into nuget"])
+
+        ret = nuget.Pack(version, tempfolder_out, tempfolder_in, "Packing via test")
+        self.assertEqual(ret, 0)
+        spec = os.path.join(tempfolder_out, "test.nuspec")
+        self.assertTrue(os.path.exists(spec))
 
     def test_main_new(self):
         args = sys.argv
