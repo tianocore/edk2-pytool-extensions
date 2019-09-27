@@ -31,6 +31,16 @@ class test_nuget_publish(unittest.TestCase):
     def test_init(self):
         nuget = nuget_publishing.NugetSupport("test")
         self.assertIsNotNone(nuget)
+        # make sure we raise if we don't pass in anything
+        with self.assertRaises(ValueError):
+            nuget_publishing.NugetSupport()
+        # write the config to file so we can read it into a new nuget support
+        _, tempfile_path = tempfile.mkstemp(text=True)
+        nuget.ConfigChanged = True
+        nuget.ToConfigFile(tempfile_path)
+        # read in a config file
+        nuget2 = nuget_publishing.NugetSupport(ConfigFile=tempfile_path)
+        self.assertIsNotNone(nuget2)
 
     def test_go_new(self):
         args = sys.argv

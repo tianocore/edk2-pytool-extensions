@@ -389,6 +389,9 @@ class UefiBuilder(object):
             return ret
 
         # set build output base envs for all builds
+        if self.env.GetValue("OUTPUT_DIRECTORY") is None:
+            logging.warn("OUTPUT_DIRECTORY was not found, defaulting to Build")
+            self.env.SetValue("OUTPUT_DIRECTORY", "Build", "default from uefibuild", True)
         self.env.SetValue("BUILD_OUT_TEMP", os.path.join(
             self.ws, self.env.GetValue("OUTPUT_DIRECTORY")), "Computed in SetEnv")
 
@@ -477,6 +480,9 @@ class UefiBuilder(object):
     #
 
     def ParseDscFile(self):
+        if self.env.GetValue("ACTIVE_PLATFORM") is None:
+            logging.error("The DSC file was not set. Please set ACTIVE_PLATFORM")
+            return -1
         dsc_file_path = self.mws.join(
             self.ws, self.env.GetValue("ACTIVE_PLATFORM"))
         if(os.path.isfile(dsc_file_path)):
