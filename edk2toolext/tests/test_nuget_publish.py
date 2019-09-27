@@ -82,8 +82,9 @@ class test_nuget_publish(unittest.TestCase):
         nuget = nuget_publishing.NugetSupport("test")
         tempfolder_out = tempfile.mkdtemp()
         spec = os.path.join(tempfolder_out, "test.nuspec")
-        ret = nuget.Push(spec, "")
-        self.assertEqual(ret, 1)
+        with self.assertRaises(Exception):
+            ret = nuget.Push(spec, "")
+            self.assertEqual(ret, 1)
 
     def test_push(self):
         nuget = nuget_publishing.NugetSupport("test")
