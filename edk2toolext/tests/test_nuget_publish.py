@@ -54,8 +54,23 @@ class test_nuget_publish(unittest.TestCase):
     def test_main_new(self):
         args = sys.argv
         tempfolder = tempfile.mkdtemp()
-        sys.argv = ["", "--Operation", "New", "--Name", "Test", "--Author", "test", "--ProjectUrl", "https://github.com",
-                    "--Description", "test", "--FeedUrl", " https://github.com", "--ConfigFileFolderPath", tempfolder, "--LicenseType", "BSD2"]
+        sys.argv = ["",
+                    "--Operation",
+                    "New",
+                    "--Name",
+                    "Test",
+                    "--Author",
+                    "test",
+                    "--ProjectUrl",
+                    "https://github.com",
+                    "--Description",
+                    "test",
+                    "--FeedUrl",
+                    " https://github.com",
+                    "--ConfigFileFolderPath",
+                    tempfolder,
+                    "--LicenseType",
+                    "BSD2"]
         ret = nuget_publishing.main()
         self.assertEqual(ret, 0)
         sys.argv = args

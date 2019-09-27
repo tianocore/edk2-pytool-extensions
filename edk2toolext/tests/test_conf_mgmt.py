@@ -32,5 +32,6 @@ class TestConfMgmt(unittest.TestCase):
 
     # TODO: finish unit test
 
+
 if __name__ == '__main__':
     unittest.main()
