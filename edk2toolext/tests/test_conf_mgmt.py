@@ -30,6 +30,7 @@ class TestConfMgmt(unittest.TestCase):
         with self.assertRaises(EnvironmentError):
             conf_mgmt.ConfMgmt(None, None)
 
+    # TODO: finish unit test
 
 if __name__ == '__main__':
     unittest.main()
