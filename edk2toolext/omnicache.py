@@ -140,9 +140,9 @@ def AddEntriesFromConfig(config, input_config_file):
                         .format(currentRemoteName, remote["name"])
                     )
                     RemoveEntry(config, currentRemoteName)  # remove here, then fall through to add entry below.
-            else:
-                logging.debug("remote with name: {0} already in cache".format(remote["name"]))
-                continue
+                else:
+                    logging.debug("remote with name: {0} already in cache".format(remote["name"]))
+                    continue
             if "tag" in remote:
                 AddEntry(config, remote["name"], remote["url"], bool(remote["tag"]))
             else:
