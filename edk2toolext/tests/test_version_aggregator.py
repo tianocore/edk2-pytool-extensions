@@ -1,5 +1,5 @@
-# @file test_git_dependency.py
-# Unit test suite for the GitDependency class.
+# @file test_version_aggregator.py
+# Unit test suite for the version_aggregator class.
 #
 ##
 # Copyright (c) Microsoft Corporation
