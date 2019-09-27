@@ -9,7 +9,6 @@
 import unittest
 from edk2toolext import nuget_publishing
 import sys
-import os
 import tempfile
 
 

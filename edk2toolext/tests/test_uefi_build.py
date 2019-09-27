@@ -51,13 +51,16 @@ class TestUefiBuild(unittest.TestCase):
         conf_folder = os.path.join(root, "Conf")
         os.makedirs(conf_folder)
         target_path = os.path.join(conf_folder, "target.template")
-        TestUefiBuild.write_to_file(target_path, ["ACTIVE_PLATFORM = Test.dsc\n", "TOOL_CHAIN_TAG = test\n", "TARGET = DEBUG\n"])
+        TestUefiBuild.write_to_file(target_path, ["ACTIVE_PLATFORM = Test.dsc\n",
+                                                  "TOOL_CHAIN_TAG = test\n",
+                                                  "TARGET = DEBUG\n"])
         tools_path = os.path.join(conf_folder, "tools_def.template")
         TestUefiBuild.write_to_file(tools_path, ["hello"])
         build_path = os.path.join(conf_folder, "build_rule.template")
         TestUefiBuild.write_to_file(build_path, ["hello"])
         platform_path = os.path.join(root, "Test.dsc")
-        TestUefiBuild.write_to_file(platform_path, ["[Defines]\n", "OUTPUT_DIRECTORY = Build"])
+        TestUefiBuild.write_to_file(platform_path, ["[Defines]\n",
+                                                    "OUTPUT_DIRECTORY = Build"])
 
     def test_commandline_options(self):
         builder = uefi_build.UefiBuilder()
