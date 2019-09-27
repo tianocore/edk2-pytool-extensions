@@ -65,18 +65,25 @@ class test_nuget_publish(unittest.TestCase):
 
     def test_empty_pack(self):
         nuget = nuget_publishing.NugetSupport("test")
-        version = "1.1.1"
+        version = "1.1"
         nuget.SetBasicData("EDK2", "https://BSD2", "https://project_url", "descr", "server", "copyright")
         tempfolder_in = tempfile.mkdtemp()
         tempfolder_out = tempfile.mkdtemp()
         # this should fail because we don't have anything to pack
-        ret = nuget.Pack(version, tempfolder_out, tempfolder_in, "Packing via test")
+        ret = nuget.Pack(version, tempfolder_out, tempfolder_in)
         self.assertEqual(ret, 1)
 
     def test_change_copyright(self):
         nuget = nuget_publishing.NugetSupport("test")
         nuget.UpdateCopyright("ALL RIGHTS RESERVED.")
         self.assertTrue(nuget.ConfigChanged)
+
+    def test_push_without_spec(self):
+        nuget = nuget_publishing.NugetSupport("test")
+        tempfolder_out = tempfile.mkdtemp()
+        spec = os.path.join(tempfolder_out, "test.nuspec")
+        ret = nuget.Push(spec, "")
+        self.assertEqual(ret, 1)
 
     def test_push(self):
         nuget = nuget_publishing.NugetSupport("test")
