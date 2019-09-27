@@ -55,9 +55,11 @@ class NugetDependency(ExternalDependency):
 
     @staticmethod
     def normalize_version(version):
+        if len(version) == 0:
+            raise ValueError("Unparsable version: empty string")
         version_parts = tuple(int(num) for num in version.split('.'))
         if len(version_parts) > 4:
-            raise RuntimeError("Unparsable version '%s'!")
+            raise ValueError("Unparsable version: '%s'!")
 
         # Remove extra trailing zeros (beyond 3 elements).
         if len(version_parts) == 4 and version_parts[3] == 0:
