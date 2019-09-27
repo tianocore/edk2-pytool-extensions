@@ -1,5 +1,5 @@
-# @file test_uefi_build.py
-# Unit test suite for the UefiB class.
+# @file test_conf_mgmt.py
+# Unit test suite for the ConfMgmt class.
 #
 ##
 # Copyright (c) Microsoft Corporation
@@ -7,10 +7,10 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 import unittest
-from edk2toolext.environment import uefi_build
+from edk2toolext.environment import conf_mgmt
 
 
-class TestUefiBuild(unittest.TestCase):
+class TestConfMgmt(unittest.TestCase):
     def setUp(self):
         pass
 
@@ -26,8 +26,9 @@ class TestUefiBuild(unittest.TestCase):
         pass
 
     def test_init(self):
-        builder = uefi_build.UefiBuilder()
-        self.assertIsNotNone(builder)
+        # we should throw an error if we haven't set our workspace
+        with self.assertRaises(EnvironmentError):
+            conf_mgmt.ConfMgmt(None, None)
 
 
 if __name__ == '__main__':
