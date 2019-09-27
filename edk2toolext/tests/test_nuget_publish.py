@@ -104,6 +104,9 @@ class test_nuget_publish(unittest.TestCase):
         self.assertEqual(ret, 0)
         spec = os.path.join(tempfolder_out, "test.nuspec")
         self.assertTrue(os.path.exists(spec))
+        # test that we clean up the files we aren't using
+        nuget.CleanUp()
+        self.assertFalse(os.path.exists(spec))
 
     def test_main_new(self):
         args = sys.argv
