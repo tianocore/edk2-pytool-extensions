@@ -45,6 +45,18 @@ single_file_extdep = {
     "internal_path": "test.txt"
 }
 
+# Download a valid file from CDN
+jquery_json_file = {
+    "scope": "global",
+    "type": "web",
+    "name": "jquery",
+    "source": "https://code.jquery.com/jquery-3.4.1.js",
+    "version": "3.4.1",
+    "flags": [],
+    "sha256": "5A93A88493AA32AAB228BF4571C01207D3B42B0002409A454D404B4D8395BD55",
+    "internal_path": "jquery.js"
+}
+
 
 def prep_workspace():
     global test_dir
@@ -105,6 +117,42 @@ class TestWebDependency(unittest.TestCase):
 
         ext_dep_name = single_file_extdep['name'] + "_extdep"
         file_path = os.path.join(test_dir, ext_dep_name, single_file_extdep['internal_path'])
+        if not os.path.isfile(file_path):
+            self.fail("The downloaded file isn't there")
+
+    # try to download a single file and test sha256 comparison
+    def test_sha256_uppercase_single_file(self):
+        ext_dep_file_path = os.path.join(test_dir, "good_ext_dep.json")
+        # force hash to upper case
+        jquery_json = jquery_json_file.copy()
+        jquery_json["sha256"] = jquery_json["sha256"].upper()
+
+        with open(ext_dep_file_path, "w+") as ext_dep_file:
+            ext_dep_file.write(json.dumps(jquery_json))  # dump to a file
+
+        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep = WebDependency(ext_dep_descriptor)
+        ext_dep.fetch()
+
+        ext_dep_name = jquery_json['name'] + "_extdep"
+        file_path = os.path.join(test_dir, ext_dep_name, jquery_json['internal_path'])
+        if not os.path.isfile(file_path):
+            self.fail("The downloaded file isn't there")
+
+    # try to download a single file and test sha256 comparison
+    def test_sha256_lowercase_single_file(self):
+        ext_dep_file_path = os.path.join(test_dir, "good_ext_dep.json")
+        jquery_json = jquery_json_file.copy()
+        jquery_json["sha256"] = jquery_json["sha256"].lower()
+        with open(ext_dep_file_path, "w+") as ext_dep_file:
+            ext_dep_file.write(json.dumps(jquery_json))  # dump to a file
+
+        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep = WebDependency(ext_dep_descriptor)
+        ext_dep.fetch()
+
+        ext_dep_name = jquery_json['name'] + "_extdep"
+        file_path = os.path.join(test_dir, ext_dep_name, jquery_json['internal_path'])
         if not os.path.isfile(file_path):
             self.fail("The downloaded file isn't there")
 
