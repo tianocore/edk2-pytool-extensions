@@ -106,7 +106,9 @@ class WebDependency(ExternalDependency):
             with open(temp_file_path, "rb") as file:
                 import hashlib
                 temp_file_sha256 = hashlib.sha256(file.read()).hexdigest()
-            if temp_file_sha256 != self.sha256:
+
+            # compare sha256 hexdigests as lowercase to make case insensitive
+            if temp_file_sha256.lower() != self.sha256.lower():
                 raise RuntimeError(f"{self.name} - sha256 does not match\n\tdownloaded:"
                                    f"\t{temp_file_sha256}\n\tin json:\t{self.sha256}")
 
