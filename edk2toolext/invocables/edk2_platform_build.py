@@ -17,8 +17,6 @@ from edk2toolext.environment.uefi_build import UefiBuilder
 from edk2toolext.edk2_invocable import Edk2Invocable
 from edk2toollib.utility_functions import locate_class_in_module
 
-PIP_PACKAGES_LIST = ["edk2-pytool-library", "edk2-pytool-extensions", "PyYaml"]
-
 
 class BuildSettingsManager():
     ''' Platform settings will be accessed through this implementation. '''
