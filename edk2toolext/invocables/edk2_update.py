@@ -28,6 +28,10 @@ class UpdateSettingsManager(MultiPkgAwareSettingsInterface):
         ''' Implement in subclass to add command line options to the argparser '''
         pass
 
+    def GetName(self):
+        ''' Get the name of the repo, platform, or product being build '''
+        pass
+
     def RetrieveCommandLineOptions(self, args):
         '''  Implement in subclass to retrieve command line options from the argparser '''
         pass
@@ -70,7 +74,10 @@ class Edk2Update(Edk2MultiPkgAwareInvocable):
         return UpdateSettingsManager
 
     def GetLoggingFileName(self, loggerType):
-        return "UPDATE_LOG"
+        name = self.PlatformSettings.GetName()
+        if name is not None:
+            return f"UPDATELOG_{name}"
+        return "UPDATELOG"
 
     def AddCommandLineOptions(self, parserObj):
         ''' adds command line options to the argparser '''
