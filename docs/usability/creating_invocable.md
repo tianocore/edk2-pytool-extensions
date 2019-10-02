@@ -2,10 +2,10 @@
 
 Whether you spell it invokable or invocable, the idea of an Invocable is central to Stuart.
 If you're unfamiliar with what it is, refer to the using document in the root docs folder or feature_invocable in the features folder.
-In a nutshell, an invokable is a small python file that gets the project Mu environment setup for it.
+In a nutshell, an invokable is a small python file that gets the build environment setup for it.
 It gets a settings file (that the invocable defines the interface for) that provides information about the that we are being invoked on.
 
-This guide is written in the style of a tutorial. This is based on the real example of an invokable that the Project Mu team wrote.
+This guide is written in the style of a tutorial. This is based on the real example of an invokable [here](https://github.com/microsoft/mu_basecore).
 
 ## The problem statement
 
@@ -13,10 +13,10 @@ One feature that Project Mu offers is that of a binary packaged Crypto and Netwo
 This allows your platform to skip the expensive step of compiling OpenSSL or other crypto libraries and instead use a known good crypto library that is built from a known good source.
 For more information on Shared Networking and Shared Crypto, go check it out [here](https://microsoft.github.io/mu/dyn/mu_plus/SharedCryptoPkg/feature_sharedcrypto/) and [here](https://microsoft.github.io/mu/dyn/mu_basecore/NetworkPkg/SharedNetworking/SharedNetworking/).
 
-Now, how is Shared Binaries built?
+Now, how are Shared Binaries built?
 Check out the code on [github](https://github.com/microsoft/mu_basecore) under NetworkPkg/SharedNetworking/DriverBuilder.py (it may move, this is where it was at time of writing), which is the invokable that powers the shared binaries.
 
-SharedNetworking in particular is a tricky problem because we want to built every architecture into an FV and package it into a NugetFeed.
+SharedNetworking in particular is a tricky problem because we want to build every architecture into an FV and package it into a NugetFeed.
 
 In a nutshell here's the flow we want:
  1. Acquire the dependencies we need (Crypto, OpenSSL, etc)
@@ -34,7 +34,7 @@ Or perhaps we've thought of that and made a common script that our handy batch s
 We hope you can see that as time goes on, the sitatuion spirals out of control as more parameters and scripts are added, fewer people will know how to work this or want to touch it.
 Eventually a bright talented engineer with a little more time than experience will declare that they were attempt to refactor this process.
 
-In a nutshell that's the problem that the invokable framework in general is trying to solve.
+In a nutshell txhat's the problem that the invokable framework in general is trying to solve.
 Steps 1-3 are done for you. Steps 4-6+ should be trivial to implement in a setting agnostic way.
 
 So let's start.
@@ -141,7 +141,7 @@ class BinaryBuildSettingsManager():
     ....
 
      def PreFirstBuildHook(self):
-        ''' Called after the before the first build '''
+        ''' Called before the first build '''
         return 0
 
     def PostFinalBuildHook(self, ret):
@@ -248,13 +248,15 @@ class Edk2BinaryBuild(Edk2Invocable):
                      'PCD DEPEX LIBRARY BUILD_FLAGS', "Platform Hardcoded")
 
         # Run pre build hook
-        ret += self.PlatformSettings.PreFirstBuildHook()
+        ret = self.PlatformSettings.PreFirstBuildHook()
         # get workspace and package paths for
         ws = self.GetWorkspaceRoot()
         pp = self.PlatformSettings.GetModulePkgsPath()
         # run each configuration
         for config in self.PlatformSettings.GetConfigurations():
-            ret += self.PlatformSettings.PreBuildHook()  # run pre build hook
+            ret = self.PlatformSettings.PreBuildHook()  # run pre build hook
+            if ret != 0:
+                raise RuntimeError("Failed prebuild hook")
             edk2_logging.log_progress(f"--Running next configuration--")
             logging.info(config)  # log our configuration out to the log
             shell_environment.CheckpointBuildVars()  # checkpoint our config
@@ -267,9 +269,9 @@ class Edk2BinaryBuild(Edk2Invocable):
                          "provided by driver_builder")
             platformBuilder = UefiBuilder()  # create our builder
             # run our builder and add to ret
-            ret += platformBuilder.Go(ws, pp, self.helper, self.plugin_manager)
+            ret = platformBuilder.Go(ws, pp, self.helper, self.plugin_manager)
             # call our post build hook
-            ret += self.PlatformSettings.PostBuildHook(ret)
+            ret = self.PlatformSettings.PostBuildHook(ret)
             # if we have a non zero return code, throw an error and call our final build hook
             if ret != 0:
               self.PlatformSettings.PostFinalBuildHook(ret)  # make sure to call our post final hook
@@ -488,7 +490,7 @@ class BinaryBuildSettingsManager():
         raise NotImplementedError()
 
     def PreFirstBuildHook(self):
-        ''' Called after the before the first build '''
+        ''' Called before the first build '''
         return 0
 
     def PostFinalBuildHook(self, ret):
@@ -542,7 +544,51 @@ class Edk2BinaryBuild(Edk2Invocable):
         return "BINARY_BUILDLOG"
 
     def Go(self):
-        return 0
+        ret = 0
+        env = shell_environment.GetBuildVars()
+        # set our environment with specific variables that we care about that EDK2 needs
+        env.SetValue("PRODUCT_NAME",
+                     self.PlatformSettings.GetName(), "Platform Hardcoded")
+        env.SetValue("BLD_*_BUILDID_STRING", "201905", "Current Version")
+        env.SetValue("BUILDREPORTING", "TRUE", "Platform Hardcoded")
+        # make sure we always do a build report
+        env.SetValue("BUILDREPORT_TYPES",
+                     'PCD DEPEX LIBRARY BUILD_FLAGS', "Platform Hardcoded")
+
+        # Run pre build hook
+        ret = self.PlatformSettings.PreFirstBuildHook()
+        # get workspace and package paths for
+        ws = self.GetWorkspaceRoot()
+        pp = self.PlatformSettings.GetModulePkgsPath()
+        # run each configuration
+        for config in self.PlatformSettings.GetConfigurations():
+            ret = self.PlatformSettings.PreBuildHook()  # run pre build hook
+            if ret != 0:
+                raise RuntimeError("Failed prebuild hook")
+            edk2_logging.log_progress(f"--Running next configuration--")
+            logging.info(config)  # log our configuration out to the log
+            shell_environment.CheckpointBuildVars()  # checkpoint our config
+            env = shell_environment.GetBuildVars() #  get our checkpointed variables
+            # go through the item in the current configuration and apply to environement
+            for key in config:
+                env.SetValue(key, config[key], "provided by configuration")
+            # make sure to set this after in case the config did
+            env.SetValue("TOOL_CHAIN_TAG", "VS2017",
+                         "provided by driver_builder")
+            platformBuilder = UefiBuilder()  # create our builder
+            # run our builder and add to ret
+            ret = platformBuilder.Go(ws, pp, self.helper, self.plugin_manager)
+            # call our post build hook
+            ret = self.PlatformSettings.PostBuildHook(ret)
+            # if we have a non zero return code, throw an error and call our final build hook
+            if ret != 0:
+              self.PlatformSettings.PostFinalBuildHook(ret)  # make sure to call our post final hook
+              return ret
+            shell_environment.RevertBuildVars()  # revert our shell environment back to what it was
+        # make sure to do our final build hook
+        self.PlatformSettings.PostFinalBuildHook(ret)
+
+        return ret
 
 
 def main():
