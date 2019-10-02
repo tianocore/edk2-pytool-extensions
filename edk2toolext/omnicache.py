@@ -89,6 +89,12 @@ class OmniCacheConfig():
                 return True
         return False
 
+    def GetNameForUrl(self, url):
+        for x in self.remotes.values():
+            if (x["url"] == url):
+                return x["name"]
+        return None
+
     def Remove(self, del_name):
         del self.remotes[del_name]
 
@@ -126,9 +132,17 @@ def AddEntriesFromConfig(config, input_config_file):
         content = yaml.safe_load(ymlfile)
     if "remotes" in content:
         for remote in content["remotes"]:
-            if config.Contains_url(remote["url"]):
-                logging.debug("remote with name: {0} already in cache".format(remote["name"]))
-                continue
+            currentRemoteName = config.GetNameForUrl(remote["url"])
+            if (currentRemoteName is not None):
+                if (remote["name"] != currentRemoteName):
+                    logging.debug(
+                        "remote with name: {0} already in cache, renaming to {1}"
+                        .format(currentRemoteName, remote["name"])
+                    )
+                    RemoveEntry(config, currentRemoteName)  # remove here, then fall through to add entry below.
+                else:
+                    logging.debug("remote with name: {0} already in cache".format(remote["name"]))
+                    continue
             if "tag" in remote:
                 AddEntry(config, remote["name"], remote["url"], bool(remote["tag"]))
             else:
