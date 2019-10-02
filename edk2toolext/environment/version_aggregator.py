@@ -50,7 +50,7 @@ class version_aggregator(object):
         """ Prints out the current information from the version aggregator """
         for version_key in self.Versions:
             version = self.Version[version_key]
-            print(f"{version["type"]} - {version["name"]}: {version["version"]}")
+            print(f"{version['type']} - {version['name']}: {version['version']}")
 
     def GetAggregatedVersionInformation(self):
         """
