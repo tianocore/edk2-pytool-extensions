@@ -12,15 +12,33 @@ import os
 import sys
 import logging
 import inspect
+import pkg_resources
 import argparse
 from edk2toolext.environment import shell_environment
 from edk2toollib.utility_functions import GetHostInfo
+from edk2toolext.environment import version_aggregator
 from edk2toollib.utility_functions import locate_class_in_module
 from edk2toollib.utility_functions import import_module_by_file_name
 from edk2toolext.base_abstract_invocable import BaseAbstractInvocable
 
 
 class Edk2Invocable(BaseAbstractInvocable):
+
+    #
+    # Pass in a list of pip package names and they will be printed as well as
+    # reported to the global version_aggregator
+    @classmethod
+    def _collect_python_pip_info(cls):
+        # Get the current python version
+        cur_py = "%d.%d.%d" % sys.version_info[:3]
+        version_aggregator.GetVersionAggregator().ReportVersion("Python", cur_py, version_aggregator.VersionTypes.TOOL)
+        pip_packages = [p for p in pkg_resources.working_set]
+        # go through all installed pip versions
+        for package in pip_packages:
+            version = pkg_resources.get_distribution(package).version
+            logging.info("{0} version: {1}".format(package, version))
+            version_aggregator.GetVersionAggregator().ReportVersion(package, version, version_aggregator.VersionTypes.TOOL)
+
 
     def GetWorkspaceRoot(self):
         try:

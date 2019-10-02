@@ -9,11 +9,9 @@
 import os
 import sys
 import logging
-import pkg_resources
 from edk2toolext import edk2_logging
 from edk2toolext.environment import plugin_manager
 from edk2toolext.environment.plugintypes.uefi_helper_plugin import HelperFunctions
-from edk2toolext.environment import version_aggregator
 from edk2toolext.environment import self_describing_environment
 from edk2toolext.environment.uefi_build import UefiBuilder
 from edk2toolext.edk2_invocable import Edk2Invocable
@@ -54,16 +52,6 @@ class BuildSettingsManager():
         pass
 
 
-#
-# Pass in a list of pip package names and they will be printed as well as
-# reported to the global version_aggregator
-def display_pip_package_info(package_list):
-    for package in package_list:
-        version = pkg_resources.get_distribution(package).version
-        logging.info("{0} version: {1}".format(package, version))
-        version_aggregator.GetVersionAggregator().ReportVersion(package, version, version_aggregator.VersionTypes.TOOL)
-
-
 class Edk2PlatformBuild(Edk2Invocable):
     ''' Imports UefiBuilder and calls go '''
 
@@ -100,12 +88,6 @@ class Edk2PlatformBuild(Edk2Invocable):
 
     def Go(self):
         logging.info("Running Python version: " + str(sys.version_info))
-
-        # collect version information
-        display_pip_package_info(PIP_PACKAGES_LIST)
-        # Get the current python version
-        cur_py = "%d.%d.%d" % sys.version_info[:3]
-        version_aggregator.GetVersionAggregator().ReportVersion("Python", cur_py, version_aggregator.VersionTypes.TOOL)
 
         (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(
             self.GetWorkspaceRoot(), self.GetActiveScopes())

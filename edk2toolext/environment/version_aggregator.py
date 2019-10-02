@@ -46,6 +46,12 @@ class version_aggregator(object):
         }
         self._logger.debug("version_aggregator logging version: {0}".format(str(self.Versions[key])))
 
+    def Print(self):
+        """ Prints out the current information from the version aggregator """
+        for version_key in self.Versions:
+            version = self.Version[version_key]
+            print(f"{version["type"]} - {version["name"]}: {version["version"]}")
+
     def GetAggregatedVersionInformation(self):
         """
         Returns a copy of the aggregated information.
