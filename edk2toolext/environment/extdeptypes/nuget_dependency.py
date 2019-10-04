@@ -109,6 +109,10 @@ class NugetDependency(ExternalDependency):
 
         return result
 
+    def __str__(self):
+        """ return a string representation of this """
+        return f"NugetDependecy: {self.name}@{self.version}"
+
     def fetch(self):
         package_name = self.name
         #
@@ -137,6 +141,7 @@ class NugetDependency(ExternalDependency):
         cmd += ["install", package_name]
         cmd += ["-Source", self.source]
         cmd += ["-ExcludeVersion"]
+        cmd += ["-NonInteractive"]
         cmd += ["-Version", self.version]
         cmd += ["-Verbosity", "detailed"]
         cmd += ["-OutputDirectory", '"' + temp_directory + '"']

@@ -58,8 +58,8 @@ class Edk2Update(Edk2MultiPkgAwareInvocable):
     def PerformUpdate(self):
         (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(
             self.GetWorkspaceRoot(), self.GetActiveScopes())
-        self_describing_environment.UpdateDependencies(self.GetWorkspaceRoot(), self.GetActiveScopes())
-        return (build_env, shell_env)
+        ret = self_describing_environment.UpdateDependencies(self.GetWorkspaceRoot(), self.GetActiveScopes())
+        return (build_env, shell_env, ret)
 
     def GetVerifyCheckRequired(self):
         ''' Will not call self_describing_environment.VerifyEnvironment because ext_deps haven't been unpacked yet '''
@@ -83,27 +83,31 @@ class Edk2Update(Edk2MultiPkgAwareInvocable):
     def Go(self):
         # Get the environment set up.
         RetryCount = 0
+        failure_count = 0
         logging.log(edk2_logging.SECTION, "Initial update of environment")
 
-        (build_env_old, shell_env_old) = self.PerformUpdate()
+        (build_env_old, shell_env_old, _) = self.PerformUpdate()
         self_describing_environment.DestroyEnvironment()
 
         # Loop updating dependencies until there are 0 new dependencies or
         # we have exceeded retry count.  This allows dependencies to carry
         # files that influence the SDE.
+        logging.log(edk2_logging.SECTION, "Second pass update of environment")
         while RetryCount < Edk2Update.MAX_RETRY_COUNT:
-            (build_env, shell_env) = self.PerformUpdate()
+            (build_env, shell_env, failure_count) = self.PerformUpdate()
 
             if not build_env_changed(build_env, build_env_old):  # check if the environment changed on our last update
                 break
             # if the environment has changed, increment the retry count and notify user
             RetryCount += 1
             logging.log(edk2_logging.SECTION,
-                        f"Something in the environment changed. Updating environment again. Pass #{RetryCount}")
+                        f"Something in the environment changed. Updating environment again. Pass {RetryCount}")
 
             build_env_old = build_env
             self_describing_environment.DestroyEnvironment()
 
+        if failure_count != 0:
+            logging.error(f"We were unable to successfully update environment for {failure_count} dependencies")
         if RetryCount >= Edk2Update.MAX_RETRY_COUNT:
             logging.error(f"We did an update more than {Edk2Update.MAX_RETRY_COUNT} times.")
             logging.error("Please check your dependencies and make sure you don't have any circular ones.")
