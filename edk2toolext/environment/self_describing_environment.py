@@ -173,6 +173,13 @@ class self_describing_environment(object):
         if 'set_build_var' in desc_object.flags:
             env_object.set_build_var(
                 desc_object.var_name, desc_object.published_path)
+        if 'append_shell_var' in desc_object.flags:
+            curr_value = env_object.get_shell_var(desc_object.var_name)
+            new_value = desc_object.published_path
+            if curr_value is not None:
+                if new_value not in curr_value: # make sure we aren't already in the variable
+                    new_value = f"{curr_value};" + new_value
+            env_object.set_shell_var(desc_object.var_name, new_value)
         if 'set_shell_var' in desc_object.flags:
             env_object.set_shell_var(
                 desc_object.var_name, desc_object.published_path)
@@ -206,8 +213,10 @@ class self_describing_environment(object):
                     # Re-apply the extdep to environment
                     self._apply_descriptor_object_to_env(extdep, env_object)
                 success_count += 1
-            except Exception:
-                logging.warning(f"[SDE] Unable to clone {extdep}")
+            except RuntimeError as e:
+                logging.warning(f"[SDE] Unable to fetch {extdep}: {e}")
+            except FileNotFoundError:
+                logging.warning(f"[SDE] Unable to fetch {extdep}")
                 failure_count += 1
                 pass
         return success_count, failure_count
