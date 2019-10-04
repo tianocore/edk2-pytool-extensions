@@ -190,6 +190,7 @@ class self_describing_environment(object):
     def update_extdeps(self, env_object):
         logging.debug("--- self_describing_environment.update_extdeps()")
         failure_count = 0
+        success_count = 0
         for extdep in self._get_extdeps():
             # Check to see whether it's necessary to fetch the files.
             try:
@@ -204,11 +205,12 @@ class self_describing_environment(object):
                     extdep.fetch()
                     # Re-apply the extdep to environment
                     self._apply_descriptor_object_to_env(extdep, env_object)
+                success_count += 1
             except Exception:
                 logging.warning(f"[SDE] Unable to clone {extdep}")
                 failure_count += 1
                 pass
-        return failure_count
+        return success_count, failure_count
 
     def clean_extdeps(self, env_object):
         for extdep in self._get_extdeps():
