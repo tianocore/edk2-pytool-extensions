@@ -58,15 +58,18 @@ from edk2toolext.environment import shell_environment
 from edk2toolext.environment.uefi_build import UefiBuilder
 from edk2toolext import edk2_logging
 ```
-These imports will seem a little strange but we'll discuss all of them
 
 One final import is needed that will seem a little strange.
+
 ```python
 import DriverBuilder
 ```
+
 Stuart expects your invokable to be running in the python namespace that is defined in.
 If you run your builder directly from the commandline, it will be running in \_\_main__, which can cause problems.
+
 **In a nutshell, you'll need to import the name of your file.**
+
 We'll see where this is used at the end.
 
 Now the settings class!
@@ -105,10 +108,11 @@ class BinaryBuildSettingsManager():
 ```
 
 We've implemented a few methods that are needed to get the SDE off the ground.
-- _GetActiveScopes_ is needed to init the SDE. This cause different plugins to load or not.
-- _GetWorkspaceRoot_ gets the folder that is the root of your workspace.
-- _GetPackagePaths_ gets the folder locations that you will resolve EDK2 paths against.
-- _GetName_ is the thing we are building
+
+- _GetActiveScopes_ is needed to init the SDE. This causes different plugins to load or not
+- _GetWorkspaceRoot_ gets the folder that is the root of your workspace
+- _GetPackagePaths_ gets the folder locations that you will resolve EDK2 paths against
+- _GetName_ is the thing we are building, it will be used to name certain files like logs
 - _AddCommandLineOptions_ gives our settings the chance to set items in the parser object
 - _RetrieveCommandLineOptions_ gives us the chance to read the arguments from the commandline
 
@@ -157,7 +161,7 @@ class BinaryBuildSettingsManager():
         return 0
 ```
 
-These hooks are pretty self evident but they'll be called at various point in the process.
+These hooks are pretty self evident, but they'll be called at various point in the process.
 Now with our current file, we can define a settings file that implements the settings class.
 That doesn't really net us much.
 
