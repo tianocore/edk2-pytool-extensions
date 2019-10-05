@@ -36,7 +36,7 @@ class version_aggregator(object):
                 error = "version_aggregator: {0} key registered with a different value\n\t" \
                         "Old:{1}\n\tNew:{2}".format(key, self.Versions[key]["version"], value)
                 self._logger.error(error)
-                raise Exception(error)
+                raise ValueError(error)
             return
 
         self.Versions[key] = {
@@ -57,6 +57,9 @@ class version_aggregator(object):
         Returns a copy of the aggregated information.
         """
         return copy.deepcopy(self.Versions)
+
+    def Reset(self):
+        self.Versions = {}
 
 
 class VersionTypes(Enum):
