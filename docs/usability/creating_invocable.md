@@ -2,7 +2,7 @@
 
 Whether you spell it invokable or invocable, the idea of an Invocable is central to Stuart.
 If you're unfamiliar with what it is, refer to the "Using" document in the root docs folder or feature_invocable in the features folder.
-In a nutshell, an invokable is a small python file that gets the build environment setup for it.
+In a nutshell, an invokable is a small python script that gets the build environment setup for it.
 It gets a settings file (that the invocable defines the interface for) that provides information about what we are being invoked on.
 
 This guide is written in the style of a tutorial. This is based on the real example of an invokable [here](https://github.com/microsoft/mu_basecore).
@@ -19,6 +19,7 @@ Check out the code on [github](https://github.com/microsoft/mu_basecore) under N
 SharedNetworking in particular is a tricky problem because we want to build every architecture into an FV and package it into a NugetFeed.
 
 In a nutshell here's the flow we want:
+
  1. Acquire the dependencies we need (Crypto, OpenSSL, etc)
  2. Pull in any tooling that we require (mu_tools, nasm)
  3. Configure the enviroment for building with our tool chain
@@ -47,6 +48,7 @@ You may choose to subclass another settings file, such as MultiPkgAwareSettingsI
 
 So let's start with some imports that we'll need along the way.
 We'll create a new file called DriverBuilder.py
+
 ``` python
 import os
 import logging
@@ -167,7 +169,7 @@ That doesn't really net us much.
 
 ## The invocable
 
-The invocable is actually the simplist part of this
+The invocable is actually the simplest part of this
 
 ```python
 class Edk2BinaryBuild(Edk2Invocable):
@@ -198,8 +200,9 @@ class Edk2BinaryBuild(Edk2Invocable):
     def Go(self):
         return 0
 ```
+
 - _GetLoggingLevel_ we can get the logging level that we care about for the type of log we are creating
-- _AddCommandLineOption_ similar to above
+- _AddCommandLineOption_ similar to previous settings manager class
 - _RetrieveCommandLineOptions_ similar to above
 - _GetSettingsClass_ the class that we want to look for
 - _GetLoggingFileName_ the name of the file we want to create for txt and markdown files.
@@ -215,12 +218,14 @@ def main():
 if __name__ == "__main__":
     DriverBuilder.main()  # otherwise we're in __main__ context
 ```
+
 As you can see, we call oursevles via import rather than just directly calling main.
 This is a quirk/design flaw that might be revisited in the future, but in the meantime, this is a workaround.
 
-Now that we have a way to invoke this and execute our go, we can call if from teh commandline.
+Now that we have a way to invoke this and execute our go, we can call if from the commandline.
 
 If we were to run this right now, we would see this as output (assuming you created an empty settings class).
+
 ```console
 SECTION - Init SDE
 SECTION - Loading Plugins
@@ -289,6 +294,7 @@ class Edk2BinaryBuild(Edk2Invocable):
 
 The comments in the code are there to help you understand it.
 The basic process is:
+
 1. Setup the environment with your product strings and configuration for EDK2
 2. Call prebuild hook
 3. Go through each of our configuration
@@ -296,12 +302,12 @@ The basic process is:
 5. Call prebuild hook
 6. Call UefiBuild
 7. Call PostBuild
-7. Revert checkpoint of environment
+8. Revert checkpoint of environment
 
 ## Settings File
 
 Now here's the settings file for the invocable.
-In this example, you would have two settings file for SharedNetworking and SharedCrypto, but the one invpkable.
+In this example, you would have two settings file for SharedNetworking and SharedCrypto, but the one invokable.
 Here's what we will be importing:
 
 ```python
@@ -319,9 +325,9 @@ except Exception:
 from edk2toollib.utility_functions import GetHostInfo
 ```
 
-One of the key features of settings class is that it can implement multiple settings managers, or you can have multiple classes in the file that implement that particular settingsmanagerclass.
-The invokable finds the first instancable class that implements that particular settings class that we care about.
-Now that we have our imports, we will create a settingsmanager class that implements CiSetupSettingsManager, UpdateSettingsManager, and BinaryBuildSettingsManager.
+One of the key features of settings class is that it can implement multiple settings managers, or you can have multiple classes in the file that implement that particular SettingsManager class.
+The invokable finds the first class in the file that implements that particular settings class that we care about.
+Now that we have our imports, we will create a SettingsManager class that implements CiSetupSettingsManager, UpdateSettingsManager, and BinaryBuildSettingsManager.
 
 ```python
 #
@@ -346,7 +352,7 @@ class SettingsManager(UpdateSettingsManager, CiSetupSettingsManager, BinaryBuild
 
 ```
 
-We implementing GetActiveScopes and the init function. Let's implement the hooks.
+We have implemented GetActiveScopes and the init function. Let's implement the hooks.
 
 ```python
 class SettingsManager(UpdateSettingsManager, CiSetupSettingsManager, BinaryBuildSettingsManager):
@@ -383,10 +389,11 @@ class SettingsManager(UpdateSettingsManager, CiSetupSettingsManager, BinaryBuild
 
 Some of the functions such as _CollectNuget have been redacted for brevity.
 On PostBuild we collect the files into the nuget package.
-On prebuild we figure out the next version of our nuget package and delete what we've previously collected.
+On PreBuild we figure out the next version of our nuget package and delete what we've previously collected.
 On the final build, we publish the nuget file.
 
 Now we will implement a few more pieces needed
+
 ```python
 class SettingsManager(UpdateSettingsManager, CiSetupSettingsManager, BinaryBuildSettingsManager):
 
@@ -408,6 +415,7 @@ We iterate through these in the invocable and apply them to the environment.
 Since you own the invocable, you can modify this as you see fit, which makes this very modular.
 
 Let's add in functions for the other SettingsManagers.
+
 ```python
 class SettingsManager(UpdateSettingsManager, CiSetupSettingsManager, BinaryBuildSettingsManager):
 
@@ -451,6 +459,7 @@ That brings us to the end of the tutorial, you should have a working invocable a
 Here they are for easy copy and pasting:
 
 ### DriverBuilder.py
+
 ```python
 # @file Edk2BinaryBuild.py
 # This module contains code that supports building of binary files
