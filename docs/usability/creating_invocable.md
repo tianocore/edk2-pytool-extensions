@@ -1,17 +1,17 @@
 # Creating An Invocable
 
 Whether you spell it invokable or invocable, the idea of an Invocable is central to Stuart.
-If you're unfamiliar with what it is, refer to the using document in the root docs folder or feature_invocable in the features folder.
+If you're unfamiliar with what it is, refer to the "Using" document in the root docs folder or feature_invocable in the features folder.
 In a nutshell, an invokable is a small python file that gets the build environment setup for it.
-It gets a settings file (that the invocable defines the interface for) that provides information about the that we are being invoked on.
+It gets a settings file (that the invocable defines the interface for) that provides information about what we are being invoked on.
 
 This guide is written in the style of a tutorial. This is based on the real example of an invokable [here](https://github.com/microsoft/mu_basecore).
 
 ## The problem statement
 
-One feature that Project Mu offers is that of a binary packaged Crypto and Networking, known as SharedCrypto and SharedNetworking respectively.
-This allows your platform to skip the expensive step of compiling OpenSSL or other crypto libraries and instead use a known good crypto library that is built from a known good source.
-For more information on Shared Networking and Shared Crypto, go check it out [here](https://microsoft.github.io/mu/dyn/mu_plus/SharedCryptoPkg/feature_sharedcrypto/) and [here](https://microsoft.github.io/mu/dyn/mu_basecore/NetworkPkg/SharedNetworking/SharedNetworking/).
+One feature that Project Mu offers is that of a binary-packaged Crypto and Networking, known as SharedCrypto and SharedNetworking respectively.
+This allows your platform to skip the expensive step of compiling OpenSSL or other crypto libraries and instead use a known-good crypto library that is built from a known good source.
+For more information on SharedNetworking and SharedCrypto, go check it out [here](https://microsoft.github.io/mu/dyn/mu_plus/SharedCryptoPkg/feature_sharedcrypto/) and [here](https://microsoft.github.io/mu/dyn/mu_basecore/NetworkPkg/SharedNetworking/SharedNetworking/).
 
 Now, how are Shared Binaries built?
 Check out the code on [github](https://github.com/microsoft/mu_basecore) under NetworkPkg/SharedNetworking/DriverBuilder.py (it may move, this is where it was at time of writing), which is the invokable that powers the shared binaries.
@@ -24,15 +24,15 @@ In a nutshell here's the flow we want:
  3. Configure the enviroment for building with our tool chain
  4. Go through all the architectures we want to support and build them individually
  5. If all previous steps were successful, package it into a nuget package
- 6. If given an API key, then publish to nuget.
+ 6. If given an API key, then publish to nuget
 
 Now a typical approach to this might be scripting through a batch script to invoke build.py, or invoking a stuart_build.
 This is a fine approach, particularly for a one off solution.
 But what if we change how nuget publishing is done?
 We need to update the batch script for both Crypto and Networking.
 Or perhaps we've thought of that and made a common script that our handy batch script invokes with the right parameters.
-We hope you can see that as time goes on, the sitatuion spirals out of control as more parameters and scripts are added, fewer people will know how to work this or want to touch it.
-Eventually a bright talented engineer with a little more time than experience will declare that they were attempt to refactor this process.
+We hope you can see that as time goes on, the situation spirals out of control as more parameters and scripts are added, fewer people will know how to work this or want to touch it.
+Eventually a bright talented engineer with a little more time than experience will declare that they will attempt to refactor this process.
 
 In a nutshell txhat's the problem that the invokable framework in general is trying to solve.
 Steps 1-3 are done for you. Steps 4-6+ should be trivial to implement in a setting agnostic way.
@@ -64,7 +64,7 @@ One final import is needed that will seem a little strange.
 ```python
 import DriverBuilder
 ```
-Stuart works in such a way that it expects your invokable to be running in the namespace that is named in.
+Stuart expects your invokable to be running in the python namespace that is defined in.
 If you run your builder directly from the commandline, it will be running in \_\_main__, which can cause problems.
 **In a nutshell, you'll need to import the name of your file.**
 We'll see where this is used at the end.
