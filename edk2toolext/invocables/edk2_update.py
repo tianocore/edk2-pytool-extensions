@@ -109,7 +109,7 @@ class Edk2Update(Edk2MultiPkgAwareInvocable):
             self_describing_environment.DestroyEnvironment()
 
         if failure_count != 0:
-            logging.error(f"We were unable to successfully update {failure_count} dependencies in environmen")
+            logging.error(f"We were unable to successfully update {failure_count} dependencies in environment")
         if RetryCount >= Edk2Update.MAX_RETRY_COUNT:
             logging.error(f"We did an update more than {Edk2Update.MAX_RETRY_COUNT} times.")
             logging.error("Please check your dependencies and make sure you don't have any circular ones.")

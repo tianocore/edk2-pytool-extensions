@@ -214,7 +214,9 @@ class self_describing_environment(object):
                     self._apply_descriptor_object_to_env(extdep, env_object)
                 success_count += 1
             except RuntimeError as e:
-                logging.warning(f"[SDE] Unable to fetch {extdep}: {e}")
+                logging.warning(f"[SDE] Failed to fetch {extdep}: {e}")
+                if extdep.error_msg is not None:
+                    logging.warning(extdep.error_msg)
                 failure_count += 1
             except FileNotFoundError:
                 logging.warning(f"[SDE] Unable to fetch {extdep}")
