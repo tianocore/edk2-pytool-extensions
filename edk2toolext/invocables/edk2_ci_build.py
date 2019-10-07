@@ -97,6 +97,8 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
     def Go(self):
         log_directory = os.path.join(self.GetWorkspaceRoot(), self.GetLoggingFolderRelativeToRoot())
 
+        Edk2CiBuild._collect_python_pip_info()
+
         #
         # Get Package Path from config file
         pplist = self.PlatformSettings.GetPackagesPath() if self.PlatformSettings.GetPackagesPath() else []

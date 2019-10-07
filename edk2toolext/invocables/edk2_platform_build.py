@@ -87,6 +87,8 @@ class Edk2PlatformBuild(Edk2Invocable):
     def Go(self):
         logging.info("Running Python version: " + str(sys.version_info))
 
+        Edk2PlatformBuild._collect_python_pip_info()
+
         (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(
             self.GetWorkspaceRoot(), self.GetActiveScopes())
 

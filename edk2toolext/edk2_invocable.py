@@ -31,14 +31,15 @@ class Edk2Invocable(BaseAbstractInvocable):
     def _collect_python_pip_info(cls):
         # Get the current python version
         cur_py = "%d.%d.%d" % sys.version_info[:3]
-        version_aggregator.GetVersionAggregator().ReportVersion("Python", cur_py, version_aggregator.VersionTypes.TOOL)
+        ver_agg = version_aggregator.GetVersionAggregator()
+        ver_agg.ReportVersion("Python", cur_py, version_aggregator.VersionTypes.TOOL)
+        # Get a list of all the packages currently installed in pip
         pip_packages = [p for p in pkg_resources.working_set]
         # go through all installed pip versions
         for package in pip_packages:
             version = pkg_resources.get_distribution(package).version
             logging.info("{0} version: {1}".format(package, version))
-            version_aggregator.GetVersionAggregator().ReportVersion(package, version, version_aggregator.VersionTypes.TOOL)
-
+            ver_agg.ReportVersion(package, version, version_aggregator.VersionTypes.TOOL)
 
     def GetWorkspaceRoot(self):
         try:
