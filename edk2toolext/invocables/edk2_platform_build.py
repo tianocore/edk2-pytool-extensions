@@ -32,6 +32,10 @@ class BuildSettingsManager():
     def GetModulePkgsPath(self):
         raise NotImplementedError()
 
+    def GetName(self):
+        ''' Get the name of the repo, platform, or product being build '''
+        pass
+
     def AddCommandLineOptions(self, parserObj):
         ''' Implement in subclass to add command line options to the argparser '''
         pass
@@ -82,6 +86,9 @@ class Edk2PlatformBuild(Edk2Invocable):
         return BuildSettingsManager
 
     def GetLoggingFileName(self, loggerType):
+        name = self.PlatformSettings.GetName()
+        if name is not None:
+            return f"BUILDLOG_{name}"
         return "BUILDLOG"
 
     def Go(self):
