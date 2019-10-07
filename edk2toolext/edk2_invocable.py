@@ -38,8 +38,8 @@ class Edk2Invocable(BaseAbstractInvocable):
         # go through all installed pip versions
         for package in pip_packages:
             version = pkg_resources.get_distribution(package).version
-            logging.info("{0} version: {1}".format(package, version))
-            ver_agg.ReportVersion(package, version, version_aggregator.VersionTypes.TOOL)
+            logging.info("{0} version: {1}".format(package.project_name, version))
+            ver_agg.ReportVersion(package.project_name, version, version_aggregator.VersionTypes.TOOL)
 
     def GetWorkspaceRoot(self):
         try:
