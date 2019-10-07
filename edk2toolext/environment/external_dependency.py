@@ -46,8 +46,6 @@ class ExternalDependency(object):
         self.var_name = descriptor.get('var_name', None)
         self.error_msg = descriptor.get('error_msg', None)
 
-        self.real_publish_path = descriptor.get('real_publish_path', None)
-
         self.descriptor_location = os.path.dirname(
             descriptor['descriptor_file'])
         self.contents_dir = os.path.join(

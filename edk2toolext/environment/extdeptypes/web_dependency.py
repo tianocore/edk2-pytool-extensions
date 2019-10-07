@@ -36,7 +36,6 @@ class WebDependency(ExternalDependency):
         self.internal_path = os.path.normpath(descriptor['internal_path'])
         self.compression_type = descriptor.get('compression_type', None)
         self.sha256 = descriptor.get('sha256', None)
-        self.real_publish_path = descriptor.get('real_publish_path', None)
 
         # If the internal path starts with a / that means we are downloading a directory
         self.download_is_directory = self.internal_path.startswith(os.path.sep)
@@ -92,12 +91,6 @@ class WebDependency(ExternalDependency):
         temp_path_root = internal_path.split(os.sep)[0] if os.sep in internal_path else internal_path
         unzip_root = os.path.join(outer_dir, temp_path_root)
         return unzip_root
-
-    def compute_published_path(self):
-        pub_path = super().compute_published_path()
-        if self.real_publish_path is not None:
-            pub_path = os.path.join(pub_path, self.real_publish_path)
-        return pub_path
 
     def fetch(self):
         url = self.source
