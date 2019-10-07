@@ -143,7 +143,7 @@ class NugetDependency(ExternalDependency):
                 found_cred_provider = True
         if ret != 0:
             # If we're in non interactive and we have a credential provider
-            if non_interative and found_cred_provider:
+            if non_interative and found_cred_provider:  # we should be interactive next time
                 self._attempt_nuget_install(install_dir, False)
             else:
                 raise RuntimeError(f"[Nuget] We failed to install this version {self.version} of {package_name}")
