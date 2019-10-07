@@ -28,10 +28,6 @@ class SetupSettingsManager(MultiPkgAwareSettingsInterface):
         ''' get WorkspacePath '''
         raise NotImplementedError()
 
-    def GetName(self):
-        ''' Get the name of the repo, platform, or product being build '''
-        pass
-
     def GetRequiredRepos(self):
         ''' get required repos '''
         raise NotImplementedError()
@@ -81,9 +77,6 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
         return SetupSettingsManager
 
     def GetLoggingFileName(self, loggerType):
-        name = self.PlatformSettings.GetName()
-        if name is not None:
-            return f"SETUPLOG_{name}"
         return "SETUPLOG"
 
     def Go(self):
