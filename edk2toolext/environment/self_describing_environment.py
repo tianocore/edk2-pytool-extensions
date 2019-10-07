@@ -173,13 +173,6 @@ class self_describing_environment(object):
         if 'set_build_var' in desc_object.flags:
             env_object.set_build_var(
                 desc_object.var_name, desc_object.published_path)
-        if 'append_shell_var' in desc_object.flags:
-            curr_value = env_object.get_shell_var(desc_object.var_name)
-            new_value = desc_object.published_path
-            if curr_value is not None:
-                if new_value not in curr_value:  # make sure we aren't already in the variable
-                    new_value = f"{curr_value};" + new_value
-            env_object.set_shell_var(desc_object.var_name, new_value)
         if 'set_shell_var' in desc_object.flags:
             env_object.set_shell_var(
                 desc_object.var_name, desc_object.published_path)
