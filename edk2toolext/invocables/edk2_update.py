@@ -56,9 +56,10 @@ class Edk2Update(Edk2MultiPkgAwareInvocable):
     MAX_RETRY_COUNT = 10
 
     def PerformUpdate(self):
-        (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(
-            self.GetWorkspaceRoot(), self.GetActiveScopes())
-        (success, failure) = self_describing_environment.UpdateDependencies(self.GetWorkspaceRoot(), self.GetActiveScopes())
+        ws_root = self.GetWorkspaceRoot()
+        scopes = self.GetActiveScopes()
+        (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(ws_root, scopes)
+        (success, failure) = self_describing_environment.UpdateDependencies(ws_root, scopes)
         if success != 0:
             logging.log(edk2_logging.SECTION, f"\tUpdated/Verified {success} dependencies")
         return (build_env, shell_env, failure)
