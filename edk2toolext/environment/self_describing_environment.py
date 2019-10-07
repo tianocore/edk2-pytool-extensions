@@ -177,7 +177,7 @@ class self_describing_environment(object):
             curr_value = env_object.get_shell_var(desc_object.var_name)
             new_value = desc_object.published_path
             if curr_value is not None:
-                if new_value not in curr_value: # make sure we aren't already in the variable
+                if new_value not in curr_value:  # make sure we aren't already in the variable
                     new_value = f"{curr_value};" + new_value
             env_object.set_shell_var(desc_object.var_name, new_value)
         if 'set_shell_var' in desc_object.flags:
@@ -215,8 +215,11 @@ class self_describing_environment(object):
                 success_count += 1
             except RuntimeError as e:
                 logging.warning(f"[SDE] Unable to fetch {extdep}: {e}")
+                failure_count += 1
             except FileNotFoundError:
                 logging.warning(f"[SDE] Unable to fetch {extdep}")
+                if extdep.error_msg is not None:
+                    logging.warning(extdep.error_msg)
                 failure_count += 1
                 pass
         return success_count, failure_count
