@@ -21,15 +21,17 @@ class SetupSettingsManager(MultiPkgAwareSettingsInterface):
     ''' Platform settings will be accessed through this implementation. '''
 
     def GetActiveScopes(self):
-        ''' get scope '''
+        ''' return tuple containing scopes that should be active for this process '''
         raise NotImplementedError()
 
     def GetWorkspaceRoot(self):
-        ''' get WorkspacePath '''
+        ''' return absolute path to the edk2 workspace root '''
         raise NotImplementedError()
 
     def GetRequiredRepos(self):
-        ''' get required repos '''
+        ''' return iterable containing workspace relative paths to submodules that must be
+        synchronized and updated for this process.
+        '''
         raise NotImplementedError()
 
     def AddCommandLineOptions(self, parserObj):
