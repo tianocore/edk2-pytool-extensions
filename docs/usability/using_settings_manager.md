@@ -40,9 +40,16 @@ class SettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSettings
         MODULE_PKGS = ['MU_BASECORE','Silicon/ARM/NXP', 'Common/MU','Common/MU_TIANO', 'Common/MU_OEM_SAMPLE','Silicon/ARM/MU_TIANO']
         return os.pathsep.join(os.path.join(self.WORKSPACE_PATH, pkg_name) for pkg_name in MODULE_PKGS)
 
-    def GetRequiredRepos(self):
-        ''' get required repos '''
-        return ('MU_BASECORE','Silicon/ARM/NXP', 'Common/MU','Common/MU_TIANO', 'Common/MU_OEM_SAMPLE','Silicon/ARM/MU_TIANO')
+    def GetRequiredSubmodules(self):
+        ''' return iterable containing RequiredSubmodule objects.
+        If no RequiredSubmodules return an empty iterable
+        '''
+        return [RequiredSubmodule('MU_BASECORE'), 
+                RequiredSubmodule('Silicon/ARM/NXP'), 
+                RequiredSubmodule('Common/MU'), 
+                RequiredSubmodule('Common/MU_TIANO'), 
+                RequiredSubmodule('Common/MU_OEM_SAMPLE'), 
+                RequiredSubmodule('Silicon/ARM/MU_TIANO') ]
 
     def AddCommandLineOptions(self, parserObj):
         ''' Add command line options to the argparser '''
@@ -112,9 +119,16 @@ class SettingsManager(UpdateSettingsManager, SetupSettingsManager):
         MODULE_PKGS = ['MU_BASECORE','Silicon/ARM/NXP', 'Common/MU','Common/MU_TIANO', 'Common/MU_OEM_SAMPLE','Silicon/ARM/MU_TIANO']
         return os.pathsep.join(os.path.join(self.WORKSPACE_PATH, pkg_name) for pkg_name in MODULE_PKGS)
 
-    def GetRequiredRepos(self):
-        ''' get required repos '''
-        return ('MU_BASECORE','Silicon/ARM/NXP', 'Common/MU','Common/MU_TIANO', 'Common/MU_OEM_SAMPLE','Silicon/ARM/MU_TIANO')
+    def GetRequiredSubmodules(self):
+        ''' return iterable containing RequiredSubmodule objects.
+        If no RequiredSubmodules return an empty iterable
+        '''
+        return [RequiredSubmodule('MU_BASECORE'), 
+                RequiredSubmodule('Silicon/ARM/NXP'), 
+                RequiredSubmodule('Common/MU'), 
+                RequiredSubmodule('Common/MU_TIANO'), 
+                RequiredSubmodule('Common/MU_OEM_SAMPLE'), 
+                RequiredSubmodule('Silicon/ARM/MU_TIANO')]
 
     def AddCommandLineOptions(self, parserObj):
         ''' Add command line options to the argparser '''
