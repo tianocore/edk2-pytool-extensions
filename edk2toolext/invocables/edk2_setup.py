@@ -67,6 +67,9 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
         '''  Retrieve command line options from the argparser '''
         self.force_it = args.force
         self.omnicache_path = args.omnicache_path
+        if (not os.path.exists(self.omnicache_path)):
+            logging.warning(f"Omnicahe path invalid: {args.omnicache_Path}")
+            self.omnicache_path = None
 
         super().RetrieveCommandLineOptions(args)
 
