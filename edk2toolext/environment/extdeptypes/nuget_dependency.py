@@ -141,6 +141,9 @@ class NugetDependency(ExternalDependency):
                 found_cred_provider = True
             if line.endswith("as a credential provider plugin."):
                 found_cred_provider = True
+        # if we fail, then we should retry if we have credential providers
+        # we currently steal command input so if we don't have cred providers, we hang
+        # this gives cred providers a chance to prompt for input since they don't use stdin
         if ret != 0:
             # If we're in non interactive and we have a credential provider
             if non_interative and found_cred_provider:  # we should be interactive next time
