@@ -71,7 +71,7 @@ class NugetSupport(object):
             self.Name = self.ConfigData["name"]
         else:
             if(Name is None):
-                raise Exception("Cont contruct object with both Name and ConfigFile as None")
+                raise ValueError("Cont contruct object with both Name and ConfigFile as None")
             self.ConfigData = {"name": Name}
             self.Config = None
 
