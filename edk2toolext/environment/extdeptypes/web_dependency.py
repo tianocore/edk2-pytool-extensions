@@ -43,6 +43,10 @@ class WebDependency(ExternalDependency):
         # Now we can get rid of the leading /
         self.internal_path = self.internal_path.strip(os.path.sep)
 
+    def __str__(self):
+        """ return a string representation of this """
+        return f"WebDependecy: {self.source}@{self.version}"
+
     def linuxize_path(path):
         '''
         path: path that uses os.sep, to be replaced with / for compatibility with zipfile
