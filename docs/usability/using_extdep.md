@@ -91,13 +91,13 @@ Ext_Dep Example json file
 - source: see per type
 - version: see per type
 - flags: Optional conditions that can be applied. Can be empty list
-- error_msg: an optional message that will disabled to the user if this ext_dep fails to fetch
 
 ### Optional
 
 - id: (string) - Identifier allowing override feature - Must be unique
 - override_id: (string) - Identifier of the ext_dep this should replace (allows for changing an ext_dep in another source by id)
 - var_name: TODO
+- error_msg: an optional message that will disabled to the user if this ext_dep fails to fetch
 
 ### Nuget Type Schema differences
 
