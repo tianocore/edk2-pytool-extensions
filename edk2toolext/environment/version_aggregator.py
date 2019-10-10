@@ -46,6 +46,12 @@ class version_aggregator(object):
         }
         self._logger.debug("version_aggregator logging version: {0}".format(str(self.Versions[key])))
 
+    def Print(self):
+        """ Prints out the current information from the version aggregator """
+        for version_key in self.Versions:
+            version = self.Version[version_key]
+            print(f"{version['type']} - {version['name']}: {version['version']}")
+
     def GetAggregatedVersionInformation(self):
         """
         Returns a copy of the aggregated information.
@@ -62,11 +68,13 @@ class VersionTypes(Enum):
     BINARY is for a pre-packaged binary that is distributed with a version number.
     TOOL is for recording the version number of a tool that was used during the build process.
     INFO is for recording miscellanious information.
+    PIP is for recording a python pip package.
     """
     TOOL = 1
     COMMIT = 2
     BINARY = 3
     INFO = 4
+    PIP = 5
 
 
 def GetVersionAggregator():
