@@ -28,7 +28,7 @@ class Edk2Invocable(BaseAbstractInvocable):
     # Pass in a list of pip package names and they will be printed as well as
     # reported to the global version_aggregator
     @classmethod
-    def _collect_python_pip_info(cls):
+    def collect_python_pip_info(cls):
         # Get the current python version
         cur_py = "%d.%d.%d" % sys.version_info[:3]
         ver_agg = version_aggregator.GetVersionAggregator()
@@ -39,7 +39,7 @@ class Edk2Invocable(BaseAbstractInvocable):
         for package in pip_packages:
             version = pkg_resources.get_distribution(package).version
             logging.info("{0} version: {1}".format(package.project_name, version))
-            ver_agg.ReportVersion(package.project_name, version, version_aggregator.VersionTypes.TOOL)
+            ver_agg.ReportVersion(package.project_name, version, version_aggregator.VersionTypes.PIP)
 
     def GetWorkspaceRoot(self):
         try:
