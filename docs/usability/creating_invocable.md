@@ -64,9 +64,12 @@ One final import is needed that will seem a little strange.
 ```python
 import DriverBuilder
 ```
+
 Stuart works in such a way that it expects your invokable to be running in the namespace that is named in.
 If you run your builder directly from the commandline, it will be running in \_\_main__, which can cause problems.
+
 **In a nutshell, you'll need to import the name of your file.**
+
 We'll see where this is used at the end.
 
 Now the settings class!
