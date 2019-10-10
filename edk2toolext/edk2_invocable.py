@@ -24,9 +24,8 @@ from edk2toolext.base_abstract_invocable import BaseAbstractInvocable
 
 class Edk2Invocable(BaseAbstractInvocable):
 
-    #
-    # Pass in a list of pip package names and they will be printed as well as
-    # reported to the global version_aggregator
+    # Collects all pip package names they will be printed
+    # as well as reported to the global version_aggregator
     @classmethod
     def collect_python_pip_info(cls):
         # Get the current python version
