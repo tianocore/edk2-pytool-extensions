@@ -189,19 +189,35 @@ class self_describing_environment(object):
 
     def update_extdeps(self, env_object):
         logging.debug("--- self_describing_environment.update_extdeps()")
+        failure_count = 0
+        success_count = 0
         for extdep in self._get_extdeps():
             # Check to see whether it's necessary to fetch the files.
-            if not extdep.verify():
-                # Get rid of extdep's published path since it could get changed
-                # during the fetch routine.
-                if 'set_path' in extdep.flags:
-                    env_object.remove_path_element(extdep.published_path)
-                if 'set_pypath' in extdep.flags:
-                    env_object.remove_pypath_element(extdep.published_path)
-                extdep.clean()
-                extdep.fetch()
-                # Re-apply the extdep to environment
-                self._apply_descriptor_object_to_env(extdep, env_object)
+            try:
+                if not extdep.verify():
+                    # Get rid of extdep's published path since it could get changed
+                    # during the fetch routine.
+                    if 'set_path' in extdep.flags:
+                        env_object.remove_path_element(extdep.published_path)
+                    if 'set_pypath' in extdep.flags:
+                        env_object.remove_pypath_element(extdep.published_path)
+                    extdep.clean()
+                    extdep.fetch()
+                    # Re-apply the extdep to environment
+                    self._apply_descriptor_object_to_env(extdep, env_object)
+                success_count += 1
+            except RuntimeError as e:
+                logging.warning(f"[SDE] Failed to fetch {extdep}: {e}")
+                if extdep.error_msg is not None:
+                    logging.warning(extdep.error_msg)
+                failure_count += 1
+            except FileNotFoundError:
+                logging.warning(f"[SDE] Unable to fetch {extdep}")
+                if extdep.error_msg is not None:
+                    logging.warning(extdep.error_msg)
+                failure_count += 1
+                pass
+        return success_count, failure_count
 
     def clean_extdeps(self, env_object):
         for extdep in self._get_extdeps():
@@ -275,7 +291,7 @@ def UpdateDependencies(workspace, scopes=()):
     (build_env, shell_env) = BootstrapEnvironment(workspace, scopes)
 
     # Clean all the dependencies.
-    build_env.update_extdeps(shell_env)
+    return build_env.update_extdeps(shell_env)
 
 
 def VerifyEnvironment(workspace, scopes=()):

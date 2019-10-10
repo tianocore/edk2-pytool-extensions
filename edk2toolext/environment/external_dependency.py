@@ -44,6 +44,7 @@ class ExternalDependency(object):
         self.version = descriptor['version']
         self.flags = descriptor.get('flags', None)
         self.var_name = descriptor.get('var_name', None)
+        self.error_msg = descriptor.get('error_msg', None)
 
         self.descriptor_location = os.path.dirname(
             descriptor['descriptor_file'])

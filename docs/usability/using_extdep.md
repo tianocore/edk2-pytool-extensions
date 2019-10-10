@@ -40,7 +40,7 @@ Nuget dependency is used to fetch files from a nuget feed.  This feed can be eit
 
 ### Web Dependency
 
-Web dependency is used to describe a dependency on an asset that can be downloaded via a URL and a web request.  It will download whatever is located at the source URL and can support single files, compressed files, and folders.  
+Web dependency is used to describe a dependency on an asset that can be downloaded via a URL and a web request.  It will download whatever is located at the source URL and can support single files, compressed files, and folders.
 When the ext_dep type is set to ***web*** the ext_dep will be intrepreted as a web dependency.
 
 ### Git Dependency
@@ -53,7 +53,7 @@ To create a new Dependency type it requires a new subclass of the `ExternalDepen
 
 ## How they work
 
-Ext_deps are found by the SDE (self-describing environment). If you have any questions about that, go review the document for that. Once the ext_dep is found it can be interacted with depending on use case/tool. Objects created with the data from ext_dep descriptors and are subclassed according to the "type" field in the descriptor. 
+Ext_deps are found by the SDE (self-describing environment). If you have any questions about that, go review the document for that. Once the ext_dep is found it can be interacted with depending on use case/tool. Objects created with the data from ext_dep descriptors and are subclassed according to the "type" field in the descriptor.
 
 These objects contain the code for fetching, validating, updating, and cleaning dependency objects and metadata. When referenced from the SDE itself, they can also update paths and other build/shell vars in the build environment.
 
@@ -97,6 +97,7 @@ Ext_Dep Example json file
 - id: (string) - Identifier allowing override feature - Must be unique
 - override_id: (string) - Identifier of the ext_dep this should replace (allows for changing an ext_dep in another source by id)
 - var_name: TODO
+- error_msg: an optional message that will disabled to the user if this ext_dep fails to fetch
 
 ### Nuget Type Schema differences
 
