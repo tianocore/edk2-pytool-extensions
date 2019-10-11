@@ -117,7 +117,7 @@ class TestEdk2PlatBuild(unittest.TestCase):
         sys.argv = ["stuart_setup", "-c", settings_file]
         try:
             builder.Invoke()
-        except SystemExit as e:
-            #self.assertEqual(e.code, 0, "We should have a non zero error code")
+        except SystemExit:
+            # self.assertEqual(e.code, 0, "We should have a non zero error code")
             # we'll fail because we don't have the build command
             pass
