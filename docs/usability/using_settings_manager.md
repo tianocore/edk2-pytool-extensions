@@ -35,10 +35,9 @@ class SettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSettings
         ''' get WorkspacePath '''
         return self.WORKSPACE_PATH
 
-    def GetModulePkgsPath(self):
-        ''' get module packages path '''
-        MODULE_PKGS = ['MU_BASECORE','Silicon/ARM/NXP', 'Common/MU','Common/MU_TIANO', 'Common/MU_OEM_SAMPLE','Silicon/ARM/MU_TIANO']
-        return os.pathsep.join(os.path.join(self.WORKSPACE_PATH, pkg_name) for pkg_name in MODULE_PKGS)
+    def GetPackagesPath(self):
+        ''' Return a list of workspace relative paths that should be mapped as edk2 PackagesPath '''
+        return ['MU_BASECORE','Silicon/ARM/NXP', 'Common/MU','Common/MU_TIANO', 'Common/MU_OEM_SAMPLE','Silicon/ARM/MU_TIANO']
 
     def GetRequiredSubmodules(self):
         ''' return iterable containing RequiredSubmodule objects.
@@ -111,10 +110,9 @@ class SettingsManager(UpdateSettingsManager, SetupSettingsManager):
         ''' get WorkspacePath '''
         return self.WORKSPACE_PATH
 
-    def GetModulePkgsPath(self):
-        ''' get module packages path '''
-        MODULE_PKGS = ['MU_BASECORE','Silicon/ARM/NXP', 'Common/MU','Common/MU_TIANO', 'Common/MU_OEM_SAMPLE','Silicon/ARM/MU_TIANO']
-        return os.pathsep.join(os.path.join(self.WORKSPACE_PATH, pkg_name) for pkg_name in MODULE_PKGS)
+    def GetPackagesPath(self):
+        ''' Return a list of workspace relative paths that should be mapped as edk2 PackagesPath '''
+        return ['MU_BASECORE','Silicon/ARM/NXP', 'Common/MU','Common/MU_TIANO', 'Common/MU_OEM_SAMPLE','Silicon/ARM/MU_TIANO']
 
     def GetRequiredSubmodules(self):
         ''' return iterable containing RequiredSubmodule objects.
@@ -157,10 +155,9 @@ class PlatformBuilder(UefiBuilder, BuildSettingsManager):
         ''' get WorkspacePath '''
         return self.WORKSPACE_PATH
 
-    def GetModulePkgsPath(self):
-        ''' get module packages path '''
-        MODULE_PKGS = ['MU_BASECORE','Silicon/ARM/NXP', 'Common/MU','Common/MU_TIANO', 'Common/MU_OEM_SAMPLE','Silicon/ARM/MU_TIANO']
-        return os.pathsep.join(os.path.join(self.WORKSPACE_PATH, pkg_name) for pkg_name in MODULE_PKGS)
+    def GetPackagesPath(self):
+        ''' Return a list of workspace relative paths that should be mapped as edk2 PackagesPath '''
+        return ['MU_BASECORE','Silicon/ARM/NXP', 'Common/MU','Common/MU_TIANO', 'Common/MU_OEM_SAMPLE','Silicon/ARM/MU_TIANO']
 
     def AddCommandLineOptions(self, parserObj):
         ''' Add command line options to the argparser '''

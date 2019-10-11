@@ -88,9 +88,6 @@ class BinaryBuildSettingsManager():
         ''' get WorkspacePath '''
         raise NotImplementedError()
 
-    def GetPackagesPath(self):
-        pass
-
      def GetName(self):
         ''' Get the name of the repo, platform, or product being build by CI '''
         raise NotImplementedError()
@@ -103,8 +100,8 @@ class BinaryBuildSettingsManager():
         '''  Implement in subclass to retrieve command line options from the argparser '''
         pass
 
-    def GetModulePkgsPath(self):
-        ''' Get the modules that we care about '''
+    def GetPackagesPath(self):
+        ''' Return a list of workspace relative paths that should be mapped as edk2 PackagesPath '''
         return ""
 
 ```
@@ -260,7 +257,7 @@ class Edk2BinaryBuild(Edk2Invocable):
         ret = self.PlatformSettings.PreFirstBuildHook()
         # get workspace and package paths for
         ws = self.GetWorkspaceRoot()
-        pp = self.PlatformSettings.GetModulePkgsPath()
+        pp = self.PlatformSettings.GetPackagesPath()
         # run each configuration
         for config in self.PlatformSettings.GetConfigurations():
             ret = self.PlatformSettings.PreBuildHook()  # run pre build hook
@@ -278,7 +275,7 @@ class Edk2BinaryBuild(Edk2Invocable):
                          "provided by driver_builder")
             platformBuilder = UefiBuilder()  # create our builder
             # run our builder and add to ret
-            ret = platformBuilder.Go(ws, pp, self.helper, self.plugin_manager)
+            ret = platformBuilder.Go(ws, os.pathsep.join(pp), self.helper, self.plugin_manager)
             # call our post build hook
             ret = self.PlatformSettings.PostBuildHook(ret)
             # if we have a non zero return code, throw an error and call our final build hook
@@ -425,12 +422,14 @@ class SettingsManager(UpdateSettingsManager, CiSetupSettingsManager, BinaryBuild
         ''' get WorkspacePath '''
         return self.ws
 
-    def GetModulePkgsPath(self):
-        ''' get module packages path '''
+    def GetPackagesPath(self):
+    ''' Return a list of workspace relative paths that should be mapped as edk2 PackagesPath '''
         return self.pp
 
-    def GetRequiredRepos(self):
-        ''' get required repos '''
+    def GetRequiredSubmodules(self):
+        ''' return iterable containing RequiredSubmodule objects.
+        If no RequiredSubmodules return an empty iterable
+        '''
         return self.rr
 
     def GetName(self):
@@ -572,7 +571,7 @@ class Edk2BinaryBuild(Edk2Invocable):
         ret = self.PlatformSettings.PreFirstBuildHook()
         # get workspace and package paths for
         ws = self.GetWorkspaceRoot()
-        pp = self.PlatformSettings.GetModulePkgsPath()
+        pp = self.PlatformSettings.GetPackagesPath()
         # run each configuration
         for config in self.PlatformSettings.GetConfigurations():
             ret = self.PlatformSettings.PreBuildHook()  # run pre build hook
@@ -590,7 +589,7 @@ class Edk2BinaryBuild(Edk2Invocable):
                          "provided by driver_builder")
             platformBuilder = UefiBuilder()  # create our builder
             # run our builder and add to ret
-            ret = platformBuilder.Go(ws, pp, self.helper, self.plugin_manager)
+            ret = platformBuilder.Go(ws, os.pathsep.join(pp), self.helper, self.plugin_manager)
             # call our post build hook
             ret = self.PlatformSettings.PostBuildHook(ret)
             # if we have a non zero return code, throw an error and call our final build hook
@@ -688,8 +687,8 @@ class SettingsManager(UpdateSettingsManager, CiSetupSettingsManager, BinaryBuild
         ''' get WorkspacePath '''
         return self.ws
 
-    def GetModulePkgsPath(self):
-        ''' get module packages path '''
+    def GetPackagesPath(self):
+        ''' Return a list of workspace relative paths that should be mapped as edk2 PackagesPath '''
         return os.pathsep.join(self.pp)
 
     def GetName(self):
