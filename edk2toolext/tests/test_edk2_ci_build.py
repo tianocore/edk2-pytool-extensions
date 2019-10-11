@@ -10,12 +10,14 @@ from edk2toolext.invocables.edk2_ci_build import Edk2CiBuild
 import tempfile
 import sys
 import os
+import logging
+from importlib import reload
 from edk2toolext.environment import shell_environment
 
 class_info = '''
 from edk2toolext.invocables.edk2_ci_build import CiBuildSettingsManager
 class TestSettingsManager(CiBuildSettingsManager):
-    
+
     def GetActiveScopes(self):
         return []
 
@@ -52,6 +54,8 @@ class TestEdk2CiBuild(unittest.TestCase):
 
     def tearDown(self):
         shell_environment.GetEnvironment().restore_initial_checkpoint()
+        logging.shutdown()
+        reload(logging)
         pass
 
     @classmethod

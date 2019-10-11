@@ -10,6 +10,8 @@ from edk2toolext.invocables.edk2_ci_setup import Edk2CiBuildSetup
 import tempfile
 import sys
 import os
+import logging
+from importlib import reload
 from edk2toolext.environment import shell_environment
 
 class_info = '''
@@ -52,6 +54,8 @@ class TestEdk2CiSetup(unittest.TestCase):
 
     def tearDown(self):
         shell_environment.GetEnvironment().restore_initial_checkpoint()
+        logging.shutdown()
+        reload(logging)
         pass
 
     @classmethod
