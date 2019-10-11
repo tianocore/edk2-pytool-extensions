@@ -34,7 +34,7 @@ class TestSettingsManager(BuildSettingsManager):
         pass
 
     def GetName(self):
-        return "TestCI"
+        return "TestPlatBuild"
 
     def GetArchitecturesSupported(self):
         return []
@@ -114,7 +114,7 @@ class TestEdk2PlatBuild(unittest.TestCase):
         real_class = class_info.replace("WORKSPACE", f'"{workspace_abs}"')
         print(settings_file)
         TestEdk2PlatBuild.write_to_file(settings_file, real_class)
-        sys.argv = ["stuart_setup", "-c", settings_file]
+        sys.argv = ["stuart_build", "-c", settings_file]
         try:
             builder.Invoke()
         except SystemExit:

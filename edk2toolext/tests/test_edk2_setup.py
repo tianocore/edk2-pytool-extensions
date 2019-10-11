@@ -34,7 +34,7 @@ class TestSettingsManager(SetupSettingsManager):
         pass
 
     def GetName(self):
-        return "TestCI"
+        return "TestSetup"
 
     def GetArchitecturesSupported(self):
         return []
