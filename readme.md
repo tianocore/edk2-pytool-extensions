@@ -40,6 +40,16 @@ NOTE: It is strongly recommended that you use python virtual environments.  Virt
 
 ## Release Version History
 
+### Version 0.11.0
+
+* Features:
+  * BREAKING CHANGE - PR 77 - Refactor BuildSettingsManager.GetModulePkgsPath to GetPackagesPath
+  * BREAKING CHANGE - PR 74 - Refactor SetupSettingsManager.GetRequiredRepos to GetRequiredSubmodules and return list of RequiredSubmodule objects
+* Bugs
+  * Issue 65 - web dependency sha256 value is case sensitive
+  * Issue 72 - Nuget dependencies hang when credentials are needed
+  * Issue 59 - Missing information from version report
+
 ### Version 0.10.0
 
 * Features:
