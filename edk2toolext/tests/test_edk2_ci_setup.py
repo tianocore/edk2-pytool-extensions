@@ -50,13 +50,18 @@ class TestSettingsManager(CiSetupSettingsManager):
 class TestEdk2CiSetup(unittest.TestCase):
 
     def setUp(self):
+        TestEdk2CiSetup.restart_logging()
         pass
 
     def tearDown(self):
         shell_environment.GetEnvironment().restore_initial_checkpoint()
+        TestEdk2CiSetup.restart_logging()
+        pass
+
+    @classmethod
+    def restart_logging(cls):
         logging.shutdown()
         reload(logging)
-        pass
 
     @classmethod
     def setUpClass(cls):

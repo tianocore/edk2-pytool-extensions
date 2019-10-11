@@ -50,12 +50,12 @@ class TestSettingsManager(CiBuildSettingsManager):
 class TestEdk2CiBuild(unittest.TestCase):
 
     def setUp(self):
+        TestEdk2CiBuild.restart_logging()
         pass
 
     def tearDown(self):
         shell_environment.GetEnvironment().restore_initial_checkpoint()
-        logging.shutdown()
-        reload(logging)
+        TestEdk2CiBuild.restart_logging()
         pass
 
     @classmethod
@@ -65,6 +65,11 @@ class TestEdk2CiBuild(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         pass
+
+    @classmethod
+    def restart_logging(cls):
+        logging.shutdown()
+        reload(logging)
 
     def test_init(self):
         builder = Edk2CiBuild()
