@@ -33,7 +33,8 @@ class BuildSettingsManager():
         ''' get WorkspacePath '''
         raise NotImplementedError()
 
-    def GetModulePkgsPath(self):
+    def GetPackagesPath(self):
+        ''' Return a list of workspace relative paths that should be mapped as edk2 PackagesPath '''
         raise NotImplementedError()
 
     def GetName(self):
@@ -144,7 +145,7 @@ class Edk2PlatformBuild(Edk2Invocable):
         #
         logging.log(edk2_logging.SECTION, "Kicking off build")
         return self.PlatformBuilder.Go(self.GetWorkspaceRoot(),
-                                       self.PlatformSettings.GetModulePkgsPath(),
+                                       os.pathsep.join(self.PlatformSettings.GetPackagesPath()),
                                        helper, pm)
 
 
