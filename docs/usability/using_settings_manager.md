@@ -96,11 +96,8 @@ class SettingsManager(UpdateSettingsManager, SetupSettingsManager):
     def __init__(self):
         SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
         self.WORKSPACE_PATH = os.path.dirname(os.path.dirname(SCRIPT_PATH))
-        self.REQUIRED_REPOS = ('MU_BASECORE','Silicon/ARM/NXP', 'Common/MU','Common/MU_TIANO', 'Common/MU_OEM_SAMPLE','Silicon/ARM/MU_TIANO')
         self.PRODUCTION_SCOPE = ('production', )
         self.BASE_SCOPE = ('imxfamily', 'imx8')
-        MODULE_PKGS = ['MU_BASECORE','Silicon/ARM/NXP', 'Common/MU','Common/MU_TIANO', 'Common/MU_OEM_SAMPLE','Silicon/ARM/MU_TIANO']
-        self.MODULE_PKG_PATHS = os.pathsep.join(os.path.join(self.WORKSPACE_PATH, pkg_name) for pkg_name in MODULE_PKGS)
         self.production = None
 
     def GetProjectScope(self):
@@ -150,7 +147,7 @@ class PlatformBuilder(UefiBuilder, BuildSettingsManager):
         self.production = None
 
     def GetProjectScope(self):
-        ''' get scope '''
+        ''' return tuple containing scopes that should be active for this process '''
         SCOPE = self.BASE_SCOPE
         if self.production:
             SCOPE += self.PRODUCTION_SCOPE

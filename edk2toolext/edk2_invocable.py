@@ -47,6 +47,7 @@ class Edk2Invocable(BaseAbstractInvocable):
             raise RuntimeError("Can't call this before PlatformSettings has been set up!")
 
     def GetActiveScopes(self):
+        ''' return tuple containing scopes that should be active for this process '''
         try:
             scopes = self.PlatformSettings.GetActiveScopes()
         except AttributeError:
