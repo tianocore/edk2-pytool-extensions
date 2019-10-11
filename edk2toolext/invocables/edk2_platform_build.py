@@ -9,24 +9,20 @@
 import os
 import sys
 import logging
-import pkg_resources
 from edk2toolext import edk2_logging
 from edk2toolext.environment import plugin_manager
 from edk2toolext.environment.plugintypes.uefi_helper_plugin import HelperFunctions
-from edk2toolext.environment import version_aggregator
 from edk2toolext.environment import self_describing_environment
 from edk2toolext.environment.uefi_build import UefiBuilder
 from edk2toolext.edk2_invocable import Edk2Invocable
 from edk2toollib.utility_functions import locate_class_in_module
-
-PIP_PACKAGES_LIST = ["edk2-pytool-library", "edk2-pytool-extensions", "PyYaml"]
 
 
 class BuildSettingsManager():
     ''' Platform settings will be accessed through this implementation. '''
 
     def GetActiveScopes(self):
-        ''' get scope '''
+        ''' return tuple containing scopes that should be active for this process '''
         raise NotImplementedError()
 
     def GetWorkspaceRoot(self):
@@ -57,16 +53,6 @@ class BuildSettingsManager():
         md   == markdown file logging
         '''
         pass
-
-
-#
-# Pass in a list of pip package names and they will be printed as well as
-# reported to the global version_aggregator
-def display_pip_package_info(package_list):
-    for package in package_list:
-        version = pkg_resources.get_distribution(package).version
-        logging.info("{0} version: {1}".format(package, version))
-        version_aggregator.GetVersionAggregator().ReportVersion(package, version, version_aggregator.VersionTypes.TOOL)
 
 
 class Edk2PlatformBuild(Edk2Invocable):
@@ -109,7 +95,7 @@ class Edk2PlatformBuild(Edk2Invocable):
     def Go(self):
         logging.info("Running Python version: " + str(sys.version_info))
 
-        display_pip_package_info(PIP_PACKAGES_LIST)
+        Edk2PlatformBuild.collect_python_pip_info()
 
         (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(
             self.GetWorkspaceRoot(), self.GetActiveScopes())

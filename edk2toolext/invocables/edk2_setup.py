@@ -1,5 +1,5 @@
 # @file edk2_setup
-# updates submodules listed as REQUIRED_REPOS in Config file.
+# updates submodules listed as RequiredS ubmodules in Config file.
 ##
 # Copyright (c) Microsoft Corporation
 #
@@ -17,19 +17,35 @@ from edk2toollib.utility_functions import RunCmd
 from edk2toollib.utility_functions import version_compare
 
 
+class RequiredSubmodule():
+
+    def __init__(self, path: str, recursive: bool = True):
+        '''
+        Object to hold necessary information for resolving submodules
+
+        path:   workspace relative path to submodule that must be
+                synchronized and updated
+        recursive: boolean if recursion should be used in this submodule
+        '''
+        self.path = path
+        self.recursive = recursive
+
+
 class SetupSettingsManager(MultiPkgAwareSettingsInterface):
     ''' Platform settings will be accessed through this implementation. '''
 
     def GetActiveScopes(self):
-        ''' get scope '''
+        ''' return tuple containing scopes that should be active for this process '''
         raise NotImplementedError()
 
     def GetWorkspaceRoot(self):
-        ''' get WorkspacePath '''
+        ''' return absolute path to the edk2 workspace root '''
         raise NotImplementedError()
 
-    def GetRequiredRepos(self):
-        ''' get required repos '''
+    def GetRequiredSubmodules(self):
+        ''' return iterable containing RequiredSubmodule objects.
+        If no RequiredSubmodules return an empty iterable
+        '''
         raise NotImplementedError()
 
     def AddCommandLineOptions(self, parserObj):
@@ -51,7 +67,7 @@ class SetupSettingsManager(MultiPkgAwareSettingsInterface):
 
 
 class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
-    ''' Updates git submodules listed in required_repos '''
+    ''' Updates git submodules listed in RequiredSubmodules '''
 
     def AddCommandLineOptions(self, parserObj):
         ''' adds command line options to the argparser '''
@@ -65,6 +81,9 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
         '''  Retrieve command line options from the argparser '''
         self.force_it = args.force
         self.omnicache_path = args.omnicache_path
+        if (not os.path.exists(self.omnicache_path)):
+            logging.warning(f"Omnicahe path invalid: {args.omnicache_Path}")
+            self.omnicache_path = None
 
         super().RetrieveCommandLineOptions(args)
 
@@ -80,7 +99,7 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
         return "SETUPLOG"
 
     def Go(self):
-        required_repos = self.PlatformSettings.GetRequiredRepos()
+        required_submodules = self.PlatformSettings.GetRequiredSubmodules()
         workspace_path = self.GetWorkspaceRoot()
         # Make sure git is installed
         return_buffer = StringIO()
@@ -111,13 +130,14 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
                 edk2_logging.log_progress("Done.\n")
 
                 # Clean any submodule repos.
-                if required_repos:
-                    for required_repo in required_repos:
-                        edk2_logging.log_progress("## Cleaning Git repository: %s..." % required_repo)
-                        required_repo_path = os.path.normpath(os.path.join(workspace_path, required_repo))
-                        RunCmd("git", "reset --hard", workingdir=required_repo_path,
+                if required_submodules:
+                    for required_submodule in required_submodules:
+                        edk2_logging.log_progress("## Cleaning Git repository: %s..." % required_submodule.path)
+                        required_submodule_path = os.path.normpath(
+                            os.path.join(workspace_path, required_submodule.path))
+                        RunCmd("git", "reset --hard", workingdir=required_submodule_path,
                                logging_level=logging.DEBUG, raise_exception_on_nonzero=True)
-                        RunCmd("git", "clean -xffd", workingdir=required_repo_path,
+                        RunCmd("git", "clean -xffd", workingdir=required_submodule_path,
                                logging_level=logging.DEBUG, raise_exception_on_nonzero=True)
 
                         edk2_logging.log_progress("Done.\n")
@@ -129,12 +149,14 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
                 return
 
         # Grab the remaining Git repos.
-        if required_repos:
+        if required_submodules and len(required_submodules) > 0:
+
             # Git Repos: STEP 1 --------------------------------------
             # Make sure that the repos are all synced.
             try:
-                edk2_logging.log_progress("## Syncing Git repositories: %s..." % ", ".join(required_repos))
-                RunCmd("git", 'submodule sync -- ' + " ".join(required_repos),
+                submodule_string = " ".join([x.path for x in required_submodules])
+                edk2_logging.log_progress(f"## Syncing Git repositories: {submodule_string}...")
+                RunCmd("git", f'submodule sync -- {submodule_string}',
                        workingdir=workspace_path, logging_level=logging.DEBUG, raise_exception_on_nonzero=True)
 
                 edk2_logging.log_progress("Done.\n")
@@ -146,20 +168,20 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
 
             # Git Repos: STEP 2 --------------------------------------
             # Iterate through all repos and see whether they should be fetched.
-            for required_repo in required_repos:
+            for required_submodule in required_submodules:
                 try:
-                    edk2_logging.log_progress("## Checking Git repository: %s..." % required_repo)
+                    edk2_logging.log_progress(f"## Checking Git repository: {required_submodule.path}...")
 
                     # Git Repos: STEP 2a ---------------------------------
                     # Need to determine whether to skip this repo.
-                    required_repo_path = os.path.normpath(os.path.join(workspace_path, required_repo))
+                    required_submodule_path = os.path.normpath(os.path.join(workspace_path, required_submodule.path))
                     skip_repo = False
                     # If the repo exists (and we're not forcing things) make
                     # sure that it's not in a "dirty" state.
-                    if os.path.exists(required_repo_path) and not self.force_it:
+                    if os.path.exists(required_submodule_path) and not self.force_it:
                         return_buffer = StringIO()
-                        RunCmd("git", 'diff ' + required_repo, outstream=return_buffer, workingdir=workspace_path,
-                               logging_level=logging.DEBUG, raise_exception_on_nonzero=True)
+                        RunCmd("git", 'diff ' + required_submodule.path, outstream=return_buffer,
+                               workingdir=workspace_path, logging_level=logging.DEBUG, raise_exception_on_nonzero=True)
                         git_data = return_buffer.getvalue().strip()
                         return_buffer.close()
                         # If anything was returned, we should skip processing the repo.
@@ -173,10 +195,13 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
                     # If we're not skipping, grab it.
                     if not skip_repo or self.force_it:
                         logging.info("## Fetching repo.")
-                        cmd_string = "submodule update --init --recursive --progress"
+                        cmd_string = "submodule update --init"
+                        if required_submodule.recursive:
+                            cmd_string += " --recursive"
+                        cmd_string += " --progress"
                         if self.omnicache_path is not None:
                             cmd_string += " --reference " + self.omnicache_path
-                        cmd_string += " " + required_repo
+                        cmd_string += " " + required_submodule.path
                         RunCmd('git', cmd_string, workingdir=workspace_path,
                                logging_level=logging.DEBUG, raise_exception_on_nonzero=True)
 
@@ -188,8 +213,6 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
                     logging.error(str(e))
 
         return 0
-
-        # TODO: Install any certs any other things that might be required.
 
 
 def main():

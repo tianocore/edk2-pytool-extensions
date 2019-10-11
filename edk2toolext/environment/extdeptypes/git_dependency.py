@@ -55,6 +55,10 @@ class GitDependency(ExternalDependency):
         # valid_attributes = ["Path", "Url", "Branch", "Commit", "ReferencePath", "Full"]
         self._repo_resolver_dep_obj = {"Path": self.name, "Url": self.repo_url, "Commit": self.commit}
 
+    def __str__(self):
+        """ return a string representation of this """
+        return f"GitDependecy: {self.repo_url}@{self.commit}"
+
     def fetch(self):
 
         # def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=False):

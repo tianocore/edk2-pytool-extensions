@@ -26,13 +26,11 @@ class CiBuildSettingsManager(MultiPkgAwareSettingsInterface):
     ''' Platform settings will be accessed through this implementation. '''
 
     def GetActiveScopes(self):
-        ''' get scope '''
+        ''' return tuple containing scopes that should be active for this process '''
         raise NotImplementedError()
 
-    def GetDependencies(self):
-        pass
-
     def GetPackagesPath(self):
+        ''' Return a list of workspace relative paths that should be mapped as edk2 PackagesPath '''
         pass
 
     # ####################################################################################### #
@@ -96,6 +94,8 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
 
     def Go(self):
         log_directory = os.path.join(self.GetWorkspaceRoot(), self.GetLoggingFolderRelativeToRoot())
+
+        Edk2CiBuild.collect_python_pip_info()
 
         #
         # Get Package Path from config file
