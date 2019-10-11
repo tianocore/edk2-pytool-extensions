@@ -6,11 +6,43 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 import unittest
-from edk2toolext.invocables.edk2_ci_build import CiBuildSettingsManager
 from edk2toolext.invocables.edk2_ci_build import Edk2CiBuild
 import tempfile
+import sys
 import os
 from edk2toolext.environment import shell_environment
+
+class_info = '''
+from edk2toolext.invocables.edk2_ci_build import CiBuildSettingsManager
+class TestSettingsManager(CiBuildSettingsManager):
+    
+    def GetActiveScopes(self):
+        return []
+
+    def GetWorkspaceRoot(self):
+        return WORKSPACE
+
+    def GetPackagesPath(self):
+        return []
+
+    def AddCommandLineOptions(self, parserObj):
+        pass
+
+    def RetrieveCommandLineOptions(self, args):
+        pass
+
+    def GetName(self):
+        return "TestCI"
+
+    def GetArchitecturesSupported(self):
+        return []
+
+    def GetPackagesSupported(self):
+        return []
+
+    def GetTargetsSupported(self):
+        return []
+'''
 
 
 class TestEdk2CiBuild(unittest.TestCase):
@@ -41,18 +73,17 @@ class TestEdk2CiBuild(unittest.TestCase):
         if close:
             f.close()
 
-    class TestSettingsManager(CiBuildSettingsManager):
-        def GetActiveScopes(self):
-            return []
-
-        def GetWorkspaceRoot(self):
-            ''' get WorkspacePath '''
-            if self.WORKSPACE is None:
-                self.WORKSPACE = tempfile.mkdtemp()
-            return self.WORKSPACE
-
-        def GetPackagesPath(self):
-            return []
-        
-        def GetName(self):
-            return "TestCI"
+    def test_ci_build(self):
+        WORKSPACE = tempfile.mkdtemp()
+        builder = Edk2CiBuild()
+        workspace_abs = os.path.abspath(WORKSPACE).replace("\\", "\\\\")
+        settings_file = os.path.abspath(os.path.join(WORKSPACE, "settings.py"))
+        real_class = class_info.replace("WORKSPACE", f'"{workspace_abs}"')
+        print(settings_file)
+        TestEdk2CiBuild.write_to_file(settings_file, real_class)
+        sys.argv = ["stuart_ci_build", "-c", settings_file]
+        try:
+            builder.Invoke()
+        except SystemExit as e:
+            self.assertEqual(e.code, 0, "We should have a non zero error code")
+            pass
