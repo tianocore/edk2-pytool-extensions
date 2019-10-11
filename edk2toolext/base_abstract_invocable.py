@@ -29,7 +29,7 @@ class BaseAbstractInvocable(object):
         raise NotImplementedError()
 
     def GetActiveScopes(self):
-        '''Return the scopes for use in SDE '''
+        ''' return tuple containing scopes that should be active for this process '''
         raise NotImplementedError()
 
     def GetLoggingLevel(self, loggerType):

@@ -17,7 +17,7 @@ class UpdateSettingsManager(MultiPkgAwareSettingsInterface):
     ''' Platform settings will be accessed through this implementation. '''
 
     def GetActiveScopes(self):
-        ''' get scope '''
+        ''' return tuple containing scopes that should be active for this process '''
         raise NotImplementedError()
 
     def GetWorkspaceRoot(self):

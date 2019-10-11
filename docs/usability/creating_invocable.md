@@ -81,7 +81,7 @@ class BinaryBuildSettingsManager():
     ''' Platform settings will be accessed through this implementation. '''
 
     def GetActiveScopes(self):
-        ''' get scope '''
+        ''' return tuple containing scopes that should be active for this process '''
         raise NotImplementedError()
 
     def GetWorkspaceRoot(self):
@@ -346,7 +346,7 @@ class SettingsManager(UpdateSettingsManager, CiSetupSettingsManager, BinaryBuild
         pass
 
     def GetActiveScopes(self):
-        ''' get scope '''
+        ''' return tuple containing scopes that should be active for this process '''
         scopes = ("corebuild", "sharednetworking_build", )
         return scopes
 
@@ -485,7 +485,7 @@ class BinaryBuildSettingsManager():
     ''' Platform settings will be accessed through this implementation. '''
 
     def GetActiveScopes(self):
-        ''' get scope '''
+        ''' return tuple containing scopes that should be active for this process '''
         raise NotImplementedError()
 
     def GetWorkspaceRoot(self):
@@ -645,22 +645,15 @@ class SettingsManager(UpdateSettingsManager, CiSetupSettingsManager, BinaryBuild
         SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
 
         WORKSPACE_PATH = os.path.dirname(os.path.dirname(SCRIPT_PATH))
-        REQUIRED_REPOS = ('Common/MU_TIANO',
-                          "Silicon/Arm/MU_TIANO")  # todo fix this
-
-        MODULE_PKG_PATHS = ";".join(os.path.join(
-            WORKSPACE_PATH, pkg_name) for pkg_name in REQUIRED_REPOS)
-
         self.OUTPUT_DIR = os.path.join(WORKSPACE_PATH, "Build", ".NugetOutput")
         self.ws = WORKSPACE_PATH
-        self.pp = MODULE_PKG_PATHS
-        self.rr = REQUIRED_REPOS
+        self.pp = ['Common/MU_TIANO', "Silicon/Arm/MU_TIANO"]
         self.sp = SCRIPT_PATH
         self.nuget_version = None
         pass
 
     def GetActiveScopes(self):
-        ''' get scope '''
+        ''' return tuple containing scopes that should be active for this process '''
         scopes = ("corebuild", "sharednetworking_build", )
         return scopes
 
@@ -697,11 +690,7 @@ class SettingsManager(UpdateSettingsManager, CiSetupSettingsManager, BinaryBuild
 
     def GetModulePkgsPath(self):
         ''' get module packages path '''
-        return self.pp
-
-    def GetRequiredRepos(self):
-        ''' get required repos '''
-        return self.rr
+        return os.pathsep.join(self.pp)
 
     def GetName(self):
         return "SharedNetworking"
