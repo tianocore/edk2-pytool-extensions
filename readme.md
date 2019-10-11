@@ -40,6 +40,11 @@ NOTE: It is strongly recommended that you use python virtual environments.  Virt
 
 ## Release Version History
 
+## Version 0.11.1
+
+* Bugs
+  * Issue 80 - Omnicache path check causes failure when not set
+
 ### Version 0.11.0
 
 * Features:
