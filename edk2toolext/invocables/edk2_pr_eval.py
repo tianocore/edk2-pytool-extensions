@@ -100,6 +100,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         return 0
 
     def get_packages_to_build(self, possible_packages: list) -> dict:
+        self.parsed_dec_cache = {}
         (rc, files) = self._get_files_that_changed_in_this_pr(self.pr_target)
         if rc != 0:
             return {}
@@ -154,7 +155,8 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
                 # Ignore a file in which we fail to get the package
                 continue
 
-            public_package_changes.append(pkg)
+            if self._is_public_file(f):
+                public_package_changes.append(pkg)
         # de-duplicate list
         public_package_changes = list(set(public_package_changes))
 
