@@ -120,11 +120,13 @@ def resolve_all(WORKSPACE_PATH, dependencies, force=False, ignore=False, update_
     if update_ok:
         logger.info("Resolving dependencies with updates as needed")
     for dependency in dependencies:
+        dep_path = dependency["Path"]
+        logger.log(edk2_logging.PROGRESS, f"Syncing {dep_path}")
         if "ReferencePath" not in dependency and omnicache_dir:
             dependency["ReferencePath"] = omnicache_dir
         if "ReferencePath" in dependency:  # make sure that the omnicache dir is relative to the working directory
             dependency["ReferencePath"] = os.path.join(WORKSPACE_PATH, dependency["ReferencePath"])
-        git_path = os.path.join(WORKSPACE_PATH, dependency["Path"])
+        git_path = os.path.join(WORKSPACE_PATH, dep_path)
         repos.append(git_path)
         resolve(git_path, dependency, force, ignore, update_ok)
 
