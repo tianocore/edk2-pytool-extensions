@@ -270,7 +270,7 @@ class Edk2LogFilter(logging.Filter):
 
     def filter(self, record):
         # check to make sure we haven't already filtered this record
-        if record.name not in Edk2LogFilter._allowedLoggers and record.levelno < logging.CRITICAL and not self._verbose:
+        if record.name not in Edk2LogFilter._allowedLoggers and record.levelno < logging.WARNING and not self._verbose:
             return False
 
         return True

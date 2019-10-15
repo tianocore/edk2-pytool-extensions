@@ -157,10 +157,11 @@ Key=value will get passed to build process for given build type)'''
             settingsParserObj.print_help()
             sys.exit(2)
 
-        except (Exception):
+        except Exception as e:
             print(f"Error: We had trouble loading {settingsArg.platform_module}. Is the path correct?")
             # Gracefully exit if setup doesn't go well.
             settingsParserObj.print_help()
+            print(e)
             sys.exit(2)
 
         # now to get the big arg parser going...
