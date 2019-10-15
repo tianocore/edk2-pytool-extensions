@@ -68,6 +68,7 @@ setuptools.setup(
                             'stuart_build=edk2toolext.invocables.edk2_platform_build:main',
                             'stuart_ci_build=edk2toolext.invocables.edk2_ci_build:main',
                             'stuart_ci_setup=edk2toolext.invocables.edk2_ci_setup:main',
+                            'stuart_pr_eval=edk2toolext.invocables.edk2_pr_eval:main',
                             'omnicache=edk2toolext.omnicache:main',
                             'nuget-publish=edk2toolext.nuget_publishing:go']
     },
