@@ -40,6 +40,17 @@ NOTE: It is strongly recommended that you use python virtual environments.  Virt
 
 ## Release Version History
 
+## Version 0.11.3
+
+* Bug:
+  * Issue 90 - edk2_pr_eval policy 3 is not first checking that change is in public file
+  
+## Version 0.11.2
+
+* Features:
+  * Add tool to evaluate which packages should be tested for a given PR
+  * Improved logging and visibility
+  
 ## Version 0.11.1
 
 * Bugs
