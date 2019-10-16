@@ -86,7 +86,7 @@ class TestUefiBuild(unittest.TestCase):
         builder.SkipBuild = True
         builder.SkipBuild = True
         manager = PluginManager()
-        shell_environment.GetBuildVars().SetValue("EDK2_BASE_TOOLS_DIR", self.WORKSPACE, "empty")
+        shell_environment.GetBuildVars().SetValue("EDK_TOOLS_PATH", self.WORKSPACE, "empty")
         helper = uefi_helper_plugin.HelperFunctions()
         ret = builder.Go(self.WORKSPACE, "", helper, manager)
         self.assertEqual(ret, 0)
