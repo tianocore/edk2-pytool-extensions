@@ -358,20 +358,18 @@ class UefiBuilder(object):
         self.SetBasicDefaults()
 
         # Handle all the template files for workspace/conf/ Allow override
-        TemplatesForConf = self.env.GetValue("CONF_TEMPLATE_DIR")
-        if(TemplatesForConf is not None):
-            TemplatesForConf = self.mws.join(self.ws, TemplatesForConf)
-            logging.debug(
-                "Platform defined override for Template Conf Files: %s", TemplatesForConf)
-        e = conf_mgmt.ConfMgmt(self.UpdateConf, TemplatesForConf)
+        TemplateDirList = [self.env.GetValue("EDK_TOOLS_PATH")]  # set to edk2 BaseTools
+        PlatTemplatesForConf = self.env.GetValue("CONF_TEMPLATE_DIR") # get platform defined additional path
+        if(PlatTemplatesForConf is not None):
+            PlatTemplatesForConf = self.mws.join(self.ws, PlatTemplatesForConf)
+            TemplateDirList.insert(0, PlatTemplatesForConf)
+            logging.debug(f"Platform defined override for Template Conf Files: {PlatTemplatesForConf}")
+
+        conf_dir = os.path.join(self.ws, "Conf")
+        conf_mgmt.ConfMgmt().populate_conf_dir(conf_dir, self.UpdateConf, TemplateDirList)
 
         # parse target file
         ret = self.ParseTargetFile()
-        if(ret != 0):
-            logging.critical("ParseTargetFile failed")
-            return ret
-
-        ret = e.ToolsDefConfigure()
         if(ret != 0):
             logging.critical("ParseTargetFile failed")
             return ret
