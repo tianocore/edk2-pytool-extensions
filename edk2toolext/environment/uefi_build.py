@@ -359,7 +359,7 @@ class UefiBuilder(object):
 
         # Handle all the template files for workspace/conf/ Allow override
         TemplateDirList = [self.env.GetValue("EDK_TOOLS_PATH")]  # set to edk2 BaseTools
-        PlatTemplatesForConf = self.env.GetValue("CONF_TEMPLATE_DIR") # get platform defined additional path
+        PlatTemplatesForConf = self.env.GetValue("CONF_TEMPLATE_DIR")  # get platform defined additional path
         if(PlatTemplatesForConf is not None):
             PlatTemplatesForConf = self.mws.join(self.ws, PlatTemplatesForConf)
             TemplateDirList.insert(0, PlatTemplatesForConf)

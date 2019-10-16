@@ -26,13 +26,13 @@ class ConfMgmt():
 
     def populate_conf_dir(self, conf_folder_path: str, override_conf: bool, conf_template_source_list: list) -> None:
         ''' compare the conf dir files to the template files.
-            copy files if they are not present in the conf dir or the override 
+            copy files if they are not present in the conf dir or the override
             parameter is set.
 
             param:
                 conf_folder_path: folder path to output conf location (absolute path)
                 override_conf:  boolean to indicate if templates files should replace conf files
-                                regardless of existance or version. 
+                                regardless of existance or version.
                 additionaconf_template_source_list: priority list of folder path that might contain a "Conf"
                                                     folder with template files to use
 

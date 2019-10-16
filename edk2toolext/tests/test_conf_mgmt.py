@@ -24,9 +24,9 @@ test_file_text = '''#
 #  SPDX-License-Identifier: BSD-2-Clause-Patent
 #
 #
-# Increase this version tag any time you want user to get warning about updating this 
-# file in the Conf dir.  By default it does not do update existing conf dirs. 
-# 
+# Increase this version tag any time you want user to get warning about updating this
+# file in the Conf dir.  By default it does not do update existing conf dirs.
+#
 # 2.00 - Initial version with changes for CI
 #      - Change VS2019 and VS2017 to use PyTool Values for path
 #      - Change RC path to use plugin
@@ -63,7 +63,7 @@ class TestConfMgmt(unittest.TestCase):
             f.write(test_file_text)
             f.write(f"#!VERSION={version}")
             logging.debug(f"Made file {filepath} with version {version}")
-    
+
     def make_edk2_files_dir(self, rootfolderpath, target_ver, tools_def_ver, build_rules_ver, is_template):
         fnames = ["target", "tools_def", "build_rule"]
         versions = [target_ver, tools_def_ver, build_rules_ver]
@@ -72,7 +72,7 @@ class TestConfMgmt(unittest.TestCase):
             rootfolderpath = os.path.join(rootfolderpath, "Conf")
         else:
             fnames = [x + ".txt" for x in fnames]
-        
+
         os.makedirs(rootfolderpath, exist_ok=True)
         for i in range(0, len(fnames)):
             self.make_one_file(os.path.join(rootfolderpath, fnames[i]), versions[i])
@@ -84,7 +84,7 @@ class TestConfMgmt(unittest.TestCase):
     def get_toolsdef_version(self, conf_folder_path):
         p = os.path.join(conf_folder_path, "tools_def.txt")
         return conf_mgmt.ConfMgmt()._get_version(p)
-    
+
     def get_buildrules_version(self, conf_folder_path):
         p = os.path.join(conf_folder_path, "build_rule.txt")
         return conf_mgmt.ConfMgmt()._get_version(p)
@@ -104,7 +104,7 @@ class TestConfMgmt(unittest.TestCase):
         self.clean_workspace()
 
     def test_init(self):
-        c = conf_mgmt.ConfMgmt()
+        conf_mgmt.ConfMgmt()
 
     def test_no_version_tag(self):
         p = os.path.join(self.test_dir, "test.txt")
@@ -173,7 +173,7 @@ class TestConfMgmt(unittest.TestCase):
         self.make_one_file(temp, "1.0")
         c = conf_mgmt.ConfMgmt()._is_older_version(conf, temp)
         self.assertTrue(c)
-    
+
     def test_is_older_no_version_tag_template(self):
         conf = os.path.join(self.test_dir, "conf.txt")
         temp = os.path.join(self.test_dir, "temp.txt")
@@ -198,7 +198,7 @@ class TestConfMgmt(unittest.TestCase):
 
         self.make_edk2_files_dir(temp, "1.0", "2.0", "3.0", True)
         conf_mgmt.ConfMgmt().populate_conf_dir(conf, False, [temp])
-        
+
         self.assertEqual("1.0", self.get_target_version(conf))
         self.assertEqual("2.0", self.get_toolsdef_version(conf))
         self.assertEqual("3.0", self.get_buildrules_version(conf))
@@ -210,7 +210,7 @@ class TestConfMgmt(unittest.TestCase):
         self.make_edk2_files_dir(temp, "1.0", "2.0", "3.0", True)
         self.make_edk2_files_dir(conf, "1.1", "2.1", "3.1", False)
         conf_mgmt.ConfMgmt().populate_conf_dir(conf, False, [temp])
-        
+
         self.assertEqual("1.1", self.get_target_version(conf))
         self.assertEqual("2.1", self.get_toolsdef_version(conf))
         self.assertEqual("3.1", self.get_buildrules_version(conf))
@@ -222,7 +222,7 @@ class TestConfMgmt(unittest.TestCase):
         self.make_edk2_files_dir(temp, "1.0", "2.0", "3.0", True)
         self.make_edk2_files_dir(conf, "1.1", "2.1", "3.1", False)
         conf_mgmt.ConfMgmt().populate_conf_dir(conf, True, [temp])
-        
+
         self.assertEqual("1.0", self.get_target_version(conf))
         self.assertEqual("2.0", self.get_toolsdef_version(conf))
         self.assertEqual("3.0", self.get_buildrules_version(conf))
@@ -236,7 +236,7 @@ class TestConfMgmt(unittest.TestCase):
         c = conf_mgmt.ConfMgmt()
         c._set_delay_time(0)
         c.populate_conf_dir(conf, False, [temp])
-        
+
         self.assertEqual("1.1", self.get_target_version(conf))
         self.assertEqual("2.1", self.get_toolsdef_version(conf))
         self.assertEqual("3.1", self.get_buildrules_version(conf))
@@ -249,7 +249,7 @@ class TestConfMgmt(unittest.TestCase):
         self.make_edk2_files_dir(temp, "1.0", "2.0", "3.0", True)
         self.make_edk2_files_dir(plattemp, "1.2", "2.2", "3.2", True)
         conf_mgmt.ConfMgmt().populate_conf_dir(conf, False, [plattemp, temp])
-        
+
         self.assertEqual("1.2", self.get_target_version(conf))
         self.assertEqual("2.2", self.get_toolsdef_version(conf))
         self.assertEqual("3.2", self.get_buildrules_version(conf))
@@ -260,6 +260,7 @@ class TestConfMgmt(unittest.TestCase):
 
         with self.assertRaises(Exception):
             conf_mgmt.ConfMgmt().populate_conf_dir(conf, False, [temp])
+
 
 if __name__ == '__main__':
     unittest.main()
