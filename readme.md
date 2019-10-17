@@ -40,6 +40,11 @@ NOTE: It is strongly recommended that you use python virtual environments.  Virt
 
 ## Release Version History
 
+## Version 0.12.0
+
+* Features:
+  * BREAKING CHANGE - PR 92 - remove special pytool toolchain processing in conf_mgmt
+
 ## Version 0.11.3
 
 * Bug:
