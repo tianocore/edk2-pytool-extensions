@@ -9,10 +9,11 @@ parameters:
   vm_image: ''
   pypi_auth_feed: ''  # set this for a release
   root_package_folder: '' # set this to root package
+  name: '' #set the job name
 
 jobs:
 
-- job: Build_and_Test_${{parameters.vm_image}}
+- job: Build_and_Test_${{parameters.name}}
 
   workspace:
     clean: all

@@ -19,3 +19,4 @@ jobs:
     vm_image: 'windows-latest'
     pypi_auth_feed: 'Pypi-edk2-pytool-extensions'
     root_package_folder: "edk2toolext"
+    name: 'windows'

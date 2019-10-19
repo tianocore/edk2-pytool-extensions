@@ -17,8 +17,10 @@ jobs:
   parameters:
     vm_image: 'windows-latest'
     root_package_folder: "edk2toolext"
+    name: 'windows'
 
 - template: templates/build-test-job.yml
   parameters:
     vm_image: 'ubuntu-latest'
     root_package_folder: "edk2toolext"
+    name: 'ubuntu'
