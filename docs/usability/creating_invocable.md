@@ -1,11 +1,11 @@
 # Creating An Invocable
 
-Whether you spell it invokable or invocable, the idea of an Invocable is central to Stuart.
+Whether you spell it invocable or invocable, the idea of an Invocable is central to Stuart.
 If you're unfamiliar with what it is, refer to the "Using" document in the root docs folder or feature_invocable in the features folder.
-In a nutshell, an invokable is a small python script that gets the build environment setup for it.
+In a nutshell, an invocable is a small python script that gets the build environment setup for it.
 It gets a settings file (that the invocable defines the interface for) that provides information about what we are being invoked on.
 
-This guide is written in the style of a tutorial. This is based on the real example of an invokable [here](https://github.com/microsoft/mu_basecore).
+This guide is written in the style of a tutorial. This is based on the real example of an invocable [here](https://github.com/microsoft/mu_basecore).
 
 ## The problem statement
 
@@ -14,7 +14,7 @@ This allows your platform to skip the expensive step of compiling OpenSSL or oth
 For more information on SharedNetworking and SharedCrypto, go check it out [here](https://microsoft.github.io/mu/dyn/mu_plus/SharedCryptoPkg/feature_sharedcrypto/) and [here](https://microsoft.github.io/mu/dyn/mu_basecore/NetworkPkg/SharedNetworking/SharedNetworking/).
 
 Now, how are Shared Binaries built?
-Check out the code on [github](https://github.com/microsoft/mu_basecore) under NetworkPkg/SharedNetworking/DriverBuilder.py (it may move, this is where it was at time of writing), which is the invokable that powers the shared binaries.
+Check out the code on [github](https://github.com/microsoft/mu_basecore) under NetworkPkg/SharedNetworking/DriverBuilder.py (it may move, this is where it was at time of writing), which is the invocable that powers the shared binaries.
 
 SharedNetworking in particular is a tricky problem because we want to build every architecture into an FV and package it into a NugetFeed.
 
@@ -22,7 +22,7 @@ In a nutshell here's the flow we want:
 
  1. Acquire the dependencies we need (Crypto, OpenSSL, etc)
  2. Pull in any tooling that we require (mu_tools, nasm)
- 3. Configure the enviroment for building with our tool chain
+ 3. Configure the environment for building with our tool chain
  4. Go through all the architectures we want to support and build them individually
  5. If all previous steps were successful, package it into a nuget package
  6. If given an API key, then publish to nuget
@@ -35,15 +35,15 @@ Or perhaps we've thought of that and made a common script that our handy batch s
 We hope you can see that as time goes on, the situation spirals out of control as more parameters and scripts are added, fewer people will know how to work this or want to touch it.
 Eventually a bright talented engineer with a little more time than experience will declare that they will attempt to refactor this process.
 
-In a nutshell txhat's the problem that the invokable framework in general is trying to solve.
+In a nutshell that is the problem that the invocable framework in general is trying to solve.
 Steps 1-3 are done for you. Steps 4-6+ should be trivial to implement in a setting agnostic way.
 
 So let's start.
 
 ## The settings class
 
-Each invokable has a definition for a settings class.
-We would recommend looking through [a few of the invokables](https://github.com/tianocore/edk2-pytool-extensions/tree/master/edk2toolext/invocables) inside of Stuart as a reference.
+Each invocable has a definition for a settings class.
+We would recommend looking through [a few of the invocables](https://github.com/tianocore/edk2-pytool-extensions/tree/master/edk2toolext/invocables) inside of Stuart as a reference.
 You may choose to subclass another settings file, such as MultiPkgAwareSettingsInterface but in this case, we won't.
 
 So let's start with some imports that we'll need along the way.
@@ -67,8 +67,8 @@ One final import is needed that will seem a little strange.
 import DriverBuilder
 ```
 
-Stuart expects your invokable to be running in the python namespace that it is defined in.
-If you run your builder directly from the commandline, it will be running in \_\_main__, which can cause problems.
+Stuart expects your invocable to be running in the python namespace that it is defined in.
+If you run your builder directly from the command-line, it will be running in \_\_main__, which can cause problems.
 
 **In a nutshell, you'll need to import the name of your file.**
 
@@ -113,7 +113,7 @@ We've implemented a few methods that are needed to get the SDE off the ground.
 - _GetPackagePaths_ gets the folder locations that you will resolve EDK2 paths against
 - _GetName_ is the thing we are building, it will be used to name certain files like logs
 - _AddCommandLineOptions_ gives our settings the chance to set items in the parser object
-- _RetrieveCommandLineOptions_ gives us the chance to read the arguments from the commandline
+- _RetrieveCommandLineOptions_ gives us the chance to read the arguments from the command-line
 
 Now that we have our base methods, let's add one more to control the configurations we are going to build.
 
@@ -205,7 +205,7 @@ class Edk2BinaryBuild(Edk2Invocable):
 - _GetLoggingFileName_ the name of the file we want to create for txt and markdown files.
 - _Go_ is the business logic of the invocable.
 
-Now let's implement an actual method to handle main and being called from the commandline or a pip link.
+Now let's implement an actual method to handle main and being called from the command-line or a pip link.
 
 ```python
 def main():
@@ -216,10 +216,10 @@ if __name__ == "__main__":
     DriverBuilder.main()  # otherwise we're in __main__ context
 ```
 
-As you can see, we call oursevles via import rather than just directly calling main.
+As you can see, we call ourselves via import rather than just directly calling main.
 This is a quirk/design flaw that might be revisited in the future, but in the meantime, this is a workaround.
 
-Now that we have a way to invoke this and execute our go, we can call if from the commandline.
+Now that we have a way to invoke this and execute our go, we can call if from the command-line.
 
 If we were to run this right now, we would see this as output (assuming you created an empty settings class).
 
@@ -231,10 +231,9 @@ SECTION - Summary
 PROGRESS - Success
 ```
 
-We can see that we're initing the SDE, loading plugins and helpers, and starting the invocable. All for virtually free!
-Neato.
+We can see that we're initializing the SDE, loading plugins and helpers, and starting the invocable. All for virtually free!
 
-Now let's start implementing the meat of the invokation.
+Now let's start implementing the meat of the invocation.
 
 ```python
 class Edk2BinaryBuild(Edk2Invocable):
@@ -246,12 +245,12 @@ class Edk2BinaryBuild(Edk2Invocable):
         env = shell_environment.GetBuildVars()
         # set our environment with specific variables that we care about that EDK2 needs
         env.SetValue("PRODUCT_NAME",
-                     self.PlatformSettings.GetName(), "Platform Hardcoded")
+                     self.PlatformSettings.GetName(), "Platform Hard-coded")
         env.SetValue("BLD_*_BUILDID_STRING", "201905", "Current Version")
-        env.SetValue("BUILDREPORTING", "TRUE", "Platform Hardcoded")
+        env.SetValue("BUILDREPORTING", "TRUE", "Platform Hard-coded")
         # make sure we always do a build report
         env.SetValue("BUILDREPORT_TYPES",
-                     'PCD DEPEX LIBRARY BUILD_FLAGS', "Platform Hardcoded")
+                     'PCD DEPEX LIBRARY BUILD_FLAGS', "Platform Hard-coded")
 
         # Run pre build hook
         ret = self.PlatformSettings.PreFirstBuildHook()
@@ -267,7 +266,7 @@ class Edk2BinaryBuild(Edk2Invocable):
             logging.info(config)  # log our configuration out to the log
             shell_environment.CheckpointBuildVars()  # checkpoint our config
             env = shell_environment.GetBuildVars() #  get our checkpointed variables
-            # go through the item in the current configuration and apply to environement
+            # go through the item in the current configuration and apply to environment
             for key in config:
                 env.SetValue(key, config[key], "provided by configuration")
             # make sure to set this after in case the config did
@@ -304,7 +303,7 @@ The basic process is:
 ## Settings File
 
 Now here's the settings file for the invocable.
-In this example, you would have two settings file for SharedNetworking and SharedCrypto, but the one invokable.
+In this example, you would have two settings file for SharedNetworking and SharedCrypto, but the one invocable.
 Here's what we will be importing:
 
 ```python
@@ -323,7 +322,7 @@ from edk2toollib.utility_functions import GetHostInfo
 ```
 
 One of the key features of settings class is that it can implement multiple settings managers, or you can have multiple classes in the file that implement that particular SettingsManager class.
-The invokable finds the first class in the file that implements that particular settings class that we care about.
+The invocable finds the first class in the file that implements that particular settings class that we care about.
 Now that we have our imports, we will create a SettingsManager class that implements CiSetupSettingsManager, UpdateSettingsManager, and BinaryBuildSettingsManager.
 
 ```python
@@ -373,7 +372,7 @@ class SettingsManager(UpdateSettingsManager, CiSetupSettingsManager, BinaryBuild
         if ret == 0:
             ret = self._CollectNuget()
         if ret != 0:
-            logging.error("Error occured in post build hook")
+            logging.error("Error occurred in post build hook")
         return ret
 
     def PostFinalBuildHook(self, ret):
@@ -581,7 +580,7 @@ class Edk2BinaryBuild(Edk2Invocable):
             logging.info(config)  # log our configuration out to the log
             shell_environment.CheckpointBuildVars()  # checkpoint our config
             env = shell_environment.GetBuildVars() #  get our checkpointed variables
-            # go through the item in the current configuration and apply to environement
+            # go through the item in the current configuration and apply to environment
             for key in config:
                 env.SetValue(key, config[key], "provided by configuration")
             # make sure to set this after in case the config did
@@ -673,7 +672,7 @@ class SettingsManager(UpdateSettingsManager, CiSetupSettingsManager, BinaryBuild
         if ret == 0:
             ret = self._CollectNuget()
         if ret != 0:
-            logging.error("Error occured in post build hook")
+            logging.error("Error occurred in post build hook")
         return ret
 
     def PostFinalBuildHook(self, ret):

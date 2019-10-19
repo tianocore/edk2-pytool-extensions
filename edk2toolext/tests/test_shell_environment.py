@@ -51,7 +51,7 @@ class TestBasicEnvironmentManipulation(unittest.TestCase):
         shell_env = SE.ShellEnvironment()
 
         # Test pass 1.
-        testpath_elems = ['MYPATH']
+        testpath_elems = ['MY_PATH']
         testpath_string = os.pathsep.join(testpath_elems)
         shell_env.set_path(testpath_string)
         self.assertEqual(os.environ['PATH'], testpath_string, "the final string should be correct")
@@ -70,7 +70,7 @@ class TestBasicEnvironmentManipulation(unittest.TestCase):
         shell_env = SE.ShellEnvironment()
 
         # Test pass 1.
-        testpath_elems = ['MYPATH']
+        testpath_elems = ['MY_PATH']
         testpath_string = os.pathsep.join(testpath_elems)
         shell_env.set_path(testpath_elems)
         self.assertEqual(os.environ['PATH'], testpath_string, "the final string should be correct")
@@ -89,7 +89,7 @@ class TestBasicEnvironmentManipulation(unittest.TestCase):
         shell_env = SE.ShellEnvironment()
 
         # Test pass 1.
-        testpath_elems = ['MYPATH']
+        testpath_elems = ['MY_PATH']
         testpath_string = os.pathsep.join(testpath_elems)
         shell_env.set_pypath(testpath_string)
         self.assertEqual(os.environ['PYTHONPATH'], testpath_string, "the final string should be correct")
@@ -110,7 +110,7 @@ class TestBasicEnvironmentManipulation(unittest.TestCase):
         shell_env = SE.ShellEnvironment()
 
         # Test pass 1.
-        testpath_elems = ['MYPATH']
+        testpath_elems = ['MY_PATH']
         testpath_string = os.pathsep.join(testpath_elems)
         shell_env.set_pypath(testpath_elems)
         self.assertEqual(os.environ['PYTHONPATH'], testpath_string, "the final string should be correct")
@@ -259,13 +259,13 @@ class TestShellEnvironmenCheckpoints(unittest.TestCase):
     def test_checkpoint_indices_should_be_unique(self):
         shell_env = SE.ShellEnvironment()
         shell_env.append_path('/SE/TEST/PATH/1')
-        chkpt1 = shell_env.checkpoint()
+        check_point1 = shell_env.checkpoint()
         shell_env.append_path('/SE/TEST/PATH/2')
-        chkpt2 = shell_env.checkpoint()
+        check_point2 = shell_env.checkpoint()
 
-        self.assertNotEqual(chkpt1, SE.ShellEnvironment.INITIAL_CHECKPOINT)
-        self.assertNotEqual(chkpt2, SE.ShellEnvironment.INITIAL_CHECKPOINT)
-        self.assertNotEqual(chkpt1, chkpt2)
+        self.assertNotEqual(check_point1, SE.ShellEnvironment.INITIAL_CHECKPOINT)
+        self.assertNotEqual(check_point2, SE.ShellEnvironment.INITIAL_CHECKPOINT)
+        self.assertNotEqual(check_point1, check_point2)
 
     def test_restore_new_checkpoint_should_contain_new_changes(self):
         shell_env = SE.ShellEnvironment()
@@ -277,7 +277,7 @@ class TestShellEnvironmenCheckpoints(unittest.TestCase):
         # Make the change and checkpoint.
         shell_env.append_path(test_path_change)
         self.assertIn(test_path_change, shell_env.active_path)
-        chkpt1 = shell_env.checkpoint()
+        check_point1 = shell_env.checkpoint()
 
         # Restore initial checkpoint and verify change is gone.
         shell_env.restore_initial_checkpoint()
@@ -285,7 +285,7 @@ class TestShellEnvironmenCheckpoints(unittest.TestCase):
                          "restoring initial checkpoint should remove test change")
 
         # Restore new checkpoint and verify change is back.
-        shell_env.restore_checkpoint(chkpt1)
+        shell_env.restore_checkpoint(check_point1)
         self.assertIn(test_path_change, shell_env.active_path, "restoring new checkpoint should restore test change")
 
     def test_checkpointed_objects_should_behave_correctly(self):
@@ -303,15 +303,15 @@ class TestShellEnvironmenCheckpoints(unittest.TestCase):
 
         # Set the first data and make a checkpoint.
         shell_env.set_build_var(test_var1_name, test_var1_data)
-        chkpt1 = shell_env.checkpoint()
+        check_point1 = shell_env.checkpoint()
 
         # Update previous value and set second data. Then checkpoint.
         shell_env.set_build_var(test_var1_name, test_var1_data2)
         shell_env.set_build_var(test_var2_name, test_var2_data)
-        chkpt2 = shell_env.checkpoint()
+        check_point2 = shell_env.checkpoint()
 
         # Restore the first checkpoint and verify values.
-        shell_env.restore_checkpoint(chkpt1)
+        shell_env.restore_checkpoint(check_point1)
         self.assertEqual(shell_env.get_build_var(test_var1_name), test_var1_data)
         self.assertIs(shell_env.get_build_var(test_var2_name), None)
 
@@ -319,12 +319,12 @@ class TestShellEnvironmenCheckpoints(unittest.TestCase):
         shell_env.set_build_var(test_var1_name, test_var1_data3)
 
         # Restore the second checkpoint and verify values.
-        shell_env.restore_checkpoint(chkpt2)
+        shell_env.restore_checkpoint(check_point2)
         self.assertEqual(shell_env.get_build_var(test_var1_name), test_var1_data2)
         self.assertEqual(shell_env.get_build_var(test_var2_name), test_var2_data)
 
-        # Restore the first checkpoint again and make sure orignal value still stands.
-        shell_env.restore_checkpoint(chkpt1)
+        # Restore the first checkpoint again and make sure original value still stands.
+        shell_env.restore_checkpoint(check_point1)
         self.assertEqual(shell_env.get_build_var(test_var1_name), test_var1_data)
 
 
@@ -401,15 +401,15 @@ class TestShellEnvironmenSpecialBuildVars(unittest.TestCase):
 
         # Set the first data and make a checkpoint.
         build_vars.SetValue(test_var1_name, test_var1_data, 'var1 set', overridable=True)
-        chkpt1 = shell_env.checkpoint()
+        check_point1 = shell_env.checkpoint()
 
         # Update previous value and set second data. Then checkpoint.
         build_vars.SetValue(test_var1_name, test_var1_data2, 'var1 set', overridable=True)
         build_vars.SetValue(test_var2_name, test_var2_data, 'var2 set', overridable=True)
-        chkpt2 = shell_env.checkpoint()
+        check_point2 = shell_env.checkpoint()
 
         # Restore the first checkpoint and verify values.
-        shell_env.restore_checkpoint(chkpt1)
+        shell_env.restore_checkpoint(check_point1)
         self.assertEqual(shell_env.get_build_var(test_var1_name), test_var1_data)
         self.assertIs(shell_env.get_build_var(test_var2_name), None)
 
@@ -419,12 +419,12 @@ class TestShellEnvironmenSpecialBuildVars(unittest.TestCase):
                          'even after restore, special build vars should always update current')
 
         # Restore the second checkpoint and verify values.
-        shell_env.restore_checkpoint(chkpt2)
+        shell_env.restore_checkpoint(check_point2)
         self.assertEqual(shell_env.get_build_var(test_var1_name), test_var1_data2)
         self.assertEqual(shell_env.get_build_var(test_var2_name), test_var2_data)
 
-        # Restore the first checkpoint again and make sure orignal value still stands.
-        shell_env.restore_checkpoint(chkpt1)
+        # Restore the first checkpoint again and make sure original value still stands.
+        shell_env.restore_checkpoint(check_point1)
         self.assertEqual(shell_env.get_build_var(test_var1_name), test_var1_data)
 
 

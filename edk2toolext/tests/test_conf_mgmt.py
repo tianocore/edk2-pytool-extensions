@@ -65,17 +65,17 @@ class TestConfMgmt(unittest.TestCase):
             logging.debug(f"Made file {filepath} with version {version}")
 
     def make_edk2_files_dir(self, rootfolderpath, target_ver, tools_def_ver, build_rules_ver, is_template):
-        fnames = ["target", "tools_def", "build_rule"]
+        file_names = ["target", "tools_def", "build_rule"]
         versions = [target_ver, tools_def_ver, build_rules_ver]
         if is_template:
-            fnames = [x + ".template" for x in fnames]
+            file_names = [x + ".template" for x in file_names]
             rootfolderpath = os.path.join(rootfolderpath, "Conf")
         else:
-            fnames = [x + ".txt" for x in fnames]
+            file_names = [x + ".txt" for x in file_names]
 
         os.makedirs(rootfolderpath, exist_ok=True)
-        for i in range(0, len(fnames)):
-            self.make_one_file(os.path.join(rootfolderpath, fnames[i]), versions[i])
+        for i in range(0, len(file_names)):
+            self.make_one_file(os.path.join(rootfolderpath, file_names[i]), versions[i])
 
     def get_target_version(self, conf_folder_path):
         p = os.path.join(conf_folder_path, "target.txt")
