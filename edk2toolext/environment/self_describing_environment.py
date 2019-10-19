@@ -195,7 +195,7 @@ class self_describing_environment(object):
             # Check to see whether it's necessary to fetch the files.
             try:
                 if not extdep.verify():
-                    # Get rid of extdep's published path since it could get changed
+                    # Get rid of extdep published path since it could get changed
                     # during the fetch routine.
                     if 'set_path' in extdep.flags:
                         env_object.remove_path_element(extdep.published_path)
@@ -235,7 +235,7 @@ class self_describing_environment(object):
 
 
 def DestroyEnvironment():
-    ''' Destroys global envirornment state '''
+    ''' Destroys global environment state '''
     global ENVIRONMENT_BOOTSTRAP_COMPLETE, ENV_STATE
 
     ENVIRONMENT_BOOTSTRAP_COMPLETE = False

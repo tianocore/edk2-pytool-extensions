@@ -130,7 +130,7 @@ Key=value will get passed to build process for given build type)'''
             # Gracefully exit if the file we loaded isn't the right type
             class_name = self.GetSettingsClass().__name__
             print(f"Unable to use {settingsArg.platform_module} as a {class_name}")
-            print("Did you mean to use a different kind of invokable?")
+            print("Did you mean to use a different kind of invocable?")
             try:
                 # If this works, we can provide help for whatever special functions
                 # the subclass is offering.

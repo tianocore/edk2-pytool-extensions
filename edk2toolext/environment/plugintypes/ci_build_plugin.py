@@ -16,7 +16,7 @@ class ICiBuildPlugin(object):
     ##
     # External function of plugin.  This function is used to perform the task of the CiBuild Plugin
     #
-    #   - package is the edk2 path to package.  This means workspace/packagepath relative.
+    #   - package is the edk2 path to package.  This means workspace/package path relative.
     #   - edk2path object configured with workspace and packages path
     #   - PkgConfig Object (dict) for the pkg
     #   - EnvConfig Object
