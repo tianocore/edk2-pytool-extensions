@@ -52,6 +52,6 @@ jobs:
     
     - template: build-publish-whl-steps.yml
       parameters:
-        pypi_auth_feed: ${{pypi_auth_feed}}
+        pypi_auth_feed: ${{parameters.pypi_auth_feed}}
 
 

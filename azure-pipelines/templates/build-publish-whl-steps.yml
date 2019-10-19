@@ -18,7 +18,7 @@ steps:
 
 - task: TwineAuthenticate@0
   inputs:
-    externalFeeds: ${{pypi_auth_feed}}
+    externalFeeds: ${{parameters.pypi_auth_feed}}
 
-- script: 'twine upload -r ${{pypi_auth_feed}} --config-file $(PYPIRC_PATH) dist/*'
+- script: 'twine upload -r ${{parameters.pypi_auth_feed}} --config-file $(PYPIRC_PATH) dist/*'
   displayName: 'Publish to pypi'

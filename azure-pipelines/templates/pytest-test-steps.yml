@@ -9,7 +9,7 @@ parameters:
   root_package_folder: ''
 
 steps:
-- script: pytest -v --junitxml=test.junit.xml --html=pytest_report.html --self-contained-html --cov=${{ root_package_folder }} --cov-report html:cov_html --cov-report xml:cov.xml --cov-config .coveragerc
+- script: pytest -v --junitxml=test.junit.xml --html=pytest_report.html --self-contained-html --cov=${{ parameters.root_package_folder }} --cov-report html:cov_html --cov-report xml:cov.xml --cov-config .coveragerc
   displayName: 'Run UnitTests'
 
 # Publish Test Results to Azure Pipelines/TFS
