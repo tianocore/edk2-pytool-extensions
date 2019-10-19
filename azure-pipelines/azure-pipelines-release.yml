@@ -14,7 +14,7 @@ trigger:
 pr: none  # not a pr target
 
 jobs:
-- template: templates/built-test-job.yml
+- template: templates/build-test-job.yml
   parameters:
     vm_image: 'windows-latest'
     pypi_auth_feed: 'Pypi-edk2-pytool-extensions'
