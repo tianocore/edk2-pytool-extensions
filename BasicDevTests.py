@@ -18,8 +18,8 @@ import logging
 
 def TestEncodingOk(apath, encodingValue):
     try:
-        with open(apath, "rb") as fobj:
-            fobj.read().decode(encodingValue)
+        with open(apath, "rb") as f_obj:
+            f_obj.read().decode(encodingValue)
     except Exception as exp:
         logging.critical("Encoding failure: file: {0} type: {1}".format(apath, encodingValue))
         logging.error("EXCEPTION: while processing {1} - {0}".format(exp, apath))
@@ -31,8 +31,8 @@ def TestLineEndingsOk(apath, Windows: bool):
     WIN_EOL = b'\r\n'
     UNIX_EOL = b'\n'
 
-    with open(apath, "rb") as fobj:
-        content_uni = fobj.read()
+    with open(apath, "rb") as f_obj:
+        content_uni = f_obj.read()
 
     if(not Windows):
         if(WIN_EOL in content_uni):
@@ -69,8 +69,8 @@ def TestNoSpaces(apath):
 def TestRequiredLicense(apath):
     lic = ["SPDX-License-Identifier: BSD-2-Clause-Patent"]
     try:
-        with open(apath, "rb") as fobj:
-            contents = fobj.read().decode()
+        with open(apath, "rb") as f_obj:
+            contents = f_obj.read().decode()
             found = False
             for l in lic:
                 if l in contents:
@@ -87,9 +87,9 @@ def TestRequiredLicense(apath):
 
 
 p = os.path.join(os.getcwd(), "edk2toolext")
-pyfiles = glob.glob(os.path.join(p, "**", "*.py"), recursive=True)
+py_files = glob.glob(os.path.join(p, "**", "*.py"), recursive=True)
 error = 0
-for a in pyfiles:
+for a in py_files:
     aRelativePath = os.path.relpath(a, os.getcwd())
     if(not TestEncodingOk(a, "ascii")):
         error += 1
@@ -104,5 +104,5 @@ for a in pyfiles:
     # if(not TestLineEndingsOk(a, True)):
     #    error += 1
 
-logging.critical(f"Found {error} error(s) in {len(pyfiles)} file(s)")
+logging.critical(f"Found {error} error(s) in {len(py_files)} file(s)")
 sys.exit(error)

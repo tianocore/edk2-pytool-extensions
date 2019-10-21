@@ -23,7 +23,7 @@ Sets up logging using information from GetWorkspaceRoot, GetLoggingLevel, GetLog
 ### abstract functions
 
 ParseCommandLineOptions is your opportunity to use argparser or look at sys.argv before kicking off setup.
-If the enviroment isn't meant to be verifiable (maybe this script involves setting up or unpacking the environment), GetVerifyCheckRequired can return False to bypass that step.
+If the environment isn't meant to be verifiable (maybe this script involves setting up or unpacking the environment), GetVerifyCheckRequired can return False to bypass that step.
 After that, GetWorkspaceRoot and GetActiveScopes is used to get the necessary information about the environment and set everything up.
 Go will be called after all that setup.
 

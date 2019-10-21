@@ -80,7 +80,7 @@ def get_first_file(folder):
     return None
 
 
-class Testrepo_resolver(unittest.TestCase):
+class test_repo_resolver(unittest.TestCase):
     def setUp(self):
         prep_workspace()
 

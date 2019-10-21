@@ -1,5 +1,5 @@
 # @file edk2_setup
-# updates submodules listed as RequiredS ubmodules in Config file.
+# updates submodules listed as Required Submodules in Config file.
 ##
 # Copyright (c) Microsoft Corporation
 #
