@@ -1,5 +1,5 @@
 ##
-# Azure Pipeline build file for a releasing to pypi
+# Azure Pipeline CI build and PR build
 
 # Copyright (c) 2019, Microsoft Corporation
 # SPDX-License-Identifier: BSD-2-Clause-Patent
@@ -13,11 +13,6 @@ pr:
 - master
 
 jobs:
-- template: templates/build-test-job.yml
-  parameters:
-    vm_image: 'windows-latest'
-    root_package_folder: "edk2toolext"
-    name: 'windows'
 
 - template: templates/build-test-job.yml
   parameters:
