@@ -1,0 +1,25 @@
+# File basic-setup-steps.yml
+#
+# job template for basic setup for building 
+# and testing pip module
+#
+# Copyright (c) 2019, Microsoft Corporation
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+parameters:
+  none: ''
+
+steps:
+- checkout: self
+  clean: true
+  
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.7.x'
+    architecture: 'x64'
+
+- script: pip install --upgrade -r requirements.txt
+  displayName: 'Install requirements'
+
+- script: pip install -e .
+  displayName: 'Install from Source'
