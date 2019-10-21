@@ -363,4 +363,17 @@ class PlatformBuilder(UefiBuilder):
 
 ```
 
-Because we've modified the paths, we'll need to modify our DSC as well. We'll
+Because we've modified the paths, we'll need to modify our DSC as well. We'll change lines that start with `Platform/RaspberryPi/` to just start with  `RaspberryPi/`
+This means `Platform/RaspberryPi/Drivers/SdHostDxe/SdHostDxe.inf`
+becomes `RaspberryPi/Drivers/SdHostDxe/SdHostDxe.inf`
+
+
+
+
+
+## Future Work
+
+Many of the capabilities and features of Stuart aren't detailed or explored here.
+One area not discussed in detail or shown is external dependencies.
+In the future, it would be beneficial to move the ARM Trusted Firmware (ATF) binary blob into an external dependency.
+This means you can have a seperate build pipeline for that which packages it up into a nuget or github release, which your platform consumes.
