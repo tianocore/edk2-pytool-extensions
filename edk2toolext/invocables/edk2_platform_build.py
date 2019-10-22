@@ -37,6 +37,10 @@ class BuildSettingsManager():
         ''' Get the name of the repo, platform, or product being build '''
         pass
 
+    def GetUefiBuilderClass(self):
+        ''' Returns the platform builder class that we want to use '''
+        pass
+
     def AddCommandLineOptions(self, parserObj):
         ''' Implement in subclass to add command line options to the argparser '''
         pass
@@ -60,10 +64,17 @@ class Edk2PlatformBuild(Edk2Invocable):
 
     def AddCommandLineOptions(self, parserObj):
         ''' adds command line options to the argparser '''
+    # check to see if the settings manager has uefibuilder
+        uefi_build_class = self.PlatformSettings.GetUefiBuilderClass()
 
         # PlatformSettings could also be a subclass of UefiBuilder, who knows!
         if isinstance(self.PlatformSettings, UefiBuilder):
             self.PlatformBuilder = self.PlatformSettings
+        elif uefi_build_class:
+            try:
+                self.PlatformBuilder = uefi_build_class()  # create an instance of the class
+            except TypeError:
+                raise RuntimeError(f"The UefiBuilder class ({uefi_build_class}) provided could not be loaded")
         else:
             try:
                 # if it's not, we will try to find it in the module that was originally provided.
@@ -111,6 +122,9 @@ class Edk2PlatformBuild(Edk2Invocable):
         if " " in pc:
             pc = '"' + pc + '"'
         shell_env.set_shell_var("PYTHON_COMMAND", pc)
+
+        #targets = " ".join(self.PlatformSettings.GetArchitecturesSupported())
+        #build_env.set_shell_var("TARGET_ARCH", targets)
 
         # Load plugins
         logging.log(edk2_logging.SECTION, "Loading Plugins")
