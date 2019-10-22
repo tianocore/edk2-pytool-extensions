@@ -123,9 +123,6 @@ class Edk2PlatformBuild(Edk2Invocable):
             pc = '"' + pc + '"'
         shell_env.set_shell_var("PYTHON_COMMAND", pc)
 
-        #targets = " ".join(self.PlatformSettings.GetArchitecturesSupported())
-        #build_env.set_shell_var("TARGET_ARCH", targets)
-
         # Load plugins
         logging.log(edk2_logging.SECTION, "Loading Plugins")
         pm = plugin_manager.PluginManager()
