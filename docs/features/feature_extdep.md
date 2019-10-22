@@ -1,6 +1,6 @@
 # Making a new Ext Dep Type
 
-This will require a core code change in order to work! Please contact the maintainers to facillitate this process.
+This will require a core code change in order to work! Please contact the maintainers to facilitate this process.
 
 ## 1) Make a new class
 

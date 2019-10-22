@@ -8,7 +8,7 @@ This is a supplemental package and is not required to be used for edk2 builds.
 
 ## Content
 
-The package contains cli tools and a basic common environment for running tools.  This common environment supports extensions, subclassing, and plugin to allow great flexibility for building and maintaining a code tree.
+The package contains cli tools and a basic common environment for running tools.  This common environment supports extensions, sub-classing, and plugin to allow great flexibility for building and maintaining a code tree.
 
 Examples:
 
@@ -17,7 +17,7 @@ Examples:
 * Loggers (markdown, file, memory, and colored console)
 * Plugins (pre/post build, function injection)
 * Wrapper around edk2 build
-* VarDict and ShellEnvrionment to manage key/value pairs consistantly across entire process
+* VarDict and ShellEnvrionment to manage key/value pairs consistently across entire process
 * Nuget Publishing tool to push new packages
 * Omnicache - Support a super cache of git repos to speed up creating and updating multiple work spaces and minimizing filesystem impact
 
@@ -39,6 +39,11 @@ NOTE: It is strongly recommended that you use python virtual environments.  Virt
     ```
 
 ## Release Version History
+
+## Version 0.12.0
+
+* Features:
+  * BREAKING CHANGE - PR 92 - remove special pytool toolchain processing in conf_mgmt
 
 ## Version 0.11.3
 

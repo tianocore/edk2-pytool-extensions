@@ -46,7 +46,7 @@ For example
 ## Pushing to an Authenticated Stream
 
 If you have a specific credential provider executable needed to push to your stream, you'll need to follow the instructions [here](https://docs.microsoft.com/en-us/nuget/reference/extensibility/nuget-exe-credential-providers) to make the executable available to find.
-You can add it to %LocalAppData%\NuGet\CredentialProvider or you can add an environmental variable NUGET_CREDENTIALPROVIDERS_PATH with the location of your provider. If you have multiple, they can be semicolon seperated.
+You can add it to %LocalAppData%\NuGet\CredentialProvider or you can add an environmental variable NUGET_CREDENTIALPROVIDERS_PATH with the location of your provider. If you have multiple, they can be semicolon separated.
 
 ## Example: Creating new config file for first use
 

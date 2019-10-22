@@ -115,7 +115,7 @@ class NugetDependency(ExternalDependency):
         """ return a string representation of this """
         return f"NugetDependecy: {self.name}@{self.version}"
 
-    def _attempt_nuget_install(self, install_dir, non_interative=True):
+    def _attempt_nuget_install(self, install_dir, non_interactive=True):
         #
         # fetch the contents of the package.
         #
@@ -124,7 +124,7 @@ class NugetDependency(ExternalDependency):
         cmd += ["install", self.name]
         cmd += ["-Source", self.source]
         cmd += ["-ExcludeVersion"]
-        if non_interative:
+        if non_interactive:
             cmd += ["-NonInteractive"]
         cmd += ["-Version", self.version]
         cmd += ["-Verbosity", "detailed"]
@@ -146,7 +146,7 @@ class NugetDependency(ExternalDependency):
         # this gives cred providers a chance to prompt for input since they don't use stdin
         if ret != 0:
             # If we're in non interactive and we have a credential provider
-            if non_interative and found_cred_provider:  # we should be interactive next time
+            if non_interactive and found_cred_provider:  # we should be interactive next time
                 self._attempt_nuget_install(install_dir, False)
             else:
                 raise RuntimeError(f"[Nuget] We failed to install this version {self.version} of {package_name}")

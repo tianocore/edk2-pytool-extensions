@@ -14,7 +14,6 @@ from edk2toolext import edk2_logging
 from edk2toolext.edk2_git import Repo
 
 # this follows a documented flow chart
-# TODO: include link to flowchart?
 
 
 # checks out dependency at git_path
@@ -155,6 +154,7 @@ def clear_folder(abs_file_system_path):
     logger.warning("WARNING: Deleting contents of folder {0} to make way for Git repo".format(
         abs_file_system_path))
 
+    # spell-checker:ignore dorw
     def dorw(action, name, exc):
         os.chmod(name, stat.S_IWRITE)
         if(os.path.isdir(name)):
