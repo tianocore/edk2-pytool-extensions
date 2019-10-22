@@ -35,7 +35,6 @@ We'll add a `.gitignore` to keep things sensible.
 *.bak
 /Build
 /Conf
-/vsproj
 /.vs
 /.vscode
 *_extdep/
