@@ -10,7 +10,7 @@ In this guide, we will building a platform from EDK2-Platforms, the humble Raspb
 This is because you likely have one lying around somewhere or can buy it online for fairly cheap.
 It is also a simplier platform compared to many intel based ones while still being large enough to show the benefits of Stuart.
 
-We will be using Project Mu (https://microsoft.github.io/mu/) because it splits the packages of EDK2 up and offers some nicities that we will take advantage of.
+We will be using Project Mu (https://microsoft.github.io/mu/) because it splits the packages of EDK2 up and offers some niceties that we will take advantage of.
 
 This process is documented in the repo (TODO).
 
