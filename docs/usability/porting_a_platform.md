@@ -296,8 +296,8 @@ If you instead used EDK2, you likely wouldn't have any dependencies.
 If you were to try a platform build, it would fail saying `RuntimeError: UefiBuild Not Found`.
 Stuart provides a helper class that scaffolds out the build step.
 There's a few ways to implement the UefiBuilder.
-It can be a seperate class in your `PlatformBuild.py`, it can be the same class as your settingsmanager, or it can be a seperate file all together.
-For the sake of simplicity, we're going to have it as a seperate class in the same file.
+It can be a separate class in your `PlatformBuild.py`, it can be the same class as your settingsmanager, or it can be a separate file all together.
+For the sake of simplicity, we're going to have it as a separate class in the same file.
 
 ``` python
 class SettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSettingsManager):
@@ -376,4 +376,4 @@ becomes `RaspberryPi/Drivers/SdHostDxe/SdHostDxe.inf`
 Many of the capabilities and features of Stuart aren't detailed or explored here.
 One area not discussed in detail or shown is external dependencies.
 In the future, it would be beneficial to move the ARM Trusted Firmware (ATF) binary blob into an external dependency.
-This means you can have a seperate build pipeline for that which packages it up into a nuget or github release, which your platform consumes.
+This means you can have a separate build pipeline for that which packages it up into a nuget or github release, which your platform consumes.

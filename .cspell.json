@@ -91,6 +91,10 @@
         "CISETUP",
         "isclass",
         "DSCs",
-        "levelno"
+        "levelno",
+        "raspberrypi",
+        "gitmodules",
+        "Basetools",
+        "DFCI"
     ]
 }
