@@ -71,7 +71,7 @@ class NugetSupport(object):
             self.Name = self.ConfigData["name"]
         else:
             if(Name is None):
-                raise Exception("Cont contruct object with both Name and ConfigFile as None")
+                raise ValueError("Cannot construct object with both Name and ConfigFile as None")
             self.ConfigData = {"name": Name}
             self.Config = None
 
@@ -384,10 +384,10 @@ def main():
         nu = NugetSupport(Name=args.Name)
 
         # license
-        lurl = args.LicenseUrl
+        license_url = args.LicenseUrl
         if(args.LicenseType is not None):
-            lurl = LICENSE_TYPE_SUPPORTED[args.LicenseType]
-        nu.SetBasicData(args.Author, lurl, args.Project, args.Description, args.FeedUrl, args.Copyright)
+            license_url = LICENSE_TYPE_SUPPORTED[args.LicenseType]
+        nu.SetBasicData(args.Author, license_url, args.Project, args.Description, args.FeedUrl, args.Copyright)
         nu.LogObject()
         ret = nu.ToConfigFile(ConfigFilePath)
         return ret

@@ -281,7 +281,7 @@ class UefiBuilder(object):
     def PreBuild(self):
         edk2_logging.log_progress("Running Pre Build")
         #
-        # Run the plaform pre-build steps.
+        # Run the platform pre-build steps.
         #
         ret = self.PlatformPreBuild()
 
@@ -358,20 +358,18 @@ class UefiBuilder(object):
         self.SetBasicDefaults()
 
         # Handle all the template files for workspace/conf/ Allow override
-        TemplatesForConf = self.env.GetValue("CONF_TEMPLATE_DIR")
-        if(TemplatesForConf is not None):
-            TemplatesForConf = self.mws.join(self.ws, TemplatesForConf)
-            logging.debug(
-                "Platform defined override for Template Conf Files: %s", TemplatesForConf)
-        e = conf_mgmt.ConfMgmt(self.UpdateConf, TemplatesForConf)
+        TemplateDirList = [self.env.GetValue("EDK_TOOLS_PATH")]  # set to edk2 BaseTools
+        PlatTemplatesForConf = self.env.GetValue("CONF_TEMPLATE_DIR")  # get platform defined additional path
+        if(PlatTemplatesForConf is not None):
+            PlatTemplatesForConf = self.mws.join(self.ws, PlatTemplatesForConf)
+            TemplateDirList.insert(0, PlatTemplatesForConf)
+            logging.debug(f"Platform defined override for Template Conf Files: {PlatTemplatesForConf}")
+
+        conf_dir = os.path.join(self.ws, "Conf")
+        conf_mgmt.ConfMgmt().populate_conf_dir(conf_dir, self.UpdateConf, TemplateDirList)
 
         # parse target file
         ret = self.ParseTargetFile()
-        if(ret != 0):
-            logging.critical("ParseTargetFile failed")
-            return ret
-
-        ret = e.ToolsDefConfigure()
         if(ret != 0):
             logging.critical("ParseTargetFile failed")
             return ret
@@ -389,6 +387,9 @@ class UefiBuilder(object):
             return ret
 
         # set build output base envs for all builds
+        if self.env.GetValue("OUTPUT_DIRECTORY") is None:
+            logging.warn("OUTPUT_DIRECTORY was not found, defaulting to Build")
+            self.env.SetValue("OUTPUT_DIRECTORY", "Build", "default from uefi_build", True)
         self.env.SetValue("BUILD_OUT_TEMP", os.path.join(
             self.ws, self.env.GetValue("OUTPUT_DIRECTORY")), "Computed in SetEnv")
 
@@ -477,6 +478,9 @@ class UefiBuilder(object):
     #
 
     def ParseDscFile(self):
+        if self.env.GetValue("ACTIVE_PLATFORM") is None:
+            logging.error("The DSC file was not set. Please set ACTIVE_PLATFORM")
+            return -1
         dsc_file_path = self.mws.join(
             self.ws, self.env.GetValue("ACTIVE_PLATFORM"))
         if(os.path.isfile(dsc_file_path)):
@@ -509,11 +513,11 @@ class UefiBuilder(object):
         if(os.path.isfile(self.mws.join(self.ws, self.env.GetValue("FLASH_DEFINITION")))):
             # parse the FDF file- fdf files have similar syntax to DSC and therefore parser works for both.
             logging.debug("Parse Active Flash Definition (FDF) file")
-            fdfp = DscParser().SetBaseAbsPath(self.ws).SetPackagePaths(
+            fdf_parser = DscParser().SetBaseAbsPath(self.ws).SetPackagePaths(
                 self.pp.split(os.pathsep)).SetInputVars(self.env.GetAllBuildKeyValues())
             pa = self.mws.join(self.ws, self.env.GetValue("FLASH_DEFINITION"))
-            fdfp.ParseFile(pa)
-            for key, value in fdfp.LocalVars.items():
+            fdf_parser.ParseFile(pa)
+            for key, value in fdf_parser.LocalVars.items():
                 self.env.SetValue(key, value, "From Platform FDF File", True)
 
         else:

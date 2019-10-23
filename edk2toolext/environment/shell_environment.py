@@ -120,11 +120,11 @@ class ShellEnvironment(metaclass=Singleton):
 
     def restore_checkpoint(self, index):
         if index < len(self.checkpoints):
-            chkpt = self.checkpoints[index]
-            self.active_environ = copy.copy(chkpt['environ'])
-            self.active_path = chkpt['path']
-            self.active_pypath = chkpt['pypath']
-            self.active_buildvars = copy.copy(chkpt['buildvars'])
+            check_point = self.checkpoints[index]
+            self.active_environ = copy.copy(check_point['environ'])
+            self.active_path = check_point['path']
+            self.active_pypath = check_point['pypath']
+            self.active_buildvars = copy.copy(check_point['buildvars'])
 
             self.export_environment()
 

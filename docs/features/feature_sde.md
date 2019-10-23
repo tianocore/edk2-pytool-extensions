@@ -1,9 +1,10 @@
 # The Self Describing Environment and You
 
 ## The Genesis
+
 As Project Mu grew, the centralized systems that have been in place to this point have gotten more and more brittle. Previously, the paths to critical files and build tools have been hard-coded into the primary build scripts (such as PlatformBuild.py). If code was to be added or moved, all build scripts for all projects had to be updated to find the new code and consume it.
 
-Furthermore, the old build system required that all binaries, executables, artifacts, and other miscellaneous files be carried in the source tree somewhere. Since moving to Git, this cost has become increasingly burdensome to the point where some of the larger repos are almost unwieldly.
+Furthermore, the old build system required that all binaries, executables, artifacts, and other miscellaneous files be carried in the source tree somewhere. Since moving to Git, this cost has become increasingly burdensome to the point where some of the larger repositories are almost unwieldy.
 
 The new Self Describing Environment system, along with the new Plugin behavior, aims to remedy some of these problems, while preserving flexibility and agility for further project growth.
 
@@ -22,36 +23,55 @@ The path_env descriptor works by taking the path containing the descriptor and a
 The following path_env fields are required:
 
 - scope
+
   - Identifies which build environments this descriptor contributes to, and what level of precedence it should take within that environment.
+
 - flags
-  - We'll see that flags are common to both path_env and ext_dep descriptors, but they are required for path_env (and only optional for ext_dep). This is because it doesn’t make any sense to create a path_env descriptor without specifying what part of the environment should be updated.
+
+  - We'll see that flags are common to both path_env and ext_dep descriptors, but they are required for path_env (and only optional for ext_dep). This is because it doesn't make any sense to create a path_env descriptor without specifying what part of the environment should be updated.
 
 Currently supported flags are:
 
 - host_specific
+
   - Allows a nuget package to specify that the contents of the package are organized by host OS or architecture. The SDE will determine what folder is relevant for the host OS and product being built and add that to the path.
+
 - set_path
+
   - Adds the NuGet unpacked folder to the front of PATH
+
 - set_pypath
+
   - Adds the NuGet unpacked folder to the front of PYTHONPATH. Also adds it to sys.path.
+
 - set_build_var
+
   - Sets a build variable with the key being the name of the ext_dep and the value being the path of the nuget unpacked folder
   - If you include this attribute you must include a var_name
   - (a var that exists internally to the build system that is retrieved with with env.GetValue())
+
 - set_shell_var
+
   - Sets a shell variable with the key being the name of the ext_dep and the value being the path of the nuget unpacked folder
   - If you include this attribute you must include a var_name
   - (a var that exists in the command-line environment via "set" or "os.environ" or "env")
+
 - include_separator
-  - Includes a path seperated at the end of the path we set in variables
+
+  - Includes a path separated at the end of the path we set in variables
 
 The following path_env fields are optional or conditional:
 
 - var_name
+
   - If either the "set_shell_var" or "set_build_var" are in the flags, this field will be required. It defines the name of the var being set.
+
 - id
+
   - Part of the Override System, this field defines the name that this file will be referred to as by any override_id fields.
+
 - override_id
+
   - This file will override any descriptor files found in lower lexical order or scope order. Files are traversed in directory order (depth first) and then scope order (highest to lowest). Overrides are only applied forward in the traversal, not backwards.
 
 ## The Belly of the Beast
@@ -59,6 +79,7 @@ The following path_env fields are optional or conditional:
 ### self_describing_environment.py
 
 This is the proverbial "heart of the beast". It contains most of the business logic for locating, compiling, sorting, filtering, and assembling the SDE files and the environment itself. There are class methods and helper functions to do things like:
+
 - Locate all the relevant files in the workspace.
 - Sort the files lexically and by scope.
 - Filter the files based on overrides.
@@ -70,22 +91,18 @@ Many of these routines will leverage logic specific to individual sub-modules (P
 
 ### EnvironmentDescriptorFiles.py
 
-This module contains business logic and validation code for dealing with the descriptor files as JSON objects. It contains code (and error checking) for loading the files, reading their contents into a standard internal representation, and running a limited set of sanitization and validation functions to identify any mistakes as early as possible and provide as much information as possible.
-For convenience, this module also contains the class code for PathEnv descriptor objects, but that's because the class code is so small felt silly to create another file.
-
+This module contains business logic and validation code for dealing with the descriptor files as JSON objects. It contains code (and error checking) for loading the files, reading their contents into a standard internal representation, and running a limited set of sanitization and validation functions to identify any mistakes as early as possible and provide as much information as possible. For convenience, this module also contains the class code for PathEnv descriptor objects, but that's because the class code is so small felt silly to create another file.
 
 ### ExternalDependencies.py
 
-This module contains code for managing external dependencies. ExternalDependency objects are created with the data from ext_dep descriptors and are subclassed according to the "type" field in the descriptor. Currently, the only valid subclass is "nuget".
-These objects contain the code for fetching, validating, updating, and cleaning dependency objects and metadata. When referenced from the SDE itself, they can also update paths and other build/shell vars in the build environment.
+This module contains code for managing external dependencies. ExternalDependency objects are created with the data from ext_dep descriptors and are subclassed according to the "type" field in the descriptor. Currently, the only valid subclass is "nuget". These objects contain the code for fetching, validating, updating, and cleaning dependency objects and metadata. When referenced from the SDE itself, they can also update paths and other build/shell vars in the build environment.
 
 ## Taming the SDE
 
 ### Understanding Scope
 
 A critical concept in the SDE system is that of "scope". Each project can define its own scope, and scope is integral to the distributed and shared nature of the SDE. Project scopes are linearly hierarchical and can have an arbitrary number of entries. Only descriptors matching one or more of the scope entries will be included in the SDE during initialization. Furthermore, higher scopes will take precedence when setting paths and assigning values to vars. An example project scope might be:
-
-_("my_platform", "tablet_family", "silicon_reference")_
+`("my_platform", "tablet_family", "silicon_reference")`
 
 In this example, "my_platform" is the highest priority in the scope. Any descriptor files found in the entire workspace that have this scope will not only be included in the SDE, they will take precedence over any of the lesser scopes. "tablet_family" and "silicon_reference" scopes will also be used, in that order. Additionally, all projects inherit the "global" scope, but it takes the lowest precedence.
 

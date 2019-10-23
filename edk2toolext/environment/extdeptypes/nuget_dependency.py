@@ -55,13 +55,15 @@ class NugetDependency(ExternalDependency):
 
     @staticmethod
     def normalize_version(version):
+        if len(version) == 0:
+            raise ValueError("Unparsable version: empty string")
         version_parts = tuple(int(num) for num in version.split('.'))
         if len(version_parts) > 4:
-            raise RuntimeError("Unparsable version '%s'!")
+            raise ValueError("Unparsable version: '%s'!")
 
         # Remove extra trailing zeros (beyond 3 elements).
         if len(version_parts) == 4 and version_parts[3] == 0:
-            version_parts = version_parts[0:2]
+            version_parts = version_parts[0:3]  # drop the last item
 
         # Add missing trailing zeros (below 3 elements).
         if len(version_parts) < 3:
@@ -109,6 +111,46 @@ class NugetDependency(ExternalDependency):
 
         return result
 
+    def __str__(self):
+        """ return a string representation of this """
+        return f"NugetDependecy: {self.name}@{self.version}"
+
+    def _attempt_nuget_install(self, install_dir, non_interactive=True):
+        #
+        # fetch the contents of the package.
+        #
+        package_name = self.name
+        cmd = NugetDependency.GetNugetCmd()
+        cmd += ["install", self.name]
+        cmd += ["-Source", self.source]
+        cmd += ["-ExcludeVersion"]
+        if non_interactive:
+            cmd += ["-NonInteractive"]
+        cmd += ["-Version", self.version]
+        cmd += ["-Verbosity", "detailed"]
+        cmd += ["-OutputDirectory", '"' + install_dir + '"']
+        # make sure to capture our output
+        output_stream = StringIO()
+        ret = RunCmd(cmd[0], " ".join(cmd[1:]), outstream=output_stream)
+        output_stream.seek(0)  # return the start of the stream
+        # check if we found credential providers
+        found_cred_provider = False
+        for out_line in output_stream:
+            line = out_line.strip()
+            if line.startswith("CredentialProvider") or line.startswith("[CredentialProvider"):
+                found_cred_provider = True
+            if line.endswith("as a credential provider plugin."):
+                found_cred_provider = True
+        # if we fail, then we should retry if we have credential providers
+        # we currently steal command input so if we don't have cred providers, we hang
+        # this gives cred providers a chance to prompt for input since they don't use stdin
+        if ret != 0:
+            # If we're in non interactive and we have a credential provider
+            if non_interactive and found_cred_provider:  # we should be interactive next time
+                self._attempt_nuget_install(install_dir, False)
+            else:
+                raise RuntimeError(f"[Nuget] We failed to install this version {self.version} of {package_name}")
+
     def fetch(self):
         package_name = self.name
         #
@@ -128,19 +170,8 @@ class NugetDependency(ExternalDependency):
         # If we are still here, the package wasn't in the cache.
         # We need to ask Nuget to find it.
         #
-
-        #
-        # First, fetch the contents of the package.
-        #
         temp_directory = self.get_temp_dir()
-        cmd = NugetDependency.GetNugetCmd()
-        cmd += ["install", package_name]
-        cmd += ["-Source", self.source]
-        cmd += ["-ExcludeVersion"]
-        cmd += ["-Version", self.version]
-        cmd += ["-Verbosity", "detailed"]
-        cmd += ["-OutputDirectory", '"' + temp_directory + '"']
-        RunCmd(cmd[0], " ".join(cmd[1:]))
+        self._attempt_nuget_install(temp_directory)
 
         #
         # Next, copy the contents of the package to the

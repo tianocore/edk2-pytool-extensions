@@ -1,0 +1,22 @@
+##
+# Azure Pipeline build file for a releasing to pypi
+
+# Copyright (c) 2019, Microsoft Corporation
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+
+# trigger when a vXX.XX.XX tag is created
+trigger: 
+  tags:
+    include:
+    - v*
+
+pr: none  # not a pr target
+
+jobs:
+- template: templates/build-test-job.yml
+  parameters:
+    vm_image: 'windows-latest'
+    pypi_auth_feed: 'Pypi-edk2-pytool-extensions'
+    root_package_folder: "edk2toolext"
+    name: 'windows'

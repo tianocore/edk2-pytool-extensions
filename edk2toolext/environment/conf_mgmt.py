@@ -11,228 +11,133 @@ import os
 import logging
 import shutil
 import time
-from edk2toolext.environment import shell_environment
-from edk2toollib.windows.locate_tools import FindWithVsWhere
 from edk2toolext.environment import version_aggregator
 
 
 class ConfMgmt():
 
-    def __init__(self, OverrideConf, AdditionalTemplateConfDir):
+    def __init__(self):
         self.Logger = logging.getLogger("ConfMgmt")
-        self.env = shell_environment.GetBuildVars()
-        if (self.env.GetValue("WORKSPACE") is None) or \
-                (self.env.GetValue("EDK2_BASE_TOOLS_DIR") is None):
-            raise Exception("WORKSPACE and EDK2_BASE_TOOLS_DIR must be set prior to running ConfMgmt")
-        self.__PopulateConf(OverrideConf, AdditionalTemplateConfDir)
+        self.delay_time_in_seconds = 30
 
-    #
-    # Get the version of a conf file
-    #
-    def __GetVersion(self, confFile):
-        version = "Unknown"
-        f = open(confFile, "r")
-        for l in f.readlines():
-            if(l.startswith("#!VERSION=")):
-                version = str(float(l.split("=")[1].split()[0].strip()))
-                break
+    def _set_delay_time(self, time_in_seconds):
+        ''' allow changing the warning time for out of date templates'''
+        self.delay_time_in_seconds = time_in_seconds
 
-        f.close()
-        return version
+    def populate_conf_dir(self, conf_folder_path: str, override_conf: bool, conf_template_source_list: list) -> None:
+        ''' compare the conf dir files to the template files.
+            copy files if they are not present in the conf dir or the override
+            parameter is set.
 
-    #
-    # Compare the version of the existing conf file to the template file
-    #
-    def __OlderVersion(self, confFile, confTemplateFile):
-        conf = 0
-        template = 0
+            param:
+                conf_folder_path: folder path to output conf location (absolute path)
+                override_conf:  boolean to indicate if templates files should replace conf files
+                                regardless of existence or version.
+                conf_template_source_list: priority list of folder path that might contain a "Conf"
+                                                    folder with template files to use
 
-        f = open(confFile, "r")
-        for l in f.readlines():
-            if(l.startswith("#!VERSION=")):
-                conf = float(l.split("=")[1].split()[0].strip())
-                logging.debug("Conf version: %s", str(conf))
-                break
+            When complete the conf_folder_path dir must be setup for edk2 builds
+        '''
+        #  make folder to conf path if needed
+        os.makedirs(conf_folder_path, exist_ok=True)
 
-        f.close()
-        f = open(confTemplateFile, "r")
-        for l in f.readlines():
-            if(l.startswith("#!VERSION=")):
-                template = float(l.split("=")[1].split()[0].strip())
-                logging.debug("Template Version: %s", str(template))
-                break
-        f.close()
+        files = ["target.txt", "tools_def.txt", "build_rule.txt"]  # add more files here
 
-        return (conf < template)
+        # make output conf files list based on files
+        outfiles = [os.path.join(conf_folder_path, f) for f in files]
 
-    def __PopulateConf(self, OverrideConf, AdditionalTemplateConfDir):
-        ws = self.env.GetValue("WORKSPACE")
-        # Copy Conf template files to conf if not present
-        target = os.path.join(ws, "Conf", "target.txt")
-        buildrules = os.path.join(ws, "Conf", "build_rule.txt")
-        toolsdef = os.path.join(ws, "Conf", "tools_def.txt")
+        # make template list based on files
+        templatefiles = [os.path.join("Conf", os.path.splitext(f)[0] + ".template") for f in files]
 
-        # BaseTools Template files
-        target_template = os.path.join("Conf", "target.template")
-        tools_def_template = os.path.join("Conf", "tools_def.template")
-        build_rules_template = os.path.join("Conf", "build_rule.template")
+        # loop thru each Conf file needed
+        for x in range(0, len(outfiles)):
+            template_file_path = None
 
-        outfiles = [target, toolsdef, buildrules]
-        tfiles = [target_template, tools_def_template, build_rules_template]
+            # find template file given multiple root locations
+            for r in conf_template_source_list:
+                p = os.path.join(r, templatefiles[x])
+                if os.path.isfile(p):
+                    template_file_path = p
+                    break
 
-        # check if conf exists
-        if(not os.path.isdir(os.path.join(ws, "Conf"))):
-            os.mkdir(os.path.join(ws, "Conf"))
-
-        x = 0
-        while(x < len(outfiles)):
-            # check if the conf file already exists
-            # don't overwrite if exists.  Popup if version is older in conf
-            TemplateFilePath = ""
-            Tag = self.env.GetValue("TOOL_CHAIN_TAG")
-
-            if Tag is None:
-                self.Logger.warn("Can't use ToolChain specific template files since Tag is not defined")
-                Tag = ""
-
-            #
-            # Get the Override template if it exist
-            #
-            if(AdditionalTemplateConfDir is not None):
-                fp = os.path.join(AdditionalTemplateConfDir, tfiles[x] + ".ms")
-                if os.path.isfile(fp):
-                    TemplateFilePath = fp
-
-            #
-            # If not found, try toolchain specific templates
-            #
-            if(TemplateFilePath == "" and Tag.upper().startswith("VS")):
-                fp = os.path.join(self.env.GetValue(
-                    "EDK2_BASE_TOOLS_DIR"), tfiles[x] + ".vs")
-                if os.path.isfile(fp):
-                    TemplateFilePath = fp
-
-            if(TemplateFilePath == "" and Tag.upper().startswith("GCC")):
-                fp = os.path.join(self.env.GetValue(
-                    "EDK2_BASE_TOOLS_DIR"), tfiles[x] + ".gcc")
-                if os.path.isfile(fp):
-                    TemplateFilePath = fp
-
-            #
-            # If not found above try MS templates
-            #
-            if(TemplateFilePath == ""):
-                fp = os.path.join(self.env.GetValue(
-                    "EDK2_BASE_TOOLS_DIR"), tfiles[x] + ".ms")
-                if os.path.isfile(fp):
-                    TemplateFilePath = fp
-
-            #
-            # If not found above try TianoCore Template
-            #
-            if(TemplateFilePath == ""):
-                fp = os.path.join(self.env.GetValue(
-                    "EDK2_BASE_TOOLS_DIR"), tfiles[x])
-                if TemplateFilePath == "" and os.path.isfile(fp):
-                    TemplateFilePath = fp
-
-            #
-            # Check to see if found yet -- No more options so now we are broken
-            #
-            if(TemplateFilePath == ""):
+            if(template_file_path is None):
                 self.Logger.critical(
                     "Failed to find Template file for %s" % outfiles[x])
                 raise Exception("Template File Missing", outfiles[x])
             else:
-                self.Logger.debug("Conf file template: [%s]", TemplateFilePath)
+                self.Logger.debug(f"Conf file template: {template_file_path}")
 
-            # Check to see if we need the template
-            if(not os.path.isfile(outfiles[x])):
-                # file doesn't exist.  copy template
-                self.Logger.debug("%s file not found.  Creating from Template file %s" % (
-                    outfiles[x], TemplateFilePath))
-                shutil.copy2(TemplateFilePath, outfiles[x])
+            # have template now - now copy if needed
+            self._copy_conf_file_if_necessary(outfiles[x], template_file_path, override_conf)
 
-            elif(OverrideConf):
-                self.Logger.debug(
-                    "%s file replaced as requested" % outfiles[x])
-                shutil.copy2(TemplateFilePath, outfiles[x])
-            else:
-                # Both file exists.  Do a quick version check
-                if(self.__OlderVersion(outfiles[x], TemplateFilePath)):
-                    # Conf dir is older.  Warn user.
-                    self.Logger.critical(
-                        "Conf file [%s] out-of-date.  Please update your conf files!  "
-                        "Sleeping 30 seconds to encourage update....", outfiles[x])
-                    time.sleep(30)
-                else:
-                    self.Logger.debug("Conf file [%s] up-to-date", outfiles[x])
-            version_aggregator.GetVersionAggregator().ReportVersion(outfiles[x], self.__GetVersion(outfiles[x]),
+            # Log Version for reporting
+            version_aggregator.GetVersionAggregator().ReportVersion(outfiles[x], self._get_version(outfiles[x]),
                                                                     version_aggregator.VersionTypes.INFO)
-            x = x + 1
-        # end of while loop
 
-    def ToolsDefConfigure(self):
-        Tag = self.env.GetValue("TOOL_CHAIN_TAG")
-        version_aggregator.GetVersionAggregator().ReportVersion(
-            "TOOL_CHAIN_TAG", Tag, version_aggregator.VersionTypes.TOOL)
-        if (Tag is not None) and (Tag.upper().startswith("VS")):
-            if (not self.VisualStudioSpecificVersions(Tag)):
-                self.Logger.warning("Potential Toolchain issue.  VS specific operation failed.")
-        return 0
+    def _get_version(self, conf_file: str) -> str:
+        ''' parse the version from the conf_file
+            version should be in #!VERSION={value} format
 
-    def VisualStudioSpecificVersions(self, ToolChainTag: str):
-        ''' Support VS specific operations for dynmaically setting
-        the vs tool paths and logging the critical version information.
-        returns True for success otherwise False
+            "0.0" is returned if no version is found
+        '''
+        version = "0.0"
+        with open(conf_file, "r") as f:
+            for l in f.readlines():
+                if(l.startswith("#!VERSION=")):
+                    try:
+                        version = str(float(l.split("=")[1].split()[0].strip()))
+                        break
+                    except:
+                        pass
+        return version
+
+    def _is_older_version(self, conf_file: str, template_file: str) -> bool:
+        ''' given a conf_file and a template_file file determine if
+            the conf_file has an older version than the template.
+
+            param:
+                conf_file:     path to current conf_file
+                template_file: path to template file that is basis
+                               for the the conf_file.
+        '''
+        conf = 0
+        template = 0
+
+        try:
+            conf = float(self._get_version(conf_file))
+            logging.debug("Conf version: %s", str(conf))
+            template = float(self._get_version(template_file))
+            logging.debug("Template Version: %s", str(template))
+        except:
+            logging.error("Failed to get version from file")
+        finally:
+            return (conf < template)
+
+    def _copy_conf_file_if_necessary(self, conf_file: str, template_file: str, override_conf: bool) -> None:
+        ''' Copy template_file to conf_file if policy applies
+
+        param:
+            conf_file: path to final conf file location
+            template_file: template file to copy if policy applies
+            override_conf: flag indication to override regardless of policy
         '''
 
-        # internal functions
-        def GetVsInstallPath(vsversion, varname):
-            # check if already specified
-            path = shell_environment.GetEnvironment().get_shell_var(varname)
-            if(path is None):
-                # Not specified...find latest
-                (rc, path) = FindWithVsWhere(vs_version=vsversion)
-                if rc == 0 and path is not None and os.path.exists(path):
-                    self.Logger.debug("Found VS instance for %s", vsversion)
-                    shell_environment.GetEnvironment().set_shell_var(varname, path)
-                else:
-                    self.Logger.error("Failed to find VS instance with VsWhere (%d)" % rc)
-            return path
+        if not os.path.isfile(conf_file):
+            # file doesn't exist.  copy template
+            self.Logger.debug(f"{conf_file} file not found.  Creating from Template file {template_file}")
+            shutil.copy2(template_file, conf_file)
 
-        def GetVcVersion(path, varname):
-            # check if already specified
-            vc_ver = shell_environment.GetEnvironment().get_shell_var(varname)
-            if (path is None):
-                self.Logger.critical("Failed to find Visual Studio tools.  Might need to check for VS install")
-                return vc_ver
-            if(vc_ver is None):
-                # Not specified...find latest
-                p2 = os.path.join(path, "VC", "Tools", "MSVC")
-                if not os.path.isdir(p2):
-                    self.Logger.critical(
-                        "Failed to find VC tools.  Might need to check for VS install")
-                    return vc_ver
-                vc_ver = os.listdir(p2)[-1].strip()  # get last in list
-                self.Logger.debug("Found VC Tool version is %s" % vc_ver)
-                shell_environment.GetEnvironment().set_shell_var(varname, vc_ver)
-
-            if(vc_ver):
-                version_aggregator.GetVersionAggregator().ReportVersion(
-                    "VC Version", vc_ver, version_aggregator.VersionTypes.TOOL)
-            return vc_ver
-
-        if ToolChainTag.lower() == "vs2019":
-            ipath = GetVsInstallPath(ToolChainTag.lower(), "VS160INSTALLPATH")
-            iver = GetVcVersion(ipath, "VS160TOOLVER")
-            return (ipath is not None) and (iver is not None)
-
-        elif ToolChainTag.lower() == "vs2017":
-            ipath = GetVsInstallPath(ToolChainTag.lower(), "VS150INSTALLPATH")
-            iver = GetVcVersion(ipath, "VS150TOOLVER")
-            return (ipath is not None) and (iver is not None)
+        elif(override_conf):
+            # caller requested override even for existing file
+            self.Logger.debug(f"{conf_file} file replaced as requested")
+            shutil.copy2(template_file, conf_file)
 
         else:
-            logging.warning("No dynamic support for this VS toolchain")
-            return False
+            # Both file exists.  Do a quick version check
+            if(self._is_older_version(conf_file, template_file)):
+                # Conf dir file is older.  Warn user.
+                self.Logger.critical(f"{conf_file} file is out-of-date.  Please update your conf files!")
+                self.Logger.critical("Sleeping 30 seconds to encourage update....")
+                time.sleep(self.delay_time_in_seconds)
+            else:
+                self.Logger.debug(f"Conf file {conf_file} up-to-date")

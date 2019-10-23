@@ -14,7 +14,6 @@ from edk2toolext import edk2_logging
 from edk2toolext.edk2_git import Repo
 
 # this follows a documented flow chart
-# TODO: include link to flowchart?
 
 
 # checks out dependency at git_path
@@ -120,11 +119,13 @@ def resolve_all(WORKSPACE_PATH, dependencies, force=False, ignore=False, update_
     if update_ok:
         logger.info("Resolving dependencies with updates as needed")
     for dependency in dependencies:
+        dep_path = dependency["Path"]
+        logger.log(edk2_logging.PROGRESS, f"Syncing {dep_path}")
         if "ReferencePath" not in dependency and omnicache_dir:
             dependency["ReferencePath"] = omnicache_dir
         if "ReferencePath" in dependency:  # make sure that the omnicache dir is relative to the working directory
             dependency["ReferencePath"] = os.path.join(WORKSPACE_PATH, dependency["ReferencePath"])
-        git_path = os.path.join(WORKSPACE_PATH, dependency["Path"])
+        git_path = os.path.join(WORKSPACE_PATH, dep_path)
         repos.append(git_path)
         resolve(git_path, dependency, force, ignore, update_ok)
 
@@ -153,6 +154,7 @@ def clear_folder(abs_file_system_path):
     logger.warning("WARNING: Deleting contents of folder {0} to make way for Git repo".format(
         abs_file_system_path))
 
+    # spell-checker:ignore dorw
     def dorw(action, name, exc):
         os.chmod(name, stat.S_IWRITE)
         if(os.path.isdir(name)):

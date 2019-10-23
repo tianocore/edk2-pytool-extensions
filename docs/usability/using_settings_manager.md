@@ -1,13 +1,13 @@
 
 # Settings manager
 
-Each edk2 invocable has an abstract definition of a Settings Manager class that provides needed information such as scope, repos, commandline options, and other things.
+Each edk2 invocable has an abstract definition of a Settings Manager class that provides needed information such as scope, repositories, command-line options, and other things.
 This allows scopes to be dynamic but in a standardized way.
 Below is a sample implementation of a settings manager for your reference. 
 
 This is an implementation of both Update and Setup Settings Managers using multiple inheritance. 
 You can see that they add their own command line argument `--production` that is used to toggle the use of the `production` scope.
-For any given invocable, you can pass `-h` or `--help` to recieve a list of available command line options.
+For any given invocable, you can pass `-h` or `--help` to show a list of available command line options.
 If you call `-c <path> --help` this list will also include command line options provided from the settings file you provided.
 
 These examples are for building a platform; which needs an instance of UpdateSettingsManager, SetupSettingsManager, BuildSettingsManager, and UefiBuilder.
@@ -35,14 +35,20 @@ class SettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSettings
         ''' get WorkspacePath '''
         return self.WORKSPACE_PATH
 
-    def GetModulePkgsPath(self):
-        ''' get module packages path '''
-        MODULE_PKGS = ['MU_BASECORE','Silicon/ARM/NXP', 'Common/MU','Common/MU_TIANO', 'Common/MU_OEM_SAMPLE','Silicon/ARM/MU_TIANO']
-        return os.pathsep.join(os.path.join(self.WORKSPACE_PATH, pkg_name) for pkg_name in MODULE_PKGS)
+    def GetPackagesPath(self):
+        ''' Return a list of workspace relative paths that should be mapped as edk2 PackagesPath '''
+        return ['MU_BASECORE','Silicon/ARM/NXP', 'Common/MU','Common/MU_TIANO', 'Common/MU_OEM_SAMPLE','Silicon/ARM/MU_TIANO']
 
-    def GetRequiredRepos(self):
-        ''' get required repos '''
-        return ('MU_BASECORE','Silicon/ARM/NXP', 'Common/MU','Common/MU_TIANO', 'Common/MU_OEM_SAMPLE','Silicon/ARM/MU_TIANO')
+    def GetRequiredSubmodules(self):
+        ''' return iterable containing RequiredSubmodule objects.
+        If no RequiredSubmodules return an empty iterable
+        '''
+        return [RequiredSubmodule('MU_BASECORE'), 
+                RequiredSubmodule('Silicon/ARM/NXP'), 
+                RequiredSubmodule('Common/MU'), 
+                RequiredSubmodule('Common/MU_TIANO'), 
+                RequiredSubmodule('Common/MU_OEM_SAMPLE'), 
+                RequiredSubmodule('Silicon/ARM/MU_TIANO') ]
 
     def AddCommandLineOptions(self, parserObj):
         ''' Add command line options to the argparser '''
@@ -89,11 +95,8 @@ class SettingsManager(UpdateSettingsManager, SetupSettingsManager):
     def __init__(self):
         SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
         self.WORKSPACE_PATH = os.path.dirname(os.path.dirname(SCRIPT_PATH))
-        self.REQUIRED_REPOS = ('MU_BASECORE','Silicon/ARM/NXP', 'Common/MU','Common/MU_TIANO', 'Common/MU_OEM_SAMPLE','Silicon/ARM/MU_TIANO')
         self.PRODUCTION_SCOPE = ('production', )
         self.BASE_SCOPE = ('imxfamily', 'imx8')
-        MODULE_PKGS = ['MU_BASECORE','Silicon/ARM/NXP', 'Common/MU','Common/MU_TIANO', 'Common/MU_OEM_SAMPLE','Silicon/ARM/MU_TIANO']
-        self.MODULE_PKG_PATHS = os.pathsep.join(os.path.join(self.WORKSPACE_PATH, pkg_name) for pkg_name in MODULE_PKGS)
         self.production = None
 
     def GetProjectScope(self):
@@ -107,14 +110,20 @@ class SettingsManager(UpdateSettingsManager, SetupSettingsManager):
         ''' get WorkspacePath '''
         return self.WORKSPACE_PATH
 
-    def GetModulePkgsPath(self):
-        ''' get module packages path '''
-        MODULE_PKGS = ['MU_BASECORE','Silicon/ARM/NXP', 'Common/MU','Common/MU_TIANO', 'Common/MU_OEM_SAMPLE','Silicon/ARM/MU_TIANO']
-        return os.pathsep.join(os.path.join(self.WORKSPACE_PATH, pkg_name) for pkg_name in MODULE_PKGS)
+    def GetPackagesPath(self):
+        ''' Return a list of workspace relative paths that should be mapped as edk2 PackagesPath '''
+        return ['MU_BASECORE','Silicon/ARM/NXP', 'Common/MU','Common/MU_TIANO', 'Common/MU_OEM_SAMPLE','Silicon/ARM/MU_TIANO']
 
-    def GetRequiredRepos(self):
-        ''' get required repos '''
-        return ('MU_BASECORE','Silicon/ARM/NXP', 'Common/MU','Common/MU_TIANO', 'Common/MU_OEM_SAMPLE','Silicon/ARM/MU_TIANO')
+    def GetRequiredSubmodules(self):
+        ''' return iterable containing RequiredSubmodule objects.
+        If no RequiredSubmodules return an empty iterable
+        '''
+        return [RequiredSubmodule('MU_BASECORE'), 
+                RequiredSubmodule('Silicon/ARM/NXP'), 
+                RequiredSubmodule('Common/MU'), 
+                RequiredSubmodule('Common/MU_TIANO'), 
+                RequiredSubmodule('Common/MU_OEM_SAMPLE'), 
+                RequiredSubmodule('Silicon/ARM/MU_TIANO')]
 
     def AddCommandLineOptions(self, parserObj):
         ''' Add command line options to the argparser '''
@@ -136,7 +145,7 @@ class PlatformBuilder(UefiBuilder, BuildSettingsManager):
         self.production = None
 
     def GetProjectScope(self):
-        ''' get scope '''
+        ''' return tuple containing scopes that should be active for this process '''
         SCOPE = self.BASE_SCOPE
         if self.production:
             SCOPE += self.PRODUCTION_SCOPE
@@ -146,10 +155,9 @@ class PlatformBuilder(UefiBuilder, BuildSettingsManager):
         ''' get WorkspacePath '''
         return self.WORKSPACE_PATH
 
-    def GetModulePkgsPath(self):
-        ''' get module packages path '''
-        MODULE_PKGS = ['MU_BASECORE','Silicon/ARM/NXP', 'Common/MU','Common/MU_TIANO', 'Common/MU_OEM_SAMPLE','Silicon/ARM/MU_TIANO']
-        return os.pathsep.join(os.path.join(self.WORKSPACE_PATH, pkg_name) for pkg_name in MODULE_PKGS)
+    def GetPackagesPath(self):
+        ''' Return a list of workspace relative paths that should be mapped as edk2 PackagesPath '''
+        return ['MU_BASECORE','Silicon/ARM/NXP', 'Common/MU','Common/MU_TIANO', 'Common/MU_OEM_SAMPLE','Silicon/ARM/MU_TIANO']
 
     def AddCommandLineOptions(self, parserObj):
         ''' Add command line options to the argparser '''

@@ -29,7 +29,7 @@ class BaseAbstractInvocable(object):
         raise NotImplementedError()
 
     def GetActiveScopes(self):
-        '''Return the scopes for use in SDE '''
+        ''' return tuple containing scopes that should be active for this process '''
         raise NotImplementedError()
 
     def GetLoggingLevel(self, loggerType):
@@ -89,11 +89,11 @@ class BaseAbstractInvocable(object):
                                                                 self.GetLoggingFileName("txt"),
                                                                 txtlogfile)
 
-        mdlogfile = self.GetLoggingLevel("md")
-        if(mdlogfile is not None):
-            mdfile, mdlogger = edk2_logging.setup_markdown_logger(log_directory,
-                                                                  self.GetLoggingFileName("md"),
-                                                                  mdlogfile)
+        md_log_file = self.GetLoggingLevel("md")
+        if(md_log_file is not None):
+            md_file, md_logger = edk2_logging.setup_markdown_logger(log_directory,
+                                                                    self.GetLoggingFileName("md"),
+                                                                    md_log_file)
 
         logging.info("Log Started: " + datetime.strftime(datetime.now(), "%A, %B %d, %Y %I:%M%p"))
 

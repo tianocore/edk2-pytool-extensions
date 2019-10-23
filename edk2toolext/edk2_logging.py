@@ -224,7 +224,7 @@ def scan_compiler_output(output_stream):
     output_stream.seek(0, 0)
     error_exp = re.compile(r"error [A-EG-Z]?(\d+):")
     edk2_error_exp = re.compile(r"error F(\d+):")
-    buildpy_error_exp = re.compile(r"error (\d+)E:")
+    build_py_error_exp = re.compile(r"error (\d+)E:")
     linker_error_exp = re.compile(r"error LNK(\d+):")
     warning_exp = re.compile(r"warning [A-Z]?(\d+):")
     for raw_line in output_stream.readlines():
@@ -245,7 +245,7 @@ def scan_compiler_output(output_stream):
         if match is not None:
             error = output_compiler_error(match, line, "EDK2")
             problems.append((logging.ERROR, error))
-        match = buildpy_error_exp.search(line)
+        match = build_py_error_exp.search(line)
         if match is not None:
             error = output_compiler_error(match, line, "Build.py")
             problems.append((logging.ERROR, error))
@@ -270,7 +270,7 @@ class Edk2LogFilter(logging.Filter):
 
     def filter(self, record):
         # check to make sure we haven't already filtered this record
-        if record.name not in Edk2LogFilter._allowedLoggers and record.levelno < logging.CRITICAL and not self._verbose:
+        if record.name not in Edk2LogFilter._allowedLoggers and record.levelno < logging.WARNING and not self._verbose:
             return False
 
         return True

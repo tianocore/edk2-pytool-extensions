@@ -2,29 +2,34 @@
 
 ## The Genesis
 
-Plugins are similar to external dependencies, in that they are defined by a Json file and they are discovered by the SDE. If you wish to learn more about the SDE, please go read the document about the self describing enviroment. They are defined by the EnvironmentDescriptorFiles which also describe external dependencies and path descriptors.
+Plugins are similar to external dependencies, in that they are defined by a Json file and they are discovered by the SDE. If you wish to learn more about the SDE, please go read the document about the self describing environment. They are defined by the EnvironmentDescriptorFiles which also describe external dependencies and path descriptors.
 
 ## Types of plugins
 
 Types of plugins are defined by the class they inherit from
 
 - UefiBuildPlugin
+
   - Contains two methods, Pre and Post Build. These methods are called on Pre and Post Build steps in UefiBuild (not CiBuild). There is no guarantee on ordering between different plugins (Pre will always come before Post). Post is will not run if there is a critical error in the build process.
   - The idea here is to allow for custom, self-contained build functionality to be added without required UEFI build changes or inline code modifications.
+
 - DscProcessorPlugin (in-progress)
+
   - This is a plugin type that can apply transformations to the active DSC that will then be used to build the system.
   - This is not production ready and _not enabled in_ any builds currently.
+
 - UefiHelperPlugin
+
   - This is a helper plugin that publishes a function that can be used by other parts of the system. An example of this would be the Capsule signing system.
   - This really is less about plugin design and more about keeping the UEFI build and platform builder python files minimal and getting the desired code reuse.
+
 - CiBuildPlugin
-  - A plugin that runs during the main stage of CiBuild. The build step is actually a plugin so as ordering is not guranteed so you don't have any assurance that the build is successful or that the build has started
+
+  - A plugin that runs during the main stage of CiBuild. The build step is actually a plugin so as ordering is not guaranteed so you don't have any assurance that the build is successful or that the build has started
 
 ## How it works
 
-You might be asking yourself how does the sausage get made. In the name of sating curiosity, here it is.
-The SDE discovers the plugin .json environment descriptors in the file system tree. Once they're disocvered, they're passed to the Plugin Manager which loads each of them and puts them into the appropriate structure.
-Once they're in there, they are requested by UefiBuild or CiBuild and dispatched. Helper functions are requested from the plugin_manager and then executed.
+You might be asking yourself how does the sausage get made. In the name of sating curiosity, here it is. The SDE discovers the plugin .json environment descriptors in the file system tree. Once they're discovered, they're passed to the Plugin Manager which loads each of them and puts them into the appropriate structure. Once they're in there, they are requested by UefiBuild or CiBuild and dispatched. Helper functions are requested from the plugin_manager and then executed.
 
 ## Writing your own
 
@@ -56,11 +61,11 @@ From MU_BASECORE\BaseTools\Plugin\CharEncodingCheck\CharEncodingCheck_plug_in.js
 
 ### The Python
 
-File is from: MU_BASECORE\BaseTools\Plugin\CharEncodingCheck\CharEncodingCheck.py
+File is from: ci\plugin\CharEncodingCheck\CharEncodingCheck.py
 
-It's important that the filename matches the Module name in the json file.
+It's important that the filename matches the Module name in the yaml file.
 
-```py
+```python
 import os
 import logging
 from edk2toolext.plugins.CiBuildPlugin import ICiBuildPlugin
@@ -70,15 +75,15 @@ class CharEncodingCheck(ICiBuildPlugin):
    def GetTestName(self, packagename, environment):
       return ("CiBuild CharEncodingCheck " + packagename, "CiBuild.CharEncodingCheck." + packagename)
 
-    #   - package is the edk2 path to package.  This means workspace/packagepath relative.
+    #   - package is the edk2 path to package.  This means workspace/package path relative.
     #   - edk2path object configured with workspace and packages path
     #   - any additional command line args
-    #   - RepoConfig Object (dict) for the build
+    #   - RepositoryConfig Object (dict) for the build
     #   - PkgConfig Object (dict) for the pkg
     #   - EnvConfig Object
     #   - Plugin Manager Instance
     #   - Plugin Helper Obj Instance
-    #   - testclass Object used for outputing junit results
+    #   - test-case Object used for tracking test results
     #   - output_stream the StringIO output stream from this plugin
 
     def RunBuildPlugin(self, packagename, Edk2pathObj, args, repoconfig, pkgconfig, environment, PLM, PLMHelper, tc, output_stream = None):
@@ -93,19 +98,16 @@ class CharEncodingCheck(ICiBuildPlugin):
 
 Some things to notice are the class that this is inheriting from: ICiBuildPlugin.
 
-
 There is also this idea of the tc, which is the test unit class. You can set this particular CiBuild step as failed, skipped, or successful. Logging standard out or error out gets placed in the JUnit report that is later picked up by the CI system.
 
 ## Using a plugin
 
-Using plugins is straightforward but it exact usage depends on what type of plugin you use. For the IUefiBuildPlugin (pre/post build) and ICiBuildPlugin type there is nothing the UEFI build must do besides make sure the plugin is in your workspace and scoped to an active scope.
-For Helper plugins basically the UEFI builder Helper member will contain the registered functions as methods on the object. Therefore calling any function is as simple as using self.Helper.[your func name here]. It is by design that the parameters and calling contract are not defined.
-It is expected that the caller and plugin know about each other and are really just using the plugin system to make inclusion and code sharing easy.
+Using plugins is straightforward but it exact usage depends on what type of plugin you use. For the IUefiBuildPlugin (pre/post build) and ICiBuildPlugin type there is nothing the UEFI build must do besides make sure the plugin is in your workspace and scoped to an active scope. For Helper plugins basically the UEFI builder Helper member will contain the registered functions as methods on the object. Therefore calling any function is as simple as using self.Helper.[your func name here]. It is by design that the parameters and calling contract are not defined. It is expected that the caller and plugin know about each other and are really just using the plugin system to make inclusion and code sharing easy.
 
 ## Skipping a plugin
 
-If you want to __skip__ a plugin, set it in the environment before the environment is initialized.
-For example, it can be a part of your SettingsManager:
+If you want to **skip** a plugin, set it in the environment before the environment is initialized. For example, it can be a part of your SettingsManager:
+
 ```python
 class Settings(CiBuildSettingsManager, CiSetupSettingsManager, UpdateSettingsManager):
 

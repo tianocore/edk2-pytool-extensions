@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+# spell-checker:ignore rtags
 import os
 import sys
 import logging
@@ -34,8 +35,8 @@ class OmniCacheConfig():
             self.remotes = {}
 
     def _Load(self):
-        with open(self.filepath) as ymlfile:
-            content = yaml.safe_load(ymlfile)
+        with open(self.filepath) as yml_file:
+            content = yaml.safe_load(yml_file)
 
         if "version" not in content:
             raise Exception("Unsupported Config Version (None)")
@@ -89,6 +90,12 @@ class OmniCacheConfig():
                 return True
         return False
 
+    def GetNameForUrl(self, url):
+        for x in self.remotes.values():
+            if (x["url"] == url):
+                return x["name"]
+        return None
+
     def Remove(self, del_name):
         del self.remotes[del_name]
 
@@ -122,13 +129,21 @@ def AddEntriesFromConfig(config, input_config_file):
     '''
 
     count = 0
-    with open(input_config_file) as ymlfile:
-        content = yaml.safe_load(ymlfile)
+    with open(input_config_file) as yml_file:
+        content = yaml.safe_load(yml_file)
     if "remotes" in content:
         for remote in content["remotes"]:
-            if config.Contains_url(remote["url"]):
-                logging.debug("remote with name: {0} already in cache".format(remote["name"]))
-                continue
+            currentRemoteName = config.GetNameForUrl(remote["url"])
+            if (currentRemoteName is not None):
+                if (remote["name"] != currentRemoteName):
+                    logging.debug(
+                        "remote with name: {0} already in cache, renaming to {1}"
+                        .format(currentRemoteName, remote["name"])
+                    )
+                    RemoveEntry(config, currentRemoteName)  # remove here, then fall through to add entry below.
+                else:
+                    logging.debug("remote with name: {0} already in cache".format(remote["name"]))
+                    continue
             if "tag" in remote:
                 AddEntry(config, remote["name"], remote["url"], bool(remote["tag"]))
             else:
@@ -377,7 +392,7 @@ def main():
                         dirs.append(os.path.join(item, submodule))
             else:
                 logging.error("Git repo not found at %s" % itemDir)
-        # go through all the URL's I found
+        # go through all the URLs found
         for url in reposFound:
             omnicache_config.Add(reposFound[url], url)
 

@@ -1,5 +1,5 @@
 # @file edk2_platform_build
-# Invocable classs that does a build.
+# Invocable class that does a build.
 # Needs a child of UefiBuilder for pre/post build steps.
 ##
 # Copyright (c) Microsoft Corporation
@@ -9,32 +9,33 @@
 import os
 import sys
 import logging
-import pkg_resources
 from edk2toolext import edk2_logging
 from edk2toolext.environment import plugin_manager
 from edk2toolext.environment.plugintypes.uefi_helper_plugin import HelperFunctions
-from edk2toolext.environment import version_aggregator
 from edk2toolext.environment import self_describing_environment
 from edk2toolext.environment.uefi_build import UefiBuilder
 from edk2toolext.edk2_invocable import Edk2Invocable
 from edk2toollib.utility_functions import locate_class_in_module
-
-PIP_PACKAGES_LIST = ["edk2-pytool-library", "edk2-pytool-extensions", "PyYaml"]
 
 
 class BuildSettingsManager():
     ''' Platform settings will be accessed through this implementation. '''
 
     def GetActiveScopes(self):
-        ''' get scope '''
+        ''' return tuple containing scopes that should be active for this process '''
         raise NotImplementedError()
 
     def GetWorkspaceRoot(self):
         ''' get WorkspacePath '''
         raise NotImplementedError()
 
-    def GetModulePkgsPath(self):
+    def GetPackagesPath(self):
+        ''' Return a list of workspace relative paths that should be mapped as edk2 PackagesPath '''
         raise NotImplementedError()
+
+    def GetName(self):
+        ''' Get the name of the repo, platform, or product being build '''
+        pass
 
     def AddCommandLineOptions(self, parserObj):
         ''' Implement in subclass to add command line options to the argparser '''
@@ -52,16 +53,6 @@ class BuildSettingsManager():
         md   == markdown file logging
         '''
         pass
-
-
-#
-# Pass in a list of pip package names and they will be printed as well as
-# reported to the global version_aggregator
-def display_pip_package_info(package_list):
-    for package in package_list:
-        version = pkg_resources.get_distribution(package).version
-        logging.info("{0} version: {1}".format(package, version))
-        version_aggregator.GetVersionAggregator().ReportVersion(package, version, version_aggregator.VersionTypes.TOOL)
 
 
 class Edk2PlatformBuild(Edk2Invocable):
@@ -87,7 +78,7 @@ class Edk2PlatformBuild(Edk2Invocable):
     def RetrieveCommandLineOptions(self, args):
         '''  Retrieve command line options from the argparser '''
 
-        # If PlatformBuilder and PlatformSettings are seperate, give args to PlatformBuilder
+        # If PlatformBuilder and PlatformSettings are separate, give args to PlatformBuilder
         if self.PlatformBuilder is not self.PlatformSettings:
             self.PlatformBuilder.RetrieveCommandLineOptions(args)
 
@@ -96,12 +87,15 @@ class Edk2PlatformBuild(Edk2Invocable):
         return BuildSettingsManager
 
     def GetLoggingFileName(self, loggerType):
+        name = self.PlatformSettings.GetName()
+        if name is not None:
+            return f"BUILDLOG_{name}"
         return "BUILDLOG"
 
     def Go(self):
         logging.info("Running Python version: " + str(sys.version_info))
 
-        display_pip_package_info(PIP_PACKAGES_LIST)
+        Edk2PlatformBuild.collect_python_pip_info()
 
         (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(
             self.GetWorkspaceRoot(), self.GetActiveScopes())
@@ -137,7 +131,7 @@ class Edk2PlatformBuild(Edk2Invocable):
         #
         logging.log(edk2_logging.SECTION, "Kicking off build")
         return self.PlatformBuilder.Go(self.GetWorkspaceRoot(),
-                                       self.PlatformSettings.GetModulePkgsPath(),
+                                       os.pathsep.join(self.PlatformSettings.GetPackagesPath()),
                                        helper, pm)
 
 
