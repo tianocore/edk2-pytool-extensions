@@ -1,5 +1,6 @@
-# @file edk2_setup
-# updates submodules listed as RequiredS ubmodules in Config file.
+# @file edk2_pr_eval
+# Checks the diff between a branch and head and then identifies
+# if the requested packages need to be built.
 ##
 # Copyright (c) Microsoft Corporation
 #

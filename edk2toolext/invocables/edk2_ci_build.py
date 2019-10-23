@@ -155,11 +155,11 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
             package_class_name = f"Edk2CiBuild.{self.PlatformSettings.GetName()}.{pkgToRunOn}"
             ts = JunitReport.create_new_testsuite(pkgToRunOn, package_class_name)
             packagebuildlog_path = os.path.join(log_directory, pkgToRunOn)
-            _, txthandle = edk2_logging.setup_txt_logger(
+            _, txt_handle = edk2_logging.setup_txt_logger(
                 packagebuildlog_path, f"BUILDLOG_{pkgToRunOn}", logging_level=logging.DEBUG, isVerbose=True)
-            _, mdhandle = edk2_logging.setup_markdown_logger(
+            _, md_handle = edk2_logging.setup_markdown_logger(
                 packagebuildlog_path, f"BUILDLOG_{pkgToRunOn}", logging_level=logging.DEBUG, isVerbose=True)
-            loghandle = [txthandle, mdhandle]
+            loghandle = [txt_handle, md_handle]
             shell_environment.CheckpointBuildVars()
             env = shell_environment.GetBuildVars()
 
@@ -211,7 +211,7 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
 
                     else:
                         try:
-                            #   - package is the edk2 path to package.  This means workspace/packagepath relative.
+                            #   - package is the edk2 path to package.  This means workspace/package path relative.
                             #   - edk2path object configured with workspace and packages path
                             #   - any additional command line args
                             #   - RepoConfig Object (dict) for the build

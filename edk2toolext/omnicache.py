@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+# spell-checker:ignore rtags
 import os
 import sys
 import logging
@@ -34,8 +35,8 @@ class OmniCacheConfig():
             self.remotes = {}
 
     def _Load(self):
-        with open(self.filepath) as ymlfile:
-            content = yaml.safe_load(ymlfile)
+        with open(self.filepath) as yml_file:
+            content = yaml.safe_load(yml_file)
 
         if "version" not in content:
             raise Exception("Unsupported Config Version (None)")
@@ -128,8 +129,8 @@ def AddEntriesFromConfig(config, input_config_file):
     '''
 
     count = 0
-    with open(input_config_file) as ymlfile:
-        content = yaml.safe_load(ymlfile)
+    with open(input_config_file) as yml_file:
+        content = yaml.safe_load(yml_file)
     if "remotes" in content:
         for remote in content["remotes"]:
             currentRemoteName = config.GetNameForUrl(remote["url"])
@@ -391,7 +392,7 @@ def main():
                         dirs.append(os.path.join(item, submodule))
             else:
                 logging.error("Git repo not found at %s" % itemDir)
-        # go through all the URL's I found
+        # go through all the URLs found
         for url in reposFound:
             omnicache_config.Add(reposFound[url], url)
 

@@ -281,7 +281,7 @@ class UefiBuilder(object):
     def PreBuild(self):
         edk2_logging.log_progress("Running Pre Build")
         #
-        # Run the plaform pre-build steps.
+        # Run the platform pre-build steps.
         #
         ret = self.PlatformPreBuild()
 
@@ -389,7 +389,7 @@ class UefiBuilder(object):
         # set build output base envs for all builds
         if self.env.GetValue("OUTPUT_DIRECTORY") is None:
             logging.warn("OUTPUT_DIRECTORY was not found, defaulting to Build")
-            self.env.SetValue("OUTPUT_DIRECTORY", "Build", "default from uefibuild", True)
+            self.env.SetValue("OUTPUT_DIRECTORY", "Build", "default from uefi_build", True)
         self.env.SetValue("BUILD_OUT_TEMP", os.path.join(
             self.ws, self.env.GetValue("OUTPUT_DIRECTORY")), "Computed in SetEnv")
 
@@ -513,11 +513,11 @@ class UefiBuilder(object):
         if(os.path.isfile(self.mws.join(self.ws, self.env.GetValue("FLASH_DEFINITION")))):
             # parse the FDF file- fdf files have similar syntax to DSC and therefore parser works for both.
             logging.debug("Parse Active Flash Definition (FDF) file")
-            fdfp = DscParser().SetBaseAbsPath(self.ws).SetPackagePaths(
+            fdf_parser = DscParser().SetBaseAbsPath(self.ws).SetPackagePaths(
                 self.pp.split(os.pathsep)).SetInputVars(self.env.GetAllBuildKeyValues())
             pa = self.mws.join(self.ws, self.env.GetValue("FLASH_DEFINITION"))
-            fdfp.ParseFile(pa)
-            for key, value in fdfp.LocalVars.items():
+            fdf_parser.ParseFile(pa)
+            for key, value in fdf_parser.LocalVars.items():
                 self.env.SetValue(key, value, "From Platform FDF File", True)
 
         else:

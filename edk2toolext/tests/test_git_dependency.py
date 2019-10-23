@@ -52,6 +52,7 @@ def clean_workspace():
 
     if os.path.isdir(test_dir):
 
+        # spell-checker:ignore dorw
         def dorw(action, name, exc):
             os.chmod(name, stat.S_IWRITE)
             if(os.path.isdir(name)):
@@ -138,8 +139,8 @@ class TestGitDependency(unittest.TestCase):
         ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
         ext_dep = GitDependency(ext_dep_descriptor)
         os.makedirs(ext_dep._local_repo_root_path, exist_ok=True)
-        with open(os.path.join(ext_dep._local_repo_root_path, "testfile.txt"), 'a') as myfile:
-            myfile.write("Test code\n")
+        with open(os.path.join(ext_dep._local_repo_root_path, "testfile.txt"), 'a') as my_file:
+            my_file.write("Test code\n")
         self.assertFalse(ext_dep.verify(logversion=False))
 
     def test_verify_dirty_git_repo(self):
@@ -151,8 +152,8 @@ class TestGitDependency(unittest.TestCase):
         ext_dep = GitDependency(ext_dep_descriptor)
         ext_dep.fetch()
         # now write a new file
-        with open(os.path.join(ext_dep._local_repo_root_path, "testfile.txt"), 'a') as myfile:
-            myfile.write("Test code to make repo dirty\n")
+        with open(os.path.join(ext_dep._local_repo_root_path, "testfile.txt"), 'a') as my_file:
+            my_file.write("Test code to make repo dirty\n")
         self.assertFalse(ext_dep.verify(logversion=False))
 
     def test_verify_up_to_date(self):
@@ -205,8 +206,8 @@ class TestGitDependency(unittest.TestCase):
         ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
         ext_dep = GitDependency(ext_dep_descriptor)
         os.makedirs(ext_dep._local_repo_root_path, exist_ok=True)
-        with open(os.path.join(ext_dep._local_repo_root_path, "testfile.txt"), 'a') as myfile:
-            myfile.write("Test code\n")
+        with open(os.path.join(ext_dep._local_repo_root_path, "testfile.txt"), 'a') as my_file:
+            my_file.write("Test code\n")
         ext_dep.clean()
         self.assertFalse(os.path.isdir(ext_dep.contents_dir))
 
@@ -220,8 +221,8 @@ class TestGitDependency(unittest.TestCase):
         ext_dep.fetch()
         self.assertTrue(ext_dep.verify(), "Confirm repo is valid")
         # now write a new file
-        with open(os.path.join(ext_dep._local_repo_root_path, "testfile.txt"), 'a') as myfile:
-            myfile.write("Test code to make repo dirty\n")
+        with open(os.path.join(ext_dep._local_repo_root_path, "testfile.txt"), 'a') as my_file:
+            my_file.write("Test code to make repo dirty\n")
         self.assertFalse(ext_dep.verify(), "Confirm repo is dirty")
         ext_dep.clean()
         self.assertFalse(os.path.isdir(ext_dep.contents_dir))
@@ -268,10 +269,10 @@ class TestGitDependencyUrlPatching(unittest.TestCase):
         my_test_descriptor['url_creds_var'] = 'test_creds_var'
 
         # Initialize the GitDependency object.
-        gdep = GitDependency(my_test_descriptor)
+        git_dep = GitDependency(my_test_descriptor)
 
         # Assert that the URL is identical.
-        self.assertEqual(gdep.source, my_test_descriptor['source'])
+        self.assertEqual(git_dep.source, my_test_descriptor['source'])
 
     def test_url_should_not_be_modified_without_descriptor_field(self):
         my_test_descriptor = copy.copy(TestGitDependencyUrlPatching.TEST_DESCRIPTOR)
@@ -281,10 +282,10 @@ class TestGitDependencyUrlPatching(unittest.TestCase):
         env.set_shell_var('test_creds_var', 'my_stuff')
 
         # Initialize the GitDependency object.
-        gdep = GitDependency(my_test_descriptor)
+        git_dep = GitDependency(my_test_descriptor)
 
         # Assert that the URL is identical.
-        self.assertEqual(gdep.source, my_test_descriptor['source'])
+        self.assertEqual(git_dep.source, my_test_descriptor['source'])
 
     def test_url_should_be_modified_if_creds_are_indicated_and_supplied(self):
         my_test_descriptor = copy.copy(TestGitDependencyUrlPatching.TEST_DESCRIPTOR)
@@ -296,10 +297,10 @@ class TestGitDependencyUrlPatching(unittest.TestCase):
         env.set_shell_var('test_creds_var', 'my_stuff')
 
         # Initialize the GitDependency object.
-        gdep = GitDependency(my_test_descriptor)
+        git_dep = GitDependency(my_test_descriptor)
 
         # Assert that the URL is identical.
-        self.assertEqual(gdep.source, "https://my_stuff@github.com/octocat/Hello-World.git")
+        self.assertEqual(git_dep.source, "https://my_stuff@github.com/octocat/Hello-World.git")
 
 
 if __name__ == '__main__':

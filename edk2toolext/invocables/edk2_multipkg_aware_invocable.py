@@ -90,9 +90,10 @@ class Edk2MultiPkgAwareInvocable(Edk2Invocable):
         packageListSet = set()
         for item in args.packageList:  # Parse out the individual packages
             item_list = item.split(",")
-            for indiv_item in item_list:
-                indiv_item = indiv_item.replace("\\", "/")  # in case cmd line caller used Windows folder slashes
-                packageListSet.add(indiv_item.strip())
+            for individual_item in item_list:
+                # in case cmd line caller used Windows folder slashes
+                individual_item = individual_item.replace("\\", "/")
+                packageListSet.add(individual_item.strip())
         self.requested_package_list = list(packageListSet)
 
         if args.requested_arch is not None:

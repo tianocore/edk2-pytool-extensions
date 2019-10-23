@@ -32,8 +32,8 @@ class ConfMgmt():
             param:
                 conf_folder_path: folder path to output conf location (absolute path)
                 override_conf:  boolean to indicate if templates files should replace conf files
-                                regardless of existance or version.
-                additionaconf_template_source_list: priority list of folder path that might contain a "Conf"
+                                regardless of existence or version.
+                conf_template_source_list: priority list of folder path that might contain a "Conf"
                                                     folder with template files to use
 
             When complete the conf_folder_path dir must be setup for edk2 builds
