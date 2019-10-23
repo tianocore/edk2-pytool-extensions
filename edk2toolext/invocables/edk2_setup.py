@@ -205,7 +205,7 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
                         ret = RunCmd('git', cmd_string, workingdir=workspace_path,
                                      logging_level=logging.DEBUG, raise_exception_on_nonzero=False)
                         if ret != 0:
-                            logging.error("We failed to fetch " + required_repo)
+                            logging.error("We failed to fetch " + required_submodule)
                             raise RuntimeError("Unable to checkout repo due to error")
 
                     edk2_logging.log_progress("Done.\n")
