@@ -8,7 +8,7 @@ The second is porting a project that is based on base EDK2.
 
 In this guide, we will building a platform from EDK2-Platforms, the humble Raspberry Pi 3.
 This is because you likely have one lying around somewhere or can buy it online for fairly cheap.
-It is also a simplier platform compared to many intel based ones while still being large enough to show the benefits of Stuart.
+It is also a simpler platform compared to many intel based ones while still being large enough to show the benefits of Stuart.
 
 We will be using Project Mu (https://microsoft.github.io/mu/) because it splits the packages of EDK2 up and offers some niceties that we will take advantage of.
 
@@ -295,7 +295,7 @@ If you instead used EDK2, you likely wouldn't have any dependencies.
 If you were to try a platform build, it would fail saying `RuntimeError: UefiBuild Not Found`.
 Stuart provides a helper class that scaffolds out the build step.
 There's a few ways to implement the UefiBuilder.
-It can be a separate class in your `PlatformBuild.py`, it can be the same class as your settingsmanager, or it can be a separate file all together.
+It can be a separate class in your `PlatformBuild.py`, it can be the same class as your SettingsManager, or it can be a separate file all together.
 For the sake of simplicity, we're going to have it as a separate class in the same file.
 
 ``` python
