@@ -91,6 +91,7 @@
         "CISETUP",
         "isclass",
         "DSCs",
-        "levelno"
+        "levelno",
+        "uefibuilder"
     ]
 }
