@@ -74,9 +74,8 @@ setuptools.setup(
     },
     install_requires=[
         'pyyaml',
-        'edk2-pytool-library>=0.9.1'
+        'edk2-pytool-library>=0.10.3'
         # Update with pyopenssl?
-        # Update with latest pytool?
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
