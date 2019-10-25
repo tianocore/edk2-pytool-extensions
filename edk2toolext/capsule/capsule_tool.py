@@ -1,6 +1,8 @@
 import os
 import sys
 import argparse
+import copy
+import yaml
 
 from edk2toolext.capsule import signing_helper
 
@@ -23,15 +25,35 @@ def get_cli_options(args=None):
     parser.add_argument('-dc', action='append', dest='capsule_options', type=str, default=[])
     parser.add_argument('-ds', action='append', dest='signer_options', type=str, default=[])
 
+    parser.add_argument('-o', dest='options_file', type=argparse.FileType('r'))
+
     return parser.parse_args(args=args)
 
 
-def load_options_file(filepath):
-    return {}
+def load_options_file(in_file):
+    if not hasattr(in_file, 'read'):
+        return None
+
+    return yaml.safe_load(in_file)
 
 
 def update_options(file_options, capsule_options, signer_options):
-    return file_options
+    if file_options is not None:
+        updated_options = copy.copy(file_options)
+    else:
+        updated_options = {}
+
+    # Update all the capsule options.
+    for option in capsule_options:
+        (key, value) = option.split('=')
+        updated_options['capsule'][key] = value
+
+    # Update all the signer options.
+    for option in signer_options:
+        (key, value) = option.split('=')
+        updated_options['signer'][key] = value
+
+    return updated_options
 
 
 def main():

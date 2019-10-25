@@ -9,6 +9,10 @@ import yaml
 from edk2toolext.capsule import capsule_tool
 
 class ParameterParsingTest(unittest.TestCase):
+    @pytest.mark.skip(reason="test is incomplete")
+    def test_should_require_a_signer_option(self):
+        pass
+
     def test_capsule_options_should_be_passable(self):
         cli_params = ['--builtin_signer', 'pyopenssl']
         parsed_args = capsule_tool.get_cli_options(cli_params)
@@ -29,6 +33,17 @@ class ParameterParsingTest(unittest.TestCase):
         parsed_args = capsule_tool.get_cli_options(cli_params)
         self.assertEqual(len(parsed_args.signer_options), 2)
 
+    def test_should_not_accept_an_invalid_path(self):
+        cli_params = ['--builtin_signer', 'pyopenssl']
+        cli_params += ['-o', 'not_a_path.bin']
+        with self.assertRaises(SystemExit):
+            parsed_args = capsule_tool.get_cli_options(cli_params)
+
+    def test_should_not_load_an_invalid_path(self):
+        bad_path = 'not_a_path.bin'
+        loaded_options = capsule_tool.load_options_file(bad_path)
+        self.assertEqual(loaded_options, None)
+
     def test_options_file_should_load_json(self):
         temp_folder = tempfile.mkdtemp()
         temp_options_path = os.path.join(temp_folder, "dummy_options.json")
@@ -43,11 +58,11 @@ class ParameterParsingTest(unittest.TestCase):
         with open(temp_options_path, 'w') as temp_file:
             json.dump(dummy_options, temp_file)
 
-        loaded_options = capsule_tool.load_options_file(temp_options_path)
+        with open(temp_options_path, 'r') as options_file:
+            loaded_options = capsule_tool.load_options_file(options_file)
 
         self.assertEqual(loaded_options['signer']['option1'], 'value1')
         self.assertEqual(loaded_options['capsule']['option2'], 'value2')
-
 
     def test_options_file_should_load_yaml(self):
         temp_folder = tempfile.mkdtemp()
@@ -63,7 +78,8 @@ class ParameterParsingTest(unittest.TestCase):
         with open(temp_options_path, 'w') as temp_file:
             yaml.dump(dummy_options, temp_file)
 
-        loaded_options = capsule_tool.load_options_file(temp_options_path)
+        with open(temp_options_path, 'r') as options_file:
+            loaded_options = capsule_tool.load_options_file(options_file)
 
         self.assertEqual(loaded_options['signer']['option1'], 'value1')
         self.assertEqual(loaded_options['capsule']['option2'], 'value2')
@@ -90,6 +106,35 @@ class ParameterParsingTest(unittest.TestCase):
         self.assertEqual(final_options['signer']['option2'], 'value8')
         self.assertEqual(final_options['signer']['option_not'], 'orig_value')
 
-    @pytest.mark.skip(reason="test is incomplete")
     def test_full_options_path_should_work(self):
-        pass
+        # Save the options file.
+        temp_folder = tempfile.mkdtemp()
+        temp_options_path = os.path.join(temp_folder, "dummy_options.json")
+        dummy_options = {
+            'capsule': {
+                'option1': 'value1'
+            },
+            'signer': {
+                'option2': 'value2',
+                'option_not': 'orig_value'
+            }
+        }
+        with open(temp_options_path, 'w') as temp_file:
+            json.dump(dummy_options, temp_file)
+
+        # Parse the command parameters.
+        cli_params = ['--builtin_signer', 'pyopenssl']
+        cli_params += ['-o', temp_options_path]
+        cli_params += ['-dc', 'option1=value2']
+        cli_params += ['-dc', 'new_option=value3']
+        cli_params += ['-ds', 'option2=value7']
+        cli_params += ['-ds', 'option2=value8']
+        parsed_args = capsule_tool.get_cli_options(cli_params)
+
+        loaded_options = capsule_tool.load_options_file(parsed_args.options_file)
+        final_options = capsule_tool.update_options(loaded_options, parsed_args.capsule_options, parsed_args.signer_options)
+
+        self.assertEqual(final_options['capsule']['option1'], 'value2')
+        self.assertEqual(final_options['capsule']['new_option'], 'value3')
+        self.assertEqual(final_options['signer']['option2'], 'value8')
+        self.assertEqual(final_options['signer']['option_not'], 'orig_value')
