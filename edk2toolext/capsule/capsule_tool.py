@@ -28,7 +28,7 @@ def get_cli_options(args=None):
 
     parser.add_argument('-o', dest='options_file', type=argparse.FileType('r'), help='a filesystem path to a json/yaml file to load with default options. will be overriden by any options parameters')
 
-    # TODO: Add the binary blob argument.
+    parser.add_argument('capsule_payload', help='a filesystem path to the binary payload for the capsule')
 
     return parser.parse_args(args=args)
 
