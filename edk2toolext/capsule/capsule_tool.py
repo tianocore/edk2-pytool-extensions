@@ -4,7 +4,7 @@ import argparse
 import copy
 import yaml
 
-from edk2toolext.capsule import signing_helper
+from edk2toolext.capsule import signing_helper, capsule_helper
 
 TOOL_DESCRIPTION = """
 EDK Capsule Tool is a command-line tool to assist
@@ -19,13 +19,16 @@ def get_cli_options(args=None):
     # Add the group for the signer specifier.
     signer_group = parser.add_mutually_exclusive_group(required=True)
     signer_group.add_argument('--builtin_signer', choices=[signing_helper.PYOPENSSL_SIGNER, signing_helper.SIGNTOOL_SIGNER])
-    signer_group.add_argument('--local_signer', dest='signer_path')
-    signer_group.add_argument('--module_signer', dest='signer_pypath')
+    signer_group.add_argument('--local_signer', help='a filesystem path to a python module that can be loaded as the active signer')
+    signer_group.add_argument('--module_signer', help='a python dot-path to a signer module that can be loaded from the current pypath')
 
-    parser.add_argument('-dc', action='append', dest='capsule_options', type=str, default=[])
-    parser.add_argument('-ds', action='append', dest='signer_options', type=str, default=[])
+    options_help = 'add an option to the corresponding set. format is <option_name>=<option_value>'
+    parser.add_argument('-dc', action='append', dest='capsule_options', type=str, default=[], help=options_help)
+    parser.add_argument('-ds', action='append', dest='signer_options', type=str, default=[], help=options_help)
 
-    parser.add_argument('-o', dest='options_file', type=argparse.FileType('r'))
+    parser.add_argument('-o', dest='options_file', type=argparse.FileType('r'), help='a filesystem path to a json/yaml file to load with default options. will be overriden by any options parameters')
+
+    # TODO: Add the binary blob argument.
 
     return parser.parse_args(args=args)
 
@@ -58,4 +61,9 @@ def update_options(file_options, capsule_options, signer_options):
 
 def main():
     args = get_cli_options()
+    final_options = updated_options(load_options_file(args.options_file), args.capsule_options, args.signer_options)
+
+    # TODO: Determine what kind of signer module to load and load it.
+    # TODO: Figure out how to deal with the output files like INF and CAT.
+
     print(args)
