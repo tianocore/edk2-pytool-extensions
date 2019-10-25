@@ -13,7 +13,9 @@ def get_signer(type):
     return signtool_signer
   elif type == PYPATH_MODULE_SIGNER:
     # TODO: Import thing from the pypath.
+    pass
   elif type == LOCAL_MODULE_SIGNER:
     # TODO: Import file.
+    pass
   else:
     return None
