@@ -3,6 +3,8 @@ from edk2toolext.capsule import signtool_signer
 
 PYOPENSSL_SIGNER = 'pyopenssl'
 SIGNTOOL_SIGNER = 'signtool'
+# TODO: pypath_module
+# TODO: local_module
 
 def get_signer(type):
   if type == PYOPENSSL_SIGNER:

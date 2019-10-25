@@ -51,4 +51,4 @@ def build_capsule(capsule_data, capsule_options, signer_module, signer_options):
     uefi_capsule_header.PersistAcrossReset = True
     uefi_capsule_header.InitiateReset = True
 
-    return uefi_capsule_header.Encode()
+    return uefi_capsule_header
