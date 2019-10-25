@@ -1,31 +1,25 @@
-##
-# This plugin installs a helper that platform build can invoke RsaPkcs1Signer to sign a binary.
-#
-# Copyright (c) Microsoft Corporation
-#
-##
-
-from MuEnvironment import PluginManager
-from MuPythonLibrary.UtilityFunctions import RunCmd
-from OpenSSL import crypto
-
 import logging
 import os
 
-
-class Pkcs1SignerHelper(PluginManager.IUefiHelperPlugin):
-
-    def RegisterHelpers(self, obj):
-        fp = os.path.abspath(__file__)
-        obj.Register("Pkcs1TestSign", Pkcs1SignerHelper.Pkcs1TestSign, fp)
-
-    @staticmethod
-    def Pkcs1TestSign(fileToSign, sigFile, signingInfo):
-        logging.debug("Executing PKCS1 Signing on " + fileToSign)
-        logging.debug("Signing with " + signingInfo['pfxfile'])
-        with open(signingInfo['pfxfile'], "rb") as pfxfile, open(fileToSign, "rb") as inputData, open(sigFile, "wb") as outputSig:
-            pkcs12 = crypto.load_pkcs12(pfxfile.read())
-            outputSig.write(crypto.sign(pkcs12.get_privatekey(),inputData.read(), "sha256"))
-        return 0
+from OpenSSL import crypto
 
 
+def sign(data, signature_options, signer_options):
+    # NOTE: Currently, we only support the necessary algorithms for capsules.
+    if signature_options['sign_alg'] != 'pkcs12':
+        raise ValueError(f"Unsupported signature algorithm: {signature_options['sign_alg']}")
+    if signature_options['hash_alg'] != 'sha256':
+        raise ValueError(f"Unsupported hashing algorithm: {signature_options['hash_alg']}")
+
+    logging.debug("Executing PKCS1 Signing")
+
+    # If a key file is provided, use it for signing.
+    if 'key_file' in signer_options:
+        with open(signer_options['key_file'], 'rb') as key_file:
+            signer_options['key_data'] = key_file.read()
+
+    # TODO: Figure out OIDs.
+    # TODO: Figure out EKUs.
+
+    pkcs12 = crypto.load_pkcs12(signer_options['key_data'])
+    return crypto.sign(pkcs12.get_privatekey(), data, "sha256")

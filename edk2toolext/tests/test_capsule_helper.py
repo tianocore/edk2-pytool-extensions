@@ -8,63 +8,83 @@
 import os
 import unittest
 import logging
-from edk2toolext.capsule import capsule_signer
+from edk2toolext.capsule import capsule_helper, signing_helper
+
+TEST_CAPSULE_PATH_1 = "C:\\_uefi\\CapsuleDevTest\\UefiCapsule\\TestCapsulePayload.bin"
+TEST_CAPSULE_SIGNER_1 = "C:\\_uefi\\CapsuleDevTest\\TestCapsuleSigner.pfx"
+
+BUILD_CAPSULE_OPTIONS = {"esrt_guid": "80ddc468-57a0-43e5-9594-8ba2ce5c342e", "fw_version": "0x7fff000", "lsv_version": "0x1"}
+BUILD_CAPSULE_BINARY_PATH = "C:\\_uefi\\CapsuleDevTest\\RawCapsulePayload_Temp.bin"
+TEMP_CAPSULE_BINARY_PATH = "C:\\_uefi\\CapsuleDevTest\\DebugCapsuleOutput.bin"
 
 
 class CapsuleSignerTest(unittest.TestCase):
+    def test_should_pass_wrapped_blob_to_signing_module(self):
+        pass
 
-    should be able to pass a signing module
-    signature options should be passed to signing module
-    signer options should be passed to signing module
-    should be able to set the guid
+    # def test_should_pass_signer_options_to_signing_module(self):
+    #     dummy_signer_options = {
+    #         'option_a': 123123,
+    #         'option_b': "blash"
+    #     }
+    #     signer_exec_check = False
+    #     def dummy_signer_sign_function(data, signature_options, signer_options):
+    #         self.assertEqual(signer_options, dummy_signer_options)
+    #         signer_exec_check = True
+    #     dummy_signer = Namespace(sign = dummy_signer_sign_function)
 
-    should be able to generate a production equivalent capsule
+    #     capsule_helper.build_capsule(b'030303', {}, dummy_signer, dummy_signer_options)
 
-    enumerate all of the things that need to be passed for this signer
+    #     self.assertTrue(signer_exec_check)
 
-    def test_can_create_console_logger(self):
-        console_logger = capsule_signer.setup_console_logging(False, False)
-        self.assertIsNot(console_logger, None, "We created a console logger")
-        capsule_signer.stop_logging(console_logger)
+    def test_should_be_able_to_generate_a_production_equivalent_capsule(self):
+        with open(BUILD_CAPSULE_BINARY_PATH, 'rb') as data_file:
+            capsule_data = data_file.read()
 
-    def test_can_create_txt_logger(self):
-        test_dir = tempfile.mkdtemp()
-        location, txt_logger = capsule_signer.setup_txt_logger(test_dir, "test_txt")
-        logging.info("Testing")
-        self.assertTrue(os.path.isfile(location), "We should have created a file")
-        self.assertIsNot(txt_logger, None, "We created a txt logger")
-        capsule_signer.stop_logging(txt_logger)
+        capsule_options = {
+            "esrt_guid": "80ddc468-57a0-43e5-9594-8ba2ce5c342e",
+            "fw_version": "0x7fff000",
+            "lsv_version": "0x1"
+        }
+        signer_options = {
+            'key_file': TEST_CAPSULE_SIGNER_1,
+            'eku': "1.3.6.1.4.1.311.76.9.1.36"
+        }
+        wdksigner = signing_helper.get_signer(signing_helper.SIGNTOOL_SIGNER)
 
-    def test_can_create_md_logger(self):
-        test_dir = tempfile.mkdtemp()
-        location, txt_logger = capsule_signer.setup_markdown_logger(test_dir, "test_md")
-        logging.info("Testing")
-        self.assertTrue(os.path.isfile(location), "We should have created a file")
-        self.assertIsNot(txt_logger, None, "We created a txt logger")
-        capsule_signer.stop_logging(txt_logger)
+        final_capsule = capsule_helper.build_capsule(capsule_data, capsule_options, wdksigner, signer_options)
 
-    def test_none_to_close(self):
-        capsule_signer.stop_logging(None)
+        with open(TEST_CAPSULE_PATH_1, 'rb') as comparison_file:
+            comparison_data = comparison_file.read()
 
-    def test_can_close_logger(self):
-        test_dir = tempfile.mkdtemp()
-        location, txt_logger = capsule_signer.setup_txt_logger(test_dir, "test_close")
-        logging.critical("Testing")
-        self.assertTrue(os.path.isfile(location), "We should have created a file")
-        file = open(location, "r")
-        num_lines = len(file.readlines())
-        file.close()
-        self.assertEqual(num_lines, 1, "We should only have one line")
-        capsule_signer.stop_logging(txt_logger)
-        logging.critical("Test 2")
-        file = open(location, "r")
-        num_lines2 = len(file.readlines())
-        file.close()
-        self.assertEqual(num_lines, num_lines2, "We should only have one line")
+        self.assertEqual(final_capsule, comparison_data)
 
-class SigningHelperTest(unittest.TestCase):
-    should be able to fetch a builtin signer module
-    should be able to fetch a user provided signer module
+
+# class SigningHelperTest(unittest.TestCase):
+#     def test_should_be_able_to_fetch_a_builtin_signer_module(self):
+#         pysigner = signing_helper.get_signer(signing_helper.PYOPENSSL_SIGNER)
+#         self.assertTrue(hasattr(pysigner, 'sign'))
+
+#         signtoolsigner = signing_helper.get_signer(signing_helper.SIGNTOOL_SIGNER)
+#         self.assertTrue(hasattr(signtoolsigner, 'sign'))
+
+#     def test_should_be_able_to_fetch_a_user_provided_signer_module(self):
+#         self.assertTrue(False)
+
+    # def test_should_be_able_to_pass_a_signing_module(self):
+    #     self.assertTrue(False)
+
+    # def test_signature_options_should_be_passed_to_signing_module(self):
+    #     self.assertTrue(False)
+
+    # def test_signer_options_should_be_passed_to_signing_module(self):
+    #     self.assertTrue(False)
+
+# NOTE: These tests may not run on non-Windows or without the WDK installed.
+# class SigntoolSignerModuleTest(unittest.TestCase):
+#     def test_module_should_be_able_to_locate_signtool(self):
+#         signtoolsigner = signing_helper.get_signer(signing_helper.SIGNTOOL_SIGNER)
+#         self.assertTrue(os.path.isfile(signtoolsigner.get_signtool_path()))
 
 if __name__ == '__main__':
     unittest.main()
