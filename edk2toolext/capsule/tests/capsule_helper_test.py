@@ -93,31 +93,5 @@ class CapsuleSignerTest(unittest.TestCase):
         self.assertFalse(True)
 
 
-# class SigningHelperTest(unittest.TestCase):
-#     def test_should_be_able_to_fetch_a_builtin_signer_module(self):
-#         pysigner = signing_helper.get_signer(signing_helper.PYOPENSSL_SIGNER)
-#         self.assertTrue(hasattr(pysigner, 'sign'))
-
-#         signtoolsigner = signing_helper.get_signer(signing_helper.SIGNTOOL_SIGNER)
-#         self.assertTrue(hasattr(signtoolsigner, 'sign'))
-
-#     def test_should_be_able_to_fetch_a_user_provided_signer_module(self):
-#         self.assertTrue(False)
-
-    # def test_should_be_able_to_pass_a_signing_module(self):
-    #     self.assertTrue(False)
-
-    # def test_signature_options_should_be_passed_to_signing_module(self):
-    #     self.assertTrue(False)
-
-    # def test_signer_options_should_be_passed_to_signing_module(self):
-    #     self.assertTrue(False)
-
-# NOTE: These tests may not run on non-Windows or without the WDK installed.
-# class SigntoolSignerModuleTest(unittest.TestCase):
-#     def test_module_should_be_able_to_locate_signtool(self):
-#         signtoolsigner = signing_helper.get_signer(signing_helper.SIGNTOOL_SIGNER)
-#         self.assertTrue(os.path.isfile(signtoolsigner.get_signtool_path()))
-
 if __name__ == '__main__':
     unittest.main()
