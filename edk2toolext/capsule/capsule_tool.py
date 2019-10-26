@@ -4,6 +4,7 @@ import argparse
 import copy
 import yaml
 import logging
+import yaml
 
 from edk2toolext.capsule import signing_helper, capsule_helper
 
@@ -28,6 +29,7 @@ def get_cli_options(args=None):
     parser.add_argument('-ds', action='append', dest='signer_options', type=str, default=[], help=options_help)
 
     parser.add_argument('-o', dest='options_file', type=argparse.FileType('r'), help='a filesystem path to a json/yaml file to load with default options. will be overriden by any options parameters')
+    parser.add_argument('-f', dest='save_final_options', default=False, action='store_true', help='optional flag to request that final tool options be saved in a file in the output directory')
 
     parser.add_argument('capsule_payload', type=argparse.FileType('rb'), help='a filesystem path to the binary payload for the capsule')
     parser.add_argument('output_dir', help='a filesystem path to the directory to save output files. if directory does not exist, entire directory path will be created')
@@ -65,8 +67,14 @@ def main():
     args = get_cli_options()
     final_options = update_options(load_options_file(args.options_file), args.capsule_options, args.signer_options)
 
-    # TODO: Determine what kind of signer module to load and load it.
-    # TODO: Figure out how to deal with the output files like INF and CAT.
+    # Verify minimum capsule options.
+    required_capsule_options = ('fw_name', 'fw_version', 'lsv_version', 'fw_version_string', 'provider_name', 'fw_description', 'esrt_guid')
+    missing_capsule_options = tuple(option for option in required_capsule_options if option not in final_options['capsule'])
+    if len(missing_capsule_options) > 0:
+        logging.error("Missing required capsule options: " + ", ".join(missing_capsule_options) + "!")
+        logging.error("Options MUST be provided in either the options file or on the command line.")
+        sys.exit(1)
+
     # Next, we're gonna need a signer.
     if args.builtin_signer is not None:
         signer = signing_helper.get_signer(args.builtin_signer)
@@ -82,4 +90,9 @@ def main():
     capsule_helper.save_capsule(uefi_capsule_header, final_options['capsule'], args.output_dir)
 
     # TODO: Figure out how to deal with the output files like INF and CAT.
-    # TODO: Save the final options for provenance?
+
+    # If requested, save the final options for provenance.
+    if args.save_final_options:
+        final_options_file = os.path.join(args.output_dir, 'Final_Capsule_Options.yaml')
+        with open(final_options_file, 'w') as options_file:
+            yaml.dump(final_options, options_file, indent=2)

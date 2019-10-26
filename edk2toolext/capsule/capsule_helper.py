@@ -57,6 +57,10 @@ def build_capsule(capsule_data, capsule_options, signer_module, signer_options):
 def get_capsule_file_name(capsule_options):
     return f"{capsule_options['fw_name']}_{capsule_options['fw_version_string']}.bin"
 
+def get_expanded_version_string(version_string):
+    # TODO: This.
+    return version_string
+
 def save_capsule(uefi_capsule_header, capsule_options, save_path):
     # First, create the entire save path.
     os.makedirs(save_path, exist_ok=True)
@@ -65,3 +69,7 @@ def save_capsule(uefi_capsule_header, capsule_options, save_path):
     capsule_file_path = os.path.join(save_path, get_capsule_file_name(capsule_options))
     with open(capsule_file_path, 'wb') as capsule_file:
         capsule_file.write(uefi_capsule_header.Encode())
+
+# TODO: Deal with optional parameters when creating the INF file.
+# OPTIONAL: is rollback, arch, os, mfg name
+# TODO: Expand the version string prior to creating INF file.
