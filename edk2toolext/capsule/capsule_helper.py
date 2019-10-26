@@ -1,4 +1,5 @@
 import uuid
+import os
 # TODO: Replace this step with a new function from within
 #       FmpAuthHeaderClass().
 import struct
@@ -52,3 +53,15 @@ def build_capsule(capsule_data, capsule_options, signer_module, signer_options):
     uefi_capsule_header.InitiateReset = True
 
     return uefi_capsule_header
+
+def get_capsule_file_name(capsule_options):
+    return f"{capsule_options['fw_name']}_{capsule_options['fw_version_string']}.bin"
+
+def save_capsule(uefi_capsule_header, capsule_options, save_path):
+    # First, create the entire save path.
+    os.makedirs(save_path, exist_ok=True)
+
+    # Then save the file.
+    capsule_file_path = os.path.join(save_path, get_capsule_file_name(capsule_options))
+    with open(capsule_file_path, 'wb') as capsule_file:
+        capsule_file.write(uefi_capsule_header.Encode())
