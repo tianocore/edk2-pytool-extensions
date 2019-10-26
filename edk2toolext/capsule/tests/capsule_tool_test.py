@@ -15,27 +15,30 @@ class ParameterParsingTest(unittest.TestCase):
 
     def test_capsule_options_should_be_passable(self):
         cli_params = ['--builtin_signer', 'pyopenssl']
-        parsed_args = capsule_tool.get_cli_options(cli_params)
+        parsed_args = capsule_tool.get_cli_options(cli_params + ['dummy_payload.bin'])
         self.assertEqual(len(parsed_args.capsule_options), 0)
 
         cli_params += ['-dc', 'option1=value1']
         cli_params += ['-dc', 'option2=value2']
+        cli_params += ['dummy_payload.bin']
         parsed_args = capsule_tool.get_cli_options(cli_params)
         self.assertEqual(len(parsed_args.capsule_options), 2)
 
     def test_signer_options_should_be_passable(self):
         cli_params = ['--builtin_signer', 'pyopenssl']
-        parsed_args = capsule_tool.get_cli_options(cli_params)
+        parsed_args = capsule_tool.get_cli_options(cli_params + ['dummy_payload.bin'])
         self.assertEqual(len(parsed_args.signer_options), 0)
 
         cli_params += ['-ds', 'option1=value1']
         cli_params += ['-ds', 'option2=value2']
+        cli_params += ['dummy_payload.bin']
         parsed_args = capsule_tool.get_cli_options(cli_params)
         self.assertEqual(len(parsed_args.signer_options), 2)
 
     def test_should_not_accept_an_invalid_path(self):
         cli_params = ['--builtin_signer', 'pyopenssl']
         cli_params += ['-o', 'not_a_path.bin']
+        cli_params += ['dummy_payload.bin']
         with self.assertRaises(SystemExit):
             parsed_args = capsule_tool.get_cli_options(cli_params)
 
@@ -129,6 +132,7 @@ class ParameterParsingTest(unittest.TestCase):
         cli_params += ['-dc', 'new_option=value3']
         cli_params += ['-ds', 'option2=value7']
         cli_params += ['-ds', 'option2=value8']
+        cli_params += ['dummy_payload.bin']
         parsed_args = capsule_tool.get_cli_options(cli_params)
 
         loaded_options = capsule_tool.load_options_file(parsed_args.options_file)
