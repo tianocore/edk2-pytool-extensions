@@ -13,8 +13,10 @@ from edk2toollib.uefi.edk2.fmp_payload_header import FmpPayloadHeaderClass
 def get_capsule_file_name(capsule_options):
     return f"{capsule_options['fw_name']}_{capsule_options['fw_version_string']}.bin"
 
-def get_expanded_version_string(version_string):
-    # TODO: This.
+def get_normalized_version_string(version_string):
+    # 19H1 HLK requires a 4 digit version string, or it will fail
+    while (version_string.count('.') < 3):
+        version_string += '.0'
     return version_string
 
 def get_default_arch():
@@ -79,7 +81,7 @@ def save_capsule(uefi_capsule_header, capsule_options, save_path):
 
 def create_inf_file(capsule_options, save_path):
     # Expand the version string prior to creating INF file.
-    capsule_options['fw_version_string'] = get_expanded_version_string(capsule_options['fw_version_string'])
+    capsule_options['fw_version_string'] = get_normalized_version_string(capsule_options['fw_version_string'])
 
     # Deal with optional parameters when creating the INF file.
     capsule_options['is_rollback'] = capsule_options.get('is_rollback', False)
