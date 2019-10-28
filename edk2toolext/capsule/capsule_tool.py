@@ -89,7 +89,11 @@ def main():
     # Save the capsule.
     capsule_helper.save_capsule(uefi_capsule_header, final_options['capsule'], args.output_dir)
 
-    # TODO: Figure out how to deal with the output files like INF and CAT.
+    # Build the INF file.
+    capsule_helper.create_inf_file(final_options['capsule'], args.output_dir)
+
+    # TODO: Build the CAT file.
+    # TODO: Sign the CAT file?
 
     # If requested, save the final options for provenance.
     if args.save_final_options:

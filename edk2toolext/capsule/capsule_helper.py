@@ -4,6 +4,7 @@ import os
 #       FmpAuthHeaderClass().
 import struct
 
+from edk2toollib.windows.capsule import inf_generator
 from edk2toollib.uefi.uefi_capsule_header import UefiCapsuleHeaderClass
 from edk2toollib.uefi.fmp_capsule_header import FmpCapsuleHeaderClass, FmpCapsuleImageHeaderClass
 from edk2toollib.uefi.fmp_auth_header import FmpAuthHeaderClass
@@ -70,6 +71,31 @@ def save_capsule(uefi_capsule_header, capsule_options, save_path):
     with open(capsule_file_path, 'wb') as capsule_file:
         capsule_file.write(uefi_capsule_header.Encode())
 
-# TODO: Deal with optional parameters when creating the INF file.
-# OPTIONAL: is rollback, arch, os, mfg name
-# TODO: Expand the version string prior to creating INF file.
+def create_inf_file(capsule_options, save_path):
+    # Expand the version string prior to creating INF file.
+    capsule_options['fw_version_string'] = get_expanded_version_string(capsule_options['fw_version_string'])
+
+    # Deal with optional parameters when creating the INF file.
+    capsule_options['is_rollback'] = capsule_options.get('is_rollback', False)
+    capsule_options['arch'] = capsule_options.get('arch', 'amd64')
+    capsule_options['os_string'] = capsule_options.get('os_string', 'Win10')
+    capsule_options['mfg_name'] = capsule_options.get('mfg_name', capsule_options['provider_name'])
+
+    # Create the INF.
+    infgenerator = inf_generator.InfGenerator(
+        capsule_options['fw_name'],
+        capsule_options['provider_name'],
+        capsule_options['esrt_guid'],
+        capsule_options['arch'],
+        capsule_options['fw_description'],
+        capsule_options['fw_version_string'],
+        capsule_options['fw_version']
+    )
+    infgenerator.Manufacturer = capsule_options['mfg_name']
+    ret = infgenerator.MakeInf(
+        os.path.join(save_path, f"{capsule_options['fw_name']}.inf"),
+        get_capsule_file_name(capsule_options),
+        capsule_options['is_rollback']
+    )
+    if(ret != 0):
+        raise RuntimeError("CreateWindowsInf Failed with errorcode %d!" % ret)
