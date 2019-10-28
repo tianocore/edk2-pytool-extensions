@@ -92,7 +92,9 @@ def main():
     # Build the INF file.
     capsule_helper.create_inf_file(final_options['capsule'], args.output_dir)
 
-    # TODO: Build the CAT file.
+    # Build the CAT file.
+    capsule_helper.create_cat_file(final_options['capsule'], args.output_dir)
+
     # TODO: Sign the CAT file?
 
     # If requested, save the final options for provenance.
