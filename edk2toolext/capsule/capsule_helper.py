@@ -86,7 +86,6 @@ def create_inf_file(capsule_options, save_path):
     # Deal with optional parameters when creating the INF file.
     capsule_options['is_rollback'] = capsule_options.get('is_rollback', False)
     capsule_options['arch'] = capsule_options.get('arch', get_default_arch())
-    capsule_options['os_string'] = capsule_options.get('os_string', get_default_os_string())
     capsule_options['mfg_name'] = capsule_options.get('mfg_name', capsule_options['provider_name'])
 
     # Create the INF.
