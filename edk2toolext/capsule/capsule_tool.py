@@ -1,4 +1,4 @@
-## @file capsule_tool.py
+# @file capsule_tool.py
 # This module contains the CLI interface for easily creating EDK FMP UEFI capsules
 # from payload files.
 #
@@ -33,7 +33,6 @@ import argparse
 import copy
 import yaml
 import logging
-import yaml
 
 from edk2toolext.capsule import signing_helper, capsule_helper
 
@@ -44,24 +43,32 @@ and any number of options to produce a properly constructed
 capsule that can be parsed by the EDK2 FMP Capsule infrastructure.
 """
 
+
 def get_cli_options(args=None):
     parser = argparse.ArgumentParser(description=TOOL_DESCRIPTION)
 
     # Add the group for the signer specifier.
     signer_group = parser.add_mutually_exclusive_group(required=True)
-    signer_group.add_argument('--builtin_signer', choices=[signing_helper.PYOPENSSL_SIGNER, signing_helper.SIGNTOOL_SIGNER])
-    signer_group.add_argument('--local_signer', help='a filesystem path to a python module that can be loaded as the active signer')
-    signer_group.add_argument('--module_signer', help='a python dot-path to a signer module that can be loaded from the current pypath')
+    signer_group.add_argument(
+        '--builtin_signer', choices=[signing_helper.PYOPENSSL_SIGNER, signing_helper.SIGNTOOL_SIGNER])
+    signer_group.add_argument(
+        '--local_signer', help='a filesystem path to a python module that can be loaded as the active signer')
+    signer_group.add_argument(
+        '--module_signer', help='a python dot-path to a signer module that can be loaded from the current pypath')
 
     options_help = 'add an option to the corresponding set. format is <option_name>=<option_value>'
     parser.add_argument('-dc', action='append', dest='capsule_options', type=str, default=[], help=options_help)
     parser.add_argument('-ds', action='append', dest='signer_options', type=str, default=[], help=options_help)
 
-    parser.add_argument('-o', dest='options_file', type=argparse.FileType('r'), help='a filesystem path to a json/yaml file to load with default options. will be overriden by any options parameters')
-    parser.add_argument('-f', dest='save_final_options', default=False, action='store_true', help='optional flag to request that final tool options be saved in a file in the output directory')
+    parser.add_argument('-o', dest='options_file', type=argparse.FileType('r'),
+                        help='a filesystem path to a json/yaml file to load with default options. will be overriden by any options parameters')
+    parser.add_argument('-f', dest='save_final_options', default=False, action='store_true',
+                        help='optional flag to request that final tool options be saved in a file in the output directory')
 
-    parser.add_argument('capsule_payload', type=argparse.FileType('rb'), help='a filesystem path to the binary payload for the capsule')
-    parser.add_argument('output_dir', help='a filesystem path to the directory to save output files. if directory does not exist, entire directory path will be created')
+    parser.add_argument('capsule_payload', type=argparse.FileType('rb'),
+                        help='a filesystem path to the binary payload for the capsule')
+    parser.add_argument('output_dir',
+                        help='a filesystem path to the directory to save output files. if directory does not exist, entire directory path will be created')
 
     return parser.parse_args(args=args)
 
@@ -97,8 +104,10 @@ def main():
     final_options = update_options(load_options_file(args.options_file), args.capsule_options, args.signer_options)
 
     # Verify minimum capsule options.
-    required_capsule_options = ('fw_name', 'fw_version', 'lsv_version', 'fw_version_string', 'provider_name', 'fw_description', 'esrt_guid')
-    missing_capsule_options = tuple(option for option in required_capsule_options if option not in final_options['capsule'])
+    required_capsule_options = ('fw_name', 'fw_version', 'lsv_version', 'fw_version_string',
+                                'provider_name', 'fw_description', 'esrt_guid')
+    missing_capsule_options = tuple(option for option in required_capsule_options
+                                    if option not in final_options['capsule'])
     if len(missing_capsule_options) > 0:
         logging.error("Missing required capsule options: " + ", ".join(missing_capsule_options) + "!")
         logging.error("Options MUST be provided in either the options file or on the command line.")
@@ -113,7 +122,12 @@ def main():
         signer = signing_helper.get_signer(signing_helper.LOCAL_MODULE_SIGNER, args.local_signer)
 
     # Now, build the capsule.
-    uefi_capsule_header = capsule_helper.build_capsule(args.capsule_payload.read(), final_options['capsule'], signer, final_options['signer'])
+    uefi_capsule_header = capsule_helper.build_capsule(
+        args.capsule_payload.read(),
+        final_options['capsule'],
+        signer,
+        final_options['signer']
+    )
 
     # Save the capsule.
     capsule_helper.save_capsule(uefi_capsule_header, final_options['capsule'], args.output_dir)

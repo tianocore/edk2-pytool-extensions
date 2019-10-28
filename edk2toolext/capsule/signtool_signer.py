@@ -1,11 +1,11 @@
 import os
-import logging
 import tempfile
 
 from edk2toollib.windows import locate_tools
 from edk2toollib.utility_functions import RunCmd
 
 GLOBAL_SIGNTOOL_PATH = None
+
 
 def get_signtool_path():
     global GLOBAL_SIGNTOOL_PATH
@@ -14,6 +14,7 @@ def get_signtool_path():
         GLOBAL_SIGNTOOL_PATH = locate_tools.FindToolInWinSdk('signtool.exe')
 
     return GLOBAL_SIGNTOOL_PATH
+
 
 def sign(data, signature_options, signer_options):
     # NOTE: Currently, we only support the necessary algorithms for capsules.
@@ -60,6 +61,7 @@ def sign(data, signature_options, signer_options):
     out_file.close()
 
     return out_data
+
 
 def sign_in_place(sign_file_path, signature_options, signer_options):
     # NOTE: Currently, we only support the necessary algorithms for capsules.

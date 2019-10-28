@@ -28,7 +28,6 @@
 
 import os
 import unittest
-import logging
 import tempfile
 import json
 import yaml
@@ -47,15 +46,16 @@ DUMMY_OPTIONS = {
 DUMMY_OPTIONS_FILE_NAME = 'dummy_options_file'
 DUMMY_PAYLOAD_FILE_NAME = 'dummy_payload'
 
+
 class ParameterParsingTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # We'll use the one-time setup to create
         # any temporary test files we'll need.
         cls.temp_dir = tempfile.mkdtemp()
-        cls.dummy_json_options = os.path.join(cls.temp_dir, DUMMY_OPTIONS_FILE_NAME+".json")
-        cls.dummy_yaml_options = os.path.join(cls.temp_dir, DUMMY_OPTIONS_FILE_NAME+".yaml")
-        cls.dummy_payload = os.path.join(cls.temp_dir, DUMMY_PAYLOAD_FILE_NAME+".bin")
+        cls.dummy_json_options = os.path.join(cls.temp_dir, DUMMY_OPTIONS_FILE_NAME + ".json")
+        cls.dummy_yaml_options = os.path.join(cls.temp_dir, DUMMY_OPTIONS_FILE_NAME + ".yaml")
+        cls.dummy_payload = os.path.join(cls.temp_dir, DUMMY_PAYLOAD_FILE_NAME + ".bin")
 
         with open(cls.dummy_json_options, 'w') as dummy_file:
             json.dump(DUMMY_OPTIONS, dummy_file)
@@ -95,7 +95,7 @@ class ParameterParsingTest(unittest.TestCase):
         cli_params += ['-o', 'not_a_path.bin']
         cli_params += [self.dummy_payload]
         with self.assertRaises(SystemExit):
-            parsed_args = capsule_tool.get_cli_options(cli_params)
+            capsule_tool.get_cli_options(cli_params)
 
     def test_should_not_load_an_invalid_path(self):
         bad_path = 'not_a_path.bin'
@@ -140,7 +140,11 @@ class ParameterParsingTest(unittest.TestCase):
         parsed_args = capsule_tool.get_cli_options(cli_params)
 
         loaded_options = capsule_tool.load_options_file(parsed_args.options_file)
-        final_options = capsule_tool.update_options(loaded_options, parsed_args.capsule_options, parsed_args.signer_options)
+        final_options = capsule_tool.update_options(
+            loaded_options,
+            parsed_args.capsule_options,
+            parsed_args.signer_options
+        )
 
         self.assertEqual(final_options['capsule']['option1'], 'value2')
         self.assertEqual(final_options['capsule']['new_option'], 'value3')

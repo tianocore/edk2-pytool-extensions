@@ -27,11 +27,11 @@
 ##
 
 
-import os
-import uuid
+# import os
+# import uuid
 import unittest
-import logging
-from edk2toolext.capsule import capsule_helper, signing_helper
+# import logging
+# from edk2toolext.capsule import capsule_helper, signing_helper
 
 # TEST_CAPSULE_PATH_1 = "C:\\_uefi\\CapsuleDevTest\\UefiCapsule\\TestCapsulePayload.bin"
 # TEST_CAPSULE_SIGNER_1 = "C:\\_uefi\\CapsuleDevTest\\TestCapsuleSigner.pfx"

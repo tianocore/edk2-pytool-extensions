@@ -27,11 +27,10 @@
 
 
 import os
-import pytest
 import unittest
-import logging
 
 from edk2toolext.capsule import signing_helper
+
 
 class SignerLocationTests(unittest.TestCase):
     def test_should_be_able_to_fetch_a_builtin_signer_module(self):
@@ -42,7 +41,10 @@ class SignerLocationTests(unittest.TestCase):
         self.assertTrue(hasattr(signtoolsigner, 'sign'))
 
     def test_should_be_able_to_pass_a_signing_module(self):
-        pysigner = signing_helper.get_signer(signing_helper.PYPATH_MODULE_SIGNER, 'edk2toolext.capsule.pyopenssl_signer')
+        pysigner = signing_helper.get_signer(
+            signing_helper.PYPATH_MODULE_SIGNER,
+            'edk2toolext.capsule.pyopenssl_signer'
+        )
         self.assertTrue(hasattr(pysigner, 'sign'))
 
     def test_should_be_able_to_fetch_a_user_provided_signer_module(self):

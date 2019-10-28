@@ -40,8 +40,10 @@ from edk2toollib.uefi.fmp_capsule_header import FmpCapsuleHeaderClass, FmpCapsul
 from edk2toollib.uefi.fmp_auth_header import FmpAuthHeaderClass
 from edk2toollib.uefi.edk2.fmp_payload_header import FmpPayloadHeaderClass
 
+
 def get_capsule_file_name(capsule_options):
     return f"{capsule_options['fw_name']}_{capsule_options['fw_version_string']}.bin"
+
 
 def get_normalized_version_string(version_string):
     # 19H1 HLK requires a 4 digit version string, or it will fail
@@ -49,11 +51,14 @@ def get_normalized_version_string(version_string):
         version_string += '.0'
     return version_string
 
+
 def get_default_arch():
     return 'amd64'
 
+
 def get_default_os_string():
     return 'Win10'
+
 
 def build_capsule(capsule_data, capsule_options, signer_module, signer_options):
     # Start building the capsule as we go.
@@ -100,6 +105,7 @@ def build_capsule(capsule_data, capsule_options, signer_module, signer_options):
 
     return uefi_capsule_header
 
+
 def save_capsule(uefi_capsule_header, capsule_options, save_path):
     # First, create the entire save path.
     os.makedirs(save_path, exist_ok=True)
@@ -108,6 +114,7 @@ def save_capsule(uefi_capsule_header, capsule_options, save_path):
     capsule_file_path = os.path.join(save_path, get_capsule_file_name(capsule_options))
     with open(capsule_file_path, 'wb') as capsule_file:
         capsule_file.write(uefi_capsule_header.Encode())
+
 
 def create_inf_file(capsule_options, save_path):
     # Expand the version string prior to creating INF file.
@@ -137,6 +144,7 @@ def create_inf_file(capsule_options, save_path):
     if(ret != 0):
         raise RuntimeError("MakeInf Failed with errorcode %d!" % ret)
 
+
 def create_cat_file(capsule_options, save_path):
     # Deal with optional parameters when creating the CAT file.
     capsule_options['arch'] = capsule_options.get('arch', get_default_arch())
@@ -152,6 +160,3 @@ def create_cat_file(capsule_options, save_path):
     )
     if(ret != 0):
         raise RuntimeError("MakeCat Failed with errorcode %d!" % ret)
-
-
-    pass
