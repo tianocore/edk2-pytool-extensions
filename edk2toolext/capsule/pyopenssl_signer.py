@@ -22,4 +22,4 @@ def sign(data, signature_options, signer_options):
     # TODO: Figure out EKUs.
 
     pkcs12 = crypto.load_pkcs12(signer_options['key_data'])
-    return crypto.sign(pkcs12.get_privatekey(), data, "sha256")
+    return crypto.sign(pkcs12.get_privatekey(), data, signature_options['hash_alg'])

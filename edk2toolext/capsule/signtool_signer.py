@@ -35,7 +35,7 @@ def sign(data, signature_options, signer_options):
 
     # Start building the parameters for the call.
     signtool_params = ['sign']
-    signtool_params += ['/fd', 'sha256']
+    signtool_params += ['/fd', signature_options['hash_alg']]
     signtool_params += ['/p7ce', 'DetachedSignedData']
     signtool_params += ['/p7', f'"{temp_folder}"']
     signtool_params += ['/f', f"\"{signer_options['key_file']}\""]
@@ -60,3 +60,30 @@ def sign(data, signature_options, signer_options):
     out_file.close()
 
     return out_data
+
+def sign_in_place(sign_file_path, signature_options, signer_options):
+    # NOTE: Currently, we only support the necessary algorithms for capsules.
+    if signature_options['sign_alg'] != 'pkcs12':
+        raise ValueError(f"Unsupported signature algorithm: {signature_options['sign_alg']}!")
+    if signature_options['hash_alg'] != 'sha256':
+        raise ValueError(f"Unsupported hashing algorithm: {signature_options['hash_alg']}!")
+    if 'key_file' not in signer_options:
+        raise ValueError("Must supply a key_file in signer_options for Signtool!")
+
+    # Start building the parameters for the call.
+    signtool_params = ['sign', '/a']
+    signtool_params += ['/fd', signature_options['hash_alg']]
+    signtool_params += ['/f', f"\"{signer_options['key_file']}\""]
+    # if 'oid' in signer_options:
+    #     signtool_params += ['/p7co', signer_options['oid']]
+    # if 'eku' in signer_options:
+    #     signtool_params += ['/u', signer_options['eku']]
+    if 'key_pass' in signer_options:
+        signtool_params += ['/p', signer_options['key_pass']]
+    # Add basic options.
+    signtool_params += ['/debug', '/v', f'"{sign_file_path}"']
+
+    # Make the call to Signtool.
+    ret = RunCmd(get_signtool_path(), " ".join(signtool_params))
+    if ret != 0:
+        raise RuntimeError(f"Signtool.exe returned with error: {ret}!")
