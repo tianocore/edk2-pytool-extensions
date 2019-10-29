@@ -70,14 +70,14 @@ def get_cli_options(args=None):
     parser.add_argument('-ds', action='append', dest='signer_options', type=str, default=[], help=options_help)
 
     parser.add_argument('-o', dest='options_file', type=argparse.FileType('r'),
-                        help='a filesystem path to a json/yaml file to load with default options. will be overriden by any options parameters')
+                        help='a filesystem path to a json/yaml file to load with default options. will be overriden by any options parameters') # noqa
     parser.add_argument('-f', dest='save_final_options', default=False, action='store_true',
-                        help='optional flag to request that final tool options be saved in a file in the output directory')
+                        help='optional flag to request that final tool options be saved in a file in the output directory')                     # noqa
 
     parser.add_argument('capsule_payload', type=argparse.FileType('rb'),
                         help='a filesystem path to the binary payload for the capsule')
     parser.add_argument('output_dir',
-                        help='a filesystem path to the directory to save output files. if directory does not exist, entire directory path will be created')
+                        help='a filesystem path to the directory to save output files. if directory does not exist, entire directory path will be created') # noqa
 
     return parser.parse_args(args=args)
 
@@ -99,7 +99,6 @@ def update_options(file_options, capsule_options, signer_options):
     from the command line. Command line options will be organized by type (into capsule_options
     or signer_options) and in lists of strings that look like '<option_name>=<option_value>'
     '''
-
     if file_options is not None:
         updated_options = copy.copy(file_options)
     else:
