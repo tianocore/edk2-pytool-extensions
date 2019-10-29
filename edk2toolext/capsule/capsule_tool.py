@@ -37,17 +37,26 @@ import logging
 from edk2toolext.capsule import signing_helper, capsule_helper
 
 TOOL_DESCRIPTION = """
-EDK Capsule Tool is a command-line tool to assist
-with the production of UEFI capsules. It takes in a payload
-and any number of options to produce a properly constructed
-capsule that can be parsed by the EDK2 FMP Capsule infrastructure.
-"""
+EDK Capsule Tool is a command-line tool to assist with the production of UEFI
+capsules. It takes in a payload and any number of options to produce a
+properly constructed capsule that can be parsed by the EDK2 FMP Capsule
+infrastructure.
+
+An example call might look like:
+%s -o /path/to/config.yaml -ds key_file="/other/signer/key/file.pfx"
+    /path/to/payload.bin /path/to/output
+""" % (os.path.basename(sys.argv[0]),)
 
 
 def get_cli_options(args=None):
-    parser = argparse.ArgumentParser(description=TOOL_DESCRIPTION)
+    '''
+    will parse the primary options from the command line. If provided, will take the options as
+    an array in the first parameter
+    '''
+    parser = argparse.ArgumentParser(description=TOOL_DESCRIPTION, formatter_class=argparse.RawDescriptionHelpFormatter)
 
     # Add the group for the signer specifier.
+    # NOTE: At least one signer type is required!
     signer_group = parser.add_mutually_exclusive_group(required=True)
     signer_group.add_argument(
         '--builtin_signer', choices=[signing_helper.PYOPENSSL_SIGNER, signing_helper.SIGNTOOL_SIGNER])
@@ -74,6 +83,10 @@ def get_cli_options(args=None):
 
 
 def load_options_file(in_file):
+    '''
+    takes in a string to a file path and loads it as a json-/yaml-encoded options
+    file, returning the contents in a dictionary
+    '''
     if not hasattr(in_file, 'read'):
         return None
 
@@ -81,6 +94,12 @@ def load_options_file(in_file):
 
 
 def update_options(file_options, capsule_options, signer_options):
+    '''
+    takes in a pre-loaded options dictionary and walks add all corresponding options
+    from the command line. Command line options will be organized by type (into capsule_options
+    or signer_options) and in lists of strings that look like '<option_name>=<option_value>'
+    '''
+
     if file_options is not None:
         updated_options = copy.copy(file_options)
     else:
