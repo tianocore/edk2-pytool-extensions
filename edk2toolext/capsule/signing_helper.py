@@ -51,7 +51,7 @@ def get_signer(type, specifier=None):
         example: edk2toolext.capsule.pyopenssl_signer
 
     if the type is LOCAL_MODULE_SIGNER, the specifier should be a filesystem
-        path to a Python module that can be loaded as the signer 
+        path to a Python module that can be loaded as the signer
     '''
     if type == PYOPENSSL_SIGNER:
         return pyopenssl_signer
