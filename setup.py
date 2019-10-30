@@ -76,8 +76,10 @@ setuptools.setup(
     install_requires=[
         'pyyaml',
         'edk2-pytool-library>=0.10.3'
-        # Update with pyopenssl?
     ],
+    extras_requires={
+        'openssl': ['pyopenssl']
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: BSD License",
