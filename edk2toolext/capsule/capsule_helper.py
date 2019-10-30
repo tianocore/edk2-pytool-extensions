@@ -22,6 +22,9 @@ from edk2toollib.uefi.fmp_capsule_header import FmpCapsuleHeaderClass, FmpCapsul
 from edk2toollib.uefi.fmp_auth_header import FmpAuthHeaderClass
 from edk2toollib.uefi.edk2.fmp_payload_header import FmpPayloadHeaderClass
 
+# https://docs.microsoft.com/en-us/dotnet/api/system.security.cryptography.pkcs.contentinfo.-ctor?view=netframework-4.8
+PKCS7_SIGNED_DATA_OID = '1.2.840.113549.1.7.2'
+
 
 def get_capsule_file_name(capsule_options):
     return f"{capsule_options['fw_name']}_{capsule_options['fw_version_string']}.bin"
@@ -67,7 +70,7 @@ def build_capsule(capsule_data, capsule_options, signer_module, signer_options):
         'hash_alg': 'sha256'
     }
     # Set or override OID.
-    signer_options['oid'] = '1.2.840.113549.1.7.2'
+    signer_options['oid'] = PKCS7_SIGNED_DATA_OID
     fmp_auth_header.AuthInfo.CertData = signer_module.sign(data_to_sign, signature_options, signer_options)
 
     fmp_capsule_image_header = FmpCapsuleImageHeaderClass()
