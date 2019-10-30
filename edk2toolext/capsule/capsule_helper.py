@@ -52,7 +52,6 @@ def build_capsule(capsule_data, capsule_options, signer_module, signer_options):
 
     # Create the auth header and get ready to sign the data.
     fmp_auth_header = FmpAuthHeaderClass()
-    # TODO: Allow caller to pass the monotonic count in capsule_options.
     fmp_auth_header.MonotonicCount = 1
     fmp_auth_header.FmpPayloadHeader = fmp_payload_header
 
@@ -62,7 +61,6 @@ def build_capsule(capsule_data, capsule_options, signer_module, signer_options):
     data_to_sign = data_to_sign + struct.pack("<Q", fmp_auth_header.MonotonicCount)
 
     # Sign the data and assign it to the cert data.
-    # TODO: Determine whether EKU is a signer option or a signature option.
     # TODO: Figure out whether this sign_alg is correct for capsules.
     signature_options = {
         'sign_alg': 'pkcs12',
