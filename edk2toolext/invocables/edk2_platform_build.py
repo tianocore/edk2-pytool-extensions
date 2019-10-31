@@ -1,5 +1,5 @@
 # @file edk2_platform_build
-# Invocable classs that does a build.
+# Invocable class that does a build.
 # Needs a child of UefiBuilder for pre/post build steps.
 ##
 # Copyright (c) Microsoft Corporation
@@ -78,7 +78,7 @@ class Edk2PlatformBuild(Edk2Invocable):
     def RetrieveCommandLineOptions(self, args):
         '''  Retrieve command line options from the argparser '''
 
-        # If PlatformBuilder and PlatformSettings are seperate, give args to PlatformBuilder
+        # If PlatformBuilder and PlatformSettings are separate, give args to PlatformBuilder
         if self.PlatformBuilder is not self.PlatformSettings:
             self.PlatformBuilder.RetrieveCommandLineOptions(args)
 

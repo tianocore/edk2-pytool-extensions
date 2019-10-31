@@ -1,13 +1,13 @@
 
 # Settings manager
 
-Each edk2 invocable has an abstract definition of a Settings Manager class that provides needed information such as scope, repos, commandline options, and other things.
+Each edk2 invocable has an abstract definition of a Settings Manager class that provides needed information such as scope, repositories, command-line options, and other things.
 This allows scopes to be dynamic but in a standardized way.
 Below is a sample implementation of a settings manager for your reference. 
 
 This is an implementation of both Update and Setup Settings Managers using multiple inheritance. 
 You can see that they add their own command line argument `--production` that is used to toggle the use of the `production` scope.
-For any given invocable, you can pass `-h` or `--help` to recieve a list of available command line options.
+For any given invocable, you can pass `-h` or `--help` to show a list of available command line options.
 If you call `-c <path> --help` this list will also include command line options provided from the settings file you provided.
 
 These examples are for building a platform; which needs an instance of UpdateSettingsManager, SetupSettingsManager, BuildSettingsManager, and UefiBuilder.

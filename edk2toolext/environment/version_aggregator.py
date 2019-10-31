@@ -69,7 +69,7 @@ class VersionTypes(Enum):
     COMMIT is for the commit hash of a repository.
     BINARY is for a pre-packaged binary that is distributed with a version number.
     TOOL is for recording the version number of a tool that was used during the build process.
-    INFO is for recording miscellanious information.
+    INFO is for recording miscellaneous information.
     PIP is for recording a python pip package.
     """
     TOOL = 1

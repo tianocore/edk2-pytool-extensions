@@ -1,0 +1,47 @@
+# File build-test-job.yml
+#
+# job template for building and testing
+#
+# Copyright (c) 2019, Microsoft Corporation
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+parameters:
+  vm_image: ''
+  pypi_auth_feed: ''  # set this for a release
+  root_package_folder: '' # set this to root package
+  name: '' #set the job name
+
+jobs:
+
+- job: Build_and_Test_${{parameters.name}}
+
+  workspace:
+    clean: all
+
+  pool:
+    vmImage: ${{ parameters.vm_image }}
+
+  steps:
+  - template: basic-setup-steps.yml
+
+  - template: pytest-test-steps.yml
+    parameters: 
+      root_package_folder: ${{parameters.root_package_folder}}
+
+  - template: flake8-test-steps.yml
+
+  - template: spell-test-steps.yml
+
+  - task: PythonScript@0
+    inputs:
+      scriptSource: 'filePath'
+      scriptPath: 'BasicDevTests.py'
+    displayName: 'Check basic file and folder tests'
+    condition: succeededOrFailed()
+
+  - ${{ if ne(parameters.pypi_auth_feed, '') }}:
+    - template: build-publish-whl-steps.yml
+      parameters:
+        pypi_auth_feed: ${{parameters.pypi_auth_feed}}
+
+

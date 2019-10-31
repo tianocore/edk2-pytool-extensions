@@ -1,0 +1,20 @@
+##
+# Azure Pipeline CI build and PR build
+
+# Copyright (c) 2019, Microsoft Corporation
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+
+# trigger on master for CI and all PRs for master
+trigger: 
+- master
+
+pr: 
+- master
+
+jobs:
+- template: templates/build-test-job.yml
+  parameters:
+    vm_image: 'windows-latest'
+    root_package_folder: "edk2toolext"
+    name: 'windows'

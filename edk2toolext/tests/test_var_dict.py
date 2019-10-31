@@ -101,59 +101,59 @@ class TestVarDict(unittest.TestCase):
 
     def test_var_dict_build_value_when_type_para_used(self):
         v = var_dict.VarDict()
-        v.SetValue("bld_debug_test1", "builddvalue1", "build dtest 1 comment")
-        v.SetValue("bld_release_test1", "buildrvalue1", "build rtest 1 comment")
+        v.SetValue("bld_debug_test1", "build_d_value1", "build debug test 1 comment")
+        v.SetValue("bld_release_test1", "build_r_value1", "build release test 1 comment")
         ## confirm with correct build type debug
         vv = v.GetBuildValue("TEST1", "DEBUG")
-        self.assertEqual("builddvalue1", vv)
+        self.assertEqual("build_d_value1", vv)
         ## confirm with correct build type release
         vv = v.GetBuildValue("TEST1", "release")
-        self.assertEqual("buildrvalue1", vv)
+        self.assertEqual("build_r_value1", vv)
 
     def test_var_dict_build_value_none_for_key(self):
         v = var_dict.VarDict()
-        v.SetValue("bld_debug_test1", "builddvalue1", "build test 1 comment")
+        v.SetValue("bld_debug_test1", "build_d_value1", "build test 1 comment")
         self.assertIsNone(v.GetBuildValue(None, "DEBUG"))
 
     def test_var_dict_build_value_when_type_para_used_wc(self):
         v = var_dict.VarDict()
-        v.SetValue("bld_*_test1", "buildvalue1", "build test 1 comment")
+        v.SetValue("bld_*_test1", "build_value1", "build test 1 comment")
         ## confirm wildcard support build type fail back to *
         vv = v.GetBuildValue("TEST1", "DEBUG")
-        self.assertEqual("buildvalue1", vv)
+        self.assertEqual("build_value1", vv)
         vv = v.GetBuildValue("TEST1", "RELEASE")
-        self.assertEqual("buildvalue1", vv)
+        self.assertEqual("build_value1", vv)
 
         ## confirm match has higher priority
-        v.SetValue("bld_debug_test1", "builddvalue1", "build test 1 comment")
+        v.SetValue("bld_debug_test1", "build_d_value1", "build test 1 comment")
         vv = v.GetBuildValue("TEST1", "DEBUG")
-        self.assertEqual("builddvalue1", vv)
+        self.assertEqual("build_d_value1", vv)
 
-        v.SetValue("bld_release_test1", "buildrvalue1", "build test 1 comment")
+        v.SetValue("bld_release_test1", "build_r_value1", "build test 1 comment")
         vv = v.GetBuildValue("TEST1", "release")
-        self.assertEqual("buildrvalue1", vv)
+        self.assertEqual("build_r_value1", vv)
 
         vv = v.GetBuildValue("TEST1", "NOOPT")
-        self.assertEqual("buildvalue1", vv)
+        self.assertEqual("build_value1", vv)
 
     def test_var_dict_build_value_when_target_set(self):
         v = var_dict.VarDict()
-        v.SetValue("bld_*_test1", "buildvalue1", "build test 1 comment")
+        v.SetValue("bld_*_test1", "build_value1", "build test 1 comment")
         v.SetValue("TARGET", "DEBUG", "Set to Debug")
         ## confirm can get it with target set
         vv = v.GetBuildValue("TEST1")
-        self.assertEqual("buildvalue1", vv)
+        self.assertEqual("build_value1", vv)
 
     def test_var_dict_build_value_when_no_build_type(self):
         v = var_dict.VarDict()
-        v.SetValue("bld_*_test1", "buildvalue1", "build test 1 comment")
+        v.SetValue("bld_*_test1", "build_value1", "build test 1 comment")
         ## confirm can't get it without build type or target set
         vv = v.GetBuildValue("TEST1")
         self.assertEqual(None, vv)
 
     def test_var_dict_get_all_with_no_entires(self):
         v = var_dict.VarDict()
-        v.SetValue("test1", "buildvalue1", "build test 1 comment")
+        v.SetValue("test1", "build_value1", "build test 1 comment")
         v.SetValue("test2", "test", "non build value")
         ## confirm result only has 1 value
         vlist = v.GetAllBuildKeyValues("DEBUG")
@@ -161,7 +161,7 @@ class TestVarDict(unittest.TestCase):
 
     def test_var_dict_get_all_with_no_target(self):
         v = var_dict.VarDict()
-        v.SetValue("test1", "buildvalue1", "build test 1 comment")
+        v.SetValue("test1", "build_value1", "build test 1 comment")
         v.SetValue("test2", "test", "non build value")
         ## confirm result only has 1 value
         vlist = v.GetAllBuildKeyValues()
@@ -169,7 +169,7 @@ class TestVarDict(unittest.TestCase):
 
     def test_var_dict_get_all_build_key_values_and_not_other_values(self):
         v = var_dict.VarDict()
-        v.SetValue("bld_*_test1", "buildvalue1", "build test 1 comment")
+        v.SetValue("bld_*_test1", "build_value1", "build test 1 comment")
         v.SetValue("test2", "test", "non build value")
         ## confirm result only has 1 value
         vlist = v.GetAllBuildKeyValues("DEBUG")
@@ -177,7 +177,7 @@ class TestVarDict(unittest.TestCase):
 
         ## confirm override behavior
         v.SetValue("Target", "DEBUG", "Set target to debug")
-        v.SetValue("bld_release_test1", "buildvalue1", "build test 1 comment")
+        v.SetValue("bld_release_test1", "build_value1", "build test 1 comment")
         vlist = v.GetAllBuildKeyValues()
         self.assertEqual(len(vlist), 1)
         ## override using parameter for build type
@@ -186,7 +186,7 @@ class TestVarDict(unittest.TestCase):
 
     def test_var_dict_print_all(self):
         v = var_dict.VarDict()
-        v.SetValue("bld_*_test1", "buildvalue1", "build test 1 comment")
+        v.SetValue("bld_*_test1", "build_value1", "build test 1 comment")
         v.SetValue("test2", "value1", "test 1 comment overrideable", True)
         v.PrintAll()
 

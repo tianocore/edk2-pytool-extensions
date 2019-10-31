@@ -12,12 +12,12 @@ import os
 import sys
 
 p = os.path.join(os.getcwd(), "dist")
-whlfile = glob.glob(os.path.join(p, "*.whl"))
-if(len(whlfile) != 1):
-    for filename in whlfile:
+whl_file = glob.glob(os.path.join(p, "*.whl"))
+if(len(whl_file) != 1):
+    for filename in whl_file:
         print(filename)
     raise Exception("Too many wheel files")
-rfn = os.path.relpath(whlfile[0], os.getcwd())
+rfn = os.path.relpath(whl_file[0], os.getcwd())
 v = rfn.split("-")[1]
 if v.count(".") != 2:
     raise Exception("Version %s not in format major.minor.patch" % v)

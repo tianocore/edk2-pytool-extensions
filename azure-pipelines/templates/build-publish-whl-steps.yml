@@ -1,0 +1,34 @@
+# File flake8-test-steps.yml
+#
+# template file to run flake8 and if error publish log
+#
+# Copyright (c) 2019, Microsoft Corporation
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+
+parameters:
+  pypi_auth_feed: ''
+
+steps:
+- script: pip install --upgrade -r requirements.publisher.txt
+  displayName: 'Install PyPI publishing requirements'
+
+- script: python setup.py sdist bdist_wheel
+  displayName: 'Build a wheel'
+
+- task: PythonScript@0
+  displayName: 'Confirm Version and Tag'
+  inputs:
+    scriptSource: 'filePath' # Options: filePath, inline
+    scriptPath: ConfirmVersionAndTag.py
+    #arguments: # Optional
+    #pythonInterpreter: # Optional
+    #workingDirectory: # Optional
+    failOnStderr: true # Optional
+
+- task: TwineAuthenticate@0
+  inputs:
+    externalFeeds: ${{parameters.pypi_auth_feed}}
+
+- script: 'twine upload -r ${{parameters.pypi_auth_feed}} --config-file $(PYPIRC_PATH) dist/*'
+  displayName: 'Publish to pypi'

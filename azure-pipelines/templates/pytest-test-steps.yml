@@ -1,0 +1,40 @@
+# File pytest-test-steps.yml
+#
+# template for running pytest
+#
+# Copyright (c) 2019, Microsoft Corporation
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+parameters:
+  root_package_folder: ''
+
+steps:
+- script: pytest -v --junitxml=test.junit.xml --html=pytest_report.html --self-contained-html --cov=${{ parameters.root_package_folder }} --cov-report html:cov_html --cov-report xml:cov.xml --cov-config .coveragerc
+  displayName: 'Run UnitTests'
+
+# Publish Test Results to Azure Pipelines/TFS
+- task: PublishTestResults@2
+  displayName: 'Publish junit test results'
+  continueOnError: true
+  condition: succeededOrFailed()
+  inputs:
+    testResultsFormat: 'JUnit' # Options: JUnit, NUnit, VSTest, xUnit
+    testResultsFiles: 'test.junit.xml' 
+    mergeTestResults: true # Optional
+    publishRunAttachments: true # Optional
+
+# Publish build artifacts to Azure Pipelines
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: 'pytest_report.html' 
+    artifactName: 'unit test report' 
+  continueOnError: true
+  condition: succeededOrFailed()
+
+# Publish Cobertura code coverage results
+- task: PublishCodeCoverageResults@1
+  inputs:
+    codeCoverageTool: 'cobertura' # Options: cobertura, jaCoCo
+    summaryFileLocation: $(System.DefaultWorkingDirectory)/cov.xml
+    reportDirectory: $(System.DefaultWorkingDirectory)/cov_html
+  condition: succeededOrFailed()
