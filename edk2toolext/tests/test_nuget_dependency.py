@@ -110,7 +110,7 @@ class TestNugetDependency(unittest.TestCase):
 
         ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
         ext_dep = NugetDependency(ext_dep_descriptor)
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(ValueError):
             # we should throw an exception because we don't know how to parse the version
             ext_dep.fetch()
         self.assertFalse(ext_dep.verify())
