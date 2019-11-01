@@ -12,11 +12,10 @@ import os
 import uuid
 import unittest
 import tempfile
-# import logging
 
 from edk2toollib.uefi.uefi_capsule_header import UefiCapsuleHeaderClass
 from edk2toollib.uefi.fmp_capsule_header import FmpCapsuleHeaderClass, FmpCapsuleImageHeaderClass
-from edk2toolext.capsule import capsule_helper, signing_helper
+from edk2toolext.capsule import capsule_helper
 
 DUMMY_OPTIONS = {
     'capsule': {
@@ -50,6 +49,7 @@ class CapsuleSignerTest(unittest.TestCase):
 
     def test_should_pass_wrapped_blob_to_signing_module(self):
         dummy_payload = b'This_Is_My_Sample_Payload,ThereAreManyLikeIt;This One Is Mine'
+
         class DummySigner(object):
             @classmethod
             def sign(cls, data, signature_options, signer_options):
@@ -118,6 +118,7 @@ class CapsuleSignerTest(unittest.TestCase):
     #         final_capsule.DumpInfo()
 
     #     self.assertFalse(True)
+
 
 class FileGenerationTest(unittest.TestCase):
     @classmethod
