@@ -12,8 +12,6 @@
 
 import uuid
 import os
-# TODO: Replace this step with a new function from within
-#       FmpAuthHeaderClass().
 import struct
 
 from edk2toollib.windows.capsule import inf_generator, cat_generator
@@ -58,13 +56,10 @@ def build_capsule(capsule_data, capsule_options, signer_module, signer_options):
     fmp_auth_header.MonotonicCount = 1
     fmp_auth_header.FmpPayloadHeader = fmp_payload_header
 
-    # TODO: Replace this step with a new function from within
-    #       FmpAuthHeaderClass().
     data_to_sign = fmp_payload_header.Encode()
     data_to_sign = data_to_sign + struct.pack("<Q", fmp_auth_header.MonotonicCount)
 
     # Sign the data and assign it to the cert data.
-    # TODO: Figure out whether this sign_alg is correct for capsules.
     signature_options = {
         'sign_alg': 'pkcs12',
         'hash_alg': 'sha256'

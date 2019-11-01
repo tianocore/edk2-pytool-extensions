@@ -138,8 +138,6 @@ def main():
     # Build the CAT file.
     capsule_helper.create_cat_file(final_options['capsule'], args.output_dir)
 
-    # TODO: Sign the CAT file?
-
     # If requested, save the final options for provenance.
     if args.save_final_options:
         final_options_file = os.path.join(args.output_dir, 'Final_Capsule_Options.yaml')
