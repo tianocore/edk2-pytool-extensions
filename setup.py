@@ -77,7 +77,7 @@ setuptools.setup(
         'pyyaml',
         'edk2-pytool-library>=0.10.3'
     ],
-    extras_requires={
+    extras_require={
         'openssl': ['pyopenssl']
     },
     classifiers=[
