@@ -1,6 +1,5 @@
 ## @file capsule_helper_test.py
 # This unittest module contains test cases for the capsule_helper module.
-# NOTE: Many of these tests require external collateral and as such are commented out for now.
 #
 ##
 # Copyright (C) Microsoft Corporation
@@ -9,38 +8,57 @@
 ##
 
 
-# import os
+import os
 # import uuid
 import unittest
+import tempfile
 # import logging
-# from edk2toolext.capsule import capsule_helper, signing_helper
 
-# TEST_CAPSULE_PATH_1 = "C:\\_uefi\\CapsuleDevTest\\UefiCapsule\\TestCapsulePayload.bin"
-# TEST_CAPSULE_SIGNER_1 = "C:\\_uefi\\CapsuleDevTest\\TestCapsuleSigner.pfx"
+from edk2toollib.uefi.uefi_capsule_header import UefiCapsuleHeaderClass
+from edk2toolext.capsule import capsule_helper, signing_helper
 
-# BUILD_CAPSULE_BINARY_PATH = "C:\\_uefi\\CapsuleDevTest\\RawCapsulePayload_Temp.bin"
-# TEMP_CAPSULE_BINARY_PATH = "C:\\_uefi\\CapsuleDevTest\\DebugCapsuleOutput.bin"
-# TEMP_CAPSULE_DIRECTORY_PATH = "C:\\_uefi\\CapsuleDevTest"
+DUMMY_OPTIONS = {
+    'capsule': {
+        'fw_version': '0xDEADBEEF',
+        'lsv_version': '0xFEEDF00D',
+        'esrt_guid': '00112233-4455-6677-8899-aabbccddeeff'
+    },
+    'signer': {
+        'option2': 'value2',
+        'option_not': 'orig_value'
+    }
+}
+DUMMY_OPTIONS_FILE_NAME = 'dummy_options_file'
+DUMMY_PAYLOAD_FILE_NAME = 'dummy_payload'
 
 
 class CapsuleSignerTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # We'll use the one-time setup to create
+        # any temporary test files we'll need.
+        cls.temp_dir = tempfile.mkdtemp()
+        cls.dummy_payload = os.path.join(cls.temp_dir, DUMMY_PAYLOAD_FILE_NAME + ".bin")
+
+        with open(cls.dummy_payload, 'wb') as dummy_file:
+            dummy_file.write(b'DEADBEEF')
+
     def test_should_pass_wrapped_blob_to_signing_module(self):
-        pass
+        dummy_payload = b'This_Is_My_Sample_Payload,ThereAreManyLikeIt;This One Is Mine'
+        class DummySigner(object):
+            @classmethod
+            def sign(cls, data, signature_options, signer_options):
+                self.assertTrue(dummy_payload in data)
 
-    # def test_should_pass_signer_options_to_signing_module(self):
-    #     dummy_signer_options = {
-    #         'option_a': 123123,
-    #         'option_b': "blast"
-    #     }
-    #     signer_exec_check = False
-    #     def dummy_signer_sign_function(data, signature_options, signer_options):
-    #         self.assertEqual(signer_options, dummy_signer_options)
-    #         signer_exec_check = True
-    #     dummy_signer = Namespace(sign = dummy_signer_sign_function)
+        capsule_helper.build_capsule(dummy_payload, DUMMY_OPTIONS['capsule'], DummySigner, DUMMY_OPTIONS['signer'])
 
-    #     capsule_helper.build_capsule(b'030303', {}, dummy_signer, dummy_signer_options)
+    def test_should_pass_signer_options_to_signing_module(self):
+        class DummySigner(object):
+            @classmethod
+            def sign(cls, data, signature_options, signer_options):
+                self.assertEqual(signer_options, DUMMY_OPTIONS['signer'])
 
-    #     self.assertTrue(signer_exec_check)
+        capsule_helper.build_capsule(b'030303', DUMMY_OPTIONS['capsule'], DummySigner, DUMMY_OPTIONS['signer'])
 
     # def test_should_be_able_to_generate_a_production_equivalent_capsule(self):
     #     with open(BUILD_CAPSULE_BINARY_PATH, 'rb') as data_file:
@@ -95,6 +113,23 @@ class CapsuleSignerTest(unittest.TestCase):
     #         final_capsule.DumpInfo()
 
     #     self.assertFalse(True)
+
+class FileGenerationTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # We'll use the one-time setup to create
+        # any temporary test files we'll need.
+        cls.temp_dir = tempfile.mkdtemp()
+        cls.dummy_payload = os.path.join(cls.temp_dir, DUMMY_PAYLOAD_FILE_NAME + ".bin")
+
+        with open(cls.dummy_payload, 'wb') as dummy_file:
+            dummy_file.write(b'DEADBEEF')
+
+    def test_should_be_able_to_generate_inf(self):
+        pass
+
+    def test_should_be_able_to_generate_cat(self):
+        pass
 
 
 if __name__ == '__main__':
