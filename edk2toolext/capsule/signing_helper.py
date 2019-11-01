@@ -13,7 +13,6 @@
 
 import importlib
 
-from edk2toolext.capsule import pyopenssl_signer
 from edk2toolext.capsule import signtool_signer
 from edk2toollib.utility_functions import import_module_by_file_name
 
@@ -36,7 +35,11 @@ def get_signer(type, specifier=None):
         path to a Python module that can be loaded as the signer
     '''
     if type == PYOPENSSL_SIGNER:
-        return pyopenssl_signer
+        try:
+            from edk2toolext.capsule import pyopenssl_signer
+            return pyopenssl_signer
+        except ModuleNotFoundError:
+            raise RuntimeError('PyOpenSsl Signer failed to load. Do you have pyopenssl installed?')
     elif type == SIGNTOOL_SIGNER:
         return signtool_signer
     elif type == PYPATH_MODULE_SIGNER:

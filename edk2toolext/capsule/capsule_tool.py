@@ -145,3 +145,7 @@ def main():
         final_options_file = os.path.join(args.output_dir, 'Final_Capsule_Options.yaml')
         with open(final_options_file, 'w') as options_file:
             yaml.dump(final_options, options_file, indent=2)
+
+
+if __name__ == '__main__':
+    main()

@@ -100,6 +100,7 @@ def save_capsule(uefi_capsule_header, capsule_options, save_path):
 
     return capsule_file_path
 
+
 def create_inf_file(capsule_options, save_path):
     # Expand the version string prior to creating INF file.
     capsule_options['fw_version_string'] = get_normalized_version_string(capsule_options['fw_version_string'])

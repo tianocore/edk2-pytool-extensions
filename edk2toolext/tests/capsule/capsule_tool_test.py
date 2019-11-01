@@ -52,23 +52,23 @@ class ParameterParsingTest(unittest.TestCase):
 
     def test_capsule_options_should_be_passable(self):
         cli_params = ['--builtin_signer', 'pyopenssl']
-        parsed_args = capsule_tool.get_cli_options(cli_params + [self.dummy_payload])
+        parsed_args = capsule_tool.get_cli_options(cli_params + [self.dummy_payload, self.temp_dir])
         self.assertEqual(len(parsed_args.capsule_options), 0)
 
         cli_params += ['-dc', 'option1=value1']
         cli_params += ['-dc', 'option2=value2']
-        cli_params += [self.dummy_payload]
+        cli_params += [self.dummy_payload, self.temp_dir]
         parsed_args = capsule_tool.get_cli_options(cli_params)
         self.assertEqual(len(parsed_args.capsule_options), 2)
 
     def test_signer_options_should_be_passable(self):
         cli_params = ['--builtin_signer', 'pyopenssl']
-        parsed_args = capsule_tool.get_cli_options(cli_params + [self.dummy_payload])
+        parsed_args = capsule_tool.get_cli_options(cli_params + [self.dummy_payload, self.temp_dir])
         self.assertEqual(len(parsed_args.signer_options), 0)
 
         cli_params += ['-ds', 'option1=value1']
         cli_params += ['-ds', 'option2=value2']
-        cli_params += [self.dummy_payload]
+        cli_params += [self.dummy_payload, self.temp_dir]
         parsed_args = capsule_tool.get_cli_options(cli_params)
         self.assertEqual(len(parsed_args.signer_options), 2)
 
@@ -118,7 +118,7 @@ class ParameterParsingTest(unittest.TestCase):
         cli_params += ['-dc', 'new_option=value3']
         cli_params += ['-ds', 'option2=value7']
         cli_params += ['-ds', 'option2=value8']
-        cli_params += [self.dummy_payload]
+        cli_params += [self.dummy_payload, self.temp_dir]
         parsed_args = capsule_tool.get_cli_options(cli_params)
 
         loaded_options = capsule_tool.load_options_file(parsed_args.options_file)
