@@ -3,7 +3,7 @@
 # This interface abstraction takes in the signature_options and signer_options
 # dictionaries that are used by capsule_tool and capsule_helper.
 #
-# Will attempt to locate a valid instalation of Windows Signtool using the
+# Will attempt to locate a valid installation of Windows Signtool using the
 # utility_functions provided by edk2toollib.
 #
 ##

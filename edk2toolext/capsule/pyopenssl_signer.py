@@ -34,7 +34,7 @@ def sign(data, signature_options, signer_options):
             signer_options['key_data'] = key_file.read()
 
     # TODO: Figure out OIDs.
-    # TODO: Figure out EKUs.
+    # TODO: Figure out EKU.
 
     pkcs12 = crypto.load_pkcs12(signer_options['key_data'])
     return crypto.sign(pkcs12.get_privatekey(), data, signature_options['hash_alg'])

@@ -30,7 +30,7 @@ class CapsuleSignerTest(unittest.TestCase):
     # def test_should_pass_signer_options_to_signing_module(self):
     #     dummy_signer_options = {
     #         'option_a': 123123,
-    #         'option_b': "blash"
+    #         'option_b': "blast"
     #     }
     #     signer_exec_check = False
     #     def dummy_signer_sign_function(data, signature_options, signer_options):
@@ -55,9 +55,9 @@ class CapsuleSignerTest(unittest.TestCase):
     #         'key_file': TEST_CAPSULE_SIGNER_1,
     #         'eku': "1.3.6.1.4.1.311.76.9.1.36"
     #     }
-    #     wdksigner = signing_helper.get_signer(signing_helper.SIGNTOOL_SIGNER)
+    #     wdk_signer = signing_helper.get_signer(signing_helper.SIGNTOOL_SIGNER)
 
-    #     final_capsule = capsule_helper.build_capsule(capsule_data, capsule_options, wdksigner, signer_options)
+    #     final_capsule = capsule_helper.build_capsule(capsule_data, capsule_options, wdk_signer, signer_options)
 
     #     with open(TEST_CAPSULE_PATH_1, 'rb') as comparison_file:
     #         comparison_data = comparison_file.read()
@@ -77,9 +77,9 @@ class CapsuleSignerTest(unittest.TestCase):
     #         'key_file': TEST_CAPSULE_SIGNER_1,
     #         'eku': "1.3.6.1.4.1.311.76.9.1.36"
     #     }
-    #     wdksigner = signing_helper.get_signer(signing_helper.SIGNTOOL_SIGNER)
+    #     wdk_signer = signing_helper.get_signer(signing_helper.SIGNTOOL_SIGNER)
 
-    #     final_capsule = capsule_helper.build_capsule(capsule_data, capsule_options, wdksigner, signer_options)
+    #     final_capsule = capsule_helper.build_capsule(capsule_data, capsule_options, wdk_signer, signer_options)
 
     #     with open(os.path.join(TEMP_CAPSULE_DIRECTORY_PATH, 'Capsule1.bin'), 'wb') as out_file:
     #         out_file.write(final_capsule.Encode())
