@@ -25,10 +25,12 @@ PKCS7_SIGNED_DATA_OID = '1.2.840.113549.1.7.2'
 
 
 def get_capsule_file_name(capsule_options):
+    '''from the shared capsule_options dictionary, returns the formatted capsule file name'''
     return f"{capsule_options['fw_name']}_{capsule_options['fw_version_string']}.bin"
 
 
 def get_normalized_version_string(version_string):
+    '''takes in a version string and returns a normalized version that is compatible with inf and cat files'''
     # 19H1 HLK requires a 4 digit version string, or it will fail
     while (version_string.count('.') < 3):
         version_string += '.0'
@@ -36,14 +38,36 @@ def get_normalized_version_string(version_string):
 
 
 def get_default_arch():
+    '''helper function to consistently return the default architecture for windows files'''
     return 'amd64'
 
 
 def get_default_os_string():
+    '''helper function to consistently return the default os for windows files'''
     return 'Win10'
 
 
 def build_capsule(capsule_data, capsule_options, signer_module, signer_options):
+    '''
+    goes through all of the steps of capsule generation for a single-payload FMP capsule
+
+    takes in capsule_data as a byte string, a signer module, and capsule and signer options,
+    and produces all of the headers necessary. Will use the signer module to produce the cert data
+    for the FMP Auth header.
+
+    NOTE: Uses a fixed MonotonicCount of 1.
+
+    capsule_data - a byte string for the innermost payload
+    capsule_options - a dictionary that will be used for all the capsule payload fields. Must include
+                        'fw_version', 'lsv_version', and 'esrt_guid' at a minimum. These should all be
+                        strings and the two versions should be strings of hex number (e.g. 0x12345)
+    signer_module - a capsule signer module that implements the sign() function (see pyopenssl_signer or
+                        signtool_signer built-in modules for examples)
+    signer_options - a dictionary of options that will be passed to the signer_module. The required values
+                        depend on the expectations of the signer_module provided
+
+    returns a UefiCapsuleHeaderClass object containing all of the provided data
+    '''
     # Start building the capsule as we go.
     # Create the FMP Payload and set all the necessary options.
     fmp_payload_header = FmpPayloadHeaderClass()
@@ -85,6 +109,13 @@ def build_capsule(capsule_data, capsule_options, signer_module, signer_options):
 
 
 def save_capsule(uefi_capsule_header, capsule_options, save_path):
+    '''
+    takes in a UefiCapsuleHeaderClass object, a dictionary of capsule_options, and a filesystem directory path
+    and serializes the capsule object to the target directory
+
+    will use get_capsule_file_name() to determine the final filename
+    will create all intermediate directories if save_path does not already exist
+    '''
     # First, create the entire save path.
     os.makedirs(save_path, exist_ok=True)
 
@@ -97,6 +128,12 @@ def save_capsule(uefi_capsule_header, capsule_options, save_path):
 
 
 def create_inf_file(capsule_options, save_path):
+    '''
+    takes in a dictionary of capsule_options and creates the Windows INF file for the UEFI capsule according
+    to the provided options
+
+    will save the final file to the save_path with a name determined from the capsule_options
+    '''
     # Expand the version string prior to creating INF file.
     capsule_options['fw_version_string'] = get_normalized_version_string(capsule_options['fw_version_string'])
 
@@ -125,6 +162,12 @@ def create_inf_file(capsule_options, save_path):
 
 
 def create_cat_file(capsule_options, save_path):
+    '''
+    takes in a dictionary of capsule_options and creates the Windows CAT file for the UEFI capsule according
+    to the provided options
+
+    will save the final file to the save_path with a name determined from the capsule_options
+    '''
     # Deal with optional parameters when creating the CAT file.
     capsule_options['arch'] = capsule_options.get('arch', get_default_arch())
     capsule_options['os_string'] = capsule_options.get('os_string', get_default_os_string())

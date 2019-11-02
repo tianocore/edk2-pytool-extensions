@@ -59,7 +59,7 @@ def get_cli_options(args=None):
     parser.add_argument('capsule_payload', type=argparse.FileType('rb'),
                         help='a filesystem path to the binary payload for the capsule')
     parser.add_argument('output_dir',
-                        help='a filesystem path to the directory to save output files. if directory does not exist, entire directory path will be created') # noqa
+                        help='a filesystem path to the directory to save output files. if directory does not exist, entire directory path will be created. if directory does exist, contents will be updated based on the capsule_options') # noqa
 
     return parser.parse_args(args=args)
 
