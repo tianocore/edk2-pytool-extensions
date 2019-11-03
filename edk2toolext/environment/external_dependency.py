@@ -142,7 +142,7 @@ class ExternalDependency(object):
             result = False
 
         logging.debug("Verify '%s' returning '%s'." % (self.name, result))
-        version_aggregator.GetVersionAggregator().ReportVersion(self.name, 
+        version_aggregator.GetVersionAggregator().ReportVersion(self.name,
                                                                 self.version,
                                                                 version_aggregator.VersionTypes.INFO,
                                                                 self.descriptor_location)
