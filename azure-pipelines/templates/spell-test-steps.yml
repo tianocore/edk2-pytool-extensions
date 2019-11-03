@@ -1,0 +1,22 @@
+# File spell-test-steps.yml
+#
+# template file used to install spell checking prerequisites
+# and run spell test
+#
+# Copyright (c) 2019, Microsoft Corporation
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+
+parameters:
+  none: ''
+
+steps:
+- task: NodeTool@0
+  inputs:
+    versionSpec: '10.x'
+
+- script: npm install -g cspell
+  displayName: 'Install cspell npm'
+
+- script: cspell -c .cspell.json **/*.py **/*.md
+  displayName: run spell check test

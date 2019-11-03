@@ -91,14 +91,14 @@ class test_nuget_publish(unittest.TestCase):
         nuget.SetBasicData("EDK2", "https://BSD2", "https://project_url", "descr", "https://server", "copyright")
         tempfolder_out = tempfile.mkdtemp()
         spec = os.path.join(tempfolder_out, "test.nuspec")
-        test_nuget_publish.write_to_file(spec, ["This is a legic nuget file lol", ])
+        test_nuget_publish.write_to_file(spec, ["This is a legit nuget file lol", ])
         ret = nuget.Push(spec, "")
         self.assertEqual(ret, 1)
 
     def test_pack(self):
         nuget = nuget_publishing.NugetSupport("test")
         version = "1.1.1"
-        nuget.SetBasicData("EDK2", "https://BSD2", "https://project_url", "descr", "server", "copyright")
+        nuget.SetBasicData("EDK2", "https://BSD2", "https://project_url", "description", "server", "copyright")
         tempfolder_in = tempfile.mkdtemp()
         tempfolder_out = tempfile.mkdtemp()
         outfile = os.path.join(tempfolder_in, "readme.txt")
