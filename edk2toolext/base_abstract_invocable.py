@@ -86,10 +86,10 @@ class BaseAbstractInvocable(object):
         txtlogfile = self.GetLoggingLevel("txt")
         self.log_filename = None
         if(txtlogfile is not None):
-            self.log_filename = os.path.realpath(os.path.join(log_directory, self.GetLoggingFileName("txt")))
             logfile, filelogger = edk2_logging.setup_txt_logger(log_directory,
                                                                 self.GetLoggingFileName("txt"),
                                                                 txtlogfile)
+            self.log_filename = logfile
 
         md_log_file = self.GetLoggingLevel("md")
         if(md_log_file is not None):
