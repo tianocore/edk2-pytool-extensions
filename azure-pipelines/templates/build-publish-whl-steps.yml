@@ -16,6 +16,16 @@ steps:
 - script: python setup.py sdist bdist_wheel
   displayName: 'Build a wheel'
 
+- task: PythonScript@0
+  displayName: 'Confirm Version and Tag'
+  inputs:
+    scriptSource: 'filePath' # Options: filePath, inline
+    scriptPath: ConfirmVersionAndTag.py
+    #arguments: # Optional
+    #pythonInterpreter: # Optional
+    #workingDirectory: # Optional
+    failOnStderr: true # Optional
+
 - task: TwineAuthenticate@0
   inputs:
     externalFeeds: ${{parameters.pypi_auth_feed}}
