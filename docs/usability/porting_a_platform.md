@@ -287,8 +287,7 @@ PROGRESS - Success
 ```
 
 This grabs nuget feed and any other external dependency.
-The EDK2 tools are precompiled for you and come down as Mu-Basetools.
-If you instead used EDK2, you likely wouldn't have any dependencies.
+The EDK2 tools are precompiled for you and come down as Mu-Basetools as part of MU_BASECORE.
 
 ### Build
 
@@ -312,7 +311,7 @@ class PlatformBuilder(UefiBuilder):
 ```
 
 If we were to run it right now, we would fail because we need to implement one more function in our settings provider: GetPackagesPath.
-This is needed to provide the paths to the EDK2 system.
+This is needed to provide the paths to the EDK2 system. We need to provide absolute paths, so we join each path to our workspace root.
 
 ```python
 class SettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSettingsManager):
@@ -321,7 +320,9 @@ class SettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSettings
 
     def GetPackagesPath(self):
         ''' get module packages path '''
-        return ['MU_BASECORE', "Common/MU_OEM", 'Common/MU', 'Common/TIANO', "Silicon/ARM/MU_TIANO", "Silicon/Broadcom"]
+        pp = ['MU_BASECORE', "Common/MU_OEM", 'Common/MU', 'Common/TIANO', "Silicon/ARM/MU_TIANO", "Silicon/Broadcom"]
+        ws = self.GetWorkspaceRoot()
+        return [os.path.join(ws, x) for x in pp]
 ```
 
 Now when we run it, we'll see that we get an error from our UefiBuild itself.
@@ -343,6 +344,68 @@ PROGRESS - Error
 ```
 
 It is failing because we don't define our active platform.
+
+Now you might be asking yourself, wait, what about the basetools and the build.py and environmental variables?
+Don't I need to set these up?
+Because we're using Project Mu Basecore, this is included and already mapped out for us via enviromental descriptors.
+For more information on them, go read about them here: (TODO)
+But to briefly illustrate the concept, you can see the section that says Init SDE.
+This means the "Self-Describing Environment" started up and found the plugins and environmental descriptors in our code tree.
+If you look in the Buildlog.txt file that got generated, you'd see this at the top.
+
+```
+INFO - Log Started: Saturday, November 02, 2019 09:22PM
+SECTION - Init SDE
+DEBUG - Getting host info for host: uname_result(system='Windows', node='MACARL-STUDIO', release='10', version='10.0.19016', machine='AMD64', processor='Intel64 Family 6 Model 94 Stepping 3, GenuineIntel')
+DEBUG - --- self_describing_environment.load_workspace()
+DEBUG - Loading workspace: C:\git\rpi
+DEBUG -   Including scopes: raspberrypi, global-win, global
+DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\BinWrappers\WindowsLike\win_build_tools_path_env.json' to the environment with scope 'global-win'.
+DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\edk2_core_path_env.json' to the environment with scope 'global'.
+DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\basetools_calling_path_env.json' to the environment with scope 'global'.
+DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\basetools_path_env.json' to the environment with scope 'global'.
+DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\Scripts\basetools_scripts_bin_path_env.json' to the environment with scope 'global'.
+DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\Source\Python\basetool_tiano_python_path_env.json' to the environment with scope 'global'.
+DEBUG - Adding descriptor 'C:\git\rpi\Common\MU\SharedCryptoPkg\Package\SharedCrypto_ext_dep.json' to the environment with scope 'global'.
+DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\Bin\basetools_ext_dep.json' to the environment with scope 'global'.
+DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\Bin\nasm_ext_dep.json' to the environment with scope 'global'.
+DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\NetworkPkg\SharedNetworking\SharedNetworking_ext_dep.json' to the environment with scope 'global'.
+DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\Plugin\WindowsResourceCompiler\WinRcPath_plug_in.json' to the environment with scope 'global-win'.
+DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\Plugin\WindowsVsToolChain\WindowsVsToolChain_plug_in.yaml' to the environment with scope 'global-win'.
+DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\Plugin\BuildToolsReport\BuildToolsReportGenerator_plug_in.json' to the environment with scope 'global'.
+DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\Plugin\Edk2ToolHelper\Edk2ToolHelper_plug_in.json' to the environment with scope 'global'.
+DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\Plugin\FdSizeReport\FdSizeReportGenerator_plug_in.json' to the environment with scope 'global'.
+DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\Plugin\FlattenPdbs\FlattenPdbs_plug_in.json' to the environment with scope 'global'.
+DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\Plugin\OverrideValidation\OverrideValidation_plug_in.json' to the environment with scope 'global'.
+DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\Plugin\WindowsCapsuleSupportHelper\WindowsCapsuleSupportHelper_plug_in.json' to the environment with scope 'global'.
+DEBUG - --- self_describing_environment.update_simple_paths()
+DEBUG - --- self_describing_environment.update_extdep_paths()
+DEBUG - Verify 'mu_nasm' returning 'True'.
+INFO - C:\git\rpi\MU_BASECORE\BaseTools\Bin\mu_nasm_extdep\Windows-x86-64 was found!
+DEBUG - Verify 'Mu-Basetools' returning 'True'.
+INFO - C:\git\rpi\MU_BASECORE\BaseTools\Bin\Mu-Basetools_extdep\Windows-x86 was found!
+DEBUG - Verify 'Mu-SharedNetworking' returning 'True'.
+DEBUG - Verify 'mu_nasm' returning 'True'.
+DEBUG - Verify 'Mu-SharedCrypto' returning 'True'.
+SECTION - Loading Plugins
+DEBUG - Loading Plugin from C:\git\rpi\MU_BASECORE\BaseTools\Plugin\WindowsResourceCompiler\WinRcPath.py
+DEBUG - Loading Plugin from C:\git\rpi\MU_BASECORE\BaseTools\Plugin\WindowsVsToolChain\WindowsVsToolChain.py
+DEBUG - Loading Plugin from C:\git\rpi\MU_BASECORE\BaseTools\Plugin\BuildToolsReport\BuildToolsReportGenerator.py
+DEBUG - Loading Plugin from C:\git\rpi\MU_BASECORE\BaseTools\Plugin\Edk2ToolHelper\Edk2ToolHelper.py
+DEBUG - Loading Plugin from C:\git\rpi\MU_BASECORE\BaseTools\Plugin\FdSizeReport\FdSizeReportGenerator.py
+DEBUG - Loading Plugin from C:\git\rpi\MU_BASECORE\BaseTools\Plugin\FlattenPdbs\FlattenPdbs.py
+DEBUG - Loading Plugin from C:\git\rpi\MU_BASECORE\BaseTools\Plugin\OverrideValidation\OverrideValidation.py
+DEBUG - Loading Plugin from C:\git\rpi\MU_BASECORE\BaseTools\Plugin\WindowsCapsuleSupportHelper\WindowsCapsuleSupportHelper.py
+INFO - PLUGIN DESCRIPTOR:Edk2Tool Helper Functions
+DEBUG - Helper Plugin Register: Edk2Tool Helper Functions
+INFO - PLUGIN DESCRIPTOR:Windows Capsule Support Helper Functions
+DEBUG - Helper Plugin Register: Windows Capsule Support Helper Functions
+```
+
+You can see it is adding all the descriptors, which includes environment, external dependencies, and plugins.
+We load the basetools, the nasm tools, report generators, and other tools.
+We also check our external dependencies and verify they match the version we expect.
+For more information, you can read the document about the SDE here: (TODO)
 
 The code is commited as commit at this point as (TODO).
 
