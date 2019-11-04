@@ -131,9 +131,10 @@ class Edk2PlatformBuild(Edk2Invocable):
         #
         logging.log(edk2_logging.SECTION, "Kicking off build")
         ret = self.PlatformBuilder.Go(self.GetWorkspaceRoot(),
-                                       os.pathsep.join(self.PlatformSettings.GetPackagesPath()),
-                                       helper, pm)
+                                      os.pathsep.join(self.PlatformSettings.GetPackagesPath()),
+                                      helper, pm)
         logging.log(edk2_logging.SECTION, f"Log file is located at: {self.log_filename}")
+        return ret
 
 
 def main():
