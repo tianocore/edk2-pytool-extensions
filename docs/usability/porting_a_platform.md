@@ -356,8 +356,6 @@ If you look in the Buildlog.txt file that got generated, you'd see this at the t
 ```
 INFO - Log Started: Saturday, November 02, 2019 09:22PM
 SECTION - Init SDE
-DEBUG - Getting host info for host: uname_result(system='Windows', node='MACARL-STUDIO', release='10', version='10.0.19016', machine='AMD64', processor='Intel64 Family 6 Model 94 Stepping 3, GenuineIntel')
-DEBUG - --- self_describing_environment.load_workspace()
 DEBUG - Loading workspace: C:\git\rpi
 DEBUG -   Including scopes: raspberrypi, global-win, global
 DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\BinWrappers\WindowsLike\win_build_tools_path_env.json' to the environment with scope 'global-win'.
@@ -378,8 +376,6 @@ DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\Plugin\FdSizeReport\
 DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\Plugin\FlattenPdbs\FlattenPdbs_plug_in.json' to the environment with scope 'global'.
 DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\Plugin\OverrideValidation\OverrideValidation_plug_in.json' to the environment with scope 'global'.
 DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\Plugin\WindowsCapsuleSupportHelper\WindowsCapsuleSupportHelper_plug_in.json' to the environment with scope 'global'.
-DEBUG - --- self_describing_environment.update_simple_paths()
-DEBUG - --- self_describing_environment.update_extdep_paths()
 DEBUG - Verify 'mu_nasm' returning 'True'.
 INFO - C:\git\rpi\MU_BASECORE\BaseTools\Bin\mu_nasm_extdep\Windows-x86-64 was found!
 DEBUG - Verify 'Mu-Basetools' returning 'True'.
@@ -396,9 +392,7 @@ DEBUG - Loading Plugin from C:\git\rpi\MU_BASECORE\BaseTools\Plugin\FdSizeReport
 DEBUG - Loading Plugin from C:\git\rpi\MU_BASECORE\BaseTools\Plugin\FlattenPdbs\FlattenPdbs.py
 DEBUG - Loading Plugin from C:\git\rpi\MU_BASECORE\BaseTools\Plugin\OverrideValidation\OverrideValidation.py
 DEBUG - Loading Plugin from C:\git\rpi\MU_BASECORE\BaseTools\Plugin\WindowsCapsuleSupportHelper\WindowsCapsuleSupportHelper.py
-INFO - PLUGIN DESCRIPTOR:Edk2Tool Helper Functions
 DEBUG - Helper Plugin Register: Edk2Tool Helper Functions
-INFO - PLUGIN DESCRIPTOR:Windows Capsule Support Helper Functions
 DEBUG - Helper Plugin Register: Windows Capsule Support Helper Functions
 ```
 
@@ -428,6 +422,7 @@ class PlatformBuilder(UefiBuilder):
 Because we've modified the paths, we'll need to modify our DSC as well. We'll change lines that start with `Platform/RaspberryPi/` to just start with  `RaspberryPi/`
 This means `Platform/RaspberryPi/Drivers/SdHostDxe/SdHostDxe.inf`
 becomes `RaspberryPi/Drivers/SdHostDxe/SdHostDxe.inf`
+This applies to both the FDF and the DSC.
 
 
 
@@ -439,3 +434,4 @@ Many of the capabilities and features of Stuart aren't detailed or explored here
 One area not discussed in detail or shown is external dependencies.
 In the future, it would be beneficial to move the ARM Trusted Firmware (ATF) binary blob into an external dependency.
 This means you can have a separate build pipeline for that which packages it up into a nuget or github release, which your platform consumes.
+It addition to not having to carry a binary in your build tree, it makes the version of the binary trivial to track.
