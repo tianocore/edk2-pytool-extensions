@@ -80,13 +80,15 @@ git submodule add https://github.com/microsoft/mu_silicon_arm_tiano.git Silicon/
 Next we will setup a folder to keep track of our platform. In this case we'll use `RaspberryPi`
 
 ```bash
+mkdir Platform
+cd Platform
 mkdir RaspberryPi
 ```
 
 Next we will be taking the Raspberry Pi repo here (https://github.com/tianocore/edk2-platforms/tree/ce51222de1c5f2e81c3c9e5ff31bcfc3b48ccbc7/Platform/RaspberryPi) and copy it into our repo.
 Master at time of writing was ce51222de1c5f2e81c3c9e5ff31bcfc3b48ccbc7, feel free to take something newer but some things might not match.
 This would be like taking your DSC, FDF, DEC and putting it into your code tree.
-Copy the contents of `edk2-platforms/RaspberryPi/` to the `RaspberryPi` folder.
+Copy the contents of `edk2-platforms/RaspberryPi/` to the `Platform/RaspberryPi` folder.
 
 Next we'll grab the silicon code.
 First create the folder in the root of your repo.
@@ -97,6 +99,7 @@ mkdir Silicon
 
 Then grab `edk2-platforms/Silicon/Broadcom/Bcm283x` and put it into `Silicon/Broadcom/Bcm283x`.
 In a typical code tree, the silicon specific code might be another repo but in this case, we'll just include it in the root of our tree.
+We'll also copy `edk2-platforms/Driver/OptionRomPkg` to `/OptionRomPkg`.
 
 At this point, we're almost ready.
 Our tree should look like this:
@@ -113,6 +116,9 @@ rpi
 |   |---TIANO
 |
 |---MU_BASECORE
+|
+|---OptionRomPkg
+|   |   ....
 |
 |---RaspberryPi
 |   |   RaspberryPi.dec
@@ -144,7 +150,7 @@ Since we are using the build in invocables, we'll need to implement three settin
 
 If you're unfamiliar with what an invocable or a settings file is, please refer to our documentation.
 
-Let's add a file: `RaspberryPi/RPi3/PlatformBuild.py`
+Let's add a file: `Platform/RaspberryPi/RPi3/PlatformBuild.py`
 
 ```python
 ##
@@ -241,7 +247,7 @@ You could use the same settings file to build multiple platforms or select betwe
 Now if we call setup, we should see something like this:
 
 ```cmd
-C:\git\rpi>stuart_setup -c RaspberryPi\RPi3\PlatformBuild.py
+C:\git\rpi>stuart_setup -c Platform\RaspberryPi\RPi3\PlatformBuild.py
 SECTION - Init SDE
 SECTION - Loading Plugins
 SECTION - Start Invocable Tool
@@ -274,7 +280,7 @@ Since we defined the scopes, our settings file is already configured.
 We can run the setup and it will work just fine.
 
 ```cmd
-C:\git\rpi>stuart_update -c RaspberryPi\RPi3\PlatformBuild.py
+C:\git\rpi> stuart_update -c RaspberryPi\RPi3\PlatformBuild.py
 SECTION - Init SDE
 SECTION - Loading Plugins
 SECTION - Start Invocable Tool
@@ -320,14 +326,16 @@ class SettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSettings
 
     def GetPackagesPath(self):
         ''' get module packages path '''
-        pp = ['MU_BASECORE', "Common/MU_OEM", 'Common/MU', 'Common/TIANO', "Silicon/ARM/MU_TIANO", "Silicon/Broadcom"]
+        pp = ['MU_BASECORE', "Common/MU_OEM", 'Common/MU', 'Common/TIANO', "Silicon/ARM/MU_TIANO", "Silicon/Broadcom", "Platform"]
         ws = self.GetWorkspaceRoot()
         return [os.path.join(ws, x) for x in pp]
 ```
 
 Now when we run it, we'll see that we get an error from our UefiBuild itself.
+(Replace your toolchain tag with whatever toolchain you are using.)
 
-``` bash
+``` log
+C:\git\rpi> stuart_build -c  Platform\RaspberryPi\RPi3\PlatformBuild.py TOOL_CHAIN_TAG=******
 SECTION - Init SDE
 SECTION - Loading Plugins
 SECTION - Start Invocable Tool
@@ -353,7 +361,7 @@ But to briefly illustrate the concept, you can see the section that says Init SD
 This means the "Self-Describing Environment" started up and found the plugins and environmental descriptors in our code tree.
 If you look in the Buildlog.txt file that got generated, you'd see this at the top.
 
-```
+``` log
 INFO - Log Started: Saturday, November 02, 2019 09:22PM
 SECTION - Init SDE
 DEBUG - Loading workspace: C:\git\rpi
@@ -419,12 +427,173 @@ class PlatformBuilder(UefiBuilder):
 
 ```
 
-Because we've modified the paths, we'll need to modify our DSC as well. We'll change lines that start with `Platform/RaspberryPi/` to just start with  `RaspberryPi/`
-This means `Platform/RaspberryPi/Drivers/SdHostDxe/SdHostDxe.inf`
-becomes `RaspberryPi/Drivers/SdHostDxe/SdHostDxe.inf`
-This applies to both the FDF and the DSC.
+We'll need to change any line that starts with `Drivers/OptionRomPkg/...` to `OptionRomPkg/...`
+You can place the OptionRomPkg elsewhere, like a git submodule or subfolder, just make sure to update these.
 
+Now if we run the build we get this error.
+(You might need to open the `BUILDLOG.txt` to see the whole error)
 
+``` log
+INFO - build.py...
+INFO -  : error 000E: File/directory not found in workspace
+INFO - 	Platform\RaspberryPi\Drivers\LogoDxe\LogoDxe.inf is not found in packages path:
+```
+
+In the original project, there were a few errors at the commit we snapped from.
+So we'll fix the LogoDxe by using the one from MdeModulePkg
+
+``` dsc
+Platform/RaspberryPi/Drivers/LogoDxe/LogoDxe.inf =>  MdeModulePkg/Logo/LogoDxe.inf # MS_CHANGE
+```
+
+At this point, you can see the code at commit {TODO}.
+
+If you build again, the next error you'll see in `BUILDLOG.txt` will look like this:
+
+``` log
+INFO - build.py...
+INFO -  : error 000E: File/directory not found in workspace
+INFO - 	Platform\RaspberryPi\RPi3\DeviceTree\bcm2710-rpi-3-b.dtb is not found in packages path:
+INFO - 	c:\git\rpi\MU_BASECORE
+```
+
+In the edk2-platform there was a DeviceTree folder. We'll use the devicetree from github.
+
+First create the DeviceTree folder. Go to the root of your project.
+
+``` cmd
+mkdir Platform\RaspberryPi\DeviceTree
+```
+
+Then we'll create two files.
+The first is the `Platform/RaspberryPi/DeviceTree/rpi-3-bp_ext_dep.yaml`
+Paste this in:
+
+``` yaml
+##
+# Download the Rpi 3b+ device tree from github
+#
+# Copyright (c) 2019, Microsoft Corporation
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+{
+  "scope": "raspberrypi",
+  "type": "web",
+  "name": "bcm2710_rpi_3b_plus_devicetree",
+  "source": "https://github.com/raspberrypi/firmware/raw/a16470ad47c0ad66d5c98d98e08e49cd148c8fc0/boot/bcm2710-rpi-3-b-plus.dtb",
+  "version": "a16470ad47c0ad66d5c98d98e08e49cd148c8fc0",
+  'internal_path': "bcm2710-rpi-3-b-plus.dtb",
+  "sha256": "253a2e8765aaec5bce6b2ab4e4dbd16107897cc24bb3e248ab5206c09a42cf04",
+  "flags": ["set_shell_var", ],
+  "var_name": "BCM2710_3BP_DT"
+}
+```
+
+The second is at `Platform/RaspberryPi/DeviceTree/rpi-3-b_ext_dep.yaml`
+Paste this in:
+
+``` yaml
+##
+# Download the Rpi 3b device tree from github
+#
+# Copyright (c) 2019, Microsoft Corporation
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+{
+  "scope": "raspberrypi",
+  "type": "web",
+  "name": "bcm2710_rpi_3b_devicetree",
+  "source": "https://github.com/raspberrypi/firmware/raw/a16470ad47c0ad66d5c98d98e08e49cd148c8fc0/boot/bcm2710-rpi-3-b.dtb",
+  "version": "a16470ad47c0ad66d5c98d98e08e49cd148c8fc0",
+  'internal_path': "./bcm2710-rpi-3-b.dtb",
+  "sha256": "18ce263a6e1ce4ba7aee759885cb665d61611d2f17cee5b7e91215f7b97d2952",
+  "flags": ["set_shell_var", ],
+  "var_name": "BCM2710_3B_DT"
+}
+```
+
+These are two external dependencies that will download the device trees from GitHub.
+It includes the SHA256 of the file so it can verify the file downloaded.
+Feel free to jump ahead to a newer commit hash, just be aware that you'll need to update the SHA256 (stuart will warn you and show you the new hash).
+
+Let's run an update to fetch our new dependencies.
+
+``` cmd
+c:\git\rpi>stuart_update -c Platform\RaspberryPi\RPi3\PlatformBuild.py
+```
+
+You'll see some ouput and you'll notice two new folders in the tree.
+`Platform\RaspberryPi\DeviceTree\bcm2710_rpi_3b_devicetree_extdep` and `Platform\RaspberryPi\DeviceTree\bcm2710_rpi_3b_plus_devicetree_extdep`.
+Inside is the files that we want.
+
+Because the we told to SDE to save where the file was populated into an environmental variable, we'll use that in our FDF.
+This means that
+```fdf
+  # Device Tree support (used by FdtDxe)
+  # GUIDs should match gRaspberryPi#####FdtGuid's from the .dec
+  #
+  FILE FREEFORM = DF5DA223-1D27-47C3-8D1B-9A41B55A18BC {
+    SECTION RAW = Platform/RaspberryPi/$(PLATFORM_NAME)/DeviceTree/bcm2710-rpi-3-b.dtb
+  }
+  FILE FREEFORM = 3D523012-73FE-40E5-892E-1A4DF60F3C0C {
+    SECTION RAW = Platform/RaspberryPi/$(PLATFORM_NAME)/DeviceTree/bcm2710-rpi-3-b-plus.dtb
+  }
+```
+becomes
+```fdf
+  # Device Tree support (used by FdtDxe)
+  # GUIDs should match gRaspberryPi#####FdtGuid's from the .dec
+  #
+  FILE FREEFORM = DF5DA223-1D27-47C3-8D1B-9A41B55A18BC {
+    SECTION RAW = $(BCM2710_3B_DT)/bcm2710-rpi-3-b.dtb
+  }
+  FILE FREEFORM = 3D523012-73FE-40E5-892E-1A4DF60F3C0C {
+    SECTION RAW = $(BCM2710_3BP_DT)/bcm2710-rpi-3-b-plus.dtb
+  }
+```
+
+You can see the code committed at this point at commit: {TODO}
+
+Now if we build it, you'll see this error.
+
+``` log
+INFO - build.py...
+INFO - c:\git\rpi\Platform\RaspberryPi\RPi3\RPi3.dsc(...): error 4000: Instance of library class [BaseBinSecurityLib] is not found
+INFO - 	in [c:\git\rpi\MU_BASECORE\MdeModulePkg\Core\Dxe\DxeMain.inf] [AARCH64]
+INFO - 	consumed by module [c:\git\rpi\MU_BASECORE\MdeModulePkg\Core\Dxe\DxeMain.inf]
+```
+
+This is because the MU_BASECORE version DxeMain needs BaseBinSecurityLib.
+We're going to use the null version.
+To our [LibraryClasses.common.DXE_CORE], we're going to add the BaseBinSecurityLib.
+
+``` dsc
+[LibraryClasses.common.DXE_CORE]
+  ....
+  BaseBinSecurityLib|MdePkg/Library/BaseBinSecurityLibNull/BaseBinSecurityLibNull.inf #CHANGE
+```
+
+Build again, and you get this error.
+
+``` log
+INFO - build.py...
+INFO - c:\git\rpi\Platform\RaspberryPi\RPi3\RPi3.dsc(...): error 4000: Instance of library class [MuVariablePolicyHelperLib] is not found
+INFO - 	in [c:\git\rpi\MU_BASECORE\MdeModulePkg\Universal\Variable\RuntimeDxe\VariableRuntimeDxe.inf] [AARCH64]
+INFO - 	consumed by module [c:\git\rpi\MU_BASECORE\MdeModulePkg\Universal\Variable\RuntimeDxe\VariableRuntimeDxe.inf]
+```
+
+Project Mu adds the variable policy, which is a fantastic bit of code that does some real neat stuff.
+For more information, go check it out here (TODO).
+
+Anyway- so to our DSC, we're going to add some extra classes
+
+```dsc
+[LibraryClasses.common]
+    ...
+    # Project MU dependencies
+    MuVariablePolicyHelperLib|MdeModulePkg/Library/MuVariablePolicyHelperLib/MuVariablePolicyHelperLib.inf # CHANGE
+    SecurityLockAuditLib|MdeModulePkg/Library/SecurityLockAuditDebugMessageLib/SecurityLockAuditDebugMessageLib.inf # CHANGE
+```
 
 
 
