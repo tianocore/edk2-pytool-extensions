@@ -18,6 +18,11 @@ This guide shows one way to structure your platform code but there are many diff
 Stuart is flexible and versatile enough to be able to be adapted to many workflows.
 You are encouraged to experiment and see what works best for you and your team.
 
+Since the Raspberry Pi project in EDK2-Platforms uses GCC, we will also be using WSLv2 (Windows Subsystem for Linux).
+If you're on a linux machine, you should be able to follow this tutorial.
+
+For information on how to use WSL, refer to the guide using_wsl.md
+
 ## Getting Started
 
 First we will start by creating our workspace.
@@ -649,6 +654,9 @@ As it would happen, a library in Project Mu does that exactly.
   ...
   RngLib|SecurityPkg/RandomNumberGenerator/RngDxeLib/RngDxeLib.inf # CHANGE
 ```
+
+Depending on whether you are on windows or linux, you might need to change some parts of the code to work with your compiler.
+In this tutorial, we are using VS2017 we
 
 ## Future Work
 
