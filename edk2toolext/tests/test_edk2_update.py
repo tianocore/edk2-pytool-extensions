@@ -13,6 +13,7 @@ import os
 import logging
 from importlib import reload
 from edk2toolext.environment import shell_environment
+from edk2toolext.environment import self_describing_environment
 
 class_info = '''
 from edk2toolext.invocables.edk2_update import UpdateSettingsManager
@@ -113,7 +114,6 @@ class TestEdk2Update(unittest.TestCase):
         # now we should check that our workspace is how we expect it
         print(workspace_abs)
 
-        (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(
-            directory, scopes)
+        (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(workspace_abs, [])
         print(build_env.paths)
         self.fail(build_env)
