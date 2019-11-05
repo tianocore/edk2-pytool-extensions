@@ -112,8 +112,6 @@ class TestEdk2Update(unittest.TestCase):
             self.assertEqual(e.code, 0, "We should have a non zero error code")
             pass
         # now we should check that our workspace is how we expect it
-        print(workspace_abs)
-
         (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(workspace_abs, [])
-        print(build_env.paths)
-        self.fail(build_env)
+        # make sure we find more than 1 path
+        self.assertGreater(len(build_env.path), 0)
