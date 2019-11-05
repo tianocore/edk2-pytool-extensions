@@ -162,6 +162,7 @@ from edk2toolext.environment.uefi_build import UefiBuilder
 from edk2toolext.invocables.edk2_platform_build import BuildSettingsManager
 from edk2toolext.invocables.edk2_setup import SetupSettingsManager
 from edk2toolext.invocables.edk2_update import UpdateSettingsManager
+from edk2toollib.utility_functions import GetHostInfo
 
 #
 #==========================================================================
@@ -203,7 +204,7 @@ class SettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSettings
 
     def GetActiveScopes(self):
         ''' get scope '''
-        return ['raspberrypi']
+        return ['raspberrypi', 'gcc_aarch64_linux']
 
     def GetPackagesSupported(self):
         ''' return iterable of edk2 packages supported by this build.
@@ -422,7 +423,12 @@ class PlatformBuilder(UefiBuilder):
     def SetPlatformEnv(self):
         self.env.SetValue("ACTIVE_PLATFORM", "RaspberryPi/RPi3/RPi3.dsc", "Platform Hardcoded")
         self.env.SetValue("PRODUCT_NAME", "RaspberryPi", "Platform Hardcoded")
-        self.env.SetValue("TOOL_CHAIN_TAG", "VS2017", "Platform Hardcoded", True)
+        os = GetHostInfo().os
+        if os.lower() == "windows":
+            self.env.SetValue("TOOL_CHAIN_TAG", "VS2017", "Platform Hardcoded", True)
+        else:
+            self.env.SetValue("TOOL_CHAIN_TAG", "GCC5", "Platform Hardcoded", True)
+
         return 0
 
 ```
@@ -595,7 +601,54 @@ Anyway- so to our DSC, we're going to add some extra classes
     SecurityLockAuditLib|MdeModulePkg/Library/SecurityLockAuditDebugMessageLib/SecurityLockAuditDebugMessageLib.inf # CHANGE
 ```
 
+Build again and a new error appears!
+The reason that we are doing individual builds is so that you can learn how to resolve dependencies and we have a change to talk about why these libraries need to be added.
 
+The next error:
+
+``` log
+INFO - build.py...
+INFO - c:\git\rpi\Platform\RaspberryPi\RPi3\RPi3.dsc(...): error 4000: Instance of library class [ResetSystemLib] is not found
+INFO - 	in [c:\git\rpi\MU_BASECORE\MdeModulePkg\Library\ResetUtilityLib\ResetUtilityLib.inf] [AARCH64]
+INFO - 	consumed by module [c:\git\rpi\MU_BASECORE\MdeModulePkg\Universal\CapsuleRuntimeDxe\CapsuleRuntimeDxe.inf]
+```
+
+The Project Mu capsule runtime uses the ResetUtility to reset the system. We can use the Edk2 version of this.
+
+You'll add these to your DSC.
+
+``` dsc
+[LibraryClasses.common.DXE_DRIVER]
+  ...
+  ResetSystemLib|MdeModulePkg/Library/DxeResetSystemLib/DxeResetSystemLib.inf # CHANGE
+
+[LibraryClasses.common.DXE_RUNTIME_DRIVER]
+  ...
+  ResetSystemLib|MdeModulePkg/Library/RuntimeResetSystemLib/RuntimeResetSystemLib.inf # CHANGE
+
+```
+
+Build again and we get an error about MemoryTypeInformationChangeLib.
+In this case, we can use the null version.
+
+```dsc
+[LibraryClasses.common]
+  ...
+  # Project MU dependencies
+  ...
+  MemoryTypeInformationChangeLib|MdeModulePkg/Library/MemoryTypeInformationChangeLibNull/MemoryTypeInformationChangeLibNull.inf  # CHANGE
+```
+
+Build again and we have a missing RngLib.
+Luckily for us, there is already RngDxe that publishes the RNG protocol.
+We just need a library that fetches the protocol and uses it.
+As it would happen, a library in Project Mu does that exactly.
+
+```dsc
+[LibraryClasses.common.UEFI_DRIVER]
+  ...
+  RngLib|SecurityPkg/RandomNumberGenerator/RngDxeLib/RngDxeLib.inf # CHANGE
+```
 
 ## Future Work
 
