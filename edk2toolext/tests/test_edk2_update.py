@@ -101,7 +101,7 @@ class TestEdk2Update(unittest.TestCase):
         settings_filepath = os.path.abspath(os.path.join(WORKSPACE, "settings.py"))
         extdep_filepath = os.path.abspath(os.path.join(WORKSPACE, "basecore_ext_dep.yaml"))
         real_class = class_info.replace("WORKSPACE", f'"{workspace_abs}"')
-        print(settings_filepath)
+
         # inject the settings file and the ext dep into our temp workspace
         TestEdk2Update.write_to_file(extdep_filepath, basecore_ext_dep)
         TestEdk2Update.write_to_file(settings_filepath, real_class)
