@@ -359,13 +359,15 @@ PROGRESS - Error
 
 It is failing because we don't define our active platform.
 
-Now you might be asking yourself, wait, what about the basetools and the build.py and environmental variables?
+Now you might be asking yourself, wait, what about the basetools, the CONF folder, the build toolsm and environmental variables?
 Don't I need to set these up?
 Because we're using Project Mu Basecore, this is included and already mapped out for us via enviromental descriptors.
 For more information on them, go read about them here: (TODO)
 But to briefly illustrate the concept, you can see the section that says Init SDE.
 This means the "Self-Describing Environment" started up and found the plugins and environmental descriptors in our code tree.
 If you look in the Buildlog.txt file that got generated, you'd see this at the top.
+It finds precompiled build tools and dynamically creates the CONF folder if it isn't found.
+The goal of Stuart is to be as magical as possible while still being transparent and understandable as possible.
 
 ``` log
 INFO - Log Started: Saturday, November 02, 2019 09:22PM

@@ -57,8 +57,39 @@ You should see something like this:
 ## Starting your WSL Environment
 
 Starting your new environment is easy.
-Open the Ubuntu-18.04 app in your start menu or type wsl into the command window (note that this will launch your default instance, which may not be Ubuntu-18.04 if you have multiple environments installed).
+Open the Ubuntu-18.04 app in your start menu or type `wsl` into the command window (note that this will launch your default instance, which may not be Ubuntu-18.04 if you have multiple environments installed).
 
 When you first start the environment, it will do initial first time setup that may take a few minutes.
 It will prompt you for a new username and password.
 This can be unique from your windows username and password.
+
+## Setting up EDK2
+
+The guide here (https://github.com/tianocore/tianocore.github.io/wiki/Using-EDK-II-with-Native-GCC) is pretty fantastic and most of the advice applies.
+
+Run this command in WSL to install the pieces needed.
+
+```bash
+sudo apt-get install build-essential uuid-dev iasl git gcc-5 nasm python3-distutils
+```
+
+If you aren't use Project Mu's BASECORE, you'll need to compile the basetools.
+
+
+## Setting up VSCODE
+
+Visual Studio code makes developing in WSL much easier.
+This guide here is pretty informative: https://code.visualstudio.com/docs/remote/wsl
+
+Install Visual Studio Code in your windows environment.
+Then install the Remote Development VS Code extension.
+
+You should see the installation of the VS Code server if you are doing this for the first time.
+If you don't see it, make sure your extension is installed properly.
+
+Naviagate to the folder you want to use in your WSL terminal and then run code
+
+```bash
+cd my_project_folder
+code .
+```
