@@ -76,7 +76,7 @@ sudo apt-get install build-essential uuid-dev iasl git gcc-5 nasm python3-distut
 If you aren't use Project Mu's BASECORE, you'll need to compile the basetools.
 
 
-## Setting up VSCODE
+## Setting up VS Code
 
 Visual Studio code makes developing in WSL much easier.
 This guide here is pretty informative: https://code.visualstudio.com/docs/remote/wsl
@@ -93,3 +93,12 @@ Naviagate to the folder you want to use in your WSL terminal and then run code
 cd my_project_folder
 code .
 ```
+
+## Using VS Code
+
+You can use your VS Code editor just like you're editing locally.
+Opening a terminal in VS Code opens a WSL window, which makes compilation much easier.
+
+## Questions
+
+If you have any questions or comments, feel free to leave an issue on our github repo here (TODO)
