@@ -70,12 +70,16 @@ setuptools.setup(
                             'stuart_ci_setup=edk2toolext.invocables.edk2_ci_setup:main',
                             'stuart_pr_eval=edk2toolext.invocables.edk2_pr_eval:main',
                             'omnicache=edk2toolext.omnicache:main',
-                            'nuget-publish=edk2toolext.nuget_publishing:go']
+                            'nuget-publish=edk2toolext.nuget_publishing:go',
+                            'edk2_capsule_tool=edk2toolext.capsule.capsule_tool:main']
     },
     install_requires=[
         'pyyaml',
-        'edk2-pytool-library>=0.9.1'
+        'edk2-pytool-library>=0.10.3'
     ],
+    extras_require={
+        'openssl': ['pyopenssl']
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: BSD License",
