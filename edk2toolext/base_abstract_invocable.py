@@ -18,6 +18,7 @@ from edk2toolext.environment import self_describing_environment
 class BaseAbstractInvocable(object):
 
     def __init__(self):
+        self.log_filename = None
         return
 
     def ParseCommandLineOptions(self):
@@ -84,7 +85,6 @@ class BaseAbstractInvocable(object):
         log_directory = os.path.join(self.GetWorkspaceRoot(), self.GetLoggingFolderRelativeToRoot())
 
         txtlogfile = self.GetLoggingLevel("txt")
-        self.log_filename = None
         if(txtlogfile is not None):
             logfile, filelogger = edk2_logging.setup_txt_logger(log_directory,
                                                                 self.GetLoggingFileName("txt"),
