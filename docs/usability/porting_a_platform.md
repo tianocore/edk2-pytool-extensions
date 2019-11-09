@@ -55,16 +55,19 @@ edk2-pytool-extensions
 You're welcome to snap to a particular version by adding `==0.12.2` or whatever version you want to keep after the pip name.
 
 Next you'll need to install the pip modules.
+If you see that the pip isn't installed, install it with this command.
+
+```bash
+sudo apt install python-pip
+```
+
+Once your pip is setup, install the requirements by executing this
 
 ```bash
 pip install -r pip_requirements.txt
 ```
 
 Now let's start by adding EDK2 modules.
-If you were taking default EDK2, you could add it as a submodule like so:
-```
-git submodule add edk2 https://github.com/tianocore/edk2.git
-```
 
 We're going to be using Project Mu since we can carry less and be a little more streamlined. We will need four packages.
 
@@ -82,7 +85,16 @@ git submodule add https://github.com/Microsoft/mu_oem_sample.git Common/MU_OEM
 git submodule add https://github.com/microsoft/mu_silicon_arm_tiano.git Silicon/ARM/MU_TIANO
 ```
 
-Next we will setup a folder to keep track of our platform. In this case we'll use `RaspberryPi`
+If you were taking default EDK2, you could add it as a submodule like so:
+```
+git submodule add https://github.com/tianocore/edk2.git edk2
+```
+
+To be clear, **don't use EDK2 and MU_BASECORE in the same tree**.
+They overlap since MU_BASECORE has EDK2 as an upstream.
+For this guide, we'll be using Basecore since it makes it guide simplier.
+
+Next we will setup a folder to keep track of our platform. In this case we'll use `Platform/RaspberryPi`
 
 ```bash
 mkdir Platform
