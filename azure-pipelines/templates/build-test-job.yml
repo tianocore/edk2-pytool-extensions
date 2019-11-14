@@ -40,17 +40,6 @@ jobs:
     condition: succeededOrFailed()
 
   - ${{ if ne(parameters.pypi_auth_feed, '') }}:
-    # Run a Python script.
-    - task: PythonScript@0
-      displayName: 'Confirm Version and Tag'
-      inputs:
-        scriptSource: 'filePath' # Options: filePath, inline
-        scriptPath: ConfirmVersionAndTag.py
-        #arguments: # Optional
-        #pythonInterpreter: # Optional
-        #workingDirectory: # Optional
-        failOnStderr: true # Optional
-    
     - template: build-publish-whl-steps.yml
       parameters:
         pypi_auth_feed: ${{parameters.pypi_auth_feed}}
