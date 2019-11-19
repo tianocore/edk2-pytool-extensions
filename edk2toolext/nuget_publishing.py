@@ -207,18 +207,20 @@ class NugetSupport(object):
     def _GetNuPkgFileName(self, version):
         # Nuget removes leading zeros so to match we must do the same
         s = self.Name + "."
-        append_tag = ""
+        append_tag = None
         parts = version.split(".")
         if "-" in parts[-1]:
             parts[-1], append_tag = parts[-1].split("-")
-        for a in parts:
-            s += str(int(a)) + "."
+        int_parts = [str(int(a)) for a in parts]
 
         # nuget must have at least x.y.z and will make zero any element undefined
-        for a in range(len(parts), 3):
-            s += "0."
-
-        s += "nupkg"
+        for _ in range(len(int_parts), 3):
+            int_parts.append("0")
+        # Join the integers together
+        s += ".".join(int_parts)
+        if append_tag is not None:
+            s+= f"-{append_tag}"
+        s += ".nupkg"
         return s
 
     ##
