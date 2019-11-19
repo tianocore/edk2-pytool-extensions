@@ -57,20 +57,31 @@ class NugetDependency(ExternalDependency):
     def normalize_version(version):
         if len(version) == 0:
             raise ValueError("Unparsable version: empty string")
-        version_parts = tuple(int(num) for num in version.split('.'))
-        if len(version_parts) > 4:
+        version_parts = version.split("-")
+        if len(version_parts) > 2:
+            raise ValueError("Unparsable version: '%s'!")
+        version_ints = version_parts[0]
+        tag = version_parts[1] if len(version_parts) > 1 else None
+        if tag not in [None, "beta", "alpha", "rc"]:
+            raise ValueError(f"Unparsable version tag: {tag}")
+
+        version_int_parts = tuple(int(num) for num in version_ints.split('.'))
+        if len(version_int_parts) > 4:
             raise ValueError("Unparsable version: '%s'!")
 
         # Remove extra trailing zeros (beyond 3 elements).
-        if len(version_parts) == 4 and version_parts[3] == 0:
-            version_parts = version_parts[0:3]  # drop the last item
+        if len(version_int_parts) == 4 and version_int_parts[3] == 0:
+            version_int_parts = version_int_parts[0:3]  # drop the last item
 
         # Add missing trailing zeros (below 3 elements).
-        if len(version_parts) < 3:
-            version_parts = version_parts + (0,) * (3 - len(version_parts))
+        if len(version_int_parts) < 3:
+            version_int_parts = version_int_parts + (0,) * (3 - len(version_int_parts))
 
         # Return reformed version.
-        return ".".join((str(num) for num in version_parts))
+        reformed_ints = ".".join((str(num) for num in version_int_parts))
+        if tag is not None:
+            reformed_ints += "-" + tag
+        return reformed_ints
 
     def _fetch_from_cache(self, package_name):
         result = False

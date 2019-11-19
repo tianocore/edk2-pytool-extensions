@@ -110,7 +110,7 @@ class TestNugetDependency(unittest.TestCase):
 
         ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
         ext_dep = NugetDependency(ext_dep_descriptor)
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises((RuntimeError, ValueError)):  # we can throw a value error if we hit the cache
             # we should throw an exception because we don't know how to parse the version
             ext_dep.fetch()
         self.assertFalse(ext_dep.verify())
@@ -125,10 +125,18 @@ class TestNugetDependency(unittest.TestCase):
         version3 = "6"
         proper_version3 = "6.0.0"
         self.assertEqual(proper_version3, NugetDependency.normalize_version(version3))
+        version4 = "6-beta"
+        proper_version4 = "6.0.0-beta"
+        self.assertEqual(proper_version4, NugetDependency.normalize_version(version4))
         # try some bad cases
-        version4 = "not a number"
         with self.assertRaises(ValueError):
-            NugetDependency.normalize_version(version4)
+            NugetDependency.normalize_version("not a number")
+        with self.assertRaises(ValueError):
+            NugetDependency.normalize_version("6.0-beta-beta")
+        with self.assertRaises(ValueError):
+            NugetDependency.normalize_version("6.0-bad")
+        with self.assertRaises(ValueError):
+            NugetDependency.normalize_version("6.0-")
         with self.assertRaises(ValueError):
             NugetDependency.normalize_version("")
         with self.assertRaises(ValueError):
