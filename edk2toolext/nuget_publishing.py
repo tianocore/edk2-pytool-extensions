@@ -219,7 +219,7 @@ class NugetSupport(object):
         # Join the integers together
         s += ".".join(int_parts)
         if append_tag is not None:
-            s+= f"-{append_tag}"
+            s += f"-{append_tag}"
         s += ".nupkg"
         return s
 
