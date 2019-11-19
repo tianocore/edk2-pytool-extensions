@@ -123,7 +123,11 @@ Key=value will get passed to build process for given build type)'''
         # get the settings manager from the provided file and load an instance
         settingsArg, unknown_args = settingsParserObj.parse_known_args()
         try:
-            self.PlatformModule = import_module_by_file_name(os.path.abspath(settingsArg.platform_module))
+            # Add the folder that the settings file is in onto the python path
+            plat_mod_path = os.path.abspath(settingsArg.platform_module)
+            sys.path.append(os.path.dirname(plat_mod_path))
+            # Import the provided file
+            self.PlatformModule = import_module_by_file_name(plat_mod_path)
             self.PlatformSettings = locate_class_in_module(
                 self.PlatformModule, self.GetSettingsClass())()
         except (TypeError):
@@ -151,9 +155,10 @@ Key=value will get passed to build process for given build type)'''
             settingsParserObj.print_help()
             sys.exit(1)
 
-        except (FileNotFoundError):
+        except FileNotFoundError as e:
             # Gracefully exit if we can't find the file
             print(f"We weren't able to find {settingsArg.platform_module}")
+            print(e)
             settingsParserObj.print_help()
             sys.exit(2)
 
