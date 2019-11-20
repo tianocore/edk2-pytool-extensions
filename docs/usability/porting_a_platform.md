@@ -102,21 +102,29 @@ cd Platform
 mkdir RaspberryPi
 ```
 
-Next we will be taking the Raspberry Pi repo here (https://github.com/tianocore/edk2-platforms/tree/ce51222de1c5f2e81c3c9e5ff31bcfc3b48ccbc7/Platform/RaspberryPi) and copy it into our repo.
-Master at time of writing was ce51222de1c5f2e81c3c9e5ff31bcfc3b48ccbc7, feel free to take something newer but some things might not match.
+Next we will be taking the Raspberry Pi repo here (https://github.com/tianocore/edk2-platforms/tree/92f06ccddfcfd3cab1672180b340f765204a65ed/Platform/RaspberryPi) and copy it into our repo.
+Master at time of writing was 92f06ccddfcfd3cab1672180b340f765204a65ed, feel free to take something newer but some things might not match.
 This would be like taking your DSC, FDF, DEC and putting it into your code tree.
-Copy the contents of `edk2-platforms/RaspberryPi/` to the `Platform/RaspberryPi` folder.
-
-Next we'll grab the silicon code.
-First create the folder in the root of your repo.
+Copy the contents of `edk2-platforms/Platform/RaspberryPi/` to the `rpi/Platform/RaspberryPi` folder.
 
 ```bash
-mkdir Silicon
+cd ~
+git clone https://github.com/tianocore/edk2-platforms.git
+cd edk2-platforms
+git checkout 92f06ccddfcfd3cab1672180b340f765204a65ed
+cp -r Platform/RaspberryPi/ ../rpi/Platform
 ```
 
-Then grab `edk2-platforms/Silicon/Broadcom/Bcm283x` and put it into `Silicon/Broadcom/Bcm283x`.
+Next we'll grab the silicon code.
+First grab `edk2-platforms/Silicon/Broadcom/Bcm283x` and put it into `Silicon/Broadcom/Bcm283x`.
 In a typical code tree, the silicon specific code might be another repo but in this case, we'll just include it in the root of our tree.
-We'll also copy `edk2-platforms/Driver/OptionRomPkg` to `/OptionRomPkg`.
+We'll also copy `edk2-platforms/Drivers/OptionRomPkg` to `/OptionRomPkg`.
+
+
+```bash
+cp -r Silicon/Broadcom/Bcm283x ../rpi/Silicon/Broadcom/
+cp -r Drivers/OptionRomPkg ../rpi/
+```
 
 At this point, we're almost ready.
 Our tree should look like this:
@@ -137,14 +145,15 @@ rpi
 |---OptionRomPkg
 |   |   ....
 |
-|---RaspberryPi
-|   |   RaspberryPi.dec
-|   |
-|   |---AcpiTables
-|   |---Drivers
-|   |---Include
-|   |---Library
-|   |---Include
+|---Platform
+|   |---RaspberryPi
+|   |   |   RaspberryPi.dec
+|   |   |
+|   |   |---AcpiTables
+|   |   |---Drivers
+|   |   |---Include
+|   |   |---Library
+|   |   |---Include
 |
 |---Silicon
 |   |---ARM
@@ -167,7 +176,8 @@ Since we are using the build in invocables, we'll need to implement three settin
 
 If you're unfamiliar with what an invocable or a settings file is, please refer to our documentation.
 
-Let's add a file: `Platform/RaspberryPi/RPi3/PlatformBuild.py`
+Let's add a file: `Platform/RaspberryPi/RPi3/PlatformBuild.py`.
+Let's start with a settings manager for stuart
 
 ```python
 ##
@@ -180,6 +190,7 @@ from edk2toolext.invocables.edk2_platform_build import BuildSettingsManager
 from edk2toolext.invocables.edk2_setup import SetupSettingsManager
 from edk2toolext.invocables.edk2_update import UpdateSettingsManager
 from edk2toollib.utility_functions import GetHostInfo
+from edk2toolext.invocables.edk2_setup import RequiredSubmodule
 
 #
 #==========================================================================
@@ -197,11 +208,17 @@ class SettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSettings
 
 ```
 
-Our settings provider can now set up our workspace path, which should resolve to your root `rpi` folder.
-However, it is still missing a lot of functionality.
+For more information on settings managers, please refer to the documentation.
+Right now we are importing the needed classes from the pytools as well as defining a class which will provide the settings to stuart.
 
 The three invocables that we have implemented settings for are `stuart_build`, `stuart_update`, and `stuart_setup`.
 If you were to call one of these, you'd get an error and perhaps a non-implemented method.
+
+Since our settings provider it is still missing a lot of functionality.
+While it can now set up our workspace path, which should resolve to your root `rpi` folder, there's still different methods of each settings manager that we haven't implemented yet.
+
+`GetWorkspaceRoot` returns a path to the root of your workspace.
+In this case, `rpi` is the folder in question, which is two levels up from our PlatformBuild.py.
 
 
 ### Setup
@@ -209,6 +226,8 @@ If you were to call one of these, you'd get an error and perhaps a non-implement
 Let's focus on getting setup working.
 Let's add Scopes and RequiredSubmodules.
 ```python
+...
+
 class SettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSettingsManager):
     def __init__(self):
         SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -288,6 +307,12 @@ SECTION - Summary
 PROGRESS - Success
 ```
 
+You'll also notice that there's a new folder in your tree: `Build`.
+In the setup phase, we don't have an output folder from the DSC yet, so we put logs into that folder.
+Inside you'll notice is a SETUPLOG.
+It just contains verbose information about this process.
+For example, you'll see that it cloned the submodules in Common/TIANO.
+
 Since we've already setup our submodules, there isn't much to do other than verify the system is in good shape.
 
 Now let's move onto Update.
@@ -295,7 +320,7 @@ Now let's move onto Update.
 ### Update
 
 Since we defined the scopes, our settings file is already configured.
-We can run the setup and it will work just fine.
+We can run the update and it will work just fine.
 
 ```cmd
 C:\git\rpi> stuart_update -c RaspberryPi\RPi3\PlatformBuild.py
@@ -310,8 +335,10 @@ SECTION - Summary
 PROGRESS - Success
 ```
 
-This grabs nuget feed and any other external dependency.
-The EDK2 tools are precompiled for you and come down as Mu-Basetools as part of MU_BASECORE.
+This grabs nuget feed and any other external dependencies.
+MU_BASECORE has some default external dependencies.
+
+If you were to build right now, without doing an update, the SDE would stop you and report that some external dependencies weren't satisified.
 
 ### Build
 
@@ -322,6 +349,8 @@ It can be a separate class in your `PlatformBuild.py`, it can be the same class 
 For the sake of simplicity, we're going to have it as a separate class in the same file.
 
 ``` python
+...
+
 class SettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSettingsManager):
     def __init__(self):
       ....
@@ -341,6 +370,8 @@ This is needed to provide the paths to the EDK2 system. We need to provide absol
 class SettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSettingsManager):
     def __init__(self):
       ....
+      def GetTargetsSupported(self):
+        ....
 
     def GetPackagesPath(self):
         ''' get module packages path '''
@@ -371,7 +402,8 @@ PROGRESS - Error
 
 It is failing because we don't define our active platform.
 
-Now you might be asking yourself, wait, what about the basetools, the CONF folder, the build toolsm and environmental variables?
+Now you might be asking yourself, wait, how are we already compiling?
+What about the basetools, the CONF folder, the build tools and environmental variables?
 Don't I need to set these up?
 Because we're using Project Mu Basecore, this is included and already mapped out for us via enviromental descriptors.
 For more information on them, go read about them here: (TODO)
@@ -435,6 +467,7 @@ The code is commited as commit at this point as (TODO).
 
 Let's start by setting our DSC and product name
 ``` python
+...
 #--------------------------------------------------------------------------------------------------------
 # Subclass the UEFI builder and add platform specific functionality.
 #

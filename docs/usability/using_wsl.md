@@ -75,6 +75,17 @@ sudo apt-get install build-essential uuid-dev iasl git gcc-5 nasm python3-distut
 
 If you aren't use Project Mu's BASECORE, you'll need to compile the basetools.
 
+## Setting up other tools
+
+You'll need python3, which on Ubuntu 3.5 comes default (as of time of writing).
+Pip comes seperately, so that will be need to be installed.
+
+You'll also need to install mono to run nuget.
+Generally all you need is to get it from your package manager.
+
+``` bash
+sudo apt-get install mono-devel
+```
 
 ## Setting up VS Code
 
