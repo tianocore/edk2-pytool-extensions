@@ -108,7 +108,6 @@ This would be like taking your DSC, FDF, DEC and putting it into your code tree.
 Copy the contents of `edk2-platforms/Platform/RaspberryPi/` to the `rpi/Platform/RaspberryPi` folder.
 
 ```bash
-mkdir
 cd ~
 git clone https://github.com/tianocore/edk2-platforms.git
 cd edk2-platforms
@@ -130,6 +129,16 @@ mkdir Silicon/Broadcom
 cd edk2-platforms
 cp -r Silicon/Broadcom/Bcm283x ../rpi/Silicon/Broadcom/Bcm283x
 cp -r Drivers/OptionRomPkg ../rpi/
+```
+
+We'll also need to grab the edk2-non-OSI repo for the LogoDxe driver.
+
+```bash
+cd ~
+git clone https://github.com/tianocore/edk2-non-osi.git
+cd edk2-non-osi
+git checkout d580026dbbe87c081dce26b1872df83fa79cd740
+cp -r Platform/RaspberryPi/Drivers/LogoDxe ../rpi/Platform/RaspberryPi/Drivers/
 ```
 
 At this point, we're almost ready.
