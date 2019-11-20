@@ -8,7 +8,9 @@ from edk2toolext.invocables.edk2_ci_build import CiBuildSettingsManager
 from edk2toolext.invocables.edk2_update import UpdateSettingsManager
 
 
-class TestSettingsManager(BuildSettingsManager, SetupSettingsManager, Edk2CiBuildSetup, CiSetupSettingsManager, CiBuildSettingsManager, UpdateSettingsManager):
+class TestSettingsManager(
+        BuildSettingsManager, SetupSettingsManager, Edk2CiBuildSetup,
+        CiSetupSettingsManager, CiBuildSettingsManager, UpdateSettingsManager):
 
     def GetActiveScopes(self):
         return []
