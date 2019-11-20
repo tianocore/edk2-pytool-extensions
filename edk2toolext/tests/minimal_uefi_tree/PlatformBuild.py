@@ -1,3 +1,4 @@
+from edk2toolext.environment.uefi_build import UefiBuilder
 import os
 from edk2toolext.invocables.edk2_platform_build import BuildSettingsManager
 from edk2toolext.invocables.edk2_setup import SetupSettingsManager
@@ -42,7 +43,7 @@ class TestSettingsManager(BuildSettingsManager, SetupSettingsManager, Edk2CiBuil
     def GetTargetsSupported(self):
         return []
 
-from edk2toolext.environment.uefi_build import UefiBuilder
+
 class TestBuilder(UefiBuilder):
     def SetPlatformEnv(self):
         self.env.SetValue("EDK2_BASE_TOOLS_DIR", self.ws, "empty")
