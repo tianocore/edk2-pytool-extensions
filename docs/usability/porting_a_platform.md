@@ -108,6 +108,7 @@ This would be like taking your DSC, FDF, DEC and putting it into your code tree.
 Copy the contents of `edk2-platforms/Platform/RaspberryPi/` to the `rpi/Platform/RaspberryPi` folder.
 
 ```bash
+mkdir
 cd ~
 git clone https://github.com/tianocore/edk2-platforms.git
 cd edk2-platforms
@@ -122,7 +123,12 @@ We'll also copy `edk2-platforms/Drivers/OptionRomPkg` to `/OptionRomPkg`.
 
 
 ```bash
-cp -r Silicon/Broadcom/Bcm283x ../rpi/Silicon/Broadcom/
+# (go wherever your rpi project is)
+cd ~/rpi
+cd ~
+mkdir Silicon/Broadcom
+cd edk2-platforms
+cp -r Silicon/Broadcom/Bcm283x ../rpi/Silicon/Broadcom/Bcm283x
 cp -r Drivers/OptionRomPkg ../rpi/
 ```
 
@@ -199,7 +205,7 @@ from edk2toolext.invocables.edk2_setup import RequiredSubmodule
 class SettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSettingsManager):
     def __init__(self):
         SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
-        WORKSPACE_PATH = os.path.dirname(os.path.dirname(SCRIPT_PATH))
+        WORKSPACE_PATH = os.path.dirname(os.path.dirname(os.path.dirname(SCRIPT_PATH)))
         self.ws = WORKSPACE_PATH
 
     def GetWorkspaceRoot(self):
@@ -231,7 +237,7 @@ Let's add Scopes and RequiredSubmodules.
 class SettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSettingsManager):
     def __init__(self):
         SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
-        WORKSPACE_PATH = os.path.dirname(os.path.dirname(SCRIPT_PATH))
+        WORKSPACE_PATH = os.path.dirname(os.path.dirname(os.path.dirname(SCRIPT_PATH)))
         self.ws = WORKSPACE_PATH
 
     def GetWorkspaceRoot(self):
@@ -261,7 +267,7 @@ class SettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSettings
 
     def GetArchitecturesSupported(self):
         ''' return iterable of edk2 architectures supported by this build '''
-        return ("IA32", "X64")
+        return ("AARCH64")
 
     def GetTargetsSupported(self):
         ''' return iterable of edk2 target tags supported by this build '''
@@ -284,7 +290,7 @@ You could use the same settings file to build multiple platforms or select betwe
 Now if we call setup, we should see something like this:
 
 ```cmd
-C:\git\rpi>stuart_setup -c Platform\RaspberryPi\RPi3\PlatformBuild.py
+~/rpi$ stuart_setup -c Platform/RaspberryPi/RPi3/PlatformBuild.py
 SECTION - Init SDE
 SECTION - Loading Plugins
 SECTION - Start Invocable Tool
@@ -323,7 +329,7 @@ Since we defined the scopes, our settings file is already configured.
 We can run the update and it will work just fine.
 
 ```cmd
-C:\git\rpi> stuart_update -c RaspberryPi\RPi3\PlatformBuild.py
+~/rpi$ stuart_update -c RaspberryPi/RPi3/PlatformBuild.py
 SECTION - Init SDE
 SECTION - Loading Plugins
 SECTION - Start Invocable Tool
@@ -384,7 +390,7 @@ Now when we run it, we'll see that we get an error from our UefiBuild itself.
 (Replace your toolchain tag with whatever toolchain you are using.)
 
 ``` log
-C:\git\rpi> stuart_build -c  Platform\RaspberryPi\RPi3\PlatformBuild.py TOOL_CHAIN_TAG=******
+~/rpi$ stuart_build -c  Platform/RaspberryPi/RPi3/PlatformBuild.py TOOL_CHAIN_TAG=******
 SECTION - Init SDE
 SECTION - Loading Plugins
 SECTION - Start Invocable Tool
@@ -416,42 +422,42 @@ The goal of Stuart is to be as magical as possible while still being transparent
 ``` log
 INFO - Log Started: Saturday, November 02, 2019 09:22PM
 SECTION - Init SDE
-DEBUG - Loading workspace: C:\git\rpi
+DEBUG - Loading workspace: C:/git/rpi
 DEBUG -   Including scopes: raspberrypi, global-win, global
-DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\BinWrappers\WindowsLike\win_build_tools_path_env.json' to the environment with scope 'global-win'.
-DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\edk2_core_path_env.json' to the environment with scope 'global'.
-DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\basetools_calling_path_env.json' to the environment with scope 'global'.
-DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\basetools_path_env.json' to the environment with scope 'global'.
-DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\Scripts\basetools_scripts_bin_path_env.json' to the environment with scope 'global'.
-DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\Source\Python\basetool_tiano_python_path_env.json' to the environment with scope 'global'.
-DEBUG - Adding descriptor 'C:\git\rpi\Common\MU\SharedCryptoPkg\Package\SharedCrypto_ext_dep.json' to the environment with scope 'global'.
-DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\Bin\basetools_ext_dep.json' to the environment with scope 'global'.
-DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\Bin\nasm_ext_dep.json' to the environment with scope 'global'.
-DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\NetworkPkg\SharedNetworking\SharedNetworking_ext_dep.json' to the environment with scope 'global'.
-DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\Plugin\WindowsResourceCompiler\WinRcPath_plug_in.json' to the environment with scope 'global-win'.
-DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\Plugin\WindowsVsToolChain\WindowsVsToolChain_plug_in.yaml' to the environment with scope 'global-win'.
-DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\Plugin\BuildToolsReport\BuildToolsReportGenerator_plug_in.json' to the environment with scope 'global'.
-DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\Plugin\Edk2ToolHelper\Edk2ToolHelper_plug_in.json' to the environment with scope 'global'.
-DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\Plugin\FdSizeReport\FdSizeReportGenerator_plug_in.json' to the environment with scope 'global'.
-DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\Plugin\FlattenPdbs\FlattenPdbs_plug_in.json' to the environment with scope 'global'.
-DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\Plugin\OverrideValidation\OverrideValidation_plug_in.json' to the environment with scope 'global'.
-DEBUG - Adding descriptor 'C:\git\rpi\MU_BASECORE\BaseTools\Plugin\WindowsCapsuleSupportHelper\WindowsCapsuleSupportHelper_plug_in.json' to the environment with scope 'global'.
+DEBUG - Adding descriptor 'C:/git/rpi/MU_BASECORE/BaseTools/BinWrappers/WindowsLike/win_build_tools_path_env.json' to the environment with scope 'global-win'.
+DEBUG - Adding descriptor 'C:/git/rpi/MU_BASECORE/edk2_core_path_env.json' to the environment with scope 'global'.
+DEBUG - Adding descriptor 'C:/git/rpi/MU_BASECORE/BaseTools/basetools_calling_path_env.json' to the environment with scope 'global'.
+DEBUG - Adding descriptor 'C:/git/rpi/MU_BASECORE/BaseTools/basetools_path_env.json' to the environment with scope 'global'.
+DEBUG - Adding descriptor 'C:/git/rpi/MU_BASECORE/BaseTools/Scripts/basetools_scripts_bin_path_env.json' to the environment with scope 'global'.
+DEBUG - Adding descriptor 'C:/git/rpi/MU_BASECORE/BaseTools/Source/Python/basetool_tiano_python_path_env.json' to the environment with scope 'global'.
+DEBUG - Adding descriptor 'C:/git/rpi/Common/MU/SharedCryptoPkg/Package/SharedCrypto_ext_dep.json' to the environment with scope 'global'.
+DEBUG - Adding descriptor 'C:/git/rpi/MU_BASECORE/BaseTools/Bin/basetools_ext_dep.json' to the environment with scope 'global'.
+DEBUG - Adding descriptor 'C:/git/rpi/MU_BASECORE/BaseTools/Bin/nasm_ext_dep.json' to the environment with scope 'global'.
+DEBUG - Adding descriptor 'C:/git/rpi/MU_BASECORE/NetworkPkg/SharedNetworking/SharedNetworking_ext_dep.json' to the environment with scope 'global'.
+DEBUG - Adding descriptor 'C:/git/rpi/MU_BASECORE/BaseTools/Plugin/WindowsResourceCompiler/WinRcPath_plug_in.json' to the environment with scope 'global-win'.
+DEBUG - Adding descriptor 'C:/git/rpi/MU_BASECORE/BaseTools/Plugin/WindowsVsToolChain/WindowsVsToolChain_plug_in.yaml' to the environment with scope 'global-win'.
+DEBUG - Adding descriptor 'C:/git/rpi/MU_BASECORE/BaseTools/Plugin/BuildToolsReport/BuildToolsReportGenerator_plug_in.json' to the environment with scope 'global'.
+DEBUG - Adding descriptor 'C:/git/rpi/MU_BASECORE/BaseTools/Plugin/Edk2ToolHelper/Edk2ToolHelper_plug_in.json' to the environment with scope 'global'.
+DEBUG - Adding descriptor 'C:/git/rpi/MU_BASECORE/BaseTools/Plugin/FdSizeReport/FdSizeReportGenerator_plug_in.json' to the environment with scope 'global'.
+DEBUG - Adding descriptor 'C:/git/rpi/MU_BASECORE/BaseTools/Plugin/FlattenPdbs/FlattenPdbs_plug_in.json' to the environment with scope 'global'.
+DEBUG - Adding descriptor 'C:/git/rpi/MU_BASECORE/BaseTools/Plugin/OverrideValidation/OverrideValidation_plug_in.json' to the environment with scope 'global'.
+DEBUG - Adding descriptor 'C:/git/rpi/MU_BASECORE/BaseTools/Plugin/WindowsCapsuleSupportHelper/WindowsCapsuleSupportHelper_plug_in.json' to the environment with scope 'global'.
 DEBUG - Verify 'mu_nasm' returning 'True'.
-INFO - C:\git\rpi\MU_BASECORE\BaseTools\Bin\mu_nasm_extdep\Windows-x86-64 was found!
+INFO - C:/git/rpi/MU_BASECORE/BaseTools/Bin/mu_nasm_extdep/Windows-x86-64 was found!
 DEBUG - Verify 'Mu-Basetools' returning 'True'.
-INFO - C:\git\rpi\MU_BASECORE\BaseTools\Bin\Mu-Basetools_extdep\Windows-x86 was found!
+INFO - C:/git/rpi/MU_BASECORE/BaseTools/Bin/Mu-Basetools_extdep/Windows-x86 was found!
 DEBUG - Verify 'Mu-SharedNetworking' returning 'True'.
 DEBUG - Verify 'mu_nasm' returning 'True'.
 DEBUG - Verify 'Mu-SharedCrypto' returning 'True'.
 SECTION - Loading Plugins
-DEBUG - Loading Plugin from C:\git\rpi\MU_BASECORE\BaseTools\Plugin\WindowsResourceCompiler\WinRcPath.py
-DEBUG - Loading Plugin from C:\git\rpi\MU_BASECORE\BaseTools\Plugin\WindowsVsToolChain\WindowsVsToolChain.py
-DEBUG - Loading Plugin from C:\git\rpi\MU_BASECORE\BaseTools\Plugin\BuildToolsReport\BuildToolsReportGenerator.py
-DEBUG - Loading Plugin from C:\git\rpi\MU_BASECORE\BaseTools\Plugin\Edk2ToolHelper\Edk2ToolHelper.py
-DEBUG - Loading Plugin from C:\git\rpi\MU_BASECORE\BaseTools\Plugin\FdSizeReport\FdSizeReportGenerator.py
-DEBUG - Loading Plugin from C:\git\rpi\MU_BASECORE\BaseTools\Plugin\FlattenPdbs\FlattenPdbs.py
-DEBUG - Loading Plugin from C:\git\rpi\MU_BASECORE\BaseTools\Plugin\OverrideValidation\OverrideValidation.py
-DEBUG - Loading Plugin from C:\git\rpi\MU_BASECORE\BaseTools\Plugin\WindowsCapsuleSupportHelper\WindowsCapsuleSupportHelper.py
+DEBUG - Loading Plugin from C:/git/rpi/MU_BASECORE/BaseTools/Plugin/WindowsResourceCompiler/WinRcPath.py
+DEBUG - Loading Plugin from C:/git/rpi/MU_BASECORE/BaseTools/Plugin/WindowsVsToolChain/WindowsVsToolChain.py
+DEBUG - Loading Plugin from C:/git/rpi/MU_BASECORE/BaseTools/Plugin/BuildToolsReport/BuildToolsReportGenerator.py
+DEBUG - Loading Plugin from C:/git/rpi/MU_BASECORE/BaseTools/Plugin/Edk2ToolHelper/Edk2ToolHelper.py
+DEBUG - Loading Plugin from C:/git/rpi/MU_BASECORE/BaseTools/Plugin/FdSizeReport/FdSizeReportGenerator.py
+DEBUG - Loading Plugin from C:/git/rpi/MU_BASECORE/BaseTools/Plugin/FlattenPdbs/FlattenPdbs.py
+DEBUG - Loading Plugin from C:/git/rpi/MU_BASECORE/BaseTools/Plugin/OverrideValidation/OverrideValidation.py
+DEBUG - Loading Plugin from C:/git/rpi/MU_BASECORE/BaseTools/Plugin/WindowsCapsuleSupportHelper/WindowsCapsuleSupportHelper.py
 DEBUG - Helper Plugin Register: Edk2Tool Helper Functions
 DEBUG - Helper Plugin Register: Windows Capsule Support Helper Functions
 ```
@@ -475,6 +481,7 @@ class PlatformBuilder(UefiBuilder):
     def SetPlatformEnv(self):
         self.env.SetValue("ACTIVE_PLATFORM", "RaspberryPi/RPi3/RPi3.dsc", "Platform Hardcoded")
         self.env.SetValue("PRODUCT_NAME", "RaspberryPi", "Platform Hardcoded")
+        self.env.SetValue("TARGET_ARCH", "AARCH64", "Platform Hardcoded")
         os = GetHostInfo().os
         if os.lower() == "windows":
             self.env.SetValue("TOOL_CHAIN_TAG", "VS2017", "Platform Hardcoded", True)
@@ -487,6 +494,7 @@ class PlatformBuilder(UefiBuilder):
 
 We'll need to change any line that starts with `Drivers/OptionRomPkg/...` to `OptionRomPkg/...`
 You can place the OptionRomPkg elsewhere, like a git submodule or subfolder, just make sure to update these.
+As of time of writing, there was only one OptionRomPkg driver included in RPi3: `OptionRomPkg/Bus/Usb/UsbNetworking/Ax88772b/Ax88772b.inf`
 
 Now if we run the build we get this error.
 (You might need to open the `BUILDLOG.txt` to see the whole error)
@@ -494,15 +502,20 @@ Now if we run the build we get this error.
 ``` log
 INFO - build.py...
 INFO -  : error 000E: File/directory not found in workspace
-INFO - 	Platform\RaspberryPi\Drivers\LogoDxe\LogoDxe.inf is not found in packages path:
+INFO - 	Platform/RaspberryPi/Drivers/LogoDxe/LogoDxe.inf is not found in packages path:
 ```
 
 In the original project, there were a few errors at the commit we snapped from.
 So we'll fix the LogoDxe by using the one from MdeModulePkg
 
 ``` dsc
-Platform/RaspberryPi/Drivers/LogoDxe/LogoDxe.inf =>  MdeModulePkg/Logo/LogoDxe.inf # MS_CHANGE
+Platform/RaspberryPi/Drivers/LogoDxe/LogoDxe.inf =>  MdeModulePkg/Logo/LogoDxe.inf # MU_CHANGE
 ```
+
+Make sure to apply changes to the FDF as well as the DSC.
+
+The MU_CHANGE comment is to let us know that we have changed this from the upstream source.
+This makes pull in changes much easier when we need to rebase or merge in the upstream.
 
 At this point, you can see the code at commit {TODO}.
 
@@ -511,8 +524,8 @@ If you build again, the next error you'll see in `BUILDLOG.txt` will look like t
 ``` log
 INFO - build.py...
 INFO -  : error 000E: File/directory not found in workspace
-INFO - 	Platform\RaspberryPi\RPi3\DeviceTree\bcm2710-rpi-3-b.dtb is not found in packages path:
-INFO - 	c:\git\rpi\MU_BASECORE
+INFO - 	Platform/RaspberryPi/RPi3/DeviceTree/bcm2710-rpi-3-b.dtb is not found in packages path:
+INFO - 	c:/git/rpi/MU_BASECORE
 ```
 
 In the edk2-platform there was a DeviceTree folder. We'll use the devicetree from github.
@@ -520,11 +533,16 @@ In the edk2-platform there was a DeviceTree folder. We'll use the devicetree fro
 First create the DeviceTree folder. Go to the root of your project.
 
 ``` cmd
-mkdir Platform\RaspberryPi\DeviceTree
+mkdir Platform/RaspberryPi/DeviceTree
 ```
 
 Then we'll create two files.
 The first is the `Platform/RaspberryPi/DeviceTree/rpi-3-bp_ext_dep.yaml`
+
+``` bash
+touch Platform/RaspberryPi/DeviceTree/rpi-3-bp_ext_dep.yaml
+```
+
 Paste this in:
 
 ``` yaml
@@ -548,6 +566,11 @@ Paste this in:
 ```
 
 The second is at `Platform/RaspberryPi/DeviceTree/rpi-3-b_ext_dep.yaml`
+
+``` bash
+touch Platform/RaspberryPi/DeviceTree/rpi-3-b_ext_dep.yaml
+```
+
 Paste this in:
 
 ``` yaml
@@ -577,11 +600,11 @@ Feel free to jump ahead to a newer commit hash, just be aware that you'll need t
 Let's run an update to fetch our new dependencies.
 
 ``` cmd
-c:\git\rpi>stuart_update -c Platform\RaspberryPi\RPi3\PlatformBuild.py
+:~/rpi$ stuart_update -c Platform/RaspberryPi/RPi3/PlatformBuild.py
 ```
 
 You'll see some ouput and you'll notice two new folders in the tree.
-`Platform\RaspberryPi\DeviceTree\bcm2710_rpi_3b_devicetree_extdep` and `Platform\RaspberryPi\DeviceTree\bcm2710_rpi_3b_plus_devicetree_extdep`.
+`Platform/RaspberryPi/DeviceTree/bcm2710_rpi_3b_devicetree_extdep` and `Platform/RaspberryPi/DeviceTree/bcm2710_rpi_3b_plus_devicetree_extdep`.
 Inside is the files that we want.
 
 Because the we told to SDE to save where the file was populated into an environmental variable, we'll use that in our FDF.
@@ -599,6 +622,7 @@ This means that
 ```
 becomes
 ```fdf
+  # MU_CHANGE START
   # Device Tree support (used by FdtDxe)
   # GUIDs should match gRaspberryPi#####FdtGuid's from the .dec
   #
@@ -608,6 +632,7 @@ becomes
   FILE FREEFORM = 3D523012-73FE-40E5-892E-1A4DF60F3C0C {
     SECTION RAW = $(BCM2710_3BP_DT)/bcm2710-rpi-3-b-plus.dtb
   }
+  # MU_CHANGE END
 ```
 
 You can see the code committed at this point at commit: {TODO}
@@ -616,9 +641,9 @@ Now if we build it, you'll see this error.
 
 ``` log
 INFO - build.py...
-INFO - c:\git\rpi\Platform\RaspberryPi\RPi3\RPi3.dsc(...): error 4000: Instance of library class [BaseBinSecurityLib] is not found
-INFO - 	in [c:\git\rpi\MU_BASECORE\MdeModulePkg\Core\Dxe\DxeMain.inf] [AARCH64]
-INFO - 	consumed by module [c:\git\rpi\MU_BASECORE\MdeModulePkg\Core\Dxe\DxeMain.inf]
+INFO - c:/git/rpi/Platform/RaspberryPi/RPi3/RPi3.dsc(...): error 4000: Instance of library class [BaseBinSecurityLib] is not found
+INFO - 	in [c:/git/rpi/MU_BASECORE/MdeModulePkg/Core/Dxe/DxeMain.inf] [AARCH64]
+INFO - 	consumed by module [c:/git/rpi/MU_BASECORE/MdeModulePkg/Core/Dxe/DxeMain.inf]
 ```
 
 This is because the MU_BASECORE version DxeMain needs BaseBinSecurityLib.
@@ -628,16 +653,16 @@ To our [LibraryClasses.common.DXE_CORE], we're going to add the BaseBinSecurityL
 ``` dsc
 [LibraryClasses.common.DXE_CORE]
   ....
-  BaseBinSecurityLib|MdePkg/Library/BaseBinSecurityLibNull/BaseBinSecurityLibNull.inf #CHANGE
+  BaseBinSecurityLib|MdePkg/Library/BaseBinSecurityLibNull/BaseBinSecurityLibNull.inf #MU_CHANGE
 ```
 
 Build again, and you get this error.
 
 ``` log
 INFO - build.py...
-INFO - c:\git\rpi\Platform\RaspberryPi\RPi3\RPi3.dsc(...): error 4000: Instance of library class [MuVariablePolicyHelperLib] is not found
-INFO - 	in [c:\git\rpi\MU_BASECORE\MdeModulePkg\Universal\Variable\RuntimeDxe\VariableRuntimeDxe.inf] [AARCH64]
-INFO - 	consumed by module [c:\git\rpi\MU_BASECORE\MdeModulePkg\Universal\Variable\RuntimeDxe\VariableRuntimeDxe.inf]
+INFO - c:/git/rpi/Platform/RaspberryPi/RPi3/RPi3.dsc(...): error 4000: Instance of library class [MuVariablePolicyHelperLib] is not found
+INFO - 	in [c:/git/rpi/MU_BASECORE/MdeModulePkg/Universal/Variable/RuntimeDxe/VariableRuntimeDxe.inf] [AARCH64]
+INFO - 	consumed by module [c:/git/rpi/MU_BASECORE/MdeModulePkg/Universal/Variable/RuntimeDxe/VariableRuntimeDxe.inf]
 ```
 
 Project Mu adds the variable policy, which is a fantastic bit of code that does some real neat stuff.
@@ -649,8 +674,9 @@ Anyway- so to our DSC, we're going to add some extra classes
 [LibraryClasses.common]
     ...
     # Project MU dependencies
-    MuVariablePolicyHelperLib|MdeModulePkg/Library/MuVariablePolicyHelperLib/MuVariablePolicyHelperLib.inf # CHANGE
-    SecurityLockAuditLib|MdeModulePkg/Library/SecurityLockAuditDebugMessageLib/SecurityLockAuditDebugMessageLib.inf # CHANGE
+    MuVariablePolicyHelperLib|MdeModulePkg/Library/MuVariablePolicyHelperLib/MuVariablePolicyHelperLib.inf # MU_CHANGE
+    ResetUtilityLib|MdeModulePkg/Library/ResetUtilityLib/ResetUtilityLib.inf # CHANGE
+    SecurityLockAuditLib|MdeModulePkg/Library/SecurityLockAuditDebugMessageLib/SecurityLockAuditDebugMessageLib.inf # MU_CHANGE
 ```
 
 Build again and a new error appears!
@@ -660,9 +686,9 @@ The next error:
 
 ``` log
 INFO - build.py...
-INFO - c:\git\rpi\Platform\RaspberryPi\RPi3\RPi3.dsc(...): error 4000: Instance of library class [ResetSystemLib] is not found
-INFO - 	in [c:\git\rpi\MU_BASECORE\MdeModulePkg\Library\ResetUtilityLib\ResetUtilityLib.inf] [AARCH64]
-INFO - 	consumed by module [c:\git\rpi\MU_BASECORE\MdeModulePkg\Universal\CapsuleRuntimeDxe\CapsuleRuntimeDxe.inf]
+INFO - c:/git/rpi/Platform/RaspberryPi/RPi3/RPi3.dsc(...): error 4000: Instance of library class [ResetSystemLib] is not found
+INFO - 	in [c:/git/rpi/MU_BASECORE/MdeModulePkg/Library/ResetUtilityLib/ResetUtilityLib.inf] [AARCH64]
+INFO - 	consumed by module [c:/git/rpi/MU_BASECORE/MdeModulePkg/Universal/CapsuleRuntimeDxe/CapsuleRuntimeDxe.inf]
 ```
 
 The Project Mu capsule runtime uses the ResetUtility to reset the system. We can use the Edk2 version of this.
@@ -672,11 +698,11 @@ You'll add these to your DSC.
 ``` dsc
 [LibraryClasses.common.DXE_DRIVER]
   ...
-  ResetSystemLib|MdeModulePkg/Library/DxeResetSystemLib/DxeResetSystemLib.inf # CHANGE
+  ResetSystemLib|MdeModulePkg/Library/DxeResetSystemLib/DxeResetSystemLib.inf # MU_CHANGE
 
 [LibraryClasses.common.DXE_RUNTIME_DRIVER]
   ...
-  ResetSystemLib|MdeModulePkg/Library/RuntimeResetSystemLib/RuntimeResetSystemLib.inf # CHANGE
+  ResetSystemLib|MdeModulePkg/Library/RuntimeResetSystemLib/RuntimeResetSystemLib.inf # MU_CHANGE
 
 ```
 
@@ -688,7 +714,7 @@ In this case, we can use the null version.
   ...
   # Project MU dependencies
   ...
-  MemoryTypeInformationChangeLib|MdeModulePkg/Library/MemoryTypeInformationChangeLibNull/MemoryTypeInformationChangeLibNull.inf  # CHANGE
+  MemoryTypeInformationChangeLib|MdeModulePkg/Library/MemoryTypeInformationChangeLibNull/MemoryTypeInformationChangeLibNull.inf  # MU_CHANGE
 ```
 
 Build again and we have a missing RngLib.
@@ -699,11 +725,12 @@ As it would happen, a library in Project Mu does that exactly.
 ```dsc
 [LibraryClasses.common.UEFI_DRIVER]
   ...
-  RngLib|SecurityPkg/RandomNumberGenerator/RngDxeLib/RngDxeLib.inf # CHANGE
+  RngLib|SecurityPkg/RandomNumberGenerator/RngDxeLib/RngDxeLib.inf # MU_CHANGE
 ```
 
-Depending on whether you are on windows or linux, you might need to change some parts of the code to work with your compiler.
-In this tutorial, we are using VS2017 we
+As of time of writing, VS2017 doesn't support the ASM files used in this project.
+So you'll need to use GCC.
+Using WSL is the recommended course for windows, but MacOS and Linux machines can follow the guide here.
 
 ## Future Work
 
