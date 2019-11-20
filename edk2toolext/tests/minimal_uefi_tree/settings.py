@@ -1,3 +1,10 @@
+# @file settings.py
+# This contains a settingsmanger for testing
+##
+# Copyright (c) Microsoft Corporation
+#
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+##
 from edk2toolext.environment.uefi_build import UefiBuilder
 import os
 from edk2toolext.invocables.edk2_platform_build import BuildSettingsManager
@@ -8,9 +15,8 @@ from edk2toolext.invocables.edk2_ci_build import CiBuildSettingsManager
 from edk2toolext.invocables.edk2_update import UpdateSettingsManager
 
 
-class TestSettingsManager(
-        BuildSettingsManager, SetupSettingsManager, Edk2CiBuildSetup,
-        CiSetupSettingsManager, CiBuildSettingsManager, UpdateSettingsManager):
+class TestSettingsManager(BuildSettingsManager, SetupSettingsManager, Edk2CiBuildSetup,
+                          CiSetupSettingsManager, CiBuildSettingsManager, UpdateSettingsManager):
 
     def GetActiveScopes(self):
         return []
