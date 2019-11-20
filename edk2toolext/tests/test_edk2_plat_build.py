@@ -44,7 +44,7 @@ class TestEdk2PlatBuild(unittest.TestCase):
 
     def test_ci_setup(self):
         builder = Edk2PlatformBuild()
-        settings_file = os.path.join(os.path.dirname(__file__), "minimal_uefi_tree", "PlatformBuild.builder")
+        settings_file = os.path.join(os.path.dirname(__file__), "minimal_uefi_tree", "PlatformBuild.py")
         sys.argv = ["stuart_build", "-c", settings_file]
         try:
             builder.Invoke()
