@@ -32,6 +32,40 @@ For this example, a 64 bit Windows machine with an x86 processor was used:
 
 The environment will look for these folders, following this order, and select the first one it finds. If none are found, the flag will be ignored.
 
+## Operations
+
+Nuget Publish supports four operations:
+
+- New: creates a new configuration file
+- Pack: creates a packed nuspec using a configuration file
+- Push: pushes the packed nuspec to NuGet.org
+- PackAndPush: packs and then pushes
+
+You can call one of these functions by calling:
+
+```cmd
+nuget-publish -Operation New
+```
+
+You can get more information by adding -h to the operation you want to know about.
+
+```cmd
+nuget-publish -Operation Push -h
+```
+
+## Tags
+
+For Pack as well as PackAndPush, you can add tags to the nuspec package that is created.
+This can be done through the `--t` or the `-tag` option on Pack or PackAndPush.
+
+This looks like:
+```cmd
+nuget-publish -Operation Pack ... -t TAG1 -t TAG2,TAG3
+```
+
+You can also add the tags into your config.json file via the attribute `tag_string`.
+It should be a space separate list of words.
+
 ## Authentication
 
 For publishing most service providers require authentication.  The **--ApiKey** parameter allows the caller to supply a unique key for authorization.  There are numerous ways to authenticate.
