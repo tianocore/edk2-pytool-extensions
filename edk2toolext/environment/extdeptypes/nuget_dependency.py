@@ -67,7 +67,7 @@ class NugetDependency(ExternalDependency):
         if "-" in parts[-1]:
             parts[-1], tag = parts[-1].split("-")
 
-        int_parts = tuple([0 if a  == "" else int(a) for a in parts])
+        int_parts = tuple([0 if a == "" else int(a) for a in parts])
 
         if tag not in [None, "beta", "alpha", "rc"]:
             raise ValueError(f"Unparsable version tag: {tag}")
