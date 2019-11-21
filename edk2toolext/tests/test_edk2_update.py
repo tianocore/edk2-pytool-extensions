@@ -16,12 +16,16 @@ from edk2toolext.environment import shell_environment
 
 class TestEdk2Update(unittest.TestCase):
 
+    minimalTree = os.path.join(os.path.dirname(__file__), "minimal_uefi_tree")
+
     def update(self):
         TestEdk2Update.restart_logging()
         pass
 
     def tearDown(self):
         shell_environment.GetEnvironment().restore_initial_checkpoint()
+        buildFolder = os.path.join(self.minimalTree, "Build")
+        shutil.rmtree(buildFolder, ignore_errors=True)
         TestEdk2Update.restart_logging()
         pass
 
@@ -44,7 +48,7 @@ class TestEdk2Update(unittest.TestCase):
 
     def test_ci_update(self):
         builder = Edk2Update()
-        settings_file = os.path.join(os.path.dirname(__file__), "minimal_uefi_tree", "settings.py")
+        settings_file = os.path.join(self.minimalTree, "settings.py")
         sys.argv = ["stuart_update", "-c", settings_file]
         try:
             builder.Invoke()

@@ -8,6 +8,7 @@
 import unittest
 from edk2toolext.invocables.edk2_ci_setup import Edk2CiBuildSetup
 import sys
+import shutil
 import os
 import logging
 from importlib import reload
@@ -16,6 +17,8 @@ from edk2toolext.environment import shell_environment
 
 class TestEdk2CiSetup(unittest.TestCase):
 
+    minimalTree = os.path.join(os.path.dirname(__file__), "minimal_uefi_tree")
+
     def setUp(self):
         TestEdk2CiSetup.restart_logging()
         pass
@@ -23,6 +26,8 @@ class TestEdk2CiSetup(unittest.TestCase):
     def tearDown(self):
         shell_environment.GetEnvironment().restore_initial_checkpoint()
         TestEdk2CiSetup.restart_logging()
+        buildFolder = os.path.join(self.minimalTree, "Build")
+        shutil.rmtree(buildFolder, ignore_errors=True)
         pass
 
     @classmethod
@@ -44,7 +49,7 @@ class TestEdk2CiSetup(unittest.TestCase):
 
     def test_ci_setup(self):
         builder = Edk2CiBuildSetup()
-        settings_file = os.path.join(os.path.dirname(__file__), "minimal_uefi_tree", "settings.py")
+        settings_file = os.path.join(self.minimalTree, "settings.py")
         sys.argv = ["stuart_ci_setup", "-c", settings_file]
         try:
             builder.Invoke()
