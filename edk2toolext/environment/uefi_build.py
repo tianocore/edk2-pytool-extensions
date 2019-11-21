@@ -37,6 +37,7 @@ class UefiBuilder(object):
         self.Clean = False
         self.UpdateConf = False
         self.OutputConfig = None
+        self.DscEnv = None
 
     def AddCommandLineOptions(self, parserObj):
         ''' adds command line options to the argparser '''
@@ -493,6 +494,7 @@ class UefiBuilder(object):
             for key, value in dscp.LocalVars.items():
                 # set env as overrideable
                 self.env.SetValue(key, value, "From Platform DSC File", True)
+            self.DscEnv = dscp.LocalVars
 
         else:
             logging.error("Failed to find DSC file")
@@ -513,8 +515,10 @@ class UefiBuilder(object):
         if(os.path.isfile(self.mws.join(self.ws, self.env.GetValue("FLASH_DEFINITION")))):
             # parse the FDF file- fdf files have similar syntax to DSC and therefore parser works for both.
             logging.debug("Parse Active Flash Definition (FDF) file")
-            fdf_parser = DscParser().SetBaseAbsPath(self.ws).SetPackagePaths(
-                self.pp.split(os.pathsep)).SetInputVars(self.env.GetAllBuildKeyValues())
+            input_vars = self.env.GetAllBuildKeyValues()
+            if (self.DscEnv):
+                input_vars.update(self.DscEnv)
+            fdf_parser = DscParser().SetBaseAbsPath(self.ws).SetPackagePaths( self.pp.split(os.pathsep)).SetInputVars(input_vars)
             pa = self.mws.join(self.ws, self.env.GetValue("FLASH_DEFINITION"))
             fdf_parser.ParseFile(pa)
             for key, value in fdf_parser.LocalVars.items():
