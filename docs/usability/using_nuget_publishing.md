@@ -64,7 +64,7 @@ nuget-publish -Operation Pack ... -t TAG1 -t TAG2,TAG3
 ```
 
 You can also add the tags into your config.json file via the attribute `tag_string`.
-It should be a space seperate list of words.
+It should be a space separate list of words.
 
 ## Authentication
 
