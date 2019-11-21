@@ -9,6 +9,7 @@ import unittest
 from edk2toolext.invocables.edk2_update import Edk2Update
 import sys
 import os
+import shutil
 import logging
 from importlib import reload
 from edk2toolext.environment import shell_environment
