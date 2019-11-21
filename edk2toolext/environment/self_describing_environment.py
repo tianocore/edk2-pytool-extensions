@@ -187,6 +187,11 @@ class self_describing_environment(object):
         for extdep in self._get_extdeps():
             self._apply_descriptor_object_to_env(extdep, env_object)
 
+    def report_extdep_version(self, env_object):
+        logging.debug("--- self_describing_environment.report_extdep_version()")
+        for extdep in self._get_extdeps():
+            extdep.report_version()
+
     def update_extdeps(self, env_object):
         logging.debug("--- self_describing_environment.update_extdeps()")
         failure_count = 0
@@ -267,6 +272,11 @@ def BootstrapEnvironment(workspace, scopes=()):
         # we can load the modules that had greater dependencies.
         #
         build_env.update_extdep_paths(shell_env)
+
+        #
+        # ENVIRONMENT BOOTSTRAP STAGE 4
+        # Report versions into the version aggregator
+        build_env.report_extdep_version(shell_env)
 
         # Debug the environment that was produced.
         shell_env.log_environment()
