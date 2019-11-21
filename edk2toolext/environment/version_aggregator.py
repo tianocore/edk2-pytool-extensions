@@ -20,7 +20,7 @@ class version_aggregator(object):
         self.Versions = {}
         self._logger = logging.getLogger("version_aggregator")
 
-    def ReportVersion(self, key, value, versionType):
+    def ReportVersion(self, key, value, versionType, path=None):
         """
         Report the version of something.
 
@@ -29,12 +29,14 @@ class version_aggregator(object):
         versionType -- The method of categorizing what is being reported. See VersionTypes for details.
         """
         if key in self.Versions:
-            if self.Versions[key]["version"] == value:
-                self._logger.warning("version_aggregator: This {0}:{1} key/value pair "
-                                     "was already registered".format(key, value))
+            old_version = self.Versions[key]
+            if old_version["version"] == value and old_version["path"] == path:
+                self._logger.info(f"version_aggregator: {key} re-registered at {path}")
+                pass
             else:
                 error = "version_aggregator: {0} key registered with a different value\n\t" \
-                        "Old:{1}\n\tNew:{2}".format(key, self.Versions[key]["version"], value)
+                        "Old:{1}@{3}\n\tNew:{2}@{4}\n".format(
+                            key, old_version["version"], value, old_version["path"], path)
                 self._logger.error(error)
                 raise ValueError(error)
             return
@@ -42,15 +44,18 @@ class version_aggregator(object):
         self.Versions[key] = {
             "name": key,
             "version": value,
-            "type": versionType.name
+            "type": versionType.name,
+            "path": path
         }
         self._logger.debug("version_aggregator logging version: {0}".format(str(self.Versions[key])))
 
     def Print(self):
         """ Prints out the current information from the version aggregator """
         for version_key in self.Versions:
-            version = self.Version[version_key]
+            version = self.Versions[version_key]
             print(f"{version['type']} - {version['name']}: {version['version']}")
+        if len(self.Versions) == 0:
+            print("VERSION AGGREGATOR IS EMPTY")
 
     def GetAggregatedVersionInformation(self):
         """
