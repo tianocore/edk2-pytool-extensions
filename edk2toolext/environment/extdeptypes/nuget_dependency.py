@@ -57,28 +57,34 @@ class NugetDependency(ExternalDependency):
     def normalize_version(version):
         if len(version) == 0:
             raise ValueError("Unparsable version: empty string")
-        version_parts = version.split("-")
-        if len(version_parts) > 2:
-            raise ValueError("Unparsable version: '%s'!")
-        version_ints = version_parts[0]
-        tag = version_parts[1] if len(version_parts) > 1 else None
+
+        if str(version).count("-") > 1:
+            raise ValueError(f"Unparsable version: '{version}'!")
+
+        tag = None
+
+        parts = version.split(".")
+        if "-" in parts[-1]:
+            parts[-1], tag = parts[-1].split("-")
+
+        int_parts = tuple([0 if a  == "" else int(a) for a in parts])
+
         if tag not in [None, "beta", "alpha", "rc"]:
             raise ValueError(f"Unparsable version tag: {tag}")
 
-        version_int_parts = tuple(int(num) for num in version_ints.split('.'))
-        if len(version_int_parts) > 4:
-            raise ValueError("Unparsable version: '%s'!")
+        if len(int_parts) > 4:
+            raise ValueError(f"Unparsable version: '{version}'!")
 
         # Remove extra trailing zeros (beyond 3 elements).
-        if len(version_int_parts) == 4 and version_int_parts[3] == 0:
-            version_int_parts = version_int_parts[0:3]  # drop the last item
+        if len(int_parts) == 4 and int_parts[3] == 0:
+            int_parts = int_parts[0:3]  # drop the last item
 
         # Add missing trailing zeros (below 3 elements).
-        if len(version_int_parts) < 3:
-            version_int_parts = version_int_parts + (0,) * (3 - len(version_int_parts))
+        if len(int_parts) < 3:
+            int_parts = int_parts + (0,) * (3 - len(int_parts))
 
         # Return reformed version.
-        reformed_ints = ".".join((str(num) for num in version_int_parts))
+        reformed_ints = ".".join((str(num) for num in int_parts))
         if tag is not None:
             reformed_ints += "-" + tag
         return reformed_ints

@@ -128,6 +128,9 @@ class TestNugetDependency(unittest.TestCase):
         version4 = "6-beta"
         proper_version4 = "6.0.0-beta"
         self.assertEqual(proper_version4, NugetDependency.normalize_version(version4))
+        version5 = "3.2.1.-alpha"
+        proper_version5 = "3.2.1-alpha"
+        self.assertEqual(proper_version5, NugetDependency.normalize_version(version5))
         # try some bad cases
         with self.assertRaises(ValueError):
             NugetDependency.normalize_version("not a number")
@@ -137,6 +140,10 @@ class TestNugetDependency(unittest.TestCase):
             NugetDependency.normalize_version("6.0-bad")
         with self.assertRaises(ValueError):
             NugetDependency.normalize_version("6.0-")
+        with self.assertRaises(ValueError):
+            NugetDependency.normalize_version("--")
+        with self.assertRaises(ValueError):
+            NugetDependency.normalize_version("6-")
         with self.assertRaises(ValueError):
             NugetDependency.normalize_version("")
         with self.assertRaises(ValueError):
