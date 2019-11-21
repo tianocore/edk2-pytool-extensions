@@ -518,7 +518,8 @@ class UefiBuilder(object):
             input_vars = self.env.GetAllBuildKeyValues()
             if (self.DscEnv):
                 input_vars.update(self.DscEnv)
-            fdf_parser = DscParser().SetBaseAbsPath(self.ws).SetPackagePaths( self.pp.split(os.pathsep)).SetInputVars(input_vars)
+            fdf_parser = DscParser().SetBaseAbsPath(self.ws).SetPackagePaths(
+                self.pp.split(os.pathsep)).SetInputVars(input_vars)
             pa = self.mws.join(self.ws, self.env.GetValue("FLASH_DEFINITION"))
             fdf_parser.ParseFile(pa)
             for key, value in fdf_parser.LocalVars.items():
