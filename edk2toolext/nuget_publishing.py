@@ -340,7 +340,8 @@ def GatherArguments():
                             required=True)
         parser.add_argument('--Copyright', dest="Copyright", help="<Optional>Change the Copyright string")
         parser.add_argument('--t', "-tag", dest="Tags", type=str,
-                            help="<Optional>Add tags to the nuspec. Can list multiple by doing --t Tag1,Tag2 or --t Tag1 --t Tag2", action="append", default=[])
+                            help="<Optional>Add tags to the nuspec. Multiple are --t Tag1,Tag2 or --t Tag1 --t Tag2",
+                            action="append", default=[])
         parser.add_argument('--ApiKey', dest="ApiKey",
                             help="<Optional>Api key to use. Default is 'VSTS' which will invoke interactive login",
                             default="VSTS")
