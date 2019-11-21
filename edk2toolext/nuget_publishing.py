@@ -96,6 +96,9 @@ class NugetSupport(object):
         if(filepath is not None):
             self.Config = filepath
 
+        if(filepath is None):
+            logging.error("No filepath for Config File")
+
         with open(filepath, "w") as c:
             yaml.dump(self.ConfigData, c, indent=4)
         logging.debug("Wrote config file to: %s" % filepath)
@@ -185,7 +188,8 @@ class NugetSupport(object):
         meta.find("projectUrl").text = self.ConfigData["project_url"]
         meta.find("description").text = self.ConfigData["description_string"]
         meta.find("copyright").text = self.ConfigData["copyright_string"]
-        meta.find("tags").text = self.ConfigData["tags_string"]
+        if "tags_string" in self.ConfigData:
+            meta.find("tags").text = self.ConfigData["tags_string"]
         files = package.find("files")
         f = files.find("file")
         f.set("target", self.Name)
@@ -431,7 +435,7 @@ def main():
         nu = NugetSupport(ConfigFile=args.ConfigFilePath)
         if(args.Copyright is not None):
             nu.UpdateCopyright(args.Copyright)
-        if (args.Tags is not None):
+        if (len(args.Tags) > 0):
             tagListSet = set()
             for item in args.Tags:  # Parse out the individual packages
                 item_list = item.split(",")
@@ -441,10 +445,12 @@ def main():
                     tagListSet.add(individual_item.strip())
             tagList = list(tagListSet)
             nu.UpdateTags(tagList)
+        '''
         ret = nu.ToConfigFile()
         if (ret != 0):
             logging.error("Failed to save config file.  Return Code 0x%x" % ret)
             return ret
+        '''
 
         ret = nu.Pack(args.Version, TempOutDir, args.InputFolderPath, args.ReleaseNotes)
         if (ret != 0):
@@ -497,7 +503,7 @@ def go():
     logger.setLevel(logging.DEBUG)
     formatter = logging.Formatter("%(levelname)s - %(message)s")
     console = logging.StreamHandler()
-    console.setLevel(logging.CRITICAL)
+    console.setLevel(logging.WARNING)
     console.setFormatter(formatter)
     logger.addHandler(console)
 
