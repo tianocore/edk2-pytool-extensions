@@ -31,6 +31,7 @@ class version_aggregator(object):
         if key in self.Versions:
             old_version = self.Versions[key]
             if old_version["version"] == value and old_version["path"] == path:
+                self._logger.info(f"version_aggregator: {key} re-registered at {path}")
                 pass
             else:
                 error = "version_aggregator: {0} key registered with a different value\n\t" \
@@ -51,8 +52,10 @@ class version_aggregator(object):
     def Print(self):
         """ Prints out the current information from the version aggregator """
         for version_key in self.Versions:
-            version = self.Version[version_key]
+            version = self.Versions[version_key]
             print(f"{version['type']} - {version['name']}: {version['version']}")
+        if len(self.Versions) == 0:
+            print("VERSION AGGREGATOR IS EMPTY")
 
     def GetAggregatedVersionInformation(self):
         """

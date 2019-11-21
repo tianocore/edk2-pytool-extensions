@@ -142,11 +142,13 @@ class ExternalDependency(object):
             result = False
 
         logging.debug("Verify '%s' returning '%s'." % (self.name, result))
+        return result
+
+    def report_version(self):
         version_aggregator.GetVersionAggregator().ReportVersion(self.name,
                                                                 self.version,
                                                                 version_aggregator.VersionTypes.INFO,
                                                                 self.descriptor_location)
-        return result
 
     def update_state_file(self):
         with open(self.state_file_path, 'w+') as file:
