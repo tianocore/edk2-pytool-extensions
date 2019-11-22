@@ -33,8 +33,8 @@ class TestEdk2Update(unittest.TestCase):
     @classmethod
     def restart_logging(cls):
         '''
-        We restart logging as logging is closed at the end of edk2 invokables.
-        We also initalize it at the start.
+        We restart logging as logging is closed at the end of edk2 invocables.
+        We also initialize it at the start.
         Reloading is the easiest way to get fresh state
         '''
         logging.shutdown()
