@@ -40,6 +40,13 @@ NOTE: It is strongly recommended that you use python virtual environments.  Virt
 
 ## Release Version History
 
+
+## Version 0.12.2
+
+* Bug:
+  * #124: Fixed git external dependencies to no longer break version aggregator
+
+
 ## Version 0.12.1
 
 * Features:
