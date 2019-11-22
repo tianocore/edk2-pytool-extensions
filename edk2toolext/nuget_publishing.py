@@ -46,6 +46,7 @@ class NugetSupport(object):
         <releaseNotes></releaseNotes>
         <projectUrl></projectUrl>
         <copyright></copyright>
+        <tags></tags>
     </metadata>
     <!-- Optional 'files' node -->
     <files>
@@ -95,6 +96,9 @@ class NugetSupport(object):
         if(filepath is not None):
             self.Config = filepath
 
+        if(filepath is None):
+            logging.error("No filepath for Config File")
+
         with open(filepath, "w") as c:
             yaml.dump(self.ConfigData, c, indent=4)
         logging.debug("Wrote config file to: %s" % filepath)
@@ -117,10 +121,16 @@ class NugetSupport(object):
             copyright = "Copyright %d" % datetime.date.today().year
         self.ConfigData["copyright_string"] = copyright
 
+        self.ConfigData["tags_string"] = ""
+
         self.ConfigChanged = True
 
     def UpdateCopyright(self, copyright):
         self.ConfigData["copyright_string"] = copyright
+        self.ConfigChanged = True
+
+    def UpdateTags(self, tags=[]):
+        self.ConfigData["tags_string"] = " ".join(tags)
         self.ConfigChanged = True
 
     #
@@ -178,6 +188,8 @@ class NugetSupport(object):
         meta.find("projectUrl").text = self.ConfigData["project_url"]
         meta.find("description").text = self.ConfigData["description_string"]
         meta.find("copyright").text = self.ConfigData["copyright_string"]
+        if "tags_string" in self.ConfigData:
+            meta.find("tags").text = self.ConfigData["tags_string"]
         files = package.find("files")
         f = files.find("file")
         f.set("target", self.Name)
@@ -207,15 +219,20 @@ class NugetSupport(object):
     def _GetNuPkgFileName(self, version):
         # Nuget removes leading zeros so to match we must do the same
         s = self.Name + "."
+        append_tag = None
         parts = version.split(".")
-        for a in parts:
-            s += str(int(a)) + "."
+        if "-" in parts[-1]:
+            parts[-1], append_tag = parts[-1].split("-")
+        int_parts = [str(int(a)) for a in parts]
 
         # nuget must have at least x.y.z and will make zero any element undefined
-        for a in range(len(parts), 3):
-            s += "0."
-
-        s += "nupkg"
+        for _ in range(len(int_parts), 3):
+            int_parts.append("0")
+        # Join the integers together
+        s += ".".join(int_parts)
+        if append_tag is not None:
+            s += f"-{append_tag}"
+        s += ".nupkg"
         return s
 
     ##
@@ -326,6 +343,9 @@ def GatherArguments():
                             help="<Required>Relative/Absolute Path to folder containing content to pack.",
                             required=True)
         parser.add_argument('--Copyright', dest="Copyright", help="<Optional>Change the Copyright string")
+        parser.add_argument('--t', "-tag", dest="Tags", type=str,
+                            help="<Optional>Add tags to the nuspec. Multiple are --t Tag1,Tag2 or --t Tag1 --t Tag2",
+                            action="append", default=[])
         parser.add_argument('--ApiKey', dest="ApiKey",
                             help="<Optional>Api key to use. Default is 'VSTS' which will invoke interactive login",
                             default="VSTS")
@@ -415,10 +435,22 @@ def main():
         nu = NugetSupport(ConfigFile=args.ConfigFilePath)
         if(args.Copyright is not None):
             nu.UpdateCopyright(args.Copyright)
+        if (len(args.Tags) > 0):
+            tagListSet = set()
+            for item in args.Tags:  # Parse out the individual packages
+                item_list = item.split(",")
+                for individual_item in item_list:
+                    # in case cmd line caller used Windows folder slashes
+                    individual_item = individual_item.replace("\\", "/")
+                    tagListSet.add(individual_item.strip())
+            tagList = list(tagListSet)
+            nu.UpdateTags(tagList)
+        '''
         ret = nu.ToConfigFile()
         if (ret != 0):
             logging.error("Failed to save config file.  Return Code 0x%x" % ret)
             return ret
+        '''
 
         ret = nu.Pack(args.Version, TempOutDir, args.InputFolderPath, args.ReleaseNotes)
         if (ret != 0):
@@ -471,7 +503,7 @@ def go():
     logger.setLevel(logging.DEBUG)
     formatter = logging.Formatter("%(levelname)s - %(message)s")
     console = logging.StreamHandler()
-    console.setLevel(logging.CRITICAL)
+    console.setLevel(logging.WARNING)
     console.setFormatter(formatter)
     logger.addHandler(console)
 

@@ -78,6 +78,11 @@ class test_nuget_publish(unittest.TestCase):
         nuget.UpdateCopyright("ALL RIGHTS RESERVED.")
         self.assertTrue(nuget.ConfigChanged)
 
+    def test_change_tags(self):
+        nuget = nuget_publishing.NugetSupport("test")
+        nuget.UpdateTags(["TAG1", "TAG2"])
+        self.assertTrue(nuget.ConfigChanged)
+
     def test_push_without_spec(self):
         nuget = nuget_publishing.NugetSupport("test")
         tempfolder_out = tempfile.mkdtemp()
