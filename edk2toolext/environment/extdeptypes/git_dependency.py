@@ -104,7 +104,4 @@ class GitDependency(ExternalDependency):
                 result = False
 
         self.logger.debug("Verify '%s' returning '%s'." % (self.name, result))
-        if(logversion):
-            version_aggregator.GetVersionAggregator().ReportVersion(self.name, self.version,
-                                                                    version_aggregator.VersionTypes.INFO)
         return result
