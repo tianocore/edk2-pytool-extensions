@@ -40,6 +40,14 @@ NOTE: It is strongly recommended that you use python virtual environments.  Virt
 
 ## Release Version History
 
+## Version 0.12.1
+
+* Features:
+  * Updated nuget to 5.3
+  * Add tags to nuget packages on external dependencies and nuget publishing
+* Bug:
+  * #102: Fixed version aggregator so it doesn't emit warnings
+
 ## Version 0.12.0
 
 * Features:
@@ -49,13 +57,13 @@ NOTE: It is strongly recommended that you use python virtual environments.  Virt
 
 * Bug:
   * Issue 90 - edk2_pr_eval policy 3 is not first checking that change is in public file
-  
+
 ## Version 0.11.2
 
 * Features:
   * Add tool to evaluate which packages should be tested for a given PR
   * Improved logging and visibility
-  
+
 ## Version 0.11.1
 
 * Bugs
