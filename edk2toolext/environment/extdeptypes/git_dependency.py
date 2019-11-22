@@ -13,7 +13,6 @@ from urllib.parse import urlsplit, urlunsplit
 from edk2toolext.environment.external_dependency import ExternalDependency
 from edk2toolext.environment import repo_resolver
 from edk2toolext.edk2_git import Repo
-from edk2toolext.environment import version_aggregator
 from edk2toolext.environment import shell_environment
 
 
