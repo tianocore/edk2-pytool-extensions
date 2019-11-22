@@ -13,7 +13,6 @@ from urllib.parse import urlsplit, urlunsplit
 from edk2toolext.environment.external_dependency import ExternalDependency
 from edk2toolext.environment import repo_resolver
 from edk2toolext.edk2_git import Repo
-from edk2toolext.environment import version_aggregator
 from edk2toolext.environment import shell_environment
 
 
@@ -78,7 +77,7 @@ class GitDependency(ExternalDependency):
         super().clean()
 
     # override verify due to different scheme with git
-    def verify(self, logversion=True):
+    def verify(self):
         result = True
 
         if not os.path.isdir(self._local_repo_root_path):
@@ -104,7 +103,4 @@ class GitDependency(ExternalDependency):
                 result = False
 
         self.logger.debug("Verify '%s' returning '%s'." % (self.name, result))
-        if(logversion):
-            version_aggregator.GetVersionAggregator().ReportVersion(self.name, self.version,
-                                                                    version_aggregator.VersionTypes.INFO)
         return result
