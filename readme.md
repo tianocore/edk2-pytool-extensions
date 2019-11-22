@@ -45,6 +45,8 @@ NOTE: It is strongly recommended that you use python virtual environments.  Virt
 * Features:
   * Updated nuget to 5.3
   * Add tags to nuget packages on external dependencies and nuget publishing
+* Bug:
+  * #102: Fixed version aggregator so it doesn't emit warnings
 
 ## Version 0.12.0
 
