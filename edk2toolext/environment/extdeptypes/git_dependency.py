@@ -78,7 +78,7 @@ class GitDependency(ExternalDependency):
         super().clean()
 
     # override verify due to different scheme with git
-    def verify(self, logversion=True):
+    def verify(self):
         result = True
 
         if not os.path.isdir(self._local_repo_root_path):
