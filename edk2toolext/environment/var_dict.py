@@ -197,7 +197,6 @@ class VarDict(object):
                 returndict[key] = value.GetValue()
         return returndict
 
-
     def PrintAll(self, fp=None):
         f = None
         if(fp is not None):

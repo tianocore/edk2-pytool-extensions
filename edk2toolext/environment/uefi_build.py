@@ -511,11 +511,12 @@ class UefiBuilder(object):
         if(os.path.isfile(self.mws.join(self.ws, self.env.GetValue("FLASH_DEFINITION")))):
             # parse the FDF file- fdf files have similar syntax to DSC and therefore parser works for both.
             logging.debug("Parse Active Flash Definition (FDF) file")
-            
+
             # Get the vars from the environment that are not build keys
             input_vars = self.env.GetAllNonBuildKeyValues()
             # Update with special environment set build keys
             input_vars.update(self.env.GetAllBuildKeyValues())
+
             fdf_parser = DscParser().SetBaseAbsPath(self.ws).SetPackagePaths(
                 self.pp.split(os.pathsep)).SetInputVars(input_vars)
             pa = self.mws.join(self.ws, self.env.GetValue("FLASH_DEFINITION"))
