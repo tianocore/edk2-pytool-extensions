@@ -186,6 +186,18 @@ class VarDict(object):
 
         return returndict
 
+    def GetAllNonBuildKeyValues(self):
+        ''' Return a copy of the dictionary of all keys, values
+            in the environment which are not Build Keys
+        '''
+        returndict = {}
+        # get all the generic build options
+        for key, value in self.Dstore.items():
+            if(not key.startswith("BLD_")):
+                returndict[key] = value.GetValue()
+        return returndict
+
+
     def PrintAll(self, fp=None):
         f = None
         if(fp is not None):
