@@ -55,90 +55,54 @@ edk2-pytool-extensions
 You're welcome to snap to a particular version by adding `==0.12.2` or whatever version you want to keep after the pip name.
 
 Next you'll need to install the pip modules.
-If you see that the pip isn't installed, install it with this command.
+If you see that the pip isn't installed, check out our guide to setting up WSL (or any linux distro).
+
+Once your pip is setup, install the requirements by executing this:
 
 ```bash
-sudo apt install python-pip
+pip3 install -r pip_requirements.txt
 ```
 
-Once your pip is setup, install the requirements by executing this
+Make sure you're using python 3 as opposed to python 2.
 
-```bash
-pip install -r pip_requirements.txt
-```
+## Submodules
 
-Now let's start by adding EDK2 modules.
+One of the best ways to keep track of other git projects is through submodules.
+We'll add submodules for the edk2 projects we want to use.
 
-We're going to be using Project Mu since we can carry less and be a little more streamlined. We will need four packages.
+Another option would be use the Microsoft Project Mu fork of EDK2. The parts that it contains are:
 
 - BASECORE: this contains the base packages like MdeModulePkg and MdePkg
 - MU_PLUS: this has the extra stuff that Mu provides like DFCI, GraphicsPkg, and SharedCrypto.
 - TIANO_PLUS: this has things like ShellPkg and FmpDevicePkg.
 - OEM_SAMPLE: this contains things that an OEM might find useful like a FrontPage application and a Boot menu.
 
-You can add these all by running this command:
-```bash
-git submodule add https://github.com/Microsoft/mu_basecore.git MU_BASECORE
-git submodule add https://github.com/Microsoft/mu_plus.git Common/MU
-git submodule add https://github.com/Microsoft/mu_tiano_plus.git Common/TIANO
-git submodule add https://github.com/Microsoft/mu_oem_sample.git Common/MU_OEM
-git submodule add https://github.com/microsoft/mu_silicon_arm_tiano.git Silicon/ARM/MU_TIANO
-```
+At the end of this document, we will detail what all is required to move over to Project Mu.
+It brings some powerful things but also requires us to add some pieces to support the new functionality.
 
-If you were taking default EDK2, you could add it as a submodule like so:
+In the meantime we'll use EDK2 as it is likely what people are familiar with.
+
 ```
 git submodule add https://github.com/tianocore/edk2.git edk2
+git submodule add https://github.com/tianocore/edk2-platforms.git platforms
+git submodule add https://github.com/tianocore/edk2-non-osi.git non-osi
 ```
 
 To be clear, **don't use EDK2 and MU_BASECORE in the same tree**.
 They overlap since MU_BASECORE has EDK2 as an upstream.
-For this guide, we'll be using Basecore since it makes it guide simplier.
 
-Next we will setup a folder to keep track of our platform. In this case we'll use `Platform/RaspberryPi`
-
-```bash
-mkdir Platform
-cd Platform
-mkdir RaspberryPi
-```
-
-Next we will be taking the Raspberry Pi repo here (https://github.com/tianocore/edk2-platforms/tree/92f06ccddfcfd3cab1672180b340f765204a65ed/Platform/RaspberryPi) and copy it into our repo.
-Master at time of writing was 92f06ccddfcfd3cab1672180b340f765204a65ed, feel free to take something newer but some things might not match.
-This would be like taking your DSC, FDF, DEC and putting it into your code tree.
-Copy the contents of `edk2-platforms/Platform/RaspberryPi/` to the `rpi/Platform/RaspberryPi` folder.
+We'll want to make sure we have the same commit so for each of the submodules, we'll checkout a specific commit hash.
 
 ```bash
-cd ~
-git clone https://github.com/tianocore/edk2-platforms.git
-cd edk2-platforms
-git checkout 92f06ccddfcfd3cab1672180b340f765204a65ed
-cp -r Platform/RaspberryPi/ ../rpi/Platform
-```
-
-Next we'll grab the silicon code.
-First grab `edk2-platforms/Silicon/Broadcom/Bcm283x` and put it into `Silicon/Broadcom/Bcm283x`.
-In a typical code tree, the silicon specific code might be another repo but in this case, we'll just include it in the root of our tree.
-We'll also copy `edk2-platforms/Drivers/OptionRomPkg` to `/OptionRomPkg`.
-
-
-```bash
-# (go wherever your rpi project is)
 cd ~/rpi
-cd ~
-mkdir Silicon/Broadcom
-cd edk2-platforms
-cp -r Silicon/Broadcom/Bcm283x ../rpi/Silicon/Broadcom/Bcm283x
-cp -r Drivers/OptionRomPkg ../rpi/
-```
-
-We'll also need to grab the edk2-non-OSI repo for the LogoDxe driver.
-
-```bash
-cd ~
-git clone https://github.com/tianocore/edk2-non-osi.git
-cd edk2-non-osi
+cd edk2
+git checkout edk2-stable201911
+cd ..
+cd platforms
+git checkout 0e6e3fc4af678d5241b4e8f8c14c126212ff2522
+cd ..
+cd non-osi
 git checkout d580026dbbe87c081dce26b1872df83fa79cd740
-cp -r Platform/RaspberryPi/Drivers/LogoDxe ../rpi/Platform/RaspberryPi/Drivers/
 ```
 
 At this point, we're almost ready.
@@ -150,33 +114,20 @@ rpi
 |   .gitmodules
 |   pip_requirements.txt
 |
-|---Common
-|   |---MU
-|   |---MU_OEM
-|   |---TIANO
+|---edk2
+|   |...
 |
-|---MU_BASECORE
-|
-|---OptionRomPkg
-|   |   ....
-|
-|---Platform
-|   |---RaspberryPi
-|   |   |   RaspberryPi.dec
-|   |   |
-|   |   |---AcpiTables
-|   |   |---Drivers
-|   |   |---Include
-|   |   |---Library
-|   |   |---Include
-|
-|---Silicon
-|   |---ARM
-|   |   |---MU_TIANO
+|---platform
 |   |
-|   |---Broadcom
-|   |   |---Bcm283x
-|   |   |   ....
+|   |---Drivers
+|   |---Platform
+|   |---Silicon
+|
+|---non-osi
+|   |---Emulator
+|   |---Platform
+|   |---Silicon
+|
 ```
 
 You can see the files at the commit here (TODO)
@@ -191,12 +142,12 @@ Since we are using the build in invocables, we'll need to implement three settin
 
 If you're unfamiliar with what an invocable or a settings file is, please refer to our documentation.
 
-Let's add a file: `Platform/RaspberryPi/RPi3/PlatformBuild.py`.
-Let's start with a settings manager for stuart
+Let's add a file: `RpiPlatformBuild.py`.
+This will be a settings manager for stuart
 
 ```python
 ##
-## Script to Build Raspberry Pi 3 firmware
+## Script to Build Raspberry Pi 3/4 firmware
 ##
 import os
 import logging
@@ -211,11 +162,10 @@ from edk2toolext.invocables.edk2_setup import RequiredSubmodule
 #==========================================================================
 # PLATFORM BUILD ENVIRONMENT CONFIGURATION
 #
-class SettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSettingsManager):
+class RpiSettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSettingsManager):
     def __init__(self):
         SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
-        WORKSPACE_PATH = os.path.dirname(os.path.dirname(os.path.dirname(SCRIPT_PATH)))
-        self.ws = WORKSPACE_PATH
+        self.ws = SCRIPT_PATH
 
     def GetWorkspaceRoot(self):
         ''' get WorkspacePath '''
@@ -227,13 +177,13 @@ For more information on settings managers, please refer to the documentation.
 Right now we are importing the needed classes from the pytools as well as defining a class which will provide the settings to stuart.
 
 The three invocables that we have implemented settings for are `stuart_build`, `stuart_update`, and `stuart_setup`.
-If you were to call one of these, you'd get an error and perhaps a non-implemented method.
+If you were to call one of these, you'd get an error on a non-implemented method.
 
 Since our settings provider it is still missing a lot of functionality.
 While it can now set up our workspace path, which should resolve to your root `rpi` folder, there's still different methods of each settings manager that we haven't implemented yet.
 
 `GetWorkspaceRoot` returns a path to the root of your workspace.
-In this case, `rpi` is the folder in question, which is two levels up from our PlatformBuild.py.
+In this case, `rpi` is the folder in question, which where our PlatformBuild.py is.
 
 
 ### Setup
@@ -243,11 +193,10 @@ Let's add Scopes and RequiredSubmodules.
 ```python
 ...
 
-class SettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSettingsManager):
+class RpiSettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSettingsManager):
     def __init__(self):
         SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
-        WORKSPACE_PATH = os.path.dirname(os.path.dirname(os.path.dirname(SCRIPT_PATH)))
-        self.ws = WORKSPACE_PATH
+        self.ws = SCRIPT_PATH
 
     def GetWorkspaceRoot(self):
         ''' get WorkspacePath '''
@@ -299,23 +248,19 @@ You could use the same settings file to build multiple platforms or select betwe
 Now if we call setup, we should see something like this:
 
 ```cmd
-~/rpi$ stuart_setup -c Platform/RaspberryPi/RPi3/PlatformBuild.py
+~/rpi$ stuart_setup -c RpiPlatformBuild.py
 SECTION - Init SDE
 SECTION - Loading Plugins
 SECTION - Start Invocable Tool
-PROGRESS - ## Syncing Git repositories: MU_BASECORE Common/MU_OEM Common/MU Common/TIANO...
+PROGRESS - ## Syncing Git repositories: edk2 non-osi platforms...
 PROGRESS - Done.
 
-PROGRESS - ## Checking Git repository: MU_BASECORE...
-PROGRESS - Done.
+PROGRESS - ## Checking Git repository: edk2...
 
-PROGRESS - ## Checking Git repository: Common/MU_OEM...
-PROGRESS - Done.
+PROGRESS - ## Checking Git repository: non-osi...
 
-PROGRESS - ## Checking Git repository: Common/MU...
-PROGRESS - Done.
+PROGRESS - ## Checking Git repository: platforms...
 
-PROGRESS - ## Checking Git repository: Common/TIANO...
 PROGRESS - Done.
 
 SECTION - Summary
@@ -326,7 +271,7 @@ You'll also notice that there's a new folder in your tree: `Build`.
 In the setup phase, we don't have an output folder from the DSC yet, so we put logs into that folder.
 Inside you'll notice is a SETUPLOG.
 It just contains verbose information about this process.
-For example, you'll see that it cloned the submodules in Common/TIANO.
+For example, you'll see that it cloned the submodules in EDK2 CryptoPkg.
 
 Since we've already setup our submodules, there isn't much to do other than verify the system is in good shape.
 
@@ -338,22 +283,80 @@ Since we defined the scopes, our settings file is already configured.
 We can run the update and it will work just fine.
 
 ```cmd
-~/rpi$ stuart_update -c RaspberryPi/RPi3/PlatformBuild.py
+~/rpi$ stuart_update -c RpiPlatformBuild.py
 SECTION - Init SDE
 SECTION - Loading Plugins
 SECTION - Start Invocable Tool
 SECTION - Initial update of environment
-SECTION -       Updated/Verified 4 dependencies
+SECTION -       Updated/Verified 1 dependencies
 SECTION - Second pass update of environment
-SECTION -       Updated/Verified 4 dependencies
+SECTION -       Updated/Verified 1 dependencies
 SECTION - Summary
 PROGRESS - Success
 ```
 
-This grabs nuget feed and any other external dependencies.
-MU_BASECORE has some default external dependencies.
+Stuart has something called the Self-Describing Environment or SDE.
+This allows Stuart to infer the external dependencies, path configurations, and environmental variables from the code tree itself.
+This ends up being an incredibly powerful tool.
+For more information, please refer to our guide on using the SDE.
 
-If you were to build right now, without doing an update, the SDE would stop you and report that some external dependencies weren't satisified.
+Update verifies and updates what is in the SDE.
+This grabs nuget packages and any other dependencies.
+EDK2 has a few external dependencies, such as GCC for ARM/AARCH64, IASL, and NASM.
+If you were to build without doing an update, the SDE would stop you and report that some external dependencies weren't satisified.
+It would prompt you to do an update.
+
+
+Optionally, we'll be adding the Basetools that are precompiled through a release pipeline.
+However, this is an optional step and if you wish, you can use basetools that you've already compiled yourself.
+Normally, this would go inside the submodules or in the basetools folder itself.
+However in this case, we'll create a new folder called `dependencies`.
+
+```bash
+cd ~/rpi
+mkdir dependencies
+cd dependencies
+touch basetoolsbin_ext_dep.yaml
+```
+
+Inside the file goes:
+
+```yaml
+##
+# Download the compiled basetools from nuget.org
+# - Nuget package contains different binaries based on the host os
+# Set this downloaded folder on path
+# Set a Shell variable to this path
+#
+# Copyright (c) 2019, Microsoft Corporation
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+{
+  "scope": "global",
+  "type": "nuget",
+  "name": "Mu-Basetools",
+  "source": "https://api.nuget.org/v3/index.json",
+  "version": "2019.11.0",
+  "flags": ["set_shell_var", "set_path", "host_specific"],
+  "var_name": "EDK_TOOLS_BIN"
+}
+```
+
+Now we can re-run update and see the new external dependency get pulled down.
+
+```
+~/rpi$ stuart_update -c RpiPlatformBuild.py
+SECTION - Init SDE
+SECTION - Loading Plugins
+SECTION - Start Invocable Tool
+SECTION - Initial update of environment
+SECTION -       Updated/Verified 2 dependencies
+SECTION - Second pass update of environment
+SECTION -       Updated/Verified 2 dependencies
+SECTION - Summary
+PROGRESS - Success
+```
+
 
 ### Build
 
@@ -375,6 +378,7 @@ class SettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSettings
 #
 class PlatformBuilder(UefiBuilder):
     def SetPlatformEnv(self):
+      self.env.SetValue("ACTIVE_PLATFORM", "Platform/RaspberryPi/RPi3/RPi3.dsc", "Platform Hardcoded")
       return 0
 ```
 
@@ -390,7 +394,7 @@ class SettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSettings
 
     def GetPackagesPath(self):
         ''' get module packages path '''
-        pp = ['MU_BASECORE', "Common/MU_OEM", 'Common/MU', 'Common/TIANO', "Silicon/ARM/MU_TIANO", "Silicon/Broadcom", "Platform"]
+        pp = ['edk2', "non-osi", 'platforms']
         ws = self.GetWorkspaceRoot()
         return [os.path.join(ws, x) for x in pp]
 ```
@@ -405,27 +409,26 @@ SECTION - Loading Plugins
 SECTION - Start Invocable Tool
 SECTION - Loading Plugins
 SECTION - Kicking off build
-PROGRESS - Start time: 2019-10-21 10:20:51.834863
+PROGRESS - Start time: 2019-12-02 14:37:17.515761
 PROGRESS - Setting up the Environment
-ERROR - Failed to find DSC file
-CRITICAL - ParseDscFile failed
-CRITICAL - SetEnv failed
-PROGRESS - End time: 2019-10-21 10:20:51.889865  Total time Elapsed: 0:00:00
+PROGRESS - Running Pre Build
+PROGRESS - Running Build DEBUG
+ERROR - Compiler #2000 from :   Invalid parameter
+CRITICAL - Build failed
+PROGRESS - End time: 2019-12-02 14:37:18.313707  Total time Elapsed: 0:00:00
 SECTION - Summary
 PROGRESS - Error
 ```
 
-It is failing because we don't define our active platform.
+It is failing because we haven't defined the architecture we are building and many other things.
 
 Now you might be asking yourself, wait, how are we already compiling?
 What about the basetools, the CONF folder, the build tools and environmental variables?
 Don't I need to set these up?
-Because we're using Project Mu Basecore, this is included and already mapped out for us via enviromental descriptors.
+Nope. Stuart does it for you.
+You can see in your Build folder there should be a `BUILDLOG.txt`, `SETUPLOG.txt`, and `UPDATELOG.txt`.
+The goal there is to make sure you can reliably figure out what is going on when things do go wrong.
 For more information on them, go read about them here: (TODO)
-But to briefly illustrate the concept, you can see the section that says Init SDE.
-This means the "Self-Describing Environment" started up and found the plugins and environmental descriptors in our code tree.
-If you look in the Buildlog.txt file that got generated, you'd see this at the top.
-It finds precompiled build tools and dynamically creates the CONF folder if it isn't found.
 The goal of Stuart is to be as magical as possible while still being transparent and understandable as possible.
 
 ``` log
@@ -474,7 +477,6 @@ DEBUG - Helper Plugin Register: Windows Capsule Support Helper Functions
 You can see it is adding all the descriptors, which includes environment, external dependencies, and plugins.
 We load the basetools, the nasm tools, report generators, and other tools.
 We also check our external dependencies and verify they match the version we expect.
-For more information, you can read the document about the SDE here: (TODO)
 
 The code is commited as commit at this point as (TODO).
 
@@ -488,7 +490,7 @@ Let's start by setting our DSC and product name
 #
 class PlatformBuilder(UefiBuilder):
     def SetPlatformEnv(self):
-        self.env.SetValue("ACTIVE_PLATFORM", "RaspberryPi/RPi3/RPi3.dsc", "Platform Hardcoded")
+        self.env.SetValue("ACTIVE_PLATFORM", "Platform/RaspberryPi/RPi3/RPi3.dsc", "Platform Hardcoded")
         self.env.SetValue("PRODUCT_NAME", "RaspberryPi", "Platform Hardcoded")
         self.env.SetValue("TARGET_ARCH", "AARCH64", "Platform Hardcoded")
         os = GetHostInfo().os
@@ -501,55 +503,56 @@ class PlatformBuilder(UefiBuilder):
 
 ```
 
-We'll need to change any line that starts with `Drivers/OptionRomPkg/...` to `OptionRomPkg/...`
-You can place the OptionRomPkg elsewhere, like a git submodule or subfolder, just make sure to update these.
-As of time of writing, there was only one OptionRomPkg driver included in RPi3: `OptionRomPkg/Bus/Usb/UsbNetworking/Ax88772b/Ax88772b.inf`
+At this point, when we run a build, we get this:
 
-Now if we run the build we get this error.
-(You might need to open the `BUILDLOG.txt` to see the whole error)
-
-``` log
-INFO - build.py...
-INFO -  : error 000E: File/directory not found in workspace
-INFO - 	Platform/RaspberryPi/Drivers/LogoDxe/LogoDxe.inf is not found in packages path:
+```log
+~/rpi$ stuart_update -c RpiPlatformBuild.py TOOL_CHAIN_TAG=GCC5
+SECTION - Init SDE
+SECTION - Loading Plugins
+SECTION - Start Invocable Tool
+SECTION - Initial update of environment
+SECTION -       Updated/Verified 2 dependencies
+SECTION - Second pass update of environment
+SECTION -       Updated/Verified 2 dependencies
+SECTION - Summary
+PROGRESS - Success
+mattfc@MACARL-STUDIO:~/rpi$ stuart_build -c RpiPlatformBuild.py TOOL_CHAIN_TAG=GCC5
+SECTION - Init SDE
+SECTION - Loading Plugins
+SECTION - Start Invocable Tool
+SECTION - Loading Plugins
+SECTION - Kicking off build
+PROGRESS - Start time: 2019-12-02 14:51:54.604488
+PROGRESS - Setting up the Environment
+PROGRESS - Running Pre Build
+PROGRESS - Running Build DEBUG
+PROGRESS - Running Post Build
+PROGRESS - End time: 2019-12-02 14:52:51.642897  Total time Elapsed: 0:00:57
+SECTION - Log file is located at: /home/mattfc/rpi/Build/BUILDLOG.txt
+SECTION - Summary
+PROGRESS - Success
 ```
 
-In the original project, there were a few errors at the commit we snapped from.
-So we'll fix the LogoDxe by using the one from MdeModulePkg
+Fantastic!
 
-``` dsc
-Platform/RaspberryPi/Drivers/LogoDxe/LogoDxe.inf =>  MdeModulePkg/Logo/LogoDxe.inf # MU_CHANGE
-```
+If you want, you can call it a day and load your new ROM on an SD card and boot your UEFI powrered Raspberry Pi.
 
-Make sure to apply changes to the FDF as well as the DSC.
+However, there are a few things we'd like to tweak.
 
-The MU_CHANGE comment is to let us know that we have changed this from the upstream source.
-This makes pull in changes much easier when we need to rebase or merge in the upstream.
+Right now, the DeviceTree image is a binary file checked into the non-osi git repo.
+A better approach might be using the image directly.
+Ideally, it would be from a Nuget feed or other auditable release pipeline.
 
-At this point, you can see the code at commit {TODO}.
-
-If you build again, the next error you'll see in `BUILDLOG.txt` will look like this:
-
-``` log
-INFO - build.py...
-INFO -  : error 000E: File/directory not found in workspace
-INFO - 	Platform/RaspberryPi/RPi3/DeviceTree/bcm2710-rpi-3-b.dtb is not found in packages path:
-INFO - 	c:/git/rpi/MU_BASECORE
-```
-
-In the edk2-platform there was a DeviceTree folder. We'll use the devicetree from github.
-
-First create the DeviceTree folder. Go to the root of your project.
-
+First we'll create a new file
 ``` cmd
 mkdir Platform/RaspberryPi/DeviceTree
 ```
 
 Then we'll create two files.
-The first is the `Platform/RaspberryPi/DeviceTree/rpi-3-bp_ext_dep.yaml`
+The first is the `dependencies/rpi-3-bp_ext_dep.yaml`
 
 ``` bash
-touch Platform/RaspberryPi/DeviceTree/rpi-3-bp_ext_dep.yaml
+touch dependencies/rpi-3-bp_ext_dep.yaml
 ```
 
 Paste this in:
@@ -569,15 +572,15 @@ Paste this in:
   "version": "a16470ad47c0ad66d5c98d98e08e49cd148c8fc0",
   'internal_path': "bcm2710-rpi-3-b-plus.dtb",
   "sha256": "253a2e8765aaec5bce6b2ab4e4dbd16107897cc24bb3e248ab5206c09a42cf04",
-  "flags": ["set_shell_var", ],
-  "var_name": "BCM2710_3BP_DT"
+  "flags": ["set_build_var", ],
+  "var_name": "BLD_*_BCM2710_3BP_DT"
 }
 ```
 
-The second is at `Platform/RaspberryPi/DeviceTree/rpi-3-b_ext_dep.yaml`
+The second is at `dependencies/rpi-3-b_ext_dep.yaml`
 
 ``` bash
-touch Platform/RaspberryPi/DeviceTree/rpi-3-b_ext_dep.yaml
+touch dependencies/rpi-3-b_ext_dep.yaml
 ```
 
 Paste this in:
@@ -597,8 +600,8 @@ Paste this in:
   "version": "a16470ad47c0ad66d5c98d98e08e49cd148c8fc0",
   'internal_path': "./bcm2710-rpi-3-b.dtb",
   "sha256": "18ce263a6e1ce4ba7aee759885cb665d61611d2f17cee5b7e91215f7b97d2952",
-  "flags": ["set_shell_var", ],
-  "var_name": "BCM2710_3B_DT"
+  "flags": ["set_build_var", ],
+  "var_name": "BLD_*_BCM2710_3B_DT"
 }
 ```
 
@@ -608,15 +611,16 @@ Feel free to jump ahead to a newer commit hash, just be aware that you'll need t
 
 Let's run an update to fetch our new dependencies.
 
-``` cmd
-:~/rpi$ stuart_update -c Platform/RaspberryPi/RPi3/PlatformBuild.py
+``` bash
+~/rpi$ stuart_update -c RpiPlatformBuild.py
 ```
 
 You'll see some ouput and you'll notice two new folders in the tree.
-`Platform/RaspberryPi/DeviceTree/bcm2710_rpi_3b_devicetree_extdep` and `Platform/RaspberryPi/DeviceTree/bcm2710_rpi_3b_plus_devicetree_extdep`.
+`bcm2710_rpi_3b_devicetree_extdep` and `bcm2710_rpi_3b_plus_devicetree_extdep`.
 Inside is the files that we want.
 
 Because the we told to SDE to save where the file was populated into an environmental variable, we'll use that in our FDF.
+
 This means that
 ```fdf
   # Device Tree support (used by FdtDxe)
@@ -644,102 +648,34 @@ becomes
   # MU_CHANGE END
 ```
 
-You can see the code committed at this point at commit: {TODO}
+We can now build it and it will stay in sync with the upstream device tree.
+We could apply this technique to the ATF (Arm Trusted Firmware).
+Since it comes from the same place.
 
-Now if we build it, you'll see this error.
-
-``` log
-INFO - build.py...
-INFO - c:/git/rpi/Platform/RaspberryPi/RPi3/RPi3.dsc(...): error 4000: Instance of library class [BaseBinSecurityLib] is not found
-INFO - 	in [c:/git/rpi/MU_BASECORE/MdeModulePkg/Core/Dxe/DxeMain.inf] [AARCH64]
-INFO - 	consumed by module [c:/git/rpi/MU_BASECORE/MdeModulePkg/Core/Dxe/DxeMain.inf]
-```
-
-This is because the MU_BASECORE version DxeMain needs BaseBinSecurityLib.
-We're going to use the null version.
-To our [LibraryClasses.common.DXE_CORE], we're going to add the BaseBinSecurityLib.
-
-``` dsc
-[LibraryClasses.common.DXE_CORE]
-  ....
-  BaseBinSecurityLib|MdePkg/Library/BaseBinSecurityLibNull/BaseBinSecurityLibNull.inf #MU_CHANGE
-```
-
-Build again, and you get this error.
-
-``` log
-INFO - build.py...
-INFO - c:/git/rpi/Platform/RaspberryPi/RPi3/RPi3.dsc(...): error 4000: Instance of library class [MuVariablePolicyHelperLib] is not found
-INFO - 	in [c:/git/rpi/MU_BASECORE/MdeModulePkg/Universal/Variable/RuntimeDxe/VariableRuntimeDxe.inf] [AARCH64]
-INFO - 	consumed by module [c:/git/rpi/MU_BASECORE/MdeModulePkg/Universal/Variable/RuntimeDxe/VariableRuntimeDxe.inf]
-```
-
-Project Mu adds the variable policy, which is a fantastic bit of code that does some real neat stuff.
-For more information, go check it out here (TODO).
-
-Anyway- so to our DSC, we're going to add some extra classes
-
-```dsc
-[LibraryClasses.common]
-    ...
-    # Project MU dependencies
-    MuVariablePolicyHelperLib|MdeModulePkg/Library/MuVariablePolicyHelperLib/MuVariablePolicyHelperLib.inf # MU_CHANGE
-    ResetUtilityLib|MdeModulePkg/Library/ResetUtilityLib/ResetUtilityLib.inf # CHANGE
-    SecurityLockAuditLib|MdeModulePkg/Library/SecurityLockAuditDebugMessageLib/SecurityLockAuditDebugMessageLib.inf # MU_CHANGE
-```
-
-Build again and a new error appears!
-The reason that we are doing individual builds is so that you can learn how to resolve dependencies and we have a change to talk about why these libraries need to be added.
-
-The next error:
-
-``` log
-INFO - build.py...
-INFO - c:/git/rpi/Platform/RaspberryPi/RPi3/RPi3.dsc(...): error 4000: Instance of library class [ResetSystemLib] is not found
-INFO - 	in [c:/git/rpi/MU_BASECORE/MdeModulePkg/Library/ResetUtilityLib/ResetUtilityLib.inf] [AARCH64]
-INFO - 	consumed by module [c:/git/rpi/MU_BASECORE/MdeModulePkg/Universal/CapsuleRuntimeDxe/CapsuleRuntimeDxe.inf]
-```
-
-The Project Mu capsule runtime uses the ResetUtility to reset the system. We can use the Edk2 version of this.
-
-You'll add these to your DSC.
-
-``` dsc
-[LibraryClasses.common.DXE_DRIVER]
-  ...
-  ResetSystemLib|MdeModulePkg/Library/DxeResetSystemLib/DxeResetSystemLib.inf # MU_CHANGE
-
-[LibraryClasses.common.DXE_RUNTIME_DRIVER]
-  ...
-  ResetSystemLib|MdeModulePkg/Library/RuntimeResetSystemLib/RuntimeResetSystemLib.inf # MU_CHANGE
-
-```
-
-Build again and we get an error about MemoryTypeInformationChangeLib.
-In this case, we can use the null version.
-
-```dsc
-[LibraryClasses.common]
-  ...
-  # Project MU dependencies
-  ...
-  MemoryTypeInformationChangeLib|MdeModulePkg/Library/MemoryTypeInformationChangeLibNull/MemoryTypeInformationChangeLibNull.inf  # MU_CHANGE
-```
-
-Build again and we have a missing RngLib.
-Luckily for us, there is already RngDxe that publishes the RNG protocol.
-We just need a library that fetches the protocol and uses it.
-As it would happen, a library in Project Mu does that exactly.
-
-```dsc
-[LibraryClasses.common.UEFI_DRIVER]
-  ...
-  RngLib|SecurityPkg/RandomNumberGenerator/RngDxeLib/RngDxeLib.inf # MU_CHANGE
-```
+## Notes
 
 As of time of writing, VS2017 doesn't support the ASM files used in this project.
 So you'll need to use GCC.
 Using WSL is the recommended course for windows, but MacOS and Linux machines can follow the guide here.
+
+## Project Mu
+
+Using Project Mu is fairly easy.
+Instead of adding edk2, you would add these repos instead.
+
+You can add these all by running this command:
+```bash
+git submodule add https://github.com/Microsoft/mu_basecore.git MU_BASECORE
+git submodule add https://github.com/Microsoft/mu_plus.git Common/MU
+git submodule add https://github.com/Microsoft/mu_tiano_plus.git Common/TIANO
+git submodule add https://github.com/Microsoft/mu_oem_sample.git Common/MU_OEM
+git submodule add https://github.com/microsoft/mu_silicon_arm_tiano.git Silicon/ARM/MU_TIANO
+git submodule add https://github.com/tianocore/edk2-platforms.git platforms
+git submodule add https://github.com/tianocore/edk2-non-osi.git non-osi
+```
+
+Refer to the documentation in the various repos for the informations on how to enable features such as DFCI, SharedCrypto, etc.
+
 
 ## Future Work
 
