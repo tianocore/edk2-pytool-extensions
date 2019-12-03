@@ -174,6 +174,7 @@ class TestVarDict(unittest.TestCase):
         ## confirm result only has 1 value
         vlist = v.GetAllBuildKeyValues("DEBUG")
         self.assertEqual(len(vlist), 1)
+        self.assertIn("TEST1", vlist.keys())
 
         ## confirm override behavior
         v.SetValue("Target", "DEBUG", "Set target to debug")
@@ -183,6 +184,16 @@ class TestVarDict(unittest.TestCase):
         ## override using parameter for build type
         vlist = v.GetAllBuildKeyValues("RELEASE")
         self.assertEqual(len(vlist), 1)
+        self.assertIn("TEST1", vlist.keys())
+
+    def test_var_dict_get_all_nonbuild_key_values(self):
+        v = var_dict.VarDict()
+        v.SetValue("bld_*_test1", "build_value1", "build test 1 comment")
+        v.SetValue("test2", "test", "non build value")
+        ## confirm result only has 1 value
+        vlist = v.GetAllNonBuildKeyValues()
+        self.assertEqual(len(vlist), 1)
+        self.assertIn("TEST2", vlist.keys())
 
     def test_var_dict_print_all(self):
         v = var_dict.VarDict()

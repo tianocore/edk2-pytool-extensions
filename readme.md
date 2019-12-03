@@ -38,7 +38,30 @@ NOTE: It is strongly recommended that you use python virtual environments.  Virt
     from edk2toolext.<module> import <class>
     ```
 
+## Current Status
+
+| Host Type | Toolchain | Branch | Build Status | Test Status | Code Coverage |
+| :-------- | :-------- | :---- | :----- | :---- | :--- |
+| Windows VS 2017 | Python 3.7.x | master | [![Build Status](https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Master%20CI%20Build%20-%20Win%20VS2017?branchName=master)](https://dev.azure.com/tianocore/edk2-pytool-extensions/_build/latest?definitionId=8&branchName=master) | ![Azure DevOps tests](https://img.shields.io/azure-devops/tests/tianocore/edk2-pytool-extensions/8.svg) | ![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/tianocore/edk2-pytool-extensions/8.svg) |
+| Linux Ubuntu 1604 | Python 3.7.x | master | [![Build Status](https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Master%20CI%20Build%20-%20Linux?branchName=master)](https://dev.azure.com/tianocore/edk2-pytool-extensions/_build/latest?definitionId=7&branchName=master) | ![Azure DevOps tests](https://img.shields.io/azure-devops/tests/tianocore/edk2-pytool-extensions/7.svg) | ![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/tianocore/edk2-pytool-extensions/7.svg) |
+
 ## Release Version History
+
+[![PyPI](https://img.shields.io/pypi/v/edk2_pytool_extensions.svg)](https://pypi.org/project/edk2-pytool-extensions/)
+
+## Version 0.12.2
+
+* Bug:
+  * #124: Fixed git external dependencies to no longer break version aggregator
+
+
+## Version 0.12.1
+
+* Features:
+  * Updated nuget to 5.3
+  * Add tags to nuget packages on external dependencies and nuget publishing
+* Bug:
+  * #102: Fixed version aggregator so it doesn't emit warnings
 
 ## Version 0.12.0
 
@@ -49,13 +72,13 @@ NOTE: It is strongly recommended that you use python virtual environments.  Virt
 
 * Bug:
   * Issue 90 - edk2_pr_eval policy 3 is not first checking that change is in public file
-  
+
 ## Version 0.11.2
 
 * Features:
   * Add tool to evaluate which packages should be tested for a given PR
   * Improved logging and visibility
-  
+
 ## Version 0.11.1
 
 * Bugs
@@ -122,15 +145,6 @@ NOTE: It is strongly recommended that you use python virtual environments.  Virt
 Initial release ported from Project Mu.
 For history and documentation prior to this see the original Project Mu project
 <https://github.com/microsoft/mu_pip_environment> and <https://github.com/microsoft/mu_pip_build>
-
-## Current Status
-
-[![PyPI](https://img.shields.io/pypi/v/edk2_pytool_extensions.svg)](https://pypi.org/project/edk2-pytool-extensions/)
-
-| Host Type | Toolchain | Branch | Build Status | Test Status | Code Coverage |
-| :-------- | :-------- | :---- | :----- | :---- | :--- |
-| Windows VS 2017 | Python 3.7.x | master | [![Build Status](https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Master%20CI%20Build%20-%20Win%20VS2017?branchName=master)](https://dev.azure.com/tianocore/edk2-pytool-extensions/_build/latest?definitionId=8&branchName=master) | ![Azure DevOps tests](https://img.shields.io/azure-devops/tests/tianocore/edk2-pytool-extensions/8.svg) | ![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/tianocore/edk2-pytool-extensions/8.svg) |
-| Linux Ubuntu 1604 | Python 3.7.x | master | [![Build Status](https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Master%20CI%20Build%20-%20Linux?branchName=master)](https://dev.azure.com/tianocore/edk2-pytool-extensions/_build/latest?definitionId=7&branchName=master) | ![Azure DevOps tests](https://img.shields.io/azure-devops/tests/tianocore/edk2-pytool-extensions/7.svg) | ![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/tianocore/edk2-pytool-extensions/7.svg) |
 
 ## Contribution Process
 

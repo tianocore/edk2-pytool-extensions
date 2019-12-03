@@ -92,9 +92,9 @@
         "isclass",
         "DSCs",
         "levelno",
-        "raspberrypi",
-        "gitmodules",
-        "Basetools",
-        "DFCI"
+        "pyopenssl",
+        "esrt",
+        "noqa",
+        "pymodule"
     ]
 }
