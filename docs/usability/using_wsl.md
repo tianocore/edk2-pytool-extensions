@@ -2,9 +2,9 @@
 
 There are many firmware projects that require GCC.
 While support for GCC on windows exists, many of the UEFI community use Linux as their main dev machines.
-This guide is focued on setting up a Linux WSL for UEFI development.
-This guide also uses Visual Studio Code as it has fantastic capabilities that makes working in linux much easier
-If you have a linux machine, you can follow the later half of this guide to just setup the environment.
+This guide is focused on setting up a Linux WSL for UEFI development.
+This guide also uses Visual Studio Code as it has fantastic capabilities that makes working in Linux much easier
+If you have a Linux machine, you can follow the later half of this guide to just setup the environment.
 
 For reference, this tutorial was written for a 1903 version of Windows.
 
@@ -15,9 +15,9 @@ The best documentation at time of writing can be found: https://docs.microsoft.c
 Following the guide, we need to check the minimum version requirements.
 Check the document as mentioned to find the Windows version needed for WSL.
 
-Install the optional windows components through powershell.
+Install the optional windows components through PowerShell.
 These commands may change, so check the document.
-But the commands to run in an Admin Powershell window were these:
+But the commands to run in an Admin PowerShell window were these:
 
 ``` powershell
 Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
@@ -42,7 +42,7 @@ wsl --set-version Ubuntu-18.04 2
 ```
 
 This will take a few minutes. As it converts the distro to WSLv2.
-You can check to make sure the converstion was successful.
+You can check to make sure the conversion was successful.
 
 ``` powershell
 wsl --list --verbose
@@ -73,14 +73,14 @@ Run this command in WSL to install the pieces needed.
 sudo apt-get install build-essential uuid-dev iasl git gcc-5 nasm python3-distutils
 ```
 
-If you aren't use Project Mu's BASECORE, you'll need to compile the basetools.
+If you aren't use Project Mu's BASECORE, you'll need to compile the BaseTools.
 
 ## Setting up other tools
 
 You'll need python3, which on Ubuntu 3.5 comes default (as of time of writing).
-Pip comes seperately, so that will be need to be installed.
+Pip comes separately, so that will be need to be installed.
 
-You'll also need to install mono to run nuget.
+You'll also need to install mono to run NuGet.
 Generally all you need is to get it from your package manager.
 
 ``` bash
@@ -98,7 +98,7 @@ Then install the Remote Development VS Code extension.
 You should see the installation of the VS Code server if you are doing this for the first time.
 If you don't see it, make sure your extension is installed properly.
 
-Naviagate to the folder you want to use in your WSL terminal and then run code
+Navigate to the folder you want to use in your WSL terminal and then run code
 
 ```bash
 cd my_project_folder
@@ -112,4 +112,4 @@ Opening a terminal in VS Code opens a WSL window, which makes compilation much e
 
 ## Questions
 
-If you have any questions or comments, feel free to leave an issue on our github repo here (TODO)
+If you have any questions or comments, feel free to leave an issue on our GitHub repo [here](https://github.com/tianocore/edk2-pytool-extensions/issues)

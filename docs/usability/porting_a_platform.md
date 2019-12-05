@@ -55,7 +55,7 @@ edk2-pytool-extensions
 You're welcome to snap to a particular version by adding `==0.12.2` or whatever version you want to keep after the pip name.
 
 Next you'll need to install the pip modules.
-If you see that the pip isn't installed, check out our guide to setting up WSL (or any linux distro).
+If you see that the pip isn't installed, check out our guide to setting up WSL (or any linux distribution).
 
 Once your pip is setup, install the requirements by executing this:
 
@@ -303,7 +303,7 @@ For more information, please refer to our guide on using the SDE.
 Update verifies and updates what is in the SDE.
 This grabs nuget packages and any other dependencies.
 EDK2 has a few external dependencies, such as GCC for ARM/AARCH64, IASL, and NASM.
-If you were to build without doing an update, the SDE would stop you and report that some external dependencies weren't satisified.
+If you were to build without doing an update, the SDE would stop you and report that some external dependencies weren't satisfied.
 It would prompt you to do an update.
 
 
@@ -516,7 +516,7 @@ SECTION - Second pass update of environment
 SECTION -       Updated/Verified 2 dependencies
 SECTION - Summary
 PROGRESS - Success
-mattfc@MACARL-STUDIO:~/rpi$ stuart_build -c RpiPlatformBuild.py TOOL_CHAIN_TAG=GCC5
+~/rpi$ stuart_build -c RpiPlatformBuild.py TOOL_CHAIN_TAG=GCC5
 SECTION - Init SDE
 SECTION - Loading Plugins
 SECTION - Start Invocable Tool
@@ -528,14 +528,14 @@ PROGRESS - Running Pre Build
 PROGRESS - Running Build DEBUG
 PROGRESS - Running Post Build
 PROGRESS - End time: 2019-12-02 14:52:51.642897  Total time Elapsed: 0:00:57
-SECTION - Log file is located at: /home/mattfc/rpi/Build/BUILDLOG.txt
+SECTION - Log file is located at: ~/rpi/Build/BUILDLOG.txt
 SECTION - Summary
 PROGRESS - Success
 ```
 
 Fantastic!
 
-If you want, you can call it a day and load your new ROM on an SD card and boot your UEFI powrered Raspberry Pi.
+If you want, you can call it a day and load your new ROM on an SD card and boot your UEFI powered Raspberry Pi.
 
 However, there are a few things we'd like to tweak.
 
@@ -624,7 +624,7 @@ Because the we told to SDE to save where the file was populated into an environm
 This means that
 ```fdf
   # Device Tree support (used by FdtDxe)
-  # GUIDs should match gRaspberryPi#####FdtGuid's from the .dec
+  # GUIDs should match gRaspberryPi#####FdtGuids from the .dec
   #
   FILE FREEFORM = DF5DA223-1D27-47C3-8D1B-9A41B55A18BC {
     SECTION RAW = Platform/RaspberryPi/$(PLATFORM_NAME)/DeviceTree/bcm2710-rpi-3-b.dtb
@@ -637,7 +637,7 @@ becomes
 ```fdf
   # MU_CHANGE START
   # Device Tree support (used by FdtDxe)
-  # GUIDs should match gRaspberryPi#####FdtGuid's from the .dec
+  # GUIDs should match gRaspberryPi#####FdtGuids from the .dec
   #
   FILE FREEFORM = DF5DA223-1D27-47C3-8D1B-9A41B55A18BC {
     SECTION RAW = $(BCM2710_3B_DT)/bcm2710-rpi-3-b.dtb
