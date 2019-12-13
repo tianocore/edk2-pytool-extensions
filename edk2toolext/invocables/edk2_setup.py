@@ -80,6 +80,7 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
         parserObj.add_argument('--force', '--FORCE', '--Force', dest="force", action='store_true', default=False)
         parserObj.add_argument('--omnicache', '--OMNICACHE', '--Omnicache', dest='omnicache_path',
                                default=os.environ.get('OMNICACHE_PATH'))
+
         super().AddCommandLineOptions(parserObj)
 
     def RetrieveCommandLineOptions(self, args):
