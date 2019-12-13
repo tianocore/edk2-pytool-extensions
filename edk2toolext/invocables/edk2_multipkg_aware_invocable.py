@@ -75,6 +75,7 @@ class Edk2MultiPkgAwareInvocable(Edk2Invocable):
 
     def AddCommandLineOptions(self, parserObj):
         ''' adds command line options to the argparser '''
+        super().AddCommandLineOptions(parserObj)
         # This will parse the packages that we are going to update
         parserObj.add_argument('-p', '--pkg', '--pkg-dir', dest='packageList', type=str,
                                help='Optional - A package or folder you want to update (workspace relative).'
@@ -87,6 +88,7 @@ class Edk2MultiPkgAwareInvocable(Edk2Invocable):
 
     def RetrieveCommandLineOptions(self, args):
         '''  Retrieve command line options from the argparser '''
+        super().RetrieveCommandLineOptions(args)
         packageListSet = set()
         for item in args.packageList:  # Parse out the individual packages
             item_list = item.split(",")

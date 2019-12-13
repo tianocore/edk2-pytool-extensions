@@ -39,11 +39,17 @@ class BuildSettingsManager():
 
     def AddCommandLineOptions(self, parserObj):
         ''' Implement in subclass to add command line options to the argparser '''
-        pass
+        try:
+            super().AddCommandLineOptions(parserObj)
+        except AttributeError:
+            pass
 
-    def RetrieveCommandLineOptions(self):
+    def RetrieveCommandLineOptions(self, args):
         '''  Implement in subclass to retrieve command line options from the argparser '''
-        pass
+        try:
+            super().RetrieveCommandLineOptions(args)
+        except AttributeError:
+            pass
 
     def GetLoggingLevel(self, loggerType):
         ''' Get the logging level for a given type
@@ -60,7 +66,7 @@ class Edk2PlatformBuild(Edk2Invocable):
 
     def AddCommandLineOptions(self, parserObj):
         ''' adds command line options to the argparser '''
-
+        super().AddCommandLineOptions(parserObj)
         # PlatformSettings could also be a subclass of UefiBuilder, who knows!
         if isinstance(self.PlatformSettings, UefiBuilder):
             self.PlatformBuilder = self.PlatformSettings

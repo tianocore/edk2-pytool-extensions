@@ -48,14 +48,20 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
                                " packages to be tested.  Valid Tokens: {pkgcount}"
                                " Example --output-count-format-string PackageCount={pkgcount}")
 
-        super().AddCommandLineOptions(parserObj)
+        try:
+            super().AddCommandLineOptions(parserObj)
+        except AttributeError:
+            pass
 
     def RetrieveCommandLineOptions(self, args):
         '''  Retrieve command line options from the argparser '''
         self.pr_target = args.pr_target
         self.output_csv_format_string = args.output_csv_format_string
         self.output_count_format_string = args.output_count_format_string
-        super().RetrieveCommandLineOptions(args)
+        try:  # try to call super class just in case there's another module in the MRO
+            super().RetrieveCommandLineOptions(args)
+        except AttributeError:
+            pass
 
     def GetVerifyCheckRequired(self):
         ''' Will not call self_describing_environment.VerifyEnvironment because it might not be set up yet '''

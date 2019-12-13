@@ -62,6 +62,10 @@ class UefiBuilder(object):
         parserObj.add_argument("--OUTPUTCONFIG", "--outputconfig", "--OutputConfig",
                                dest='OutputConfig', required=False, type=str,
                                help='Provide shell variables in a file')
+        try:
+            super().AddCommandLineOptions(parserObj)
+        except AttributeError:
+            pass
 
     def RetrieveCommandLineOptions(self, args):
         '''  Retrieve command line options from the argparser'''
@@ -90,6 +94,11 @@ class UefiBuilder(object):
             self.SkipPreBuild = True
             self.SkipPostBuild = True
             self.FlashImage = False
+
+        try:  # try to call super class just in case there's another module in the MRO
+            super().RetrieveCommandLineOptions(args)
+        except AttributeError:
+            pass
 
     def Go(self, WorkSpace, PackagesPath, PInHelper, PInManager):
         self.env = shell_environment.GetBuildVars()
