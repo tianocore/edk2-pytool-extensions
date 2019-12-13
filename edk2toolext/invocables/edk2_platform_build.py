@@ -16,6 +16,7 @@ from edk2toolext.environment import self_describing_environment
 from edk2toolext.environment.uefi_build import UefiBuilder
 from edk2toolext.edk2_invocable import Edk2Invocable
 from edk2toollib.utility_functions import locate_class_in_module
+from edk2toollib.utility_functions import call_classes_in_mro
 
 
 class BuildSettingsManager():
@@ -39,17 +40,11 @@ class BuildSettingsManager():
 
     def AddCommandLineOptions(self, parserObj):
         ''' Implement in subclass to add command line options to the argparser '''
-        try:
-            super().AddCommandLineOptions(parserObj)
-        except AttributeError:
-            pass
+        pass
 
     def RetrieveCommandLineOptions(self, args):
         '''  Implement in subclass to retrieve command line options from the argparser '''
-        try:
-            super().RetrieveCommandLineOptions(args)
-        except AttributeError:
-            pass
+        pass
 
     def GetLoggingLevel(self, loggerType):
         ''' Get the logging level for a given type
@@ -78,15 +73,19 @@ class Edk2PlatformBuild(Edk2Invocable):
                 raise RuntimeError(f"UefiBuild not found in module:\n{dir(self.PlatformModule)}")
 
         # If PlatformBuilder and PlatformSettings are separate, give CommandLineOptions to PlatformBuilder
-        if self.PlatformBuilder is not self.PlatformSettings:
-            self.PlatformBuilder.AddCommandLineOptions(parserObj)
+        builder_class = self.PlatformBuilder.__class__
+        # check to make sure we won't call PlatformSettings if it's in the MRO
+        start_class = None if self.PlatformBuilder != self.PlatformSettings else builder_class
+        call_classes_in_mro(builder_class, UefiBuilder, start_class, self.PlatformBuilder, "AddCommandLineOptions", [parserObj, ])
 
     def RetrieveCommandLineOptions(self, args):
         '''  Retrieve command line options from the argparser '''
 
         # If PlatformBuilder and PlatformSettings are separate, give args to PlatformBuilder
-        if self.PlatformBuilder is not self.PlatformSettings:
-            self.PlatformBuilder.RetrieveCommandLineOptions(args)
+        builder_class = self.PlatformBuilder.__class__
+        # check to make sure we won't call PlatformSettings if it's in the MRO
+        start_class = None if self.PlatformBuilder != self.PlatformSettings else builder_class
+        call_classes_in_mro(builder_class, UefiBuilder, start_class, self.PlatformBuilder, "RetrieveCommandLineOptions", [args, ])
 
     def GetSettingsClass(self):
         '''  Providing BuildSettingsManager  '''

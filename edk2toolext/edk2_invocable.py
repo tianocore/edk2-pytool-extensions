@@ -19,6 +19,7 @@ from edk2toollib.utility_functions import GetHostInfo
 from edk2toolext.environment import version_aggregator
 from edk2toollib.utility_functions import locate_class_in_module
 from edk2toollib.utility_functions import import_module_by_file_name
+from edk2toollib.utility_functions import call_classes_in_mro
 from edk2toolext.base_abstract_invocable import BaseAbstractInvocable
 
 
@@ -169,7 +170,8 @@ Key=value will get passed to build process for given build type)'''
         self.AddCommandLineOptions(parserObj)
 
         # next pass it to the settings manager
-        self.PlatformSettings.AddCommandLineOptions(parserObj)
+        # find all the classes in the PlatformSettings MRO that match the settings class we're invoking
+        call_classes_in_mro(self.PlatformSettings.__class__, self.GetSettingsClass(), None, self.PlatformSettings, "AddCommandLineOptions", [parserObj, ])
 
         default_build_config_path = os.path.join(self.GetWorkspaceRoot(), "BuildConfig.conf")
 
@@ -188,7 +190,7 @@ Key=value will get passed to build process for given build type)'''
         self.RetrieveCommandLineOptions(args)
 
         # give the parsed args to platform settings manager
-        self.PlatformSettings.RetrieveCommandLineOptions(args)
+        call_classes_in_mro(self.PlatformSettings.__class__, self.GetSettingsClass(), None, self.PlatformSettings, "RetrieveCommandLineOptions", [args, ])
 
         #
         # Look through unknown_args and BuildConfig for strings that are x=y,
