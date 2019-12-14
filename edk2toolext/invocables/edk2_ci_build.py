@@ -46,11 +46,13 @@ class CiBuildSettingsManager(MultiPkgAwareSettingsInterface):
 
     def AddCommandLineOptions(self, parserObj):
         ''' Implement in subclass to add command line options to the argparser '''
-        super().AddCommandLineOptions(parserObj)
+        MultiPkgAwareSettingsInterface.AddCommandLineOptions(self, parserObj)
+        pass
 
     def RetrieveCommandLineOptions(self, args):
         '''  Implement in subclass to retrieve command line options from the argparser '''
-        super().RetrieveCommandLineOptions(args)
+        MultiPkgAwareSettingsInterface.RetrieveCommandLineOptions(self, args)
+        pass
 
     def GetLoggingLevel(self, loggerType):
         ''' Get the logging level for a given type
