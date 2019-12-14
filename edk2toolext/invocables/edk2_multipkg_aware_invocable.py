@@ -25,7 +25,7 @@ class MultiPkgAwareSettingsInterface():
     # ####################################################################################### #
     #                                 Command line options                                    #
     # ####################################################################################### #
-     def AddCommandLineOptions(self, parserObj):
+    def AddCommandLineOptions(self, parserObj):
         ''' Implement in subclass to add command line options to the argparser '''
         pass
 
