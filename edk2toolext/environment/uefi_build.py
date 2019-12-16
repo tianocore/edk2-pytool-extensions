@@ -63,7 +63,7 @@ class UefiBuilder(object):
                                dest='OutputConfig', required=False, type=str,
                                help='Provide shell variables in a file')
 
-    def RetrievePlatformCommandLineOptions(self, args):
+    def RetrievePlatform-CommandLineOptions(self, args):
         '''  Retrieve command line options from the argparser'''
         self.OutputConfig = os.path.abspath(args.OutputConfig) if args.OutputConfig else None
 

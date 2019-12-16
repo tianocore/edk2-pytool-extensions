@@ -126,7 +126,6 @@ Key=value will get passed to build process for given build type)'''
             self.PlatformModule = import_module_by_file_name(os.path.abspath(settingsArg.platform_module))
             self.PlatformSettings = locate_class_in_module(
                 self.PlatformModule, self.GetSettingsClass())()
-            self.PlatformSettings.SettingsClass = self.GetSettingsClass()
         except (TypeError):
             # Gracefully exit if the file we loaded isn't the right type
             class_name = self.GetSettingsClass().__name__
