@@ -20,8 +20,6 @@ class MultiPkgAwareSettingsInterface():
         and which functions can be implemented.
      '''
 
-    SettingsClass = None  # this will be filled in by the edk invocable
-
     # ####################################################################################### #
     #                                 Command line options                                    #
     # ####################################################################################### #
