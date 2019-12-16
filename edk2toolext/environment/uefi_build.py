@@ -38,7 +38,7 @@ class UefiBuilder(object):
         self.UpdateConf = False
         self.OutputConfig = None
 
-    def AddCommandLineOptions(self, parserObj):
+    def AddPlatformCommandLineOptions(self, parserObj):
         ''' adds command line options to the argparser '''
         parserObj.add_argument("--SKIPBUILD", "--skipbuild", "--SkipBuild", dest="SKIPBUILD",
                                action='store_true', default=False, help="Skip the build process")
@@ -63,7 +63,7 @@ class UefiBuilder(object):
                                dest='OutputConfig', required=False, type=str,
                                help='Provide shell variables in a file')
 
-    def RetrieveCommandLineOptions(self, args):
+    def RetrievePlatformCommandLineOptions(self, args):
         '''  Retrieve command line options from the argparser'''
         self.OutputConfig = os.path.abspath(args.OutputConfig) if args.OutputConfig else None
 

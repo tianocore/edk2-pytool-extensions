@@ -26,10 +26,12 @@ class UpdateSettingsManager(MultiPkgAwareSettingsInterface):
 
     def AddCommandLineOptions(self, parserObj):
         ''' Implement in subclass to add command line options to the argparser '''
+        MultiPkgAwareSettingsInterface.AddCommandLineOptions(self, parserObj)
         pass
 
     def RetrieveCommandLineOptions(self, args):
         '''  Implement in subclass to retrieve command line options from the argparser '''
+        MultiPkgAwareSettingsInterface.RetrieveCommandLineOptions(self, args)
         pass
 
     def GetLoggingLevel(self, loggerType):
