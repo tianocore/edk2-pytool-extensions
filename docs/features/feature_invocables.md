@@ -10,7 +10,7 @@ To kick off a script, just Invoke().
 
 example: Sample_InvocableHelloWorld.py
 
-### provided functions 
+### provided functions
 
 #### Invoke
 
@@ -28,14 +28,14 @@ After that, GetWorkspaceRoot and GetActiveScopes is used to get the necessary in
 Go will be called after all that setup.
 
 Note: logging before ConfigureLogging gets called causes logging to be setup twice (once implicitly by calling it early and then again by ConfigureLogging) and you will see duplicate messages in your console.
-To avoid this, do not log in ParseCommandLineOptions, GetLoggingLevel, GetWorkspaceRoot, GetLoggingFolderRelativeToRoot, or GetLoggingFileName. 
+To avoid this, do not log in ParseCommandLineOptions, GetLoggingLevel, GetWorkspaceRoot, GetLoggingFolderRelativeToRoot, or GetLoggingFileName.
 If you must have output, use print() or log another way.
 
 ## edk2_invocable
 
 Example: edk2toolext\invocables\edk2_update.py
 
-Basically just base_abstract_invocable + settings parsing. 
+Basically just base_abstract_invocable + settings parsing.
 
 ### functions
 
@@ -46,6 +46,9 @@ This is implemented for the user. It requires a Python settings file be provided
 #### GetSettingsClass
 
 This must provide a Python class that edk2_invocable can expect to find instantiated by your settings script.
+
+This class is provided to your SettingsManager by the way of the attribute SettingsClass.
+This is specific to EDK2 Invocables
 
 ##### multi inheritance
 
