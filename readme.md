@@ -49,11 +49,15 @@ NOTE: It is strongly recommended that you use python virtual environments.  Virt
 
 [![PyPI](https://img.shields.io/pypi/v/edk2_pytool_extensions.svg)](https://pypi.org/project/edk2-pytool-extensions/)
 
+## Version 0.13.0
+
+* Features:
+  * BREAKING CHANGE - PR 137 - change how argument parsing is done with super classes
+
 ## Version 0.12.2
 
 * Bug:
   * #124: Fixed git external dependencies to no longer break version aggregator
-
 
 ## Version 0.12.1
 
