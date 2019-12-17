@@ -65,7 +65,7 @@ class TestUefiBuild(unittest.TestCase):
     def test_commandline_options(self):
         builder = uefi_build.UefiBuilder()
         parserObj = argparse.ArgumentParser()
-        builder.AddCommandLineOptions(parserObj)
+        builder.AddPlatformCommandLineOptions(parserObj)
         args = [
             ["--CLEAN", "--SKIPBUILD"],
             ["--FLASHONLY"],
@@ -78,7 +78,7 @@ class TestUefiBuild(unittest.TestCase):
         ]
         for argpart in args:
             results = parserObj.parse_args(argpart)
-            builder.RetrieveCommandLineOptions(results)
+            builder.RetrievePlatformCommandLineOptions(results)
 
     def test_go_skip_building(self):
         builder = uefi_build.UefiBuilder()
