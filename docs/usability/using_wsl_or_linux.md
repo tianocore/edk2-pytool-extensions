@@ -1,16 +1,17 @@
-# Windows Subsystem for Linux for UEFI Development
+# Using Linux for UEFI Development
 
-There are many firmware projects that require GCC.
-While support for GCC on windows exists, many of the UEFI community use Linux as their main dev machines.
-This guide is focused on setting up a Linux WSL for UEFI development.
-This guide also uses Visual Studio Code as it has fantastic capabilities that makes working in Linux much easier
-If you have a Linux machine, you can follow the later half of this guide to just setup the environment.
+There are many firmware projects that require GCC or LLVM that work better on Linux or Unix based systems.
+While support for GCC on windows exists, many folks in the UEFI community use Linux as their main dev machines.
+This guide is focused on setting up a Linux for UEFI development.
+This guide also uses Visual Studio Code as it has fantastic capabilities that makes working in Linux much easier.
+It also uses explains how to use WSL to setup Linux in a windows environment.
+So if you have a Linux machine, you can follow the later half of this guide to just setup the environment.
 
-For reference, this tutorial was written for a 1903 version of Windows.
+For reference, this tutorial was written for a 1903 version of Windows of WSL.
+
+## Getting Started with WSL
 
 The best documentation at time of writing can be found: https://docs.microsoft.com/en-us/windows/wsl/wsl2-install
-
-## Getting Started
 
 Following the guide, we need to check the minimum version requirements.
 Check the document as mentioned to find the Windows version needed for WSL.
@@ -65,15 +66,42 @@ This can be unique from your windows username and password.
 
 ## Setting up EDK2
 
+This is where native Linux folks start.
+
 The guide here (https://github.com/tianocore/tianocore.github.io/wiki/Using-EDK-II-with-Native-GCC) is pretty fantastic and most of the advice applies.
 
-Run this command in WSL to install the pieces needed.
+Run this command in WSL/bash to install the pieces needed.
 
 ```bash
 sudo apt-get install build-essential uuid-dev iasl git gcc-5 nasm python3-distutils
 ```
 
 If you aren't use Project Mu's BASECORE, you'll need to compile the BaseTools.
+Otherwise you can use the NuGet external dependency system.
+
+## Setting up NuGet/Mono
+
+Speaking of NuGet, you'll need to add the proper sources to your relevant package manager for mono.
+As of time of writing, the Ubuntu mono packages are out of date.
+
+You can follow the instructions here: https://www.mono-project.com/download/stable/#download-lin
+
+Here are the instructions (as of time of writing):
+``` bash
+
+sudo apt install gnupg ca-certificates
+sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+echo "deb https://download.mono-project.com/repo/ubuntu stable-bionic main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
+sudo apt update
+
+sudo apt upgrade (if mono is already installed)
+- or -
+sudo apt install mono-devel
+```
+
+If you're running a different kind of package manager, or on a system without a package manager, visit the link above for instructions on your platform.
+If you're on a system that NuGet supports (currently only Windows) you won't need to install Mono.
+
 
 ## Setting up other tools
 
