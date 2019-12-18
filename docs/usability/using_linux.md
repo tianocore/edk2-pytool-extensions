@@ -64,58 +64,18 @@ When you first start the environment, it will do initial first time setup that m
 It will prompt you for a new username and password.
 This can be unique from your windows username and password.
 
-## Setting up EDK2
-
-This is where native Linux folks start.
-
-The guide here (https://github.com/tianocore/tianocore.github.io/wiki/Using-EDK-II-with-Native-GCC) is pretty fantastic and most of the advice applies.
-
-Run this command in WSL/bash to install the pieces needed.
-
-```bash
-sudo apt-get install build-essential uuid-dev iasl git gcc-5 nasm python3-distutils
-```
-
-If you aren't use Project Mu's BASECORE, you'll need to compile the BaseTools.
-Otherwise you can use the NuGet external dependency system.
-
 ## Setting up NuGet/Mono
 
-Speaking of NuGet, you'll need to add the proper sources to your relevant package manager for mono.
-As of time of writing, the Ubuntu mono packages are out of date.
+If you use the external dependency features of pytools, you'll need to update your mono to support NuGet on Linux.
 
-You can follow the instructions here: https://www.mono-project.com/download/stable/#download-lin
-
-Here are the instructions (as of time of writing):
-``` bash
-
-sudo apt install gnupg ca-certificates
-sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-echo "deb https://download.mono-project.com/repo/ubuntu stable-bionic main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
-sudo apt update
-
-sudo apt upgrade (if mono is already installed)
-- or -
-sudo apt install mono-devel
-```
-
-If you're running a different kind of package manager, or on a system without a package manager, visit the link above for instructions on your platform.
-If you're on a system that NuGet supports (currently only Windows) you won't need to install Mono.
-
+See more information in the using_extdep document.
 
 ## Setting up other tools
 
 You'll need python3, which on Ubuntu 3.5 comes default (as of time of writing).
 Pip comes separately, so that will be need to be installed.
 
-You'll also need to install mono to run NuGet.
-Generally all you need is to get it from your package manager.
-
-``` bash
-sudo apt-get install mono-devel
-```
-
-## Setting up VS Code
+## Setting up VS Code (optional)
 
 Visual Studio code makes developing in WSL much easier.
 This guide here is pretty informative: https://code.visualstudio.com/docs/remote/wsl
@@ -133,10 +93,10 @@ cd my_project_folder
 code .
 ```
 
-## Using VS Code
-
 You can use your VS Code editor just like you're editing locally.
-Opening a terminal in VS Code opens a WSL window, which makes compilation much easier.
+Opening a terminal in VS Code opens a WSL window, which makes executing commands within the Linux environment easier.
+
+Alternatively, you can use any IDE or editor that's effective for you.
 
 ## Questions
 
