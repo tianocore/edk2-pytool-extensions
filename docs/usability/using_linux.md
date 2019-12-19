@@ -4,7 +4,7 @@ There are many firmware projects that require GCC or LLVM that work better on Li
 While support for GCC on windows exists, many folks in the UEFI community use Linux as their main dev machines.
 This guide is focused on setting up a Linux for UEFI development.
 This guide also uses Visual Studio Code as it has fantastic capabilities that makes working in Linux much easier.
-It also uses explains how to use WSL to setup Linux in a windows environment.
+It also explains how to use WSL to setup Linux in a windows environment.
 So if you have a Linux machine, you can follow the later half of this guide to just setup the environment.
 
 For reference, this tutorial was written for a 1903 version of Windows of WSL.
