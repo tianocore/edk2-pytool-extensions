@@ -1,7 +1,6 @@
 # Using Linux for UEFI Development
 
-There are many firmware projects that require GCC or LLVM that work better on Linux or Unix based systems.
-While support for GCC on windows exists, many folks in the UEFI community use Linux as their main dev machines.
+There are many folks in the UEFI community use Linux as their main dev machines.
 This guide is focused on setting up a Linux for UEFI development.
 This guide also uses Visual Studio Code as it has fantastic capabilities that makes working in Linux much easier.
 It also explains how to use WSL to setup Linux in a windows environment.
