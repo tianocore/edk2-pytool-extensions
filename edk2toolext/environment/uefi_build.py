@@ -486,8 +486,14 @@ class UefiBuilder(object):
             # parse DSC File
             logging.debug(
                 "Parse Active Platform DSC file: {0}".format(dsc_file_path))
+
+            # Get the vars from the environment that are not build keys
+            input_vars = self.env.GetAllNonBuildKeyValues()
+            # Update with special environment set build keys
+            input_vars.update(self.env.GetAllBuildKeyValues())
+
             dscp = DscParser().SetBaseAbsPath(self.ws).SetPackagePaths(
-                self.pp.split(os.pathsep)).SetInputVars(self.env.GetAllBuildKeyValues())
+                self.pp.split(os.pathsep)).SetInputVars(input_vars)
             dscp.ParseFile(dsc_file_path)
             for key, value in dscp.LocalVars.items():
                 # set env as overrideable
