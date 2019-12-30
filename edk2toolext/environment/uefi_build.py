@@ -19,6 +19,7 @@ import time
 from edk2toolext.environment import shell_environment
 from edk2toollib.uefi.edk2.parsers.targettxt_parser import TargetTxtParser
 from edk2toollib.uefi.edk2.parsers.dsc_parser import DscParser
+from edk2toollib.uefi.edk2.parsers.fdf_parser import FdfParser
 from edk2toollib.utility_functions import RunCmd
 from edk2toolext import edk2_logging
 from edk2toolext.environment.plugintypes.uefi_build_plugin import IUefiBuildPlugin
@@ -523,7 +524,7 @@ class UefiBuilder(object):
             # Update with special environment set build keys
             input_vars.update(self.env.GetAllBuildKeyValues())
 
-            fdf_parser = DscParser().SetBaseAbsPath(self.ws).SetPackagePaths(
+            fdf_parser = FdfParser().SetBaseAbsPath(self.ws).SetPackagePaths(
                 self.pp.split(os.pathsep)).SetInputVars(input_vars)
             pa = self.mws.join(self.ws, self.env.GetValue("FLASH_DEFINITION"))
             fdf_parser.ParseFile(pa)
