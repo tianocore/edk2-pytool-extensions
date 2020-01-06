@@ -1,10 +1,11 @@
 # Using Linux for UEFI Development
 
-There are many folks in the UEFI community use Linux as their main dev machines.
-This guide is focused on setting up a Linux for UEFI development.
+There are many folks in the UEFI community using Linux as their main dev machines.
+This guide is focused on setting up Linux for UEFI development.
 This guide also uses Visual Studio Code as it has fantastic capabilities that makes working in Linux much easier.
-It also explains how to use WSL to setup Linux in a windows environment.
-So if you have a Linux machine, you can follow the later half of this guide to just setup the environment.
+Any IDE or editor is usable for UEFI development.
+It also explains how to use WSL to setup Linux in a Windows environment.
+So if you have a Linux machine, you can follow the later half of this guide to skip setting up WSL.
 
 For reference, this tutorial was written for a 1903 version of Windows of WSL.
 
@@ -66,6 +67,7 @@ This can be unique from your windows username and password.
 ## Setting up NuGet/Mono
 
 If you use the external dependency features of pytools, you'll need to update your mono to support NuGet on Linux.
+This applies to all Linux users, WSL or native.
 
 See more information in the using_extdep document.
 
