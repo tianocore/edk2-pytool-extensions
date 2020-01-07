@@ -66,7 +66,8 @@ class HelperFunctions(object):
             logging.debug("Helper Plugin Register: %s", Descriptor.Name)
             try:
                 Descriptor.Obj.RegisterHelpers(self)
-            except:
+            except Exception as e:
+                logging.warning(e)
                 logging.warning(
                     "Unable to register {0}".format(Descriptor.Name))
                 error += 1
