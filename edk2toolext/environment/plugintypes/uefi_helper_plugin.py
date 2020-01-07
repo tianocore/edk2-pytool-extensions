@@ -67,7 +67,7 @@ class HelperFunctions(object):
             try:
                 Descriptor.Obj.RegisterHelpers(self)
             except Exception as e:
-                logging.warning(e)
+                logging.info(e)
                 logging.warning(
                     "Unable to register {0}".format(Descriptor.Name))
                 error += 1
