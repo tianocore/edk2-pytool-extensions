@@ -7,7 +7,7 @@ Any IDE or editor is usable for UEFI development.
 It also explains how to use WSL to setup Linux in a Windows environment.
 So if you have a Linux machine, you can follow the later half of this guide to skip setting up WSL.
 
-For reference, this tutorial was written for a 1903 version of Windows of WSL.
+For reference, this tutorial was written for a 1903 version of Windows with WSL.
 
 ## Getting Started with WSL
 
@@ -69,7 +69,7 @@ This can be unique from your windows username and password.
 If you use the external dependency features of pytools, you'll need to update your mono to support NuGet on Linux.
 This applies to all Linux users, WSL or native.
 
-See more information in the using_extdep document.
+See more information in the using_extdep document [here](https://github.com/tianocore/edk2-pytool-extensions/blob/master/docs/usability/using_extdep.md).
 
 ## Setting up other tools
 

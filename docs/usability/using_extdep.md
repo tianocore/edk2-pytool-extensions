@@ -72,7 +72,7 @@ sudo apt install mono-devel
 ```
 
 If you're running a different kind of package manager, or on a system without a package manager, visit the link above for instructions on your platform.
-If you're on a system that NuGet supports (currently only Windows) you won't need to install Mono.
+If you're on a system that NuGet natively supports (currently only Windows) you won't need to install Mono.
 
 ## How external dependencies work
 
