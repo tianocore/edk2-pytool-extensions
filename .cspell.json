@@ -61,6 +61,8 @@
         "submodules",
         "nasm",
         "plugintypes",
+        "keyserver",
+        "gnupg",
         "buildlog",
         "Buildid", "buildreporting", "buildreport",
         "depex",

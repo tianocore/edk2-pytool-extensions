@@ -51,7 +51,30 @@ Git dependency is used to describe a dependency on a git repository. This reposi
 
 To create a new Dependency type it requires a new subclass of the `ExternalDependency` class. The subclass needs to have a type field and then factory method in `ExternalDependency.py` needs to be updated to create new instances of the new type.
 
-## How they work
+## A note on NuGet on Linux
+
+If you're using Linux (whether through WSL or natively), you'll need to add the proper sources to your relevant package manager for mono.
+As of time of writing, the Ubuntu mono packages are out of date.
+
+You can follow the instructions here: https://www.mono-project.com/download/stable/#download-lin
+
+Here are the instructions (as of time of writing):
+
+``` bash
+sudo apt install gnupg ca-certificates
+sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+echo "deb https://download.mono-project.com/repo/ubuntu stable-bionic main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
+sudo apt update
+
+sudo apt upgrade (if mono is already installed)
+- or -
+sudo apt install mono-devel
+```
+
+If you're running a different kind of package manager, or on a system without a package manager, visit the link above for instructions on your platform.
+If you're on a system that NuGet natively supports (currently only Windows) you won't need to install Mono.
+
+## How external dependencies work
 
 Ext_deps are found by the SDE (self-describing environment). If you have any questions about that, go review the document for that. Once the ext_dep is found it can be interacted with depending on use case/tool. Objects created with the data from ext_dep descriptors and are subclassed according to the "type" field in the descriptor.
 

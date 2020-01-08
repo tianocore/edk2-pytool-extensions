@@ -1,16 +1,17 @@
-# Windows Subsystem for Linux for UEFI Development
+# Using Linux for UEFI Development
 
-There are many firmware projects that require GCC.
-While support for GCC on windows exists, many of the UEFI community use Linux as their main dev machines.
-This guide is focused on setting up a Linux WSL for UEFI development.
-This guide also uses Visual Studio Code as it has fantastic capabilities that makes working in Linux much easier
-If you have a Linux machine, you can follow the later half of this guide to just setup the environment.
+There are many folks in the UEFI community using Linux as their main dev machines.
+This guide is focused on setting up Linux for UEFI development.
+This guide also uses Visual Studio Code as it has fantastic capabilities that makes working in Linux much easier.
+Any IDE or editor is usable for UEFI development.
+It also explains how to use WSL to setup Linux in a Windows environment.
+So if you have a Linux machine, you can follow the later half of this guide to skip setting up WSL.
 
-For reference, this tutorial was written for a 1903 version of Windows.
+For reference, this tutorial was written for a 1903 version of Windows with WSL.
+
+## Getting Started with WSL
 
 The best documentation at time of writing can be found: https://docs.microsoft.com/en-us/windows/wsl/wsl2-install
-
-## Getting Started
 
 Following the guide, we need to check the minimum version requirements.
 Check the document as mentioned to find the Windows version needed for WSL.
@@ -63,31 +64,19 @@ When you first start the environment, it will do initial first time setup that m
 It will prompt you for a new username and password.
 This can be unique from your windows username and password.
 
-## Setting up EDK2
+## Setting up NuGet/Mono
 
-The guide here (https://github.com/tianocore/tianocore.github.io/wiki/Using-EDK-II-with-Native-GCC) is pretty fantastic and most of the advice applies.
+If you use the external dependency features of pytools, you'll need to update your mono to support NuGet on Linux.
+This applies to all Linux users, WSL or native.
 
-Run this command in WSL to install the pieces needed.
-
-```bash
-sudo apt-get install build-essential uuid-dev iasl git gcc-5 nasm python3-distutils
-```
-
-If you aren't use Project Mu's BASECORE, you'll need to compile the BaseTools.
+See more information in the using_extdep document [here](https://github.com/tianocore/edk2-pytool-extensions/blob/master/docs/usability/using_extdep.md).
 
 ## Setting up other tools
 
 You'll need python3, which on Ubuntu 3.5 comes default (as of time of writing).
 Pip comes separately, so that will be need to be installed.
 
-You'll also need to install mono to run NuGet.
-Generally all you need is to get it from your package manager.
-
-``` bash
-sudo apt-get install mono-devel
-```
-
-## Setting up VS Code
+## Setting up VS Code (optional)
 
 Visual Studio code makes developing in WSL much easier.
 This guide here is pretty informative: https://code.visualstudio.com/docs/remote/wsl
@@ -105,10 +94,10 @@ cd my_project_folder
 code .
 ```
 
-## Using VS Code
-
 You can use your VS Code editor just like you're editing locally.
-Opening a terminal in VS Code opens a WSL window, which makes compilation much easier.
+Opening a terminal in VS Code opens a WSL window, which makes executing commands within the Linux environment easier.
+
+Alternatively, you can use any IDE or editor that's effective for you.
 
 ## Questions
 
