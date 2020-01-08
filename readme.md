@@ -49,6 +49,11 @@ NOTE: It is strongly recommended that you use python virtual environments.  Virt
 
 [![PyPI](https://img.shields.io/pypi/v/edk2_pytool_extensions.svg)](https://pypi.org/project/edk2-pytool-extensions/)
 
+## Version 0.13.1
+
+* Bugs:
+  * See the bugs in the [milestone](https://github.com/tianocore/edk2-pytool-extensions/milestone/4?closed=1) for this release
+
 ## Version 0.13.0
 
 * Features:
