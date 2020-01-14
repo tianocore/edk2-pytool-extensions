@@ -141,7 +141,7 @@ class BaseAbstractInvocable(object):
         retcode = self.Go()
         logging.log(edk2_logging.SECTION, "Summary")
         if(retcode != 0):
-            edk2_logging.error("Error")
+            logging.error("Error")
         else:
             edk2_logging.log_progress("Success")
 
