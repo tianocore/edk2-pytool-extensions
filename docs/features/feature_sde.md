@@ -2,9 +2,13 @@
 
 ## The Genesis
 
-As Project Mu grew, the centralized systems that have been in place to this point have gotten more and more brittle. Previously, the paths to critical files and build tools have been hard-coded into the primary build scripts (such as PlatformBuild.py). If code was to be added or moved, all build scripts for all projects had to be updated to find the new code and consume it.
+Previous to stuart, a simple wrapper around the EDK2 build system was developed.
+As it grew, the centralized systems that have been in place to this point have gotten more and more brittle.
+Previously, the paths to critical files and build tools have been hard-coded into the primary build scripts (such as PlatformBuild.py). 
+If code was to be added or moved, all build scripts for all projects had to be updated to find the new code and consume it.
 
-Furthermore, the old build system required that all binaries, executables, artifacts, and other miscellaneous files be carried in the source tree somewhere. Since moving to Git, this cost has become increasingly burdensome to the point where some of the larger repositories are almost unwieldy.
+Furthermore, the old build system required that all binaries, executables, artifacts, and other miscellaneous files be carried in the source tree somewhere. 
+Since moving to Git, this cost has become increasingly burdensome to the point where some of the larger repositories are almost unwieldy.
 
 The new Self Describing Environment system, along with the new Plugin behavior, aims to remedy some of these problems, while preserving flexibility and agility for further project growth.
 
@@ -16,7 +20,7 @@ Many of these features have their own documentation, and you are encouraged to g
 
 ## path_env Descriptors
 
-The path_env descriptor is used, primarily, to update the path. This way the build system can locate required tools and scripts. It can also update build vars that can be referenced from the primary build script (PlatformBuild.py) to locate things like binary artifacts that will be included in certain build steps (eg. OPROM binaries).
+The path_env descriptor is used, primarily, to update the path. This way the build system can locate required tools and scripts. It can also update build vars that can be referenced from the Settings Manager or Uefi Builder to locate things like binary artifacts that will be included in certain build steps (eg. OPROM binaries).
 
 The path_env descriptor works by taking the path containing the descriptor and applying it to the environment as specified by the fields of the descriptor. For example, if there were a path_env file located at "\MyBuild\SubDir\Tools\my_sample_path_env.json" and the descriptor flags included "set_path", "\MyBuild\SubDir\Tools" would be added to the environment path. path_env descriptors are located by the environment configuration scripts by searching the Workspace for files ending in "*_path_env.json". It does not matter what the first part of the file is called, so long as the end is correct. By convention, the first part of the file name should be descriptive enough to differentiate a given descriptor from another descriptor, should it show up in a "find in files" list or something.
 
@@ -106,31 +110,34 @@ A critical concept in the SDE system is that of "scope". Each project can define
 
 In this example, "my_platform" is the highest priority in the scope. Any descriptor files found in the entire workspace that have this scope will not only be included in the SDE, they will take precedence over any of the lesser scopes. "tablet_family" and "silicon_reference" scopes will also be used, in that order. Additionally, all projects inherit the "global" scope, but it takes the lowest precedence.
 
-### Setting Up for PlatformBuild
+### Setting Up for Platform Builds
 
-The SDE includes modifications to the PlatformBuild.py script that make it easier to start working with any platform. Since the SDE knows how to fetch its own dependencies, and since all these dependencies are described by the platform itself, the build scripts can now perform the minimal steps to enable building any given platform, including:
+Since the SDE knows how to fetch its own dependencies, and since all these dependencies are described by the code tree itself, stuart can now perform the minimal steps to enable building any given platform, including:
 
 - Synchronizing all required submodules.
 - Downloading all source (and only the source actually used by the platform).
 - Configuring all paths.
 - Downloading all binaries.
-- To leverage this setup behavior, simply run the PlatformBuild.py script corresponding to the platform you want to build with the "--SETUP" argument. This argument will cause the platform to configure itself, and display any errors encountered.
 
 NOTE:
 
-- --SETUP should only be required once per build machine, per platform being built. It is not necessary to run it regularly. Only when setting up a new personal workstation or starting to work with a platform that you haven't used yet.
-- The --SETUP feature does not actually build the platform. A normal PlatformBuild.py must still be performed.
-- The --SETUP feature will NOT change branches in any submodule that already exists locally, or that has local changes. This is to prevent accidental loss of work. If you would like the script to try making changes even in these cases, use the "--FORCE" argument.
-- The --SETUP feature does not yet install dev singing certs. Those steps must still be performed manually.
+- `stuart_setup` should only be required once per build machine, per platform being built. It is not necessary to run it regularly. Only when setting up a new personal workstation or starting to work with a platform that you haven't used yet.
+- The `stuart_setup` feature does not actually build the platform.
+- The `stuart_setup` feature will NOT change branches in any submodule that already exists locally, or that has local changes. This is to prevent accidental loss of work. If you would like the script to try making changes even in these cases, use the "--FORCE" argument.
+- The `stuart_setup` feature does not yet install dev singing certs. Those steps must still be performed manually.
 
-### Setting Up for MuBuild
+### Updating
 
-MuBuild works on a similar mechanism to PlatformBuild but it invokes the SDE directly and does an update. Git Modules are monitored and handled via the repo_resolver framework, which has more logic to it, and doesn't handle submodules.c
+Prior to any build, the SDE will attempt to validate the external dependencies that currently exist on the local machine against the versions that are specified in the code. If the code is updated (perhaps by a pull request to the branch you're working on), it is possible that the dependencies will have to be refreshed. If this is the case, you will see a message prompting you to do so when you run `stuart_build` to build your platform. To perform this update, simply run the `stuart_update`. Any dependencies that match their current versions will be skipped and only out-of-date dependencies will be refreshed.
+
+### Setting Up for CI Build
+
+Stuart CI Build works on a similar mechanism to `stuart_build` and expects to be have things setup and updated.
+Git Modules are monitored and handled via the repo_resolver framework, which has more logic to it, and doesn't handle submodules.
+`stuart_ci_setup` handles python definied git modules to clone into the code tree.
 
 ### Building
 
-Building still works as it always has and all prior arguments can still be passed to the PlatformBuild.py script. The only special arguments are "--SETUP" and "--UPDATE" (described below), which will trigger new behaviors. Note that the current state of the SDE is always printed in the DEBUG level of the build log.
+Building can be done with `stuart_build` or `stuart_ci_build`.
+Note that the current state of the SDE is always printed in the DEBUG level of the build log.
 
-### Updating Dependencies
-
-Prior to any build, the SDE will attempt to validate the external dependencies that currently exist on the local machine against the versions that are specified in the code. If the code is updated (perhaps by a pull request to the branch you're working on), it is possible that the dependencies will have to be refreshed. If this is the case, you will see a message prompting you to do so when you run PlatformBuild.py to build your platform. To perform this update, simply run the PlatformBuild.py script with the --UPDATE argument. Any dependencies that match their current versions will be skipped and only out-of-date dependencies will be refreshed.

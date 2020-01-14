@@ -3,14 +3,10 @@
 You've probably seen the great promises that EDK2 Pytools gives and wondered how to get started on a platform you already have.
 There are many places you could be coming from but you likely have some sort of automated work flow that calls edk2's build at some point.
 In this guide, two paths will be discussed and one will be shown.
-The first path is porting a project that is based on Microsoft's Project Mu (a fork of EDK2).
-The second is porting a project that is based on base EDK2.
 
 In this guide, we will building a platform from EDK2-Platforms, the humble Raspberry Pi 3.
 This is because you likely have one lying around somewhere or can buy it online for fairly cheap.
 It is also a simpler platform compared to many intel based ones while still being large enough to show the benefits of Stuart.
-
-We will be using Project Mu (https://microsoft.github.io/mu/) because it splits the packages of EDK2 up and offers some niceties that we will take advantage of.
 
 This process is documented in the repo (TODO).
 
