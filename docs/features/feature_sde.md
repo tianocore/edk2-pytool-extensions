@@ -4,10 +4,10 @@
 
 Previous to stuart, a simple wrapper around the EDK2 build system was developed.
 As it grew, the centralized systems that have been in place to this point have gotten more and more brittle.
-Previously, the paths to critical files and build tools have been hard-coded into the primary build scripts (such as PlatformBuild.py). 
+Previously, the paths to critical files and build tools have been hard-coded into the primary build scripts (such as PlatformBuild.py).
 If code was to be added or moved, all build scripts for all projects had to be updated to find the new code and consume it.
 
-Furthermore, the old build system required that all binaries, executables, artifacts, and other miscellaneous files be carried in the source tree somewhere. 
+Furthermore, the old build system required that all binaries, executables, artifacts, and other miscellaneous files be carried in the source tree somewhere.
 Since moving to Git, this cost has become increasingly burdensome to the point where some of the larger repositories are almost unwieldy.
 
 The new Self Describing Environment system, along with the new Plugin behavior, aims to remedy some of these problems, while preserving flexibility and agility for further project growth.
@@ -134,10 +134,9 @@ Prior to any build, the SDE will attempt to validate the external dependencies t
 
 Stuart CI Build works on a similar mechanism to `stuart_build` and expects to be have things setup and updated.
 Git Modules are monitored and handled via the repo_resolver framework, which has more logic to it, and doesn't handle submodules.
-`stuart_ci_setup` handles python definied git modules to clone into the code tree.
+`stuart_ci_setup` handles python defined git modules to clone into the code tree.
 
 ### Building
 
 Building can be done with `stuart_build` or `stuart_ci_build`.
 Note that the current state of the SDE is always printed in the DEBUG level of the build log.
-
