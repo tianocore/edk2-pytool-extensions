@@ -117,7 +117,7 @@ class Edk2Update(Edk2MultiPkgAwareInvocable):
             logging.error(f"We did an update more than {Edk2Update.MAX_RETRY_COUNT} times.")
             logging.error("Please check your dependencies and make sure you don't have any circular ones.")
             return 1
-        return 0
+        return failure_count
 
 
 def main():
