@@ -104,7 +104,6 @@ class Edk2MultiPkgAwareInvocable(Edk2Invocable):
             for individual_item in item_list:
                 # in case cmd line caller used Windows folder slashes
                 individual_item = individual_item.replace("\\", "/").rstrip("/")
-                
                 packageListSet.add(individual_item.strip())
         self.requested_package_list = list(packageListSet)
 
