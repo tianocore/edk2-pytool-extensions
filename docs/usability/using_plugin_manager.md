@@ -45,11 +45,12 @@ As an example of a Ci Build Plugin, we will look at one of the plugins we use, C
 
 ### The schema
 
-From MU_BASECORE\BaseTools\Plugin\CharEncodingCheck\CharEncodingCheck_plug_in.json
+From EDK2/.pytool/Plugin/CharEncodingCheck
+https://github.com/tianocore/edk2/blob/master/.pytool/Plugin/CharEncodingCheck/CharEncodingCheck_plug_in.yaml
 
-```json
+```yaml
 {
-    "scope": "project_mu",
+    "scope": "cibuild",
     "name": "Char Encoding Check Test",
     "module": "CharEncodingCheck"
   }

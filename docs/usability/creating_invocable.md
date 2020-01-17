@@ -5,6 +5,8 @@ If you're unfamiliar with what it is, refer to the "Using" document in the root 
 In a nutshell, an invocable is a small python script that gets the build environment setup for it.
 It gets a settings file (that the invocable defines the interface for) that provides information about what we are being invoked on.
 
+This guide references Project Mu, which is an open source fork of EDK2 that leverages edk2-pytools.
+
 This guide is written in the style of a tutorial. This is based on the real example of an invocable [here](https://github.com/microsoft/mu_basecore).
 
 ## The problem statement
