@@ -23,7 +23,7 @@ DUMMY_OPTIONS = {
         'lsv_version': '0xFEEDF00D',
         'esrt_guid': '00112233-4455-6677-8899-aabbccddeeff',
         'fw_name': 'TEST_FW',
-        'fw_version_string': '1.2.3.4',
+        'fw_version_string': '1.2.3',  # deliberately use 3-part version to exercise version normalization.
         'provider_name': 'TESTER',
         'fw_description': 'TEST FW'
     },

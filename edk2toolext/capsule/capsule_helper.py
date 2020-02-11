@@ -116,6 +116,9 @@ def save_capsule(uefi_capsule_header, capsule_options, save_path):
     will use get_capsule_file_name() to determine the final filename
     will create all intermediate directories if save_path does not already exist
     '''
+    # Expand the version string prior to creating the payload file.
+    capsule_options['fw_version_string'] = get_normalized_version_string(capsule_options['fw_version_string'])
+
     # First, create the entire save path.
     os.makedirs(save_path, exist_ok=True)
 
