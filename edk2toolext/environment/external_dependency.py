@@ -141,6 +141,10 @@ class ExternalDependency(object):
         if result and state_data['version'] != self.version:
             result = False
 
+        if state_data is not None and state_data['version'] == version_aggregator.version_aggregator.LOCAL_VERSION:
+            logging.warning(f"{self.name} is using a local version. Be wary. Here be dragons. Small ones. But local.")
+            result = True
+
         logging.debug("Verify '%s' returning '%s'." % (self.name, result))
         return result
 

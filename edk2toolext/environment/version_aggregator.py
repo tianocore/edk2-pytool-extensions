@@ -15,6 +15,9 @@ VERSION_AGGREGATOR = None
 
 
 class version_aggregator(object):
+
+    LOCAL_VERSION = "LOCAL"
+
     def __init__(self):
         super(version_aggregator, self).__init__()
         self.Versions = {}
@@ -47,6 +50,10 @@ class version_aggregator(object):
             "type": versionType.name,
             "path": path
         }
+
+        if value == version_aggregator.LOCAL_VERSION:
+            self._logger.warning(f"{key} is using a local version. Be warned that this might result in a mismatched system state")
+
         self._logger.debug("version_aggregator logging version: {0}".format(str(self.Versions[key])))
 
     def Print(self):
