@@ -1,10 +1,19 @@
 # Tianocore Edk2 PyTool Extensions (edk2toolext)
 
-This is a Tianocore maintained project consisting of command line and other python tools and extensions for building and maintaining an Edk2 based UEFI firmware code tree.  This package's intent is to provide tools, scripts, and a plugin based environment for use within the tools and scripts.  This environment has command line interfaces to support building a product, building CI, running tests, and downloading dependencies.  This environment also provides the building blocks for developers to write their own tools to launch in the environment and leverage the capabilities provided by the environment.  The unique capabilities provided help support building products with multiple repositories and having each repository contribute/plugin to the build process in a scalable way.  The environment will scan the files in the code tree (multiple repos) and discover plugins, dependencies, path adjustments, environment variable settings, etc.  This provides easy methods for common repositories to share build tools/steps.
+This is a Tianocore maintained project consisting of command line and other python tools and extensions for building and maintaining an Edk2 based UEFI firmware code tree.
+Part of these tools include "invocables" that can be used to build EDK2 Platforms and these tools are known as "stuart".
+This package's intent is to provide tools, scripts, and a plugin based environment for use within the tools and scripts.
+This environment has command line interfaces to support building a product, building CI, running tests, and downloading dependencies.
+This environment also provides the building blocks for developers to write their own tools to launch in the environment and leverage the capabilities provided by the environment.
+The unique capabilities provided help support building products with multiple repositories and having each repository contribute/plugin to the build process in a scalable way.
+The environment will scan the files in the code tree (multiple repos) and discover plugins, dependencies, path adjustments, environment variable settings, etc.
+This provides easy methods for common repositories to share build tools/steps.
 
 Inclusion of this package is best managed using Pip/Pypi.  This package makes use of edk2-pytool-library.
 
 This is a supplemental package and is not required to be used for edk2 builds.
+
+![stuart himself](stuart_logo.png "Stuart")
 
 ## Content
 
