@@ -26,7 +26,7 @@ def CreatePolicyFromParameters(filename: str, manufacturer: str, product: str,
                                sn: str, nonce: int, oem1: str, oem2: str, devicePolicy: int) -> None:
     """
     Populates a Windows FirmwarePolicy object with the provided parameters and serializes it to filename
-    
+
     Filename must be a new file, will not overwrite existing files.
     """
     with open(filename, 'xb') as f:
