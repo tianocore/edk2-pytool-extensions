@@ -11,7 +11,8 @@ from edk2toollib.windows.policy.firmware_policy import FirmwarePolicy
 import argparse
 
 
-def PrintPolicy(filename):
+def PrintPolicy(filename: str) -> None:
+    """Attempts to parse filename as a Windows Firmware Policy and print it"""
     try:
         with open(filename, 'rb') as f:
             policy = FirmwarePolicy(fs=f)
@@ -22,7 +23,12 @@ def PrintPolicy(filename):
 
 
 def CreatePolicyFromParameters(filename: str, manufacturer: str, product: str,
-                               sn: str, nonce: int, oem1: str, oem2: str, devicePolicy: int):
+                               sn: str, nonce: int, oem1: str, oem2: str, devicePolicy: int) -> None:
+    """
+    Populates a Windows FirmwarePolicy object with the provided parameters and serializes it to filename
+    
+    Filename must be a new file, will not overwrite existing files.
+    """
     with open(filename, 'xb') as f:
         policy = FirmwarePolicy()
         TargetInfo = {'Manufacturer': manufacturer,
@@ -38,11 +44,13 @@ def CreatePolicyFromParameters(filename: str, manufacturer: str, product: str,
 
 
 def main():
+    """Parses command-line parameters using ArgumentParser, passing them to helper functions to perform the requests"""
     parser = argparse.ArgumentParser(description='Firmware Policy Tool')
     subparsers = parser.add_subparsers(required=True, dest='action')
 
     parser_create = subparsers.add_parser('create', help='Create a firmware policy')
-    parser_create.add_argument('PolicyFilename', type=str, help='The name of the binary policy file to create')
+    parser_create.add_argument('PolicyFilename', type=str, help='The name of the new binary policy file to create '
+                               '- will not overwrite existing files')
     parser_create.add_argument(
         'Manufacturer', type=str, help='Manufacturer Name, for example, "Contoso Computers, LLC".  '
         'Should match the EV Certificate Subject CN="Manufacturer"')
