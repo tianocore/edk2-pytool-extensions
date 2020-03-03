@@ -107,6 +107,8 @@
         "pyopenssl",
         "esrt",
         "noqa",
-        "pymodule"
+        "pymodule",
+        "smbios",
+        "Contoso"
     ]
 }
