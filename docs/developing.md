@@ -1,5 +1,10 @@
 # Developing Tianocore Edk2 PyTool Extensions (edk2toolext)
 
+There are a lot of parts of pytools.
+Here's a helpful diagram to help you sort out all the different parts.
+
+![Picture that shows the parts of pytools](pytools.png)
+
 ## Pre-Requisites
 
 * Make sure you have python 3.7.x or newer available on path
@@ -67,7 +72,7 @@
     flake8 .
     ```
 
-    INFO: Newer editors are very helpful in resolving source formatting errors (whitespace, indentation, etc). In VSCode open the py file and use ++alt+shift+f++ to auto format.  
+    INFO: Newer editors are very helpful in resolving source formatting errors (whitespace, indentation, etc). In VSCode open the py file and use ++alt+shift+f++ to auto format.
 
 2. Run the `BasicDevTests.py` script to check file encoding, file naming, etc
 
@@ -101,7 +106,7 @@ Use python defined Pep conventions.  For example package, module, and class nami
 
 ### Comments
 
-Docstring style comments should be added to each public function and class.  \*Existing code should be updated to be compliant as it is modified.  
+Docstring style comments should be added to each public function and class.  \*Existing code should be updated to be compliant as it is modified.
 
 ### New Module or Class
 
