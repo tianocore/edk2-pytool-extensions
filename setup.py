@@ -74,7 +74,7 @@ setuptools.setup(
                             'edk2_capsule_tool=edk2toolext.capsule.capsule_tool:main']
     },
     install_requires=[
-        'pyyaml',
+        'pyyaml>=5.2',
         'edk2-pytool-library>=0.10.3'
     ],
     extras_require={
