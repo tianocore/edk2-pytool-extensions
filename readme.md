@@ -58,111 +58,12 @@ NOTE: It is strongly recommended that you use python virtual environments.  Virt
 
 [![PyPI](https://img.shields.io/pypi/v/edk2_pytool_extensions.svg)](https://pypi.org/project/edk2-pytool-extensions/)
 
-## Version 0.13.1
+All release information is now tracked with Github
+ [tags](https://github.com/tianocore/edk2-pytool-extensions/tags),
+  [releases](https://github.com/tianocore/edk2-pytool-extensions/releases) and
+  [milestones](https://github.com/tianocore/edk2-pytool-extensions/milestones).
 
-* Bugs:
-  * See the bugs in the [milestone](https://github.com/tianocore/edk2-pytool-extensions/milestone/4?closed=1) for this release
-
-## Version 0.13.0
-
-* Features:
-  * BREAKING CHANGE - PR 137 - change how argument parsing is done with super classes
-
-## Version 0.12.2
-
-* Bug:
-  * #124: Fixed git external dependencies to no longer break version aggregator
-
-## Version 0.12.1
-
-* Features:
-  * Updated nuget to 5.3
-  * Add tags to nuget packages on external dependencies and nuget publishing
-* Bug:
-  * #102: Fixed version aggregator so it doesn't emit warnings
-
-## Version 0.12.0
-
-* Features:
-  * BREAKING CHANGE - PR 92 - remove special pytool toolchain processing in conf_mgmt
-
-## Version 0.11.3
-
-* Bug:
-  * Issue 90 - edk2_pr_eval policy 3 is not first checking that change is in public file
-
-## Version 0.11.2
-
-* Features:
-  * Add tool to evaluate which packages should be tested for a given PR
-  * Improved logging and visibility
-
-## Version 0.11.1
-
-* Bugs
-  * Issue 80 - Omnicache path check causes failure when not set
-
-### Version 0.11.0
-
-* Features:
-  * BREAKING CHANGE - PR 77 - Refactor BuildSettingsManager.GetModulePkgsPath to GetPackagesPath
-  * BREAKING CHANGE - PR 74 - Refactor SetupSettingsManager.GetRequiredRepos to GetRequiredSubmodules and return list of RequiredSubmodule objects
-* Bugs
-  * Issue 65 - web dependency sha256 value is case sensitive
-  * Issue 72 - Nuget dependencies hang when credentials are needed
-  * Issue 59 - Missing information from version report
-
-### Version 0.10.0
-
-* Features:
-  * BREAKING CHANGE - PR 48 - Refactor for consistent multi-pkg support in invocables.
-* Bugs
-  * Issue 49 - Build.Conf not parsed correctly
-  * Issue 47 - Setup, Update, and Build SettingsManager can't optimize based on user supplied CLI options because there is no sharing of that back to settings manager
-  * Issue 40 - web dependency doesn't work on single files
-  * Issue 31 - stuart_ci_build should not put all dependency in the PackagesPath
-  * Issue 23 - Stuart doesn't give a good error when trying to use the wrong invocable
-  * Issue 15 - Stuart_ci_build -p parameter eats all positional parameters following it
-
-
-### Version 0.9.5
-
-* Features:
-  * Issue 27 - Add Api to allow override of var_dict entry
-  * Change CIBuild plugins to allow detection of skipping using newly defined return code
-* Bugs
-  * Issue 27 - When a build variable is updated with same value but different attributes those attributes are not set.
-
-### Version 0.9.4
-
-* Bugs
-  * Issue 14 - XML log created by Stuart_ci_build has incorrect fields
-
-### Version 0.9.3
-
-* Bugs
-  * Issue 14 - XML log created by Stuart_ci_build has incorrect fields
-
-### Version 0.9.2
-
-* Bugs
-  * Issue 11 - MAX_CONCURRENT_THREAD_NUMBER is not required in Target.txt
-  * Issue 9  - ConfMgmt incorrect usage of shell environment leading to exception
-
-### Version 0.9.1
-
-* Features
-  * Add documentation
-* Bugs
-  * Incorrect import statement in module uefi_build
-  * clean up EOL and use gitattributes
-  * Add nuget_publish cli (missing from initial port)
-
-### Version 0.9.00
-
-Initial release ported from Project Mu.
-For history and documentation prior to this see the original Project Mu project
-<https://github.com/microsoft/mu_pip_environment> and <https://github.com/microsoft/mu_pip_build>
+**0.9.0** was the initial version ported from Project Mu.  For history and documentation prior to this see the original Project Mu project <https://github.com/microsoft/mu_pip_environment> and <https://github.com/microsoft/mu_pip_build>
 
 ## Contribution Process
 
