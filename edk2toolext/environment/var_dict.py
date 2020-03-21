@@ -103,7 +103,7 @@ class VarDict(object):
         key = k.upper()
         en = self.GetEntry(key)
         if(en is not None):
-            self.Logger.warn("Allowing Override for key %s" % k)
+            self.Logger.warning("Allowing Override for key %s" % k)
             en.AllowOverride()
             return True
         return False
