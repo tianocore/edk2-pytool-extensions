@@ -1,4 +1,4 @@
-## @file test_shell_environment.py
+# @file test_shell_environment.py
 # Unit test suite for the ShellEnvironment class.
 #
 ##
@@ -150,6 +150,20 @@ class TestBasicEnvironmentManipulation(unittest.TestCase):
         for elem in (start_elem, mid_elem, end_elem):
             self.assertIn(elem, os.environ["PATH"])
 
+        # Test inserting existing elements as a method to move them front
+        shell_env.insert_path(end_elem)
+        self.assertEqual(3, len(shell_env.active_path))
+        self.assertEqual(shell_env.active_path[0], end_elem)
+        self.assertEqual(shell_env.active_path[1], start_elem)
+        self.assertEqual(shell_env.active_path[2], mid_elem)
+
+        # Test appending existing elements as a method to move to end
+        shell_env.append_path(end_elem)
+        self.assertEqual(3, len(shell_env.active_path))
+        self.assertEqual(shell_env.active_path[0], start_elem)
+        self.assertEqual(shell_env.active_path[1], mid_elem)
+        self.assertEqual(shell_env.active_path[2], end_elem)
+
         # Test replacing an element on the path
         new_mid_elem = 'NEWMIDDLEPATH'
         shell_env.replace_path_element(mid_elem, new_mid_elem)
@@ -163,6 +177,14 @@ class TestBasicEnvironmentManipulation(unittest.TestCase):
         # Test that removing an element works as expected
         shell_env.remove_path_element(new_mid_elem)
         self.assertNotIn(new_mid_elem, shell_env.active_path)
+
+        # Test that calling Set Var can replace the path
+        shell_env.set_shell_var("PATH", "a" + os.pathsep + "b")
+        self.assertEqual(len(os.environ["PATH"].split(os.pathsep)), 2)
+
+        # Test that calling Set Var can replace the path and is case insensitive
+        shell_env.set_shell_var("pAtH", "c" + os.pathsep + "d" + os.pathsep + "e")
+        self.assertEqual(len(os.environ["PATH"].split(os.pathsep)), 3)
 
     def test_insert_append_remove_replace_pypath(self):
         shell_env = SE.ShellEnvironment()

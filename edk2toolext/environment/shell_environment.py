@@ -160,24 +160,54 @@ class ShellEnvironment(metaclass=Singleton):
         self._internal_set_pypath(new_path)
 
     def append_path(self, path_element):
+        ''' append to the end of path
+        if path_element already exists within path it will be removed
+        from the current location and appended to the end
+        '''
+
         self.logger.debug("Appending PATH element '%s'." % path_element)
-        if path_element not in self.active_path:
-            self._internal_set_path(self.active_path + [path_element])
+        if path_element in self.active_path:
+            # remove so we don't have duplicates but we respect the order
+            # requested by the caller
+            self.active_path.remove(path_element)
+        self._internal_set_path(self.active_path + [path_element])
 
     def insert_path(self, path_element):
+        '''insert at front of the path
+        if path_element already exists within path it will be removed
+        from the current location and prepended to the front
+        '''
+
         self.logger.debug("Inserting PATH element '%s'." % path_element)
-        if path_element not in self.active_path:
-            self._internal_set_path([path_element] + self.active_path)
+        if path_element in self.active_path:
+            # remove so we don't have duplicates but we respect the order
+            # requested by the caller
+            self.active_path.remove(path_element)
+        self._internal_set_path([path_element] + self.active_path)
 
     def append_pypath(self, path_element):
+        ''' append to the end of pypath
+        if path_element already exists within pypath it will be removed
+        from the current location and appended to the end
+        '''
         self.logger.debug("Appending PYTHONPATH element '%s'." % path_element)
-        if path_element not in self.active_pypath:
-            self._internal_set_pypath(self.active_pypath + [path_element])
+        if path_element in self.active_pypath:
+            # remove so we don't have duplicates but we respect the order
+            # requested by the caller
+            self.active_pypath.remove(path_element)
+        self._internal_set_pypath(self.active_pypath + [path_element])
 
     def insert_pypath(self, path_element):
+        '''insert at front of the pypath
+        if path_element already exists within pypath it will be removed
+        from the current location and prepended to the front
+        '''
         self.logger.debug("Inserting PYTHONPATH element '%s'." % path_element)
-        if path_element not in self.active_pypath:
-            self._internal_set_pypath([path_element] + self.active_pypath)
+        if path_element in self.active_pypath:
+            # remove so we don't have duplicates but we respect the order
+            # requested by the caller
+            self.active_pypath.remove(path_element)
+        self._internal_set_pypath([path_element] + self.active_pypath)
 
     def replace_path_element(self, old_path_element, new_path_element):
         # Generate a new PATH by iterating through the old PATH and replacing
@@ -214,12 +244,11 @@ class ShellEnvironment(metaclass=Singleton):
     def get_shell_var(self, var_name):
         return self.active_environ.get(var_name, None)
 
-    # TODO: Don't allow setting PATH or PYTHONPATH.
     def set_shell_var(self, var_name, var_data):
         # Check for the "special" shell vars.
-        if var_name == 'PATH':
+        if var_name.upper() == 'PATH':
             self.set_path(var_data)
-        elif var_name == 'PYTHONPATH':
+        elif var_name.upper() == 'PYTHONPATH':
             self.set_pypath(var_data)
         else:
             self.logger.debug(
