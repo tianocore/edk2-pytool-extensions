@@ -28,6 +28,16 @@ class PrEvalSettingsManager(MultiPkgAwareSettingsInterface):
         # default implementation does zero filtering.
         return potentialPackagesList
 
+    def AddCommandLineOptions(self, parserObj):
+        ''' Implement in subclass to add command line options to the argparser '''
+        MultiPkgAwareSettingsInterface.AddCommandLineOptions(self, parserObj)
+        pass
+
+    def RetrieveCommandLineOptions(self, args):
+        '''  Implement in subclass to retrieve command line options from the argparser '''
+        MultiPkgAwareSettingsInterface.RetrieveCommandLineOptions(self, args)
+        pass
+
 
 class Edk2PrEval(Edk2MultiPkgAwareInvocable):
     ''' Evaluate the changes and determine what packages of the supplied packages should
@@ -47,14 +57,14 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
                                default=None, help="Provide format string that will be output to stdout the count of"
                                " packages to be tested.  Valid Tokens: {pkgcount}"
                                " Example --output-count-format-string PackageCount={pkgcount}")
-        MultiPkgAwareSettingsInterface.AddCommandLineOptions(self, parserObj)
+        super().AddCommandLineOptions(parserObj)
 
     def RetrieveCommandLineOptions(self, args):
         '''  Retrieve command line options from the argparser '''
         self.pr_target = args.pr_target
         self.output_csv_format_string = args.output_csv_format_string
         self.output_count_format_string = args.output_count_format_string
-        MultiPkgAwareSettingsInterface.RetrieveCommandLineOptions(self, args)
+        super().RetrieveCommandLineOptions(args)
 
     def GetVerifyCheckRequired(self):
         ''' Will not call self_describing_environment.VerifyEnvironment because it might not be set up yet '''
