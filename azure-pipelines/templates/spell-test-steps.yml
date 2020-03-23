@@ -3,7 +3,7 @@
 # template file used to install spell checking prerequisites
 # and run spell test
 #
-# Copyright (c) 2019, Microsoft Corporation
+# Copyright (c) Microsoft Corporation
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 
@@ -13,7 +13,7 @@ parameters:
 steps:
 - task: NodeTool@0
   inputs:
-    versionSpec: '10.x'
+    versionSpec: '12.x'
 
 - script: npm install -g cspell
   displayName: 'Install cspell npm'
