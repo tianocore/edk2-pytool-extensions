@@ -11,6 +11,7 @@
 
 
 import logging
+import warnings
 
 from OpenSSL import crypto
 
