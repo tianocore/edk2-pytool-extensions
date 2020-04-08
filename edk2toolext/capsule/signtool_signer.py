@@ -90,14 +90,12 @@ def sign(data: bytes, signature_options: dict, signer_options: dict) -> bytes:
     # Start building the parameters for the call.
     signtool_params = ['sign']
     signtool_params += ['/fd', signature_options['hash_alg']]
-    if 'type_options' in signature_options:
-        if 'detachedSignedData' in signature_options['type_options']:
-            signtool_params += ['/p7ce', 'DetachedSignedData']
-        elif 'embedded' in signature_options['type_options']:
-            signtool_params += ['/p7ce', 'Embedded']
-        else:
-            raise ValueError(f"For pkcs7, type_options must include either embedded or detachedSignedData")
-
+    if 'detachedSignedData' in signature_options['type_options']:
+        signtool_params += ['/p7ce', 'DetachedSignedData']
+    elif 'embedded' in signature_options['type_options']:
+        signtool_params += ['/p7ce', 'Embedded']
+    else:
+        raise ValueError(f"For pkcs7, type_options must include either embedded or detachedSignedData")
     signtool_params += ['/p7', f'"{temp_folder}"']
     signtool_params += ['/f', f"\"{signer_options['key_file']}\""]
     if 'oid' in signer_options:
