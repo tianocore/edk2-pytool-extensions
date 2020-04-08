@@ -15,14 +15,14 @@
 
 import os
 import tempfile
+import warnings
 
 from edk2toollib.windows import locate_tools
 from edk2toollib.utility_functions import RunCmd
 
 GLOBAL_SIGNTOOL_PATH = None
-SUPPORTED_SIGNTOOL_FORMAT_OPTIONS = {
-    'detachedSignedData',
-    'embedded'
+SUPPORTED_SIGNATURE_TYPE_OPTIONS = {
+    'pkcs7': {'detachedSignedData', 'embedded'}
 }
 
 
@@ -51,23 +51,26 @@ def sign(data: bytes, signature_options: dict, signer_options: dict) -> bytes:
     # The following _if_ clause handles the deprecated signature_option 'sign_alg' for backwards compatibility
     # when the deprecated option is supplied, this code adds the new, required options based on prior code behavior
     if 'sign_alg' in signature_options:
-        print('!!! WARNING: signature_option "sign_alg" is deprecated, use "format" instead')
+        warnings.warn('Signature_option "sign_alg" is deprecated, use "type"', DeprecationWarning)
         if signature_options['sign_alg'] == 'pkcs12':
-            print('assuming "signature_option" "format" of "pkcs7" with "format_options" of "detached"')
-            signature_options['format'] = 'pkcs7'
-            signature_options['format_options'] = 'DetachedSignedData'
-            print('assuming "signer_option" "key_file_format" of "pkcs12"')
+            # map legacy behavior to new options and backwards-compatible values
+            signature_options['type'] = 'pkcs7'
+            signature_options['type_options'] = {'detachedSignedData'}
+            signature_options['encoding'] = 'DER'
             signer_options['key_file_format'] = 'pkcs12'
         else:
             raise ValueError(f"Unsupported signature algorithm: {signature_options['sign_alg']}!")
-    if signature_options['format'] != 'pkcs7':
-        raise ValueError(f"Unsupported signature format: {signature_options['format']}!")
-    for opt in signature_options['format_options']:
-        if opt not in SUPPORTED_SIGNTOOL_FORMAT_OPTIONS:
-            raise ValueError(f"Unsupported format option: {opt}!  Ensure you have provied a set")
-    if 'embedded' in signature_options['format_options']:
-        if 'detachedSignedData' in signature_options['format_options']:
-            raise ValueError(f"format_options 'detachedSignedData' and 'embedded' are mutually exclusive")
+
+    if signature_options['type'] != 'pkcs7':
+        raise ValueError(f"Unsupported signature type: {signature_options['type']}!")
+    for opt in signature_options['type_options']:
+        if opt not in SUPPORTED_SIGNATURE_TYPE_OPTIONS[signature_options['type']]:
+            raise ValueError(f"Unsupported type option: {opt}!  Ensure you have provied a set")
+    if 'embedded' in signature_options['type_options']:
+        if 'detachedSignedData' in signature_options['type_options']:
+            raise ValueError(f"type_options 'detachedSignedData' and 'embedded' are mutually exclusive")
+    if signature_options['encoding'] != 'DER':
+        raise ValueError(f"Unsupported signature encoding: {signature_options['type']}!")
     if signature_options['hash_alg'] != 'sha256':
         raise ValueError(f"Unsupported hashing algorithm: {signature_options['hash_alg']}!")
     if 'key_file' not in signer_options:
@@ -87,11 +90,14 @@ def sign(data: bytes, signature_options: dict, signer_options: dict) -> bytes:
     # Start building the parameters for the call.
     signtool_params = ['sign']
     signtool_params += ['/fd', signature_options['hash_alg']]
-    if 'format_options' in signature_options:
-        if 'detachedSignedData' in signature_options['format_options']:
+    if 'type_options' in signature_options:
+        if 'detachedSignedData' in signature_options['type_options']:
             signtool_params += ['/p7ce', 'DetachedSignedData']
-        else:
+        elif 'embedded' in signature_options['type_options']:
             signtool_params += ['/p7ce', 'Embedded']
+        else:
+            raise ValueError(f"For pkcs7, type_options must include either embedded or detachedSignedData")
+
     signtool_params += ['/p7', f'"{temp_folder}"']
     signtool_params += ['/f', f"\"{signer_options['key_file']}\""]
     if 'oid' in signer_options:

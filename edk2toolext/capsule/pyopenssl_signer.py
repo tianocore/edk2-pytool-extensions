@@ -21,10 +21,30 @@ def sign(data, signature_options, signer_options):
     dictionaries that are used by capsule_tool and capsule_helper
     '''
     # NOTE: Currently, we only support the necessary algorithms for capsules.
-    if signature_options['sign_alg'] != 'pkcs12':
-        raise ValueError(f"Unsupported signature algorithm: {signature_options['sign_alg']}")
+
+    # The following _if_ clause handles the deprecated signature_option 'sign_alg' for backwards compatibility
+    # when the deprecated option is supplied, this code adds the new, required options based on prior code behavior
+    if 'sign_alg' in signature_options:
+        warnings.warn('Signature_option "sign_alg" is deprecated, use "type"', DeprecationWarning)
+        if signature_options['sign_alg'] == 'pkcs12':
+            # map legacy behavior to new options and backwards-compatible values
+            signature_options['type'] = 'bare'
+            signature_options['encoding'] = 'binary'
+            signer_options['key_file_format'] = 'pkcs12'
+        else:
+            raise ValueError(f"Unsupported signature algorithm: {signature_options['sign_alg']}!")
+
+    ''' signature type 'bare' is just a signed digest, no headers/footers or ASN '''
+    if signature_options['type'] != 'bare':
+        raise ValueError(f"Unsupported signature type: {signature_options['type']}")
+    if 'type_options' in signature_options:
+        raise ValueError(f"Signature type options not supported")
+    if signature_options['encoding'] != 'binary':
+        raise ValueError(f"Unsupported signature encoding: {signature_options['encoding']}")
     if signature_options['hash_alg'] != 'sha256':
         raise ValueError(f"Unsupported hashing algorithm: {signature_options['hash_alg']}")
+    if signer_options['key_file_format'] != 'pkcs12':
+        raise ValueError(f"Unsupported signer key file format: {signer_options['key_file_format']}")
 
     logging.debug("Executing PKCS1 Signing")
 
