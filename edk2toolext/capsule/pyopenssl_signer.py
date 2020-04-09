@@ -16,7 +16,7 @@ import warnings
 from OpenSSL import crypto
 
 
-def sign(data, signature_options, signer_options):
+def sign(data: bytes, signature_options: dict, signer_options: dict) -> bytes:
     '''
     primary signing interface. Takes n the signature_options and signer_options
     dictionaries that are used by capsule_tool and capsule_helper
@@ -35,7 +35,7 @@ def sign(data, signature_options, signer_options):
         else:
             raise ValueError(f"Unsupported signature algorithm: {signature_options['sign_alg']}!")
 
-    ''' signature type 'bare' is just a signed digest, no headers/footers or ASN '''
+    ''' signature type 'bare' is just a binary signed digest, no PEM headers/footers or ASN '''
     if signature_options['type'] != 'bare':
         raise ValueError(f"Unsupported signature type: {signature_options['type']}")
     if 'type_options' in signature_options:
