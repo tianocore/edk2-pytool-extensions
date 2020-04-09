@@ -375,6 +375,12 @@ class UefiBuilder(object):
             logging.critical("ParseTargetFile failed")
             return ret
 
+        # parse tools_def file
+        ret = self.ParseToolsDefFile()
+        if(ret != 0):
+            logging.critical("ParseToolsDefFile failed")
+            return ret
+
         # parse DSC file
         ret = self.ParseDscFile()
         if(ret != 0):
@@ -467,8 +473,35 @@ class UefiBuilder(object):
                 # set env as overrideable
                 self.env.SetValue(key, value, "From Target.txt", True)
 
+            # Set the two additional edk2 common macros.  These will be resolved by now as
+            # target.txt will set them if they aren't already set.
+            self.env.SetValue("TOOLCHAIN", self.env.GetValue("TOOL_CHAIN_TAG"),
+                              "DSC Spec macro - set based on tool_Chain_tag")
+            # need to check how multiple arch are handled
+            self.env.SetValue("ARCH", self.env.GetValue("TARGET_ARCH"), "DSC Spec macro - set based on target_arch")
+
         else:
             logging.error("Failed to find target.txt file")
+            return -1
+
+        return 0
+
+    def ParseToolsDefFile(self):
+        if(os.path.isfile(self.mws.join(self.ws, "Conf", "tools_def.txt"))):
+            # parse ToolsdefTxt File
+            logging.debug("Parse tools_def.txt file")
+            tdp = TargetTxtParser()
+            tdp.ParseFile(self.mws.join(self.ws, "Conf", "tools_def.txt"))
+
+            # Get the tool chain tag and then find the family
+            # need to parse tools_def and find *_<TAG>_*_*_FAMILY
+            # Example:  *_VS2019_*_*_FAMILY        = MSFT
+            tag = "*_" + self.env.GetValue("TOOL_CHAIN_TAG") + "_*_*_FAMILY"
+            tool_chain_family = tdp.Dict.get(tag, "UNKNOWN")
+            self.env.SetValue("FAMILY", tool_chain_family, "DSC Spec macro - from tools_def.txt")
+
+        else:
+            logging.error("Failed to find tools_def.txt file")
             return -1
 
         return 0
