@@ -34,6 +34,8 @@ steps:
 - script: |
     bash <(curl -s https://codecov.io/bash)
   displayName: 'Upload to codecov.io'
+  continueOnError: true
+  condition: succeededOrFailed()
 
 # Publish Cobertura code coverage results
 - task: PublishCodeCoverageResults@1
