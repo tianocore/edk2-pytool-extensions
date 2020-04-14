@@ -32,11 +32,18 @@ steps:
   condition: succeededOrFailed()
 
 - task: Bash@3
-  displayName: 'Upload Coverage to codecov.io'
+  displayName: 'Get Tool for codecov.io'
   inputs:
     targetType: inline
     workingDirectory: $(System.DefaultWorkingDirectory)
-    script: <(curl -s https://codecov.io/bash) -f $(System.DefaultWorkingDirectory)/cov.xml -v
+    script: curl -s https://codecov.io/bash > code_cov.sh
+    
+- task: Bash@3
+  displayName: 'Upload Coverage to codecov.io'
+  inputs:
+    targetType: filePath
+    filePath: code_cov.sh
+    Arguments: -f $(System.DefaultWorkingDirectory)/cov.xml -v
 
 # Publish Cobertura code coverage results
 - task: PublishCodeCoverageResults@1
