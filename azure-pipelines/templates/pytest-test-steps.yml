@@ -35,6 +35,7 @@ steps:
   displayName: 'Upload Coverage to codecov.io'
   inputs:
     targetType: inline
+    workingDirectory: $(System.DefaultWorkingDirectory)
     script: <(curl -s https://codecov.io/bash) -f $(System.DefaultWorkingDirectory)/cov.xml -v
 
 # Publish Cobertura code coverage results
