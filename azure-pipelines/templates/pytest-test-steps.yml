@@ -32,8 +32,9 @@ steps:
   condition: succeededOrFailed()
 
 - task: Bash@3
-  targetType: inline
-  script: <(curl -s https://codecov.io/bash) -f $(System.DefaultWorkingDirectory)/cov.xml
+  inputs:
+    targetType: inline
+    script: <(curl -s https://codecov.io/bash) -f $(System.DefaultWorkingDirectory)/cov.xml
 
 # Publish Cobertura code coverage results
 - task: PublishCodeCoverageResults@1
