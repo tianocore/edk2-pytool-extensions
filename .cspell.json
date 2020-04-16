@@ -10,8 +10,7 @@
     "ignorePaths": [
         "*.exe"
     ],
-    "ignoreWords": [
-    ],
+    "ignoreWords": [],
     "words": [
         "SPDX",
         "DFCI",
@@ -64,7 +63,9 @@
         "keyserver",
         "gnupg",
         "buildlog",
-        "Buildid", "buildreporting", "buildreport",
+        "Buildid",
+        "buildreporting",
+        "buildreport",
         "depex",
         "prebuild",
         "Pathsep",
@@ -97,7 +98,8 @@
         "acpica",
         "CREDENTIALPROVIDERS",
         "bdist",
-        "packagename", "repoconfig",
+        "packagename",
+        "repoconfig",
         "sharednetworking",
         "PKGS",
         "CISETUP",
@@ -107,6 +109,9 @@
         "pyopenssl",
         "esrt",
         "noqa",
-        "pymodule"
+        "pymodule",
+        "smbios",
+        "Contoso",
+        "MSFT"
     ]
 }

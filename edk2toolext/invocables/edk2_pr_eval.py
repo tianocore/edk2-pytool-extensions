@@ -15,6 +15,7 @@ from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwa
 from edk2toolext.invocables.edk2_multipkg_aware_invocable import MultiPkgAwareSettingsInterface
 from edk2toollib.uefi.edk2 import path_utilities
 from edk2toollib.uefi.edk2.parsers.dec_parser import DecParser
+from edk2toollib.uefi.edk2.parsers.dsc_parser import DscParser
 from edk2toollib.uefi.edk2.parsers.inf_parser import InfParser
 from edk2toollib.utility_functions import RunCmd
 
@@ -27,6 +28,24 @@ class PrEvalSettingsManager(MultiPkgAwareSettingsInterface):
 
         # default implementation does zero filtering.
         return potentialPackagesList
+
+    def AddCommandLineOptions(self, parserObj):
+        ''' Implement in subclass to add command line options to the argparser '''
+        MultiPkgAwareSettingsInterface.AddCommandLineOptions(self, parserObj)
+        pass
+
+    def RetrieveCommandLineOptions(self, args):
+        '''  Implement in subclass to retrieve command line options from the argparser '''
+        MultiPkgAwareSettingsInterface.RetrieveCommandLineOptions(self, args)
+        pass
+
+    def GetPlatformDscAndConfig(self) -> tuple:
+        ''' If a platform desires to provide its DSC then Policy 4 will evaluate if
+        any of the changes will be built in the dsc.
+
+        The tuple should be (<workspace relative path to dsc file>, <input dictionary of dsc key value pairs>)
+        '''
+        return None
 
 
 class Edk2PrEval(Edk2MultiPkgAwareInvocable):
@@ -47,14 +66,14 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
                                default=None, help="Provide format string that will be output to stdout the count of"
                                " packages to be tested.  Valid Tokens: {pkgcount}"
                                " Example --output-count-format-string PackageCount={pkgcount}")
-        MultiPkgAwareSettingsInterface.AddCommandLineOptions(self, parserObj)
+        super().AddCommandLineOptions(parserObj)
 
     def RetrieveCommandLineOptions(self, args):
         '''  Retrieve command line options from the argparser '''
         self.pr_target = args.pr_target
         self.output_csv_format_string = args.output_csv_format_string
         self.output_count_format_string = args.output_count_format_string
-        MultiPkgAwareSettingsInterface.RetrieveCommandLineOptions(self, args)
+        super().RetrieveCommandLineOptions(args)
 
     def GetVerifyCheckRequired(self):
         ''' Will not call self_describing_environment.VerifyEnvironment because it might not be set up yet '''
@@ -169,7 +188,53 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
                     packages_to_build[p] = f"Policy 3 - Package depends on {a}"
                     remaining_packages.remove(p)  # remove from remaining packages
 
+        #
+        # Policy 4: If a file changed in a module and that module is used in the provided dsc file
+        # then the package of the dSC file must be built
+        #
+        PlatformDscInfo = self.PlatformSettings.GetPlatformDscAndConfig()
+        if PlatformDscInfo is not None and len(remaining_packages) > 0:
+            if len(remaining_packages) != 1:
+                raise Exception("Policy 4 can only be used by builds for a single package")
+
+            # files are all the files changed edk2 workspace root relative path
+            changed_modules = self._get_unique_module_infs_changed(files)
+
+            # now check DSC
+            dsc = DscParser()
+            dsc.SetBaseAbsPath(self.edk2_path_obj.WorkspacePath)
+            dsc.SetPackagePaths(self.edk2_path_obj.PackagePathList)
+            dsc.SetInputVars(PlatformDscInfo[1])
+            dsc.ParseFile(PlatformDscInfo[0])
+            allinfs = dsc.OtherMods + dsc.ThreeMods + dsc.SixMods + dsc.Libs  # get list of all INF files
+
+            #
+            # Note: for now we assume that remaining_packages has only 1 package and that it corresponds
+            # to the DSC file provided.
+            #
+            for p in remaining_packages[:]:  # slice so we can delete as we go
+                for cm in changed_modules:
+                    if cm in allinfs:  # is the changed module listed in the DSC file?
+                        packages_to_build[p] = f"Policy 4 - Package Dsc depends on {cm}"
+                        remaining_packages.remove(p)  # remove from remaining packages
+                        break
+
         return packages_to_build
+
+    def _get_unique_module_infs_changed(self, files: list):
+        '''return a list of edk2 relative paths to modules infs that have changed files'''
+        modules = []
+
+        for f in files:
+            if os.path.splitext(f) in [".txt", ".md"]:  # ignore markdown and txt files
+                continue
+
+            infs = self.edk2_path_obj.GetContainingModules(os.path.abspath(f))
+            if len(infs) > 0:  # if this file is part of any INFs
+                modules.extend(infs)
+        modules = [self.edk2_path_obj.GetEdk2RelativePathFromAbsolutePath(x) for x in set(modules)]
+        logging.debug("Changed Modules: " + str(modules))
+        return modules
 
     def _does_pkg_depend_on_package(self, package_to_eval: str, support_package: str) -> bool:
         ''' return if any module in package_to_eval depends on public files defined in support_package'''
