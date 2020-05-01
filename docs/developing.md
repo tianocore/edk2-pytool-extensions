@@ -88,6 +88,9 @@ Here's a helpful diagram to help you sort out all the different parts.
 
     INFO: If you only want to test a single file you can supply that path at the end and then only that module will be run.
 
+    Coverage is uploaded to `codecov.io`.
+    For more information, review `coverage.md` in the docs folder.
+
 4. Look at the reports
     * pytest_report.html
     * cov_html/index.html
