@@ -33,7 +33,7 @@ steps:
   condition: succeededOrFailed()
 
 - script: |
-    curl -s https://codecov.io/bash | bash -C $(Build.SourceVersion)
+    curl -s https://codecov.io/bash | bash -s -- -C $(Build.SourceVersion)
   displayName: 'Upload to codecov.io'
   continueOnError: true
   condition: ${{parameters.codecov_enabled}}

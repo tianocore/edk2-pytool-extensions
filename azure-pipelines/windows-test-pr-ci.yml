@@ -18,3 +18,4 @@ jobs:
     vm_image: 'windows-latest'
     root_package_folder: "edk2toolext"
     name: 'windows'
+    #codecov_enabled: true # currently only linux only?
