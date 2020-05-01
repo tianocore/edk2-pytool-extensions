@@ -32,7 +32,7 @@ steps:
   condition: succeededOrFailed()
 
 - script: |
-    bash <(curl -s https://codecov.io/bash)
+    bash <(curl -s https://codecov.io/bash) -C $(Build.SourceVersion)
   displayName: 'Upload to codecov.io'
   continueOnError: true
   condition: succeededOrFailed()
