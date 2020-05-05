@@ -7,6 +7,7 @@
 ##
 parameters:
   root_package_folder: ''
+  codecov_enabled: false # by default, we don't upload code coverage
 
 steps:
 - script: pytest -v --junitxml=test.junit.xml --html=pytest_report.html --self-contained-html --cov=${{ parameters.root_package_folder }} --cov-report html:cov_html --cov-report xml:cov.xml --cov-config .coveragerc
@@ -30,6 +31,12 @@ steps:
     artifactName: 'unit test report' 
   continueOnError: true
   condition: succeededOrFailed()
+
+- script: |
+    curl -s https://codecov.io/bash | bash -s -- -C $(Build.SourceVersion)
+  displayName: 'Upload to codecov.io'
+  continueOnError: true
+  condition: ${{parameters.codecov_enabled}}
 
 # Publish Cobertura code coverage results
 - task: PublishCodeCoverageResults@1
