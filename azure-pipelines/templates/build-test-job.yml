@@ -11,6 +11,7 @@ parameters:
   root_package_folder: '' # set this to root package
   name: '' #set the job name
   publish_docs: false # generates and publishes the docs
+  codecov_enabled: false # by default, we don't do codecoverage
 
 jobs:
 
@@ -28,6 +29,7 @@ jobs:
   - template: pytest-test-steps.yml
     parameters: 
       root_package_folder: ${{parameters.root_package_folder}}
+      codecov_enabled: ${{parameters.codecov_enabled}}
 
   - template: flake8-test-steps.yml
 
