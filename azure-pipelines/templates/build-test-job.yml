@@ -10,6 +10,7 @@ parameters:
   pypi_auth_feed: ''  # set this for a release
   root_package_folder: '' # set this to root package
   name: '' #set the job name
+  publish_docs: false # generates and publishes the docs
 
 jobs:
 
