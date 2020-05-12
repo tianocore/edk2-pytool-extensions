@@ -1,0 +1,14 @@
+# File doc-gen-steps.yml
+#
+# template for generating and publishing documentation
+#
+# Copyright (c) 2020 Microsoft Corporation
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+parameters:
+  publish_docs: false
+
+steps:
+- script: pytest -v --junitxml=test.junit.xml --html=pytest_report.html --self-contained-html --cov=${{ parameters.root_package_folder }} --cov-report html:cov_html --cov-report xml:cov.xml --cov-config .coveragerc
+  displayName: 'Run UnitTests'
+
