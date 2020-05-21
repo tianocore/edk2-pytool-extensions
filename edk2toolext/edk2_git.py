@@ -232,9 +232,6 @@ class Repo(object):
 
         return True
 
-    def get_path(self):
-        return self._path
-
     @classmethod
     def clone_from(self, url, to_path, progress=None, env=None, shallow=False, reference=None, **kwargs):
         _logger = logging.getLogger("git.repo")
