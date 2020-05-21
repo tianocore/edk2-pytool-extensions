@@ -10,14 +10,14 @@ import shutil
 
 
 class uefi_tree:
-    ''' 
+    '''
     This class represents a minimal UEFI tree that you can setup
     It is configurable and offers options to modify the tree for
     '''
 
     def __init__(self, workspace=None):
         ''' copy the minimal tree to a folder, if one is not provided we will create a new temporary folder for you '''
-        if workspace == None:
+        if workspace is None:
             workspace = os.path.abspath(tempfile.mkdtemp())
         uefi_tree._copytree(uefi_tree._get_src_folder(), workspace, ignore=uefi_tree._copyfilter)
         self.workspace = workspace
@@ -76,9 +76,9 @@ class uefi_tree:
     def create_ext_dep(self, dep_type, name, version, source=None, scope="global", dir_path=""):
         ''' creates an ext dep in your workspace '''
         dep_type = dep_type.lower()
-        if source == None and dep_type == "nuget":
+        if source is None and dep_type == "nuget":
             source = "https://api.nuget.org/v3/index.json"
-        if source == None:
+        if source is None:
             raise ValueError("Source was not provided")
         text = f'''
         {{
@@ -87,7 +87,7 @@ class uefi_tree:
             "name": "{name}",
             "version": "{version}",
             "source": "{source}",
-            "flags": []        
+            "flags": []
         }}'''
         ext_dep_name = name.replace(" ", "_")
         file_name = f"{ext_dep_name}_ext_dep.json"

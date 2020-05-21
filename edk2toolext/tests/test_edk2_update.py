@@ -13,7 +13,6 @@ import os
 import logging
 from importlib import reload
 from edk2toolext.environment import shell_environment
-from edk2toolext.environment import self_describing_environment
 from edk2toolext.tests.minimal_uefi_tree.uefi_tree import uefi_tree
 
 
