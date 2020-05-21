@@ -34,8 +34,8 @@ class uefi_tree:
     def _copyfilter(src, names):
         ''' make sure we don't copy anything we don't want '''
         names = [x for x in names if x != "__pycache__"]
-        names = [x for x in names if x != os.path.basename(__file__)] # don't copy ourselves
-        names = [x for x in names if x != "optional"] # don't copy 
+        names = [x for x in names if x != os.path.basename(__file__)]  # don't copy ourselves
+        names = [x for x in names if x != "optional"]  # don't copy
         return names
 
     @staticmethod

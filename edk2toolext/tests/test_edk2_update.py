@@ -12,9 +12,7 @@ import sys
 import os
 import logging
 from importlib import reload
-from edk2toollib.utility_functions import RunCmd
 from edk2toolext.environment import shell_environment
-from edk2toolext.edk2_git import Repo
 from edk2toolext.environment import self_describing_environment
 from edk2toolext.tests.minimal_uefi_tree.uefi_tree import uefi_tree
 
@@ -53,9 +51,9 @@ class TestEdk2Update(unittest.TestCase):
         return os.path.abspath(temp_folder)
 
     def invoke_update(self, settings_filepath, args=[], failure_expected=False):
-        builder = Edk2Update()
         sys.argv = ["stuart_update", "-c", settings_filepath]
         sys.argv.extend(args)
+        builder = Edk2Update()
         try:
             builder.Invoke()
         except SystemExit as e:
@@ -68,6 +66,10 @@ class TestEdk2Update(unittest.TestCase):
     #######################################
     # Test methods
     def test_init(self):
+        WORKSPACE = self.get_temp_folder()
+        tree = uefi_tree(WORKSPACE)
+        settings_filepath = tree.get_settings_provider_path()
+        sys.argv = ["stuart_update", "-c", settings_filepath]
         builder = Edk2Update()
         self.assertIsNotNone(builder)
 
