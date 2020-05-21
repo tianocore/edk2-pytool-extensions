@@ -54,6 +54,7 @@ class ThreadPool:
     def __init__(self, num_threads, queue_size=0):
         self.tasks = Queue(queue_size)
         self.results = collections.deque()
+        self.total_tasks = 0
         for _ in range(num_threads):
             Worker(self.tasks, self.results)
 
@@ -65,10 +66,17 @@ class ThreadPool:
         """ Add a list of tasks to the queue """
         for args in args_list:
             self.add_task(func, args)
+        self.total_tasks += len(args_list)
 
     def wait_completion(self):
         """ Wait for completion of all the tasks in the queue """
-        self.tasks.join()
+        with self.tasks.all_tasks_done:
+            while self.tasks.unfinished_tasks:
+                self.tasks.all_tasks_done.wait(0.1) # every 100ms
+                progress = int(100.0 * (self.total_tasks - self.tasks.unfinished_tasks) / self.total_tasks)
+                # we 
+                print(f"\rProgress: {progress}%        ", end="")
+        print("\r                         \r", end="")
 
     def get_results(self):
         results = []
