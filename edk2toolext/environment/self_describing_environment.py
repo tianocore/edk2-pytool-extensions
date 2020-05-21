@@ -14,9 +14,66 @@ from edk2toolext.environment import environment_descriptor_files as EDF
 from edk2toolext.environment import external_dependency
 import multiprocessing
 import time
+from threading import Thread
+from queue import Queue
+import collections
+
 
 ENVIRONMENT_BOOTSTRAP_COMPLETE = False
 ENV_STATE = None
+
+
+# https://www.metachris.com/2016/04/python-threadpool/
+class Worker(Thread):
+    """ Thread executing tasks from a given tasks queue """
+    def __init__(self, tasks, results):
+        Thread.__init__(self)
+        self.tasks = tasks
+        self.daemon = True
+        self.start()
+        self.results = results
+
+    def run(self):
+        while True:
+            func, args, kargs = self.tasks.get()
+            result = None
+            try:
+                result = func(*args, **kargs)
+            except Exception as e:
+                # An exception happened in this thread
+                print(e)
+            finally:
+                # Mark this task as done, whether an exception happened or not
+                self.tasks.task_done()
+                self.results.append(result)
+
+
+class ThreadPool:
+    """ Pool of threads consuming tasks from a queue """
+    def __init__(self, num_threads, queue_size=0):
+        self.tasks = Queue(queue_size)
+        self.results = collections.deque()
+        for _ in range(num_threads):
+            Worker(self.tasks, self.results)
+
+    def add_task(self, func, *args, **kargs):
+        """ Add a task to the queue """
+        self.tasks.put((func, args, kargs))
+
+    def map(self, func, args_list):
+        """ Add a list of tasks to the queue """
+        for args in args_list:
+            self.add_task(func, args)
+
+    def wait_completion(self):
+        """ Wait for completion of all the tasks in the queue """
+        self.tasks.join()
+
+    def get_results(self):
+        results = []
+        for result in self.results:
+            results.append(result)
+        return results
 
 
 class self_describing_environment(object):
@@ -196,13 +253,10 @@ class self_describing_environment(object):
 
     def update_extdeps(self, env_object):
         logging.debug("--- self_describing_environment.update_extdeps()")
-        failure_count = 0
-        success_count = 0
-        # Create a threadpool with the number of threads equal to the number of cores you have
-        def update_extdep(self, extdep):
+        # This function is called by our thread pool
+        def update_extdep(data):
+            self, extdep = data
             # Check to see whether it's necessary to fetch the files.
-            print(self)
-            print(extdep)
             try:
                 if not extdep.verify():
                     # Get rid of extdep published path since it could get changed
@@ -226,11 +280,26 @@ class self_describing_environment(object):
                 if extdep.error_msg is not None:
                     logging.warning(extdep.error_msg)
                 return False
-        number_cores = multiprocessing.cpu_count()
-        pool = multiprocessing.pool.ThreadPool(number_cores)
         all_extdeps = self._get_extdeps()
-        pool.map(update_extdep, all_extdeps)
+        self_extdeps = [(self, x) for x in all_extdeps]
+        # don't create more threads than needed
+        num_threads = min(multiprocessing.cpu_count(), len(self_extdeps))
+        logging.debug(f"Creating {num_threads} threads for the SDE update")
+        # create a pool with a queue size of the number of ext_deps we're going to check
+        pool = ThreadPool(num_threads, queue_size=len(self_extdeps))
+        # map the task to the data
+        pool.map(update_extdep, self_extdeps)
+        # wait for everything to finish
         pool.wait_completion()
+        # get our results
+        results = pool.get_results()
+        success_count = results.count(True)
+        failure_count = results.count(False)
+        exception_count = results.count(None)
+        if exception_count > 0:
+            # We don't know where the error is due to the way we queue things
+            # so just tell users to check their logs
+            raise RuntimeError("We encountered an exception while updating ext-deps. Review your log")
         return success_count, failure_count
     def clean_extdeps(self, env_object):
         for extdep in self._get_extdeps():

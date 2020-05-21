@@ -81,22 +81,6 @@ class Testself_describing_environment(unittest.TestCase):
     def test_identical_environments(self):
         scopes = ("corebuild", "project_mu")
 
-        mu_basecore_dependency_1 = mu_basecore_dependency.copy()
-        mu_basecore_dependency_2 = mu_basecore_dependency.copy()
-
-        basecore_1_dir = "basecore_1"
-        basecore_2_dir = "basecore_2"
-
-        mu_basecore_dependency_1["Path"] = basecore_1_dir
-        mu_basecore_dependency_2["Path"] = basecore_2_dir
-
-        repo_resolver.resolve(test_dir, mu_basecore_dependency_1)
-        repo_resolver.resolve(test_dir, mu_basecore_dependency_2)
-
-        (build_env_1, shell_env_1) = do_update(os.path.normpath(basecore_1_dir), scopes)
-        (build_env_2, shell_env_2) = do_update(os.path.normpath(basecore_2_dir), scopes)
-
-        self.assertFalse(build_env_changed(build_env_1, build_env_2))
 
 
 if __name__ == '__main__':
