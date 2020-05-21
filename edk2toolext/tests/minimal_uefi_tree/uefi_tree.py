@@ -30,6 +30,9 @@ class uefi_tree:
     def _get_optional_folder():
         return os.path.join(uefi_tree._get_src_folder(), "optional")
 
+    def get_workspace(self):
+        return self.workspace
+
     @staticmethod
     def _copyfilter(src, names):
         ''' make sure we don't copy anything we don't want '''

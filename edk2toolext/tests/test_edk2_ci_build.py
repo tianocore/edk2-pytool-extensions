@@ -12,15 +12,19 @@ import os
 import logging
 import shutil
 from importlib import reload
+from edk2toolext.tests.minimal_uefi_tree.uefi_tree import uefi_tree
 from edk2toolext.environment import shell_environment
 
 
 class TestEdk2CiBuild(unittest.TestCase):
 
-    minimalTree = os.path.join(os.path.dirname(__file__), "minimal_uefi_tree")
+    minimalTree = None
 
     def setUp(self):
         TestEdk2CiBuild.restart_logging()
+        tree = uefi_tree()
+        self.minimalTree = tree.get_workspace()
+        print(self.minimalTree)
         pass
 
     def tearDown(self):
