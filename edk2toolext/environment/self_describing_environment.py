@@ -12,6 +12,8 @@ import logging
 from edk2toolext.environment import shell_environment
 from edk2toolext.environment import environment_descriptor_files as EDF
 from edk2toolext.environment import external_dependency
+import multiprocessing
+import time
 
 ENVIRONMENT_BOOTSTRAP_COMPLETE = False
 ENV_STATE = None
@@ -196,8 +198,11 @@ class self_describing_environment(object):
         logging.debug("--- self_describing_environment.update_extdeps()")
         failure_count = 0
         success_count = 0
-        for extdep in self._get_extdeps():
+        # Create a threadpool with the number of threads equal to the number of cores you have
+        def update_extdep(self, extdep):
             # Check to see whether it's necessary to fetch the files.
+            print(self)
+            print(extdep)
             try:
                 if not extdep.verify():
                     # Get rid of extdep published path since it could get changed
@@ -210,20 +215,23 @@ class self_describing_environment(object):
                     extdep.fetch()
                     # Re-apply the extdep to environment
                     self._apply_descriptor_object_to_env(extdep, env_object)
-                success_count += 1
+                return True
             except RuntimeError as e:
                 logging.warning(f"[SDE] Failed to fetch {extdep}: {e}")
                 if extdep.error_msg is not None:
                     logging.warning(extdep.error_msg)
-                failure_count += 1
+                return False
             except FileNotFoundError:
                 logging.warning(f"[SDE] Unable to fetch {extdep}")
                 if extdep.error_msg is not None:
                     logging.warning(extdep.error_msg)
-                failure_count += 1
-                pass
+                return False
+        number_cores = multiprocessing.cpu_count()
+        pool = multiprocessing.pool.ThreadPool(number_cores)
+        all_extdeps = self._get_extdeps()
+        pool.map(update_extdep, all_extdeps)
+        pool.wait_completion()
         return success_count, failure_count
-
     def clean_extdeps(self, env_object):
         for extdep in self._get_extdeps():
             extdep.clean()
