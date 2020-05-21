@@ -65,3 +65,4 @@ class TestEdk2CiBuild(unittest.TestCase):
         except SystemExit as e:
             self.assertEqual(e.code, 0, "We should have a non zero error code")
             pass
+        self.assertTrue(os.path.exists(os.path.join(self.minimalTree, "Build")))
