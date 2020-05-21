@@ -13,7 +13,6 @@ from edk2toolext.environment import shell_environment
 from edk2toolext.environment import environment_descriptor_files as EDF
 from edk2toolext.environment import external_dependency
 import multiprocessing
-import time
 from threading import Thread
 from queue import Queue
 import collections
@@ -26,6 +25,7 @@ ENV_STATE = None
 # https://www.metachris.com/2016/04/python-threadpool/
 class Worker(Thread):
     """ Thread executing tasks from a given tasks queue """
+
     def __init__(self, tasks, results):
         Thread.__init__(self)
         self.tasks = tasks
@@ -50,6 +50,7 @@ class Worker(Thread):
 
 class ThreadPool:
     """ Pool of threads consuming tasks from a queue """
+
     def __init__(self, num_threads, queue_size=0):
         self.tasks = Queue(queue_size)
         self.results = collections.deque()
@@ -254,6 +255,7 @@ class self_describing_environment(object):
     def update_extdeps(self, env_object):
         logging.debug("--- self_describing_environment.update_extdeps()")
         # This function is called by our thread pool
+
         def update_extdep(data):
             self, extdep = data
             # Check to see whether it's necessary to fetch the files.
@@ -301,6 +303,7 @@ class self_describing_environment(object):
             # so just tell users to check their logs
             raise RuntimeError("We encountered an exception while updating ext-deps. Review your log")
         return success_count, failure_count
+
     def clean_extdeps(self, env_object):
         for extdep in self._get_extdeps():
             extdep.clean()
