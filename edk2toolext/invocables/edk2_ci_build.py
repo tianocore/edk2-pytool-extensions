@@ -30,12 +30,15 @@ class CiBuildSettingsManager(MultiPkgAwareSettingsInterface):
         ''' Get the name of the repo, platform, or product being build by CI '''
         raise NotImplementedError()
 
-    def GetPluginSettings(self) -> Dict():
+    def GetPluginSettings(self) -> Dict[str, Any]:
         '''  Implement in subclass to pass dictionary of settings for individual plugins '''
         return {}
 
 
 class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
+    ''' Invocable supporting an iterative multi-package build and test process
+        leveraging CI build plugins
+    '''
 
     def GetSettingsClass(self):
         return CiBuildSettingsManager

@@ -31,15 +31,15 @@ class Edk2InvocableSettingsInterface():
         and can be implemented in a settings manager.
     '''
 
-    def GetWorkspaceRoot(self):
+    def GetWorkspaceRoot(self) -> str:
         ''' get absolute path to WorkspaceRoot '''
         raise NotImplementedError()
 
-    def GetPackagesPath(self) -> Iterable:
+    def GetPackagesPath(self) -> Iterable[os.PathLike]:
         ''' Optional API to return an Iterable of paths that should be mapped as edk2 PackagesPath '''
         return []
 
-    def GetActiveScopes(self) -> Tuple(str):
+    def GetActiveScopes(self) -> Tuple[str]:
         ''' Optional API to return Tuple containing scopes that should be active for this process '''
         return ()
 
@@ -52,21 +52,28 @@ class Edk2InvocableSettingsInterface():
         '''
         return None
 
-    def AddCommandLineOptions(self, parserObj) -> None:
+    def AddCommandLineOptions(self, parserObj: object) -> None:
         ''' Implement in subclass to add command line options to the argparser '''
         pass
 
-    def RetrieveCommandLineOptions(self, args):
+    def RetrieveCommandLineOptions(self, args: object) -> None:
         '''  Implement in subclass to retrieve command line options from the argparser namespace '''
         pass
 
 
 class Edk2Invocable(BaseAbstractInvocable):
+    ''' Base class for Edk2 based invocables.
 
-    # Collects all pip package names they will be printed
-    # as well as reported to the global version_aggregator
+        Edk2 means it has common features like workspace, packagespath,
+        scopes, and other name value pairs
+    '''
+
     @classmethod
     def collect_python_pip_info(cls):
+        ''' Class method to collect all pip packages names and
+            versions and report them to the global version_aggregator as
+            well as print them to the screen.
+        '''
         # Get the current python version
         cur_py = "%d.%d.%d" % sys.version_info[:3]
         ver_agg = version_aggregator.GetVersionAggregator()
@@ -79,20 +86,22 @@ class Edk2Invocable(BaseAbstractInvocable):
             logging.info("{0} version: {1}".format(package.project_name, version))
             ver_agg.ReportVersion(package.project_name, version, version_aggregator.VersionTypes.PIP)
 
-    def GetWorkspaceRoot(self):
+    def GetWorkspaceRoot(self) -> os.PathLike:
+        ''' Use the SettingsManager to get the absolute path to the workspace root '''
         try:
             return self.PlatformSettings.GetWorkspaceRoot()
         except AttributeError:
             raise RuntimeError("Can't call this before PlatformSettings has been set up!")
 
-    def GetPackagesPath(self):
+    def GetPackagesPath(self) -> Iterable[os.PathLike]:
+        ''' Use the SettingsManager to an iterable of paths to be used as Edk2 Packages Path'''
         try:
             return self.PlatformSettings.GetPackagesPath()
         except AttributeError:
             raise RuntimeError("Can't call this before PlatformSettings has been set up!")
 
-    def GetActiveScopes(self):
-        ''' return tuple containing scopes that should be active for this process '''
+    def GetActiveScopes(self) -> Tuple[str]:
+        ''' Use the SettingsManager to return tuple containing scopes that should be active for this process.'''
         try:
             scopes = self.PlatformSettings.GetActiveScopes()
         except AttributeError:
