@@ -12,6 +12,7 @@ from edk2toolext.environment import version_aggregator
 
 class TestVersionAggregator(unittest.TestCase):
     def setUp(self):
+        version_aggregator.ResetVersionAggregator()
         pass
 
     def tearDown(self):
@@ -54,27 +55,28 @@ class TestVersionAggregator(unittest.TestCase):
 
     def test_GetInformation(self):
         version1 = version_aggregator.version_aggregator()
-        test_ver = {"therefore": "I Exist"}
-        version1.Versions["therefore"] = "I Exist"
-        non_copy = version1.Versions
-        test2_ver = version1.GetAggregatedVersionInformation()
-        self.assertDictEqual(test_ver, test2_ver)
+        test_ver = ["I think", "I exist"]
+        version1.ReportVersion("I think", "therefore", version_aggregator.VersionTypes.INFO)
+        version1.ReportVersion("I exist", "proof", version_aggregator.VersionTypes.INFO)
+        test2_ver = list(version1.GetAggregatedVersionInformation().keys())
+        self.assertListEqual(test_ver, test2_ver)
         version1.ReportVersion("test", "test", version_aggregator.VersionTypes.TOOL)
-        self.assertEqual(len(non_copy), 2)
-        self.assertEqual(len(test2_ver), 1)
-        self.assertDictEqual(test_ver, test2_ver)
+        self.assertEqual(len(test2_ver), 2)
+        test2_ver = list(version1.GetAggregatedVersionInformation().keys())
+        self.assertEqual(len(test2_ver), 3)
 
     def test_reset(self):
         version1 = version_aggregator.version_aggregator()
-        version1.Versions["test"] = "I exist"
+        version1.ReportVersion("test", "I exist", version_aggregator.VersionTypes.INFO)
         self.assertEqual(len(version1.GetAggregatedVersionInformation()), 1)
         version1.Reset()
         self.assertEqual(len(version1.GetAggregatedVersionInformation()), 0)
 
     def test_global_reset(self):
         version1 = version_aggregator.version_aggregator()
-        version1.Versions["test"] = "I exist"
+        version1.ReportVersion("test", "I exist", version_aggregator.VersionTypes.INFO)
         self.assertEqual(len(version1.GetAggregatedVersionInformation()), 1)
+        version1 = version_aggregator.version_aggregator()
         version_aggregator.ResetVersionAggregator()
         self.assertEqual(len(version1.GetAggregatedVersionInformation()), 0)
 
