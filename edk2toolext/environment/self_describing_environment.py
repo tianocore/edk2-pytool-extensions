@@ -12,77 +12,14 @@ import logging
 from edk2toolext.environment import shell_environment
 from edk2toolext.environment import environment_descriptor_files as EDF
 from edk2toolext.environment import external_dependency
+from multiprocessing import dummy
 import multiprocessing
-from threading import Thread
-from queue import Queue
 import collections
+import time
 
 
 ENVIRONMENT_BOOTSTRAP_COMPLETE = False
 ENV_STATE = None
-
-
-# https://www.metachris.com/2016/04/python-threadpool/
-class Worker(Thread):
-    """ Thread executing tasks from a given tasks queue """
-
-    def __init__(self, tasks, results):
-        Thread.__init__(self)
-        self.tasks = tasks
-        self.daemon = True
-        self.start()
-        self.results = results
-
-    def run(self):
-        while True:
-            func, args, kargs = self.tasks.get()
-            result = None
-            try:
-                result = func(*args, **kargs)
-            except Exception as e:
-                # An exception happened in this thread
-                print(e)
-            finally:
-                # Mark this task as done, whether an exception happened or not
-                self.tasks.task_done()
-                self.results.append(result)
-
-
-class ThreadPool:
-    """ Pool of threads consuming tasks from a queue """
-
-    def __init__(self, num_threads, queue_size=0):
-        self.tasks = Queue(queue_size)
-        self.results = collections.deque()
-        self.total_tasks = 0
-        for _ in range(num_threads):
-            Worker(self.tasks, self.results)
-
-    def add_task(self, func, *args, **kargs):
-        """ Add a task to the queue """
-        self.tasks.put((func, args, kargs))
-
-    def map(self, func, args_list):
-        """ Add a list of tasks to the queue """
-        for args in args_list:
-            self.add_task(func, args)
-        self.total_tasks += len(args_list)
-
-    def wait_completion(self):
-        """ Wait for completion of all the tasks in the queue """
-        with self.tasks.all_tasks_done:
-            while self.tasks.unfinished_tasks:
-                self.tasks.all_tasks_done.wait(0.1) # every 100ms
-                progress = int(100.0 * (self.total_tasks - self.tasks.unfinished_tasks) / self.total_tasks)
-                # we 
-                print(f"\rProgress: {progress}%        ", end="")
-        print("\r                         \r", end="")
-
-    def get_results(self):
-        results = []
-        for result in self.results:
-            results.append(result)
-        return results
 
 
 class self_describing_environment(object):
@@ -264,8 +201,7 @@ class self_describing_environment(object):
         logging.debug("--- self_describing_environment.update_extdeps()")
         # This function is called by our thread pool
 
-        def update_extdep(data):
-            self, extdep = data
+        def update_extdep(self, extdep):
             # Check to see whether it's necessary to fetch the files.
             try:
                 if not extdep.verify():
@@ -290,19 +226,27 @@ class self_describing_environment(object):
                 if extdep.error_msg is not None:
                     logging.warning(extdep.error_msg)
                 return False
+        # prep the worker pool
         all_extdeps = self._get_extdeps()
         self_extdeps = [(self, x) for x in all_extdeps]
         # don't create more threads than needed
-        num_threads = min(multiprocessing.cpu_count(), len(self_extdeps))
+        num_threads = min(os.cpu_count(), len(self_extdeps))
+        # create a pool
+        pool = dummy.Pool(num_threads)
         logging.debug(f"Creating {num_threads} threads for the SDE update")
-        # create a pool with a queue size of the number of ext_deps we're going to check
-        pool = ThreadPool(num_threads, queue_size=len(self_extdeps))
         # map the task to the data
-        pool.map(update_extdep, self_extdeps)
+        pool_handle = pool.starmap_async(update_extdep, self_extdeps)
+        pool.close()
+        print("Updating", end="", flush=True)
+        old_count = len(self_extdeps)
+        while pool_handle._number_left != 0:
+            while(old_count != pool_handle._number_left and old_count > 0):
+                print(".", end="", flush=True)
+                old_count -= 1
+            time.sleep(0.1) # wait 100 ms
+        print(". Done")
         # wait for everything to finish
-        pool.wait_completion()
-        # get our results
-        results = pool.get_results()
+        results = pool_handle.get()
         success_count = results.count(True)
         failure_count = results.count(False)
         exception_count = results.count(None)
