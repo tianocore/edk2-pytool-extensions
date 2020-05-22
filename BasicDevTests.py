@@ -67,13 +67,13 @@ def TestNoSpaces(apath):
 
 
 def TestRequiredLicense(apath):
-    lic = ["SPDX-License-Identifier: BSD-2-Clause-Patent"]
+    licenses = ["SPDX-License-Identifier: BSD-2-Clause-Patent", ]
     try:
         with open(apath, "rb") as f_obj:
             contents = f_obj.read().decode()
             found = False
-            for l in lic:
-                if l in contents:
+            for lic in licenses:
+                if lic in contents:
                     found = True
                     break
             if not found:
