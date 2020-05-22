@@ -24,7 +24,6 @@ class TestEdk2Setup(unittest.TestCase):
         TestEdk2Setup.restart_logging()
         tree = uefi_tree()
         self.minimalTree = tree.get_workspace()
-        
         pass
 
     def tearDown(self):
