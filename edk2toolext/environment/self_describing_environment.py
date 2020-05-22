@@ -229,29 +229,32 @@ class self_describing_environment(object):
         # prep the worker pool
         all_extdeps = self._get_extdeps()
         self_extdeps = [(self, x) for x in all_extdeps]
+        num_extdeps = len(self_extdeps)
         # don't create more threads than needed
-        num_threads = min(os.cpu_count(), len(self_extdeps))
+        num_threads = min(os.cpu_count(), num_extdeps)
         # create a pool
         pool = dummy.Pool(num_threads)
         logging.debug(f"Creating {num_threads} threads for the SDE update")
         # map the task to the data
         pool_handle = pool.starmap_async(update_extdep, self_extdeps)
         pool.close()
+        # use print so it doesn't go to the log
         print("Updating", end="", flush=True)
-        old_count = len(self_extdeps)
+        old_count = num_extdeps
+        # wait for the pool_handle (MapResult) to finish
         while pool_handle._number_left != 0:
             while(old_count != pool_handle._number_left and old_count > 0):
                 print(".", end="", flush=True)
                 old_count -= 1
-            time.sleep(0.1) # wait 100 ms
+            time.sleep(0.1)  # wait 100 ms
         print(". Done")
-        # wait for everything to finish
+        # get the results
         results = pool_handle.get()
         success_count = results.count(True)
         failure_count = results.count(False)
         exception_count = results.count(None)
-        if exception_count > 0:
-            # We don't know where the error is due to the way we queue things
+        if len(results) != num_extdeps or exception_count > 0:
+            # We don't know where the error since we don't get a return result from it
             # so just tell users to check their logs
             raise RuntimeError("We encountered an exception while updating ext-deps. Review your log")
         return success_count, failure_count
