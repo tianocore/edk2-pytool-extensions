@@ -6,7 +6,6 @@
 
 import os
 import tempfile
-import shutil
 
 
 class uefi_tree:
@@ -47,7 +46,6 @@ class uefi_tree:
         uefi_tree.write_to_file(build_rule_path, "hello there")
         tools_path = os.path.join(conf_path, "tools_def.template")
         uefi_tree.write_to_file(tools_path, "hello there")
-        
 
     @staticmethod
     def write_to_file(path, contents, close=True):
