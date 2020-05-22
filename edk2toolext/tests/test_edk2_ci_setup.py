@@ -14,11 +14,13 @@ import logging
 from importlib import reload
 from edk2toolext.environment import shell_environment
 from edk2toolext.tests.uefi_tree import uefi_tree
+from edk2toolext.environment import self_describing_environment
+from edk2toolext.environment import version_aggregator
 
 
 class TestEdk2CiSetup(unittest.TestCase):
 
-    minimalTree = os.path.join(os.path.dirname(__file__), "minimal_uefi_tree")
+    minimalTree = None
 
     def setUp(self):
         TestEdk2CiSetup.restart_logging()
@@ -32,6 +34,8 @@ class TestEdk2CiSetup(unittest.TestCase):
         TestEdk2CiSetup.restart_logging()
         buildFolder = os.path.join(self.minimalTree, "Build")
         shutil.rmtree(buildFolder, ignore_errors=True)
+        self_describing_environment.DestroyEnvironment()
+        version_aggregator.ResetVersionAggregator()
         pass
 
     @classmethod

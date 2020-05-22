@@ -14,6 +14,8 @@ import shutil
 from importlib import reload
 from edk2toolext.environment import shell_environment
 from edk2toolext.tests.uefi_tree import uefi_tree
+from edk2toolext.environment import self_describing_environment
+from edk2toolext.environment import version_aggregator
 
 
 class TestEdk2Setup(unittest.TestCase):
@@ -31,6 +33,9 @@ class TestEdk2Setup(unittest.TestCase):
         buildFolder = os.path.join(self.minimalTree, "Build")
         shutil.rmtree(buildFolder, ignore_errors=True)
         TestEdk2Setup.restart_logging()
+        # we need to make sure to tear down the version aggregator and the SDE
+        self_describing_environment.DestroyEnvironment()
+        version_aggregator.ResetVersionAggregator()
         pass
 
     @classmethod
