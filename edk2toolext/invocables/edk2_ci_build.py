@@ -12,7 +12,7 @@ import sys
 import logging
 import yaml
 import traceback
-from typing import Dict
+from typing import Dict, Any
 from edk2toollib.uefi.edk2.path_utilities import Edk2Path
 from edk2toollib.log.junit_report_format import JunitTestReport
 from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable
