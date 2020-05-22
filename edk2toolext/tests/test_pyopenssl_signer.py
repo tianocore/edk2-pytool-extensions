@@ -5,8 +5,6 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
-import os
-import tempfile
 import unittest
 from edk2toolext.capsule import pyopenssl_signer
 from OpenSSL import crypto
@@ -32,7 +30,7 @@ class Test_pyopenssl_signer(unittest.TestCase):
 
             }
             pyopenssl_signer.sign(None, signature, signer)
-    
+
     def test_invalid_type(self):
         # we're going to assume that we're
         with self.assertRaises(ValueError):
