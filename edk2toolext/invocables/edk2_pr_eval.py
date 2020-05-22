@@ -129,6 +129,10 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
             packages_to_build[a] = "Policy 1 - PlatformSettings - Filter Packages"
             remaining_packages.remove(a)
 
+        # No more packages to eval - return the results
+        if len(remaining_packages) == 0:
+            return packages_to_build
+
         #
         # Policy 2: Build any package that has changed
         #
@@ -144,6 +148,10 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
             if(pkg not in packages_to_build.keys() and pkg in remaining_packages):
                 packages_to_build[pkg] = "Policy 2 - Build any package that has changed"
                 remaining_packages.remove(pkg)
+
+        # No more packages to eval - return the results
+        if len(remaining_packages) == 0:
+            return packages_to_build
 
         #
         # Policy 3: If a file change is a public file then build all packages that
@@ -177,6 +185,10 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
                     packages_to_build[p] = f"Policy 3 - Package depends on {a}"
                     remaining_packages.remove(p)  # remove from remaining packages
 
+        # No more packages to eval - return the results
+        if len(remaining_packages) == 0:
+            return packages_to_build
+
         #
         # Policy 4: If a file changed in a module and that module is used in the provided dsc file
         # then the package of the dSC file must be built
@@ -207,6 +219,8 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
                         packages_to_build[p] = f"Policy 4 - Package Dsc depends on {cm}"
                         remaining_packages.remove(p)  # remove from remaining packages
                         break
+
+        # All done now return result
 
         return packages_to_build
 
@@ -282,17 +296,17 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
                 if entry.lower().endswith(".dec"):
                     path = os.path.join(path_to_package, entry)
         except Exception:
-            self.logger.error("Exception: Unable to find DEC for package:{0}".format(path_to_package))
+            self.logger.warning("Exception: Unable to find DEC for package:{0}".format(path_to_package))
             return None
 
         if path is None:
-            self.logger.error("Unable to find DEC for package:{0}".format(path_to_package))
+            self.logger.warning("Unable to find DEC for package:{0}".format(path_to_package))
             return None
 
         wsr_dec_path = self.edk2_path_obj.GetEdk2RelativePathFromAbsolutePath(path)
 
         if path is None or wsr_dec_path == "" or not os.path.isfile(path):
-            self.logger.error("Unable to convert path for DEC for package: {0}".format(path_to_package))
+            self.logger.warning("Unable to convert path for DEC for package: {0}".format(path_to_package))
             return None
 
         # parse it
