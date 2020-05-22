@@ -31,30 +31,7 @@ class CiSetupSettingsManager(MultiPkgAwareSettingsInterface):
             ReferencePath: <optional> Workspace relative path to git repo to use as "reference"
         }
         '''
-        raise NotImplementedError()
-
-    def GetWorkspaceRoot(self):
-        ''' get WorkspacePath '''
-        raise NotImplementedError()
-
-    def AddCommandLineOptions(self, parserObj):
-        ''' Implement in subclass to add command line options to the argparser '''
-        MultiPkgAwareSettingsInterface.AddCommandLineOptions(self, parserObj)
-        pass
-
-    def RetrieveCommandLineOptions(self, args):
-        '''  Implement in subclass to retrieve command line options from the argparser '''
-        MultiPkgAwareSettingsInterface.RetrieveCommandLineOptions(self, args)
-        pass
-
-    def GetLoggingLevel(self, loggerType):
-        ''' Get the logging level for a given type
-        base == lowest logging level supported
-        con  == Screen logging
-        txt  == plain text file logging
-        md   == markdown file logging
-        '''
-        pass
+        return []
 
 
 class Edk2CiBuildSetup(Edk2MultiPkgAwareInvocable):

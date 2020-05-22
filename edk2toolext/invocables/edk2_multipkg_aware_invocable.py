@@ -10,26 +10,15 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
-from edk2toolext.edk2_invocable import Edk2Invocable
+from edk2toolext.edk2_invocable import Edk2Invocable, Edk2InvocableSettingsInterface
 
 
-class MultiPkgAwareSettingsInterface():
+class MultiPkgAwareSettingsInterface(Edk2InvocableSettingsInterface):
     ''' Settings to support Multi-Pkg functionality.
         This is an interface definition only
         to show which functions are required to be implemented
         and which functions can be implemented.
      '''
-
-    # ####################################################################################### #
-    #                                 Command line options                                    #
-    # ####################################################################################### #
-    def AddCommandLineOptions(self, parserObj):
-        ''' Implement in subclass to add command line options to the argparser '''
-        pass
-
-    def RetrieveCommandLineOptions(self, args):
-        '''  Implement in subclass to retrieve command line options from the argparser '''
-        pass
 
     # ####################################################################################### #
     #                           Supported Values and Defaults                                 #
