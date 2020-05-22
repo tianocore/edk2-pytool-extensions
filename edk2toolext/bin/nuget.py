@@ -33,7 +33,7 @@ def DownloadNuget(unpack_folder: str = None) -> list:
             with urllib.request.urlopen(URL) as response, open(out_file_name, 'wb') as out_file:
                 out_file.write(response.read())
         except urllib.error.HTTPError as e:
-            logging.error(f"We ran into an issue when getting NuGet")
+            logging.error("We ran into an issue when getting NuGet")
             raise e
 
     # do the hash to make sure the file is good
