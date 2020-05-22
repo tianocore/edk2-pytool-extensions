@@ -12,15 +12,21 @@ import os
 import logging
 import shutil
 from importlib import reload
+from edk2toolext.tests.uefi_tree import uefi_tree
 from edk2toolext.environment import shell_environment
+from edk2toolext.environment import self_describing_environment
+from edk2toolext.environment import version_aggregator
 
 
 class TestEdk2CiBuild(unittest.TestCase):
 
-    minimalTree = os.path.join(os.path.dirname(__file__), "minimal_uefi_tree")
+    minimalTree = None
 
     def setUp(self):
         TestEdk2CiBuild.restart_logging()
+        tree = uefi_tree()
+        self.minimalTree = tree.get_workspace()
+        print(self.minimalTree)
         pass
 
     def tearDown(self):
@@ -28,6 +34,9 @@ class TestEdk2CiBuild(unittest.TestCase):
         buildFolder = os.path.join(self.minimalTree, "Build")
         shutil.rmtree(buildFolder, ignore_errors=True)
         TestEdk2CiBuild.restart_logging()
+        # we need to make sure to tear down the version aggregator and the SDE
+        self_describing_environment.DestroyEnvironment()
+        version_aggregator.ResetVersionAggregator()
         pass
 
     @classmethod
@@ -61,3 +70,4 @@ class TestEdk2CiBuild(unittest.TestCase):
         except SystemExit as e:
             self.assertEqual(e.code, 0, "We should have a non zero error code")
             pass
+        self.assertTrue(os.path.exists(os.path.join(self.minimalTree, "Build")))
