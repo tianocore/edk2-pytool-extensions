@@ -13,14 +13,18 @@ import logging
 import shutil
 from importlib import reload
 from edk2toolext.environment import shell_environment
+from edk2toolext.tests.uefi_tree import uefi_tree
 
 
 class TestEdk2Setup(unittest.TestCase):
 
-    minimalTree = os.path.join(os.path.dirname(__file__), "minimal_uefi_tree")
+    minimalTree = None
 
     def setUp(self):
         TestEdk2Setup.restart_logging()
+        tree = uefi_tree()
+        self.minimalTree = tree.get_workspace()
+        
         pass
 
     def tearDown(self):

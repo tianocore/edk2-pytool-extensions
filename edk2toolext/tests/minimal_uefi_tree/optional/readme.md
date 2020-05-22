@@ -1,1 +1,0 @@
-This is where optional pieces can be stored

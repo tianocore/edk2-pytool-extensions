@@ -12,7 +12,7 @@ import os
 import logging
 import shutil
 from importlib import reload
-from edk2toolext.tests.minimal_uefi_tree.uefi_tree import uefi_tree
+from edk2toolext.tests.uefi_tree import uefi_tree
 from edk2toolext.environment import shell_environment
 
 

@@ -1,8 +1,0 @@
-author_string: Matthew Carlson
-copyright_string: Copyright 2020
-description_string: A nuget package for testing update
-license_url: https://opensource.org/licenses/BSD-2-Clause
-name: Edk2TestUpdate
-project_url: https://github.com/tianocore/edk2-pytool-extensions
-server_url: https://api.nuget.org/v3/index.json
-tags_string: ''

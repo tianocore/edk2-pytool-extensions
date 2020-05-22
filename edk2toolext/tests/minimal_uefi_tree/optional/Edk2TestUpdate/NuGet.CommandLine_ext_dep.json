@@ -1,9 +1,0 @@
-
-        {
-            "scope": "global",
-            "type": "nuget",
-            "name": "NuGet.CommandLine",
-            "version": "5.2.0",
-            "source": "https://api.nuget.org/v3/index.json",
-            "flags": []        
-        }
