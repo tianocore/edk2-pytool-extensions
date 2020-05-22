@@ -13,8 +13,6 @@ from edk2toolext.environment import shell_environment
 from edk2toolext.environment import environment_descriptor_files as EDF
 from edk2toolext.environment import external_dependency
 from multiprocessing import dummy
-import multiprocessing
-import collections
 import time
 
 

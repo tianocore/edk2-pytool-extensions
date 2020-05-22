@@ -65,6 +65,29 @@ class uefi_tree:
             return os.path.abspath(optional_path)
         raise ValueError(f"Optional file not found {file}")
 
+    def create_path_env(self, dep_type, name, version, source=None, scope="global", dir_path=""):
+        ''' creates an ext dep in your workspace '''
+        dep_type = dep_type.lower()
+        if source is None and dep_type == "nuget":
+            source = "https://api.nuget.org/v3/index.json"
+        if source is None:
+            raise ValueError("Source was not provided")
+        text = f'''
+        {{
+            "scope": "{scope}",
+            "type": "{dep_type}",
+            "name": "{name}",
+            "version": "{version}",
+            "source": "{source}",
+            "flags": []
+        }}'''
+        ext_dep_name = name.replace(" ", "_")
+        file_name = f"{ext_dep_name}_ext_dep.json"
+        output_dir = os.path.join(self.workspace, dir_path)
+        os.makedirs(output_dir, exist_ok=True)
+        output_path = os.path.join(output_dir, file_name)
+        uefi_tree.write_to_file(output_path, text)
+
     def create_ext_dep(self, dep_type, name, version, source=None, scope="global", dir_path=""):
         ''' creates an ext dep in your workspace '''
         dep_type = dep_type.lower()
