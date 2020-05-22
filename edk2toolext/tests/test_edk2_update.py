@@ -14,13 +14,13 @@ import logging
 from importlib import reload
 from edk2toolext.environment import shell_environment
 from edk2toolext.tests.uefi_tree import uefi_tree
+from edk2toolext.environment import self_describing_environment
+from edk2toolext.environment import version_aggregator
 
 
 class TestEdk2Update(unittest.TestCase):
 
-    def update(self):
-        TestEdk2Update.restart_logging()
-        pass
+    temp_folders = []
 
     def tearDown(self):
         shell_environment.GetEnvironment().restore_initial_checkpoint()
@@ -28,7 +28,8 @@ class TestEdk2Update(unittest.TestCase):
             logging.info(f"Cleaning up {temp_folder}")
             # shutil.rmtree(os.path.abspath(temp_folder), ignore_errors=True)
         TestEdk2Update.restart_logging()
-        pass
+        self_describing_environment.DestroyEnvironment()
+        version_aggregator.ResetVersionAggregator()
 
     @classmethod
     def restart_logging(cls):
@@ -57,7 +58,7 @@ class TestEdk2Update(unittest.TestCase):
             builder.Invoke()
         except SystemExit as e:
             if failure_expected:
-                self.assertIs(e.code, 0, "We should have a non zero error code")
+                self.assertIsNot(e.code, 0, "We should have a non zero error code")
             else:
                 self.assertIs(e.code, 0, "We should have a zero error code")
         return builder
@@ -79,10 +80,25 @@ class TestEdk2Update(unittest.TestCase):
         logging.getLogger().setLevel(logging.WARNING)
         tree.create_ext_dep("nuget", "Edk2TestUpdate", "0.0.1")
         # Do the update
-        self.invoke_update(tree.get_settings_provider_path())
+        updater = self.invoke_update(tree.get_settings_provider_path())
         # make sure it worked
-        # we're going to request two packages from nuget -> the first contains an extdep for the second
-        # Edk2TestUpdate_extdep
-        # Edk2TestUpdate_extdep\NuGet.CommandLine_extdep
         self.assertTrue(os.path.exists(os.path.join(WORKSPACE, "Edk2TestUpdate_extdep",
                                                     "NuGet.CommandLine_extdep", "extdep_state.json")))
+        build_env, shell_env, failure = updater.PerformUpdate()
+        # we should have no failures
+        self.assertEqual(failure, 0)
+        # we should have found two ext deps
+        self.assertEqual(len(build_env.extdeps), 2)
+
+    def test_bad_ext_dep(self):
+        ''' makes sure we can do an update that will fail '''
+        WORKSPACE = self.get_temp_folder()
+        tree = uefi_tree(WORKSPACE)
+        logging.getLogger().setLevel(logging.WARNING)
+        # we know this version is bad
+        tree.create_ext_dep("nuget", "Edk2TestUpdate", "0.0.0")
+        # Do the update
+        updater = self.invoke_update(tree.get_settings_provider_path(), failure_expected=True)
+        build_env, shell_env, failure = updater.PerformUpdate()
+        # we should have no failures
+        self.assertEqual(failure, 1)

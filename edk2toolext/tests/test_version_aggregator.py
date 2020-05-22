@@ -64,11 +64,18 @@ class TestVersionAggregator(unittest.TestCase):
         self.assertEqual(len(test2_ver), 1)
         self.assertDictEqual(test_ver, test2_ver)
 
-    def test_Reset(self):
+    def test_reset(self):
         version1 = version_aggregator.version_aggregator()
         version1.Versions["test"] = "I exist"
         self.assertEqual(len(version1.GetAggregatedVersionInformation()), 1)
         version1.Reset()
+        self.assertEqual(len(version1.GetAggregatedVersionInformation()), 0)
+
+    def test_global_reset(self):
+        version1 = version_aggregator.version_aggregator()
+        version1.Versions["test"] = "I exist"
+        self.assertEqual(len(version1.GetAggregatedVersionInformation()), 1)
+        version_aggregator.ResetVersionAggregator()
         self.assertEqual(len(version1.GetAggregatedVersionInformation()), 0)
 
 

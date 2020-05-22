@@ -93,3 +93,11 @@ def GetVersionAggregator():
         VERSION_AGGREGATOR = version_aggregator()
 
     return VERSION_AGGREGATOR
+
+
+def ResetVersionAggregator():
+    '''
+    Destroys the version Aggregator singleton
+    '''
+    global VERSION_AGGREGATOR
+    VERSION_AGGREGATOR.Reset()
