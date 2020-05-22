@@ -14,45 +14,17 @@ from edk2toolext.environment import plugin_manager
 from edk2toolext.environment.plugintypes.uefi_helper_plugin import HelperFunctions
 from edk2toolext.environment import self_describing_environment
 from edk2toolext.environment.uefi_build import UefiBuilder
-from edk2toolext.edk2_invocable import Edk2Invocable
+from edk2toolext.edk2_invocable import Edk2Invocable, Edk2InvocableSettingsInterface
 from edk2toollib.utility_functions import locate_class_in_module
+from edk2toollib.uefi.edk2.path_utilities import Edk2Path
 
 
-class BuildSettingsManager():
+class BuildSettingsManager(Edk2InvocableSettingsInterface):
     ''' Platform settings will be accessed through this implementation. '''
-
-    def GetActiveScopes(self):
-        ''' return tuple containing scopes that should be active for this process '''
-        raise NotImplementedError()
-
-    def GetWorkspaceRoot(self):
-        ''' get WorkspacePath '''
-        raise NotImplementedError()
-
-    def GetPackagesPath(self):
-        ''' Return a list of workspace relative paths that should be mapped as edk2 PackagesPath '''
-        raise NotImplementedError()
 
     def GetName(self):
         ''' Get the name of the repo, platform, or product being build '''
-        pass
-
-    def AddCommandLineOptions(self, parserObj):
-        ''' Implement in subclass to add command line options to the argparser '''
-        pass
-
-    def RetrieveCommandLineOptions(self, args):
-        '''  Implement in subclass to retrieve command line options from the argparser '''
-        pass
-
-    def GetLoggingLevel(self, loggerType):
-        ''' Get the logging level for a given type
-        base == lowest logging level supported
-        con  == Screen logging
-        txt  == plain text file logging
-        md   == markdown file logging
-        '''
-        pass
+        return None
 
 
 class Edk2PlatformBuild(Edk2Invocable):
@@ -121,12 +93,17 @@ class Edk2PlatformBuild(Edk2Invocable):
         helper = HelperFunctions()
         if(helper.LoadFromPluginManager(pm) > 0):
             raise Exception("One or more helper plugins failed to load.")
+
+        # Make a pathobj so we can normalize and validate the workspace
+        # and packages path.  The Settings Manager can return absolute or
+        # relative paths
+        pathobj = Edk2Path(self.GetWorkspaceRoot(), self.GetPackagesPath())
         #
         # Now we can actually kick off a build.
         #
         logging.log(edk2_logging.SECTION, "Kicking off build")
-        ret = self.PlatformBuilder.Go(self.GetWorkspaceRoot(),
-                                      os.pathsep.join(self.PlatformSettings.GetPackagesPath()),
+        ret = self.PlatformBuilder.Go(pathobj.WorkspacePath,
+                                      os.pathsep.join(pathobj.PackagePathList),
                                       helper, pm)
         logging.log(edk2_logging.SECTION, f"Log file is located at: {self.log_filename}")
         return ret

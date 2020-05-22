@@ -12,6 +12,7 @@ import sys
 import logging
 import yaml
 import traceback
+from typing import Dict
 from edk2toollib.uefi.edk2.path_utilities import Edk2Path
 from edk2toollib.log.junit_report_format import JunitTestReport
 from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable
@@ -25,68 +26,16 @@ from edk2toolext import edk2_logging
 class CiBuildSettingsManager(MultiPkgAwareSettingsInterface):
     ''' Platform settings will be accessed through this implementation. '''
 
-    def GetActiveScopes(self):
-        ''' return tuple containing scopes that should be active for this process '''
-        raise NotImplementedError()
-
-    def GetPackagesPath(self):
-        ''' Return a list of workspace relative paths that should be mapped as edk2 PackagesPath '''
-        pass
-
-    # ####################################################################################### #
-    #                        Default Support for this Ci Build                                #
-    # ####################################################################################### #
-    def GetWorkspaceRoot(self):
-        ''' get WorkspacePath '''
-        raise NotImplementedError()
-
-    def GetName(self):
+    def GetName(self) -> str:
         ''' Get the name of the repo, platform, or product being build by CI '''
         raise NotImplementedError()
 
-    def AddCommandLineOptions(self, parserObj):
-        ''' Implement in subclass to add command line options to the argparser '''
-        MultiPkgAwareSettingsInterface.AddCommandLineOptions(self, parserObj)
-        pass
-
-    def RetrieveCommandLineOptions(self, args):
-        '''  Implement in subclass to retrieve command line options from the argparser '''
-        MultiPkgAwareSettingsInterface.RetrieveCommandLineOptions(self, args)
-        pass
-
-    def GetLoggingLevel(self, loggerType):
-        ''' Get the logging level for a given type
-        base == lowest logging level supported
-        con  == Screen logging
-        txt  == plain text file logging
-        md   == markdown file logging
-        '''
-        pass
-
-    def GetPluginSettings(self):
+    def GetPluginSettings(self) -> Dict():
         '''  Implement in subclass to pass dictionary of settings for individual plugins '''
         return {}
 
 
 class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
-    def GetLoggingLevel(self, loggerType):
-        ''' Get the logging level for a given type
-        base == lowest logging level supported
-        con  == Screen logging
-        txt  == plain text file logging
-        md   == markdown file logging
-        '''
-        if(loggerType == "con") and not self.Verbose:
-            return logging.WARNING
-        return logging.DEBUG
-
-    def AddCommandLineOptions(self, parser):
-        '''  Add command line options to the argparser '''
-        super().AddCommandLineOptions(parser)
-
-    def RetrieveCommandLineOptions(self, args):
-        '''  Retrieve command line options from the argparser '''
-        super().RetrieveCommandLineOptions(args)
 
     def GetSettingsClass(self):
         return CiBuildSettingsManager
@@ -99,20 +48,16 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
 
         Edk2CiBuild.collect_python_pip_info()
 
-        #
-        # Get Package Path from config file
-        pplist = self.PlatformSettings.GetPackagesPath() if self.PlatformSettings.GetPackagesPath() else []
-
         # make Edk2Path object to handle all path operations
         try:
-            edk2path = Edk2Path(self.GetWorkspaceRoot(), pplist)
+            edk2path = Edk2Path(self.GetWorkspaceRoot(), self.PlatformSettings.GetPackagesPath())
         except Exception as e:
             logging.error("Src Tree is invalid.  Did you Setup correctly?")
             raise e
 
         logging.info(f"Running CI Build: {self.PlatformSettings.GetName()}")
-        logging.info(f"WorkSpace: {self.GetWorkspaceRoot()}")
-        logging.info(f"Package Path: {pplist}")
+        logging.info(f"WorkSpace: {edk2path.WorkspacePath}")
+        logging.info(f"Package Path: {os.pathsep.join(edk2path.PackagePathList)}")
         # Bring up the common minimum environment.
         logging.log(edk2_logging.SECTION, "Getting Environment")
         (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(

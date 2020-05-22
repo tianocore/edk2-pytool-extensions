@@ -14,12 +14,51 @@ import logging
 import inspect
 import pkg_resources
 import argparse
+from typing import Iterable, Tuple
 from edk2toolext.environment import shell_environment
 from edk2toollib.utility_functions import GetHostInfo
 from edk2toolext.environment import version_aggregator
 from edk2toollib.utility_functions import locate_class_in_module
 from edk2toollib.utility_functions import import_module_by_file_name
 from edk2toolext.base_abstract_invocable import BaseAbstractInvocable
+
+
+class Edk2InvocableSettingsInterface():
+    ''' Settings APIs to support an Edk2Invocable
+
+        This is an interface definition only
+        to show which functions are required to be implemented
+        and can be implemented in a settings manager.
+    '''
+
+    def GetWorkspaceRoot(self):
+        ''' get absolute path to WorkspaceRoot '''
+        raise NotImplementedError()
+
+    def GetPackagesPath(self) -> Iterable:
+        ''' Optional API to return an Iterable of paths that should be mapped as edk2 PackagesPath '''
+        return []
+
+    def GetActiveScopes(self) -> Tuple(str):
+        ''' Optional API to return Tuple containing scopes that should be active for this process '''
+        return ()
+
+    def GetLoggingLevel(self, loggerType: str) -> str:
+        ''' Get the logging level for a given type
+        base == lowest logging level supported
+        con  == Screen logging
+        txt  == plain text file logging
+        md   == markdown file logging
+        '''
+        return None
+
+    def AddCommandLineOptions(self, parserObj) -> None:
+        ''' Implement in subclass to add command line options to the argparser '''
+        pass
+
+    def RetrieveCommandLineOptions(self, args):
+        '''  Implement in subclass to retrieve command line options from the argparser namespace '''
+        pass
 
 
 class Edk2Invocable(BaseAbstractInvocable):
@@ -43,6 +82,12 @@ class Edk2Invocable(BaseAbstractInvocable):
     def GetWorkspaceRoot(self):
         try:
             return self.PlatformSettings.GetWorkspaceRoot()
+        except AttributeError:
+            raise RuntimeError("Can't call this before PlatformSettings has been set up!")
+
+    def GetPackagesPath(self):
+        try:
+            return self.PlatformSettings.GetPackagesPath()
         except AttributeError:
             raise RuntimeError("Can't call this before PlatformSettings has been set up!")
 
@@ -77,7 +122,7 @@ class Edk2Invocable(BaseAbstractInvocable):
             pass
 
         if(loggerType == "con") and not self.Verbose:
-            return logging.WARN
+            return logging.WARNING
         return logging.DEBUG
 
     def AddCommandLineOptions(self, parserObj):

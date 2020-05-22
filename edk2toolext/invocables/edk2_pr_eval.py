@@ -29,16 +29,6 @@ class PrEvalSettingsManager(MultiPkgAwareSettingsInterface):
         # default implementation does zero filtering.
         return potentialPackagesList
 
-    def AddCommandLineOptions(self, parserObj):
-        ''' Implement in subclass to add command line options to the argparser '''
-        MultiPkgAwareSettingsInterface.AddCommandLineOptions(self, parserObj)
-        pass
-
-    def RetrieveCommandLineOptions(self, args):
-        '''  Implement in subclass to retrieve command line options from the argparser '''
-        MultiPkgAwareSettingsInterface.RetrieveCommandLineOptions(self, args)
-        pass
-
     def GetPlatformDscAndConfig(self) -> tuple:
         ''' If a platform desires to provide its DSC then Policy 4 will evaluate if
         any of the changes will be built in the dsc.
@@ -87,8 +77,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         return "PREVALLOG"
 
     def Go(self):
-        workspace_path = self.GetWorkspaceRoot()
-        self.edk2_path_obj = path_utilities.Edk2Path(workspace_path, [])
+        self.edk2_path_obj = path_utilities.Edk2Path(self.GetWorkspaceRoot(), self.GetPackagesPath())
         self.logger = logging.getLogger("edk2_pr_eval")
         actualPackagesDict = self.get_packages_to_build(self.requested_package_list)
 
