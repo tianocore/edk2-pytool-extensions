@@ -28,6 +28,7 @@ class TestEdk2Update(unittest.TestCase):
             logging.info(f"Cleaning up {temp_folder}")
             # shutil.rmtree(os.path.abspath(temp_folder), ignore_errors=True)
         TestEdk2Update.restart_logging()
+        # we need to make sure to tear down the version aggregator and the SDE
         self_describing_environment.DestroyEnvironment()
         version_aggregator.ResetVersionAggregator()
 
