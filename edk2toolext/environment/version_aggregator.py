@@ -17,7 +17,7 @@ VERSION_AGGREGATOR = None
 class version_aggregator(object):
     def __init__(self):
         super(version_aggregator, self).__init__()
-        self.Versions = {}
+        self._Versions = {}
         self._logger = logging.getLogger("version_aggregator")
 
     def ReportVersion(self, key, value, versionType, path=None):
@@ -28,8 +28,8 @@ class version_aggregator(object):
         value -- The value of what you are reporting.
         versionType -- The method of categorizing what is being reported. See VersionTypes for details.
         """
-        if key in self.Versions:
-            old_version = self.Versions[key]
+        if key in self._Versions:
+            old_version = self._Versions[key]
             if old_version["version"] == value and old_version["path"] == path:
                 self._logger.info(f"version_aggregator: {key} re-registered at {path}")
                 pass
@@ -41,30 +41,30 @@ class version_aggregator(object):
                 raise ValueError(error)
             return
 
-        self.Versions[key] = {
+        self._Versions[key] = {
             "name": key,
             "version": value,
             "type": versionType.name,
             "path": path
         }
-        self._logger.debug("version_aggregator logging version: {0}".format(str(self.Versions[key])))
+        self._logger.debug("version_aggregator logging version: {0}".format(str(self._Versions[key])))
 
     def Print(self):
         """ Prints out the current information from the version aggregator """
-        for version_key in self.Versions:
-            version = self.Versions[version_key]
+        for version_key in self._Versions:
+            version = self._Versions[version_key]
             print(f"{version['type']} - {version['name']}: {version['version']}")
-        if len(self.Versions) == 0:
+        if len(self._Versions) == 0:
             print("VERSION AGGREGATOR IS EMPTY")
 
     def GetAggregatedVersionInformation(self):
         """
         Returns a copy of the aggregated information.
         """
-        return copy.deepcopy(self.Versions)
+        return copy.deepcopy(self._Versions)
 
     def Reset(self):
-        self.Versions = {}
+        self._Versions = {}
 
 
 class VersionTypes(Enum):
@@ -93,3 +93,10 @@ def GetVersionAggregator():
         VERSION_AGGREGATOR = version_aggregator()
 
     return VERSION_AGGREGATOR
+
+
+def ResetVersionAggregator():
+    '''
+    Resets the version Aggregator singleton
+    '''
+    GetVersionAggregator().Reset()
