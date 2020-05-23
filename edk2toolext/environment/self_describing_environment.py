@@ -228,6 +228,9 @@ class self_describing_environment(object):
         all_extdeps = self._get_extdeps()
         self_extdeps = [(self, x) for x in all_extdeps]
         num_extdeps = len(self_extdeps)
+        # if there are no ext_deps to update, bail early
+        if num_extdeps == 0:
+            return (0, 0)
         # don't create more threads than needed
         num_threads = min(os.cpu_count(), num_extdeps)
         # create a pool
