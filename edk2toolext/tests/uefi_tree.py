@@ -67,7 +67,7 @@ class uefi_tree:
             return os.path.abspath(optional_path)
         raise ValueError(f"Optional file not found {file}")
 
-    def create_path_env(self, id=None, flags=[], var_name=None, scope="global", dir_path="", extra_data = None):
+    def create_path_env(self, id=None, flags=[], var_name=None, scope="global", dir_path="", extra_data=None):
         ''' creates an ext dep in your workspace '''
         data = {
             "scope": scope,
@@ -89,7 +89,7 @@ class uefi_tree:
     def create_Edk2TestUpdate_ext_dep(self, version="0.0.1"):
         self.create_ext_dep("nuget", "Edk2TestUpdate", version)
 
-    def create_ext_dep(self, dep_type, name, version, source=None, scope="global", dir_path="", extra_data = None):
+    def create_ext_dep(self, dep_type, name, version, source=None, scope="global", dir_path="", extra_data=None):
         ''' creates an ext dep in your workspace '''
         dep_type = dep_type.lower()
         if source is None and dep_type == "nuget":

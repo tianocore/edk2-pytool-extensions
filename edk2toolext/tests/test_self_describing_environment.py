@@ -7,9 +7,6 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 import os
-import stat
-import shutil
-import logging
 import unittest
 import tempfile
 from edk2toolext.environment import self_describing_environment
@@ -33,7 +30,7 @@ class Testself_describing_environment(unittest.TestCase):
         ''' make sure the sde will throw exception if duplicate scopes are specified '''
         scopes = ("corebuild", "corebuild", "testing", "CoreBuild")
         with self.assertRaises(ValueError):
-            sde = self_describing_environment.self_describing_environment(self.workspace, scopes)
+            self_describing_environment.self_describing_environment(self.workspace, scopes)
 
     def test_collect_path_env(self):
         ''' makes sure the SDE can collect path env '''
@@ -67,7 +64,7 @@ class Testself_describing_environment(unittest.TestCase):
         tree.create_path_env("testing_corebuild", dir_path="test1")
         tree.create_path_env("testing_corebuild")
         with self.assertRaises(RuntimeError):
-            build_env, shell_env = self_describing_environment.BootstrapEnvironment(self.workspace, scopes)
+            self_describing_environment.BootstrapEnvironment(self.workspace, scopes)
 
 
 if __name__ == '__main__':
