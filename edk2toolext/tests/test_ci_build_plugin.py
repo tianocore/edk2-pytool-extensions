@@ -68,13 +68,13 @@ class TestICiBuildPlugin(unittest.TestCase):
     def test_valid_parameters_WalkDirectoryForExtension(self):
         plugin = ICiBuildPlugin()
 
-        with open(os.path.join(self.test_dir, "junk.txt"), "w") as myfile:
-            myfile.write("Hello")
+        with open(os.path.join(self.test_dir, "junk.txt"), "w") as the_file:
+            the_file.write("Hello")
 
-        nestedfolder = os.path.join(self.test_dir, "mydir")
+        nestedfolder = os.path.join(self.test_dir, "the_dir")
         os.makedirs(nestedfolder)
-        with open(os.path.join(nestedfolder, "file2.py"), "w") as myfile:
-            myfile.write("hello 2")
+        with open(os.path.join(nestedfolder, "file2.py"), "w") as the_file:
+            the_file.write("hello 2")
 
         # no files of this filetype found
         result = plugin.WalkDirectoryForExtension([".c"], self.test_dir)
@@ -96,13 +96,13 @@ class TestICiBuildPlugin(unittest.TestCase):
         plugin = ICiBuildPlugin()
 
         # setup test dir with a few files
-        with open(os.path.join(self.test_dir, "junk.txt"), "w") as myfile:
-            myfile.write("Hello")
+        with open(os.path.join(self.test_dir, "junk.txt"), "w") as the_file:
+            the_file.write("Hello")
 
-        nestedfolder = os.path.join(self.test_dir, "mydir")
+        nestedfolder = os.path.join(self.test_dir, "the_dir")
         os.makedirs(nestedfolder)
-        with open(os.path.join(nestedfolder, "file2.py"), "w") as myfile:
-            myfile.write("hello 2")
+        with open(os.path.join(nestedfolder, "file2.py"), "w") as the_file:
+            the_file.write("hello 2")
 
         result = plugin.WalkDirectoryForExtension([".txt", ".py"], self.test_dir, ["junk"])
         self.assertEqual(len(result), 1)
@@ -117,13 +117,13 @@ class TestICiBuildPlugin(unittest.TestCase):
         plugin = ICiBuildPlugin()
 
         # setup test dir with a few files
-        with open(os.path.join(self.test_dir, "junk.txt"), "w") as myfile:
-            myfile.write("Hello")
+        with open(os.path.join(self.test_dir, "junk.txt"), "w") as the_file:
+            the_file.write("Hello")
 
-        nestedfolder = os.path.join(self.test_dir, "mydir")
+        nestedfolder = os.path.join(self.test_dir, "the_dir")
         os.makedirs(nestedfolder)
-        with open(os.path.join(nestedfolder, "file2.py"), "w") as myfile:
-            myfile.write("hello 2")
+        with open(os.path.join(nestedfolder, "file2.py"), "w") as the_file:
+            the_file.write("hello 2")
 
         # case insensitive
         result = plugin.WalkDirectoryForExtension([".txt", ".py"], self.test_dir, ["JUNK"])
