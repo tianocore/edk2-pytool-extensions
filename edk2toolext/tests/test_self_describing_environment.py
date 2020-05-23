@@ -1,4 +1,4 @@
-## @file test_self_describing_environment.py
+# @file test_self_describing_environment.py
 # This contains unit tests for the SDE
 #
 ##
@@ -7,96 +7,64 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 import os
-import stat
-import shutil
-import logging
 import unittest
 import tempfile
-from edk2toolext.invocables.edk2_update import build_env_changed
-from edk2toolext.environment import repo_resolver
 from edk2toolext.environment import self_describing_environment
-
-mu_basecore_dependency = {
-    "Url": "https://github.com/microsoft/mu_basecore",
-    "Path": None,
-    "Branch": "master"
-}
-
-test_dir = None
-
-
-def prep_workspace():
-    global test_dir
-    # if test temp dir doesn't exist
-    if test_dir is None or not os.path.isdir(test_dir):
-        test_dir = tempfile.mkdtemp()
-        logging.debug("temp dir is: %s" % test_dir)
-    else:
-        clean_workspace()
-        test_dir = tempfile.mkdtemp()
-
-
-def clean_workspace():
-    global test_dir
-    if test_dir is None:
-        return
-
-    if os.path.isdir(test_dir):
-
-        # spell-checker:ignore dorw
-        def dorw(action, name, exc):
-            os.chmod(name, stat.S_IWRITE)
-            if(os.path.isdir(name)):
-                os.rmdir(name)
-            else:
-                os.remove(name)
-
-        shutil.rmtree(test_dir, onerror=dorw)
-        test_dir = None
-
-
-def do_update(directory, scopes):
-    (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(
-        directory, scopes)
-    self_describing_environment.UpdateDependencies(directory, scopes)
-    return (build_env, shell_env)
+from edk2toolext.tests.uefi_tree import uefi_tree
+from edk2toolext.environment import version_aggregator
 
 
 class Testself_describing_environment(unittest.TestCase):
+
     def setUp(self):
-        prep_workspace()
+        self.workspace = os.path.abspath(tempfile.mkdtemp())
+        # we need to make sure to tear down the version aggregator and the SDE
+        self_describing_environment.DestroyEnvironment()
+        version_aggregator.ResetVersionAggregator()
 
-    @classmethod
-    def setUpClass(cls):
-        logger = logging.getLogger('')
-        logger.addHandler(logging.NullHandler())
-        unittest.installHandler()
+    def test_null_init(self):
+        sde = self_describing_environment.self_describing_environment(self.workspace)
+        self.assertIsNotNone(sde)
 
-    @classmethod
-    def tearDownClass(cls):
-        clean_workspace()
+    def test_unique_scopes_required(self):
+        ''' make sure the sde will throw exception if duplicate scopes are specified '''
+        scopes = ("corebuild", "corebuild", "testing", "CoreBuild")
+        with self.assertRaises(ValueError):
+            self_describing_environment.self_describing_environment(self.workspace, scopes)
 
-    # Test the assertion that two identical code trees should generate
-    # the same self_describing_environment.
-    def test_identical_environments(self):
-        scopes = ("corebuild", "project_mu")
+    def test_collect_path_env(self):
+        ''' makes sure the SDE can collect path env '''
+        scopes = ("global",)
+        tree = uefi_tree(self.workspace, create_platform=False)
+        tree.create_path_env("testing_corebuild", var_name="hey", flags=["set_path", ])
+        tree.create_path_env("testing_corebuild2", var_name="hey", flags=["set_pypath", ])
+        tree.create_path_env("testing_corebuild3", var_name="hey", flags=["set_build_var", ])
+        tree.create_path_env("testing_corebuild4", var_name="hey", flags=["set_shell_var", ])
+        build_env, shell_env = self_describing_environment.BootstrapEnvironment(self.workspace, scopes)
+        self.assertEqual(len(build_env.paths), 4)
 
-        mu_basecore_dependency_1 = mu_basecore_dependency.copy()
-        mu_basecore_dependency_2 = mu_basecore_dependency.copy()
+    def test_override_path_env(self):
+        ''' checks the SDE descriptor override system '''
+        custom_scope = "global"
+        scopes = (custom_scope,)
+        tree = uefi_tree(self.workspace, create_platform=False)
+        tree.create_path_env("testing_corebuild", var_name="hey", dir_path="test1", scope=custom_scope)
+        tree.create_path_env("testing_corebuild2", var_name="jokes", scope=custom_scope,
+                             extra_data={"override_id": "testing_corebuild"})
+        build_env, shell_env = self_describing_environment.BootstrapEnvironment(self.workspace, scopes)
+        print(build_env.paths)
+        print(tree.get_workspace())
+        self.assertEqual(len(build_env.paths), 1)
 
-        basecore_1_dir = "basecore_1"
-        basecore_2_dir = "basecore_2"
-
-        mu_basecore_dependency_1["Path"] = basecore_1_dir
-        mu_basecore_dependency_2["Path"] = basecore_2_dir
-
-        repo_resolver.resolve(test_dir, mu_basecore_dependency_1)
-        repo_resolver.resolve(test_dir, mu_basecore_dependency_2)
-
-        (build_env_1, shell_env_1) = do_update(os.path.normpath(basecore_1_dir), scopes)
-        (build_env_2, shell_env_2) = do_update(os.path.normpath(basecore_2_dir), scopes)
-
-        self.assertFalse(build_env_changed(build_env_1, build_env_2))
+    def test_duplicate_id_path_env(self):
+        ''' check that the SDE will throw an exception if path_env have duplicate id's '''
+        custom_scope = "global"
+        scopes = (custom_scope,)
+        tree = uefi_tree(self.workspace, create_platform=False)
+        tree.create_path_env("testing_corebuild", dir_path="test1")
+        tree.create_path_env("testing_corebuild")
+        with self.assertRaises(RuntimeError):
+            self_describing_environment.BootstrapEnvironment(self.workspace, scopes)
 
 
 if __name__ == '__main__':

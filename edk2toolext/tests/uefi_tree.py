@@ -6,6 +6,7 @@
 
 import os
 import tempfile
+import json
 
 
 class uefi_tree:
@@ -14,12 +15,13 @@ class uefi_tree:
     It is configurable and offers options to modify the tree for
     '''
 
-    def __init__(self, workspace=None):
+    def __init__(self, workspace=None, create_platform=True):
         ''' copy the minimal tree to a folder, if one is not provided we will create a new temporary folder for you '''
         if workspace is None:
             workspace = os.path.abspath(tempfile.mkdtemp())
         self.workspace = workspace
-        self._create_tree()
+        if (create_platform):
+            self._create_tree()
 
     @staticmethod
     def _get_src_folder():
@@ -65,22 +67,46 @@ class uefi_tree:
             return os.path.abspath(optional_path)
         raise ValueError(f"Optional file not found {file}")
 
-    def create_ext_dep(self, dep_type, name, version, source=None, scope="global", dir_path=""):
+    def create_path_env(self, id=None, flags=[], var_name=None, scope="global", dir_path="", extra_data=None):
+        ''' creates an ext dep in your workspace '''
+        data = {
+            "scope": scope,
+            "flags": flags,
+        }
+        if id is not None:
+            data["id"] = id
+        if var_name is not None:
+            data["var_name"] = var_name
+        if extra_data is not None:
+            data.update(extra_data)
+        text = json.dumps(data)
+        file_name = f"{id}_path_env.json"
+        output_dir = os.path.join(self.workspace, dir_path)
+        os.makedirs(output_dir, exist_ok=True)
+        output_path = os.path.join(output_dir, file_name)
+        uefi_tree.write_to_file(output_path, text)
+
+    def create_Edk2TestUpdate_ext_dep(self, version="0.0.1"):
+        self.create_ext_dep("nuget", "Edk2TestUpdate", version)
+
+    def create_ext_dep(self, dep_type, name, version, source=None, scope="global", dir_path="", extra_data=None):
         ''' creates an ext dep in your workspace '''
         dep_type = dep_type.lower()
         if source is None and dep_type == "nuget":
             source = "https://api.nuget.org/v3/index.json"
         if source is None:
             raise ValueError("Source was not provided")
-        text = f'''
-        {{
-            "scope": "{scope}",
-            "type": "{dep_type}",
-            "name": "{name}",
-            "version": "{version}",
-            "source": "{source}",
+        data = {
+            "scope": scope,
+            "type": dep_type,
+            "name": name,
+            "version": version,
+            "source": source,
             "flags": []
-        }}'''
+        }
+        if extra_data is not None:
+            data.update(extra_data)
+        text = json.dumps(data)
         ext_dep_name = name.replace(" ", "_")
         file_name = f"{ext_dep_name}_ext_dep.json"
         output_dir = os.path.join(self.workspace, dir_path)
