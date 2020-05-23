@@ -44,7 +44,7 @@ class Testself_describing_environment(unittest.TestCase):
         self.assertEqual(len(build_env.paths), 4)
 
     def test_override_path_env(self):
-        ''' checks the SDE's descriptor override system '''
+        ''' checks the SDE descriptor override system '''
         custom_scope = "global"
         scopes = (custom_scope,)
         tree = uefi_tree(self.workspace, create_platform=False)
