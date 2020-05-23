@@ -9,6 +9,7 @@
 
 import os
 import logging
+from typing import List, Tuple
 
 
 class ICiBuildPlugin(object):
@@ -33,50 +34,63 @@ class ICiBuildPlugin(object):
     def RunBuildPlugin(self, packagename, Edk2pathObj, pkgconfig, environment, PLM, PLMHelper, tc, output_stream):
         pass
 
-    ##
-    # Return tuple (string, string) that is the (test case name, test case base class name)
-    #
-    #
-    def GetTestName(self, packagename, environment):
+    def GetTestName(self, packagename: str, environment: object) -> Tuple[str, str]:
+        ''' Given the package name and configuration provide the caller
+            the name of the test case and the class name.  These are both used in logging
+            and reporting test status.
+
+            @packagename: String - Package Name
+            @environment: EnvDict Object - Environment Dictionary configuration
+
+            @returns tuple of (test case name, test case base class name)
+        '''
         pass
 
-    ##
-    # Returns a list of edk2 TARGETs that this plugin would like to run on
-    #
-    # KNOWN TARGET VALUES:
-    #  DEBUG
-    #  RELEASE
-    #  NOOPT
-    #  NO-TARGET
-    #
-    # If the plugin is not Target specific it should return a list of
-    # one element of "NO-TARGET"
-    ##
-    def RunsOnTargetList(self):
+    def RunsOnTargetList(self) -> List[str]:
+        ''' Returns a list of edk2 TARGETs that this plugin would like to run on
+
+            KNOWN TARGET VALUES:
+            DEBUG
+            RELEASE
+            NOOPT
+            NO-TARGET
+
+            If the plugin is not Target specific it should return a list of
+            one element of "NO-TARGET"
+        '''
         return ["NO-TARGET"]
 
-    #
-    # Walks a directory for all items ending in certain extension
-    # Default is to walk all of workspace
-    #
-    def WalkDirectoryForExtension(self, extensionlist, directory, ignorelist=None):
+    def WalkDirectoryForExtension(self, extensionlist: List[str], directory: os.PathLike,
+                                  ignorelist: List[str] = None) -> List[os.PathLike]:
+        ''' Walks a file directory recursively for all items ending in certain extension
+
+            @extensionlist: List[str] list of file extensions
+            @directory: Path - absolute path to directory to start looking
+            @ignorelist: List[str] or None.  optional - default is None: a list of case insensitive filenames to ignore
+
+            @returns a List of file paths to matching files
+        '''
         if not isinstance(extensionlist, list):
             logging.critical("Expected list but got " + str(type(extensionlist)))
-            return -1
+            raise TypeError("extensionlist must be a list")
 
         if directory is None:
             logging.critical("No directory given")
-            return -2
+            raise TypeError("directory is None")
 
         if not os.path.isabs(directory):
             logging.critical("Directory not abs path")
-            return -3
+            raise ValueError("directory is not an absolute path")
 
         if not os.path.isdir(directory):
             logging.critical("Invalid find directory to walk")
-            return -4
+            raise ValueError("directory is not a valid directory path")
 
         if ignorelist is not None:
+            if not isinstance(ignorelist, list):
+                logging.critical("Expected list but got " + str(type(ignorelist)))
+                raise TypeError("ignorelist must be a list")
+
             ignorelist_lower = list()
             for item in ignorelist:
                 ignorelist_lower.append(item.lower())
