@@ -79,7 +79,7 @@ class TestEdk2Update(unittest.TestCase):
         WORKSPACE = self.get_temp_folder()
         tree = uefi_tree(WORKSPACE)
         logging.getLogger().setLevel(logging.WARNING)
-        tree.create_ext_dep("nuget", "Edk2TestUpdate", "0.0.1")
+        tree.create_Edk2TestUpdate_ext_dep()
         # Do the update
         updater = self.invoke_update(tree.get_settings_provider_path())
         # make sure it worked
@@ -97,7 +97,7 @@ class TestEdk2Update(unittest.TestCase):
         tree = uefi_tree(WORKSPACE)
         logging.getLogger().setLevel(logging.WARNING)
         # we know this version is bad
-        tree.create_ext_dep("nuget", "Edk2TestUpdate", "0.0.0")
+        tree.create_Edk2TestUpdate_ext_dep("0.0.0")
         # Do the update
         updater = self.invoke_update(tree.get_settings_provider_path(), failure_expected=True)
         build_env, shell_env, failure = updater.PerformUpdate()
