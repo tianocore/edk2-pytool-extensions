@@ -7,7 +7,6 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 import unittest
-import logging
 import os
 import tempfile
 import shutil
@@ -93,7 +92,6 @@ class TestICiBuildPlugin(unittest.TestCase):
         result = plugin.WalkDirectoryForExtension([".tXt", ".PY"], self.test_dir)
         self.assertEqual(len(result), 2)
 
-
     def test_valid_parameters_ignore_WalkDirectoryForExtension(self):
         plugin = ICiBuildPlugin()
 
@@ -138,8 +136,3 @@ class TestICiBuildPlugin(unittest.TestCase):
         # case insensitive + all match including extension
         result = plugin.WalkDirectoryForExtension([".txt", ".py"], self.test_dir, ["FILE2.py"])
         self.assertEqual(len(result), 1)
-
-
-
-
-

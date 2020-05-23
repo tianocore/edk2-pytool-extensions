@@ -60,7 +60,8 @@ class ICiBuildPlugin(object):
         '''
         return ["NO-TARGET"]
 
-    def WalkDirectoryForExtension(self, extensionlist: List[str], directory: os.PathLike, ignorelist: List[str] = None) -> List[os.PathLike]:
+    def WalkDirectoryForExtension(self, extensionlist: List[str], directory: os.PathLike,
+                                  ignorelist: List[str] = None) -> List[os.PathLike]:
         ''' Walks a file directory recursively for all items ending in certain extension
 
             @extensionlist: List[str] list of file extensions
