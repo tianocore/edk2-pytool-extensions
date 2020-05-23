@@ -35,7 +35,7 @@ class ICiBuildPlugin(object):
         pass
 
     def GetTestName(self, packagename: str, environment: object) -> Tuple[str, str]:
-        ''' Given the packge name and configuration provide the caller
+        ''' Given the package name and configuration provide the caller
             the name of the test case and the class name.  These are both used in logging
             and reporting test status.
 
