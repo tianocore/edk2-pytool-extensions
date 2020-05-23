@@ -9,7 +9,7 @@
 
 import os
 import logging
-from typing import List
+from typing import List, Tuple
 
 
 class ICiBuildPlugin(object):
