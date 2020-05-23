@@ -15,6 +15,22 @@ This is a supplemental package and is not required to be used for edk2 builds.
 
 ![stuart himself](stuart_logo.png "Stuart")
 
+## Current Status
+
+| Host Type | Toolchain | Branch | Build Status | Test Status | Code Coverage |
+| :-------- | :-------- | :---- | :----- | :---- | :--- |
+| Windows VS 2017 | Python 3.7.x | master | [![Build Status](https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Master%20CI%20Build%20-%20Win%20VS2017?branchName=master)](https://dev.azure.com/tianocore/edk2-pytool-extensions/_build/latest?definitionId=8&branchName=master) | ![Azure DevOps tests](https://img.shields.io/azure-devops/tests/tianocore/edk2-pytool-extensions/8.svg) | ![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/tianocore/edk2-pytool-extensions/8.svg) |
+| Linux Ubuntu 1604 | Python 3.7.x | master | [![Build Status](https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Master%20CI%20Build%20-%20Linux?branchName=master)](https://dev.azure.com/tianocore/edk2-pytool-extensions/_build/latest?definitionId=7&branchName=master) | ![Azure DevOps tests](https://img.shields.io/azure-devops/tests/tianocore/edk2-pytool-extensions/7.svg) | ![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/tianocore/edk2-pytool-extensions/7.svg) |
+
+### Current Release
+
+[![PyPI](https://img.shields.io/pypi/v/edk2_pytool_extensions.svg)](https://pypi.org/project/edk2-pytool-extensions/)
+
+All release information is now tracked with Github
+ [tags](https://github.com/tianocore/edk2-pytool-extensions/tags),
+  [releases](https://github.com/tianocore/edk2-pytool-extensions/releases) and
+  [milestones](https://github.com/tianocore/edk2-pytool-extensions/milestones).
+
 ## Content
 
 The package contains cli tools and a basic common environment for running tools.  This common environment supports extensions, sub-classing, and plugin to allow great flexibility for building and maintaining a code tree.
@@ -47,23 +63,11 @@ NOTE: It is strongly recommended that you use python virtual environments.  Virt
     from edk2toolext.<module> import <class>
     ```
 
-## Current Status
+## History
 
-| Host Type | Toolchain | Branch | Build Status | Test Status | Code Coverage |
-| :-------- | :-------- | :---- | :----- | :---- | :--- |
-| Windows VS 2017 | Python 3.7.x | master | [![Build Status](https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Master%20CI%20Build%20-%20Win%20VS2017?branchName=master)](https://dev.azure.com/tianocore/edk2-pytool-extensions/_build/latest?definitionId=8&branchName=master) | ![Azure DevOps tests](https://img.shields.io/azure-devops/tests/tianocore/edk2-pytool-extensions/8.svg) | ![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/tianocore/edk2-pytool-extensions/8.svg) |
-| Linux Ubuntu 1604 | Python 3.7.x | master | [![Build Status](https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Master%20CI%20Build%20-%20Linux?branchName=master)](https://dev.azure.com/tianocore/edk2-pytool-extensions/_build/latest?definitionId=7&branchName=master) | ![Azure DevOps tests](https://img.shields.io/azure-devops/tests/tianocore/edk2-pytool-extensions/7.svg) | ![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/tianocore/edk2-pytool-extensions/7.svg) |
-
-## Release Version History
-
-[![PyPI](https://img.shields.io/pypi/v/edk2_pytool_extensions.svg)](https://pypi.org/project/edk2-pytool-extensions/)
-
-All release information is now tracked with Github
- [tags](https://github.com/tianocore/edk2-pytool-extensions/tags),
-  [releases](https://github.com/tianocore/edk2-pytool-extensions/releases) and
-  [milestones](https://github.com/tianocore/edk2-pytool-extensions/milestones).
-
-**0.9.0** was the initial version ported from Project Mu.  For history and documentation prior to this see the original Project Mu project <https://github.com/microsoft/mu_pip_environment> and <https://github.com/microsoft/mu_pip_build>
+This project and functionality was ported from Project Mu.
+For history and documentation prior to this see the original Project Mu projects
+<https://github.com/microsoft/mu_pip_environment> and <https://github.com/microsoft/mu_pip_build>
 
 ## Contribution Process
 
