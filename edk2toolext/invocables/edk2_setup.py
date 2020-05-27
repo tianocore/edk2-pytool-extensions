@@ -9,6 +9,7 @@
 import os
 import logging
 from io import StringIO
+from typing import List
 from edk2toolext import edk2_logging
 from edk2toolext.environment import version_aggregator
 from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable
@@ -34,38 +35,11 @@ class RequiredSubmodule():
 class SetupSettingsManager(MultiPkgAwareSettingsInterface):
     ''' Platform settings will be accessed through this implementation. '''
 
-    def GetActiveScopes(self):
-        ''' return tuple containing scopes that should be active for this process '''
-        raise NotImplementedError()
-
-    def GetWorkspaceRoot(self):
-        ''' return absolute path to the edk2 workspace root '''
-        raise NotImplementedError()
-
-    def GetRequiredSubmodules(self):
+    def GetRequiredSubmodules(self) -> List[RequiredSubmodule]:
         ''' return iterable containing RequiredSubmodule objects.
-        If no RequiredSubmodules return an empty iterable
+        If no RequiredSubmodules return an empty list
         '''
-        raise NotImplementedError()
-
-    def AddCommandLineOptions(self, parserObj):
-        ''' Implement in subclass to add command line options to the argparser '''
-        MultiPkgAwareSettingsInterface.AddCommandLineOptions(self, parserObj)
-        pass
-
-    def RetrieveCommandLineOptions(self, args):
-        '''  Implement in subclass to retrieve command line options from the argparser '''
-        MultiPkgAwareSettingsInterface.RetrieveCommandLineOptions(self, args)
-        pass
-
-    def GetLoggingLevel(self, loggerType):
-        ''' Get the logging level for a given type
-        base == lowest logging level supported
-        con  == Screen logging
-        txt  == plain text file logging
-        md   == markdown file logging
-        '''
-        pass
+        return []
 
 
 class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
