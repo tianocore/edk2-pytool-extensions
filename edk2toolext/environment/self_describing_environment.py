@@ -12,6 +12,9 @@ import logging
 from edk2toolext.environment import shell_environment
 from edk2toolext.environment import environment_descriptor_files as EDF
 from edk2toolext.environment import external_dependency
+from multiprocessing import dummy
+import time
+
 
 ENVIRONMENT_BOOTSTRAP_COMPLETE = False
 ENV_STATE = None
@@ -194,9 +197,9 @@ class self_describing_environment(object):
 
     def update_extdeps(self, env_object):
         logging.debug("--- self_describing_environment.update_extdeps()")
-        failure_count = 0
-        success_count = 0
-        for extdep in self._get_extdeps():
+        # This function is called by our thread pool
+
+        def update_extdep(self, extdep):
             # Check to see whether it's necessary to fetch the files.
             try:
                 if not extdep.verify():
@@ -210,18 +213,51 @@ class self_describing_environment(object):
                     extdep.fetch()
                     # Re-apply the extdep to environment
                     self._apply_descriptor_object_to_env(extdep, env_object)
-                success_count += 1
+                return True
             except RuntimeError as e:
                 logging.warning(f"[SDE] Failed to fetch {extdep}: {e}")
                 if extdep.error_msg is not None:
                     logging.warning(extdep.error_msg)
-                failure_count += 1
+                return False
             except FileNotFoundError:
                 logging.warning(f"[SDE] Unable to fetch {extdep}")
                 if extdep.error_msg is not None:
                     logging.warning(extdep.error_msg)
-                failure_count += 1
-                pass
+                return False
+        # prep the worker pool
+        all_extdeps = self._get_extdeps()
+        self_extdeps = [(self, x) for x in all_extdeps]
+        num_extdeps = len(self_extdeps)
+        # if there are no ext_deps to update, bail early
+        if num_extdeps == 0:
+            return (0, 0)
+        # don't create more threads than needed
+        num_threads = min(os.cpu_count(), num_extdeps)
+        # create a pool
+        pool = dummy.Pool(num_threads)
+        logging.debug(f"Creating {num_threads} threads for the SDE update")
+        # map the task to the data
+        pool_handle = pool.starmap_async(update_extdep, self_extdeps)
+        pool.close()
+        # use print so it doesn't go to the log
+        print("Updating", end="", flush=True)
+        old_count = num_extdeps
+        # wait for the pool_handle (MapResult) to finish
+        while pool_handle._number_left != 0:
+            while(old_count != pool_handle._number_left and old_count > 0):
+                print(".", end="", flush=True)
+                old_count -= 1
+            time.sleep(0.1)  # wait 100 ms
+        print(". Done")
+        # get the results
+        results = pool_handle.get()
+        success_count = results.count(True)
+        failure_count = results.count(False)
+        exception_count = results.count(None)
+        if len(results) != num_extdeps or exception_count > 0:
+            # We don't know where the error since we don't get a return result from it
+            # so just tell users to check their logs
+            raise RuntimeError("We encountered an exception while updating ext-deps. Review your log")
         return success_count, failure_count
 
     def clean_extdeps(self, env_object):

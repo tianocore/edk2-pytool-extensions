@@ -82,10 +82,10 @@ class ConfMgmt():
         '''
         version = "0.0"
         with open(conf_file, "r") as f:
-            for l in f.readlines():
-                if(l.startswith("#!VERSION=")):
+            for line in f.readlines():
+                if(line.startswith("#!VERSION=")):
                     try:
-                        version = str(float(l.split("=")[1].split()[0].strip()))
+                        version = str(float(line.split("=")[1].split()[0].strip()))
                         break
                     except:
                         pass

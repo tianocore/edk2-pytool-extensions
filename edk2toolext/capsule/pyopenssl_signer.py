@@ -39,7 +39,7 @@ def sign(data: bytes, signature_options: dict, signer_options: dict) -> bytes:
     if signature_options['type'] != 'bare':
         raise ValueError(f"Unsupported signature type: {signature_options['type']}")
     if 'type_options' in signature_options:
-        raise ValueError(f"Signature type options not supported")
+        raise ValueError("Signature type options not supported")
     if signature_options['encoding'] != 'binary':
         raise ValueError(f"Unsupported signature encoding: {signature_options['encoding']}")
     if signature_options['hash_alg'] != 'sha256':
