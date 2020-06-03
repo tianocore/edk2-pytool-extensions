@@ -1,4 +1,10 @@
 setuptools
 wheel
 twine
-portray
+pdocs
+mike
+mkdocs
+mkdocs-material
+mkdocs-macros-plugin
+Markdown
+pymdown-extensions

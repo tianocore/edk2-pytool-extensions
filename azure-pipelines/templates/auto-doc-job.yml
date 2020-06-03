@@ -1,0 +1,54 @@
+# File build-test-job.yml
+#
+# job template for building and testing
+#
+# Copyright (c) 2019, Microsoft Corporation
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+parameters:
+  vm_image: ''
+  root_package_folder: '' # set this to root package
+  
+jobs:
+
+- job: Generate and Publish Documents
+
+  workspace:
+    clean: all
+
+  pool:
+    vmImage: ${{ parameters.vm_image }}
+
+  steps:
+  - template: basic-setup-steps.yml
+
+  - script: pip install --upgrade -r requirements.publisher.txt
+    displayName: 'Install PyPI publishing requirements'
+
+  - task: PythonScript@0
+    displayName: 'Confirm Version and Tag'
+    inputs:
+      scriptSource: 'filePath' # Options: filePath, inline
+      scriptPath: ConfirmVersionAndTag.py
+      failOnStderr: true # Optional
+
+  - task: PythonScript@0
+    inputs:
+      scriptSource: 'filePath'
+      scriptPath: 'BasicDevTests.py'
+    displayName: 'Check basic file and folder tests'
+    condition: succeededOrFailed()
+  
+  - task: PythonScript@0
+    inputs:
+      scriptSource: 'filePath'
+      scriptPath: 'docs/generate.py'
+    displayName: 'Generate Documentation'
+    condition: succeededOrFailed()
+  
+  - task: PythonScript@0
+    inputs:
+      scriptSource: 'filePath'
+      scriptPath: 'docs/publush.py'
+    displayName: 'Generate Documentation'
+
