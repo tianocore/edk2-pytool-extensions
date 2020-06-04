@@ -12,3 +12,4 @@ build.
 /test.junit.xml
 flake8.err.log
 /.eggs
+/doc_output

@@ -48,7 +48,7 @@ Examples:
 
 ## License
 
-All content in this repository is licensed under [BSD-2-Clause Plus Patent License](license.txt).
+All content in this repository is licensed under [BSD-2-Clause Plus Patent License](LICENSE.txt).
 
 [![PyPI - License](https://img.shields.io/pypi/l/edk2_pytool_extensions.svg)](https://pypi.org/project/edk2-pytool-extensions/)
 
