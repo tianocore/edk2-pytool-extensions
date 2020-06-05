@@ -86,8 +86,8 @@ class uefi_tree:
         output_path = os.path.join(output_dir, file_name)
         uefi_tree.write_to_file(output_path, text)
 
-    def create_Edk2TestUpdate_ext_dep(self, version="0.0.1"):
-        self.create_ext_dep("nuget", "Edk2TestUpdate", version)
+    def create_Edk2TestUpdate_ext_dep(self, version="0.0.1", extra_data=None):
+        self.create_ext_dep("nuget", "Edk2TestUpdate", version, extra_data=extra_data)
 
     def create_ext_dep(self, dep_type, name, version, source=None, scope="global", dir_path="", extra_data=None):
         ''' creates an ext dep in your workspace '''
@@ -107,7 +107,8 @@ class uefi_tree:
         if extra_data is not None:
             data.update(extra_data)
         text = json.dumps(data)
-        ext_dep_name = name.replace(" ", "_")
+        raw_file_name = data["id"] if "id" in data else name
+        ext_dep_name = raw_file_name.replace(" ", "_")
         file_name = f"{ext_dep_name}_ext_dep.json"
         output_dir = os.path.join(self.workspace, dir_path)
         os.makedirs(output_dir, exist_ok=True)
