@@ -95,8 +95,9 @@ class TestEdk2Update(unittest.TestCase):
         ''' makes sure we can do multiple ext_deps at the same time '''
         WORKSPACE = self.get_temp_folder()
         tree = uefi_tree(WORKSPACE)
+        num_of_ext_deps = 5
         logging.getLogger().setLevel(logging.WARNING)
-        for i in range(5):
+        for i in range(num_of_ext_deps):
             tree.create_Edk2TestUpdate_ext_dep(extra_data={"id": f"extdep_{i}"})
         # Do the update
         updater = self.invoke_update(tree.get_settings_provider_path())
@@ -107,7 +108,7 @@ class TestEdk2Update(unittest.TestCase):
         # we should have no failures
         self.assertEqual(failure, 0)
         # we should have found two ext deps
-        self.assertEqual(len(build_env.extdeps), 2)
+        self.assertEqual(len(build_env.extdeps), num_of_ext_deps)
 
     def test_bad_ext_dep(self):
         ''' makes sure we can do an update that will fail '''
