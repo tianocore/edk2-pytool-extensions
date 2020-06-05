@@ -7,11 +7,12 @@
 ##
 import os
 import unittest
+import tempfile
 from edk2toolext.docgen import generate
 import sys
 
 
-class Test_nuget(unittest.TestCase):
+class Test_DocGenerator(unittest.TestCase):
 
     def test_can_create_generator(self):
         docgen = generate.DocGenerator()
@@ -40,3 +41,18 @@ class Test_nuget(unittest.TestCase):
             self.fail()
         except SystemExit:
             pass
+
+    def test_friendly_naming(self):
+        test1 = generate.DocGenerator.ConvertToFriendlyName("test_one")
+        self.assertEqual(test1, "Test One")
+        test1 = generate.DocGenerator.ConvertToFriendlyName("test__one")
+        self.assertEqual(test1, "Test One")
+        test1_2 = generate.DocGenerator.ConvertToFriendlyName("TestOne")
+        self.assertEqual(test1_2, "Test One")
+
+        test_markdown_path = tempfile.mktemp(".md")
+        with open(test_markdown_path, "w") as markdown_file:
+            markdown_file.write(" # Test two\n This is a file\n## Test\n Bad # Times")
+            markdown_file.close()
+        test_markdown = generate.DocGenerator.ConvertToFriendlyName(test_markdown_path)
+        self.assertEqual(test_markdown, "Test Two")
