@@ -7,8 +7,6 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 import os
-import sys
-import argparse
 import glob
 import logging
 import yaml
@@ -17,10 +15,8 @@ import pkg_resources
 import re
 from mike import commands as mike_commands
 from mike import mkdocs as mike_mkdocs
-from mike import git_utils
 from mkdocs.commands.serve import _static_server as mkdocs_serve
 from pdocs import as_markdown as pdocs_as_markdown
-from io import StringIO
 import copy
 from enum import Enum, auto
 
@@ -123,7 +119,8 @@ class DocGenerator():
         '''
         sets the target module
         modules can be a pip module import name or a path
-        for example: module="edk2toollib", module_name = "edk2-pytool-library"
+        for example: 
+            module="edk2toollib", module_name = "edk2-pytool-library"
         '''
         self._module = module
         self._module_name = module_name
@@ -256,7 +253,7 @@ class DocGenerator():
         os.makedirs(self.get_output_docs_dir(), exist_ok=True)
         # check that we have the module
         if self._module is None:
-            raise ValueError(f"You must call set_target_module before generate")
+            raise ValueError("You must call set_target_module before generate")
         # check if our config is valid
         if not self._validate_config():
             raise ValueError("The markdown configuration is invalid")
@@ -305,7 +302,9 @@ class DocGenerator():
             shutil.copy2(doc, outfile)
 
     @staticmethod
-    def _glob_for_all_of_type(src_folder, dst_folder, extensions=["png", "md", "jpg", "txt"], recursive=True):
+    def _glob_for_all_of_type(src_folder, dst_folder, extensions=None, recursive=True):
+        if extensions is None:
+            extensions = ["png", "md", "jpg", "txt"]
         for ext in extensions:
             if recursive:
                 search_path = os.path.join(src_folder, "**", f"*.{ext}")
@@ -332,7 +331,7 @@ class DocGenerator():
             root_outfile = os.path.join(docs_dir, root_filename)
             if os.path.exists(root_infile):
                 shutil.copy2(root_infile, root_outfile)
-        
+
         # copy any images
         self._glob_for_all_of_type(self._workspace, self.get_output_docs_dir(),
                                    extensions=["png", "jpg"], recursive=False)
