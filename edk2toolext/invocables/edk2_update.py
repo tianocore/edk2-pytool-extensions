@@ -14,34 +14,10 @@ from edk2toolext.invocables.edk2_multipkg_aware_invocable import MultiPkgAwareSe
 
 
 class UpdateSettingsManager(MultiPkgAwareSettingsInterface):
-    ''' Platform settings will be accessed through this implementation. '''
+    ''' Platform settings will be accessed through this implementation.
 
-    def GetActiveScopes(self):
-        ''' return tuple containing scopes that should be active for this process '''
-        raise NotImplementedError()
-
-    def GetWorkspaceRoot(self):
-        ''' get WorkspacePath '''
-        raise NotImplementedError()
-
-    def AddCommandLineOptions(self, parserObj):
-        ''' Implement in subclass to add command line options to the argparser '''
-        MultiPkgAwareSettingsInterface.AddCommandLineOptions(self, parserObj)
-        pass
-
-    def RetrieveCommandLineOptions(self, args):
-        '''  Implement in subclass to retrieve command line options from the argparser '''
-        MultiPkgAwareSettingsInterface.RetrieveCommandLineOptions(self, args)
-        pass
-
-    def GetLoggingLevel(self, loggerType):
-        ''' Get the logging level for a given type
-        base == lowest logging level supported
-        con  == Screen logging
-        txt  == plain text file logging
-        md   == markdown file logging
-        '''
-        pass
+    Update settings manager has no additional APIs not already defined in it's super class  '''
+    pass
 
 
 def build_env_changed(build_env, build_env_2):

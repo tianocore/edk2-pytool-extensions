@@ -68,7 +68,7 @@ def sign(data: bytes, signature_options: dict, signer_options: dict) -> bytes:
             raise ValueError(f"Unsupported type option: {opt}!  Ensure you have provied a set")
     if 'embedded' in signature_options['type_options']:
         if 'detachedSignedData' in signature_options['type_options']:
-            raise ValueError(f"type_options 'detachedSignedData' and 'embedded' are mutually exclusive")
+            raise ValueError("type_options 'detachedSignedData' and 'embedded' are mutually exclusive")
     if signature_options['encoding'] != 'DER':
         raise ValueError(f"Unsupported signature encoding: {signature_options['type']}!")
     if signature_options['hash_alg'] != 'sha256':
@@ -95,7 +95,7 @@ def sign(data: bytes, signature_options: dict, signer_options: dict) -> bytes:
     elif 'embedded' in signature_options['type_options']:
         signtool_params += ['/p7ce', 'Embedded']
     else:
-        raise ValueError(f"For pkcs7, type_options must include either embedded or detachedSignedData")
+        raise ValueError("For pkcs7, type_options must include either embedded or detachedSignedData")
     signtool_params += ['/p7', f'"{temp_folder}"']
     signtool_params += ['/f', f"\"{signer_options['key_file']}\""]
     if 'oid' in signer_options:

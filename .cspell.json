@@ -112,6 +112,7 @@
         "pymodule",
         "smbios",
         "Contoso",
-        "MSFT"
+        "MSFT",
+        "codecov"
     ]
 }
