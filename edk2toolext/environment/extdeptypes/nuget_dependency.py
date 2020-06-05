@@ -18,7 +18,10 @@ import pkg_resources
 
 class NugetDependency(ExternalDependency):
     TypeString = "nuget"
-    global_cache_path = None
+
+    def __init__(self, descriptor):
+        super().__init__(descriptor)
+        self.global_cache_path = None
 
     ####
     # Add mono to front of command and resolve full path of exe for mono,
@@ -96,7 +99,7 @@ class NugetDependency(ExternalDependency):
         # We still need to use Nuget to figure out where the
         # "global-packages" cache is on this machine.
         #
-        if NugetDependency.global_cache_path is None:
+        if self.global_cache_path is None:
             cmd = NugetDependency.GetNugetCmd()
             cmd += ["locals", "global-packages", "-list"]
             return_buffer = StringIO()
@@ -106,13 +109,13 @@ class NugetDependency(ExternalDependency):
                 return_string = return_buffer.read()
                 NugetDependency.global_cache_path = return_string.strip().strip("global-packages: ")
 
-        if NugetDependency.global_cache_path is None:
+        if self.global_cache_path is None:
             logging.info("Nuget was unable to provide global packages cache location.")
             return False
         #
         # If the path couldn't be found, we can't do anything else.
         #
-        if not os.path.isdir(NugetDependency.global_cache_path):
+        if not os.path.isdir(self.global_cache_path):
             logging.info("Could not determine Nuget global packages cache location.")
             return False
 
@@ -120,7 +123,7 @@ class NugetDependency(ExternalDependency):
         # Now, try to locate our actual cache path
         nuget_version = NugetDependency.normalize_version(self.version)
         cache_search_path = os.path.join(
-            NugetDependency.global_cache_path, package_name.lower(), nuget_version, package_name)
+            self.global_cache_path, package_name.lower(), nuget_version, package_name)
         if os.path.isdir(cache_search_path):
             logging.info(
                 "Local Cache found for Nuget package '%s'. Skipping fetch.", package_name)
