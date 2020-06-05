@@ -10,6 +10,7 @@ import logging
 import os
 import shutil
 import re
+import threading
 
 try:
     from edk2toollib.log import ansi_handler
@@ -92,7 +93,10 @@ def setup_txt_logger(directory, filename="log", logging_level=logging.INFO,
     logger = logging.getLogger(logging_namespace)
     log_formatter = formatter
     if log_formatter is None:
-        log_formatter = logging.Formatter("%(levelname)s - %(message)s")
+        if logging_namespace != "":
+            log_formatter = logging.Formatter("%(name)s: %(levelname)s - %(message)s")
+        else:
+            log_formatter = logging.Formatter("%(levelname)s - %(message)s")
 
     if not os.path.isdir(directory):
         os.makedirs(directory)
@@ -272,5 +276,9 @@ class Edk2LogFilter(logging.Filter):
         # check to make sure we haven't already filtered this record
         if record.name not in Edk2LogFilter._allowedLoggers and record.levelno < logging.WARNING and not self._verbose:
             return False
+        # check if we are on a different thread than the main thread
+        ident = threading.get_ident()
+        if ident != threading.main_thread().ident:
+            record.name = F"T{ident}"
 
         return True
