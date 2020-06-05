@@ -107,8 +107,7 @@ class NugetDependency(ExternalDependency):
                 NugetDependency.global_cache_path = return_string.strip().strip("global-packages: ")
 
         if NugetDependency.global_cache_path is None:
-            logging.info("Could not determine Nuget global packages cache location")
-            logging.info("Check your mono installation")
+            logging.info("Nuget was unable to provide global packages cache location.")
             return False
         #
         # If the path couldn't be found, we can't do anything else.
