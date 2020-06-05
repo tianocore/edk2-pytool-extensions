@@ -37,6 +37,7 @@ class DocGenerator():
         PostServe = auto(),
 
     def __init__(self):
+        # spell-checker:disable
         self._project_config = {
             "plugins": ["search", ],  # "macros"],
 
@@ -91,6 +92,7 @@ class DocGenerator():
                 "markdown.extensions.toc",
             ],
         }
+        # spell-checker:enable
         self._workspace = os.getcwd()
         self._output_dir = "doc_output"
         self._module = None  # this is the module to generate docs for
@@ -400,8 +402,8 @@ class DocGenerator():
             nav_links = []
             directory_path = os.path.join(docs_dir, directory)
             files = [f for f in os.listdir(directory_path) if f.lower().endswith(".md")]
-            for mdfile in files:
-                file_path = os.path.join(directory_path, mdfile)
+            for markdown_file in files:
+                file_path = os.path.join(directory_path, markdown_file)
                 file_rel_path = os.path.relpath(file_path, docs_dir)
                 file_name = self.ConvertToFriendlyName(file_path)
                 nav_links.append({file_name: file_rel_path})

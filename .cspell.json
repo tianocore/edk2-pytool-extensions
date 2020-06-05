@@ -113,6 +113,9 @@
         "smbios",
         "Contoso",
         "MSFT",
-        "codecov"
+        "codecov",
+        "mkdocs",
+        "pdocs",
+        "iglob",
     ]
 }
