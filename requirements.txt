@@ -3,3 +3,10 @@ pytest-html
 pytest-cov
 flake8==3.8.*
 pyopenssl
+pdocs
+mike
+mkdocs
+mkdocs-material
+mkdocs-macros-plugin
+Markdown
+pymdown-extensions
