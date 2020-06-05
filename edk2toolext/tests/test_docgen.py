@@ -92,7 +92,3 @@ class Test_DocGenerator(unittest.TestCase):
         self.assertIn("nav", config)
         print(len(config["nav"]))
         self.assertGreater(len(config["nav"]), 1)
-
-
-test = Test_DocGenerator()
-test.test_generate_documentation()
