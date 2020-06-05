@@ -112,14 +112,15 @@ class DocGenerator():
             print(message)
 
     def set_output_dir(self, out):
-        ''' sets the output directory of the docs and the html. If not an abs path, it will be relative to the workspace '''
+        ''' sets the output directory of the docs and the html.
+        If not an abs path, it will be relative to the workspace '''
         self._output_dir = out
 
     def set_target_module(self, module, module_name=None):
         '''
         sets the target module
         modules can be a pip module import name or a path
-        for example: 
+        for example:
             module="edk2toollib", module_name = "edk2-pytool-library"
         '''
         self._module = module
@@ -278,7 +279,8 @@ class DocGenerator():
         try:
             pdocs_as_markdown([self._module, ], self.get_output_docs_dir(), overwrite=True)
         except SystemExit:
-            print("Error - There was likely an error loading one the of the files in this module. Check you have all the required modules.")
+            print("Error - There was likely an error loading one the of the files in this module.")
+            print("Check to make sure you have all the required modules.")
             raise
         os.chdir(cwd)
 
