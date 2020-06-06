@@ -122,7 +122,3 @@ class TestEdk2Update(unittest.TestCase):
         build_env, shell_env, failure = updater.PerformUpdate()
         # we should have no failures
         self.assertEqual(failure, 1)
-
-
-test = TestEdk2Update()
-test.test_multiple_extdeps()
