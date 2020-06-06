@@ -97,13 +97,13 @@ class TestEdk2Update(unittest.TestCase):
         tree = uefi_tree(WORKSPACE)
         num_of_ext_deps = 5
         logging.getLogger().setLevel(logging.WARNING)
-        for i in range(num_of_ext_deps):
-            tree.create_ext_dep("nuget", "NuGet.CommandLine", "5.2.0", extra_data={"id": f"extdep_{i}"})
+        tree.create_ext_dep("nuget", "NuGet.CommandLine", "5.2.0")
+        tree.create_ext_dep("nuget", "NuGet.LibraryModel", "5.6.0")
+        tree.create_ext_dep("nuget", "NuGet.Versioning", "5.6.0")
+        tree.create_ext_dep("nuget", "NuGet.Packaging.Core", "5.6.0")
+        tree.create_ext_dep("nuget", "NuGet.RuntimeModel", "4.2.0")
         # Do the update
         updater = self.invoke_update(tree.get_settings_provider_path())
-        # make sure it worked
-        self.assertTrue(os.path.exists(os.path.join(WORKSPACE, "Edk2TestUpdate_extdep",
-                                                    "NuGet.CommandLine_extdep", "extdep_state.json")))
         build_env, shell_env, failure = updater.PerformUpdate()
         # we should have no failures
         self.assertEqual(failure, 0)
@@ -122,3 +122,7 @@ class TestEdk2Update(unittest.TestCase):
         build_env, shell_env, failure = updater.PerformUpdate()
         # we should have no failures
         self.assertEqual(failure, 1)
+
+
+test = TestEdk2Update()
+test.test_multiple_extdeps()
