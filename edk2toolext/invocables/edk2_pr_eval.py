@@ -141,7 +141,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
                 pkg = self.edk2_path_obj.GetContainingPackage(os.path.abspath(f))
 
             except Exception as e:
-                self.logger.error(f"Failed to get package for file {f}.  Exception {e}")
+                self.logger.warning(f"Failed to get package for file {f}.  Exception {e}")
                 # Ignore a file in which we fail to get the package
                 continue
 
@@ -167,7 +167,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
                 pkg = self.edk2_path_obj.GetContainingPackage(os.path.abspath(f))
 
             except Exception as e:
-                self.logger.error(f"Failed to get package for file {f}.  Exception {e}")
+                self.logger.warning(f"Failed to get package for file {f}.  Exception {e}")
                 # Ignore a file in which we fail to get the package
                 continue
 
@@ -327,7 +327,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         try:
             pkg = self.edk2_path_obj.GetContainingPackage(os.path.abspath(filepath))
         except Exception as e:
-            self.logger.error(f"Failed to GetContainingPackage({filepath}).  Exception: {str(e)}")
+            self.logger.warning(f"Failed to GetContainingPackage({filepath}).  Exception: {str(e)}")
             return False
 
         dec = None
