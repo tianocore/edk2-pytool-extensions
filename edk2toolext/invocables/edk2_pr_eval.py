@@ -231,10 +231,14 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         for f in files:
             if os.path.splitext(f) in [".txt", ".md"]:  # ignore markdown and txt files
                 continue
+            try:
+                infs = self.edk2_path_obj.GetContainingModules(os.path.abspath(f))
+                if len(infs) > 0:  # if this file is part of any INFs
+                    modules.extend(infs)
+            except Exception as e:
+                self.logger.warning(f"Failed to GetContainingModules({f}). Exception: {str(e)}")
+                # ignore errors.  These will occur if a module or last file in folder is deleted as part of the PR
 
-            infs = self.edk2_path_obj.GetContainingModules(os.path.abspath(f))
-            if len(infs) > 0:  # if this file is part of any INFs
-                modules.extend(infs)
         modules = [self.edk2_path_obj.GetEdk2RelativePathFromAbsolutePath(x) for x in set(modules)]
         logging.debug("Changed Modules: " + str(modules))
         return modules
