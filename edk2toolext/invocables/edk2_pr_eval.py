@@ -239,7 +239,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
                 continue
 
             if len(infs) > 0:  # if this file is part of any INFs
-                    modules.extend(infs)
+                modules.extend(infs)
 
         modules = [self.edk2_path_obj.GetEdk2RelativePathFromAbsolutePath(x) for x in set(modules)]
         logging.debug("Changed Modules: " + str(modules))
