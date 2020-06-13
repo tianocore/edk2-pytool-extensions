@@ -333,6 +333,10 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         fp = filepath.replace("\\", "/")  # make consistant for easy compare
 
         self.logger.debug("Is public: " + fp)
+
+        if filepath.lower().endswith(".dec"):  # if DEC file then it is public
+            return True
+
         try:
             pkg = self.edk2_path_obj.GetContainingPackage(os.path.abspath(filepath))
         except Exception as e:
@@ -350,8 +354,8 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         if dec is None:
             return False
 
-        for includepath in dec.IncludePaths:
-            if (pkg + "/" + includepath) in filepath:
+        for includepath in dec.IncludePaths: # if in the include path of a package then it is public
+            if (pkg + "/" + includepath + "/") in filepath:
                 return True
 
         return False
