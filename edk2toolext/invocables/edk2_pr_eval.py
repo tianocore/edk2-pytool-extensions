@@ -210,6 +210,8 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
             dsc = DscParser()
             dsc.SetBaseAbsPath(self.edk2_path_obj.WorkspacePath)
             dsc.SetPackagePaths(self.edk2_path_obj.PackagePathList)
+             # given that PR eval runs before dependencies are downloaded we must tolerate errors
+            dsc.SetNoFailMode()
             dsc.SetInputVars(PlatformDscInfo[1])
             dsc.ParseFile(PlatformDscInfo[0])
             allinfs = dsc.OtherMods + dsc.ThreeMods + dsc.SixMods + dsc.Libs  # get list of all INF files
