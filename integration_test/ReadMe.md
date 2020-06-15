@@ -45,13 +45,23 @@ This describes what is needed to run integration testing on pytool extensions.  
 3. Set more variables
    1. `-v <var name>:<var value>` set a variable for your robot file
 
+## Lessons learned/Tips
+
+### Robot hangs for seemingly unknown reason
+
+It is well known that robot will hang if you "log too much" from Run Process.  For example running git clone can sometimes
+create a large log.  So for those commands which can create a large log redirect stdout and stderr to a file.  To do this
+add additional parameters to your "Run Process" cmd like so `stdout=stdout.txt  stderr=stderr.txt`.  For an example in action
+look at the keywords for all stuart commands.
+
 ## Helpful Robot Links
 
 https://robotframework.org is the main site.  Lots of good info here.  My most commonly used pages are:
-  * UserGuide: https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html
-  * Operating System Library: https://robotframework.org/robotframework/latest/libraries/OperatingSystem.html
-  * BuiltIn Library: https://robotframework.org/robotframework/latest/libraries/BuiltIn.html
-  * String Library: https://robotframework.org/robotframework/latest/libraries/String.html
+
+* UserGuide: https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html
+* Operating System Library: https://robotframework.org/robotframework/latest/libraries/OperatingSystem.html
+* BuiltIn Library: https://robotframework.org/robotframework/latest/libraries/BuiltIn.html
+* String Library: https://robotframework.org/robotframework/latest/libraries/String.html
 
 ## Copyright
 

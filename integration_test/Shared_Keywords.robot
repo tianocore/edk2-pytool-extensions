@@ -35,26 +35,34 @@ Clone the git repo
     [Arguments]    ${git_url}   ${ws_name}
 
     Log To console    cloning ${git_url} to ${TEST_OUTPUT}
-    ${result}=  Run Process       git.exe   clone   ${git_url}   ${ws_name}   cwd=${TEST_OUTPUT}
-    Log Many	stdout: ${result.stdout}  stderr: ${result.stderr}
+    ${result}=  Run Process       git.exe   clone   ${git_url}   ${ws_name}
+    ...  cwd=${TEST_OUTPUT}  stdout=stdout.txt  stderr=stderr.txt
+    Log Many  stdout: ${result.stdout}  stderr: ${result.stderr}
 
-    ${result}=  Run Process  git  fetch  --all  --prune  cwd=${TEST_OUTPUT}${/}${ws_name}
-    Log Many	stdout: ${result.stdout}  stderr: ${result.stderr}
+    ${result}=  Run Process  git  fetch  --all  --prune
+    ...  cwd=${TEST_OUTPUT}${/}${ws_name}  stdout=stdout.txt  stderr=stderr.txt
+    Log Many  stdout: ${result.stdout}  stderr: ${result.stderr}
     Should Be Equal As Integers  ${result.rc}  0
 
 Reset git repo to main branch
     [Arguments]     ${ws}  ${main_branch_name}
 
-    ${result}=  Run Process  git  checkout  origin/${main_branch_name}  cwd=${ws}
-    Log Many	stdout: ${result.stdout}  stderr: ${result.stderr}
-    Should Be Equal As Integers  ${result.rc}  0
-    ${result}=  Run Process  git  clean  -xfd  cwd=${ws}
-    Log Many	stdout: ${result.stdout}  stderr: ${result.stderr}
-    Should Be Equal As Integers  ${result.rc}  0
-    ${result}=  Run Process  git  reset  --hard  cwd=${ws}
+    # checkout remote tag for origin/master
+    ${result}=  Run Process  git  checkout  origin/${main_branch_name}
+    ...  cwd=${ws}  stdout=stdout.txt  stderr=stderr.txt
     Log Many	stdout: ${result.stdout}  stderr: ${result.stderr}
     Should Be Equal As Integers  ${result.rc}  0
 
+    # clean non ignored files quietly to avoid log overflow
+    ${result}=  Run Process  git  clean  -qfd  cwd=${ws}
+    Log Many  stdout: ${result.stdout}  stderr: ${result.stderr}
+    Should Be Equal As Integers  ${result.rc}  0
+
+    # reset to restore files
+    ${result}=  Run Process  git  reset  --hard
+    ...  cwd=${ws}  stdout=stdout.txt  stderr=stderr.txt
+    Log Many  stdout: ${result.stdout}  stderr: ${result.stderr}
+    Should Be Equal As Integers  ${result.rc}  0
 
 Make new branch
     [Arguments]    ${name}  ${ws}
