@@ -4,11 +4,11 @@ This describes what is needed to run integration testing on pytool extensions.  
 
 * Build Edk2 OvmfPkg Platform CI
 * Run Core Ci on Edk2 MdeModulePkg
-* After commiting a change in the repo use pr_eval to confirm the correct packages need testing.
+* After committing a change in the repo use pr_eval to confirm the correct packages need testing.
 
-## Prerequesites
+## Prerequisites
 
-* Standard Edk2 Prerequesites
+* Standard Edk2 Prerequisites
   * git cli
   * Python 3.8.x with support for Pip and virtual environment
   * VS 2019 (Windows Only)
@@ -36,7 +36,7 @@ This describes what is needed to run integration testing on pytool extensions.  
 
 1. Only run test cases with a given tag
    1. `--include CoreCI` to run only the CoreCI tests
-   2. `--include PlatfrmCI` to run only the Platform CI tests
+   2. `--include PlatformCI` to run only the Platform CI tests
    3. `--include PrEval` to run only the pr_eval tests
 2. More Debug info in log
    1. `-L TRACE` to run with most detailed info
