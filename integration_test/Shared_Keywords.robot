@@ -48,6 +48,13 @@ Reset git repo to main branch
     ${result}=  Run Process  git  checkout  origin/${main_branch_name}  cwd=${ws}
     Log Many	stdout: ${result.stdout}  stderr: ${result.stderr}
     Should Be Equal As Integers  ${result.rc}  0
+    ${result}=  Run Process  git  clean  -xfd  cwd=${ws}
+    Log Many	stdout: ${result.stdout}  stderr: ${result.stderr}
+    Should Be Equal As Integers  ${result.rc}  0
+    ${result}=  Run Process  git  reset  --hard  cwd=${ws}
+    Log Many	stdout: ${result.stdout}  stderr: ${result.stderr}
+    Should Be Equal As Integers  ${result.rc}  0
+
 
 Make new branch
     [Arguments]    ${name}  ${ws}
@@ -137,9 +144,8 @@ Stuart pr evaluation
 
     ${result}=   Run Process    stuart_pr_eval
     ...  -c  ${setting_file}  -p  ${packages}  --pr-target  origin/${base_ref}
-    #...  --output-count-format-string  PackageCount\={pkgcount}
     ...  --output-csv-format-string  {pkgcsv}
-    ...  cwd=${ws}
+    ...  cwd=${ws}  stdout=stdout.txt  stderr=stderr.txt
     Log Many  stdout: ${result.stdout}  stderr: ${result.stderr}
     Should Be Equal As Integers  ${result.rc}  0
     Return From Keyword    ${result.stdout}

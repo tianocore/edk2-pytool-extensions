@@ -191,14 +191,125 @@ Test Stuart PR for Policy 4 module c file changed that platform dsc does not dep
 
     [Teardown]  Delete branch  ${branch_name}  ${master_branch}  ${ws_root}
 
-#### todo:
-# PR where file is deleted
-# PR where parent folder is deleted (all files)
-# PR where parent parent folder is deleted
-#
-# PR where new folder is added
-# PR where folder + folder is addded
-# PR where new file is added
-#
-# PR where a root file is changed (file not in package)
-#
+Test Stuart PR for all policies when a PR contains a deleted file
+    [Tags]           PrEval  Delete
+
+    ${branch_name}=      Set Variable    PR_Rand_${{random.randint(0, 10000)}}
+    ${file_to_modify}=   Set Variable    MdeModulePkg${/}Application${/}HelloWorld${/}HelloWorld.c
+
+    Reset git repo to main branch  ${ws_root}  ${master_branch}
+    Make new branch  ${branch_name}  ${ws_root}
+
+    Remove File  ${ws_root}${/}${file_to_modify}
+
+    Stage changed file  ${file_to_modify}  ${ws_root}
+    Commit changes  "Changes"  ${ws_root}
+
+    # Platform CI test DSC dependnency on implementation file # Policy 4
+    ${pkgs}=  Stuart pr evaluation  ${platform_ci_file}  OvmfPkg  ${master_branch}  ${EMPTY}  ${ws_root}
+    Should Be Empty    ${pkgs}
+
+    [Teardown]  Delete branch  ${branch_name}  ${master_branch}  ${ws_root}
+
+Test Stuart PR for all policies when a PR contains a deleted folder
+    [Tags]           PrEval  Delete
+
+    ${branch_name}=      Set Variable    PR_Rand_${{random.randint(0, 10000)}}
+    ${file_to_modify}=   Set Variable    MdeModulePkg${/}Application${/}HelloWorld
+
+    Reset git repo to main branch  ${ws_root}  ${master_branch}
+    Make new branch  ${branch_name}  ${ws_root}
+
+    Remove Directory  ${ws_root}${/}${file_to_modify}  True
+
+    Stage changed file  ${file_to_modify}  ${ws_root}
+    Commit changes  "Changes"  ${ws_root}
+
+    # Platform CI test DSC dependnency on implementation file # Policy 4
+    ${pkgs}=  Stuart pr evaluation  ${platform_ci_file}  OvmfPkg  ${master_branch}  ${EMPTY}  ${ws_root}
+    Should Be Empty    ${pkgs}
+
+    [Teardown]  Delete branch  ${branch_name}  ${master_branch}  ${ws_root}
+
+Test Stuart PR for all policies when a PR contains multiple levels of deleted folders
+    [Tags]           PrEval  Delete
+
+    ${branch_name}=      Set Variable    PR_Rand_${{random.randint(0, 10000)}}
+    ${file_to_modify}=   Set Variable    UefiCpuPkg${/}CpuDxe
+
+    Reset git repo to main branch  ${ws_root}  ${master_branch}
+    Make new branch  ${branch_name}  ${ws_root}
+
+    Remove Directory  ${ws_root}${/}${file_to_modify}  True
+
+    Stage changed file  ${file_to_modify}  ${ws_root}
+    Commit changes  "Changes"  ${ws_root}
+
+    # Platform CI test DSC dependnency on implementation file # Policy 4
+    ${pkgs}=  Stuart pr evaluation  ${platform_ci_file}  OvmfPkg  ${master_branch}  ${EMPTY}  ${ws_root}
+    Confirm same contents  ${pkgs}  OvmfPkg
+
+    [Teardown]  Delete branch  ${branch_name}  ${master_branch}  ${ws_root}
+
+Test Stuart PR for all policies when a PR contains file added
+    [Tags]           PrEval  Add
+
+    ${branch_name}=       Set Variable    PR_Rand_${{random.randint(0, 10000)}}
+    ${file_to_move}=      Set Variable    MdePkg${/}Library${/}BaseS3StallLib${/}S3StallLib.c
+    ${location_to_move}=  Set Variable    MdePkg${/}Library${/}BaseLib
+
+    Reset git repo to main branch  ${ws_root}  ${master_branch}
+    Make new branch  ${branch_name}  ${ws_root}
+
+    Move File  ${ws_root}${/}${file_to_move}  ${ws_root}${/}${location_to_move}
+
+    Stage changed file  ${location_to_move}  ${ws_root}
+    Commit changes  "Changes"  ${ws_root}
+
+    # Platform CI test DSC dependnency on implementation file # Policy 4
+    ${pkgs}=  Stuart pr evaluation  ${platform_ci_file}  OvmfPkg  ${master_branch}  ${EMPTY}  ${ws_root}
+    Confirm same contents  ${pkgs}  OvmfPkg
+
+    [Teardown]  Delete branch  ${branch_name}  ${master_branch}  ${ws_root}
+
+Test Stuart PR for all policies when a PR contains directory added
+    [Tags]           PrEval  Add
+
+    ${branch_name}=       Set Variable    PR_Rand_${{random.randint(0, 10000)}}
+    ${file_to_move}=      Set Variable    MdePkg${/}Library${/}BaseS3StallLib
+    ${location_to_move}=  Set Variable    MdeModulePkg${/}Library
+
+    Reset git repo to main branch  ${ws_root}  ${master_branch}
+    Make new branch  ${branch_name}  ${ws_root}
+
+    Move Directory  ${ws_root}${/}${file_to_move}  ${ws_root}${/}${location_to_move}
+
+    Stage changed file  ${location_to_move}  ${ws_root}
+    Commit changes  "Changes"  ${ws_root}
+
+    # Platform CI test DSC dependnency on implementation file # Policy 4
+    ${pkgs}=  Stuart pr evaluation  ${platform_ci_file}  OvmfPkg  ${master_branch}  ${EMPTY}  ${ws_root}
+    Should Be Empty    ${pkgs}
+
+    [Teardown]  Delete branch  ${branch_name}  ${master_branch}  ${ws_root}
+
+Test Stuart PR for changing a file at the root of repo
+    [Tags]           PrEval
+
+    ${branch_name}=      Set Variable    PR_Rand_${{random.randint(0, 10000)}}
+    ${file_to_modify}=   Set Variable    edksetup.bat
+
+    Reset git repo to main branch  ${ws_root}  ${master_branch}
+    Make new branch  ${branch_name}  ${ws_root}
+
+    Append To File  ${ws_root}${/}${file_to_modify}
+    ...  Hello World!! Making a change for fun.
+
+    Stage changed file  ${file_to_modify}  ${ws_root}
+    Commit changes  "Changes"  ${ws_root}
+
+    # Platform CI test DSC dependnency on implementation file # Policy 4
+    ${pkgs}=  Stuart pr evaluation  ${platform_ci_file}  OvmfPkg  ${master_branch}  ${EMPTY}  ${ws_root}
+    Should Be Empty    ${pkgs}
+
+    [Teardown]  Delete branch  ${branch_name}  ${master_branch}  ${ws_root}
