@@ -78,11 +78,13 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
 
     def Go(self):
 
-        # create path obj for resolving paths.  Since PR eval is run early to determine if a build is impacted by the changes
-        # of a PR we must ignore any packages path that are not valid due to not having their submodule or folder populated.
-        # A packages path is ok to drop for this because if it isn't populated it is assumed outside the repository and
-        # thus will not trigger the build.
-        self.edk2_path_obj = path_utilities.Edk2Path(self.GetWorkspaceRoot(), self.GetPackagesPath(), error_on_invalid_pp=False)
+        # create path obj for resolving paths.  Since PR eval is run early to determine if a build is
+        # impacted by the changes of a PR we must ignore any packages path that are not valid due to
+        # not having their submodule or folder populated.
+        # A packages path is ok to drop for this because if it isn't populated it is assumed outside
+        # the repository and thus will not trigger the build.
+        self.edk2_path_obj = path_utilities.Edk2Path(
+            self.GetWorkspaceRoot(), self.GetPackagesPath(), error_on_invalid_pp=False)
         self.logger = logging.getLogger("edk2_pr_eval")
         actualPackagesDict = self.get_packages_to_build(self.requested_package_list)
 
@@ -210,7 +212,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
             dsc = DscParser()
             dsc.SetBaseAbsPath(self.edk2_path_obj.WorkspacePath)
             dsc.SetPackagePaths(self.edk2_path_obj.PackagePathList)
-             # given that PR eval runs before dependencies are downloaded we must tolerate errors
+            # given that PR eval runs before dependencies are downloaded we must tolerate errors
             dsc.SetNoFailMode()
             dsc.SetInputVars(PlatformDscInfo[1])
             dsc.ParseFile(PlatformDscInfo[0])
@@ -354,7 +356,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         if dec is None:
             return False
 
-        for includepath in dec.IncludePaths: # if in the include path of a package then it is public
+        for includepath in dec.IncludePaths:  # if in the include path of a package then it is public
             if (pkg + "/" + includepath + "/") in filepath:
                 return True
 
