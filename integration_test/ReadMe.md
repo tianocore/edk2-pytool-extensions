@@ -25,13 +25,12 @@ This describes what is needed to run integration testing on pytool extensions.  
 4. Check out desired version/branch and cd to root (folder where *setup.py* is located)
 5. Pip Install the local version by running `pip install -e .` in the root directory
 6. Pip install remaining dependencies by running `pip install --upgrade -r integration_test/pip-requirements.txt`
-   1. **Temp step needed until 0.10.11 is made public**:
-      `pip install git+https://github.com/spbrogan/edk2-pytool-library.git@74442409ace54cb98ece21631b38d7f2a705871d`
 7. cd to *integration_test* directory (folder where *this* document is located)
-8. Run robot `python -m robot.run -v TEST_OUTPUT_BASE:test -d report <additional flags here> <robot file to run>`
-   1. *edk2_stuart_pr_eval.robot* robot file for testing stuart pr eval using edk2 repo
-   2. *edk2_core_ci.robot* robot file for running parts of the core ci tests on edk2
-   3. *edk2_platform_ci.robot* robot file for running parts of the platform ci tests on edk2
+8. Run robot `python -m robot.run -v TEST_OUTPUT_BASE:test -d report <additional flags here> <robot file to run or directory>`
+   1. use `.` to run all test cases in all robot files in the current directory
+   2. use `edk2_stuart_pr_eval.robot` robot file for testing stuart pr eval using edk2 repo
+   3. use `edk2_core_ci.robot` robot file for running parts of the core ci tests on edk2
+   4. use `edk2_platform_ci.robot` robot file for running parts of the platform ci tests on edk2
 
 ## Additional useful CLI flags
 

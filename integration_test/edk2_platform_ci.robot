@@ -28,6 +28,10 @@ One time setup
     ## Dump pip versions
     ${result}=   Run Process    python  -m  pip   list  shell=True
     Log  ${result.stdout}
+
+    ## Make output directory if doesn't already exist
+    Create Directory  ${TEST_OUTPUT}
+
     ## Clone repo
     Run Keyword  Clone the git repo  ${url}  ${folder}
 
