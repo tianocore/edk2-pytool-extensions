@@ -38,6 +38,8 @@ This describes what is needed to run integration testing on pytool extensions.  
    1. `--include CoreCI` to run only the CoreCI tests
    2. `--include PlatformCI` to run only the Platform CI tests
    3. `--include PrEval` to run only the pr_eval tests
+   4. `--include Edk2` to run only on edk2 repo
+   5. `--include ProjectMu` to run only on Project Mu basecore repo
 2. More Debug info in log
    1. `-L TRACE` to run with most detailed info
    2. `-L DEBUG` to turn on debug level.  This is less than trace
