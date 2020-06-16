@@ -36,6 +36,16 @@ One time setup
     ## Clone repo
     Run Keyword  Clone the git repo  ${url}  ${folder}
 
+    ## clean the repo of all dependencies including additional repos
+    ## Project Mu test cases are most useful for multi-repository testing
+    ## but for that to be useful the other repositories must not be
+    ## populated in the file system
+    #
+    # clean all files quietly to avoid robot log overflow
+    ${result}=  Run Process  git  clean  -qxfd  -f  cwd=${ws_root}
+    Log Many  stdout: ${result.stdout}  stderr: ${result.stderr}
+    Should Be Equal As Integers  ${result.rc}  0
+
 *** Test Cases ***
 
 Test Stuart PR using ProjectMu for Policy 1 special files in PrEvalSettingsManager
