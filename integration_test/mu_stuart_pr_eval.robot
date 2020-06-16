@@ -110,7 +110,7 @@ Test Stuart PR using ProjectMu for Policy 3 for package dependency on change of 
     [Tags]           PrEval  ProjectMu
 
     ${branch_name}=      Set Variable    PR_Rand_${{random.randint(0, 10000)}}
-    ${file_to_modify}=   Set Variable    CryptoPkg${/}Include${/}Library${/}TlsLib.h
+    ${file_to_modify}=   Set Variable    PcAtChipsetPkg${/}Include${/}Guid${/}PcAtChipsetTokenSpace.h
 
     Reset git repo to main branch  ${ws_root}  ${master_branch}
     Make new branch  ${branch_name}  ${ws_root}
