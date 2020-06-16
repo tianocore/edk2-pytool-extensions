@@ -15,11 +15,10 @@ Suite Setup  One time setup  ${repo_url}  ${ws_dir}
 # Suite Setup
 
 *** Variables ***
-${repo_url}           https://github.com/tianocore/edk2.git
-${master_branch}      master
-${ws_dir}             edk2
+${repo_url}           https://github.com/microsoft/mu_basecore
+${master_branch}      release/202002
+${ws_dir}             mu_basecore
 ${core_ci_file}       .pytool/CISettings.py
-${platform_ci_file}   OvmfPkg${/}PlatformCI${/}PlatformBuild.py
 
 ${ws_root}            ${TEST_OUTPUT}${/}${ws_dir}
 
@@ -39,8 +38,8 @@ One time setup
 
 *** Test Cases ***
 
-Test Stuart PR for Policy 1 special files in PrEvalSettingsManager
-    [Tags]           PrEval  Edk2
+Test Stuart PR using ProjectMu for Policy 1 special files in PrEvalSettingsManager
+    [Tags]           PrEval  ProjectMu
 
     ${branch_name}=      Set Variable    PR_Rand_${{random.randint(0, 10000)}}
     ${file_to_modify}=   Set Variable    BaseTools${/}Source${/}C${/}GenFv${/}GenFv.c
@@ -55,13 +54,13 @@ Test Stuart PR for Policy 1 special files in PrEvalSettingsManager
     Commit changes  "Changes"  ${ws_root}
 
     # Core CI test  package dependency # Policy 3
-    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdePkg,MdeModulePkg,ArmVirtPkg  ${master_branch}  ${EMPTY}  ${ws_root}
-    Confirm same contents  ${pkgs}  MdePkg,MdeModulePkg,ArmVirtPkg
+    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdePkg,MdeModulePkg,UefiCpuPkg  ${master_branch}  ${EMPTY}  ${ws_root}
+    Confirm same contents  ${pkgs}  MdePkg,MdeModulePkg,UefiCpuPkg
 
     [Teardown]  Delete branch  ${branch_name}  ${master_branch}  ${ws_root}
 
-Test Stuart PR for Policy 2 in package change of private inf file
-    [Tags]           PrEval  Edk2
+Test Stuart PR using ProjectMu for Policy 2 in package change of private inf file
+    [Tags]           PrEval  ProjectMu
 
     ${branch_name}=      Set Variable    PR_Rand_${{random.randint(0, 10000)}}
     ${file_to_modify}=   Set Variable    MdePkg${/}Library${/}BaseLib${/}BaseLib.inf
@@ -86,8 +85,8 @@ Test Stuart PR for Policy 2 in package change of private inf file
     [Teardown]  Delete branch  ${branch_name}  ${master_branch}  ${ws_root}
 
 
-Test Stuart PR for Policy 3 for package dependency on change of public header file
-    [Tags]           PrEval  Edk2
+Test Stuart PR using ProjectMu for Policy 3 for package dependency on change of public header file
+    [Tags]           PrEval  ProjectMu
 
     ${branch_name}=      Set Variable    PR_Rand_${{random.randint(0, 10000)}}
     ${file_to_modify}=   Set Variable    MdePkg${/}Include${/}Protocol${/}DevicePath.h
@@ -107,8 +106,8 @@ Test Stuart PR for Policy 3 for package dependency on change of public header fi
 
     [Teardown]  Delete branch  ${branch_name}  ${master_branch}  ${ws_root}
 
-Test Stuart PR for Policy 3 for package dependency on change of public header file not dependent
-    [Tags]           PrEval  Edk2
+Test Stuart PR using ProjectMu for Policy 3 for package dependency on change of public header file not dependent
+    [Tags]           PrEval  ProjectMu
 
     ${branch_name}=      Set Variable    PR_Rand_${{random.randint(0, 10000)}}
     ${file_to_modify}=   Set Variable    CryptoPkg${/}Include${/}Library${/}TlsLib.h
@@ -128,11 +127,11 @@ Test Stuart PR for Policy 3 for package dependency on change of public header fi
 
     [Teardown]  Delete branch  ${branch_name}  ${master_branch}  ${ws_root}
 
-Test Stuart PR for Policy 3 for package dependency on change of package dec file
-    [Tags]           PrEval  Edk2
+Test Stuart PR using ProjectMu for Policy 3 for package dependency on change of package dec file
+    [Tags]           PrEval  ProjectMu
 
     ${branch_name}=      Set Variable    PR_Rand_${{random.randint(0, 10000)}}
-    ${file_to_modify}=   Set Variable    SecurityPkg${/}SecurityPkg.dec
+    ${file_to_modify}=   Set Variable    UefiCpuPkg${/}UefiCpuPkg.dec
 
     Reset git repo to main branch  ${ws_root}  ${master_branch}
     Make new branch  ${branch_name}  ${ws_root}
@@ -144,55 +143,13 @@ Test Stuart PR for Policy 3 for package dependency on change of package dec file
     Commit changes  "Changes"  ${ws_root}
 
     # Core CI test  package dependency # Policy 3
-    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdePkg,MdeModulePkg,ArmVirtPkg  ${master_branch}  ${EMPTY}  ${ws_root}
-    Confirm same contents  ${pkgs}  ArmVirtPkg
+    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdePkg,MdeModulePkg,PcAtChipsetPkg  ${master_branch}  ${EMPTY}  ${ws_root}
+    Confirm same contents  ${pkgs}  PcAtChipsetPkg
 
     [Teardown]  Delete branch  ${branch_name}  ${master_branch}  ${ws_root}
 
-Test Stuart PR for Policy 4 module c file changed that platform dsc depends on
-    [Tags]           PrEval  Edk2
-
-    ${branch_name}=      Set Variable    PR_Rand_${{random.randint(0, 10000)}}
-    ${file_to_modify}=   Set Variable    MdeModulePkg${/}Core${/}Dxe${/}DxeMain.h
-
-    Reset git repo to main branch  ${ws_root}  ${master_branch}
-    Make new branch  ${branch_name}  ${ws_root}
-
-    Append To File  ${ws_root}${/}${file_to_modify}
-    ...  Hello World!! Making a change for fun.
-
-    Stage changed file  ${file_to_modify}  ${ws_root}
-    Commit changes  "Changes"  ${ws_root}
-
-    # Platform CI test DSC dependnency on implementation file # Policy 4
-    ${pkgs}=  Stuart pr evaluation  ${platform_ci_file}  OvmfPkg  ${master_branch}  ${EMPTY}  ${ws_root}
-    Confirm same contents  ${pkgs}  OvmfPkg
-
-    [Teardown]  Delete branch  ${branch_name}  ${master_branch}  ${ws_root}
-
-Test Stuart PR for Policy 4 module c file changed that platform dsc does not depend on
-    [Tags]           PrEval  Edk2
-
-    ${branch_name}=      Set Variable    PR_Rand_${{random.randint(0, 10000)}}
-    ${file_to_modify}=   Set Variable    MdeModulePkg${/}Application${/}HelloWorld${/}HelloWorld.c
-
-    Reset git repo to main branch  ${ws_root}  ${master_branch}
-    Make new branch  ${branch_name}  ${ws_root}
-
-    Append To File  ${ws_root}${/}${file_to_modify}
-    ...  Hello World!! Making a change for fun.
-
-    Stage changed file  ${file_to_modify}  ${ws_root}
-    Commit changes  "Changes"  ${ws_root}
-
-    # Platform CI test DSC dependnency on implementation file # Policy 4
-    ${pkgs}=  Stuart pr evaluation  ${platform_ci_file}  OvmfPkg  ${master_branch}  ${EMPTY}  ${ws_root}
-    Should Be Empty    ${pkgs}
-
-    [Teardown]  Delete branch  ${branch_name}  ${master_branch}  ${ws_root}
-
-Test Stuart PR for all policies when a PR contains a deleted file
-    [Tags]           PrEval  Delete  Edk2
+Test Stuart PR using ProjectMu for all policies when a PR contains a deleted file
+    [Tags]           PrEval  Delete  ProjectMu
 
     ${branch_name}=      Set Variable    PR_Rand_${{random.randint(0, 10000)}}
     ${file_to_modify}=   Set Variable    MdeModulePkg${/}Application${/}HelloWorld${/}HelloWorld.c
@@ -205,14 +162,13 @@ Test Stuart PR for all policies when a PR contains a deleted file
     Stage changed file  ${file_to_modify}  ${ws_root}
     Commit changes  "Changes"  ${ws_root}
 
-    # Platform CI test DSC dependnency on implementation file # Policy 4
-    ${pkgs}=  Stuart pr evaluation  ${platform_ci_file}  OvmfPkg  ${master_branch}  ${EMPTY}  ${ws_root}
+    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdePkg  ${master_branch}  ${EMPTY}  ${ws_root}
     Should Be Empty    ${pkgs}
 
     [Teardown]  Delete branch  ${branch_name}  ${master_branch}  ${ws_root}
 
-Test Stuart PR for all policies when a PR contains a deleted folder
-    [Tags]           PrEval  Delete  Edk2
+Test Stuart PR using ProjectMu for all policies when a PR contains a deleted folder
+    [Tags]           PrEval  Delete  ProjectMu
 
     ${branch_name}=      Set Variable    PR_Rand_${{random.randint(0, 10000)}}
     ${file_to_modify}=   Set Variable    MdeModulePkg${/}Application${/}HelloWorld
@@ -226,13 +182,13 @@ Test Stuart PR for all policies when a PR contains a deleted folder
     Commit changes  "Changes"  ${ws_root}
 
     # Platform CI test DSC dependnency on implementation file # Policy 4
-    ${pkgs}=  Stuart pr evaluation  ${platform_ci_file}  OvmfPkg  ${master_branch}  ${EMPTY}  ${ws_root}
+    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  SecurityPkg  ${master_branch}  ${EMPTY}  ${ws_root}
     Should Be Empty    ${pkgs}
 
     [Teardown]  Delete branch  ${branch_name}  ${master_branch}  ${ws_root}
 
-Test Stuart PR for all policies when a PR contains multiple levels of deleted folders
-    [Tags]           PrEval  Delete  Edk2
+Test Stuart PR using ProjectMu for all policies when a PR contains multiple levels of deleted folders
+    [Tags]           PrEval  Delete  ProjectMu
 
     ${branch_name}=      Set Variable    PR_Rand_${{random.randint(0, 10000)}}
     ${file_to_modify}=   Set Variable    UefiCpuPkg${/}CpuDxe
@@ -246,13 +202,13 @@ Test Stuart PR for all policies when a PR contains multiple levels of deleted fo
     Commit changes  "Changes"  ${ws_root}
 
     # Platform CI test DSC dependnency on implementation file # Policy 4
-    ${pkgs}=  Stuart pr evaluation  ${platform_ci_file}  OvmfPkg  ${master_branch}  ${EMPTY}  ${ws_root}
-    Confirm same contents  ${pkgs}  OvmfPkg
+    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  SecurityPkg  ${master_branch}  ${EMPTY}  ${ws_root}
+    Should Be Empty    ${pkgs}
 
     [Teardown]  Delete branch  ${branch_name}  ${master_branch}  ${ws_root}
 
-Test Stuart PR for all policies when a PR contains file added
-    [Tags]           PrEval  Add  Edk2
+Test Stuart PR using ProjectMu for all policies when a PR contains file added
+    [Tags]           PrEval  Add  ProjectMu
 
     ${branch_name}=       Set Variable    PR_Rand_${{random.randint(0, 10000)}}
     ${file_to_move}=      Set Variable    MdePkg${/}Library${/}BaseS3StallLib${/}S3StallLib.c
@@ -267,13 +223,13 @@ Test Stuart PR for all policies when a PR contains file added
     Commit changes  "Changes"  ${ws_root}
 
     # Platform CI test DSC dependnency on implementation file # Policy 4
-    ${pkgs}=  Stuart pr evaluation  ${platform_ci_file}  OvmfPkg  ${master_branch}  ${EMPTY}  ${ws_root}
-    Confirm same contents  ${pkgs}  OvmfPkg
+    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdeModulePkg  ${master_branch}  ${EMPTY}  ${ws_root}
+    Should Be Empty    ${pkgs}
 
     [Teardown]  Delete branch  ${branch_name}  ${master_branch}  ${ws_root}
 
 Test Stuart PR for all policies when a PR contains directory added
-    [Tags]           PrEval  Add  Edk2
+    [Tags]           PrEval  Add
 
     ${branch_name}=       Set Variable    PR_Rand_${{random.randint(0, 10000)}}
     ${file_to_move}=      Set Variable    MdePkg${/}Library${/}BaseS3StallLib
@@ -288,13 +244,13 @@ Test Stuart PR for all policies when a PR contains directory added
     Commit changes  "Changes"  ${ws_root}
 
     # Platform CI test DSC dependnency on implementation file # Policy 4
-    ${pkgs}=  Stuart pr evaluation  ${platform_ci_file}  OvmfPkg  ${master_branch}  ${EMPTY}  ${ws_root}
+    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  UefiCpuPkg  ${master_branch}  ${EMPTY}  ${ws_root}
     Should Be Empty    ${pkgs}
 
     [Teardown]  Delete branch  ${branch_name}  ${master_branch}  ${ws_root}
 
 Test Stuart PR for changing a file at the root of repo
-    [Tags]           PrEval  Edk2
+    [Tags]           PrEval
 
     ${branch_name}=      Set Variable    PR_Rand_${{random.randint(0, 10000)}}
     ${file_to_modify}=   Set Variable    edksetup.bat
@@ -309,7 +265,7 @@ Test Stuart PR for changing a file at the root of repo
     Commit changes  "Changes"  ${ws_root}
 
     # Platform CI test DSC dependnency on implementation file # Policy 4
-    ${pkgs}=  Stuart pr evaluation  ${platform_ci_file}  OvmfPkg  ${master_branch}  ${EMPTY}  ${ws_root}
+    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdePkg  ${master_branch}  ${EMPTY}  ${ws_root}
     Should Be Empty    ${pkgs}
 
     [Teardown]  Delete branch  ${branch_name}  ${master_branch}  ${ws_root}

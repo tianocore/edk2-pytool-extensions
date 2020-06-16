@@ -17,7 +17,7 @@ Suite Setup  One time setup  ${repo_url}  ${ws_dir}
 *** Variables ***
 ${repo_url}           https://github.com/tianocore/edk2.git
 ${master_branch}      master
-${ws_dir}             wsroot
+${ws_dir}             edk2
 ${ws_root}            ${TEST_OUTPUT}${/}${ws_dir}
 ${tool_chain}         VS2019
 
@@ -38,7 +38,7 @@ One time setup
 *** Test Cases ***
 Run Edk2 Ovmf PlatformCI
     [Documentation]  This Test will run Platform CI on the OvmfPkg X64
-    [Tags]           PlatformCI  OVMF  X64  VS2019  Windows  QEMU
+    [Tags]           PlatformCI  OVMF  X64  VS2019  Windows  QEMU  Edk2
     ${arch}=             Set Variable    X64
     ${target}=           Set Variable    DEBUG
     ${package}=          Set Variable    OvmfPkg
@@ -55,7 +55,7 @@ Run Edk2 Ovmf PlatformCI
 
 Run Edk2 EmulatorPkg PlatformCI
     [Documentation]  This Test will run Platform CI on the EmulatorPkg X64
-    [Tags]           PlatformCI  X64  VS2019  Windows  EmulatorPkg
+    [Tags]           PlatformCI  X64  VS2019  Windows  EmulatorPkg  Edk2
     ${arch}=             Set Variable    X64
     ${target}=           Set Variable    NOOPT
     ${package}=          Set Variable    EmulatorPkg

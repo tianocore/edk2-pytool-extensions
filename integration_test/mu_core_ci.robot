@@ -15,9 +15,9 @@ Suite Setup  One time setup  ${repo_url}  ${ws_dir}
 # Suite Setup
 
 *** Variables ***
-${repo_url}           https://github.com/tianocore/edk2.git
-${master_branch}      master
-${ws_dir}             edk2
+${repo_url}           https://github.com/microsoft/mu_basecore
+${master_branch}      release/202002
+${ws_dir}             mu_basecore
 ${ci_file}            .pytool/CISettings.py
 ${ws_root}            ${TEST_OUTPUT}${/}${ws_dir}
 ${tool_chain}         VS2019
@@ -39,9 +39,9 @@ One time setup
 
 *** Test Cases ***
 
-Run Edk2 MdePkg CoreCI Debug
+Run ProjectMu MdePkg CoreCI Debug
     [Documentation]  This Test will run X64 DEBUG build of Core CI on the MdePkg
-    [Tags]           CoreCI  Windows  VS2019  Compile  Edk2
+    [Tags]           CoreCI  Windows  VS2019  Compile  ProjectMu
 
     ${archs}=            Set Variable    X64
     ${targets}=          Set Variable    DEBUG
@@ -51,13 +51,14 @@ Run Edk2 MdePkg CoreCI Debug
     Reset git repo to main branch  ${ws_root}  ${master_branch}
 
     Stuart setup           ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
+    Stuart ci setup        ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
     Stuart update          ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
     Build BaseTools        ${tool_chain}  ${ws_root}
     Stuart CI build        ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
 
-Run Edk2 SecurityPkg CoreCI Release
+Run ProjectMu SecurityPkg CoreCI Release
     [Documentation]  This Test will run IA32 RELEASE build of Core CI on the SecurityPkg
-    [Tags]           CoreCI  Windows  VS2019  Compile  Edk2
+    [Tags]           CoreCI  Windows  VS2019  Compile  ProjectMu
 
     ${archs}=            Set Variable    IA32
     ${targets}=          Set Variable    RELEASE
@@ -67,13 +68,14 @@ Run Edk2 SecurityPkg CoreCI Release
     Reset git repo to main branch  ${ws_root}  ${master_branch}
 
     Stuart setup           ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
+    Stuart ci setup        ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
     Stuart update          ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
     Build BaseTools        ${tool_chain}  ${ws_root}
     Stuart CI build        ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
 
-Run Edk2 UefiCpuPkg CoreCI for No-Target
+Run ProjectMu UefiCpuPkg CoreCI for No-Target
     [Documentation]  This Test will run NO-TARGET Core CI test on the UefiCpuPkg
-    [Tags]           CoreCI  Windows  VS2019  NO-TARGET  Edk2
+    [Tags]           CoreCI  Windows  VS2019  NO-TARGET  ProjectMu
 
     ${archs}=            Set Variable    X64,IA32,AARCH64,ARM
     ${targets}=          Set Variable    NO-TARGET
@@ -83,13 +85,14 @@ Run Edk2 UefiCpuPkg CoreCI for No-Target
     Reset git repo to main branch  ${ws_root}  ${master_branch}
 
     Stuart setup           ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
+    Stuart ci setup        ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
     Stuart update          ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
     Build BaseTools        ${tool_chain}  ${ws_root}
     Stuart CI build        ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
 
-Run Edk2 MdeModulePkg CoreCI for NOOPT and HostTest
+Run ProjectMu MdeModulePkg CoreCI for NOOPT and HostTest
     [Documentation]  This Test will run NOOPT Core CI which includes Host-Tests on the MdeModulePkg
-    [Tags]           CoreCI  Windows  VS2019  NOOPT  HOST-TEST  Edk2
+    [Tags]           CoreCI  Windows  VS2019  NOOPT  HOST-TEST  ProjectMu
 
     ${archs}=            Set Variable    X64
     ${targets}=          Set Variable    NOOPT
@@ -99,6 +102,7 @@ Run Edk2 MdeModulePkg CoreCI for NOOPT and HostTest
     Reset git repo to main branch  ${ws_root}  ${master_branch}
 
     Stuart setup           ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
+    Stuart ci setup        ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
     Stuart update          ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
     Build BaseTools        ${tool_chain}  ${ws_root}
     Stuart CI build        ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}

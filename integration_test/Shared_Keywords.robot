@@ -110,6 +110,15 @@ Stuart setup
     Log Many	stdout: ${result.stdout}  stderr: ${result.stderr}
     Should Be Equal As Integers  ${result.rc}  0
 
+Stuart ci setup
+    [Arguments]  ${setting_file}  ${arch}  ${target}  ${packages}  ${tool_chain}  ${ws}
+    Log to console  Stuart CI Setup
+    ${result}=   Run Process    stuart_ci_setup
+    ...  -c  ${setting_file}  -a  ${arch}  TOOL_CHAIN_TAG\=${tool_chain}  -t  ${target}  -p  ${packages}  TARGET\=${target}
+    ...  cwd=${ws}  stdout=stdout.txt  stderr=stderr.txt
+    Log Many	stdout: ${result.stdout}  stderr: ${result.stderr}
+    Should Be Equal As Integers  ${result.rc}  0
+
 Stuart update
     [Arguments]  ${setting_file}  ${arch}  ${target}  ${packages}  ${tool_chain}  ${ws}
     Log to console  Stuart Update
