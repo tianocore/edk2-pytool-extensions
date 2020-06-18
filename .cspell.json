@@ -113,6 +113,8 @@
         "smbios",
         "Contoso",
         "MSFT",
-        "codecov"
+        "codecov",
+        "qemu",
+        "ovmf"
     ]
 }
