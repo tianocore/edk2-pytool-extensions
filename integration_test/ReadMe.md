@@ -56,6 +56,12 @@ create a large log.  So for those commands which can create a large log redirect
 add additional parameters to your "Run Process" cmd like so `stdout=stdout.txt  stderr=stderr.txt`.  For an example in action
 look at the keywords for all stuart commands.
 
+### Run a single test so you can collect the logs from the file system
+
+Robot framework supports running a single test by providing the test name.  The robot.run command should
+add `-t "the test case name here"`.  This has been useful to run a single failing test on your filesystem and then
+collect the stuart log to debug problems.
+
 ## Helpful Robot Links
 
 https://robotframework.org is the main site.  Lots of good info here.  My most commonly used pages are:
