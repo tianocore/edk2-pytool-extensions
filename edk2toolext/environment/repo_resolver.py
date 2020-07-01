@@ -31,14 +31,13 @@ def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=F
     # NOTE - this process is defined in the Readme.md including flow chart for this behavior
     ##
     if not os.path.isdir(git_path):
-        clone_repo(git_path, dependency)
-        r = Repo(git_path)
+        _, r = clone_repo(git_path, dependency)
         checkout(git_path, dependency, r, True, False)
         return r
 
     folder_empty = len(os.listdir(git_path)) == 0
     if folder_empty:  # if the folder is empty, we can clone into it
-        clone_repo(git_path, dependency)
+        _, r = clone_repo(git_path, dependency)
         r = Repo(git_path)
         checkout(git_path, dependency, r, True, False)
         return r
@@ -49,7 +48,7 @@ def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=F
             clear_folder(git_path)
             logger.warning(
                 "Folder {0} is not a git repo and is being overwritten!".format(git_path))
-            clone_repo(git_path, dependency)
+            _, r = clone_repo(git_path, dependency)
             checkout(git_path, dependency, repo, True, False)
             return repo
         else:
@@ -69,7 +68,7 @@ def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=F
             clear_folder(git_path)
             logger.warning(
                 "Folder {0} is a git repo but is dirty and is being overwritten as requested!".format(git_path))
-            clone_repo(git_path, dependency)
+            _, r = clone_repo(git_path, dependency)
             checkout(git_path, dependency, repo, True, False)
             return repo
         else:
@@ -103,8 +102,6 @@ def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=F
                     git_path, dependency["Url"], repo.remotes.origin.url))
                 raise Exception("The URL of the git Repo {2} in the folder {0} does not match {1}".format(
                     git_path, dependency["Url"], repo.remotes.origin.url))
-
-    checkout(git_path, dependency, repo, update_ok, ignore, force)
     return repo
 
 ##
@@ -174,24 +171,29 @@ def clone_repo(abs_file_system_path, DepObj):
     if not os.path.isdir(dest):
         os.makedirs(dest, exist_ok=True)
     shallow = False
+    branch = None
     if "Commit" in DepObj:
         shallow = False
     if "Full" in DepObj and DepObj["Full"] is True:
         shallow = False
+    if "Branch" in DepObj:
+        shallow = True
+        branch = DepObj["Branch"]
+
     reference = None
     if "ReferencePath" in DepObj and os.path.exists(DepObj["ReferencePath"]):
         reference = os.path.abspath(DepObj["ReferencePath"])
-    result = Repo.clone_from(DepObj["Url"], dest, shallow=shallow, reference=reference)
+    result = Repo.clone_from(DepObj["Url"], dest, branch=branch, shallow=shallow, reference=reference)
 
     if result is None:
         if "ReferencePath" in DepObj:
             # attempt a retry without the reference
             logger.warning("Reattempting to clone without a reference. {0}".format(DepObj["Url"]))
-            result = Repo.clone_from(DepObj["Url"], dest, shallow=shallow)
+            result = Repo.clone_from(DepObj["Url"], dest, branch=branch, shallow=shallow)
             if result is None:
                 return None
 
-    return dest
+    return (dest, result)
 
 
 def checkout(abs_file_system_path, dep, repo, update_ok=False, ignore_dep_state_mismatch=False, force=False):
