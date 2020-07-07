@@ -39,7 +39,6 @@ def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=F
     folder_empty = len(os.listdir(git_path)) == 0
     if folder_empty:  # if the folder is empty, we can clone into it
         _, r = clone_repo(git_path, dependency)
-        r = Repo(git_path)
         checkout(git_path, dependency, r, True, False)
         return r
 
@@ -194,13 +193,15 @@ def clone_repo(abs_file_system_path, DepObj):
             logger.warning("Reattempting to clone without a reference. {0}".format(DepObj["Url"]))
             result = Repo.clone_from(DepObj["Url"], dest, branch=branch, shallow=shallow)
             if result is None:
-                return None
+                return (dest, None)
 
     return (dest, result)
 
 
 def checkout(abs_file_system_path, dep, repo, update_ok=False, ignore_dep_state_mismatch=False, force=False):
     logger = logging.getLogger("git")
+    if repo is None:
+        repo = Repo(abs_file_system_path)
     if "Commit" in dep:
         if update_ok or force:
             repo.fetch()
