@@ -26,20 +26,19 @@ def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=F
     if "Path" in dependency and not git_path.endswith(os.path.relpath(dependency["Path"])):
         # if we don't already the the path from the dependency at the end of the path we've been giving
         git_path = os.path.join(git_path, dependency["Path"])
-
+    logging.info(f"Resolving at {git_path}")
     ##
     # NOTE - this process is defined in the Readme.md including flow chart for this behavior
     ##
     if not os.path.isdir(git_path):
-        clone_repo(git_path, dependency)
-        r = Repo(git_path)
+        logging.info(f"Cloning at {git_path}")
+        _, r = clone_repo(git_path, dependency)
         checkout(git_path, dependency, r, True, False)
         return r
 
     folder_empty = len(os.listdir(git_path)) == 0
     if folder_empty:  # if the folder is empty, we can clone into it
-        clone_repo(git_path, dependency)
-        r = Repo(git_path)
+        _, r = clone_repo(git_path, dependency)
         checkout(git_path, dependency, r, True, False)
         return r
 
@@ -49,7 +48,7 @@ def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=F
             clear_folder(git_path)
             logger.warning(
                 "Folder {0} is not a git repo and is being overwritten!".format(git_path))
-            clone_repo(git_path, dependency)
+            _, r = clone_repo(git_path, dependency)
             checkout(git_path, dependency, repo, True, False)
             return repo
         else:
@@ -69,7 +68,7 @@ def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=F
             clear_folder(git_path)
             logger.warning(
                 "Folder {0} is a git repo but is dirty and is being overwritten as requested!".format(git_path))
-            clone_repo(git_path, dependency)
+            _, r = clone_repo(git_path, dependency)
             checkout(git_path, dependency, repo, True, False)
             return repo
         else:
@@ -103,7 +102,7 @@ def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=F
                     git_path, dependency["Url"], repo.remotes.origin.url))
                 raise Exception("The URL of the git Repo {2} in the folder {0} does not match {1}".format(
                     git_path, dependency["Url"], repo.remotes.origin.url))
-
+    # if we've gotten here, we should just checkout as normal
     checkout(git_path, dependency, repo, update_ok, ignore, force)
     return repo
 
@@ -174,35 +173,46 @@ def clone_repo(abs_file_system_path, DepObj):
     if not os.path.isdir(dest):
         os.makedirs(dest, exist_ok=True)
     shallow = False
+    branch = None
     if "Commit" in DepObj:
         shallow = False
     if "Full" in DepObj and DepObj["Full"] is True:
         shallow = False
+    if "Branch" in DepObj:
+        shallow = True
+        branch = DepObj["Branch"]
+
     reference = None
     if "ReferencePath" in DepObj and os.path.exists(DepObj["ReferencePath"]):
         reference = os.path.abspath(DepObj["ReferencePath"])
-    result = Repo.clone_from(DepObj["Url"], dest, shallow=shallow, reference=reference)
+    result = Repo.clone_from(DepObj["Url"], dest, branch=branch, shallow=shallow, reference=reference)
 
     if result is None:
         if "ReferencePath" in DepObj:
             # attempt a retry without the reference
             logger.warning("Reattempting to clone without a reference. {0}".format(DepObj["Url"]))
-            result = Repo.clone_from(DepObj["Url"], dest, shallow=shallow)
+            result = Repo.clone_from(DepObj["Url"], dest, branch=branch, shallow=shallow)
             if result is None:
-                return None
+                return (dest, None)
 
-    return dest
+    return (dest, result)
 
 
 def checkout(abs_file_system_path, dep, repo, update_ok=False, ignore_dep_state_mismatch=False, force=False):
     logger = logging.getLogger("git")
+    if repo is None:
+        repo = Repo(abs_file_system_path)
     if "Commit" in dep:
+        commit = dep["Commit"]
         if update_ok or force:
             repo.fetch()
-            repo.checkout(commit=dep["Commit"])
+            result = repo.checkout(commit=commit)
+            if result is False:
+                repo.fetch()
+                repo.checkout(commit=commit)
             repo.submodule("update", "--init", "--recursive")
         else:
-            if repo.head.commit == dep["Commit"]:
+            if repo.head.commit == commit:
                 logger.debug(
                     "Dependency {0} state ok without update".format(dep["Path"]))
                 return
@@ -217,9 +227,15 @@ def checkout(abs_file_system_path, dep, repo, update_ok=False, ignore_dep_state_
                     "Dependency {0} is not in sync with requested commit.  Fail.".format(dep["Path"]))
 
     elif "Branch" in dep:
+        branch = dep["Branch"]
         if update_ok or force:
             repo.fetch()
-            repo.checkout(branch=dep["Branch"])
+            result = repo.checkout(branch=branch)
+            if result is False:  # we failed to do this
+                # try to fetch it and try to checkout again
+                logger.info("We failed to checkout this branch, we'll try to fetch")
+                repo.fetch(branch=branch)
+                result = repo.checkout(branch=branch)
             repo.submodule("update", "--init", "--recursive")
         else:
             if repo.active_branch == dep["Branch"]:
