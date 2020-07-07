@@ -26,11 +26,12 @@ def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=F
     if "Path" in dependency and not git_path.endswith(os.path.relpath(dependency["Path"])):
         # if we don't already the the path from the dependency at the end of the path we've been giving
         git_path = os.path.join(git_path, dependency["Path"])
-
+    logging.info(f"Resolving at {git_path}")
     ##
     # NOTE - this process is defined in the Readme.md including flow chart for this behavior
     ##
     if not os.path.isdir(git_path):
+        logging.info(f"Cloning at {git_path}")
         _, r = clone_repo(git_path, dependency)
         checkout(git_path, dependency, r, True, False)
         return r
@@ -102,6 +103,8 @@ def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=F
                     git_path, dependency["Url"], repo.remotes.origin.url))
                 raise Exception("The URL of the git Repo {2} in the folder {0} does not match {1}".format(
                     git_path, dependency["Url"], repo.remotes.origin.url))
+    # if we've gotten here, we should just checkout as normal
+    checkout(git_path, dependency, repo, update_ok, ignore, force)
     return repo
 
 ##
