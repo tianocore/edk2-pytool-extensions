@@ -203,12 +203,16 @@ def checkout(abs_file_system_path, dep, repo, update_ok=False, ignore_dep_state_
     if repo is None:
         repo = Repo(abs_file_system_path)
     if "Commit" in dep:
+        commit = dep["Commit"]
         if update_ok or force:
             repo.fetch()
-            repo.checkout(commit=dep["Commit"])
+            result = repo.checkout(commit=commit)
+            if result is False:
+                repo.fetch()
+                repo.checkout(commit=commit)
             repo.submodule("update", "--init", "--recursive")
         else:
-            if repo.head.commit == dep["Commit"]:
+            if repo.head.commit == commit:
                 logger.debug(
                     "Dependency {0} state ok without update".format(dep["Path"]))
                 return
@@ -223,9 +227,15 @@ def checkout(abs_file_system_path, dep, repo, update_ok=False, ignore_dep_state_
                     "Dependency {0} is not in sync with requested commit.  Fail.".format(dep["Path"]))
 
     elif "Branch" in dep:
+        branch = dep["Branch"]
         if update_ok or force:
             repo.fetch()
-            repo.checkout(branch=dep["Branch"])
+            result = repo.checkout(branch=branch)
+            if result is False: # we failed to do this
+                # try to fetch it and try to checkout again
+                logger.info("We failed to checkout this branch, we'll try to fetch")
+                repo.fetch(branch=branch)
+                result = repo.checkout(branch=branch)
             repo.submodule("update", "--init", "--recursive")
         else:
             if repo.active_branch == dep["Branch"]:

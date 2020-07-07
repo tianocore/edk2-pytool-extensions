@@ -271,10 +271,8 @@ class test_repo_resolver(unittest.TestCase):
         folder_path = os.path.join(test_dir, branch_dependency["Path"])
         repo_resolver.resolve(test_dir, sub_branch_dependency, force=True)
         details = repo_resolver.get_details(folder_path)
-        print(details)
         self.assertEqual(details['Url'], branch_dependency['Url'])
         self.assertEqual(details['Branch'], sub_branch_dependency['Branch'])
-        self.fail()
 
 
 if __name__ == '__main__':

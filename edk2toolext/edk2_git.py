@@ -186,10 +186,14 @@ class Repo(object):
 
         return True
 
-    def fetch(self):
+    def fetch(self, remote="origin", branch=None):
         return_buffer = StringIO()
 
-        params = "fetch"
+        param_list = ["fetch", remote]
+        if branch is not None:
+            param_list.append(f"{branch}:{branch}")
+
+        params = " ".join(param_list)
 
         ret = RunCmd("git", params, workingdir=self._path,
                      outstream=return_buffer)
@@ -251,7 +255,7 @@ class Repo(object):
             params.append("--reference %s" % reference)
         else:
             params.append("--recurse-submodules")  # if we don't have a reference we can just recurse the submodules
-        
+
         params.append(url)
         params.append(to_path)
 
