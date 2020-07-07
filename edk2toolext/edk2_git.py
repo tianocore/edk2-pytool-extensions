@@ -245,7 +245,7 @@ class Repo(object):
             params.append(f'--branch {branch}')
             params.append('--single-branch')
         if shallow:
-            params.append("--shallow-submodules")
+            # params.append("--shallow-submodules")
             params.append("--depth=5")
         if reference:
             params.append("--reference %s" % reference)
