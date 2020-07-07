@@ -231,7 +231,7 @@ def checkout(abs_file_system_path, dep, repo, update_ok=False, ignore_dep_state_
         if update_ok or force:
             repo.fetch()
             result = repo.checkout(branch=branch)
-            if result is False: # we failed to do this
+            if result is False:  # we failed to do this
                 # try to fetch it and try to checkout again
                 logger.info("We failed to checkout this branch, we'll try to fetch")
                 repo.fetch(branch=branch)
