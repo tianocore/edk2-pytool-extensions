@@ -244,14 +244,13 @@ class Repo(object):
             shallow = True
             params.append(f'--branch {branch}')
         if shallow:
-            params.append("--shallow-submodules")
+            # params.append("--shallow-submodules")
             params.append("--depth=5")
         if reference:
             params.append("--reference %s" % reference)
         else:
             params.append("--recurse-submodules")  # if we don't have a reference we can just recurse the submodules
-        
-        
+
         params.append('--single-branch')
 
         params.append(url)
