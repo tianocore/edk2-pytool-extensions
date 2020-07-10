@@ -68,6 +68,12 @@ class PEObject(object):
                 return FILE_TYPE_STRINGS[val]
 
         return hex(val)
+
+    def containsrsrc(self):
+        for section in self.pe.sections:
+            if section.Name.decode("utf-8").replace("\x00", "") == ".rsrc":
+                return True
+        return False
     
     def getVersionDict(self):
         result = {}
@@ -95,20 +101,27 @@ class PEObject(object):
         except AttributeError:
             print("Could not find VS_FIXEDFILEINFO", file=sys.stderr)
 
-        for fileinfo in self.pe.FileInfo:
-            for entry in fileinfo:
-                if entry.Key == b'StringFileInfo':
-                    stringFileInfoDict = {}
-                    for st in entry.StringTable:
-                        for item in st.entries.items():
-                            stringFileInfoDict[item[0].decode("utf-8")] = item[1].decode("utf-8")
-                    result["StringFileInfo"] = stringFileInfoDict
-                elif entry.Key == b'VarFileInfo':
-                    varFileInfoDict = {}
-                    for var in entry.Var:
-                        for item in var.entry.items():
-                            varFileInfoDict[item[0].decode("utf-8")] = item[1]
-                    result["VarFileInfo"] = varFileInfoDict
+        if self.containsrsrc():
+            try:
+                for fileinfo in self.pe.FileInfo:
+                    for entry in fileinfo:
+                        if entry.Key == b'StringFileInfo':
+                            stringFileInfoDict = {}
+                            for st in entry.StringTable:
+                                for item in st.entries.items():
+                                    stringFileInfoDict[item[0].decode("utf-8")] = item[1].decode("utf-8")
+                            result["StringFileInfo"] = stringFileInfoDict
+                        elif entry.Key == b'VarFileInfo':
+                            varFileInfoDict = {}
+                            for var in entry.Var:
+                                for item in var.entry.items():
+                                    varFileInfoDict[item[0].decode("utf-8")] = item[1]
+                            result["VarFileInfo"] = varFileInfoDict
+            except AttributeError:
+                print("Could not find FileInfoTable", file=sys.stderr)
+        else:
+            print("Could not find .rsrc section", file=sys.stderr)
+
         return result
 
     def getVersionJSON(self):
@@ -119,5 +132,5 @@ class PEObject(object):
         if versionDict["Signature"] != hex(0xFEEF04BD):
             return False
 
-obj = PEObject("C:\\TEMP\\PciBusDxe.efi")
+obj = PEObject("C:\\TEMP\\bootmgr.efi")
 print(obj.getVersionJSON())
