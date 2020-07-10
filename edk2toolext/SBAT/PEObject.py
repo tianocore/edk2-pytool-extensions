@@ -57,9 +57,21 @@ VALID_SIGNATURE          = 0xfeef04bd
 
 # PE/PE+ field names
 SIGNATURE_STR            = "Signature"
+STRUC_VERSION_STR        = "StrucVersion"
+FILE_VERSION_MS_STR      = "FileVersionMS"
+FILE_VERSION_LS_STR      = "FileVersionLS"
+FILE_VERSION_STR         = "FileVersion"
+PRODUCT_VERSION_MS_STR   = "ProductVersionMS"
+PRODUCT_VERSION_LS_STR   = "ProductVersionLS"
+PRODUCT_VERSION_STR      = "ProductVersion"
+FILE_FLAG_MASK_STR       = "FileFlagMask"
+FILE_FLAGS_STR           = "FileFlags"
 FILE_TYPE_STR            = "FileType"
 FILE_SUBTYPE_STR         = "FileSubtype"
 FILE_OS_STR              = "FileOS"
+FILE_DATE_MS_STR         = "FileDateMS"
+FILE_DATE_LS_STR         = "FileDateLS"
+FILE_DATE_STR            = "FileDate"
 VFT_FONT_STR             = "VFT_FONT"
 RSRC_STR                 = ".rsrc"
 STRING_FILE_INFO_STR     = "StringFileInfo"
@@ -77,16 +89,32 @@ class PEObject(object):
     def __init__(self, filepath):
         self.pe = pefile.PE(filepath)
 
+    def __versionStr__(self, val):
+        return str(((val & ~0) >> 16) & 0xffff) + "." + str(val & 0xffff)
+
     # Private, converts hex version information to string according to Msft spec
-    def __hexToStrVS_FixedFileInfo__(self, key, val):
+    def __populateEntry__(self, key, val, dict):
         if key == FILE_OS_STR:
             if val in FILE_OS_STRINGS:
-                return FILE_OS_STRINGS[val]
+                dict[key] = FILE_OS_STRINGS[val]
+                return
         elif key == FILE_TYPE_STR:
             if val in FILE_TYPE_STRINGS:
-                return FILE_TYPE_STRINGS[val]
-
-        return hex(val)
+                dict[key] = FILE_TYPE_STRINGS[val]
+                return
+        elif key == FILE_VERSION_MS_STR:
+            dict[FILE_VERSION_STR] = self.__versionStr__(val)
+            return
+        elif key == FILE_VERSION_LS_STR:
+            dict[FILE_VERSION_STR] += "." + self.__versionStr__(val)
+            return
+        elif key == PRODUCT_VERSION_MS_STR:
+            dict[PRODUCT_VERSION_STR] = self.__versionStr__(val)
+            return
+        elif key == PRODUCT_VERSION_LS_STR:
+            dict[PRODUCT_VERSION_STR] += "." + self.__versionStr__(val)
+            return
+        dict[key] = hex(val)
 
     # Returns true if PE object contains .rsrc section, false otherwise
     def containsrsrc(self):
@@ -101,11 +129,26 @@ class PEObject(object):
         try:
             vs_fixedfileinfoDict = self.pe.VS_FIXEDFILEINFO[0].dump_dict()
             for key in vs_fixedfileinfoDict.keys():
-                if key == PE_STRUCT_STR or key == FILE_SUBTYPE_STR:
+                # Skip sections that have a dependencies
+                if (key == PE_STRUCT_STR 
+                  or key == FILE_SUBTYPE_STR 
+                  or key == FILE_VERSION_LS_STR 
+                  or key == PRODUCT_VERSION_LS_STR 
+                  or key == FILE_DATE_LS_STR):
                     continue
-                result[key] = self.__hexToStrVS_FixedFileInfo__(key, vs_fixedfileinfoDict[key][PE_VALUE_STR])
+
+                self.__populateEntry__(key, vs_fixedfileinfoDict[key][PE_VALUE_STR], result)
             
-            # Ensure FileSubtype populated after FileType
+            # Resolve dependent fields
+            if FILE_VERSION_MS_STR in vs_fixedfileinfoDict.keys() and FILE_VERSION_LS_STR in vs_fixedfileinfoDict.keys():
+                self.__populateEntry__(FILE_VERSION_LS_STR, vs_fixedfileinfoDict[FILE_VERSION_LS_STR][PE_VALUE_STR], result)
+
+            if PRODUCT_VERSION_MS_STR in vs_fixedfileinfoDict.keys() and PRODUCT_VERSION_LS_STR in vs_fixedfileinfoDict.keys():
+                self.__populateEntry__(PRODUCT_VERSION_LS_STR, vs_fixedfileinfoDict[PRODUCT_VERSION_LS_STR][PE_VALUE_STR], result)
+
+            if FILE_DATE_MS_STR in vs_fixedfileinfoDict.keys() and FILE_DATE_LS_STR in vs_fixedfileinfoDict.keys():
+                self.__populateEntry__(FILE_DATE_LS_STR, vs_fixedfileinfoDict[FILE_DATE_LS_STR][PE_VALUE_STR], result)
+
             if FILE_SUBTYPE_STR in vs_fixedfileinfoDict.keys():
                 fileSubType = vs_fixedfileinfoDict[FILE_SUBTYPE_STR][PE_VALUE_STR]
                 if FILE_TYPE_STR in result and result[FILE_TYPE_STR] == VFT_FONT_STR:
@@ -118,6 +161,7 @@ class PEObject(object):
                         result[FILE_SUBTYPE_STR] = FILE_SUBTYPE_NOFONT_STRINGS[fileSubType]
                     else:
                         result[FILE_SUBTYPE_STR] = fileSubType
+
         except AttributeError:
             print("WARNING: Could not find VS_FIXEDFILEINFO.", file=sys.stderr)
 
@@ -127,8 +171,8 @@ class PEObject(object):
                     for entry in fileinfo:
                         if entry.Key.decode(PE_ENCODING).replace("\x00", "") == STRING_FILE_INFO_STR:
                             stringFileInfoDict = {}
-                            for st in entry.StringTable:
-                                for item in st.entries.items():
+                            for strTable in entry.StringTable:
+                                for item in strTable.entries.items():
                                     stringFileInfoDict[item[0].decode(PE_ENCODING)] = item[1].decode(PE_ENCODING)
                             result[STRING_FILE_INFO_STR] = stringFileInfoDict
                         elif entry.Key.decode(PE_ENCODING).replace("\x00", "") == VAR_FILE_INFO_STR:
