@@ -1,0 +1,12 @@
+# Simple Makefile for .rsrc Python tool tests
+
+norsrc: main.cpp
+	CL /Fe".\test1norsrc.exe" /Fo".\test1norsrc.obj"  /EHsc main.cpp
+
+rsrc: main.cpp
+	CL /Fo".\test1rsrc.obj"  /EHsc /c main.cpp
+	RC version.rc
+	LINK test1rsrc.obj version.res
+
+clean:
+	del *.obj *.exe

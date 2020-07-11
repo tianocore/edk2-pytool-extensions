@@ -199,5 +199,5 @@ class PEObject(object):
         if versionDict[SIGNATURE_STR] != VALID_SIGNATURE:
             return False
 
-obj = PEObject("C:\\TEMP\\bootmgr.efi")
+obj = PEObject(".\\tests\\test1\\test1norsrc.exe")
 print(obj.getVersionJSON())
