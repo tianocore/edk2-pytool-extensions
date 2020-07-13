@@ -463,11 +463,11 @@ class VERSIONINFOGenerator(object):
             if len(langIDset) != 2:
                 print("ERROR: Translation field must contain 2 space delimited hexidecimal 8 bit words." , file=sys.stderr)
                 valid = False
-            elif langIDset[0] not in VALID_LANG_ID:
-                print("ERROR: Invalid language code: " + str(langIDset[0]) + ".", file=sys.stderr)
+            elif int(langIDset[0], 0) not in VALID_LANG_ID:
+                print("ERROR: Invalid language code: " + langIDset[0] + ".", file=sys.stderr)
                 valid = False
-            elif langIDset[1] not in VALID_CHARSET_ID:
-                print("ERROR: Invalid charset code: " + str(langIDset[1]) + ".", file=sys.stderr)
+            elif int(langIDset[1], 0) not in VALID_CHARSET_ID:
+                print("ERROR: Invalid charset code: " + langIDset[1] + ".", file=sys.stderr)
                 valid = False
         else:
             print("ERROR: Missing required parameter: Translation in VarFileInfo" , file=sys.stderr)
@@ -494,7 +494,7 @@ class VERSIONINFOGenerator(object):
         
         languageCode = ""
         for code in self.versionDict[VAR_FILE_INFO_STR][TRANSLATION_STR].split(" "):
-            languageCode += code.split("0x", 1)[0]
+            languageCode += code.split("0x", 1)[1]
 
         outStr += "\t\t" + BLOCK_STR + " \"" + languageCode + "\"\n\t\t" + BEGIN_STR + "\n"
         for field in self.versionDict[STRING_FILE_INFO_STR].keys():
