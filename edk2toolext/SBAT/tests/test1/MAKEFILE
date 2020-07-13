@@ -9,4 +9,4 @@ rsrc: main.cpp
 	LINK test1rsrc.obj version.res
 
 clean:
-	del *.obj *.exe
+	del *.obj *.exe *.res
