@@ -5,8 +5,8 @@ norsrc: main.cpp
 
 rsrc: main.cpp
 	CL /Fo".\test1rsrc.obj"  /EHsc /c main.cpp
-	RC version.rc
-	LINK test1rsrc.obj version.res
+	RC VERSIONINFO.rc
+	LINK test1rsrc.obj VERSIONINFO.res
 
 clean:
 	del *.obj *.exe *.res
