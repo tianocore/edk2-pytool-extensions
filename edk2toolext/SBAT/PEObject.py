@@ -503,6 +503,7 @@ class VERSIONINFOGenerator(object):
         outStr += "\t\t" + END_STR + "\n\t" + END_STR + "\n\n"
     
         # VarFileInfo
+        outStr += "\t" + BLOCK_STR + " \"" + VAR_FILE_INFO_STR + "\"\n\t" + BEGIN_STR + "\n"
         languageTokens = self.versionDict[VAR_FILE_INFO_STR][TRANSLATION_STR].split(" ")
         for field in self.versionDict[VAR_FILE_INFO_STR].keys():
             if field == TRANSLATION_STR:
@@ -515,8 +516,13 @@ class VERSIONINFOGenerator(object):
         with open(path + "VERSIONINFO.rc", "w") as out:
             out.write(outStr)
 
+# Given a path ot a PE/PE+, writes JSON of version information from header and .rsrc section to outPath
+def writeResourceJSON(PEpath, outPath):
+    pe = PEObject(PEpath)
+    outPath += "VERSIONINFO.json"
+    with open(outPath, "w") as out:
+        json.dump(pe.getVersionDict(), out)
 
-obj = PEObject(".\\tests\\test1\\test1rsrc.exe")
-print(json.dumps(obj.getVersionDict()))
-generator = VERSIONINFOGenerator(".\\test1.json")
-generator.write(".\\tests\\test1\\")
+# Given a path to a JSON file, write version resource file compatible with rc compiler to outPath
+def generateRCfile(JSONpath, outPath):
+    VERSIONINFOGenerator(JSONpath).write(outPath)

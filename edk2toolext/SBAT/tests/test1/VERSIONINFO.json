@@ -20,8 +20,8 @@
 		"OriginalFilename": "OSRDRV.sys",
 		"ProductName": "OSR Driver",
 		"ProductVersion": "1.0.0.0"
-	},
-	"VarFileInfo": {
-		"Translation": "0x0409 0x04b0"
-	}
+    },
+    "VarFileInfo": {
+        "Translation": "0x0409 0x04b0"
+    }
 }
