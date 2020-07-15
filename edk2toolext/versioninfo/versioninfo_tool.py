@@ -53,8 +53,11 @@ def serviceRequest(args):
     if args.mode == 'd':
         pe = PEObject(args.input_file)
         output_dir += "VERSIONINFO.json"
-        with open(output_dir, "w") as out:
-            json.dump(pe.getVersionDict(), out)
+        generatedDict = pe.getVersionDict()
+        if generatedDict:
+            print(generatedDict)
+            with open(output_dir, "w") as out:
+                json.dump(pe.getVersionDict(), out)
     else:
         VERSIONINFOGenerator(args.input_file).write(output_dir)
 

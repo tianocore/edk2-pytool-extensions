@@ -12,6 +12,7 @@
 import pefile
 import sys
 import json
+import copy
 
 # String values for PE/PE+ header versioning metadata
 FILE_OS_STRINGS = {
@@ -396,8 +397,8 @@ class VERSIONINFOGenerator(object):
     # Private, returns true if verStr is a valid version string, false otherwise.
     def __validateVersionNumber__(self, verStr):
         if verStr.count('.') != 3:
-            print("ERROR: Invalid version string: " + verStr + ". Version must be in form \" \
-                   INTEGER.INTEGER.INTEGER.INTEGER\".", file=sys.stderr)
+            print("ERROR: Invalid version string: " + verStr + ". Version must be in form "
+                  + "\"INTEGER.INTEGER.INTEGER.INTEGER\".", file=sys.stderr)
             return False
 
         for substr in verStr.split("."):
@@ -435,7 +436,7 @@ class VERSIONINFOGenerator(object):
             valid = False
 
         if STRING_FILE_INFO_STR in self.versionDict:
-            requiredStringFileFields = STRING_FILE_INFO_REQUIRED_FIELDS
+            requiredStringFileFields = copy.deepcopy(STRING_FILE_INFO_REQUIRED_FIELDS)
             for key in self.versionDict[STRING_FILE_INFO_STR]:
                 if key in requiredStringFileFields:
                     requiredStringFileFields.remove(key)
@@ -483,15 +484,19 @@ class VERSIONINFOGenerator(object):
 
         if TRANSLATION_STR in self.versionDict[VAR_FILE_INFO_STR]:
             langIDset = self.versionDict[VAR_FILE_INFO_STR][TRANSLATION_STR].split(" ")
-            if len(langIDset) != 2:
-                print("ERROR: Translation field must contain 2 space delimited hexidecimal 8 bit words.",
-                      file=sys.stderr)
-                valid = False
-            elif int(langIDset[0], 0) not in VALID_LANG_ID:
-                print("ERROR: Invalid language code: " + langIDset[0] + ".", file=sys.stderr)
-                valid = False
-            elif int(langIDset[1], 0) not in VALID_CHARSET_ID:
-                print("ERROR: Invalid charset code: " + langIDset[1] + ".", file=sys.stderr)
+            try:
+                if len(langIDset) != 2:
+                    print("ERROR: Translation field must contain 2 space delimited hexidecimal 8 bit words.",
+                          file=sys.stderr)
+                    valid = False
+                elif int(langIDset[0], 0) not in VALID_LANG_ID:
+                    print("ERROR: Invalid language code: " + langIDset[0] + "\".", file=sys.stderr)
+                    valid = False
+                elif int(langIDset[1], 0) not in VALID_CHARSET_ID:
+                    print("ERROR: Invalid charset code: " + langIDset[1] + "\".", file=sys.stderr)
+                    valid = False
+            except ValueError:
+                print("ERROR: Invalid language code: " + langIDset[0] + "\".", file=sys.stderr)
                 valid = False
         else:
             print("ERROR: Missing required parameter: Translation in VarFileInfo", file=sys.stderr)
