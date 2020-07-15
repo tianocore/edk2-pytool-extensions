@@ -236,6 +236,7 @@ class PEObject(object):
     # Takes filepath to PE/PE+ file to parse
     def __init__(self, filepath):
         try:
+            print(filepath)
             self.pe = pefile.PE(filepath)
         except FileNotFoundError:
             print("ERROR: Could not find " + filepath, file=sys.stderr)
@@ -508,9 +509,16 @@ class VERSIONINFOGenerator(object):
         # Header fields
         outStr += "VS_VERSION_INFO\tVERSIONINFO\n"
         for param in self.versionDict.keys():
-            if param == STRING_FILE_INFO_STR or param == VAR_FILE_INFO_STR or param not in VERSIONFILE_REQUIRED_FIELDS:
+            if (param == STRING_FILE_INFO_STR
+               or param == VAR_FILE_INFO_STR
+               or param not in VERSIONFILE_REQUIRED_FIELDS):
                 continue
-            outStr += param + "\t" + self.versionDict[param] + "\n"
+            if param == PRODUCT_VERSION_STR or param == FILE_VERSION_STR:
+                outStr += param + "\t"
+                version = self.versionDict[param].split(".")
+                outStr += version[0] + ',' + version[1] + ',' + version[2] + ',' + version[3] + "\n"
+            else:
+                outStr += param + "\t" + self.versionDict[param] + "\n"
 
         # StringFileInfo
         outStr += "\n" + BEGIN_STR + "\n\t" + BLOCK_STR + " \"" + STRING_FILE_INFO_STR + "\"\n\t" + BEGIN_STR + "\n"

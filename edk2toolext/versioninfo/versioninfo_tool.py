@@ -46,8 +46,7 @@ def get_cli_options(args=None):
     return parser.parse_args(args=args)
 
 
-def main():
-    args = get_cli_options()
+def serviceRequest(args):
     output_dir = args.output_dir
     if not output_dir.endswith('\\'):
         output_dir += '\\'
@@ -58,6 +57,10 @@ def main():
             json.dump(pe.getVersionDict(), out)
     else:
         VERSIONINFOGenerator(args.input_file).write(output_dir)
+
+
+def main():
+    serviceRequest(get_cli_options())
 
 
 if __name__ == '__main__':
