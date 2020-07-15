@@ -1,91 +1,90 @@
 import pefile
-import peutils
 import sys
 import json
 
 # String values for PE/PE+ header versioning metadata
 FILE_OS_STRINGS = {
-    0x00010000 : "VOS_DOS",
-    0x00040000 : "VOS_NT",
-    0x00000001 : "VOS__WINDOWS16",
-    0x00000004 : "VOS__WINDOWS32",
-    0x00020000 : "VOS_OS216",
-    0x00030000 : "VOS_OS232",
-    0x00000002 : "VOS__PM16",
-    0x00000003 : "VOS__PM32",
-    0x00000000 : "VOS_UNKNOWN",
-    0x00010001 : "VOS_DOS_WINDOWS16",
-    0x00010004 : "VOS_DOS_WINDOWS32",
-    0x00040004 : "VOS_NT_WINDOWS32",
-    0x00020002 : "VOS_OS216_PM16",
-    0x00030003 : "VOS_OS232_PM32"
+    0x00010000: "VOS_DOS",
+    0x00040000: "VOS_NT",
+    0x00000001: "VOS__WINDOWS16",
+    0x00000004: "VOS__WINDOWS32",
+    0x00020000: "VOS_OS216",
+    0x00030000: "VOS_OS232",
+    0x00000002: "VOS__PM16",
+    0x00000003: "VOS__PM32",
+    0x00000000: "VOS_UNKNOWN",
+    0x00010001: "VOS_DOS_WINDOWS16",
+    0x00010004: "VOS_DOS_WINDOWS32",
+    0x00040004: "VOS_NT_WINDOWS32",
+    0x00020002: "VOS_OS216_PM16",
+    0x00030003: "VOS_OS232_PM32"
 }
 
 FILE_TYPE_STRINGS = {
-    0x00000001 : "VFT_APP",
-    0x00000002 : "VFT_DLL",
-    0x00000003 : "VFT_DRV",
-    0x00000004 : "VFT_FONT",
-    0x00000007 : "VFT_STATIC_LIB",
-    0x00000000 : "VFT_UNKNOWN",
-    0x00000005 : "VFT_VXD"
+    0x00000001: "VFT_APP",
+    0x00000002: "VFT_DLL",
+    0x00000003: "VFT_DRV",
+    0x00000004: "VFT_FONT",
+    0x00000007: "VFT_STATIC_LIB",
+    0x00000000: "VFT_UNKNOWN",
+    0x00000005: "VFT_VXD"
 }
 
 FILE_SUBTYPE_NOFONT_STRINGS = {
-    0x0000000A : "VFT2_DRV_COMM",
-    0x00000004 : "VFT2_DRV_DISPLAY",
-    0x00000008 : "VFT2_DRV_INSTALLABLE",
-    0x00000002 : "VFT2_DRV_KEYBOARD",
-    0x00000003 : "VFT2_DRV_LANGUAGE",
-    0x00000005 : "VFT2_DRV_MOUSE",
-    0x00000006 : "VFT2_DRV_NETWORK",
-    0x00000001 : "VFT2_DRV_PRINTER",
-    0x00000009 : "VFT2_DRV_SOUND",
-    0x00000007 : "VFT2_DRV_SYSTEM",
-    0x0000000C : "VFT2_DRV_VERSIONED_PRINTER",
-    0x00000000 : "VFT2_UNKNOWN"
+    0x0000000A: "VFT2_DRV_COMM",
+    0x00000004: "VFT2_DRV_DISPLAY",
+    0x00000008: "VFT2_DRV_INSTALLABLE",
+    0x00000002: "VFT2_DRV_KEYBOARD",
+    0x00000003: "VFT2_DRV_LANGUAGE",
+    0x00000005: "VFT2_DRV_MOUSE",
+    0x00000006: "VFT2_DRV_NETWORK",
+    0x00000001: "VFT2_DRV_PRINTER",
+    0x00000009: "VFT2_DRV_SOUND",
+    0x00000007: "VFT2_DRV_SYSTEM",
+    0x0000000C: "VFT2_DRV_VERSIONED_PRINTER",
+    0x00000000: "VFT2_UNKNOWN"
 }
 
 FILE_SUBTYPE_FONT_STRINGS = {
-    0x00000001 : "VFT2_FONT_RASTER",
-    0x00000003 : "VFT2_FONT_TRUETYPE",
-    0x00000002 : "VFT2_FONT_VECTOR",
-    0x00000000 : "VFT2_UNKNOWN"
+    0x00000001: "VFT2_FONT_RASTER",
+    0x00000003: "VFT2_FONT_TRUETYPE",
+    0x00000002: "VFT2_FONT_VECTOR",
+    0x00000000: "VFT2_UNKNOWN"
 }
 
-VALID_SIGNATURE          = 0xfeef04bd
+VALID_SIGNATURE = 0xfeef04bd
 
 # PE/PE+ field names
-SIGNATURE_STR            = "Signature"
-STRUC_VERSION_STR        = "StrucVersion"
-FILE_VERSION_MS_STR      = "FileVersionMS"
-FILE_VERSION_LS_STR      = "FileVersionLS"
-FILE_VERSION_STR         = "FileVersion"
-PRODUCT_VERSION_MS_STR   = "ProductVersionMS"
-PRODUCT_VERSION_LS_STR   = "ProductVersionLS"
-PRODUCT_VERSION_STR      = "ProductVersion"
-FILE_FLAG_MASK_STR       = "FileFlagsMask"
-FILE_FLAGS_STR           = "FileFlags"
-FILE_TYPE_STR            = "FileType"
-FILE_SUBTYPE_STR         = "FileSubtype"
-FILE_OS_STR              = "FileOS"
-FILE_DATE_MS_STR         = "FileDateMS"
-FILE_DATE_LS_STR         = "FileDateLS"
-FILE_DATE_STR            = "FileDate"
-VFT_FONT_STR             = "VFT_FONT"
-TRANSLATION_STR          = "Translation"
-RSRC_STR                 = ".rsrc"
-STRING_FILE_INFO_STR     = "StringFileInfo"
-VAR_FILE_INFO_STR        = "VarFileInfo"
+SIGNATURE_STR = "Signature"
+STRUC_VERSION_STR = "StrucVersion"
+FILE_VERSION_MS_STR = "FileVersionMS"
+FILE_VERSION_LS_STR = "FileVersionLS"
+FILE_VERSION_STR = "FileVersion"
+PRODUCT_VERSION_MS_STR = "ProductVersionMS"
+PRODUCT_VERSION_LS_STR = "ProductVersionLS"
+PRODUCT_VERSION_STR = "ProductVersion"
+FILE_FLAG_MASK_STR = "FileFlagsMask"
+FILE_FLAGS_STR = "FileFlags"
+FILE_TYPE_STR = "FileType"
+FILE_SUBTYPE_STR = "FileSubtype"
+FILE_OS_STR = "FileOS"
+FILE_DATE_MS_STR = "FileDateMS"
+FILE_DATE_LS_STR = "FileDateLS"
+FILE_DATE_STR = "FileDate"
+VFT_FONT_STR = "VFT_FONT"
+TRANSLATION_STR = "Translation"
+RSRC_STR = ".rsrc"
+STRING_FILE_INFO_STR = "StringFileInfo"
+VAR_FILE_INFO_STR = "VarFileInfo"
 
 # Key values for interacting with pefile objects
-PE_ENCODING              = "utf-8"
-PE_STRUCT_STR            = "Structure"
-PE_VALUE_STR             = "Value"
-BEGIN_STR                = "BEGIN"
-END_STR                  = "END"
-BLOCK_STR                = "BLOCK"
-VALUE_STR                = "VALUE"
+PE_ENCODING = "utf-8"
+PE_STRUCT_STR = "Structure"
+PE_VALUE_STR = "Value"
+BEGIN_STR = "BEGIN"
+END_STR = "END"
+BLOCK_STR = "BLOCK"
+VALUE_STR = "VALUE"
 
 # Validation requirements
 VERSIONFILE_REQUIRED_FIELDS = {
@@ -219,6 +218,7 @@ VALID_CHARSET_ID = {
     0x04E7, 0x04E8
 }
 
+
 class PEObject(object):
     pe = None
 
@@ -267,7 +267,7 @@ class PEObject(object):
             if section.Name.decode(PE_ENCODING).replace("\x00", "") == RSRC_STR:
                 return True
         return False
-    
+
     # Parses PE/PE+ loaded into PEObject and returns dictionary contaning metadata from header and .rsrc section
     def getVersionDict(self):
         if not self.pe:
@@ -278,24 +278,30 @@ class PEObject(object):
             vs_fixedfileinfoDict = self.pe.VS_FIXEDFILEINFO[0].dump_dict()
             for key in vs_fixedfileinfoDict.keys():
                 # Skip sections that have dependencies
-                if (key == PE_STRUCT_STR 
-                  or key == FILE_SUBTYPE_STR 
-                  or key == FILE_VERSION_LS_STR 
-                  or key == PRODUCT_VERSION_LS_STR 
-                  or key == FILE_DATE_LS_STR):
+                if key == PE_STRUCT_STR or \
+                   key == FILE_SUBTYPE_STR or \
+                   key == FILE_VERSION_LS_STR or \
+                   key == PRODUCT_VERSION_LS_STR or \
+                   key == FILE_DATE_LS_STR:
                     continue
 
                 self.__populateEntry__(key, vs_fixedfileinfoDict[key][PE_VALUE_STR], result)
-            
+
             # Resolve dependent fields
-            if FILE_VERSION_MS_STR in vs_fixedfileinfoDict.keys() and FILE_VERSION_LS_STR in vs_fixedfileinfoDict.keys():
-                self.__populateEntry__(FILE_VERSION_LS_STR, vs_fixedfileinfoDict[FILE_VERSION_LS_STR][PE_VALUE_STR], result)
+            if FILE_VERSION_MS_STR in vs_fixedfileinfoDict.keys() and \
+               FILE_VERSION_LS_STR in vs_fixedfileinfoDict.keys():
+                self.__populateEntry__(FILE_VERSION_LS_STR,
+                                       vs_fixedfileinfoDict[FILE_VERSION_LS_STR][PE_VALUE_STR], result)
 
-            if PRODUCT_VERSION_MS_STR in vs_fixedfileinfoDict.keys() and PRODUCT_VERSION_LS_STR in vs_fixedfileinfoDict.keys():
-                self.__populateEntry__(PRODUCT_VERSION_LS_STR, vs_fixedfileinfoDict[PRODUCT_VERSION_LS_STR][PE_VALUE_STR], result)
+            if PRODUCT_VERSION_MS_STR in vs_fixedfileinfoDict.keys() and \
+               PRODUCT_VERSION_LS_STR in vs_fixedfileinfoDict.keys():
+                self.__populateEntry__(PRODUCT_VERSION_LS_STR,
+                                       vs_fixedfileinfoDict[PRODUCT_VERSION_LS_STR][PE_VALUE_STR], result)
 
-            if FILE_DATE_MS_STR in vs_fixedfileinfoDict.keys() and FILE_DATE_LS_STR in vs_fixedfileinfoDict.keys():
-                self.__populateEntry__(FILE_DATE_LS_STR, vs_fixedfileinfoDict[FILE_DATE_LS_STR][PE_VALUE_STR], result)
+            if FILE_DATE_MS_STR in vs_fixedfileinfoDict.keys() and \
+               FILE_DATE_LS_STR in vs_fixedfileinfoDict.keys():
+                self.__populateEntry__(FILE_DATE_LS_STR,
+                                       vs_fixedfileinfoDict[FILE_DATE_LS_STR][PE_VALUE_STR], result)
 
             if FILE_SUBTYPE_STR in vs_fixedfileinfoDict.keys():
                 fileSubType = vs_fixedfileinfoDict[FILE_SUBTYPE_STR][PE_VALUE_STR]
@@ -336,6 +342,7 @@ class PEObject(object):
 
         return result
 
+
 # Given a JSON file, object creates generator for VERSIONINFO rc file for the given JSON.
 # Provides validaiton of some basic requirements and generates VERSIONINFO.rc source to be used with resource compiler.
 # Here is an example of the minimum required JSON
@@ -357,7 +364,8 @@ class PEObject(object):
 # 	}
 # }
 #
-# StringFileInfo and VarFileInfo can both have many more entries. More information available at https://docs.microsoft.com/en-us/windows/win32/menurc/versioninfo-resource.
+# StringFileInfo and VarFileInfo can both have many more entries.
+# More information available at https://docs.microsoft.com/en-us/windows/win32/menurc/versioninfo-resource.
 class VERSIONINFOGenerator(object):
     versionDict = None
 
@@ -379,7 +387,7 @@ class VERSIONINFOGenerator(object):
             print("ERROR: Invalid version string: " + verStr + ". Version must be in form \" \
                    INTEGER.INTEGER.INTEGER.INTEGER\".", file=sys.stderr)
             return False
-        
+
         for substr in verStr.split("."):
             try:
                 if int(substr) > 65535:
@@ -388,7 +396,7 @@ class VERSIONINFOGenerator(object):
                 print("ERROR: Invalid version string: " + verStr + ". Version must be in form \" \
                        INTEGER.INTEGER.INTEGER.INTEGER\".", file=sys.stderr)
                 return False
-        
+
         return True
 
     # Checks if loaded JSON file represents a valid VERSIONINFO resource. Returns true if JSON
@@ -409,7 +417,7 @@ class VERSIONINFOGenerator(object):
             else:
                 if key.upper() in required:
                     required.remove(key.upper())
-        
+
         for remaining in required:
             print("ERROR: Missing required parameter: " + remaining + ".", file=sys.stderr)
             valid = False
@@ -419,41 +427,44 @@ class VERSIONINFOGenerator(object):
             for key in self.versionDict[STRING_FILE_INFO_STR]:
                 if key in requiredStringFileFields:
                     requiredStringFileFields.remove(key)
-            
+
             for remaining in requiredStringFileFields:
                 print("ERROR: Missing required StringFileInfo parameter: " + remaining + ".", file=sys.stderr)
                 valid = False
-        
+
         if not valid:
             return False
-        
+
         # Second pass: Check to see if fields are valid
         valid = self.__validateVersionNumber__(self.versionDict[FILE_VERSION_STR]) \
-                and self.__validateVersionNumber__(self.versionDict[PRODUCT_VERSION_STR])
+            and self.__validateVersionNumber__(self.versionDict[PRODUCT_VERSION_STR])
 
         if self.versionDict[FILE_OS_STR] not in VALID_FILE_OS_VALUES:
             print("ERROR: Invalid FILEOS value: " + self.versionDict[FILE_OS_STR] + ".", file=sys.stderr)
             valid = False
-        
+
         if self.versionDict[FILE_TYPE_STR] not in VALID_FILE_TYPE_VALUES:
             print("ERROR: Invalid FILETYPE value: " + self.versionDict[FILE_TYPE_STR] + ".", file=sys.stderr)
             valid = False
 
         if self.versionDict[FILE_TYPE_STR] == "VFT_DRV":
             if self.versionDict[FILE_SUBTYPE_STR] not in VALID_SUBTYPE_VFT_DRV:
-                print("ERROR: Invalid FILESUBTYPE value for FILETYPE VFT_DRV: " + self.versionDict[FILE_SUBTYPE_STR] + ".", file=sys.stderr)
+                print("ERROR: Invalid FILESUBTYPE value for FILETYPE VFT_DRV: "
+                      + self.versionDict[FILE_SUBTYPE_STR] + ".", file=sys.stderr)
                 valid = False
         elif self.versionDict[FILE_TYPE_STR] == "VFT_FONT":
             if self.versionDict[FILE_SUBTYPE_STR] not in VALID_SUBTYPE_VFT_FONT:
-                print("ERROR: Invalid FILESUBTYPE value for FILETYPE VFT_FONT: " + self.versionDict[FILE_SUBTYPE_STR] + ".", file=sys.stderr)
+                print("ERROR: Invalid FILESUBTYPE value for FILETYPE VFT_FONT: "
+                      + self.versionDict[FILE_SUBTYPE_STR] + ".", file=sys.stderr)
                 valid = False
         elif self.versionDict[FILE_TYPE_STR] != "VFT_VXD" and self.versionDict[FILE_SUBTYPE_STR] != 0:
-            print("ERROR: Invalid FILESUBTYPE value for FILETYPE " + self.versionDict[FILE_TYPE_STR] + ", value must be 0.", file=sys.stderr)
+            print("ERROR: Invalid FILESUBTYPE value for FILETYPE "
+                  + self.versionDict[FILE_TYPE_STR] + ", value must be 0.", file=sys.stderr)
             valid = False
 
         if self.__validateVersionNumber__(self.versionDict[STRING_FILE_INFO_STR][FILE_VERSION_STR]):
             if self.versionDict[STRING_FILE_INFO_STR][FILE_VERSION_STR] != self.versionDict[FILE_VERSION_STR]:
-                print("ERROR: FILEVERSION in header does not match FileVersion in StringFileInfo." , file=sys.stderr)
+                print("ERROR: FILEVERSION in header does not match FileVersion in StringFileInfo.", file=sys.stderr)
                 valid = False
         else:
             valid = False
@@ -461,7 +472,8 @@ class VERSIONINFOGenerator(object):
         if TRANSLATION_STR in self.versionDict[VAR_FILE_INFO_STR]:
             langIDset = self.versionDict[VAR_FILE_INFO_STR][TRANSLATION_STR].split(" ")
             if len(langIDset) != 2:
-                print("ERROR: Translation field must contain 2 space delimited hexidecimal 8 bit words." , file=sys.stderr)
+                print("ERROR: Translation field must contain 2 space delimited hexidecimal 8 bit words.",
+                      file=sys.stderr)
                 valid = False
             elif int(langIDset[0], 0) not in VALID_LANG_ID:
                 print("ERROR: Invalid language code: " + langIDset[0] + ".", file=sys.stderr)
@@ -470,11 +482,11 @@ class VERSIONINFOGenerator(object):
                 print("ERROR: Invalid charset code: " + langIDset[1] + ".", file=sys.stderr)
                 valid = False
         else:
-            print("ERROR: Missing required parameter: Translation in VarFileInfo" , file=sys.stderr)
+            print("ERROR: Missing required parameter: Translation in VarFileInfo", file=sys.stderr)
             valid = False
 
         return valid
-    
+
     def write(self, path):
         if not self.validate():
             return
@@ -491,38 +503,30 @@ class VERSIONINFOGenerator(object):
 
         # StringFileInfo
         outStr += "\n" + BEGIN_STR + "\n\t" + BLOCK_STR + " \"" + STRING_FILE_INFO_STR + "\"\n\t" + BEGIN_STR + "\n"
-        
+
         languageCode = ""
         for code in self.versionDict[VAR_FILE_INFO_STR][TRANSLATION_STR].split(" "):
             languageCode += code.split("0x", 1)[1]
 
         outStr += "\t\t" + BLOCK_STR + " \"" + languageCode + "\"\n\t\t" + BEGIN_STR + "\n"
         for field in self.versionDict[STRING_FILE_INFO_STR].keys():
-            outStr += "\t\t" + VALUE_STR + " \"" + field + "\",\t\"" + self.versionDict[STRING_FILE_INFO_STR][field] + "\"\n"
+            outStr += "\t\t" + VALUE_STR + " \"" + field + "\",\t\"" \
+                      + self.versionDict[STRING_FILE_INFO_STR][field] + "\"\n"
 
         outStr += "\t\t" + END_STR + "\n\t" + END_STR + "\n\n"
-    
+
         # VarFileInfo
         outStr += "\t" + BLOCK_STR + " \"" + VAR_FILE_INFO_STR + "\"\n\t" + BEGIN_STR + "\n"
         languageTokens = self.versionDict[VAR_FILE_INFO_STR][TRANSLATION_STR].split(" ")
         for field in self.versionDict[VAR_FILE_INFO_STR].keys():
             if field == TRANSLATION_STR:
-                outStr += "\t\t" + VALUE_STR + " \"" + field + "\",\t" + languageTokens[0] + "," + languageTokens[1] + "\n"
+                outStr += "\t\t" + VALUE_STR + " \"" + field + "\",\t" + languageTokens[0] + "," \
+                          + languageTokens[1] + "\n"
             else:
-                outStr += "\t\t" + VALUE_STR + " \"" + field + "\",\t\"" + self.versionDict[VAR_FILE_INFO_STR][field] + "\"\n"
+                outStr += "\t\t" + VALUE_STR + " \"" + field + "\",\t\"" \
+                          + self.versionDict[VAR_FILE_INFO_STR][field] + "\"\n"
 
         outStr += "\t" + END_STR + "\n" + END_STR + "\n#endif"
 
         with open(path + "VERSIONINFO.rc", "w") as out:
             out.write(outStr)
-
-# Given a path ot a PE/PE+, writes JSON of version information from header and .rsrc section to outPath
-def writeResourceJSON(PEpath, outPath):
-    pe = PEObject(PEpath)
-    outPath += "VERSIONINFO.json"
-    with open(outPath, "w") as out:
-        json.dump(pe.getVersionDict(), out)
-
-# Given a path to a JSON file, write version resource file compatible with rc compiler to outPath
-def generateRCfile(JSONpath, outPath):
-    VERSIONINFOGenerator(JSONpath).write(outPath)
