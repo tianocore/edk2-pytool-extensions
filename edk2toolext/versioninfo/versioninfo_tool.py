@@ -13,7 +13,7 @@ import os
 import sys
 import argparse
 import json
-from versioninfo_helper import PEObject, VERSIONINFOGenerator
+from edk2toolext.versioninfo.versioninfo_helper import PEObject, VERSIONINFOGenerator
 
 TOOL_DESCRIPTION = """
 Versioninfo Tool is a command-line tool to assist in generating VERSIONINFO

@@ -48,4 +48,7 @@ class VersionInfoTest(unittest.TestCase):
 
         with open(cls.dummy_json, 'w') as dummy_file:
             json.dump(DUMMY_VALID_JSON, dummy_file)
-            print(dummy_file.read())
+    
+    def test_dummy_file(self):
+        with open (self.dummy_json, "r") as dummy_file:
+            self.assertEqual(json.loads(dummy_file.read()), DUMMY_VALID_JSON)
