@@ -1,7 +1,19 @@
+# @file versioninfo_tool.py
+# This module contains the CLI interface for easily creating VERSIONINFO resources
+# from json files.
+#
+##
+# Copyright (C) Microsoft Corporation
+#
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+
+
 import os
 import sys
 import argparse
-import PEObject
+import json
+from versioninfo_helper import PEObject, VERSIONINFOGenerator
 
 TOOL_DESCRIPTION = """
 Versioninfo Tool is a command-line tool to assist in generating VERSIONINFO
@@ -24,14 +36,15 @@ def get_cli_options(args=None):
                         help='a filesystem path to a json/PE file to load')
     parser.add_argument('output_dir', type=str,
                         help='a filesystem path to the directory to save output file. if directory does not exist, entire directory path will be created. if directory does exist, contents will be updated') # noqa
-    
+
     command_group = parser.add_mutually_exclusive_group()
-    command_group.add_argument('-e', '--encode', action='store_const', const='e', dest='mode', 
-                        help='(default) outsputs VERSIONINFO.rc of given json file')
-    command_group.add_argument('-d', '--dump', action='store_const', dest='mode', const='d', 
-                        help='outputs json file of VERSIONINFO given PE file')
+    command_group.add_argument('-e', '--encode', action='store_const', const='e', dest='mode',
+                               help='(default) outsputs VERSIONINFO.rc of given json file')
+    command_group.add_argument('-d', '--dump', action='store_const', dest='mode', const='d',
+                               help='outputs json file of VERSIONINFO given PE file')
     parser.set_defaults(mode='e')
     return parser.parse_args(args=args)
+
 
 def main():
     args = get_cli_options()
@@ -39,10 +52,13 @@ def main():
     if not output_dir.endswith('\\'):
         output_dir += '\\'
     if args.mode == 'd':
-        PEObject.writeResourceJSON(args.input_file, output_dir)
+        pe = PEObject(args.input_file)
+        output_dir += "VERSIONINFO.json"
+        with open(output_dir, "w") as out:
+            json.dump(pe.getVersionDict(), out)
     else:
-        PEObject.generateRCfile(args.input_file, output_dir)
-        
+        VERSIONINFOGenerator(args.input_file).write(output_dir)
+
 
 if __name__ == '__main__':
     main()

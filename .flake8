@@ -1,5 +1,6 @@
 [flake8]
 #E266 too many leading '#' for block comment
 #E722 do not use bare 'except'
-ignore = E266,E722
+#W503 conflcits with updated rule W504
+ignore = E266,E722,W503
 max_line_length = 120
