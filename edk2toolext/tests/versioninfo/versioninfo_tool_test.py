@@ -22,6 +22,8 @@ DUMMY_EXE_FILE_NAME = 'dummy_exe'
 DUMMY_EXE_SRC_NAME = 'dummy_exe_src'
 DUMMY_JSON_FILE_NAME = 'dummy_json_file'
 DUMMY_EXE_MAKEFILE_NAME = 'Makefile'
+VERSIONINFO_JSON_FILE_NAME = 'VERSIONINFO'
+BAD_JSON_FILE_NAME = 'bad_json'
 
 DUMMY_VALID_JSON = {
     "FileVersion": "1.2.3.4",
@@ -62,6 +64,18 @@ clean:
 DUMMY_EXE_SOURCE = '#include <iostream>\nint main() { std::cout<<"TEST"<<std::endl; }'
 
 
+def check_for_err_helper(cls, json_input, err_msg):
+    cli_params = [json_input, cls.temp_dir]
+    parsed_args = versioninfo_tool.get_cli_options(cli_params)
+    with StringIO() as temp_err:
+        sys.stderr = temp_err
+        versioninfo_tool.serviceRequest(parsed_args)
+        sys.stderr = sys.__stderr__
+        cls.assertFalse(os.path.isfile(os.path.join(cls.temp_dir, 'VERSIONINFO.rc')))
+        cls.assertEqual(temp_err.getvalue(), err_msg)
+    os.remove(json_input)
+
+
 class VersionInfoTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -87,107 +101,69 @@ class VersionInfoTest(unittest.TestCase):
         cli_params = [os.path.join(self.temp_dir, DUMMY_EXE_FILE_NAME) + '.exe', self.temp_dir, '-d']
         parsed_args = versioninfo_tool.get_cli_options(cli_params)
         versioninfo_tool.serviceRequest(parsed_args)
-        with open(os.path.join(self.temp_dir, 'VERSIONINFO.json')) as generated_json:
-            generatedDict = json.load(generated_json)
-            self.assertTrue('Signature' in generatedDict)
-            del generatedDict['Signature']
-            self.assertTrue('StrucVersion' in generatedDict)
-            del generatedDict['StrucVersion']
-            if 'FileDateMS' in generatedDict:
-                del generatedDict['FileDateMS']
-            if 'FileDateLS' in generatedDict:
-                del generatedDict['FileDateLS']
-            self.assertEqual(generatedDict, DUMMY_VALID_JSON)
+        with open(os.path.join(self.temp_dir, VERSIONINFO_JSON_FILE_NAME + '.json')) as generated_json:
+            try:
+                generated_dict = json.load(generated_json)
+            except ValueError:
+                self.fail()
+
+            self.assertTrue('Signature' in generated_dict)
+            del generated_dict['Signature']
+            self.assertTrue('StrucVersion' in generated_dict)
+            del generated_dict['StrucVersion']
+            if 'FileDateMS' in generated_dict:
+                del generated_dict['FileDateMS']
+            if 'FileDateLS' in generated_dict:
+                del generated_dict['FileDateLS']
+            self.assertEqual(generated_dict, DUMMY_VALID_JSON)
         cd = os.getcwd()
         os.system('cd %s && nmake clean && cd %s' % (self.temp_dir, cd))
 
     def test_missing_varinfo(self):
-        bad_json_file = os.path.join(self.temp_dir, 'bad_json' + '.json')
+        bad_json_file = os.path.join(self.temp_dir, BAD_JSON_FILE_NAME + '.json')
         bad_json = copy.deepcopy(DUMMY_VALID_JSON)
         del bad_json['VarFileInfo']
         with open(bad_json_file, 'w') as bad_file:
             json.dump(bad_json, bad_file)
 
-        cli_params = [bad_json_file, self.temp_dir]
-        parsed_args = versioninfo_tool.get_cli_options(cli_params)
-        with StringIO() as temp_err:
-            sys.stderr = temp_err
-            versioninfo_tool.serviceRequest(parsed_args)
-            sys.stderr = sys.__stderr__
-            self.assertFalse(os.path.isfile(os.path.join(self.temp_dir, 'VERSIONINFO.rc')))
-            self.assertEqual(temp_err.getvalue(), 'ERROR: Missing required parameter: VARFILEINFO.\n')
-        os.remove(bad_json_file)
+        check_for_err_helper(self, bad_json_file, 'ERROR: Missing required parameter: VARFILEINFO.\n')
 
     def test_missing_companyname(self):
-        bad_json_file = os.path.join(self.temp_dir, 'bad_json' + '.json')
+        bad_json_file = os.path.join(self.temp_dir, BAD_JSON_FILE_NAME + '.json')
         bad_json = copy.deepcopy(DUMMY_VALID_JSON)
         del bad_json['StringFileInfo']['CompanyName']
         print(bad_json)
         with open(bad_json_file, 'w') as bad_file:
             json.dump(bad_json, bad_file)
 
-        cli_params = [bad_json_file, self.temp_dir]
-        parsed_args = versioninfo_tool.get_cli_options(cli_params)
-        with StringIO() as temp_err:
-            sys.stderr = temp_err
-            versioninfo_tool.serviceRequest(parsed_args)
-            sys.stderr = sys.__stderr__
-            self.assertFalse(os.path.isfile(os.path.join(self.temp_dir, 'VERSIONINFO.rc')))
-            self.assertEqual(temp_err.getvalue(), 'ERROR: Missing required StringFileInfo parameter: CompanyName.\n')
-        os.remove(bad_json_file)
+        check_for_err_helper(self, bad_json_file, 'ERROR: Missing required StringFileInfo parameter: CompanyName.\n')
 
     def test_bad_version_format(self):
-        bad_json_file = os.path.join(self.temp_dir, 'bad_json' + '.json')
+        bad_json_file = os.path.join(self.temp_dir, BAD_JSON_FILE_NAME + '.json')
         bad_json = copy.deepcopy(DUMMY_VALID_JSON)
         bad_json['ProductVersion'] = '1.234'
         print(bad_json)
         with open(bad_json_file, 'w') as bad_file:
             json.dump(bad_json, bad_file)
 
-        cli_params = [bad_json_file, self.temp_dir]
-        parsed_args = versioninfo_tool.get_cli_options(cli_params)
-        with StringIO() as temp_err:
-            sys.stderr = temp_err
-            versioninfo_tool.serviceRequest(parsed_args)
-            sys.stderr = sys.__stderr__
-            self.assertFalse(os.path.isfile(os.path.join(self.temp_dir, 'VERSIONINFO.rc')))
-            self.assertEqual(temp_err.getvalue(),
+        check_for_err_helper(self, bad_json_file,
                              'ERROR: Invalid version string: 1.234. Version must be in form "INTEGER.INTEGER.INTEGER.INTEGER".\n') # noqa
-        os.remove(bad_json_file)
 
     def test_inconsistent_file_version(self):
-        bad_json_file = os.path.join(self.temp_dir, 'bad_json' + '.json')
+        bad_json_file = os.path.join(self.temp_dir, BAD_JSON_FILE_NAME + '.json')
         bad_json = copy.deepcopy(DUMMY_VALID_JSON)
         bad_json['FileVersion'] = '4.3.2.1'
-        print(bad_json)
         with open(bad_json_file, 'w') as bad_file:
             json.dump(bad_json, bad_file)
 
-        cli_params = [bad_json_file, self.temp_dir]
-        parsed_args = versioninfo_tool.get_cli_options(cli_params)
-        with StringIO() as temp_err:
-            sys.stderr = temp_err
-            versioninfo_tool.serviceRequest(parsed_args)
-            sys.stderr = sys.__stderr__
-            self.assertFalse(os.path.isfile(os.path.join(self.temp_dir, 'VERSIONINFO.rc')))
-            self.assertEqual(temp_err.getvalue(),
+        check_for_err_helper(self, bad_json_file,
                              'ERROR: FILEVERSION in header does not match FileVersion in StringFileInfo.\n')
-        os.remove(bad_json_file)
 
     def test_invalid_language_code(self):
-        bad_json_file = os.path.join(self.temp_dir, 'bad_json' + '.json')
+        bad_json_file = os.path.join(self.temp_dir, BAD_JSON_FILE_NAME + '.json')
         bad_json = copy.deepcopy(DUMMY_VALID_JSON)
         bad_json['VarFileInfo']['Translation'] = '"0x4009 0x04b0"'
-        print(bad_json)
         with open(bad_json_file, 'w') as bad_file:
             json.dump(bad_json, bad_file)
 
-        cli_params = [bad_json_file, self.temp_dir]
-        parsed_args = versioninfo_tool.get_cli_options(cli_params)
-        with StringIO() as temp_err:
-            sys.stderr = temp_err
-            versioninfo_tool.serviceRequest(parsed_args)
-            sys.stderr = sys.__stderr__
-            self.assertFalse(os.path.isfile(os.path.join(self.temp_dir, 'VERSIONINFO.rc')))
-            self.assertEqual(temp_err.getvalue(), 'ERROR: Invalid language code: "0x4009".\n')
-        os.remove(bad_json_file)
+        check_for_err_helper(self, bad_json_file, 'ERROR: Invalid language code: "0x4009".\n')
