@@ -13,6 +13,7 @@ import os
 import sys
 import argparse
 import json
+import logging
 from edk2toolext.versioninfo.versioninfo_helper import PEObject, VERSIONINFOGenerator
 
 TOOL_DESCRIPTION = """
@@ -46,24 +47,27 @@ def get_cli_options(args=None):
     return parser.parse_args(args=args)
 
 
-def serviceRequest(args):
-    output_dir = args.output_dir
-    if not output_dir.endswith('\\'):
-        output_dir += '\\'
+def service_request(args):
+    logging.getLogger().addHandler(logging.StreamHandler())
+    if not os.path.isfile(args.input_file):
+        logging.error("ERROR: Could not find " + args.input_file)
+        sys.exit(1)
+
     if args.mode == 'd':
         pe = PEObject(args.input_file)
-        output_dir += "VERSIONINFO.json"
-        generatedDict = pe.getVersionDict()
-        if generatedDict:
-            print(generatedDict)
-            with open(output_dir, "w") as out:
-                json.dump(pe.getVersionDict(), out)
+        generated_dict = pe.get_version_dict()
+        print(generated_dict)
+        if generated_dict:
+            with open(os.path.join(args.output_dir, "VERSIONINFO.json"), "w") as out:
+                json.dump(generated_dict, out)
+        else:
+            sys.exit(1)
     else:
-        VERSIONINFOGenerator(args.input_file).write(output_dir)
+        VERSIONINFOGenerator(args.input_file).write(args.output_dir)
 
 
 def main():
-    serviceRequest(get_cli_options())
+    service_request(get_cli_options())
 
 
 if __name__ == '__main__':
