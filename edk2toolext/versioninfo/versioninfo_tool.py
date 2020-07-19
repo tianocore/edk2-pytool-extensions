@@ -50,13 +50,12 @@ def get_cli_options(args=None):
 def service_request(args):
     logging.getLogger().addHandler(logging.StreamHandler())
     if not os.path.isfile(args.input_file):
-        logging.error("ERROR: Could not find " + args.input_file)
+        logging.error("Could not find " + args.input_file)
         sys.exit(1)
 
     if args.mode == 'd':
         pe = PEObject(args.input_file)
         generated_dict = pe.get_version_dict()
-        print(generated_dict)
         if generated_dict:
             with open(os.path.join(args.output_dir, "VERSIONINFO.json"), "w") as out:
                 json.dump(generated_dict, out)
