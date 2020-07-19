@@ -10,11 +10,10 @@
 ##
 
 import pefile
-import sys
 import json
-import copy
 import os
 import logging
+from datetime import datetime
 
 # String values for PE/PE+ header versioning metadata
 FILE_OS_STRINGS = {
@@ -234,22 +233,28 @@ VALID_CHARSET_ID = {
 
 
 class PEObject(object):
-    pe = None
+    '''
+    Class for parsing PE/PE+ files. Gives functionality for reading VS_VERSIONINFO metadata and .rsrc section.
+    '''
+    _pe = None
 
-    # Takes filepath to PE/PE+ file to parse
     def __init__(self, filepath):
+        '''
+        Initializes PE parser
+
+        filepath - filepath to PE/PE+ file to parse
+        '''
         try:
-            self.pe = pefile.PE(filepath)
+            self._pe = pefile.PE(filepath)
         except FileNotFoundError:
             logging.error("Could not find " + filepath)
 
-    # Private, given a 32 bit word, converts word into a string of 2 16 bit integers
-    # seperated by '.' to conform to version string format.
     def _hex_to_version_str(self, val):
+        '''Helper function to convert hex version number to string'''
         return str(((val & ~0) >> 16) & 0xffff) + "." + str(val & 0xffff)
 
-    # Private, converts hex version information to string according to Msft spec
     def _populate_entry(self, key, val, dict):
+        '''Helper function to format and insert VERSIONINFO fields into dictionary'''
         if key == FILE_OS_STR:
             if val in FILE_OS_STRINGS:
                 dict[key] = FILE_OS_STRINGS[val]
@@ -272,26 +277,26 @@ class PEObject(object):
             return
         dict[key] = hex(val)
 
-    # Returns true if PE object contains .rsrc section, false otherwise
     def contains_rsrc(self):
-        if not self.pe:
+        '''Returns true if PE object contains .rsrc section, false otherwise'''
+        if not self._pe:
             logging.fatal("Cannot parse, PE not loaded")
             return
 
-        for section in self.pe.sections:
+        for section in self._pe.sections:
             if section.Name.decode(PE_ENCODING).replace("\x00", "") == RSRC_STR:
                 return True
         return False
 
-    # Parses PE/PE+ loaded into PEObject and returns dictionary contaning metadata from header and .rsrc section
     def get_version_dict(self):
-        if not self.pe:
+        '''Parses PE/PE+ loaded into PEObject and returns dictionary contaning metadata from header and .rsrc section'''
+        if not self._pe:
             logging.fatal("Cannot parse, PE not loaded")
             return
 
         result = {}
         try:
-            vs_fixedfileinfo_dict = self.pe.VS_FIXEDFILEINFO[0].dump_dict()
+            vs_fixedfileinfo_dict = self._pe.VS_FIXEDFILEINFO[0].dump_dict()
             for key in vs_fixedfileinfo_dict.keys():
                 # Skip sections that have dependencies
                 if key == PE_STRUCT_STR or \
@@ -312,12 +317,12 @@ class PEObject(object):
             if PRODUCT_VERSION_MS_STR in vs_fixedfileinfo_dict.keys() and \
                PRODUCT_VERSION_LS_STR in vs_fixedfileinfo_dict.keys():
                 self._populate_entry(PRODUCT_VERSION_LS_STR,
-                                       vs_fixedfileinfo_dict[PRODUCT_VERSION_LS_STR][PE_VALUE_STR], result)
+                                     vs_fixedfileinfo_dict[PRODUCT_VERSION_LS_STR][PE_VALUE_STR], result)
 
             if FILE_DATE_MS_STR in vs_fixedfileinfo_dict.keys() and \
                FILE_DATE_LS_STR in vs_fixedfileinfo_dict.keys():
                 self._populate_entry(FILE_DATE_LS_STR,
-                                       vs_fixedfileinfo_dict[FILE_DATE_LS_STR][PE_VALUE_STR], result)
+                                     vs_fixedfileinfo_dict[FILE_DATE_LS_STR][PE_VALUE_STR], result)
 
             if FILE_SUBTYPE_STR in vs_fixedfileinfo_dict.keys():
                 file_subtype = vs_fixedfileinfo_dict[FILE_SUBTYPE_STR][PE_VALUE_STR]
@@ -337,7 +342,7 @@ class PEObject(object):
 
         if self.contains_rsrc():
             try:
-                for fileinfo in self.pe.FileInfo:
+                for fileinfo in self._pe.FileInfo:
                     for entry in fileinfo:
                         if entry.Key.decode(PE_ENCODING).replace("\x00", "") == STRING_FILE_INFO_STR:
                             stringfileinfo_dict = {}
@@ -359,33 +364,40 @@ class PEObject(object):
         return result
 
 
-# Given a JSON file, object creates generator for VERSIONINFO rc file for the given JSON.
-# Provides validaiton of some basic requirements and generates VERSIONINFO.rc source to be used with resource compiler.
-# Here is an example of the minimum required JSON
-# {
-# 	"FileVersion": "1.0.0.0",
-# 	"ProductVersion": "1.0.0.0",
-# 	"FileFlagsMask": "VS_FFI_FILEFLAGSMASK",
-# 	"FileFlags": "0",
-# 	"FileOS": "VOS_NT",
-# 	"FileType": "VFT_DRV",
-# 	"FileSubtype": "VFT2_DRV_SYSTEM",
-# 	"StringFileInfo": {
-# 		"CompanyName": "Example Company",
-# 		"ProductName": "Example Product",
-# 		"FileVersion": "1.0.0.0",
-# 	},
-# 	"VarFileInfo": {
-# 		"Translation": "0x0409 0x04b0"
-# 	}
-# }
-#
-# StringFileInfo and VarFileInfo can both have many more entries.
-# More information available at https://docs.microsoft.com/en-us/windows/win32/menurc/versioninfo-resource.
 class VERSIONINFOGenerator(object):
+    '''
+    Given a JSON file, object creates generator for VERSIONINFO rc file for the given JSON.
+    Provides validation of some basic requirements and generates VERSIONINFO.rc source to be used with rc.exe.
+    Here is an example of the minimum required JSON
+    {
+        "FileVersion": "1.0.0.0",
+        "ProductVersion": "1.0.0.0",
+        "FileFlagsMask": "VS_FFI_FILEFLAGSMASK",
+        "FileFlags": "0",
+        "FileOS": "VOS_NT",
+        "FileType": "VFT_DRV",
+        "FileSubtype": "VFT2_DRV_SYSTEM",
+        "StringFileInfo": {
+            "CompanyName": "Example Company",
+            "ProductName": "Example Product",
+            "FileVersion": "1.0.0.0",
+        },
+        "VarFileInfo": {
+            "Translation": "0x0409 0x04b0"
+        }
+    }
+
+    StringFileInfo and VarFileInfo can both have many more entries.
+    More information available at https://docs.microsoft.com/en-us/windows/win32/menurc/versioninfo-resource.
+    '''
     _version_dict = None
 
     def __init__(self, filepath):
+        '''
+        Initializes genenerator
+
+        filepath - filepath to JSON file containing VERSIONINFO information in format shown above
+        '''
         try:
             with open(filepath, "r") as jsonFile:
                 data = jsonFile.read()
@@ -397,8 +409,8 @@ class VERSIONINFOGenerator(object):
         except FileNotFoundError:
             logging.error("Could not find " + filepath)
 
-    # Private, returns true if version_str is a valid version string, false otherwise.
     def _validate_version_number(self, version_str):
+        '''Helper function to check if a version string format is valid or not'''
         if version_str.count('.') != 3:
             logging.error("Invalid version string: " + version_str + ". Version must be in form "
                           + "\"INTEGER.INTEGER.INTEGER.INTEGER\".")
@@ -439,7 +451,7 @@ class VERSIONINFOGenerator(object):
             valid = False
 
         if STRING_FILE_INFO_STR in self._version_dict:
-            required_string_fields = copy.deepcopy(STRING_FILE_INFO_REQUIRED_FIELDS)
+            required_string_fields = STRING_FILE_INFO_REQUIRED_FIELDS.copy()
             for key in self._version_dict[STRING_FILE_INFO_STR]:
                 if key in required_string_fields:
                     required_string_fields.remove(key)
@@ -453,7 +465,7 @@ class VERSIONINFOGenerator(object):
 
         # Second pass: Check to see if fields are valid
         valid = self._validate_version_number(self._version_dict[FILE_VERSION_STR]) \
-                and self._validate_version_number(self._version_dict[PRODUCT_VERSION_STR])
+            and self._validate_version_number(self._version_dict[PRODUCT_VERSION_STR])
 
         if self._version_dict[FILE_OS_STR] not in VALID_FILE_OS_VALUES:
             logging.error("Invalid FILEOS value: " + self._version_dict[FILE_OS_STR] + ".")
@@ -465,14 +477,16 @@ class VERSIONINFOGenerator(object):
 
         if self._version_dict[FILE_TYPE_STR] == "VFT_DRV":
             if self._version_dict[FILE_SUBTYPE_STR] not in VALID_SUBTYPE_VFT_DRV:
-                logging.error("Invalid FILESUBTYPE value for FILETYPE VFT_DRV: " + self._version_dict[FILE_SUBTYPE_STR] + ".")
+                logging.error("Invalid FILESUBTYPE value for FILETYPE VFT_DRV: "
+                              + self._version_dict[FILE_SUBTYPE_STR] + ".")
                 valid = False
         elif self._version_dict[FILE_TYPE_STR] == "VFT_FONT":
             if self._version_dict[FILE_SUBTYPE_STR] not in VALID_SUBTYPE_VFT_FONT:
-                logging.error("Invalid FILESUBTYPE value for FILETYPE VFT_FONT: " + self._version_dict[FILE_SUBTYPE_STR] + ".")
+                logging.error("Invalid FILESUBTYPE value for FILETYPE VFT_FONT: "
+                              + self._version_dict[FILE_SUBTYPE_STR] + ".")
                 valid = False
         elif self._version_dict[FILE_TYPE_STR] != "VFT_VXD" and self._version_dict[FILE_SUBTYPE_STR] != 0:
-            logging.error("Invalid FILESUBTYPE value for FILETYPE " 
+            logging.error("Invalid FILESUBTYPE value for FILETYPE "
                           + self._version_dict[FILE_TYPE_STR] + ", value must be 0.")
             valid = False
 
@@ -509,8 +523,9 @@ class VERSIONINFOGenerator(object):
             logging.error("Invalid input, aborted.")
             return
 
-        out_str = "/* Auto-generated VERSIONINFO resource file. */\n\n"
-        out_str += "#include <ntdef.h>\n#include <winver.h>\n#ifdef RC_INVOKED\n"
+        out_str = "/* Auto-generated VERSIONINFO resource file.\n" \
+                  + "   Generated at %s */\n\n" % datetime.now().strftime("%d/%m/%Y %H:%M:%S") \
+                  + "#include <ntdef.h>\n#include <winver.h>\n#ifdef RC_INVOKED\n"
 
         # Header fields
         out_str += "VS_VERSION_INFO\tVERSIONINFO\n"
@@ -536,7 +551,7 @@ class VERSIONINFOGenerator(object):
         out_str += "\t\t" + BLOCK_STR + " \"" + language_code + "\"\n\t\t" + BEGIN_STR + "\n"
         for field in self._version_dict[STRING_FILE_INFO_STR].keys():
             out_str += "\t\t" + VALUE_STR + " \"" + field + "\",\t\"" \
-                      + self._version_dict[STRING_FILE_INFO_STR][field] + "\"\n"
+                       + self._version_dict[STRING_FILE_INFO_STR][field] + "\"\n"
 
         out_str += "\t\t" + END_STR + "\n\t" + END_STR + "\n\n"
 

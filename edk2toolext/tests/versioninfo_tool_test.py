@@ -20,7 +20,6 @@ import edk2toollib.windows.locate_tools as locate_tools
 from io import StringIO
 from edk2toolext.versioninfo import versioninfo_tool
 from edk2toolext.environment import shell_environment
-from edk2toollib.utility_functions import GetHostInfo
 
 DUMMY_EXE_FILE_NAME = 'dummy_exe'
 DUMMY_EXE_SRC_NAME = 'dummy_exe_src'
@@ -65,8 +64,8 @@ rsrc: %s.cpp
 DUMMY_EXE_SOURCE = '#include <iostream>\nint main() { std::cout<<"TEST"<<std::endl; }'
 
 VS2019_INTERESTING_KEYS = ["ExtensionSdkDir", "INCLUDE", "LIB", "LIBPATH", "UniversalCRTSdkDir",
-                           "UCRTVersion", "WindowsLibPath", "WindowsSdkBinPath", "WindowsSdkDir", "WindowsSdkVerBinPath",
-                           "WindowsSDKVersion", "VCToolsInstallDir", "Path"]
+                           "UCRTVersion", "WindowsLibPath", "WindowsSdkBinPath", "WindowsSdkDir",
+                           "WindowsSdkVerBinPath", "WindowsSDKVersion", "VCToolsInstallDir", "Path"]
 
 
 def check_for_err_helper(cls, temp_dir, json_input, err_msg):
@@ -104,7 +103,7 @@ class VersionInfoTest(unittest.TestCase):
         if rc != 0 or vc_install_path is None or not os.path.exists(vc_install_path):
             logging.fatal("Cannot locate VS build tools install path")
             self.fail()
-        
+
         vc_ver_path = os.path.join(vc_install_path, "VC", "Tools", "MSVC")
         if not os.path.isdir(vc_ver_path):
             logging.fatal("Cannot locate VS build tools directory")
@@ -143,7 +142,7 @@ class VersionInfoTest(unittest.TestCase):
         cd = os.getcwd()
         os.system('cd %s && nmake rsrc && cd %s' % (temp_dir, cd))
 
-        cli_params = [os.path.join(temp_dir, DUMMY_EXE_FILE_NAME) + '.exe', temp_dir, '-d'] 
+        cli_params = [os.path.join(temp_dir, DUMMY_EXE_FILE_NAME) + '.exe', temp_dir, '-d']
         parsed_args = versioninfo_tool.get_cli_options(cli_params)
         versioninfo_tool.service_request(parsed_args)
         try:
@@ -194,7 +193,7 @@ class VersionInfoTest(unittest.TestCase):
             json.dump(bad_json, bad_file)
 
         check_for_err_helper(self, temp_dir, bad_json_file,
-                             'Invalid version string: 1.234. Version must be in form "INTEGER.INTEGER.INTEGER.INTEGER".\n')
+                             'Invalid version string: 1.234. Version must be in form "INTEGER.INTEGER.INTEGER.INTEGER".\n') # noqa
 
     def test_inconsistent_file_version(self):
         temp_dir = tempfile.mkdtemp()

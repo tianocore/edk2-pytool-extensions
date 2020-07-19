@@ -48,6 +48,8 @@ def get_cli_options(args=None):
 
 
 def service_request(args):
+    '''given parsed args, executes versioninfo_tool'''
+    # Write user-facing log messages to stderr
     logging.getLogger().addHandler(logging.StreamHandler())
     if not os.path.isfile(args.input_file):
         logging.error("Could not find " + args.input_file)
