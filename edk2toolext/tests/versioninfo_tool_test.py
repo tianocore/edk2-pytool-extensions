@@ -16,6 +16,7 @@ import json
 import copy
 import logging
 import edk2toollib.windows.locate_tools as locate_tools
+from edk2toollib.utility_functions import RunCmd
 
 from io import StringIO
 from edk2toolext.versioninfo import versioninfo_tool
@@ -82,20 +83,6 @@ def check_for_err_helper(cls, temp_dir, json_input, err_msg):
 
 
 class VersionInfoTest(unittest.TestCase):
-    # @classmethod
-    # def setUpClass(cls):
-    #     cls.temp_dir = tempfile.mkdtemp()
-    #     cls.dummy_json = os.path.join(cls.temp_dir, DUMMY_JSON_FILE_NAME + '.json.orig')
-    #     cls.dummy_exe_src = os.path.join(cls.temp_dir, DUMMY_EXE_SRC_NAME + '.cpp')
-    #     cls.dummy_exe_makefile = os.path.join(cls.temp_dir, DUMMY_EXE_MAKEFILE_NAME)
-
-    #     with open(cls.dummy_json, 'w') as dummy_file:
-    #         json.dump(DUMMY_VALID_JSON, dummy_file)
-    #     with open(cls.dummy_exe_src, 'w') as dummy_src:
-    #         dummy_src.write(DUMMY_EXE_SOURCE)
-    #     with open(cls.dummy_exe_makefile, 'w') as dummy_makefile:
-    #         dummy_makefile.write(DUMMY_EXE_MAKEFILE)
-
     @unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
     def test_encode_decode_windows(self):
         # Find VS build tools
@@ -139,8 +126,9 @@ class VersionInfoTest(unittest.TestCase):
         cli_params = [dummy_json, temp_dir]
         parsed_args = versioninfo_tool.get_cli_options(cli_params)
         versioninfo_tool.service_request(parsed_args)
-        cd = os.getcwd()
-        os.system('cd %s && nmake rsrc && cd %s' % (temp_dir, cd))
+
+        ret = RunCmd('nmake', 'rsrc', workingdir=temp_dir)
+        self.assertEqual(ret, 0, f"Nmake failed with return code {ret}.")
 
         cli_params = [os.path.join(temp_dir, DUMMY_EXE_FILE_NAME) + '.exe', temp_dir, '-d']
         parsed_args = versioninfo_tool.get_cli_options(cli_params)
