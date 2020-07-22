@@ -19,7 +19,7 @@ from edk2toolext.versioninfo.versioninfo_helper import PEObject, VERSIONINFOGene
 TOOL_DESCRIPTION = """
 Versioninfo Tool is a command-line tool to assist in generating VERSIONINFO
 resource files for use with Resource Compiler. It takes a JSON representing
-versioning info and produces a resource file that satifies UEFI SBAT requirements
+versioning info and produces a resource file that satisfies UEFI SBAT requirements
 and is compatible with Resource Compiler.
 
 An example call might look like:

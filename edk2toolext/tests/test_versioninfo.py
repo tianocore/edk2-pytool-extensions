@@ -7,6 +7,7 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 
+# spell-checker:ignore nmake, UCRT
 
 import os
 import sys
@@ -82,7 +83,7 @@ def check_for_err_helper(cls, temp_dir, json_input, err_msg):
     os.remove(json_input)
 
 
-class VersionInfoTest(unittest.TestCase):
+class TestVersioninfo(unittest.TestCase):
     @unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
     def test_encode_decode_windows(self):
         # Find VS build tools
@@ -128,7 +129,7 @@ class VersionInfoTest(unittest.TestCase):
         versioninfo_tool.service_request(parsed_args)
 
         ret = RunCmd('nmake', 'rsrc', workingdir=temp_dir)
-        self.assertEqual(ret, 0, f"Nmake failed with return code {ret}.")
+        self.assertEqual(ret, 0, f"nmake failed with return code {ret}.")
 
         cli_params = [os.path.join(temp_dir, DUMMY_EXE_FILE_NAME) + '.exe', temp_dir, '-d']
         parsed_args = versioninfo_tool.get_cli_options(cli_params)

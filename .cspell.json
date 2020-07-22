@@ -115,6 +115,8 @@
         "MSFT",
         "codecov",
         "qemu",
-        "ovmf"
+        "ovmf",
+        "pefile",
+        "SBAT"
     ]
 }
