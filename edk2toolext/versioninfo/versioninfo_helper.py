@@ -108,12 +108,6 @@ class PEStrings(object):
     # Validation requirements
     VERSIONFILE_REQUIRED_FIELDS = {
         FILE_VERSION_STR,
-        PRODUCT_VERSION_STR,
-        FILE_FLAG_MASK_STR,
-        FILE_FLAGS_STR,
-        FILE_OS_STR,
-        FILE_TYPE_STR,
-        FILE_SUBTYPE_STR,
         STRING_FILE_INFO_STR,
         VAR_FILE_INFO_STR
     }
@@ -141,7 +135,6 @@ class PEStrings(object):
     STRING_FILE_INFO_REQUIRED_FIELDS = {
         COMPANY_NAME_STR,
         PRODUCT_NAME_STR,
-        FILE_VERSION_STR
     }
 
     STRING_FILE_INFO_ALLOWED_FIELDS = {
@@ -242,9 +235,9 @@ class PEObject(object):
     '''
     Class for parsing PE/PE+ files. Gives functionality for reading VS_VERSIONINFO metadata and .rsrc section.
     '''
-    _pe = None
+    _pe: pefile.PE = None
 
-    def __init__(self, filepath):
+    def __init__(self, filepath: str) -> None:
         '''
         Initializes PE parser
 
@@ -252,14 +245,14 @@ class PEObject(object):
         '''
         try:
             self._pe = pefile.PE(filepath)
-        except FileNotFoundError:
-            logging.error("Could not find " + filepath)
+        except pefile.PEFormatError as e:
+            logging.error("Error loading PE: " + str(e))
 
-    def _hex_to_version_str(self, val):
+    def _hex_to_version_str(self, val: int) -> str:
         '''Helper function to convert hex version number to string'''
         return str(((val & ~0) >> 16) & 0xffff) + "." + str(val & 0xffff)
 
-    def _populate_entry(self, key, val, dict):
+    def _populate_entry(self, key: str, val: int, dict: dict) -> None:
         '''Helper function to format and insert VERSIONINFO fields into dictionary'''
         if key == PEStrings.FILE_OS_STR:
             if val in PEStrings.FILE_OS_STRINGS:
@@ -283,22 +276,18 @@ class PEObject(object):
             return
         dict[key] = hex(val)
 
-    def contains_rsrc(self):
+    def contains_rsrc(self) -> bool:
         '''Returns true if PE object contains .rsrc section, false otherwise'''
-        if not self._pe:
-            logging.fatal("Cannot parse, PE not loaded")
-            return
-
         for section in self._pe.sections:
             if section.Name.decode(PEStrings.PE_ENCODING).replace("\x00", "") == PEStrings.RSRC_STR:
                 return True
         return False
 
-    def get_version_dict(self):
+    def get_version_dict(self) -> dict:
         '''Parses PE/PE+ loaded into PEObject and returns dictionary contaning metadata from header and .rsrc section'''
         if not self._pe:
-            logging.fatal("Cannot parse, PE not loaded")
-            return
+            logging.fatal("Cannot parse, PE not loaded.")
+            return None
 
         result = {}
         try:
@@ -347,26 +336,22 @@ class PEObject(object):
             logging.warning("Could not find VS_FIXEDFILEINFO.")
 
         if self.contains_rsrc():
-            try:
-                for fileinfo in self._pe.FileInfo:
-                    for entry in fileinfo:
-                        if entry.Key.decode(PEStrings.PE_ENCODING).replace("\x00", "") \
-                           == PEStrings.STRING_FILE_INFO_STR:
-                            stringfileinfo_dict = {}
-                            for strTable in entry.StringTable:
-                                for item in strTable.entries.items():
-                                    stringfileinfo_dict[item[0].decode(PEStrings.PE_ENCODING)] = item[1].decode(PEStrings.PE_ENCODING) # noqa
-                            result[PEStrings.STRING_FILE_INFO_STR] = stringfileinfo_dict
-                        elif entry.Key.decode(PEStrings.PE_ENCODING).replace("\x00", "") == PEStrings.VAR_FILE_INFO_STR:
-                            varfileinfo_dict = {}
-                            for var in entry.Var:
-                                for item in var.entry.items():
-                                    varfileinfo_dict[item[0].decode(PEStrings.PE_ENCODING)] = item[1]
-                            result[PEStrings.VAR_FILE_INFO_STR] = varfileinfo_dict
-            except AttributeError:
-                logging.warning("Could not find FileInfoTable in .rsrc section.")
+            for fileinfo in self._pe.FileInfo:
+                for entry in fileinfo:
+                    if entry.Key.decode(PEStrings.PE_ENCODING).replace("\x00", "") == PEStrings.STRING_FILE_INFO_STR:
+                        stringfileinfo_dict = {}
+                        for strTable in entry.StringTable:
+                            for item in strTable.entries.items():
+                                stringfileinfo_dict[item[0].decode(PEStrings.PE_ENCODING)] = item[1].decode(PEStrings.PE_ENCODING) # noqa
+                        result[PEStrings.STRING_FILE_INFO_STR] = stringfileinfo_dict
+                    elif entry.Key.decode(PEStrings.PE_ENCODING).replace("\x00", "") == PEStrings.VAR_FILE_INFO_STR:
+                        varfileinfo_dict = {}
+                        for var in entry.Var:
+                            for item in var.entry.items():
+                                varfileinfo_dict[item[0].decode(PEStrings.PE_ENCODING)] = item[1]
+                        result[PEStrings.VAR_FILE_INFO_STR] = varfileinfo_dict
         else:
-            logging.warning("Could not find .rsrc section.")
+            logging.warning("File does not contain .rsrc section.")
 
         return result
 
@@ -399,24 +384,20 @@ class VERSIONINFOGenerator(object):
     '''
     _version_dict = None
 
-    def __init__(self, filepath):
+    def __init__(self, filepath: str) -> None:
         '''
         Initializes generator
 
         filepath - filepath to JSON file containing VERSIONINFO information in format shown above
         '''
-        try:
-            with open(filepath, "r") as jsonFile:
-                data = jsonFile.read()
-                try:
-                    self._version_dict = json.loads(data)
-                except json.decoder.JSONDecodeError as e:
-                    logging.error(e)
+        with open(filepath, "r") as jsonFile:
+            data = jsonFile.read()
+            try:
+                self._version_dict = json.loads(data)
+            except json.decoder.JSONDecodeError as e:
+                logging.error("Invalid JSON format, " + str(e))
 
-        except FileNotFoundError:
-            logging.error("Could not find " + filepath)
-
-    def _validate_version_number(self, version_str):
+    def _validate_version_number(self, version_str: str) -> bool:
         '''Helper function to check if a version string format is valid or not'''
         if version_str.count('.') != 3:
             logging.error("Invalid version string: " + version_str + ". Version must be in form "
@@ -426,7 +407,8 @@ class VERSIONINFOGenerator(object):
         for substr in version_str.split("."):
             try:
                 if int(substr) > 65535:
-                    logging.warning("Integer overflow in version string: " + version_str + ".")
+                    logging.error("Integer overflow in version string: " + version_str + ".")
+                    return False
             except ValueError:
                 logging.error("Invalid version string: " + version_str + ". Version must be in form \""
                               + " INTEGER.INTEGER.INTEGER.INTEGER\".")
@@ -434,7 +416,7 @@ class VERSIONINFOGenerator(object):
 
         return True
 
-    def validate(self):
+    def validate(self) -> bool:
         '''
         Returns true if loaded JSON file represents a valid VERSIONINFO resource, false otherwise
         '''
@@ -472,71 +454,85 @@ class VERSIONINFOGenerator(object):
             return False
 
         # Second pass: Check to see if fields are valid
-        valid = self._validate_version_number(self._version_dict[PEStrings.FILE_VERSION_STR]) \
-            and self._validate_version_number(self._version_dict[PEStrings.PRODUCT_VERSION_STR])
+        valid = self._validate_version_number(self._version_dict[PEStrings.FILE_VERSION_STR])
+        if PEStrings.PRODUCT_VERSION_STR in self._version_dict:
+            valid = valid and self._validate_version_number(self._version_dict[PEStrings.PRODUCT_VERSION_STR])
 
-        if self._version_dict[PEStrings.FILE_OS_STR] not in PEStrings.VALID_FILE_OS_VALUES:
-            logging.error("Invalid FILEOS value: " + self._version_dict[PEStrings.FILE_OS_STR] + ".")
-            valid = False
+        if PEStrings.FILE_OS_STR in self._version_dict:
+            try:
+                if int(self._version_dict[PEStrings.FILE_OS_STR], 0) not in PEStrings.FILE_OS_STRINGS.keys():
+                    valid = False
+                    logging.error("Invalid FILEOS value: " + self._version_dict[PEStrings.FILE_OS_STR] + ".")
+            except ValueError:
+                if self._version_dict[PEStrings.FILE_OS_STR] not in PEStrings.VALID_FILE_OS_VALUES:
+                    valid = False
+                    logging.error("Invalid FILEOS value: " + self._version_dict[PEStrings.FILE_OS_STR] + ".")
 
-        if self._version_dict[PEStrings.FILE_TYPE_STR] not in PEStrings.VALID_FILE_TYPE_VALUES:
-            logging.error("Invalid FILETYPE value: " + self._version_dict[PEStrings.FILE_TYPE_STR] + ".")
-            valid = False
-
-        if self._version_dict[PEStrings.FILE_TYPE_STR] == "VFT_DRV":
-            if self._version_dict[PEStrings.FILE_SUBTYPE_STR] not in PEStrings.VALID_SUBTYPE_VFT_DRV:
-                logging.error("Invalid FILESUBTYPE value for FILETYPE VFT_DRV: "
-                              + self._version_dict[PEStrings.FILE_SUBTYPE_STR] + ".")
-                valid = False
-        elif self._version_dict[PEStrings.FILE_TYPE_STR] == "VFT_FONT":
-            if self._version_dict[PEStrings.FILE_SUBTYPE_STR] not in PEStrings.VALID_SUBTYPE_VFT_FONT:
-                logging.error("Invalid FILESUBTYPE value for FILETYPE VFT_FONT: "
-                              + self._version_dict[PEStrings.FILE_SUBTYPE_STR] + ".")
-                valid = False
-        elif (self._version_dict[PEStrings.FILE_TYPE_STR] != "VFT_VXD"
-              and self._version_dict[PEStrings.FILE_SUBTYPE_STR] != 0):
-            logging.error("Invalid FILESUBTYPE value for FILETYPE "
-                          + self._version_dict[PEStrings.FILE_TYPE_STR] + ", value must be 0.")
-            valid = False
-
-        if self._validate_version_number(self._version_dict[PEStrings.STRING_FILE_INFO_STR][PEStrings.FILE_VERSION_STR]): # noqa
-            if self._version_dict[PEStrings.STRING_FILE_INFO_STR][PEStrings.FILE_VERSION_STR] \
-               != self._version_dict[PEStrings.FILE_VERSION_STR]:
-                logging.error("FILEVERSION in header does not match FileVersion in StringFileInfo.")
-                valid = False
-        else:
+        if PEStrings.FILE_TYPE_STR in self._version_dict:
+            try:
+                if int(self._version_dict[PEStrings.FILE_TYPE_STR], 0) not in PEStrings.FILE_TYPE_STRINGS.keys():
+                    valid = False
+                    logging.error("Invalid FILETYPE value: " + self._version_dict[PEStrings.FILE_TYPE_STR] + ".")
+            except ValueError:
+                if self._version_dict[PEStrings.FILE_TYPE_STR] not in PEStrings.VALID_FILE_TYPE_VALUES:
+                    valid = False
+                    logging.error("Invalid FILETYPE value: " + self._version_dict[PEStrings.FILE_TYPE_STR] + ".")
+            if PEStrings.FILE_SUBTYPE_STR in self._version_dict:
+                if self._version_dict[PEStrings.FILE_TYPE_STR] == "VFT_DRV":
+                    if self._version_dict[PEStrings.FILE_SUBTYPE_STR] not in PEStrings.VALID_SUBTYPE_VFT_DRV:
+                        logging.error("Invalid FILESUBTYPE value for FILETYPE VFT_DRV: "
+                                      + self._version_dict[PEStrings.FILE_SUBTYPE_STR] + ".")
+                        valid = False
+                elif self._version_dict[PEStrings.FILE_TYPE_STR] == "VFT_FONT":
+                    if self._version_dict[PEStrings.FILE_SUBTYPE_STR] not in PEStrings.VALID_SUBTYPE_VFT_FONT:
+                        logging.error("Invalid FILESUBTYPE value for FILETYPE VFT_FONT: "
+                                      + self._version_dict[PEStrings.FILE_SUBTYPE_STR] + ".")
+                        valid = False
+                elif (self._version_dict[PEStrings.FILE_TYPE_STR] != "VFT_VXD"
+                      and self._version_dict[PEStrings.FILE_SUBTYPE_STR] != 0):
+                    logging.error("Invalid FILESUBTYPE value for FILETYPE "
+                                  + self._version_dict[PEStrings.FILE_TYPE_STR] + ", value must be 0.")
+                    valid = False
+        elif PEStrings.FILE_SUBTYPE_STR in self._version_dict:
+            logging.error("Missing parameter: must have FileType if FileSubtype defined.")
             valid = False
 
         if PEStrings.TRANSLATION_STR in self._version_dict[PEStrings.VAR_FILE_INFO_STR]:
             langid_set = self._version_dict[PEStrings.VAR_FILE_INFO_STR][PEStrings.TRANSLATION_STR].split(" ")
             try:
                 if len(langid_set) != 2:
-                    logging.error("Translation field must contain 2 space delimited hexidecimal 8 bit words.")
+                    logging.error("Translation field must contain 2 space delimited hexidecimal bytes.")
                     valid = False
-                elif int(langid_set[0], 0) not in PEStrings.VALID_LANG_ID:
-                    logging.error("Invalid language code: " + langid_set[0] + "\".")
-                    valid = False
-                elif int(langid_set[1], 0) not in PEStrings.VALID_CHARSET_ID:
-                    logging.error("Invalid charset code: " + langid_set[1] + "\".")
+                elif (int(langid_set[0].replace('"', ''), 0) not in PEStrings.VALID_LANG_ID
+                      or int(langid_set[1].replace('"', ''), 0) not in PEStrings.VALID_CHARSET_ID):
+                    logging.error("Invalid language code: "
+                                  + self._version_dict[PEStrings.VAR_FILE_INFO_STR][PEStrings.TRANSLATION_STR] + ".")
                     valid = False
             except ValueError:
-                logging.error("Invalid language code: " + langid_set[0] + "\".")
+                logging.error("Invalid language code: "
+                              + self._version_dict[PEStrings.VAR_FILE_INFO_STR][PEStrings.TRANSLATION_STR] + ".")
                 valid = False
         else:
-            logging.error("Missing required parameter: Translation in VarFileInfo")
+            logging.error("Missing required parameter in VarFileInfo: Translation.")
             valid = False
+
+        for field in self._version_dict[PEStrings.VAR_FILE_INFO_STR].keys():
+            if field != PEStrings.TRANSLATION_STR:
+                logging.error("Invalid VarFileInfo parameter: %s.", field)
+                valid = False
 
         return valid
 
-    def write(self, path):
+    def write(self, path: str) -> bool:
         '''
-        Encodes the loaded JSON and writes it to VERSION.rc, a resource file comptaible with rc.exe
+        Encodes the loaded JSON and writes it to VERSION.rc, a resource file comptaible with rc.exe.
+        Returns true on success, false otherwise.
 
         path - path to directory that VERSIONINFO.rc will be written to
         '''
         if not self.validate():
             logging.error("Invalid input, aborted.")
-            return
+            return False
 
         out_str = "/* Auto-generated VERSIONINFO resource file.\n" \
                   + "   Generated at %s */\n\n" % datetime.now().strftime("%d/%m/%Y %H:%M:%S") \
@@ -546,15 +542,14 @@ class VERSIONINFOGenerator(object):
         out_str += "VS_VERSION_INFO\tVERSIONINFO\n"
         for param in self._version_dict.keys():
             if (param == PEStrings.STRING_FILE_INFO_STR
-               or param == PEStrings.VAR_FILE_INFO_STR
-               or param not in PEStrings.VERSIONFILE_REQUIRED_FIELDS):
+               or param == PEStrings.VAR_FILE_INFO_STR):
                 continue
             if param == PEStrings.PRODUCT_VERSION_STR or param == PEStrings.FILE_VERSION_STR:
-                out_str += param + "\t"
+                out_str += param.upper() + "\t"
                 version = self._version_dict[param].split(".")
                 out_str += version[0] + ',' + version[1] + ',' + version[2] + ',' + version[3] + "\n"
             else:
-                out_str += param + "\t" + self._version_dict[param] + "\n"
+                out_str += param.upper() + "\t" + str(self._version_dict[param]) + "\n"
 
         # StringFileInfo
         out_str += "\n" + PEStrings.BEGIN_STR + "\n\t"
@@ -576,14 +571,12 @@ class VERSIONINFOGenerator(object):
         out_str += " \"" + PEStrings.VAR_FILE_INFO_STR + "\"\n\t" + PEStrings.BEGIN_STR + "\n"
         language_tokens = self._version_dict[PEStrings.VAR_FILE_INFO_STR][PEStrings.TRANSLATION_STR].split(" ")
         for field in self._version_dict[PEStrings.VAR_FILE_INFO_STR].keys():
-            if field == PEStrings.TRANSLATION_STR:
-                out_str += "\t\t" + PEStrings.VALUE_STR + " \"" + field + "\",\t" + language_tokens[0] + "," \
-                           + language_tokens[1] + "\n"
-            else:
-                out_str += "\t\t" + PEStrings.VALUE_STR + " \"" + field + "\",\t\"" \
-                           + self._version_dict[PEStrings.VAR_FILE_INFO_STR][field] + "\"\n"
+            out_str += "\t\t" + PEStrings.VALUE_STR + " \"" + field + "\",\t" + language_tokens[0] + "," \
+                       + language_tokens[1] + "\n"
 
         out_str += "\t" + PEStrings.END_STR + "\n" + PEStrings.END_STR + "\n#endif"
 
         with open(os.path.join(path, "VERSIONINFO.rc"), "w") as out:
             out.write(out_str)
+
+        return True

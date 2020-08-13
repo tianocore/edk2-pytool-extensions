@@ -64,7 +64,8 @@ def service_request(args):
         else:
             sys.exit(1)
     else:
-        VERSIONINFOGenerator(args.input_file).write(args.output_dir)
+        if not VERSIONINFOGenerator(args.input_file).write(args.output_dir):
+            sys.exit(1)
 
 
 def main():
