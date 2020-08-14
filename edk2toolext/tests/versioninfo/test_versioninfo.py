@@ -35,6 +35,7 @@ NO_STRINGFILEINFO_EXE_NAME = 'no_stringfileinfo.exe'
 PATH_TO_VERSIONINFO_FOLDER = os.path.join('edk2toolext', 'tests', 'versioninfo')
 
 DUMMY_VALID_JSON = {
+    "Minimal": "False",
     "FileVersion": "1.2.3.4",
     "ProductVersion": "1.2.3.4",
     "FileFlagsMask": "0x3f",
@@ -55,6 +56,29 @@ DUMMY_VALID_JSON = {
     "VarFileInfo": {
         "Translation": "0x0409 0x04b0"
     }
+}
+
+DUMMY_MINIMAL_JSON = {
+    "Fileversion": "1,0,0,0",
+    "ProductName": "Test Product",
+    "CompanyName": "Test Company"
+}
+
+DUMMY_MINIMAL_DECODED = {
+	"FileVersion": "1.0.0.0",
+	"ProductVersion": "0.0.0.0",
+	"FileFlagsMask": "0x0",
+	"FileFlags": "0x0",
+	"FileOS": "VOS_UNKNOWN",
+	"FileType": "VFT_UNKNOWN",
+	"FileSubtype": "VFT2_UNKNOWN",
+	"StringFileInfo": {
+		"CompanyName": "Test Company",
+		"ProductName": "Test Product"
+	},
+	"VarFileInfo": {
+		"Translation": "0x0409 0x04b0"
+	}
 }
 
 DUMMY_EXE_SOURCE = '#include <stdio.h>\nint main() { printf("TEST"); }'
@@ -136,8 +160,8 @@ def setup_vs_build(cls):
         shell_env.set_shell_var(k, v)
 
 
-def encode_decode_helper(cls, dummy_json, temp_dir, is_windows):
-    cli_params = [dummy_json, temp_dir]
+def encode_decode_helper(cls, dummy_json, temp_dir, is_windows, reference=DUMMY_VALID_JSON):
+    cli_params = [dummy_json, os.path.join(temp_dir, "VERSIONINFO.rc")]
     parsed_args = versioninfo_tool.get_cli_options(cli_params)
     versioninfo_tool.service_request(parsed_args)
     if is_windows:
@@ -147,7 +171,7 @@ def encode_decode_helper(cls, dummy_json, temp_dir, is_windows):
         ret = RunCmd('make', "", workingdir=temp_dir)
         cls.assertEqual(ret, 0, f"make failed with return code {ret}.")
 
-    cli_params = [os.path.join(temp_dir, DUMMY_EXE_FILE_NAME) + '.exe', temp_dir, '-d']
+    cli_params = [os.path.join(temp_dir, DUMMY_EXE_FILE_NAME) + '.exe', os.path.join(temp_dir, "VERSIONINFO.json"), '-d']
     parsed_args = versioninfo_tool.get_cli_options(cli_params)
     versioninfo_tool.service_request(parsed_args)
     try:
@@ -165,7 +189,10 @@ def encode_decode_helper(cls, dummy_json, temp_dir, is_windows):
                 del generated_dict['FileDateMS']
             if 'FileDateLS' in generated_dict:
                 del generated_dict['FileDateLS']
-            cls.assertEqual(generated_dict, DUMMY_VALID_JSON)
+            ref = copy.deepcopy(reference)
+            if "Minimal" in ref:
+                del ref["Minimal"]
+            cls.assertEqual(generated_dict, ref)
     except IOError:
         cls.fail()
 
@@ -188,6 +215,24 @@ class TestVersioninfo(unittest.TestCase):
 
         encode_decode_helper(self, dummy_json, temp_dir, True)
 
+    @unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
+    def test_encode_decode_minimal_windows(self):
+        setup_vs_build(self)
+        temp_dir = tempfile.mkdtemp()
+        dummy_json = os.path.join(temp_dir, DUMMY_JSON_FILE_NAME + '.json.orig')
+        dummy_exe_src = os.path.join(temp_dir, DUMMY_EXE_SRC_NAME + '.c')
+        dummy_exe_makefile = os.path.join(temp_dir, DUMMY_EXE_MAKEFILE_NAME)
+
+        with open(dummy_json, 'w') as dummy_file:
+            json.dump(DUMMY_MINIMAL_JSON, dummy_file)
+        with open(dummy_exe_src, 'w') as dummy_src:
+            dummy_src.write(DUMMY_EXE_SOURCE)
+        with open(dummy_exe_makefile, 'w') as dummy_makefile:
+            dummy_makefile.write(DUMMY_EXE_MAKEFILE_WINDOWS)
+
+        print (temp_dir)
+        encode_decode_helper(self, dummy_json, temp_dir, True, DUMMY_MINIMAL_DECODED)
+
     @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linx")
     def test_encode_decode_linux(self):
         temp_dir = tempfile.mkdtemp()
@@ -203,6 +248,23 @@ class TestVersioninfo(unittest.TestCase):
             dummy_makefile.write(DUMMY_EXE_MAKEFILE_LINUX)
 
         encode_decode_helper(self, dummy_json, temp_dir, False)
+
+    @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
+    def test_encode_decode_minimal_linux(self):
+        temp_dir = tempfile.mkdtemp()
+        dummy_json = os.path.join(temp_dir, DUMMY_JSON_FILE_NAME + '.json.orig')
+        dummy_exe_src = os.path.join(temp_dir, DUMMY_EXE_SRC_NAME + '.c')
+        dummy_exe_makefile = os.path.join(temp_dir, DUMMY_EXE_MAKEFILE_NAME)
+
+        with open(dummy_json, 'w') as dummy_file:
+            json.dump(DUMMY_MINIMAL_JSON, dummy_file)
+        with open(dummy_exe_src, 'w') as dummy_src:
+            dummy_src.write(DUMMY_EXE_SOURCE)
+        with open(dummy_exe_makefile, 'w') as dummy_makefile:
+            dummy_makefile.write(DUMMY_EXE_MAKEFILE_LINUX)
+
+        print (temp_dir)
+        encode_decode_helper(self, dummy_json, temp_dir, False, DUMMY_MINIMAL_DECODED)
 
     def test_no_rsrc(self):
         temp_dir = tempfile.mkdtemp()
@@ -433,7 +495,7 @@ class TestVersioninfo(unittest.TestCase):
                 continue
 
             bad_json[key] = bad_json['StringFileInfo'][key]
-            err_str += 'Invalid parameter: ' + key + '.\n'
+            err_str += 'Invalid parameter: ' + key.upper() + '.\n'
 
         del bad_json['StringFileInfo']
         err_str += 'Missing required parameter: STRINGFILEINFO.\nInvalid input, aborted.\n'
@@ -552,3 +614,33 @@ class TestVersioninfo(unittest.TestCase):
 
         check_for_err_helper(self, temp_dir, bad_json_file,
                              "Invalid JSON format, Expecting ',' delimiter: line 10 column 27 (char 322)\nInvalid input, aborted.\n") # noqa
+
+    def test_invalid_minimal_fields(self):
+        temp_dir = tempfile.mkdtemp()
+        bad_json_file = os.path.join(temp_dir, BAD_JSON_FILE_NAME + '.json')
+        bad_json = {
+            "Minimal": "True",
+            "FileVersion": "1.2.3.4",
+            "CompanyName": "Test Company",
+            "FileType": "VFT_DRV",
+        }
+        with open(bad_json_file, 'w') as bad_file:
+            json.dump(bad_json, bad_file)
+
+        check_for_err_helper(self, temp_dir, bad_json_file,
+                             'Invalid minimal parameter: FILETYPE.\nInvalid input, aborted.\n')
+
+    def test_invalid_minimal_value(self):
+        temp_dir = tempfile.mkdtemp()
+        bad_json_file = os.path.join(temp_dir, BAD_JSON_FILE_NAME + '.json')
+        bad_json = {
+            "Minimal": "Yes",
+            "FileVersion": "1.2.3.4",
+            "CompanyName": "Test Company",
+            "FileType": "VFT_DRV",
+        }
+        with open(bad_json_file, 'w') as bad_file:
+            json.dump(bad_json, bad_file)
+
+        check_for_err_helper(self, temp_dir, bad_json_file,
+                             "Invalid value for 'Minimal', must be boolean.\nInvalid input, aborted.\n")

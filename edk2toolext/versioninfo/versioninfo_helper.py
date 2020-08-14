@@ -72,29 +72,42 @@ class PEStrings(object):
     }
 
     VALID_SIGNATURE = 0xfeef04bd
+    DEFAULT_TRANSLATION = "0x0409,0x04b0"
+    DEFAULT_BLOCK_HEADER = "040904b0"
 
     # PE/PE+ field names
-    SIGNATURE_STR = "Signature"
-    STRUC_VERSION_STR = "StrucVersion"
-    FILE_VERSION_MS_STR = "FileVersionMS"
-    FILE_VERSION_LS_STR = "FileVersionLS"
-    FILE_VERSION_STR = "FileVersion"
-    PRODUCT_VERSION_MS_STR = "ProductVersionMS"
-    PRODUCT_VERSION_LS_STR = "ProductVersionLS"
-    PRODUCT_VERSION_STR = "ProductVersion"
-    FILE_FLAG_MASK_STR = "FileFlagsMask"
-    FILE_FLAGS_STR = "FileFlags"
-    FILE_TYPE_STR = "FileType"
-    FILE_SUBTYPE_STR = "FileSubtype"
-    FILE_OS_STR = "FileOS"
-    FILE_DATE_MS_STR = "FileDateMS"
-    FILE_DATE_LS_STR = "FileDateLS"
-    FILE_DATE_STR = "FileDate"
+    SIGNATURE_STR = "SIGNATURE"
+    STRUC_VERSION_STR = "STRUCVERSION"
+    FILE_VERSION_MS_STR = "FILEVERSIONMS"
+    FILE_VERSION_LS_STR = "FILEVERSIONLS"
+    FILE_VERSION_STR = "FILEVERSION"
+    PRODUCT_VERSION_MS_STR = "PRODUCTVERSIONMS"
+    PRODUCT_VERSION_LS_STR = "PRODUCTVERSIONLS"
+    PRODUCT_VERSION_STR = "PRODUCTVERSION"
+    FILE_FLAG_MASK_STR = "FILEFLAGSMASK"
+    FILE_FLAGS_STR = "FILEFLAGS"
+    FILE_TYPE_STR = "FILETYPE"
+    FILE_SUBTYPE_STR = "FILESUBTYPE"
+    FILE_OS_STR = "FILEOS"
+    FILE_DATE_MS_STR = "FILEDATEMS"
+    FILE_DATE_LS_STR = "FILEDATELS"
+    FILE_DATE_STR = "FILEDATE"
     VFT_FONT_STR = "VFT_FONT"
     TRANSLATION_STR = "Translation"
     RSRC_STR = ".rsrc"
     STRING_FILE_INFO_STR = "StringFileInfo"
     VAR_FILE_INFO_STR = "VarFileInfo"
+
+    FILE_VERSION_MS_PEFILE = "FileVersionMS"
+    FILE_VERSION_LS_PEFILE = "FileVersionLS"
+    FILE_VERSION_PEFILE = "FileVersion"
+    PRODUCT_VERSION_MS_PEFILE = "ProductVersionMS"
+    PRODUCT_VERSION_LS_PEFILE = "ProductVersionLS"
+    PRODUCT_VERSION_PEFILE = "ProductVersion"
+    FILE_DATE_MS_PEFILE = "FileDateMS"
+    FILE_DATE_LS_PEFILE = "FileDateLS"
+    FILE_SUBTYPE_PEFILE = "FileSubtype"
+
 
     # Key values for interacting with pefile objects
     PE_ENCODING = "utf-8"
@@ -104,6 +117,7 @@ class PEStrings(object):
     END_STR = "END"
     BLOCK_STR = "BLOCK"
     VALUE_STR = "VALUE"
+    MINIMAL_MODE_STR = "MINIMAL"
 
     # Validation requirements
     VERSIONFILE_REQUIRED_FIELDS = {
@@ -254,25 +268,25 @@ class PEObject(object):
 
     def _populate_entry(self, key: str, val: int, dict: dict) -> None:
         '''Helper function to format and insert VERSIONINFO fields into dictionary'''
-        if key == PEStrings.FILE_OS_STR:
+        if key.upper() == PEStrings.FILE_OS_STR:
             if val in PEStrings.FILE_OS_STRINGS:
                 dict[key] = PEStrings.FILE_OS_STRINGS[val]
                 return
-        elif key == PEStrings.FILE_TYPE_STR:
+        elif key.upper() == PEStrings.FILE_TYPE_STR:
             if val in PEStrings.FILE_TYPE_STRINGS:
                 dict[key] = PEStrings.FILE_TYPE_STRINGS[val]
                 return
-        elif key == PEStrings.FILE_VERSION_MS_STR:
-            dict[PEStrings.FILE_VERSION_STR] = self._hex_to_version_str(val)
+        elif key.upper() == PEStrings.FILE_VERSION_MS_STR:
+            dict[PEStrings.FILE_VERSION_PEFILE] = self._hex_to_version_str(val)
             return
-        elif key == PEStrings.FILE_VERSION_LS_STR:
-            dict[PEStrings.FILE_VERSION_STR] += "." + self._hex_to_version_str(val)
+        elif key.upper() == PEStrings.FILE_VERSION_LS_STR:
+            dict[PEStrings.FILE_VERSION_PEFILE] += "." + self._hex_to_version_str(val)
             return
-        elif key == PEStrings.PRODUCT_VERSION_MS_STR:
-            dict[PEStrings.PRODUCT_VERSION_STR] = self._hex_to_version_str(val)
+        elif key.upper() == PEStrings.PRODUCT_VERSION_MS_STR:
+            dict[PEStrings.PRODUCT_VERSION_PEFILE] = self._hex_to_version_str(val)
             return
-        elif key == PEStrings.PRODUCT_VERSION_LS_STR:
-            dict[PEStrings.PRODUCT_VERSION_STR] += "." + self._hex_to_version_str(val)
+        elif key.upper() == PEStrings.PRODUCT_VERSION_LS_STR:
+            dict[PEStrings.PRODUCT_VERSION_PEFILE] += "." + self._hex_to_version_str(val)
             return
         dict[key] = hex(val)
 
@@ -295,42 +309,42 @@ class PEObject(object):
             for key in vs_fixedfileinfo_dict.keys():
                 # Skip sections that have dependencies
                 if key == PEStrings.PE_STRUCT_STR or \
-                   key == PEStrings.FILE_SUBTYPE_STR or \
-                   key == PEStrings.FILE_VERSION_LS_STR or \
-                   key == PEStrings.PRODUCT_VERSION_LS_STR or \
-                   key == PEStrings.FILE_DATE_LS_STR:
+                   key == PEStrings.FILE_SUBTYPE_PEFILE or \
+                   key == PEStrings.FILE_VERSION_LS_PEFILE or \
+                   key == PEStrings.PRODUCT_VERSION_LS_PEFILE or \
+                   key == PEStrings.FILE_DATE_LS_PEFILE:
                     continue
 
                 self._populate_entry(key, vs_fixedfileinfo_dict[key][PEStrings.PE_VALUE_STR], result)
 
             # Resolve dependent fields
-            if PEStrings.FILE_VERSION_MS_STR in vs_fixedfileinfo_dict.keys() and \
-               PEStrings.FILE_VERSION_LS_STR in vs_fixedfileinfo_dict.keys():
-                self._populate_entry(PEStrings.FILE_VERSION_LS_STR,
-                                     vs_fixedfileinfo_dict[PEStrings.FILE_VERSION_LS_STR][PEStrings.PE_VALUE_STR], result) # noqa
+            if PEStrings.FILE_VERSION_MS_PEFILE in vs_fixedfileinfo_dict.keys() and \
+               PEStrings.FILE_VERSION_LS_PEFILE in vs_fixedfileinfo_dict.keys():
+                self._populate_entry(PEStrings.FILE_VERSION_LS_PEFILE,
+                                     vs_fixedfileinfo_dict[PEStrings.FILE_VERSION_LS_PEFILE][PEStrings.PE_VALUE_STR], result) # noqa
 
-            if PEStrings.PRODUCT_VERSION_MS_STR in vs_fixedfileinfo_dict.keys() and \
-               PEStrings.PRODUCT_VERSION_LS_STR in vs_fixedfileinfo_dict.keys():
-                self._populate_entry(PEStrings.PRODUCT_VERSION_LS_STR,
-                                     vs_fixedfileinfo_dict[PEStrings.PRODUCT_VERSION_LS_STR][PEStrings.PE_VALUE_STR], result) # noqa
+            if PEStrings.PRODUCT_VERSION_MS_PEFILE in vs_fixedfileinfo_dict.keys() and \
+               PEStrings.PRODUCT_VERSION_LS_PEFILE in vs_fixedfileinfo_dict.keys():
+                self._populate_entry(PEStrings.PRODUCT_VERSION_LS_PEFILE,
+                                     vs_fixedfileinfo_dict[PEStrings.PRODUCT_VERSION_LS_PEFILE][PEStrings.PE_VALUE_STR], result) # noqa
 
-            if PEStrings.FILE_DATE_MS_STR in vs_fixedfileinfo_dict.keys() and \
-               PEStrings.FILE_DATE_LS_STR in vs_fixedfileinfo_dict.keys():
-                self._populate_entry(PEStrings.FILE_DATE_LS_STR,
-                                     vs_fixedfileinfo_dict[PEStrings.FILE_DATE_LS_STR][PEStrings.PE_VALUE_STR], result)
+            if PEStrings.FILE_DATE_MS_PEFILE in vs_fixedfileinfo_dict.keys() and \
+               PEStrings.FILE_DATE_LS_PEFILE in vs_fixedfileinfo_dict.keys():
+                self._populate_entry(PEStrings.FILE_DATE_LS_PEFILE,
+                                     vs_fixedfileinfo_dict[PEStrings.FILE_DATE_LS_PEFILE][PEStrings.PE_VALUE_STR], result)
 
-            if PEStrings.FILE_SUBTYPE_STR in vs_fixedfileinfo_dict.keys():
-                file_subtype = vs_fixedfileinfo_dict[PEStrings.FILE_SUBTYPE_STR][PEStrings.PE_VALUE_STR]
+            if PEStrings.FILE_SUBTYPE_PEFILE in vs_fixedfileinfo_dict.keys():
+                file_subtype = vs_fixedfileinfo_dict[PEStrings.FILE_SUBTYPE_PEFILE][PEStrings.PE_VALUE_STR]
                 if PEStrings.FILE_TYPE_STR in result and result[PEStrings.FILE_TYPE_STR] == PEStrings.VFT_FONT_STR:
                     if file_subtype in PEStrings.FILE_SUBTYPE_FONT_STRINGS:
-                        result[PEStrings.FILE_SUBTYPE_STR] = PEStrings.FILE_SUBTYPE_FONT_STRINGS[PEStrings.file_subtype]
+                        result[PEStrings.FILE_SUBTYPE_PEFILE] = PEStrings.FILE_SUBTYPE_FONT_STRINGS[PEStrings.file_subtype]
                     else:
-                        result[PEStrings.FILE_SUBTYPE_STR] = file_subtype
+                        result[PEStrings.FILE_SUBTYPE_PEFILE] = file_subtype
                 else:
                     if file_subtype in PEStrings.FILE_SUBTYPE_NOFONT_STRINGS.keys():
-                        result[PEStrings.FILE_SUBTYPE_STR] = PEStrings.FILE_SUBTYPE_NOFONT_STRINGS[file_subtype]
+                        result[PEStrings.FILE_SUBTYPE_PEFILE] = PEStrings.FILE_SUBTYPE_NOFONT_STRINGS[file_subtype]
                     else:
-                        result[PEStrings.FILE_SUBTYPE_STR] = file_subtype
+                        result[PEStrings.FILE_SUBTYPE_PEFILE] = file_subtype
 
         except AttributeError:
             logging.warning("Could not find VS_FIXEDFILEINFO.")
@@ -360,8 +374,10 @@ class VERSIONINFOGenerator(object):
     '''
     Given a JSON file, object creates generator for VERSIONINFO rc file for the given JSON.
     Provides validation of some basic requirements and generates VERSIONINFO.rc source to be used with rc.exe.
-    Here is an example of the minimum required JSON
+    If "Minimal" attribute is set to false, JSON defines a complete rc section.
+    Here is an example of a complete rc section:
     {
+        "Minimal": "False"
         "FileVersion": "1.0.0.0",
         "ProductVersion": "1.0.0.0",
         "FileFlagsMask": "VS_FFI_FILEFLAGSMASK",
@@ -381,7 +397,29 @@ class VERSIONINFOGenerator(object):
 
     StringFileInfo and VarFileInfo can both have many more entries.
     More information available at https://docs.microsoft.com/en-us/windows/win32/menurc/versioninfo-resource.
+
+    If the "Minimal" attribute is set to True or is not present, JSON must define a FileVersion, ProductName,
+    and CompanyName, but nothing else. Here is an example of a minimal JSON representation:
+    {
+        "FileVersion": "1.0.0.0",
+        "CompanyName": "Example Company",
+        "ProductName": "Example Product",
+    }
+
+    or equivalently:
+    {
+        "Minimal": "True",
+        "FileVersion": "1.0.0.0",
+        "CompanyName": "Example Company",
+        "ProductName": "Example Product",
+    }
     '''
+    _minimal_required_fields = {
+        PEStrings.FILE_VERSION_STR.upper(),
+        PEStrings.COMPANY_NAME_STR.upper(),
+        PEStrings.PRODUCT_NAME_STR.upper()
+    }
+
     _version_dict = None
 
     def __init__(self, filepath: str) -> None:
@@ -399,12 +437,18 @@ class VERSIONINFOGenerator(object):
 
     def _validate_version_number(self, version_str: str) -> bool:
         '''Helper function to check if a version string format is valid or not'''
-        if version_str.count('.') != 3:
+        if version_str.count('.') != 3 and version_str.count(',') != 3:
             logging.error("Invalid version string: " + version_str + ". Version must be in form "
                           + "\"INTEGER.INTEGER.INTEGER.INTEGER\".")
             return False
 
-        for substr in version_str.split("."):
+        split = None
+        if version_str.count('.') == 3:
+            split = version_str.split(".")
+        else:
+            split = version_str.split(",")
+
+        for substr in split:
             try:
                 if int(substr) > 65535:
                     logging.error("Integer overflow in version string: " + version_str + ".")
@@ -420,9 +464,6 @@ class VERSIONINFOGenerator(object):
         '''
         Returns true if loaded JSON file represents a valid VERSIONINFO resource, false otherwise
         '''
-        if not self._version_dict:
-            return False
-
         valid = True
 
         # First Pass: Check to see if all required fields are present
@@ -440,9 +481,9 @@ class VERSIONINFOGenerator(object):
             logging.error("Missing required parameter: " + remaining + ".")
             valid = False
 
-        if PEStrings.STRING_FILE_INFO_STR in self._version_dict:
+        if PEStrings.STRING_FILE_INFO_STR.upper() in self._version_dict:
             required_string_fields = PEStrings.STRING_FILE_INFO_REQUIRED_FIELDS.copy()
-            for key in self._version_dict[PEStrings.STRING_FILE_INFO_STR]:
+            for key in self._version_dict[PEStrings.STRING_FILE_INFO_STR.upper()]:
                 if key in required_string_fields:
                     required_string_fields.remove(key)
 
@@ -497,8 +538,8 @@ class VERSIONINFOGenerator(object):
             logging.error("Missing parameter: must have FileType if FileSubtype defined.")
             valid = False
 
-        if PEStrings.TRANSLATION_STR in self._version_dict[PEStrings.VAR_FILE_INFO_STR]:
-            langid_set = self._version_dict[PEStrings.VAR_FILE_INFO_STR][PEStrings.TRANSLATION_STR].split(" ")
+        if PEStrings.TRANSLATION_STR in self._version_dict[PEStrings.VAR_FILE_INFO_STR.upper()]:
+            langid_set = self._version_dict[PEStrings.VAR_FILE_INFO_STR.upper()][PEStrings.TRANSLATION_STR].split(" ")
             try:
                 if len(langid_set) != 2:
                     logging.error("Translation field must contain 2 space delimited hexidecimal bytes.")
@@ -506,22 +547,75 @@ class VERSIONINFOGenerator(object):
                 elif (int(langid_set[0].replace('"', ''), 0) not in PEStrings.VALID_LANG_ID
                       or int(langid_set[1].replace('"', ''), 0) not in PEStrings.VALID_CHARSET_ID):
                     logging.error("Invalid language code: "
-                                  + self._version_dict[PEStrings.VAR_FILE_INFO_STR][PEStrings.TRANSLATION_STR] + ".")
+                                  + self._version_dict[PEStrings.VAR_FILE_INFO_STR.upper()][PEStrings.TRANSLATION_STR] + ".")
                     valid = False
             except ValueError:
                 logging.error("Invalid language code: "
-                              + self._version_dict[PEStrings.VAR_FILE_INFO_STR][PEStrings.TRANSLATION_STR] + ".")
+                              + self._version_dict[PEStrings.VAR_FILE_INFO_STR.upper()][PEStrings.TRANSLATION_STR] + ".")
                 valid = False
         else:
             logging.error("Missing required parameter in VarFileInfo: Translation.")
             valid = False
 
-        for field in self._version_dict[PEStrings.VAR_FILE_INFO_STR].keys():
+        for field in self._version_dict[PEStrings.VAR_FILE_INFO_STR.upper()].keys():
             if field != PEStrings.TRANSLATION_STR:
                 logging.error("Invalid VarFileInfo parameter: %s.", field)
                 valid = False
 
         return valid
+
+    def validate_minimal(self) -> bool:
+        '''
+        Returns true if loaded JSON file represents a valid minimal VERSIONINFO resource, false otherwise
+        '''        
+        valid = True
+        required = self._minimal_required_fields.copy()
+        for key in self._version_dict:
+            if key not in required:
+                valid = False
+                logging.error("Invalid minimal parameter: %s.", key)
+            else:
+                required.remove(key.upper())
+
+        if not valid:
+            return False
+        
+        return self._validate_version_number(self._version_dict[PEStrings.FILE_VERSION_STR.upper()])
+
+    def write_minimal(self, path: str) -> bool:
+        if not self.validate_minimal():
+            logging.error("Invalid input, aborted.")
+            return False
+
+        # Header
+        out_str = "/* Auto-generated VERSIONINFO resource file.\n" \
+                   + "   Generated at %s */\n\n" % datetime.now().strftime("%d/%m/%Y %H:%M:%S") \
+                   + "#ifdef RC_INVOKED\nVS_VERSION_INFO\tVERSIONINFO\n" \
+                   + PEStrings.FILE_VERSION_STR + "\t"
+        version = self._version_dict[PEStrings.FILE_VERSION_STR.upper()].split(".")
+        if len(version) != 4:
+            version = self._version_dict[PEStrings.FILE_VERSION_STR.upper()].split(",")
+        out_str += version[0] + ',' + version[1] + ',' + version[2] + ',' + version[3] + "\n"
+
+        # StringFileInfo
+        out_str += "\n" + PEStrings.BEGIN_STR + "\n\t" \
+                    + PEStrings.BLOCK_STR + " \"" + PEStrings.STRING_FILE_INFO_STR + "\"\n\t" + PEStrings.BEGIN_STR + "\n" \
+                    + "\t\t" + PEStrings.BLOCK_STR + " \"" + PEStrings.DEFAULT_BLOCK_HEADER + "\"\n\t\t" + PEStrings.BEGIN_STR + "\n" \
+                    + "\t\t" + PEStrings.VALUE_STR + ' "' + PEStrings.COMPANY_NAME_STR + '",\t"' \
+                    + self._version_dict[PEStrings.COMPANY_NAME_STR.upper()] + "\"\n" \
+                    + "\t\t" + PEStrings.VALUE_STR + ' "' + PEStrings.PRODUCT_NAME_STR + '",\t"' \
+                    + self._version_dict[PEStrings.PRODUCT_NAME_STR.upper()] + "\"\n" \
+                    + "\t\t" + PEStrings.END_STR + "\n\t" + PEStrings.END_STR + "\n\n"
+        
+        # VarFileInfo
+        out_str += "\t" + PEStrings.BLOCK_STR + " \"" + PEStrings.VAR_FILE_INFO_STR + '"\n\t' + PEStrings.BEGIN_STR + "\n" \
+                    + "\t\t" + PEStrings.VALUE_STR + ' "' + PEStrings.TRANSLATION_STR + '",\t' + PEStrings.DEFAULT_TRANSLATION + "\n" \
+                    + "\t" + PEStrings.END_STR + "\n" + PEStrings.END_STR + "\n#endif"
+
+        with open(path, "w") as out:
+            out.write(out_str)
+
+        return True
 
     def write(self, path: str) -> bool:
         '''
@@ -530,6 +624,28 @@ class VERSIONINFOGenerator(object):
 
         path - path to directory that VERSIONINFO.rc will be written to
         '''
+        if not self._version_dict:
+            logging.error("Invalid input, aborted.")
+            return False
+
+        self._version_dict = dict((key.upper(), val) for key, val in self._version_dict.items())
+
+        minimal = True
+        for key in self._version_dict:
+            if key.upper() == PEStrings.MINIMAL_MODE_STR:
+                if self._version_dict[key].upper() == "FALSE":
+                    minimal = False
+                elif self._version_dict[key].upper() != "TRUE":
+                    logging.error("Invalid value for 'Minimal', must be boolean.")
+                    logging.error("Invalid input, aborted.")
+                    return False
+
+                del self._version_dict[key]
+                break
+
+        if minimal:
+            return self.write_minimal(path)
+
         if not self.validate():
             logging.error("Invalid input, aborted.")
             return False
@@ -541,8 +657,8 @@ class VERSIONINFOGenerator(object):
         # Header fields
         out_str += "VS_VERSION_INFO\tVERSIONINFO\n"
         for param in self._version_dict.keys():
-            if (param == PEStrings.STRING_FILE_INFO_STR
-               or param == PEStrings.VAR_FILE_INFO_STR):
+            if (param == PEStrings.STRING_FILE_INFO_STR.upper()
+               or param == PEStrings.VAR_FILE_INFO_STR.upper()):
                 continue
             if param == PEStrings.PRODUCT_VERSION_STR or param == PEStrings.FILE_VERSION_STR:
                 out_str += param.upper() + "\t"
@@ -556,27 +672,27 @@ class VERSIONINFOGenerator(object):
         out_str += PEStrings.BLOCK_STR + " \"" + PEStrings.STRING_FILE_INFO_STR + "\"\n\t" + PEStrings.BEGIN_STR + "\n"
 
         language_code = ""
-        for code in self._version_dict[PEStrings.VAR_FILE_INFO_STR][PEStrings.TRANSLATION_STR].split(" "):
+        for code in self._version_dict[PEStrings.VAR_FILE_INFO_STR.upper()][PEStrings.TRANSLATION_STR].split(" "):
             language_code += code.split("0x", 1)[1]
 
         out_str += "\t\t" + PEStrings.BLOCK_STR + " \"" + language_code + "\"\n\t\t" + PEStrings.BEGIN_STR + "\n"
-        for field in self._version_dict[PEStrings.STRING_FILE_INFO_STR].keys():
+        for field in self._version_dict[PEStrings.STRING_FILE_INFO_STR.upper()].keys():
             out_str += "\t\t" + PEStrings.VALUE_STR + " \"" + field + "\",\t\"" \
-                       + self._version_dict[PEStrings.STRING_FILE_INFO_STR][field] + "\"\n"
+                       + self._version_dict[PEStrings.STRING_FILE_INFO_STR.upper()][field] + "\"\n"
 
         out_str += "\t\t" + PEStrings.END_STR + "\n\t" + PEStrings.END_STR + "\n\n"
 
         # VarFileInfo
         out_str += "\t" + PEStrings.BLOCK_STR
         out_str += " \"" + PEStrings.VAR_FILE_INFO_STR + "\"\n\t" + PEStrings.BEGIN_STR + "\n"
-        language_tokens = self._version_dict[PEStrings.VAR_FILE_INFO_STR][PEStrings.TRANSLATION_STR].split(" ")
-        for field in self._version_dict[PEStrings.VAR_FILE_INFO_STR].keys():
+        language_tokens = self._version_dict[PEStrings.VAR_FILE_INFO_STR.upper()][PEStrings.TRANSLATION_STR].split(" ")
+        for field in self._version_dict[PEStrings.VAR_FILE_INFO_STR.upper()].keys():
             out_str += "\t\t" + PEStrings.VALUE_STR + " \"" + field + "\",\t" + language_tokens[0] + "," \
                        + language_tokens[1] + "\n"
 
         out_str += "\t" + PEStrings.END_STR + "\n" + PEStrings.END_STR + "\n#endif"
 
-        with open(os.path.join(path, "VERSIONINFO.rc"), "w") as out:
+        with open(path, "w") as out:
             out.write(out_str)
 
         return True

@@ -35,8 +35,8 @@ def get_cli_options(args=None):
     parser = argparse.ArgumentParser(description=TOOL_DESCRIPTION, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('input_file', type=str,
                         help='a filesystem path to a json/PE file to load')
-    parser.add_argument('output_dir', type=str,
-                        help='a filesystem path to the directory to save output file. if directory does not exist, entire directory path will be created. if directory does exist, contents will be updated') # noqa
+    parser.add_argument('output_file', type=str,
+                        help='a filesystem path to the output file. if file does not exist, entire directory path will be created. if file does exist, contents will be overwritten') # noqa
 
     command_group = parser.add_mutually_exclusive_group()
     command_group.add_argument('-e', '--encode', action='store_const', const='e', dest='mode',
@@ -49,7 +49,6 @@ def get_cli_options(args=None):
 
 def service_request(args):
     '''given parsed args, executes versioninfo_tool'''
-    # Write user-facing log messages to stderr
     logging.getLogger().addHandler(logging.StreamHandler())
     if not os.path.isfile(args.input_file):
         logging.error("Could not find " + args.input_file)
@@ -59,12 +58,12 @@ def service_request(args):
         pe = PEObject(args.input_file)
         generated_dict = pe.get_version_dict()
         if generated_dict:
-            with open(os.path.join(args.output_dir, "VERSIONINFO.json"), "w") as out:
+            with open(args.output_file, "w") as out:
                 json.dump(generated_dict, out)
         else:
             sys.exit(1)
     else:
-        if not VERSIONINFOGenerator(args.input_file).write(args.output_dir):
+        if not VERSIONINFOGenerator(args.input_file).write(args.output_file):
             sys.exit(1)
 
 
