@@ -86,7 +86,7 @@ def prep_workspace():
         test_dir = tempfile.mkdtemp()
         logging.debug("temp dir is: %s" % test_dir)
     else:
-        #shutil.rmtree(test_dir)
+        shutil.rmtree(test_dir)
         test_dir = tempfile.mkdtemp()
 
 
@@ -96,7 +96,7 @@ def clean_workspace():
         return
 
     if os.path.isdir(test_dir):
-        #shutil.rmtree(test_dir)
+        shutil.rmtree(test_dir)
         test_dir = None
 
 
