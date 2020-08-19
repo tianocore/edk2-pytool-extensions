@@ -129,9 +129,6 @@ class WebDependency(ExternalDependency):
         # # If we're unpacking a directory, we can copy the important parts into
         # # a directory named self.contents_dir
         if self.download_is_directory:
-            # The root of the internal path is the folder we will see populated in descriptor_location
-            unzip_root = WebDependency.get_internal_path_root(self.descriptor_location, self.internal_path)
-
             logging.info(f"Copying directory from {complete_internal_path} to {self.contents_dir}")
             if os.path.isdir(complete_internal_path) is False:
                 # internal_path was not accurate, exit
