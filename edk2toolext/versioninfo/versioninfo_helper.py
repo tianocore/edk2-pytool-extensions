@@ -244,6 +244,47 @@ class PEStrings(object):
         0x04E7, 0x04E8
     }
 
+def validate_version_number(version_str: str) -> bool:
+    '''Helper function to check if a version string format is valid or not'''
+    if version_str.count('.') != 3 and version_str.count(',') != 3:
+        logging.error("Invalid version string: " + version_str + ". Version must be in form "
+                        + "\"INTEGER.INTEGER.INTEGER.INTEGER\".")
+        return False
+
+    split = None
+    if version_str.count('.') == 3:
+        split = version_str.split(".")
+    else:
+        split = version_str.split(",")
+
+    for substr in split:
+        try:
+            if int(substr) > 65535:
+                logging.error("Integer overflow in version string: " + version_str + ".")
+                return False
+        except ValueError:
+            logging.error("Invalid version string: " + version_str + ". Version must be in form \""
+                            + " INTEGER.INTEGER.INTEGER.INTEGER\".")
+            return False
+
+    return True
+
+def version_str_to_int(version_str: str) -> (int, int):
+    '''Given a valid version string, returns raw version number in the form (32 MS bits, 32 LS bits)'''
+    split = None
+    if version_str.count('.') == 3:
+        split = version_str.split(".")
+    else:
+        split = version_str.split(",")
+
+    ms = int(split[1]) + (int(split[0]) << 16)
+    ls = int(split[3]) + (int(split[2]) << 16)
+    return (ms, ls)
+
+def hex_to_version_str(val: int) -> str:
+    '''Helper function to convert hex version number to string'''
+    return str(((val & ~0) >> 16) & 0xffff) + "." + str(val & 0xffff)
+
 
 class PEObject(object):
     '''
@@ -262,10 +303,6 @@ class PEObject(object):
         except pefile.PEFormatError as e:
             logging.error("Error loading PE: " + str(e))
 
-    def _hex_to_version_str(self, val: int) -> str:
-        '''Helper function to convert hex version number to string'''
-        return str(((val & ~0) >> 16) & 0xffff) + "." + str(val & 0xffff)
-
     def _populate_entry(self, key: str, val: int, dict: dict) -> None:
         '''Helper function to format and insert VERSIONINFO fields into dictionary'''
         if key.upper() == PEStrings.FILE_OS_STR:
@@ -277,16 +314,16 @@ class PEObject(object):
                 dict[key] = PEStrings.FILE_TYPE_STRINGS[val]
                 return
         elif key.upper() == PEStrings.FILE_VERSION_MS_STR:
-            dict[PEStrings.FILE_VERSION_PEFILE] = self._hex_to_version_str(val)
+            dict[PEStrings.FILE_VERSION_PEFILE] = hex_to_version_str(val)
             return
         elif key.upper() == PEStrings.FILE_VERSION_LS_STR:
-            dict[PEStrings.FILE_VERSION_PEFILE] += "." + self._hex_to_version_str(val)
+            dict[PEStrings.FILE_VERSION_PEFILE] += "." + hex_to_version_str(val)
             return
         elif key.upper() == PEStrings.PRODUCT_VERSION_MS_STR:
-            dict[PEStrings.PRODUCT_VERSION_PEFILE] = self._hex_to_version_str(val)
+            dict[PEStrings.PRODUCT_VERSION_PEFILE] = hex_to_version_str(val)
             return
         elif key.upper() == PEStrings.PRODUCT_VERSION_LS_STR:
-            dict[PEStrings.PRODUCT_VERSION_PEFILE] += "." + self._hex_to_version_str(val)
+            dict[PEStrings.PRODUCT_VERSION_PEFILE] += "." + hex_to_version_str(val)
             return
         dict[key] = hex(val)
 
@@ -435,31 +472,6 @@ class VERSIONINFOGenerator(object):
             except json.decoder.JSONDecodeError as e:
                 logging.error("Invalid JSON format, " + str(e))
 
-    def _validate_version_number(self, version_str: str) -> bool:
-        '''Helper function to check if a version string format is valid or not'''
-        if version_str.count('.') != 3 and version_str.count(',') != 3:
-            logging.error("Invalid version string: " + version_str + ". Version must be in form "
-                          + "\"INTEGER.INTEGER.INTEGER.INTEGER\".")
-            return False
-
-        split = None
-        if version_str.count('.') == 3:
-            split = version_str.split(".")
-        else:
-            split = version_str.split(",")
-
-        for substr in split:
-            try:
-                if int(substr) > 65535:
-                    logging.error("Integer overflow in version string: " + version_str + ".")
-                    return False
-            except ValueError:
-                logging.error("Invalid version string: " + version_str + ". Version must be in form \""
-                              + " INTEGER.INTEGER.INTEGER.INTEGER\".")
-                return False
-
-        return True
-
     def validate(self) -> bool:
         '''
         Returns true if loaded JSON file represents a valid VERSIONINFO resource, false otherwise
@@ -495,9 +507,9 @@ class VERSIONINFOGenerator(object):
             return False
 
         # Second pass: Check to see if fields are valid
-        valid = self._validate_version_number(self._version_dict[PEStrings.FILE_VERSION_STR])
+        valid = validate_version_number(self._version_dict[PEStrings.FILE_VERSION_STR])
         if PEStrings.PRODUCT_VERSION_STR in self._version_dict:
-            valid = valid and self._validate_version_number(self._version_dict[PEStrings.PRODUCT_VERSION_STR])
+            valid = valid and validate_version_number(self._version_dict[PEStrings.PRODUCT_VERSION_STR])
 
         if PEStrings.FILE_OS_STR in self._version_dict:
             try:
@@ -580,7 +592,7 @@ class VERSIONINFOGenerator(object):
         if not valid:
             return False
         
-        return self._validate_version_number(self._version_dict[PEStrings.FILE_VERSION_STR.upper()])
+        return validate_version_number(self._version_dict[PEStrings.FILE_VERSION_STR.upper()])
 
     def write_minimal(self, path: str) -> bool:
         if not self.validate_minimal():
