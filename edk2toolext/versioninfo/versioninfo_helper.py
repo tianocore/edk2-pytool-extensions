@@ -13,7 +13,6 @@
 
 import pefile
 import json
-import os
 import logging
 from datetime import datetime
 
@@ -107,7 +106,6 @@ class PEStrings(object):
     FILE_DATE_MS_PEFILE = "FileDateMS"
     FILE_DATE_LS_PEFILE = "FileDateLS"
     FILE_SUBTYPE_PEFILE = "FileSubtype"
-
 
     # Key values for interacting with pefile objects
     PE_ENCODING = "utf-8"
@@ -244,11 +242,12 @@ class PEStrings(object):
         0x04E7, 0x04E8
     }
 
+
 def validate_version_number(version_str: str) -> bool:
     '''Helper function to check if a version string format is valid or not'''
     if version_str.count('.') != 3 and version_str.count(',') != 3:
         logging.error("Invalid version string: " + version_str + ". Version must be in form "
-                        + "\"INTEGER.INTEGER.INTEGER.INTEGER\".")
+                      + "\"INTEGER.INTEGER.INTEGER.INTEGER\".")
         return False
 
     split = None
@@ -264,10 +263,11 @@ def validate_version_number(version_str: str) -> bool:
                 return False
         except ValueError:
             logging.error("Invalid version string: " + version_str + ". Version must be in form \""
-                            + " INTEGER.INTEGER.INTEGER.INTEGER\".")
+                          + " INTEGER.INTEGER.INTEGER.INTEGER\".")
             return False
 
     return True
+
 
 def version_str_to_int(version_str: str) -> (int, int):
     '''Given a valid version string, returns raw version number in the form (32 MS bits, 32 LS bits)'''
@@ -280,6 +280,7 @@ def version_str_to_int(version_str: str) -> (int, int):
     ms = int(split[1]) + (int(split[0]) << 16)
     ls = int(split[3]) + (int(split[2]) << 16)
     return (ms, ls)
+
 
 def hex_to_version_str(val: int) -> str:
     '''Helper function to convert hex version number to string'''
@@ -368,13 +369,13 @@ class PEObject(object):
             if PEStrings.FILE_DATE_MS_PEFILE in vs_fixedfileinfo_dict.keys() and \
                PEStrings.FILE_DATE_LS_PEFILE in vs_fixedfileinfo_dict.keys():
                 self._populate_entry(PEStrings.FILE_DATE_LS_PEFILE,
-                                     vs_fixedfileinfo_dict[PEStrings.FILE_DATE_LS_PEFILE][PEStrings.PE_VALUE_STR], result)
+                                     vs_fixedfileinfo_dict[PEStrings.FILE_DATE_LS_PEFILE][PEStrings.PE_VALUE_STR], result) # noqa
 
             if PEStrings.FILE_SUBTYPE_PEFILE in vs_fixedfileinfo_dict.keys():
                 file_subtype = vs_fixedfileinfo_dict[PEStrings.FILE_SUBTYPE_PEFILE][PEStrings.PE_VALUE_STR]
                 if PEStrings.FILE_TYPE_STR in result and result[PEStrings.FILE_TYPE_STR] == PEStrings.VFT_FONT_STR:
                     if file_subtype in PEStrings.FILE_SUBTYPE_FONT_STRINGS:
-                        result[PEStrings.FILE_SUBTYPE_PEFILE] = PEStrings.FILE_SUBTYPE_FONT_STRINGS[PEStrings.file_subtype]
+                        result[PEStrings.FILE_SUBTYPE_PEFILE] = PEStrings.FILE_SUBTYPE_FONT_STRINGS[PEStrings.file_subtype] # noqa
                     else:
                         result[PEStrings.FILE_SUBTYPE_PEFILE] = file_subtype
                 else:
@@ -559,11 +560,11 @@ class VERSIONINFOGenerator(object):
                 elif (int(langid_set[0].replace('"', ''), 0) not in PEStrings.VALID_LANG_ID
                       or int(langid_set[1].replace('"', ''), 0) not in PEStrings.VALID_CHARSET_ID):
                     logging.error("Invalid language code: "
-                                  + self._version_dict[PEStrings.VAR_FILE_INFO_STR.upper()][PEStrings.TRANSLATION_STR] + ".")
+                                  + self._version_dict[PEStrings.VAR_FILE_INFO_STR.upper()][PEStrings.TRANSLATION_STR] + ".") # noqa
                     valid = False
             except ValueError:
                 logging.error("Invalid language code: "
-                              + self._version_dict[PEStrings.VAR_FILE_INFO_STR.upper()][PEStrings.TRANSLATION_STR] + ".")
+                              + self._version_dict[PEStrings.VAR_FILE_INFO_STR.upper()][PEStrings.TRANSLATION_STR] + ".") # noqa
                 valid = False
         else:
             logging.error("Missing required parameter in VarFileInfo: Translation.")
@@ -579,7 +580,7 @@ class VERSIONINFOGenerator(object):
     def validate_minimal(self) -> bool:
         '''
         Returns true if loaded JSON file represents a valid minimal VERSIONINFO resource, false otherwise
-        '''        
+        '''
         valid = True
         required = self._minimal_required_fields.copy()
         for key in self._version_dict:
@@ -591,7 +592,7 @@ class VERSIONINFOGenerator(object):
 
         if not valid:
             return False
-        
+
         return validate_version_number(self._version_dict[PEStrings.FILE_VERSION_STR.upper()])
 
     def write_minimal(self, path: str) -> bool:
@@ -601,9 +602,9 @@ class VERSIONINFOGenerator(object):
 
         # Header
         out_str = "/* Auto-generated VERSIONINFO resource file.\n" \
-                   + "   Generated at %s */\n\n" % datetime.now().strftime("%d/%m/%Y %H:%M:%S") \
-                   + "#ifdef RC_INVOKED\nVS_VERSION_INFO\tVERSIONINFO\n" \
-                   + PEStrings.FILE_VERSION_STR + "\t"
+                  + "   Generated at %s */\n\n" % datetime.now().strftime("%d/%m/%Y %H:%M:%S") \
+                  + "#ifdef RC_INVOKED\nVS_VERSION_INFO\tVERSIONINFO\n" \
+                  + PEStrings.FILE_VERSION_STR + "\t"
         version = self._version_dict[PEStrings.FILE_VERSION_STR.upper()].split(".")
         if len(version) != 4:
             version = self._version_dict[PEStrings.FILE_VERSION_STR.upper()].split(",")
@@ -611,18 +612,21 @@ class VERSIONINFOGenerator(object):
 
         # StringFileInfo
         out_str += "\n" + PEStrings.BEGIN_STR + "\n\t" \
-                    + PEStrings.BLOCK_STR + " \"" + PEStrings.STRING_FILE_INFO_STR + "\"\n\t" + PEStrings.BEGIN_STR + "\n" \
-                    + "\t\t" + PEStrings.BLOCK_STR + " \"" + PEStrings.DEFAULT_BLOCK_HEADER + "\"\n\t\t" + PEStrings.BEGIN_STR + "\n" \
-                    + "\t\t" + PEStrings.VALUE_STR + ' "' + PEStrings.COMPANY_NAME_STR + '",\t"' \
-                    + self._version_dict[PEStrings.COMPANY_NAME_STR.upper()] + "\"\n" \
-                    + "\t\t" + PEStrings.VALUE_STR + ' "' + PEStrings.PRODUCT_NAME_STR + '",\t"' \
-                    + self._version_dict[PEStrings.PRODUCT_NAME_STR.upper()] + "\"\n" \
-                    + "\t\t" + PEStrings.END_STR + "\n\t" + PEStrings.END_STR + "\n\n"
-        
+                   + PEStrings.BLOCK_STR + " \"" + PEStrings.STRING_FILE_INFO_STR \
+                   + "\"\n\t" + PEStrings.BEGIN_STR + "\n" + "\t\t" \
+                   + PEStrings.BLOCK_STR + " \"" + PEStrings.DEFAULT_BLOCK_HEADER \
+                   + "\"\n\t\t" + PEStrings.BEGIN_STR + "\n" + "\t\t" + PEStrings.VALUE_STR \
+                   + ' "' + PEStrings.COMPANY_NAME_STR + '",\t"' \
+                   + self._version_dict[PEStrings.COMPANY_NAME_STR.upper()] + "\"\n" \
+                   + "\t\t" + PEStrings.VALUE_STR + ' "' + PEStrings.PRODUCT_NAME_STR + '",\t"' \
+                   + self._version_dict[PEStrings.PRODUCT_NAME_STR.upper()] + "\"\n" \
+                   + "\t\t" + PEStrings.END_STR + "\n\t" + PEStrings.END_STR + "\n\n"
+
         # VarFileInfo
-        out_str += "\t" + PEStrings.BLOCK_STR + " \"" + PEStrings.VAR_FILE_INFO_STR + '"\n\t' + PEStrings.BEGIN_STR + "\n" \
-                    + "\t\t" + PEStrings.VALUE_STR + ' "' + PEStrings.TRANSLATION_STR + '",\t' + PEStrings.DEFAULT_TRANSLATION + "\n" \
-                    + "\t" + PEStrings.END_STR + "\n" + PEStrings.END_STR + "\n#endif"
+        out_str += "\t" + PEStrings.BLOCK_STR + " \"" + PEStrings.VAR_FILE_INFO_STR + '"\n\t' \
+                   + PEStrings.BEGIN_STR + "\n" + "\t\t" + PEStrings.VALUE_STR + ' "' \
+                   + PEStrings.TRANSLATION_STR + '",\t' + PEStrings.DEFAULT_TRANSLATION + "\n" \
+                   + "\t" + PEStrings.END_STR + "\n" + PEStrings.END_STR + "\n#endif"
 
         with open(path, "w") as out:
             out.write(out_str)

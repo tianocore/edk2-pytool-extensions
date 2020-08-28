@@ -116,7 +116,6 @@
         "codecov",
         "qemu",
         "ovmf",
-        "pefile",
-        "SBAT"
+        "pefile"
     ]
 }

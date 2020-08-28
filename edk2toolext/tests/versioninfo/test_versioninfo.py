@@ -32,7 +32,7 @@ BAD_JSON_FILE_NAME = 'bad_json'
 NO_RSRC_EXE_NAME = 'no_rsrc.exe'
 NOT_PE_NAME = 'not_pe.elf'
 NO_STRINGFILEINFO_EXE_NAME = 'no_stringfileinfo.exe'
-PATH_TO_VERSIONINFO_FOLDER = os.path.join('edk2toolext', 'tests', 'versioninfo')
+PATH_TO_VERSIONINFO_FOLDER = os.path.join('tests', 'versioninfo')
 
 DUMMY_VALID_JSON = {
     "Minimal": "False",
@@ -65,20 +65,20 @@ DUMMY_MINIMAL_JSON = {
 }
 
 DUMMY_MINIMAL_DECODED = {
-	"FileVersion": "1.0.0.0",
-	"ProductVersion": "0.0.0.0",
-	"FileFlagsMask": "0x0",
-	"FileFlags": "0x0",
-	"FileOS": "VOS_UNKNOWN",
-	"FileType": "VFT_UNKNOWN",
-	"FileSubtype": "VFT2_UNKNOWN",
-	"StringFileInfo": {
-		"CompanyName": "Test Company",
-		"ProductName": "Test Product"
-	},
-	"VarFileInfo": {
-		"Translation": "0x0409 0x04b0"
-	}
+    "FileVersion": "1.0.0.0",
+    "ProductVersion": "0.0.0.0",
+    "FileFlagsMask": "0x0",
+    "FileFlags": "0x0",
+    "FileOS": "VOS_UNKNOWN",
+    "FileType": "VFT_UNKNOWN",
+    "FileSubtype": "VFT2_UNKNOWN",
+    "StringFileInfo": {
+        "CompanyName": "Test Company",
+        "ProductName": "Test Product"
+    },
+    "VarFileInfo": {
+        "Translation": "0x0409 0x04b0"
+    }
 }
 
 DUMMY_EXE_SOURCE = '#include <stdio.h>\nint main() { printf("TEST"); }'
@@ -171,7 +171,7 @@ def encode_decode_helper(cls, dummy_json, temp_dir, is_windows, reference=DUMMY_
         ret = RunCmd('make', "", workingdir=temp_dir)
         cls.assertEqual(ret, 0, f"make failed with return code {ret}.")
 
-    cli_params = [os.path.join(temp_dir, DUMMY_EXE_FILE_NAME) + '.exe', os.path.join(temp_dir, "VERSIONINFO.json"), '-d']
+    cli_params = [os.path.join(temp_dir, DUMMY_EXE_FILE_NAME) + '.exe', os.path.join(temp_dir, "VERSIONINFO.json"), '-d'] # noqa
     parsed_args = versioninfo_tool.get_cli_options(cli_params)
     versioninfo_tool.service_request(parsed_args)
     try:
@@ -230,7 +230,6 @@ class TestVersioninfo(unittest.TestCase):
         with open(dummy_exe_makefile, 'w') as dummy_makefile:
             dummy_makefile.write(DUMMY_EXE_MAKEFILE_WINDOWS)
 
-        print (temp_dir)
         encode_decode_helper(self, dummy_json, temp_dir, True, DUMMY_MINIMAL_DECODED)
 
     @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linx")
@@ -263,7 +262,6 @@ class TestVersioninfo(unittest.TestCase):
         with open(dummy_exe_makefile, 'w') as dummy_makefile:
             dummy_makefile.write(DUMMY_EXE_MAKEFILE_LINUX)
 
-        print (temp_dir)
         encode_decode_helper(self, dummy_json, temp_dir, False, DUMMY_MINIMAL_DECODED)
 
     def test_no_rsrc(self):
