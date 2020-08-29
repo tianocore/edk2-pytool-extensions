@@ -228,7 +228,7 @@ class TestVersioninfo(unittest.TestCase):
 
         encode_decode_helper(self, dummy_json, temp_dir, True, DUMMY_MINIMAL_DECODED)
 
-    # @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linx")
+    # @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
     # def test_encode_decode_linux(self):
     #     temp_dir = tempfile.mkdtemp()
     #     dummy_json = os.path.join(temp_dir, DUMMY_JSON_FILE_NAME + '.json.orig')
