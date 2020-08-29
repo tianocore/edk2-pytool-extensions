@@ -228,21 +228,21 @@ class TestVersioninfo(unittest.TestCase):
 
         encode_decode_helper(self, dummy_json, temp_dir, True, DUMMY_MINIMAL_DECODED)
 
-    @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linx")
-    def test_encode_decode_linux(self):
-        temp_dir = tempfile.mkdtemp()
-        dummy_json = os.path.join(temp_dir, DUMMY_JSON_FILE_NAME + '.json.orig')
-        dummy_exe_src = os.path.join(temp_dir, DUMMY_EXE_SRC_NAME + '.c')
-        dummy_exe_makefile = os.path.join(temp_dir, DUMMY_EXE_MAKEFILE_NAME)
+    # @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linx")
+    # def test_encode_decode_linux(self):
+    #     temp_dir = tempfile.mkdtemp()
+    #     dummy_json = os.path.join(temp_dir, DUMMY_JSON_FILE_NAME + '.json.orig')
+    #     dummy_exe_src = os.path.join(temp_dir, DUMMY_EXE_SRC_NAME + '.c')
+    #     dummy_exe_makefile = os.path.join(temp_dir, DUMMY_EXE_MAKEFILE_NAME)
 
-        with open(dummy_json, 'w') as dummy_file:
-            json.dump(DUMMY_VALID_JSON, dummy_file)
-        with open(dummy_exe_src, 'w') as dummy_src:
-            dummy_src.write(DUMMY_EXE_SOURCE)
-        with open(dummy_exe_makefile, 'w') as dummy_makefile:
-            dummy_makefile.write(DUMMY_EXE_MAKEFILE_LINUX)
+    #     with open(dummy_json, 'w') as dummy_file:
+    #         json.dump(DUMMY_VALID_JSON, dummy_file)
+    #     with open(dummy_exe_src, 'w') as dummy_src:
+    #         dummy_src.write(DUMMY_EXE_SOURCE)
+    #     with open(dummy_exe_makefile, 'w') as dummy_makefile:
+    #         dummy_makefile.write(DUMMY_EXE_MAKEFILE_LINUX)
 
-        encode_decode_helper(self, dummy_json, temp_dir, False)
+    #     encode_decode_helper(self, dummy_json, temp_dir, False)
 
     # @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
     # def test_encode_decode_minimal_linux(self):
