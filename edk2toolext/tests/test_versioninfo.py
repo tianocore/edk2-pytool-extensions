@@ -29,10 +29,6 @@ DUMMY_JSON_FILE_NAME = 'dummy_json_file'
 DUMMY_EXE_MAKEFILE_NAME = 'Makefile'
 VERSIONINFO_JSON_FILE_NAME = 'VERSIONINFO'
 BAD_JSON_FILE_NAME = 'bad_json'
-NO_RSRC_EXE_NAME = 'no_rsrc.exe'
-NOT_PE_NAME = 'not_pe.elf'
-NO_STRINGFILEINFO_EXE_NAME = 'no_stringfileinfo.exe'
-PATH_TO_VERSIONINFO_FOLDER = os.path.join('tests', 'versioninfo')
 
 DUMMY_VALID_JSON = {
     "Minimal": "False",
@@ -248,40 +244,21 @@ class TestVersioninfo(unittest.TestCase):
 
         encode_decode_helper(self, dummy_json, temp_dir, False)
 
-    @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
-    def test_encode_decode_minimal_linux(self):
-        temp_dir = tempfile.mkdtemp()
-        dummy_json = os.path.join(temp_dir, DUMMY_JSON_FILE_NAME + '.json.orig')
-        dummy_exe_src = os.path.join(temp_dir, DUMMY_EXE_SRC_NAME + '.c')
-        dummy_exe_makefile = os.path.join(temp_dir, DUMMY_EXE_MAKEFILE_NAME)
+    # @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
+    # def test_encode_decode_minimal_linux(self):
+    #     temp_dir = tempfile.mkdtemp()
+    #     dummy_json = os.path.join(temp_dir, DUMMY_JSON_FILE_NAME + '.json.orig')
+    #     dummy_exe_src = os.path.join(temp_dir, DUMMY_EXE_SRC_NAME + '.c')
+    #     dummy_exe_makefile = os.path.join(temp_dir, DUMMY_EXE_MAKEFILE_NAME)
 
-        with open(dummy_json, 'w') as dummy_file:
-            json.dump(DUMMY_MINIMAL_JSON, dummy_file)
-        with open(dummy_exe_src, 'w') as dummy_src:
-            dummy_src.write(DUMMY_EXE_SOURCE)
-        with open(dummy_exe_makefile, 'w') as dummy_makefile:
-            dummy_makefile.write(DUMMY_EXE_MAKEFILE_LINUX)
+    #     with open(dummy_json, 'w') as dummy_file:
+    #         json.dump(DUMMY_MINIMAL_JSON, dummy_file)
+    #     with open(dummy_exe_src, 'w') as dummy_src:
+    #         dummy_src.write(DUMMY_EXE_SOURCE)
+    #     with open(dummy_exe_makefile, 'w') as dummy_makefile:
+    #         dummy_makefile.write(DUMMY_EXE_MAKEFILE_LINUX)
 
-        encode_decode_helper(self, dummy_json, temp_dir, False, DUMMY_MINIMAL_DECODED)
-
-    def test_no_rsrc(self):
-        temp_dir = tempfile.mkdtemp()
-        cli_params = [os.path.join(os.getcwd(), PATH_TO_VERSIONINFO_FOLDER, NO_RSRC_EXE_NAME), temp_dir, '-d']
-        parsed_args = versioninfo_tool.get_cli_options(cli_params)
-        with StringIO() as log_stream:
-            log_handler = logging.StreamHandler(log_stream)
-            logging.getLogger().addHandler(log_handler)
-            returned_error = False
-            try:
-                versioninfo_tool.service_request(parsed_args)
-            except SystemExit as e:
-                returned_error = e.code == 1
-
-            logging.getLogger().removeHandler(log_handler)
-            self.assertFalse(os.path.isfile(os.path.join(temp_dir, 'VERSIONINFO.json')))
-            self.assertEqual(log_stream.getvalue(),
-                             "Could not find VS_FIXEDFILEINFO.\nFile does not contain .rsrc section.\n")
-            self.assertTrue(returned_error)
+    #     encode_decode_helper(self, dummy_json, temp_dir, False, DUMMY_MINIMAL_DECODED)
 
     def test_missing_varinfo(self):
         temp_dir = tempfile.mkdtemp()
