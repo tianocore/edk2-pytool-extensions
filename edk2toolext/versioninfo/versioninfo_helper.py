@@ -143,10 +143,12 @@ class PEStrings(object):
 
     COMPANY_NAME_STR = "CompanyName"
     PRODUCT_NAME_STR = "ProductName"
+    INTERNAL_NAME_STR = "InternalName"
+    ORIGINAL_FILENAME_STR = "OriginalFilename"
 
     STRING_FILE_INFO_REQUIRED_FIELDS = {
         COMPANY_NAME_STR,
-        PRODUCT_NAME_STR,
+        ORIGINAL_FILENAME_STR,
     }
 
     STRING_FILE_INFO_ALLOWED_FIELDS = {
@@ -455,7 +457,7 @@ class VERSIONINFOGenerator(object):
     _minimal_required_fields = {
         PEStrings.FILE_VERSION_STR.upper(),
         PEStrings.COMPANY_NAME_STR.upper(),
-        PEStrings.PRODUCT_NAME_STR.upper()
+        PEStrings.ORIGINAL_FILENAME_STR.upper()
     }
 
     _version_dict = None
@@ -618,8 +620,8 @@ class VERSIONINFOGenerator(object):
                    + "\"\n\t\t" + PEStrings.BEGIN_STR + "\n" + "\t\t" + PEStrings.VALUE_STR \
                    + ' "' + PEStrings.COMPANY_NAME_STR + '",\t"' \
                    + self._version_dict[PEStrings.COMPANY_NAME_STR.upper()] + "\"\n" \
-                   + "\t\t" + PEStrings.VALUE_STR + ' "' + PEStrings.PRODUCT_NAME_STR + '",\t"' \
-                   + self._version_dict[PEStrings.PRODUCT_NAME_STR.upper()] + "\"\n" \
+                   + "\t\t" + PEStrings.VALUE_STR + ' "' + PEStrings.ORIGINAL_FILENAME_STR + '",\t"' \
+                   + self._version_dict[PEStrings.ORIGINAL_FILENAME_STR.upper()] + "\"\n" \
                    + "\t\t" + PEStrings.END_STR + "\n\t" + PEStrings.END_STR + "\n\n"
 
         # VarFileInfo

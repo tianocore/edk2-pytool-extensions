@@ -7,7 +7,9 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 parameters:
-  none: ''
+- name: windres_install
+  type: stepList
+  default: []
 
 steps:
 - checkout: self
@@ -23,3 +25,5 @@ steps:
 
 - script: pip install -e .
   displayName: 'Install from Source'
+
+- ${{ parameters.windres_install }}

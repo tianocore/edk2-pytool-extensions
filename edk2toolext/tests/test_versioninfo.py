@@ -44,7 +44,7 @@ DUMMY_VALID_JSON = {
         "CompanyName": "Dummy compnay",
         "FileDescription": "Dummy Driver",
         "FileVersion": "1.2.3.4",
-        "InternalName": "Internal Dummy Driver",
+        "InternalName": "Test Name",
         "LegalCopyright": "(C) 2048 Dummy Driver",
         "OriginalFilename": "Dummy.sys",
         "ProductName": "Dummy Driver"
@@ -56,7 +56,7 @@ DUMMY_VALID_JSON = {
 
 DUMMY_MINIMAL_JSON = {
     "Fileversion": "1,0,0,0",
-    "ProductName": "Test Product",
+    "OriginalFilename": "Test Name",
     "CompanyName": "Test Company"
 }
 
@@ -70,7 +70,7 @@ DUMMY_MINIMAL_DECODED = {
     "FileSubtype": "VFT2_UNKNOWN",
     "StringFileInfo": {
         "CompanyName": "Test Company",
-        "ProductName": "Test Product"
+        "OriginalFilename": "Test Name"
     },
     "VarFileInfo": {
         "Translation": "0x0409 0x04b0"
@@ -228,37 +228,37 @@ class TestVersioninfo(unittest.TestCase):
 
         encode_decode_helper(self, dummy_json, temp_dir, True, DUMMY_MINIMAL_DECODED)
 
-    # @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
-    # def test_encode_decode_linux(self):
-    #     temp_dir = tempfile.mkdtemp()
-    #     dummy_json = os.path.join(temp_dir, DUMMY_JSON_FILE_NAME + '.json.orig')
-    #     dummy_exe_src = os.path.join(temp_dir, DUMMY_EXE_SRC_NAME + '.c')
-    #     dummy_exe_makefile = os.path.join(temp_dir, DUMMY_EXE_MAKEFILE_NAME)
+    @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
+    def test_encode_decode_linux(self):
+        temp_dir = tempfile.mkdtemp()
+        dummy_json = os.path.join(temp_dir, DUMMY_JSON_FILE_NAME + '.json.orig')
+        dummy_exe_src = os.path.join(temp_dir, DUMMY_EXE_SRC_NAME + '.c')
+        dummy_exe_makefile = os.path.join(temp_dir, DUMMY_EXE_MAKEFILE_NAME)
 
-    #     with open(dummy_json, 'w') as dummy_file:
-    #         json.dump(DUMMY_VALID_JSON, dummy_file)
-    #     with open(dummy_exe_src, 'w') as dummy_src:
-    #         dummy_src.write(DUMMY_EXE_SOURCE)
-    #     with open(dummy_exe_makefile, 'w') as dummy_makefile:
-    #         dummy_makefile.write(DUMMY_EXE_MAKEFILE_LINUX)
+        with open(dummy_json, 'w') as dummy_file:
+            json.dump(DUMMY_VALID_JSON, dummy_file)
+        with open(dummy_exe_src, 'w') as dummy_src:
+            dummy_src.write(DUMMY_EXE_SOURCE)
+        with open(dummy_exe_makefile, 'w') as dummy_makefile:
+            dummy_makefile.write(DUMMY_EXE_MAKEFILE_LINUX)
 
-    #     encode_decode_helper(self, dummy_json, temp_dir, False)
+        encode_decode_helper(self, dummy_json, temp_dir, False)
 
-    # @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
-    # def test_encode_decode_minimal_linux(self):
-    #     temp_dir = tempfile.mkdtemp()
-    #     dummy_json = os.path.join(temp_dir, DUMMY_JSON_FILE_NAME + '.json.orig')
-    #     dummy_exe_src = os.path.join(temp_dir, DUMMY_EXE_SRC_NAME + '.c')
-    #     dummy_exe_makefile = os.path.join(temp_dir, DUMMY_EXE_MAKEFILE_NAME)
+    @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
+    def test_encode_decode_minimal_linux(self):
+        temp_dir = tempfile.mkdtemp()
+        dummy_json = os.path.join(temp_dir, DUMMY_JSON_FILE_NAME + '.json.orig')
+        dummy_exe_src = os.path.join(temp_dir, DUMMY_EXE_SRC_NAME + '.c')
+        dummy_exe_makefile = os.path.join(temp_dir, DUMMY_EXE_MAKEFILE_NAME)
 
-    #     with open(dummy_json, 'w') as dummy_file:
-    #         json.dump(DUMMY_MINIMAL_JSON, dummy_file)
-    #     with open(dummy_exe_src, 'w') as dummy_src:
-    #         dummy_src.write(DUMMY_EXE_SOURCE)
-    #     with open(dummy_exe_makefile, 'w') as dummy_makefile:
-    #         dummy_makefile.write(DUMMY_EXE_MAKEFILE_LINUX)
+        with open(dummy_json, 'w') as dummy_file:
+            json.dump(DUMMY_MINIMAL_JSON, dummy_file)
+        with open(dummy_exe_src, 'w') as dummy_src:
+            dummy_src.write(DUMMY_EXE_SOURCE)
+        with open(dummy_exe_makefile, 'w') as dummy_makefile:
+            dummy_makefile.write(DUMMY_EXE_MAKEFILE_LINUX)
 
-    #     encode_decode_helper(self, dummy_json, temp_dir, False, DUMMY_MINIMAL_DECODED)
+        encode_decode_helper(self, dummy_json, temp_dir, False, DUMMY_MINIMAL_DECODED)
 
     def test_missing_varinfo(self):
         temp_dir = tempfile.mkdtemp()

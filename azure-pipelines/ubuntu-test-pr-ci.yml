@@ -20,3 +20,7 @@ jobs:
     root_package_folder: "edk2toolext"
     name: 'ubuntu'
     codecov_enabled: true
+    extra_install_step:
+    - bash: sudo apt-get install mingw-w64
+      displayName: Install windres
+      condition: and(gt(variables.pkg_count, 0), succeeded())
