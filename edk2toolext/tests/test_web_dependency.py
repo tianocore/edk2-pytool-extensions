@@ -44,7 +44,28 @@ single_file_extdep = {
     "flags": [],
     "internal_path": "test.txt"
 }
-
+# Use the github release
+zip_directory_extdep = {
+    "scope": "global",
+    "type": "web",
+    "name": "win-flexbison",
+    "compression_type": "zip",
+    "source": "https://github.com/lexxmark/winflexbison/releases/download/v2.4.7/win_flex_bison-2.4.7.zip",
+    "version": "2.4.7",
+    "sha256": "7553a2d6738c799e101ec38a6ad073885ead892826f87bc1a24e78bcd7ac2a8c",
+    "internal_path": "/."
+}
+# Use the GNU FTP
+tar_directory_extdep = {
+    "scope": "global",
+    "type": "web",
+    "name": "unix-bison",
+    "compression_type": "tar",
+    "source": "https://ftp.gnu.org/gnu/bison/bison-3.7.tar.gz",
+    "version": "3.7",
+    "sha256": "492ad61202de893ca21a99b621d63fa5389da58804ad79d3f226b8d04b803998",
+    "internal_path": "/bison-3.7",
+}
 # Download a valid file from CDN
 jquery_json_file = {
     "scope": "global",
@@ -119,6 +140,40 @@ class TestWebDependency(unittest.TestCase):
         file_path = os.path.join(test_dir, ext_dep_name, single_file_extdep['internal_path'])
         if not os.path.isfile(file_path):
             self.fail("The downloaded file isn't there")
+
+    # try to download a whole zip directory and test sha256 comparison
+    def test_sha256_whole_zip_directory(self):
+        ext_dep_file_path = os.path.join(test_dir, "good_ext_dep.json")
+
+        with open(ext_dep_file_path, "w+") as ext_dep_file:
+            ext_dep_file.write(json.dumps(zip_directory_extdep))  # dump to a file
+
+        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep = WebDependency(ext_dep_descriptor)
+        ext_dep.fetch()
+
+        ext_dep_name = zip_directory_extdep['name'] + "_extdep"
+        folder_path = os.path.join(test_dir, ext_dep_name)
+        if not os.path.exists(os.path.join(folder_path, "README.txt")):
+            logging.warning(folder_path)
+            self.fail()
+
+    # try to download a whole zip directory and test sha256 comparison
+    def test_sha256_whole_tar_directory(self):
+        ext_dep_file_path = os.path.join(test_dir, "good_ext_dep.json")
+
+        with open(ext_dep_file_path, "w+") as ext_dep_file:
+            ext_dep_file.write(json.dumps(tar_directory_extdep))  # dump to a file
+
+        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep = WebDependency(ext_dep_descriptor)
+        ext_dep.fetch()
+
+        ext_dep_name = tar_directory_extdep['name'] + "_extdep"
+        folder_path = os.path.join(test_dir, ext_dep_name)
+        if not os.path.exists(os.path.join(folder_path, "README")):
+            logging.warning(folder_path)
+            self.fail()
 
     # try to download a single file and test sha256 comparison
     def test_sha256_uppercase_single_file(self):
