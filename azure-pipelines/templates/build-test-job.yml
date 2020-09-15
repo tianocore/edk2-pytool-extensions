@@ -12,6 +12,10 @@ parameters:
   name: '' #set the job name
   codecov_enabled: false # by default, we don't do codecoverage
 
+- name: extra_steps
+  type: stepList
+  default: []
+
 jobs:
 
 - job: Build_and_Test_${{parameters.name}}
@@ -24,7 +28,7 @@ jobs:
 
   steps:
   - template: basic-setup-steps.yml
-
+  - ${{ parameters.extra_steps }}
   - template: pytest-test-steps.yml
     parameters: 
       root_package_folder: ${{parameters.root_package_folder}}
