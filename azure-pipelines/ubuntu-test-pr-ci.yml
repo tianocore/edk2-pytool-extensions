@@ -20,7 +20,7 @@ jobs:
     root_package_folder: "edk2toolext"
     name: 'ubuntu'
     codecov_enabled: true
-    windres_install:
+    extra_steps:
     - script: sudo apt-get install gcc-mingw-w64-x86-64
       displayName: Install windres
       condition: and(gt(variables.pkg_count, 0), succeeded())

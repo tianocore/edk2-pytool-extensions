@@ -6,11 +6,15 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 parameters:
-  vm_image: ''
+- vm_image: ''
   pypi_auth_feed: ''  # set this for a release
   root_package_folder: '' # set this to root package
   name: '' #set the job name
   codecov_enabled: false # by default, we don't do codecoverage
+
+- name: extra_steps
+  type: stepList
+  default: []
 
 jobs:
 
