@@ -11,6 +11,7 @@ parameters:
   root_package_folder: '' # set this to root package
   name: '' #set the job name
   codecov_enabled: false # by default, we don't do codecoverage
+  extra_steps: []
 
 jobs:
 
@@ -24,7 +25,7 @@ jobs:
 
   steps:
   - template: basic-setup-steps.yml
-  - ${{ parameters[extra_steps] }}
+  - ${{ parameters.extra_steps }}
   - template: pytest-test-steps.yml
     parameters: 
       root_package_folder: ${{parameters.root_package_folder}}
