@@ -7,7 +7,9 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 parameters:
-- none: ''
+- name: extra_steps
+  type: stepList
+  default: []
 
 steps:
 - checkout: self

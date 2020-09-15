@@ -12,10 +12,6 @@ parameters:
   name: '' #set the job name
   codecov_enabled: false # by default, we don't do codecoverage
 
-- name: extra_steps
-  type: stepList
-  default: []
-
 jobs:
 
 - job: Build_and_Test_${{parameters.name}}
