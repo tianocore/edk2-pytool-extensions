@@ -23,4 +23,3 @@ jobs:
     extra_steps:
     - script: sudo apt-get install mingw-w64
       displayName: Install windres
-      condition: and(gt(variables.pkg_count, 0), succeeded())
