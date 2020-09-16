@@ -23,7 +23,7 @@ from edk2toollib.utility_functions import RunCmd
 class PrEvalSettingsManager(MultiPkgAwareSettingsInterface):
     ''' Platform settings will be accessed through this implementation. '''
 
-    def FilterPackagesToTest(self, changedFilesList: list, potentialPackagesList: list) -> list:
+    def FilterPackagesToTest(self, changedFilesList: list, potentialPackagesList: list) -> list
         ''' Filter potential packages to test based on changed files. '''
 
         # default implementation does zero filtering.
