@@ -167,7 +167,6 @@ def encode_decode_helper(cls, dummy_json, temp_dir, is_windows, reference=DUMMY_
         ret = RunCmd('make', None, workingdir=temp_dir)
         cls.assertEqual(ret, 0, f"make failed with return code {ret}.")
 
-    print(os.listdir(temp_dir))
     cli_params = [os.path.join(temp_dir, DUMMY_EXE_FILE_NAME) + '.exe', os.path.join(temp_dir, "VERSIONINFO.json"), '-d'] # noqa
     parsed_args = versioninfo_tool.get_cli_options(cli_params)
     versioninfo_tool.service_request(parsed_args)

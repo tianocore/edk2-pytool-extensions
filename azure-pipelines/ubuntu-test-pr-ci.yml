@@ -22,4 +22,4 @@ jobs:
     codecov_enabled: true
     extra_steps:
     - script: sudo apt-get install mingw-w64
-      displayName: Install windres, the Linux equivalent of the Windows Resource Compiler
+      displayName: Install Windows Resource Compiler for Linux
