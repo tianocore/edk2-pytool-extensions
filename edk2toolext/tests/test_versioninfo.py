@@ -81,7 +81,7 @@ DUMMY_EXE_SOURCE = '#include <stdio.h>\nint main() { printf("TEST"); }'
 
 DUMMY_EXE_MAKEFILE_LINUX = f"""
 all: {DUMMY_EXE_SRC_NAME}.o res.o
-\tx86_64-w64-mingw32-gcc -o {DUMMY_EXE_FILE_NAME} {DUMMY_EXE_SRC_NAME}.o res.o
+\tx86_64-w64-mingw32-gcc -o {DUMMY_EXE_FILE_NAME}.exe {DUMMY_EXE_SRC_NAME}.o res.o
 
 {DUMMY_EXE_SRC_NAME}.o: {DUMMY_EXE_SRC_NAME}.c
 \tx86_64-w64-mingw32-gcc -c {DUMMY_EXE_SRC_NAME}.c
