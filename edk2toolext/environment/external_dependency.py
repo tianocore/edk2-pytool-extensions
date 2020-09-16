@@ -146,8 +146,8 @@ class ExternalDependency(object):
         return result
 
     def report_version(self):
-
-        version_aggregator.GetVersionAggregator().ReportVersion(self.name if self.id is None else f"{self.name}_{self.id}",
+        calc_name = self.name if self.id is None else f"{self.name}_{self.id}"
+        version_aggregator.GetVersionAggregator().ReportVersion(calc_name,
                                                                 self.version,
                                                                 version_aggregator.VersionTypes.INFO,
                                                                 self.descriptor_location)
