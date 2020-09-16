@@ -43,8 +43,12 @@ class ExternalDependency(object):
         self.source = descriptor['source']
         self.version = descriptor['version']
         self.flags = descriptor.get('flags', None)
+        self.id = descriptor.get('id', None)
         self.var_name = descriptor.get('var_name', None)
         self.error_msg = descriptor.get('error_msg', None)
+
+        if self.id is not None:
+            self.name = f"{self.name}_{self.id}"
 
         self.descriptor_location = os.path.dirname(
             descriptor['descriptor_file'])
@@ -145,6 +149,7 @@ class ExternalDependency(object):
         return result
 
     def report_version(self):
+
         version_aggregator.GetVersionAggregator().ReportVersion(self.name,
                                                                 self.version,
                                                                 version_aggregator.VersionTypes.INFO,
