@@ -28,13 +28,28 @@ def main():
     filenameHelp = 'Filename containing a UEFI Signature Database, \
         a concatenation of EFI_SIGNATURE_LISTs as read from GetVariable([PK, KEK, db, dbx])'
 
-    parser = argparse.ArgumentParser(description='UEFI Signature database inspection tool')
+    sig_db_examples = '''
+examples:
+
+sig_db dump dbx_before.bin
+
+sig_db --compact dump dbx_after.bin
+
+sig_db --compact get_dupes dbx_with_dupes.bin
+
+sig_db --compact get_canonical mixed_up_dbx.bin
+'''
+
+    parser = argparse.ArgumentParser(description='UEFI Signature database inspection tool',
+                                     formatter_class=argparse.RawDescriptionHelpFormatter,
+                                     epilog=sig_db_examples)
+
     parser.add_argument('--compact', action='store_true',
                         help='Compact, 1 line per data element output for easier diff-ing')
-    subparsers = parser.add_subparsers(required=True, dest='action')
+
+    subparsers = parser.add_subparsers(required=False, dest='action')
 
     parser_dump = subparsers.add_parser('dump', help='Print a UEFI Signature Database as-is in human-readable form')
-
     parser_dump.add_argument('file', type=str, help=filenameHelp)
 
     parser_get_dupes = subparsers.add_parser('get_dupes', help='Find duplicate signature entries in a UEFI Signature \
@@ -50,7 +65,9 @@ def main():
 
     options = parser.parse_args()
 
-    # print('Options: ', options)
+    if options.action is None:
+        parser.print_help()
+        exit()
 
     try:
         with open(options.file, 'rb') as f:
