@@ -34,7 +34,7 @@ sig_db_tool --compact get_canonical mixed_up_dbx.bin
 
 ### Actions
 
-*NOTE:* The ```--compact``` option may preceed an action as show above, but is not shown below
+*NOTE:* The ```--compact``` option may precede an action as show above, but is not shown below
 
 #### dump
 
