@@ -115,6 +115,7 @@
         "MSFT",
         "codecov",
         "qemu",
-        "ovmf"
+        "ovmf",
+        "deduplicated"
     ]
 }

@@ -28,6 +28,6 @@ sig_db_tool --compact dump dbx_after.bin
 
 sig_db_tool --compact get_dupes dbx_with_dupes.bin
 
-sig_db_tool --compact get_canonical mixed_up_db_toolx.bin
+sig_db_tool --compact get_canonical mixed_up_dbx.bin
 
 ```

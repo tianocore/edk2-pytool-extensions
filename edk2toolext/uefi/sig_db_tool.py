@@ -8,8 +8,6 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 
-# spell-checker: ignore deduplicated
-
 """
 Tool for inspecting UEFI Secure Boot databases
 The input file is a concatenations of EFI_SIGNATURE_LISTS, as is read by calling GetVariable() on
