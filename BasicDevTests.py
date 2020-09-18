@@ -28,30 +28,6 @@ def TestEncodingOk(apath, encodingValue):
     return True
 
 
-def TestLineEndingsOk(apath, Windows: bool):
-    WIN_EOL = b'\r\n'
-    UNIX_EOL = b'\n'
-
-    with open(apath, "rb") as f_obj:
-        content_uni = f_obj.read()
-
-    if(not Windows):
-        if(WIN_EOL in content_uni):
-            logging.critical("Windows EOL in use file: {0}".format(apath))
-            return False
-        return True
-
-    else:
-        # windows
-        # since UNIX EOL is substring of WIN EOL replace WIN with something
-        # else and then look for UNIX
-        content_no_nl = content_uni.replace(WIN_EOL, b"  ")
-        if UNIX_EOL in content_no_nl:
-            logging.critical("UNIX EOL in use file: {0}".format(apath))
-            return False
-        return True
-
-
 def TestFilenameLowercase(apath):
     if apath != apath.lower():
         logging.critical(f"Lowercase failure: file {apath} not lower case path")
@@ -113,10 +89,6 @@ for a in py_files:
         error += 1
     if(not PackageAndModuleValidCharacters(aRelativePath)):  # use relative path so only test within package
         error += 1
-
-    # Don't check EOL.  Use .gitattributes
-    # if(not TestLineEndingsOk(a, True)):
-    #    error += 1
 
 logging.critical(f"Found {error} error(s) in {len(py_files)} file(s)")
 sys.exit(error)
