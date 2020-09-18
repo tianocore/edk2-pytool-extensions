@@ -51,6 +51,7 @@ def TestLineEndingsOk(apath, Windows: bool):
             return False
         return True
 
+
 def TestFilenameLowercase(apath):
     if apath != apath.lower():
         logging.critical(f"Lowercase failure: file {apath} not lower case path")
@@ -58,12 +59,14 @@ def TestFilenameLowercase(apath):
         return False
     return True
 
+
 def PackageAndModuleValidCharacters(apath):
     ''' check pep8 recommendations for package and module names'''
 
     match = re.match('^[a-z0-9_/.]+$', apath.replace("\\", "/"))
-    if  match is None:
-        logging.critical(f"PackageAndModuleValidCharacters failure: package or module name {apath} has something invalid")
+    if match is None:
+        logging.critical(
+            f"PackageAndModuleValidCharacters failure: package or module name {apath} has something invalid")
         return False
     return True
 
@@ -108,7 +111,7 @@ for a in py_files:
         error += 1
     if(not TestRequiredLicense(a)):
         error += 1
-    if(not PackageAndModuleValidCharacters(aRelativePath)): #use relative path so only test within package
+    if(not PackageAndModuleValidCharacters(aRelativePath)):  # use relative path so only test within package
         error += 1
 
     # Don't check EOL.  Use .gitattributes
