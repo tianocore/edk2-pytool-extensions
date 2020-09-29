@@ -40,7 +40,7 @@ def get_cli_options(args=None):
 
     command_group = parser.add_mutually_exclusive_group()
     command_group.add_argument('-e', '--encode', action='store_const', const='e', dest='mode',
-                               help='(default) outsputs VERSIONINFO.rc of given json file')
+                               help='(default) outputs VERSIONINFO.rc of given json file')
     command_group.add_argument('-d', '--dump', action='store_const', dest='mode', const='d',
                                help='outputs json file of VERSIONINFO given PE file')
     parser.set_defaults(mode='e')
