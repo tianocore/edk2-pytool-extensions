@@ -65,7 +65,7 @@ sig_db --compact get_canonical mixed_up_dbx.bin
 
     if options.action is None:
         parser.print_help()
-        exit()
+        return
 
     try:
         with open(options.file, 'rb') as f:
