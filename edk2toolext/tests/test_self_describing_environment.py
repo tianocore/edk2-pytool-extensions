@@ -56,6 +56,19 @@ class Testself_describing_environment(unittest.TestCase):
         print(tree.get_workspace())
         self.assertEqual(len(build_env.paths), 1)
 
+    def test_override_path_env_swapped_order(self):
+        ''' checks the SDE descriptor override system '''
+        custom_scope = "global"
+        scopes = (custom_scope,)
+        tree = uefi_tree(self.workspace, create_platform=False)
+        tree.create_path_env("testing_corebuild", var_name="hey", scope=custom_scope)
+        tree.create_path_env("testing_corebuild2", var_name="jokes",  dir_path="test1", scope=custom_scope,
+                             extra_data={"override_id": "testing_corebuild"})
+        build_env, shell_env = self_describing_environment.BootstrapEnvironment(self.workspace, scopes)
+        print(build_env.paths)
+        print(tree.get_workspace())
+        self.assertEqual(len(build_env.paths), 1)
+
     def test_duplicate_id_path_env(self):
         ''' check that the SDE will throw an exception if path_env have duplicate id's '''
         custom_scope = "global"
