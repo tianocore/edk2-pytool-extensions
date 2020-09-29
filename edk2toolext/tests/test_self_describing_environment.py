@@ -83,7 +83,7 @@ class Testself_describing_environment(unittest.TestCase):
         scopes = (custom_scope,)
         tree = uefi_tree(self.workspace, create_platform=False)
         tree.create_path_env("testing_corebuild", var_name="hey", scope=custom_scope)
-        tree.create_path_env("testing_corebuild2", var_name="jokes",  dir_path="test1", scope=custom_scope,
+        tree.create_path_env("testing_corebuild2", var_name="jokes", dir_path="test1", scope=custom_scope,
                              extra_data={"override_id": "testing_corebuild"})
         build_env, shell_env = self_describing_environment.BootstrapEnvironment(self.workspace, scopes)
         self.assertEqual(len(build_env.paths), 1)

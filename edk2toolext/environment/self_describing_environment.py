@@ -80,6 +80,7 @@ class self_describing_environment(object):
 
         # We need to convert them from files to descriptors
         all_descriptors = list()
+
         # helper function to get all the descriptors of a type and cast them
         def _get_all_descriptors_of_type(key, class_type):
             if key not in env_files:
@@ -107,7 +108,7 @@ class self_describing_environment(object):
                 # get the descriptors
                 desc_of_id = [x for x in scoped_descriptors if x.descriptor_contents['id'].lower() == desc_id]
                 paths_of_desc_of_id = [x.file_path for x in desc_of_id]
-                invalid_desc_paths =  f"{os.pathsep} ".join(paths_of_desc_of_id)
+                invalid_desc_paths = f"{os.pathsep} ".join(paths_of_desc_of_id)
                 logging.error(f"Descriptors that have this id {desc_id}: {invalid_desc_paths}")
                 raise RuntimeError(f"Multiple descriptor files share the same id: {desc_id}")
 
