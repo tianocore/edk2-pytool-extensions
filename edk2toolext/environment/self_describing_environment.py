@@ -69,81 +69,76 @@ class self_describing_environment(object):
         logging.debug("Loading workspace: %s" % self.workspace)
         logging.debug("  Including scopes: %s" % ', '.join(self.scopes))
 
-        #
-        # First, we need to get all of the files that describe our environment.
-        #
-        env_files = self._gather_env_files(
-            ('path_env', 'ext_dep', 'plug_in'), self.workspace)
 
-        #
+        # First, we need to get all of the files that describe our environment.
+        env_files = self._gather_env_files(('path_env', 'ext_dep', 'plug_in'), self.workspace)
+
+        # Next, get a list of all our scopes
+        all_scopes_lower = [x.lower() for x in self.scopes]
+
         # Now that the files have been found, load them, sort them, and filter them
         # so they can be applied to the environment.
-        #
-        def _sort_and_filter_descriptors(class_type, file_list, scopes):
-            all_descriptors = tuple(class_type(
-                desc_file).descriptor_contents for desc_file in file_list)
 
-            known_ids = {}
-            active_overrides = {}
-            final_list = []
+        # We need to convert them from files to descriptors
+        all_descriptors = list()
+        def _get_all_descriptors_of_type(key, class_type):
+            if key not in env_files:
+                return tuple()
+            return tuple(class_type(desc_file) for desc_file in env_files[key])
 
-            for scope in scopes:
-                for descriptor in all_descriptors:
-                    # If this descriptor isn't in the current scope, we can ignore it for now.
-                    if descriptor['scope'].lower() != scope.lower():
-                        continue
+        # Collect all the descriptors of each type
+        all_descriptors.extend(_get_all_descriptors_of_type('path_env', EDF.PathEnvDescriptor))
+        all_descriptors.extend(_get_all_descriptors_of_type('ext_dep', EDF.ExternDepDescriptor))
+        all_descriptors.extend(_get_all_descriptors_of_type('plug_in', EDF.PluginDescriptor))
 
-                    cur_file = descriptor['descriptor_file']
+        # Get the properly scoped descriptors by checking if the scope is in the list of all the scopes
+        scoped_descriptors = [x for x in all_descriptors if x.descriptor_contents['scope'].lower() in all_scopes_lower]
 
-                    # If this descriptor has an ID, we need to check for overrides and collisions.
-                    if 'id' in descriptor:
-                        cur_id = descriptor['id'].lower()
+        # Check that each found item has a unique ID, that's an error if it isn't
+        all_ids = [x.descriptor_contents['id'].lower() for x in scoped_descriptors if 'id' in x.descriptor_contents]
+        all_unique_ids = {}
+        for desc_id in all_ids:
+            all_unique_ids[desc_id] = 1 if desc_id not in all_unique_ids else all_unique_ids[desc_id] + 1
+        if len(all_ids) != len(all_unique_ids.keys()):
+            logging.error(f"Multiple descriptor files share the same id: {desc_id}")
+            for desc_id in all_unique_ids:
+                if all_unique_ids[desc_id] == 1:
+                    continue
+                invalid_desc_paths =  f"{os.pathsep} ".join([x.file_path for x in scoped_descriptors if x.descriptor_contents['id'].lower() == desc_id])
+                logging.error(f"Descriptors that have this id {desc_id}: {invalid_desc_paths}")
+                raise RuntimeError(f"Multiple descriptor files share the same id: {desc_id}")
 
-                        # First, check for overrides. There's no reason to process this file if it's being overridden.
-                        if cur_id in active_overrides:
-                            logging.debug("Descriptor '%s' is being overridden by descriptor '%s' based on ID '%s'." % (
-                                cur_file, active_overrides[cur_id], cur_id))
-                            continue
+        # Now check for overrides, first get a list of all the descriptors that have an override id tag
+        override_descriptors = [x for x in scoped_descriptors if "override_id" in x.descriptor_contents]
+        active_overrides = {}
+        for desc in override_descriptors:
+            override_id = desc.descriptor_contents["override_id"].lower()
+            # we found this was already overriden, make sure to let the user know
+            if override_id in active_overrides:
+                logging.warning("A descriptor file is trying to override a file that was previously overriden")
+                logging.warning(f"File ID being overriden: {override_id}")
+                logging.warning(f"Previous override: {active_overrides[override_id].file_path}")
+                logging.warning(f"New override: {desc.file_path}")
+            active_overrides[override_id] = desc
 
-                        # Next, check for ID collisions.
-                        if cur_id in known_ids:
-                            raise RuntimeError(
-                                "Descriptor '%s' shares the same ID '%s' with descriptor '%s'." % (
-                                    cur_file, cur_id, known_ids[cur_id])
-                            )
+        # Now we filter the overriden id's out and debug to the user whether we are including them or not
+        overriden_ids = active_overrides.keys()
+        final_descriptors = []
+        for desc in scoped_descriptors:
+            if 'id' in desc.descriptor_contents:
+                desc_id = desc.descriptor_contents['id'].lower()
+                if desc_id in overriden_ids:
+                    override = active_overrides[desc_id]
+                    logging.debug(f"Skipping descriptor {desc.file_path}:{desc_id} as it is being overridden by descriptor {override.file_path}:{override.descriptor_contents['id']}.")
+                    continue
+            # add them to the final list
+            logging.debug(f"Adding descriptor {desc.file_path} to the environment with scope {desc.descriptor_contents['scope']}")
+            final_descriptors.append(desc)
 
-                        # Finally, we can add this file to the known IDs list.
-                        known_ids[cur_id] = cur_file
-
-                    # If we're still processing, we can add this descriptor to the output.
-                    logging.debug("Adding descriptor '%s' to the environment with scope '%s'." % (
-                        cur_file, scope))
-                    final_list.append(descriptor)
-
-                    # Finally, check to see whether this descriptor overrides anything else.
-                    if 'override_id' in descriptor:
-                        cur_override_id = descriptor['override_id'].lower()
-                        # If we're attempting to override someting that's already been processed,
-                        # we should spit out a warning of sort.
-                        if cur_override_id in known_ids:
-                            logging.warning("Descriptor '%s' is trying to override iID '%s', "
-                                            "but it's already been processed." %
-                                            (cur_file, cur_override_id))
-                        active_overrides[cur_override_id] = descriptor['descriptor_file']
-
-            return tuple(final_list)
-
-        if 'path_env' in env_files:
-            self.paths = _sort_and_filter_descriptors(
-                EDF.PathEnvDescriptor, env_files['path_env'], self.scopes)
-
-        if 'ext_dep' in env_files:
-            self.extdeps = _sort_and_filter_descriptors(
-                EDF.ExternDepDescriptor, env_files['ext_dep'], self.scopes)
-
-        if 'plug_in' in env_files:
-            self.plugins = _sort_and_filter_descriptors(
-                EDF.PluginDescriptor, env_files['plug_in'], self.scopes)
+        # Finally, sort them back in the right categories
+        self.paths = [x.descriptor_contents for x in final_descriptors if isinstance(x,EDF.PathEnvDescriptor)]
+        self.extdeps = [x.descriptor_contents for x in final_descriptors if isinstance(x,EDF.ExternDepDescriptor)]
+        self.plugins = [x.descriptor_contents for x in final_descriptors if isinstance(x,EDF.PluginDescriptor)]
 
         return self
 
