@@ -69,7 +69,6 @@ class self_describing_environment(object):
         logging.debug("Loading workspace: %s" % self.workspace)
         logging.debug("  Including scopes: %s" % ', '.join(self.scopes))
 
-
         # First, we need to get all of the files that describe our environment.
         env_files = self._gather_env_files(('path_env', 'ext_dep', 'plug_in'), self.workspace)
 
@@ -81,6 +80,7 @@ class self_describing_environment(object):
 
         # We need to convert them from files to descriptors
         all_descriptors = list()
+        # helper function to get all the descriptors of a type and cast them
         def _get_all_descriptors_of_type(key, class_type):
             if key not in env_files:
                 return tuple()
@@ -104,7 +104,10 @@ class self_describing_environment(object):
             for desc_id in all_unique_ids:
                 if all_unique_ids[desc_id] == 1:
                     continue
-                invalid_desc_paths =  f"{os.pathsep} ".join([x.file_path for x in scoped_descriptors if x.descriptor_contents['id'].lower() == desc_id])
+                # get the descriptors
+                desc_of_id = [x for x in scoped_descriptors if x.descriptor_contents['id'].lower() == desc_id]
+                paths_of_desc_of_id = [x.file_paths for x in desc_of_id]
+                invalid_desc_paths =  f"{os.pathsep} ".join(paths_of_desc_of_id)
                 logging.error(f"Descriptors that have this id {desc_id}: {invalid_desc_paths}")
                 raise RuntimeError(f"Multiple descriptor files share the same id: {desc_id}")
 
@@ -125,20 +128,24 @@ class self_describing_environment(object):
         overriden_ids = active_overrides.keys()
         final_descriptors = []
         for desc in scoped_descriptors:
+            desc_file = desc.file_path
             if 'id' in desc.descriptor_contents:
                 desc_id = desc.descriptor_contents['id'].lower()
                 if desc_id in overriden_ids:
                     override = active_overrides[desc_id]
-                    logging.debug(f"Skipping descriptor {desc.file_path}:{desc_id} as it is being overridden by descriptor {override.file_path}:{override.descriptor_contents['id']}.")
+                    desc_name = f"{desc_file}:{desc_id}"
+                    override_name = f"{override.file_path}"
+                    logging.debug(f"Skipping descriptor {desc_name} as it is being overridden by {override_name}.")
                     continue
             # add them to the final list
-            logging.debug(f"Adding descriptor {desc.file_path} to the environment with scope {desc.descriptor_contents['scope']}")
+            desc_scope = desc.descriptor_contents['scope']
+            logging.debug(f"Adding descriptor {desc_file} to the environment with scope {desc_scope}")
             final_descriptors.append(desc)
 
         # Finally, sort them back in the right categories
-        self.paths = [x.descriptor_contents for x in final_descriptors if isinstance(x,EDF.PathEnvDescriptor)]
-        self.extdeps = [x.descriptor_contents for x in final_descriptors if isinstance(x,EDF.ExternDepDescriptor)]
-        self.plugins = [x.descriptor_contents for x in final_descriptors if isinstance(x,EDF.PluginDescriptor)]
+        self.paths = [x.descriptor_contents for x in final_descriptors if isinstance(x, EDF.PathEnvDescriptor)]
+        self.extdeps = [x.descriptor_contents for x in final_descriptors if isinstance(x, EDF.ExternDepDescriptor)]
+        self.plugins = [x.descriptor_contents for x in final_descriptors if isinstance(x, EDF.PluginDescriptor)]
 
         return self
 
