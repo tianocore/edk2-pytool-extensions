@@ -115,6 +115,9 @@
         "MSFT",
         "codecov",
         "qemu",
-        "ovmf"
+        "ovmf",
+        "deduplicated",
+        "Boothole",
+        "dbxupdate"
     ]
 }
