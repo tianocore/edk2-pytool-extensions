@@ -1,6 +1,6 @@
 # UEFI Secure Boot Database Inspection Tool
 
-A simple command-line interface to the UEFI Secure Boot Database Library focused on database inspection
+A simple command-line interface to the UEFI Secure Boot Database Library focused on inspection of UEFI signature databases
 
 ## Usage info
 
