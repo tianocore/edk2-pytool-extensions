@@ -20,9 +20,7 @@ from io import StringIO
 from edk2toolext.versioninfo import versioninfo_tool
 
 DUMMY_EXE_FILE_NAME = 'dummy_exe'
-DUMMY_EXE_SRC_NAME = 'dummy_exe_src'
 DUMMY_JSON_FILE_NAME = 'dummy_json_file'
-DUMMY_EXE_MAKEFILE_NAME = 'Makefile'
 VERSIONINFO_JSON_FILE_NAME = 'VERSIONINFO'
 BAD_JSON_FILE_NAME = 'bad_json'
 
