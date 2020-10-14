@@ -116,6 +116,9 @@
         "codecov",
         "qemu",
         "ovmf",
-        "pefile"
+        "pefile",
+        "deduplicated",
+        "Boothole",
+        "dbxupdate"
     ]
 }
