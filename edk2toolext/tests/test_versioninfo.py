@@ -16,8 +16,6 @@ import json
 import copy
 import logging
 import shutil
-from edk2toollib.utility_functions import RunCmd
-
 from io import StringIO
 from edk2toolext.versioninfo import versioninfo_tool
 
@@ -121,7 +119,7 @@ def compared_decoded_version_info(self, json_file_path, reference):
 
 class TestVersioninfo(unittest.TestCase):
 
-    def test_encode_decode_minimal(self):
+    def test_encode_decode_full(self):
         temp_dir = tempfile.mkdtemp()
         # Create the EXE file
         versioned_exe_path = os.path.join(temp_dir, DUMMY_EXE_FILE_NAME) + '.exe'
