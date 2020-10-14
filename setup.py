@@ -71,11 +71,13 @@ setuptools.setup(
                             'stuart_pr_eval=edk2toolext.invocables.edk2_pr_eval:main',
                             'omnicache=edk2toolext.omnicache:main',
                             'nuget-publish=edk2toolext.nuget_publishing:go',
+                            'sig_db_tool=edk2toolext.uefi.sig_db_tool:main',
+                            'firmware_policy_tool=edk2toolext.windows.policy.firmware_policy_tool:main',
                             'edk2_capsule_tool=edk2toolext.capsule.capsule_tool:main']
     },
     install_requires=[
         'pyyaml>=5.2',
-        'edk2-pytool-library>=0.10.11'
+        'edk2-pytool-library>=0.10.13'
     ],
     extras_require={
         'openssl': ['pyopenssl']
