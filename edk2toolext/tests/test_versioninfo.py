@@ -10,18 +10,15 @@
 # spell-checker:ignore nmake, UCRT
 
 import os
-import sys
 import unittest
 import tempfile
 import json
 import copy
 import logging
-import edk2toollib.windows.locate_tools as locate_tools
 from edk2toollib.utility_functions import RunCmd
 
 from io import StringIO
 from edk2toolext.versioninfo import versioninfo_tool
-from edk2toolext.environment import shell_environment
 
 DUMMY_EXE_FILE_NAME = 'dummy_exe'
 DUMMY_EXE_SRC_NAME = 'dummy_exe_src'
@@ -77,35 +74,6 @@ DUMMY_MINIMAL_DECODED = {
     }
 }
 
-DUMMY_EXE_SOURCE = '#include <stdio.h>\nint main() { printf("TEST"); }'
-
-DUMMY_EXE_MAKEFILE_LINUX = f"""
-all: {DUMMY_EXE_SRC_NAME}.o res.o
-\tx86_64-w64-mingw32-gcc -o {DUMMY_EXE_FILE_NAME}.exe {DUMMY_EXE_SRC_NAME}.o res.o
-
-{DUMMY_EXE_SRC_NAME}.o: {DUMMY_EXE_SRC_NAME}.c
-\tx86_64-w64-mingw32-gcc -c {DUMMY_EXE_SRC_NAME}.c
-
-res.o: VERSIONINFO.rc
-\tx86_64-w64-mingw32-windres -I. -i {VERSIONINFO_JSON_FILE_NAME}.rc -o res.o
-"""
-
-DUMMY_EXE_MAKEFILE_WINDOWS = """
-norsrc: %s.c
-    CL /Fe".\\%s.exe" /Fo".\\%s.obj"  /EHsc %s.c
-
-rsrc: %s.c
-    CL /Fo"%s.obj"  /EHsc /c %s.c
-    RC VERSIONINFO.rc
-    LINK %s.obj VERSIONINFO.res
-""" % (DUMMY_EXE_SRC_NAME, DUMMY_EXE_FILE_NAME, DUMMY_EXE_FILE_NAME, DUMMY_EXE_SRC_NAME,
-       DUMMY_EXE_SRC_NAME, DUMMY_EXE_FILE_NAME, DUMMY_EXE_SRC_NAME, DUMMY_EXE_FILE_NAME)
-
-
-VS2019_INTERESTING_KEYS = ["ExtensionSdkDir", "INCLUDE", "LIB", "LIBPATH", "UniversalCRTSdkDir",
-                           "UCRTVersion", "WindowsLibPath", "WindowsSdkBinPath", "WindowsSdkDir",
-                           "WindowsSdkVerBinPath", "WindowsSDKVersion", "VCToolsInstallDir", "Path"]
-
 
 def check_for_err_helper(cls, temp_dir, json_input, err_msg, decode=False):
     if decode:
@@ -127,73 +95,81 @@ def check_for_err_helper(cls, temp_dir, json_input, err_msg, decode=False):
         cls.assertEqual(log_stream.getvalue(), err_msg)
         cls.assertTrue(returned_error)
 
+# def encode_decode_helper(cls, dummy_json, temp_dir, is_windows, reference=DUMMY_VALID_JSON):
+#     cli_params = [dummy_json, os.path.join(temp_dir, "VERSIONINFO.rc")]
+#     parsed_args = versioninfo_tool.get_cli_options(cli_params)
+#     versioninfo_tool.service_request(parsed_args)
+#     if is_windows:
+#         ret = RunCmd('nmake', 'rsrc', workingdir=temp_dir)
+#         cls.assertEqual(ret, 0, f"nmake failed with return code {ret}.")
+#     else:
+#         ret = RunCmd('make', None, workingdir=temp_dir)
+#         cls.assertEqual(ret, 0, f"make failed with return code {ret}.")
 
-def setup_vs_build(cls):
-    # Find VS build tools
-    (rc, vc_install_path) = locate_tools.FindWithVsWhere(vs_version="vs2019")
-    if rc != 0 or vc_install_path is None or not os.path.exists(vc_install_path):
-        logging.fatal("Cannot locate VS build tools install path")
-        cls.fail()
+#     cli_params = [os.path.join(temp_dir, DUMMY_EXE_FILE_NAME) + '.exe', os.path.join(temp_dir, "VERSIONINFO.json"), '-d']  # noqa
+#     parsed_args = versioninfo_tool.get_cli_options(cli_params)
+#     versioninfo_tool.service_request(parsed_args)
+#     try:
+#         with open(os.path.join(temp_dir, VERSIONINFO_JSON_FILE_NAME + '.json')) as generated_json:
+#             try:
+#                 generated_dict = json.load(generated_json)
+#             except ValueError:
+#                 cls.fail()
 
-    vc_ver_path = os.path.join(vc_install_path, "VC", "Tools", "MSVC")
-    if not os.path.isdir(vc_ver_path):
-        logging.fatal("Cannot locate VS build tools directory")
-        cls.fail()
+#             cls.assertTrue('Signature' in generated_dict)
+#             del generated_dict['Signature']
+#             cls.assertTrue('StrucVersion' in generated_dict)
+#             del generated_dict['StrucVersion']
+#             if 'FileDateMS' in generated_dict:
+#                 del generated_dict['FileDateMS']
+#             if 'FileDateLS' in generated_dict:
+#                 del generated_dict['FileDateLS']
+#             ref = copy.deepcopy(reference)
+#             if "Minimal" in ref:
+#                 del ref["Minimal"]
+#             cls.assertEqual(generated_dict, ref)
+#     except IOError:
+#         cls.fail()
 
-    vc_ver = os.listdir(vc_ver_path)[-1].strip()
-    if vc_ver is None:
-        logging.fatal("Cannot locate VS build tools version")
-        cls.fail()
-
-    # Set VS env variables
-    vs2019_prefix = os.path.join(vc_install_path, "VC", "Tools", "MSVC", vc_ver)
-    vs2019_prefix += os.path.sep
-    shell_environment.GetEnvironment().set_shell_var("VS2019_PREFIX", vs2019_prefix)
-    shell_environment.GetEnvironment().set_shell_var("VS2019_HOST", "x64")
-    shell_env = shell_environment.GetEnvironment()
-    vs_vars = locate_tools.QueryVcVariables(VS2019_INTERESTING_KEYS, "x64", vs_version="vs2019")
-    for (k, v) in vs_vars.items():
-        shell_env.set_shell_var(k, v)
-
-
-def encode_decode_helper(cls, dummy_json, temp_dir, is_windows, reference=DUMMY_VALID_JSON):
-    cli_params = [dummy_json, os.path.join(temp_dir, "VERSIONINFO.rc")]
-    parsed_args = versioninfo_tool.get_cli_options(cli_params)
-    versioninfo_tool.service_request(parsed_args)
-    if is_windows:
-        ret = RunCmd('nmake', 'rsrc', workingdir=temp_dir)
-        cls.assertEqual(ret, 0, f"nmake failed with return code {ret}.")
-    else:
-        ret = RunCmd('make', None, workingdir=temp_dir)
-        cls.assertEqual(ret, 0, f"make failed with return code {ret}.")
-
-    cli_params = [os.path.join(temp_dir, DUMMY_EXE_FILE_NAME) + '.exe', os.path.join(temp_dir, "VERSIONINFO.json"), '-d']  # noqa
-    parsed_args = versioninfo_tool.get_cli_options(cli_params)
-    versioninfo_tool.service_request(parsed_args)
+def compared_decoded_version_info(self, json_file_path, reference = DUMMY_VALID_JSON):
     try:
-        with open(os.path.join(temp_dir, VERSIONINFO_JSON_FILE_NAME + '.json')) as generated_json:
-            try:
-                generated_dict = json.load(generated_json)
-            except ValueError:
-                cls.fail()
-
-            cls.assertTrue('Signature' in generated_dict)
-            del generated_dict['Signature']
-            cls.assertTrue('StrucVersion' in generated_dict)
-            del generated_dict['StrucVersion']
-            if 'FileDateMS' in generated_dict:
-                del generated_dict['FileDateMS']
-            if 'FileDateLS' in generated_dict:
-                del generated_dict['FileDateLS']
-            ref = copy.deepcopy(reference)
-            if "Minimal" in ref:
-                del ref["Minimal"]
-            cls.assertEqual(generated_dict, ref)
+        generated_json = open(json_file_path)
+        generated_dict = json.load(generated_json)
+        self.assertTrue('Signature' in generated_dict)
+        del generated_dict['Signature']
+        self.assertTrue('StrucVersion' in generated_dict)
+        del generated_dict['StrucVersion']
+        if 'FileDateMS' in generated_dict:
+            del generated_dict['FileDateMS']
+        if 'FileDateLS' in generated_dict:
+            del generated_dict['FileDateLS']
+        ref = copy.deepcopy(reference)
+        if "Minimal" in ref:
+            del ref["Minimal"]
+        self.assertEqual(generated_dict, ref)
+    except ValueError:
+        self.fail()
     except IOError:
-        cls.fail()
-
+        self.fail()
 
 class TestVersioninfo(unittest.TestCase):
+
+    def test_encode_decode_minimal(self):
+        temp_dir = tempfile.mkdtemp()
+        # Create the EXE file
+        versioned_exe_path = os.path.join(temp_dir, DUMMY_EXE_FILE_NAME) + '.exe'
+        # Create the parameters that will go to the service request function
+        version_info_output_path = os.path.join(temp_dir, VERSIONINFO_JSON_FILE_NAME + '.json')
+        cli_params = [versioned_exe_path, version_info_output_path, '-d']  # noqa
+        parsed_args = versioninfo_tool.get_cli_options(cli_params)
+        versioninfo_tool.service_request(parsed_args)
+
+        # first we compare to just the raw dummy valid json
+        compared_decoded_version_info(self, version_info_output_path)
+        # then we compare to make sure it matches what it should be
+        compared_decoded_version_info(self, version_info_output_path, DUMMY_MINIMAL_DECODED)
+       
+        
     # @unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
     # def test_encode_decode_windows(self):
     #     setup_vs_build(self)
@@ -210,6 +186,7 @@ class TestVersioninfo(unittest.TestCase):
     #         dummy_makefile.write(DUMMY_EXE_MAKEFILE_WINDOWS)
 
     #     encode_decode_helper(self, dummy_json, temp_dir, True)
+
 
     # @unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
     # def test_encode_decode_minimal_windows(self):
