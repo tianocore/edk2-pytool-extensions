@@ -78,7 +78,6 @@ def check_for_err_helper(cls, temp_dir, json_input, err_msg, decode=False):
         cli_params = [json_input, temp_dir, '-d']
     else:
         cli_params = [json_input, temp_dir]
-    parsed_args = versioninfo_tool.get_cli_options(cli_params)
     with StringIO() as log_stream:
         log_handler = logging.StreamHandler(log_stream)
         log_handler.setLevel(logging.DEBUG)  # set the logger to get everything
