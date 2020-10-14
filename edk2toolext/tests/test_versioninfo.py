@@ -18,6 +18,7 @@ import logging
 import shutil
 from io import StringIO
 from edk2toolext.versioninfo import versioninfo_tool
+from edk2toollib.utility_functions import RunCmd
 
 DUMMY_EXE_FILE_NAME = 'dummy_exe'
 DUMMY_JSON_FILE_NAME = 'dummy_json_file'
@@ -82,14 +83,15 @@ def check_for_err_helper(cls, temp_dir, json_input, err_msg, decode=False):
         log_handler = logging.StreamHandler(log_stream)
         logging.getLogger().addHandler(log_handler)
         returned_error = False
-        try:
-            versioninfo_tool.service_request(parsed_args)
-        except SystemExit as e:
-            returned_error = e.code == 1
+        
+        if decode:
+            returned_error = not versioninfo_tool.decode_version_info_dump_json(json_input, temp_dir)
+        else:
+            returned_error = not versioninfo_tool.encode_version_info_dump_rc(json_input, temp_dir)
 
         logging.getLogger().removeHandler(log_handler)
         cls.assertFalse(os.path.isfile(os.path.join(temp_dir, 'VERSIONINFO.rc')))
-        cls.assertEqual(log_stream.getvalue(), err_msg)
+        cls.assertTrue(err_msg in log_stream.getvalue())
         cls.assertTrue(returned_error)
 
 
@@ -125,9 +127,7 @@ class TestVersioninfo(unittest.TestCase):
         shutil.copyfile(source_exe_path, versioned_exe_path)
         # Create the parameters that will go to the service request function
         version_info_output_path = os.path.join(temp_dir, VERSIONINFO_JSON_FILE_NAME + '.json')
-        cli_params = [versioned_exe_path, version_info_output_path, '-d']  # noqa
-        parsed_args = versioninfo_tool.get_cli_options(cli_params)
-        versioninfo_tool.service_request(parsed_args)
+        versioninfo_tool.decode_version_info_dump_json(versioned_exe_path, version_info_output_path)
 
         # then we compare to make sure it matches what it should be
         compared_decoded_version_info(self, version_info_output_path, DUMMY_MINIMAL_DECODED)
@@ -140,9 +140,7 @@ class TestVersioninfo(unittest.TestCase):
         shutil.copyfile(source_exe_path, versioned_exe_path)
         # Create the parameters that will go to the service request function
         version_info_output_path = os.path.join(temp_dir, VERSIONINFO_JSON_FILE_NAME + '.json')
-        cli_params = [versioned_exe_path, version_info_output_path, '-d']  # noqa
-        parsed_args = versioninfo_tool.get_cli_options(cli_params)
-        versioninfo_tool.service_request(parsed_args)
+        versioninfo_tool.decode_version_info_dump_json(versioned_exe_path, version_info_output_path)
 
         # then we compare to make sure it matches what it should be
         compared_decoded_version_info(self, version_info_output_path, DUMMY_VALID_JSON)
@@ -367,7 +365,18 @@ class TestVersioninfo(unittest.TestCase):
         check_for_err_helper(self, temp_dir, bad_json_file, err_str)
 
     def test_bad_input_path(self):
-        check_for_err_helper(self, ".", "bad/path/to/file.json", "Could not find bad/path/to/file.json\n")
+        ''' check to make sure we throw an exception '''
+        try:
+            check_for_err_helper(self, ".", "bad/path/to/file.json", "Could not find bad/path/to/file.json\n")
+            self.fail("We shouldn't have found the file")
+        except FileNotFoundError:
+            pass
+
+    def test_command_line_interface(self):
+        ''' makes sure the command line interface is working correctly '''
+        ret = RunCmd('versioninfo_tool', '-h', logging_level=logging.ERROR)
+        self.assertEqual(ret, 0)
+
 
     def test_non_pe_file(self):
         temp_dir = tempfile.mkdtemp()

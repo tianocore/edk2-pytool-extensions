@@ -36,7 +36,7 @@ def get_cli_options(args=None):
     parser.add_argument('input_file', type=str,
                         help='a filesystem path to a json/PE file to load')
     parser.add_argument('output_file', type=str,
-                        help='a filesystem path to the output file. if file does not exist, entire directory path will be created. if file does exist, contents will be overwritten') # noqa
+                        help='a filesystem path to the output file. if file does not exist, entire directory path will be created. if file does exist, contents will be overwritten')  # noqa
 
     command_group = parser.add_mutually_exclusive_group()
     command_group.add_argument('-e', '--encode', action='store_const', const='e', dest='mode',
@@ -47,28 +47,60 @@ def get_cli_options(args=None):
     return parser.parse_args(args=args)
 
 
-def service_request(args):
-    '''given parsed args, executes versioninfo_tool'''
+def decode_version_info(input_file):
+    ''' takes in a PE file (input_file) and returns the version dictionary '''
+    if not os.path.exists(input_file):
+        raise FileNotFoundError(input_file)
+    pe = PEObject(input_file)
+    return pe.get_version_dict()
+
+
+def decode_version_info_dump_json(input_file, output_file):
+    '''
+    Takes in a PE file (input_file) and dumps the output as json to (output_file)
+    returns True on success
+    '''
+    version_info = decode_version_info(input_file)
+    if not version_info:
+        logging.error(f"{input_file} doesn't have version info.")
+        return False
+    with open(output_file, "w") as out:
+        json.dump(version_info, out)
+    return True
+
+
+def encode_version_info(input_file):
+    ''' takes in a JSON file (inputfile) and returns an object '''
+    if not os.path.exists(input_file):
+        raise FileNotFoundError(input_file)
+    return VERSIONINFOGenerator(input_file)
+
+
+def encode_version_info_dump_rc(input_file, output_file):
+    ''' takes in a JSON file (input_file) and outputs an RC file(output_file) '''
+    return encode_version_info(input_file).write(output_file)
+
+
+def main():
+    ''' parse args, executes versioninfo_tool '''
     logging.getLogger().addHandler(logging.StreamHandler())
+    args = get_cli_options()
     if not os.path.isfile(args.input_file):
         logging.error("Could not find " + args.input_file)
         sys.exit(1)
 
     if args.mode == 'd':
-        pe = PEObject(args.input_file)
-        generated_dict = pe.get_version_dict()
-        if generated_dict:
-            with open(args.output_file, "w") as out:
-                json.dump(generated_dict, out)
-        else:
+        # we need to dump
+        if not decode_version_info_dump_json(args.input_file, args.output_file):
+            sys.exit(1)
+    elif args.mode == 'e':
+        # we need to encode
+        if not encode_version_info_dump_rc(args.input_file, args.output_file):
             sys.exit(1)
     else:
-        if not VERSIONINFOGenerator(args.input_file).write(args.output_file):
-            sys.exit(1)
-
-
-def main():
-    service_request(get_cli_options())
+        # unknown mode
+        logging.error(f"Unknown mode: {args.mode}")
+        sys.exit(1)
 
 
 if __name__ == '__main__':
