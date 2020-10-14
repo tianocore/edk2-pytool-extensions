@@ -20,6 +20,3 @@ jobs:
     root_package_folder: "edk2toolext"
     name: 'ubuntu'
     codecov_enabled: true
-    extra_steps:
-    - script: sudo apt-get install mingw-w64
-      displayName: Install Windows Resource Compiler for Linux
