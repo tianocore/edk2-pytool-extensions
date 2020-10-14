@@ -15,6 +15,7 @@ import tempfile
 import json
 import copy
 import logging
+import shutil
 from edk2toollib.utility_functions import RunCmd
 
 from io import StringIO
@@ -131,10 +132,11 @@ def check_for_err_helper(cls, temp_dir, json_input, err_msg, decode=False):
 #     except IOError:
 #         cls.fail()
 
-def compared_decoded_version_info(self, json_file_path, reference = DUMMY_VALID_JSON):
+def compared_decoded_version_info(self, json_file_path, reference):
     try:
         generated_json = open(json_file_path)
         generated_dict = json.load(generated_json)
+        print(generated_dict)
         self.assertTrue('Signature' in generated_dict)
         del generated_dict['Signature']
         self.assertTrue('StrucVersion' in generated_dict)
@@ -146,6 +148,8 @@ def compared_decoded_version_info(self, json_file_path, reference = DUMMY_VALID_
         ref = copy.deepcopy(reference)
         if "Minimal" in ref:
             del ref["Minimal"]
+        logging.info(ref)
+        self.maxDiff = None
         self.assertEqual(generated_dict, ref)
     except ValueError:
         self.fail()
@@ -158,84 +162,32 @@ class TestVersioninfo(unittest.TestCase):
         temp_dir = tempfile.mkdtemp()
         # Create the EXE file
         versioned_exe_path = os.path.join(temp_dir, DUMMY_EXE_FILE_NAME) + '.exe'
+        source_exe_path = os.path.join(os.path.dirname(__file__), "testdata", "dummy_exe.data")
+        shutil.copyfile(source_exe_path, versioned_exe_path)
         # Create the parameters that will go to the service request function
         version_info_output_path = os.path.join(temp_dir, VERSIONINFO_JSON_FILE_NAME + '.json')
         cli_params = [versioned_exe_path, version_info_output_path, '-d']  # noqa
         parsed_args = versioninfo_tool.get_cli_options(cli_params)
         versioninfo_tool.service_request(parsed_args)
 
-        # first we compare to just the raw dummy valid json
-        compared_decoded_version_info(self, version_info_output_path)
+        # then we compare to make sure it matches what it should be
+        compared_decoded_version_info(self, version_info_output_path, DUMMY_VALID_JSON)
+
+    def test_encode_decode_minimal(self):
+        temp_dir = tempfile.mkdtemp()
+        # Create the EXE file
+        versioned_exe_path = os.path.join(temp_dir, DUMMY_EXE_FILE_NAME) + '.exe'
+        source_exe_path = os.path.join(os.path.dirname(__file__), "testdata", "dummy_minimal_exe.data")
+        shutil.copyfile(source_exe_path, versioned_exe_path)
+        # Create the parameters that will go to the service request function
+        version_info_output_path = os.path.join(temp_dir, VERSIONINFO_JSON_FILE_NAME + '.json')
+        cli_params = [versioned_exe_path, version_info_output_path, '-d']  # noqa
+        parsed_args = versioninfo_tool.get_cli_options(cli_params)
+        versioninfo_tool.service_request(parsed_args)
+
         # then we compare to make sure it matches what it should be
         compared_decoded_version_info(self, version_info_output_path, DUMMY_MINIMAL_DECODED)
-       
-        
-    # @unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
-    # def test_encode_decode_windows(self):
-    #     setup_vs_build(self)
-    #     temp_dir = tempfile.mkdtemp()
-    #     dummy_json = os.path.join(temp_dir, DUMMY_JSON_FILE_NAME + '.json.orig')
-    #     dummy_exe_src = os.path.join(temp_dir, DUMMY_EXE_SRC_NAME + '.c')
-    #     dummy_exe_makefile = os.path.join(temp_dir, DUMMY_EXE_MAKEFILE_NAME)
 
-    #     with open(dummy_json, 'w') as dummy_file:
-    #         json.dump(DUMMY_VALID_JSON, dummy_file)
-    #     with open(dummy_exe_src, 'w') as dummy_src:
-    #         dummy_src.write(DUMMY_EXE_SOURCE)
-    #     with open(dummy_exe_makefile, 'w') as dummy_makefile:
-    #         dummy_makefile.write(DUMMY_EXE_MAKEFILE_WINDOWS)
-
-    #     encode_decode_helper(self, dummy_json, temp_dir, True)
-
-
-    # @unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
-    # def test_encode_decode_minimal_windows(self):
-    #     setup_vs_build(self)
-    #     temp_dir = tempfile.mkdtemp()
-    #     dummy_json = os.path.join(temp_dir, DUMMY_JSON_FILE_NAME + '.json.orig')
-    #     dummy_exe_src = os.path.join(temp_dir, DUMMY_EXE_SRC_NAME + '.c')
-    #     dummy_exe_makefile = os.path.join(temp_dir, DUMMY_EXE_MAKEFILE_NAME)
-
-    #     with open(dummy_json, 'w') as dummy_file:
-    #         json.dump(DUMMY_MINIMAL_JSON, dummy_file)
-    #     with open(dummy_exe_src, 'w') as dummy_src:
-    #         dummy_src.write(DUMMY_EXE_SOURCE)
-    #     with open(dummy_exe_makefile, 'w') as dummy_makefile:
-    #         dummy_makefile.write(DUMMY_EXE_MAKEFILE_WINDOWS)
-
-    #     encode_decode_helper(self, dummy_json, temp_dir, True, DUMMY_MINIMAL_DECODED)
-
-    # @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
-    # def test_encode_decode_linux(self):
-    #     temp_dir = tempfile.mkdtemp()
-    #     dummy_json = os.path.join(temp_dir, DUMMY_JSON_FILE_NAME + '.json.orig')
-    #     dummy_exe_src = os.path.join(temp_dir, DUMMY_EXE_SRC_NAME + '.c')
-    #     dummy_exe_makefile = os.path.join(temp_dir, DUMMY_EXE_MAKEFILE_NAME)
-
-    #     with open(dummy_json, 'w') as dummy_file:
-    #         json.dump(DUMMY_VALID_JSON, dummy_file)
-    #     with open(dummy_exe_src, 'w') as dummy_src:
-    #         dummy_src.write(DUMMY_EXE_SOURCE)
-    #     with open(dummy_exe_makefile, 'w') as dummy_makefile:
-    #         dummy_makefile.write(DUMMY_EXE_MAKEFILE_LINUX)
-
-    #     encode_decode_helper(self, dummy_json, temp_dir, False)
-
-    # @unittest.skipUnless(sys.platform.startswith("linux"), "requires Linux")
-    # def test_encode_decode_minimal_linux(self):
-    #     temp_dir = tempfile.mkdtemp()
-    #     dummy_json = os.path.join(temp_dir, DUMMY_JSON_FILE_NAME + '.json.orig')
-    #     dummy_exe_src = os.path.join(temp_dir, DUMMY_EXE_SRC_NAME + '.c')
-    #     dummy_exe_makefile = os.path.join(temp_dir, DUMMY_EXE_MAKEFILE_NAME)
-
-    #     with open(dummy_json, 'w') as dummy_file:
-    #         json.dump(DUMMY_MINIMAL_JSON, dummy_file)
-    #     with open(dummy_exe_src, 'w') as dummy_src:
-    #         dummy_src.write(DUMMY_EXE_SOURCE)
-    #     with open(dummy_exe_makefile, 'w') as dummy_makefile:
-    #         dummy_makefile.write(DUMMY_EXE_MAKEFILE_LINUX)
-
-    #     encode_decode_helper(self, dummy_json, temp_dir, False, DUMMY_MINIMAL_DECODED)
 
     def test_missing_varinfo(self):
         temp_dir = tempfile.mkdtemp()
