@@ -39,7 +39,7 @@ DUMMY_VALID_JSON = {
     "FileSubtype": "VFT2_DRV_SYSTEM",
     "StringFileInfo": {
         "Comments": "Dummy Driver",
-        "CompanyName": "Dummy compnay",
+        "CompanyName": "Dummy company",
         "FileDescription": "Dummy Driver",
         "FileVersion": "1.2.3.4",
         "InternalName": "Test Name",
@@ -96,47 +96,11 @@ def check_for_err_helper(cls, temp_dir, json_input, err_msg, decode=False):
         cls.assertEqual(log_stream.getvalue(), err_msg)
         cls.assertTrue(returned_error)
 
-# def encode_decode_helper(cls, dummy_json, temp_dir, is_windows, reference=DUMMY_VALID_JSON):
-#     cli_params = [dummy_json, os.path.join(temp_dir, "VERSIONINFO.rc")]
-#     parsed_args = versioninfo_tool.get_cli_options(cli_params)
-#     versioninfo_tool.service_request(parsed_args)
-#     if is_windows:
-#         ret = RunCmd('nmake', 'rsrc', workingdir=temp_dir)
-#         cls.assertEqual(ret, 0, f"nmake failed with return code {ret}.")
-#     else:
-#         ret = RunCmd('make', None, workingdir=temp_dir)
-#         cls.assertEqual(ret, 0, f"make failed with return code {ret}.")
-
-#     cli_params = [os.path.join(temp_dir, DUMMY_EXE_FILE_NAME) + '.exe', os.path.join(temp_dir, "VERSIONINFO.json"), '-d']  # noqa
-#     parsed_args = versioninfo_tool.get_cli_options(cli_params)
-#     versioninfo_tool.service_request(parsed_args)
-#     try:
-#         with open(os.path.join(temp_dir, VERSIONINFO_JSON_FILE_NAME + '.json')) as generated_json:
-#             try:
-#                 generated_dict = json.load(generated_json)
-#             except ValueError:
-#                 cls.fail()
-
-#             cls.assertTrue('Signature' in generated_dict)
-#             del generated_dict['Signature']
-#             cls.assertTrue('StrucVersion' in generated_dict)
-#             del generated_dict['StrucVersion']
-#             if 'FileDateMS' in generated_dict:
-#                 del generated_dict['FileDateMS']
-#             if 'FileDateLS' in generated_dict:
-#                 del generated_dict['FileDateLS']
-#             ref = copy.deepcopy(reference)
-#             if "Minimal" in ref:
-#                 del ref["Minimal"]
-#             cls.assertEqual(generated_dict, ref)
-#     except IOError:
-#         cls.fail()
 
 def compared_decoded_version_info(self, json_file_path, reference):
     try:
         generated_json = open(json_file_path)
         generated_dict = json.load(generated_json)
-        print(generated_dict)
         self.assertTrue('Signature' in generated_dict)
         del generated_dict['Signature']
         self.assertTrue('StrucVersion' in generated_dict)
@@ -148,13 +112,12 @@ def compared_decoded_version_info(self, json_file_path, reference):
         ref = copy.deepcopy(reference)
         if "Minimal" in ref:
             del ref["Minimal"]
-        logging.info(ref)
-        self.maxDiff = None
         self.assertEqual(generated_dict, ref)
     except ValueError:
         self.fail()
     except IOError:
         self.fail()
+
 
 class TestVersioninfo(unittest.TestCase):
 
@@ -162,22 +125,7 @@ class TestVersioninfo(unittest.TestCase):
         temp_dir = tempfile.mkdtemp()
         # Create the EXE file
         versioned_exe_path = os.path.join(temp_dir, DUMMY_EXE_FILE_NAME) + '.exe'
-        source_exe_path = os.path.join(os.path.dirname(__file__), "testdata", "dummy_exe.data")
-        shutil.copyfile(source_exe_path, versioned_exe_path)
-        # Create the parameters that will go to the service request function
-        version_info_output_path = os.path.join(temp_dir, VERSIONINFO_JSON_FILE_NAME + '.json')
-        cli_params = [versioned_exe_path, version_info_output_path, '-d']  # noqa
-        parsed_args = versioninfo_tool.get_cli_options(cli_params)
-        versioninfo_tool.service_request(parsed_args)
-
-        # then we compare to make sure it matches what it should be
-        compared_decoded_version_info(self, version_info_output_path, DUMMY_VALID_JSON)
-
-    def test_encode_decode_minimal(self):
-        temp_dir = tempfile.mkdtemp()
-        # Create the EXE file
-        versioned_exe_path = os.path.join(temp_dir, DUMMY_EXE_FILE_NAME) + '.exe'
-        source_exe_path = os.path.join(os.path.dirname(__file__), "testdata", "dummy_minimal_exe.data")
+        source_exe_path = os.path.join(os.path.dirname(__file__), "testdata", "versioninfo_minimal_exe.data")
         shutil.copyfile(source_exe_path, versioned_exe_path)
         # Create the parameters that will go to the service request function
         version_info_output_path = os.path.join(temp_dir, VERSIONINFO_JSON_FILE_NAME + '.json')
@@ -188,6 +136,20 @@ class TestVersioninfo(unittest.TestCase):
         # then we compare to make sure it matches what it should be
         compared_decoded_version_info(self, version_info_output_path, DUMMY_MINIMAL_DECODED)
 
+    def test_encode_decode_minimal(self):
+        temp_dir = tempfile.mkdtemp()
+        # Create the EXE file
+        versioned_exe_path = os.path.join(temp_dir, DUMMY_EXE_FILE_NAME) + '.exe'
+        source_exe_path = os.path.join(os.path.dirname(__file__), "testdata", "versioninfo_full_exe.data")
+        shutil.copyfile(source_exe_path, versioned_exe_path)
+        # Create the parameters that will go to the service request function
+        version_info_output_path = os.path.join(temp_dir, VERSIONINFO_JSON_FILE_NAME + '.json')
+        cli_params = [versioned_exe_path, version_info_output_path, '-d']  # noqa
+        parsed_args = versioninfo_tool.get_cli_options(cli_params)
+        versioninfo_tool.service_request(parsed_args)
+
+        # then we compare to make sure it matches what it should be
+        compared_decoded_version_info(self, version_info_output_path, DUMMY_VALID_JSON)
 
     def test_missing_varinfo(self):
         temp_dir = tempfile.mkdtemp()
