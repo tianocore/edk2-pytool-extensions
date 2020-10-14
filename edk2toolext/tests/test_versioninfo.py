@@ -81,9 +81,10 @@ def check_for_err_helper(cls, temp_dir, json_input, err_msg, decode=False):
     parsed_args = versioninfo_tool.get_cli_options(cli_params)
     with StringIO() as log_stream:
         log_handler = logging.StreamHandler(log_stream)
+        log_handler.setLevel(logging.DEBUG)  # set the logger to get everything
         logging.getLogger().addHandler(log_handler)
         returned_error = False
-        
+
         if decode:
             returned_error = not versioninfo_tool.decode_version_info_dump_json(json_input, temp_dir)
         else:
@@ -153,8 +154,7 @@ class TestVersioninfo(unittest.TestCase):
         with open(bad_json_file, 'w') as bad_file:
             json.dump(bad_json, bad_file)
 
-        check_for_err_helper(self, temp_dir, bad_json_file,
-                             'Missing required parameter: VARFILEINFO.\nInvalid input, aborted.\n')
+        check_for_err_helper(self, temp_dir, bad_json_file, 'Missing required parameter: VARFILEINFO')
 
     def test_missing_translation(self):
         temp_dir = tempfile.mkdtemp()
@@ -164,8 +164,7 @@ class TestVersioninfo(unittest.TestCase):
         with open(bad_json_file, 'w') as bad_file:
             json.dump(bad_json, bad_file)
 
-        check_for_err_helper(self, temp_dir, bad_json_file,
-                             'Missing required parameter in VarFileInfo: Translation.\nInvalid input, aborted.\n')
+        check_for_err_helper(self, temp_dir, bad_json_file, 'Missing required parameter in VarFileInfo: Translation')
 
     def test_invalid_varfileinfo(self):
         temp_dir = tempfile.mkdtemp()
@@ -175,8 +174,7 @@ class TestVersioninfo(unittest.TestCase):
         with open(bad_json_file, 'w') as bad_file:
             json.dump(bad_json, bad_file)
 
-        check_for_err_helper(self, temp_dir, bad_json_file,
-                             'Invalid VarFileInfo parameter: FileVersion.\nInvalid input, aborted.\n')
+        check_for_err_helper(self, temp_dir, bad_json_file, 'Invalid VarFileInfo parameter: FileVersion')
 
     def test_missing_companyname(self):
         temp_dir = tempfile.mkdtemp()
@@ -186,8 +184,7 @@ class TestVersioninfo(unittest.TestCase):
         with open(bad_json_file, 'w') as bad_file:
             json.dump(bad_json, bad_file)
 
-        check_for_err_helper(self, temp_dir, bad_json_file,
-                             'Missing required StringFileInfo parameter: CompanyName.\nInvalid input, aborted.\n')
+        check_for_err_helper(self, temp_dir, bad_json_file, 'Missing required StringFileInfo parameter: CompanyName')
 
     def test_version_overflow(self):
         temp_dir = tempfile.mkdtemp()
@@ -197,8 +194,7 @@ class TestVersioninfo(unittest.TestCase):
         with open(bad_json_file, 'w') as bad_file:
             json.dump(bad_json, bad_file)
 
-        check_for_err_helper(self, temp_dir, bad_json_file,
-                             'Integer overflow in version string: 65536.0.0.0.\nInvalid input, aborted.\n')
+        check_for_err_helper(self, temp_dir, bad_json_file, 'Integer overflow in version string')
 
     def test_invalid_version(self):
         temp_dir = tempfile.mkdtemp()
@@ -208,8 +204,7 @@ class TestVersioninfo(unittest.TestCase):
         with open(bad_json_file, 'w') as bad_file:
             json.dump(bad_json, bad_file)
 
-        check_for_err_helper(self, temp_dir, bad_json_file,
-                             'Invalid version string: Version 1.0.1.0. Version must be in form " INTEGER.INTEGER.INTEGER.INTEGER".\nInvalid input, aborted.\n')  # noqa
+        check_for_err_helper(self, temp_dir, bad_json_file, 'Version must be in form " INTEGER.INTEGER.INTEGER.INTEGER"')  # noqa
 
     def test_bad_version_format(self):
         temp_dir = tempfile.mkdtemp()
@@ -219,8 +214,7 @@ class TestVersioninfo(unittest.TestCase):
         with open(bad_json_file, 'w') as bad_file:
             json.dump(bad_json, bad_file)
 
-        check_for_err_helper(self, temp_dir, bad_json_file,
-                             'Invalid version string: 1.234. Version must be in form "INTEGER.INTEGER.INTEGER.INTEGER".\nInvalid input, aborted.\n')  # noqa
+        check_for_err_helper(self, temp_dir, bad_json_file, 'Version must be in form "INTEGER.INTEGER.INTEGER.INTEGER"')  # noqa
 
     def test_invalid_language_code_value(self):
         temp_dir = tempfile.mkdtemp()
@@ -231,7 +225,7 @@ class TestVersioninfo(unittest.TestCase):
             json.dump(bad_json, bad_file)
 
         check_for_err_helper(self, temp_dir, bad_json_file,
-                             'Invalid language code: "0x0009 0x04b0".\nInvalid input, aborted.\n')
+                             f"Invalid language code: {bad_json['VarFileInfo']['Translation']}")
 
     def test_invalid_language_code_string(self):
         temp_dir = tempfile.mkdtemp()
@@ -242,7 +236,7 @@ class TestVersioninfo(unittest.TestCase):
             json.dump(bad_json, bad_file)
 
         check_for_err_helper(self, temp_dir, bad_json_file,
-                             'Invalid language code: "utf-8 US".\nInvalid input, aborted.\n')
+                             f"Invalid language code: {bad_json['VarFileInfo']['Translation']}")
 
     def test_invalid_language_code_format(self):
         temp_dir = tempfile.mkdtemp()
@@ -252,8 +246,7 @@ class TestVersioninfo(unittest.TestCase):
         with open(bad_json_file, 'w') as bad_file:
             json.dump(bad_json, bad_file)
 
-        check_for_err_helper(self, temp_dir, bad_json_file,
-                             'Translation field must contain 2 space delimited hexidecimal bytes.\nInvalid input, aborted.\n')  # noqa
+        check_for_err_helper(self, temp_dir, bad_json_file, 'Translation field must contain 2 space delimited hexidecimal bytes')  # noqa
 
     def test_invalid_language_code_no_hex(self):
         temp_dir = tempfile.mkdtemp()
@@ -263,8 +256,8 @@ class TestVersioninfo(unittest.TestCase):
         with open(bad_json_file, 'w') as bad_file:
             json.dump(bad_json, bad_file)
 
-        check_for_err_helper(self, temp_dir, bad_json_file,
-                             'Invalid language code: "4009 04b0".\nInvalid input, aborted.\n')
+        check_for_err_helper(self, temp_dir, bad_json_file, 'Invalid language code: '
+                             + bad_json['VarFileInfo']['Translation'])
 
     def test_invalid_fileos_hex(self):
         temp_dir = tempfile.mkdtemp()
@@ -274,8 +267,7 @@ class TestVersioninfo(unittest.TestCase):
         with open(bad_json_file, 'w') as bad_file:
             json.dump(bad_json, bad_file)
 
-        check_for_err_helper(self, temp_dir, bad_json_file,
-                             'Invalid FILEOS value: 0x12391.\nInvalid input, aborted.\n')
+        check_for_err_helper(self, temp_dir, bad_json_file, 'Invalid FILEOS value: ' + bad_json['FileOS'])
 
     def test_invalid_fileos_string(self):
         temp_dir = tempfile.mkdtemp()
@@ -285,8 +277,7 @@ class TestVersioninfo(unittest.TestCase):
         with open(bad_json_file, 'w') as bad_file:
             json.dump(bad_json, bad_file)
 
-        check_for_err_helper(self, temp_dir, bad_json_file,
-                             'Invalid FILEOS value: INVALID.\nInvalid input, aborted.\n')
+        check_for_err_helper(self, temp_dir, bad_json_file, 'Invalid FILEOS value: ' + bad_json['FileOS'])
 
     def test_invalid_filetype_hex(self):
         temp_dir = tempfile.mkdtemp()
@@ -296,8 +287,7 @@ class TestVersioninfo(unittest.TestCase):
         with open(bad_json_file, 'w') as bad_file:
             json.dump(bad_json, bad_file)
 
-        check_for_err_helper(self, temp_dir, bad_json_file,
-                             'Invalid FILETYPE value: 0x12391.\nInvalid FILESUBTYPE value for FILETYPE 0x12391, value must be 0.\nInvalid input, aborted.\n')  # noqa
+        check_for_err_helper(self, temp_dir, bad_json_file, 'Invalid FILESUBTYPE value for FILETYPE ' + bad_json['FileType'])  # noqa
 
     def test_invalid_filetype_string(self):
         temp_dir = tempfile.mkdtemp()
@@ -307,8 +297,7 @@ class TestVersioninfo(unittest.TestCase):
         with open(bad_json_file, 'w') as bad_file:
             json.dump(bad_json, bad_file)
 
-        check_for_err_helper(self, temp_dir, bad_json_file,
-                             'Invalid FILETYPE value: INVALID.\nInvalid FILESUBTYPE value for FILETYPE INVALID, value must be 0.\nInvalid input, aborted.\n')  # noqa
+        check_for_err_helper(self, temp_dir, bad_json_file, 'Invalid FILESUBTYPE value for FILETYPE ' + bad_json['FileType'])  # noqa
 
     def test_invalid_filesubtype_drv(self):
         temp_dir = tempfile.mkdtemp()
@@ -319,8 +308,7 @@ class TestVersioninfo(unittest.TestCase):
         with open(bad_json_file, 'w') as bad_file:
             json.dump(bad_json, bad_file)
 
-        check_for_err_helper(self, temp_dir, bad_json_file,
-                             'Invalid FILESUBTYPE value for FILETYPE VFT_DRV: VFT2_FONT_RASTER.\nInvalid input, aborted.\n')  # noqa
+        check_for_err_helper(self, temp_dir, bad_json_file, 'Invalid FILESUBTYPE value for FILETYPE VFT_DRV: VFT2_FONT_RASTER')  # noqa
 
     def test_invalid_filesubtype_font(self):
         temp_dir = tempfile.mkdtemp()
@@ -331,8 +319,7 @@ class TestVersioninfo(unittest.TestCase):
         with open(bad_json_file, 'w') as bad_file:
             json.dump(bad_json, bad_file)
 
-        check_for_err_helper(self, temp_dir, bad_json_file,
-                             'Invalid FILESUBTYPE value for FILETYPE VFT_FONT: VFT2_DRV_SOUND.\nInvalid input, aborted.\n')  # noqa
+        check_for_err_helper(self, temp_dir, bad_json_file, 'Invalid FILESUBTYPE value for FILETYPE VFT_FONT: VFT2_DRV_SOUND')  # noqa
 
     def test_missing_filetype(self):
         temp_dir = tempfile.mkdtemp()
@@ -343,7 +330,7 @@ class TestVersioninfo(unittest.TestCase):
             json.dump(bad_json, bad_file)
 
         check_for_err_helper(self, temp_dir, bad_json_file,
-                             'Missing parameter: must have FileType if FileSubtype defined.\nInvalid input, aborted.\n')
+                             'Missing parameter: must have FileType if FileSubtype defined')
 
     def test_no_stringinfo_header(self):
         temp_dir = tempfile.mkdtemp()
@@ -358,7 +345,7 @@ class TestVersioninfo(unittest.TestCase):
             err_str += 'Invalid parameter: ' + key.upper() + '.\n'
 
         del bad_json['StringFileInfo']
-        err_str += 'Missing required parameter: STRINGFILEINFO.\nInvalid input, aborted.\n'
+        err_str += 'Missing required parameter: STRINGFILEINFO'
         with open(bad_json_file, 'w') as bad_file:
             json.dump(bad_json, bad_file)
 
@@ -377,7 +364,6 @@ class TestVersioninfo(unittest.TestCase):
         ret = RunCmd('versioninfo_tool', '-h', logging_level=logging.ERROR)
         self.assertEqual(ret, 0)
 
-
     def test_non_pe_file(self):
         temp_dir = tempfile.mkdtemp()
         bad_pe = os.path.join(temp_dir, DUMMY_JSON_FILE_NAME + '.bad')
@@ -385,8 +371,7 @@ class TestVersioninfo(unittest.TestCase):
         with open(bad_pe, 'w') as bad_file:
             json.dump(DUMMY_VALID_JSON, bad_file)
 
-        check_for_err_helper(self, temp_dir, bad_pe,
-                             "Error loading PE: 'DOS Header magic not found.'\nCannot parse, PE not loaded.\n", True)
+        check_for_err_helper(self, temp_dir, bad_pe, "DOS Header magic not found", True)
 
     def test_invalid_json_format1(self):
         temp_dir = tempfile.mkdtemp()
@@ -417,8 +402,7 @@ class TestVersioninfo(unittest.TestCase):
         with open(bad_json_file, 'w') as bad_file:
             bad_file.write(bad_json)
 
-        check_for_err_helper(self, temp_dir, bad_json_file,
-                             "Invalid JSON format, Extra data: line 2 column 26 (char 26)\nInvalid input, aborted.\n")
+        check_for_err_helper(self, temp_dir, bad_json_file, "Invalid JSON format, Extra data")
 
     def test_invalid_json_format2(self):
         temp_dir = tempfile.mkdtemp()
@@ -450,8 +434,7 @@ class TestVersioninfo(unittest.TestCase):
         with open(bad_json_file, 'w') as bad_file:
             bad_file.write(bad_json)
 
-        check_for_err_helper(self, temp_dir, bad_json_file,
-                             "Invalid JSON format, Expecting property name enclosed in double quotes: line 2 column 13 (char 15)\nInvalid input, aborted.\n")  # noqa
+        check_for_err_helper(self, temp_dir, bad_json_file, "Invalid JSON format, Expecting property name enclosed in double quotes")  # noqa
 
     def test_invalid_json_format3(self):
         temp_dir = tempfile.mkdtemp()
@@ -483,8 +466,7 @@ class TestVersioninfo(unittest.TestCase):
         with open(bad_json_file, 'w') as bad_file:
             bad_file.write(bad_json)
 
-        check_for_err_helper(self, temp_dir, bad_json_file,
-                             "Invalid JSON format, Expecting ',' delimiter: line 10 column 27 (char 322)\nInvalid input, aborted.\n")  # noqa
+        check_for_err_helper(self, temp_dir, bad_json_file, "Invalid JSON format, Expecting ',' delimiter")  # noqa
 
     def test_invalid_minimal_fields(self):
         temp_dir = tempfile.mkdtemp()
@@ -498,8 +480,7 @@ class TestVersioninfo(unittest.TestCase):
         with open(bad_json_file, 'w') as bad_file:
             json.dump(bad_json, bad_file)
 
-        check_for_err_helper(self, temp_dir, bad_json_file,
-                             'Invalid minimal parameter: FILETYPE.\nInvalid input, aborted.\n')
+        check_for_err_helper(self, temp_dir, bad_json_file, 'Invalid minimal parameter: FILETYPE')
 
     def test_invalid_minimal_value(self):
         temp_dir = tempfile.mkdtemp()
@@ -513,5 +494,4 @@ class TestVersioninfo(unittest.TestCase):
         with open(bad_json_file, 'w') as bad_file:
             json.dump(bad_json, bad_file)
 
-        check_for_err_helper(self, temp_dir, bad_json_file,
-                             "Invalid value for 'Minimal', must be boolean.\nInvalid input, aborted.\n")
+        check_for_err_helper(self, temp_dir, bad_json_file, "Invalid value for 'Minimal', must be boolean.")
