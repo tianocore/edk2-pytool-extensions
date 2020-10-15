@@ -1,4 +1,4 @@
-# @file versioninfo_tool_test.py
+# @file test_versioninfo.py
 # This unittest module contains test cases for the versioninfo_tool module and CLI routines.
 #
 ##
@@ -6,8 +6,6 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
-
-# spell-checker:ignore nmake, UCRT
 
 import os
 import unittest
