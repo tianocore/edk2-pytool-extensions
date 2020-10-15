@@ -18,13 +18,16 @@ from edk2toolext.versioninfo.versioninfo_helper import PEObject, VERSIONINFOGene
 
 TOOL_DESCRIPTION = """
 Versioninfo Tool is a command-line tool to assist in generating VERSIONINFO
-resource files for use with Resource Compiler. It takes a JSON representing
-versioning info and produces a resource file that satisfies UEFI version
-record cert requirements and is compatible with Resource Compiler.
+resource files for use with a Resource Compiler. It takes a JSON representing
+versioning info and produces a resource file that once compiled will create a
+standard resource section.
 
-An example call might look like:
-%s -o /path/to/version.JSON /path/to/output
-""" % (os.path.basename(sys.argv[0]),)
+An example to encode json to rc file might look like:
+%s -e /path/to/version.JSON /path/to/output
+
+An example to decode a binary efi file and output the rsrc in json might look like:
+%s -d /path/to/app.efi /path/to/output.JSON
+""" % (os.path.basename(sys.argv[0]), os.path.basename(sys.argv[0]))
 
 
 def get_cli_options(args=None):

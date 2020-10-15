@@ -417,7 +417,7 @@ class VERSIONINFOGenerator(object):
     If "Minimal" attribute is set to false, JSON defines a complete rc section.
     Here is an example of a complete rc section:
     {
-        "Minimal": "False"
+        "Minimal": "False",
         "FileVersion": "1.0.0.0",
         "ProductVersion": "1.0.0.0",
         "FileFlagsMask": "VS_FFI_FILEFLAGSMASK",
@@ -427,7 +427,7 @@ class VERSIONINFOGenerator(object):
         "FileSubtype": "VFT2_DRV_SYSTEM",
         "StringFileInfo": {
             "CompanyName": "Example Company",
-            "ProductName": "Example Product",
+            "OriginalFilename": "ExampleApp.efi",
             "FileVersion": "1.0.0.0",
         },
         "VarFileInfo": {
@@ -443,7 +443,7 @@ class VERSIONINFOGenerator(object):
     {
         "FileVersion": "1.0.0.0",
         "CompanyName": "Example Company",
-        "ProductName": "Example Product",
+        "OriginalFilename": "ExampleApp.efi"
     }
 
     or equivalently:
@@ -451,7 +451,7 @@ class VERSIONINFOGenerator(object):
         "Minimal": "True",
         "FileVersion": "1.0.0.0",
         "CompanyName": "Example Company",
-        "ProductName": "Example Product",
+        "OriginalFilename": "ExampleApp.efi"
     }
     '''
     _minimal_required_fields = {
@@ -604,7 +604,7 @@ class VERSIONINFOGenerator(object):
 
         # Header
         out_str = "/* Auto-generated VERSIONINFO resource file.\n" \
-                  + "   Generated at %s */\n\n" % datetime.now().strftime("%d/%m/%Y %H:%M:%S") \
+                  + "   Generated %s */\n\n" % datetime.now().strftime("%Y/%m/%d %H:%M:%S") \
                   + "#ifdef RC_INVOKED\nVS_VERSION_INFO\tVERSIONINFO\n" \
                   + PEStrings.FILE_VERSION_STR + "\t"
         version = self._version_dict[PEStrings.FILE_VERSION_STR.upper()].split(".")
@@ -669,7 +669,7 @@ class VERSIONINFOGenerator(object):
             return False
 
         out_str = "/* Auto-generated VERSIONINFO resource file.\n" \
-                  + "   Generated at %s */\n\n" % datetime.now().strftime("%d/%m/%Y %H:%M:%S") \
+                  + "   Generated %s */\n\n" % datetime.now().strftime("%Y/%m/%d %H:%M:%S") \
                   + "#include <ntdef.h>\n#include <winver.h>\n#ifdef RC_INVOKED\n"
 
         # Header fields
