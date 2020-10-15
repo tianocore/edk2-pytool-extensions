@@ -471,7 +471,10 @@ class VERSIONINFOGenerator(object):
         with open(filepath, "r") as jsonFile:
             data = jsonFile.read()
             try:
-                self._version_dict = json.loads(data)
+                #
+                # Convert all keys to UPPERCASE for consistant usage
+                #
+                self._version_dict = dict({k.upper(): v for k, v in json.loads(data).items()})
             except json.decoder.JSONDecodeError as e:
                 logging.error("Invalid JSON format, " + str(e))
 
@@ -595,7 +598,7 @@ class VERSIONINFOGenerator(object):
         if not valid:
             return False
 
-        return validate_version_number(self._version_dict[PEStrings.FILE_VERSION_STR.upper()])
+        return validate_version_number(self._version_dict[PEStrings.FILE_VERSION_STR])
 
     def write_minimal(self, path: str) -> bool:
         if not self.validate_minimal():

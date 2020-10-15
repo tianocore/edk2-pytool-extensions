@@ -117,6 +117,19 @@ class TestVersioninfo(unittest.TestCase):
         temp_dir = tempfile.mkdtemp()
         # Create the EXE file
         versioned_exe_path = os.path.join(temp_dir, DUMMY_EXE_FILE_NAME) + '.exe'
+        source_exe_path = os.path.join(os.path.dirname(__file__), "testdata", "versioninfo_full_exe.data")
+        shutil.copyfile(source_exe_path, versioned_exe_path)
+        # Create the parameters that will go to the service request function
+        version_info_output_path = os.path.join(temp_dir, VERSIONINFO_JSON_FILE_NAME + '.json')
+        versioninfo_tool.decode_version_info_dump_json(versioned_exe_path, version_info_output_path)
+
+        # then we compare to make sure it matches what it should be
+        compared_decoded_version_info(self, version_info_output_path, DUMMY_VALID_JSON)
+
+    def test_encode_decode_minimal(self):
+        temp_dir = tempfile.mkdtemp()
+        # Create the EXE file
+        versioned_exe_path = os.path.join(temp_dir, DUMMY_EXE_FILE_NAME) + '.exe'
         source_exe_path = os.path.join(os.path.dirname(__file__), "testdata", "versioninfo_minimal_exe.data")
         shutil.copyfile(source_exe_path, versioned_exe_path)
         # Create the parameters that will go to the service request function
@@ -126,18 +139,14 @@ class TestVersioninfo(unittest.TestCase):
         # then we compare to make sure it matches what it should be
         compared_decoded_version_info(self, version_info_output_path, DUMMY_MINIMAL_DECODED)
 
-    def test_encode_decode_minimal(self):
+    def test_encode_minimal(self):
         temp_dir = tempfile.mkdtemp()
-        # Create the EXE file
-        versioned_exe_path = os.path.join(temp_dir, DUMMY_EXE_FILE_NAME) + '.exe'
-        source_exe_path = os.path.join(os.path.dirname(__file__), "testdata", "versioninfo_full_exe.data")
-        shutil.copyfile(source_exe_path, versioned_exe_path)
         # Create the parameters that will go to the service request function
-        version_info_output_path = os.path.join(temp_dir, VERSIONINFO_JSON_FILE_NAME + '.json')
-        versioninfo_tool.decode_version_info_dump_json(versioned_exe_path, version_info_output_path)
-
-        # then we compare to make sure it matches what it should be
-        compared_decoded_version_info(self, version_info_output_path, DUMMY_VALID_JSON)
+        version_info_input_path = os.path.join(temp_dir, "in.json")
+        with open(version_info_input_path, "w") as f:
+            json.dump(DUMMY_MINIMAL_JSON, f)
+        obj = versioninfo_tool.encode_version_info(version_info_input_path)
+        self.assertTrue(obj.validate_minimal())
 
     def test_missing_varinfo(self):
         temp_dir = tempfile.mkdtemp()
