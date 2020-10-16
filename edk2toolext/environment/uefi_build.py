@@ -397,8 +397,10 @@ class UefiBuilder(object):
         if self.env.GetValue("OUTPUT_DIRECTORY") is None:
             logging.warn("OUTPUT_DIRECTORY was not found, defaulting to Build")
             self.env.SetValue("OUTPUT_DIRECTORY", "Build", "default from uefi_build", True)
-        self.env.SetValue("BUILD_OUT_TEMP", os.path.join(
-            self.ws, self.env.GetValue("OUTPUT_DIRECTORY")), "Computed in SetEnv")
+
+        # BUILD_OUT_TEMP is a path so the value should use native directory separators
+        self.env.SetValue("BUILD_OUT_TEMP", os.path.normpath(os.path.join(self.ws, self.env.GetValue("OUTPUT_DIRECTORY"))),
+                          "Computed in SetEnv")
 
         target = self.env.GetValue("TARGET")
         self.env.SetValue("BUILD_OUTPUT_BASE", os.path.join(self.env.GetValue(
