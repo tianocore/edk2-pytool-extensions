@@ -1,24 +1,34 @@
 # Creating An Invocable
 
 Whether you spell it invocable or invocable, the idea of an Invocable is central to Stuart.
-If you're unfamiliar with what it is, refer to the "Using" document in the root docs folder or feature_invocable in the features folder.
+If you're unfamiliar with what it is, refer to the "Using" document in the root docs folder or feature_invocable in the
+features folder.
 In a nutshell, an invocable is a small python script that gets the build environment setup for it.
-It gets a settings file (that the invocable defines the interface for) that provides information about what we are being invoked on.
+It gets a settings file (that the invocable defines the interface for) that provides information about what we are
+being invoked on.
 
 This guide references Project Mu, which is an open source fork of EDK2 that leverages edk2-pytools.
 
-This guide is written in the style of a tutorial. This is based on the real example of an invocable [here](https://github.com/microsoft/mu_basecore).
+This guide is written in the style of a tutorial. This is based on the real example of an invocable
+[here](https://github.com/microsoft/mu_basecore).
 
 ## The problem statement
 
-One feature that Project Mu offers is that of a binary-packaged Crypto and Networking, known as SharedCrypto and SharedNetworking respectively.
-This allows your platform to skip the expensive step of compiling OpenSSL or other crypto libraries and instead use a known-good crypto library that is built from a known good source.
-For more information on SharedNetworking and SharedCrypto, go check it out [here](https://microsoft.github.io/mu/dyn/mu_plus/SharedCryptoPkg/feature_sharedcrypto/) and [here](https://microsoft.github.io/mu/dyn/mu_basecore/NetworkPkg/SharedNetworking/SharedNetworking/).
+One feature that Project Mu offers is that of a binary-packaged Crypto and Networking, known as SharedCrypto and
+SharedNetworking respectively.
+This allows your platform to skip the expensive step of compiling OpenSSL or other crypto libraries and instead use a
+known-good crypto library that is built from a known good source.
+For more information on SharedNetworking and SharedCrypto, go check it out
+[here](https://microsoft.github.io/mu/dyn/mu_plus/SharedCryptoPkg/feature_sharedcrypto/) and
+[here](https://microsoft.github.io/mu/dyn/mu_basecore/NetworkPkg/SharedNetworking/SharedNetworking/).
 
 Now, how are Shared Binaries built?
-Check out the code on [github](https://github.com/microsoft/mu_basecore) under NetworkPkg/SharedNetworking/DriverBuilder.py (it may move, this is where it was at time of writing), which is the invocable that powers the shared binaries.
+Check out the code on [github](https://github.com/microsoft/mu_basecore) under
+NetworkPkg/SharedNetworking/DriverBuilder.py (it may move, this is where it was at time of writing), which is the
+invocable that powers the shared binaries.
 
-SharedNetworking in particular is a tricky problem because we want to build every architecture into an FV and package it into a NugetFeed.
+SharedNetworking in particular is a tricky problem because we want to build every architecture into an FV and package
+it into a NugetFeed.
 
 In a nutshell here's the flow we want:
 
@@ -34,8 +44,10 @@ This is a fine approach, particularly for a one off solution.
 But what if we change how nuget publishing is done?
 We need to update the batch script for both Crypto and Networking.
 Or perhaps we've thought of that and made a common script that our handy batch script invokes with the right parameters.
-We hope you can see that as time goes on, the situation spirals out of control as more parameters and scripts are added, fewer people will know how to work this or want to touch it.
-Eventually a bright talented engineer with a little more time than experience will declare that they will attempt to refactor this process.
+We hope you can see that as time goes on, the situation spirals out of control as more parameters and scripts are
+added, fewer people will know how to work this or want to touch it.
+Eventually a bright talented engineer with a little more time than experience will declare that they will attempt to
+refactor this process.
 
 In a nutshell that is the problem that the invocable framework in general is trying to solve.
 Steps 1-3 are done for you. Steps 4-6+ should be trivial to implement in a setting agnostic way.
@@ -45,7 +57,9 @@ So let's start.
 ## The settings class
 
 Each invocable has a definition for a settings class.
-We would recommend looking through [a few of the invocables](https://github.com/tianocore/edk2-pytool-extensions/tree/master/edk2toolext/invocables) inside of Stuart as a reference.
+We would recommend looking through
+[a few of the invocables](https://github.com/tianocore/edk2-pytool-extensions/tree/master/edk2toolext/invocables)
+inside of Stuart as a reference.
 You may choose to subclass another settings file, such as MultiPkgAwareSettingsInterface but in this case, we won't.
 
 So let's start with some imports that we'll need along the way.
@@ -134,9 +148,11 @@ class BinaryBuildSettingsManager():
         raise NotImplementedError()
 ```
 
-- _GetConfigurations_ is our way to get the configurations we want to build. We'll use a generator/iterator pattern here that we'll see later.
+- _GetConfigurations_ is our way to get the configurations we want to build. We'll use a generator/iterator pattern
+here that we'll see later.
 
-We also need some methods to have callbacks into various stages of the process so that we can do nuget commands and prepare the nuget package.
+We also need some methods to have callbacks into various stages of the process so that we can do nuget commands and
+prepare the nuget package.
 
 ```python
 
@@ -323,9 +339,11 @@ except Exception:
 from edk2toollib.utility_functions import GetHostInfo
 ```
 
-One of the key features of settings class is that it can implement multiple settings managers, or you can have multiple classes in the file that implement that particular SettingsManager class.
+One of the key features of settings class is that it can implement multiple settings managers, or you can have multiple
+classes in the file that implement that particular SettingsManager class.
 The invocable finds the first class in the file that implements that particular settings class that we care about.
-Now that we have our imports, we will create a SettingsManager class that implements CiSetupSettingsManager, UpdateSettingsManager, and BinaryBuildSettingsManager.
+Now that we have our imports, we will create a SettingsManager class that implements CiSetupSettingsManager,
+UpdateSettingsManager, and BinaryBuildSettingsManager.
 
 ```python
 #
@@ -450,13 +468,13 @@ class SettingsManager(UpdateSettingsManager, CiSetupSettingsManager, BinaryBuild
 
 ```
 
-The methods implemented here are a mix of our own settings class and other invocables such as stuart_update or stuart_setup.
-Hopefully they're straightforward and easy to follow.
+The methods implemented here are a mix of our own settings class and other invocables such as stuart_update or
+stuart_setup. Hopefully they're straightforward and easy to follow.
 
 ## Conclusion
 
-That brings us to the end of the tutorial, you should have a working invocable and a settings file (well with some methods missing).
-Here they are for easy copy and pasting:
+That brings us to the end of the tutorial, you should have a working invocable and a settings file (well with
+some methods missing). Here they are for easy copy and pasting:
 
 ### DriverBuilder.py
 

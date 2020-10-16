@@ -1,16 +1,21 @@
 
 # Settings manager
 
-Each edk2 invocable has an abstract definition of a Settings Manager class that provides needed information such as scope, repositories, command-line options, and other things.
-This allows scopes to be dynamic but in a standardized way.
+Each edk2 invocable has an abstract definition of a Settings Manager class that
+provides needed information such as scope, repositories, command-line options,
+and other things. This allows scopes to be dynamic but in a standardized way.
 Below is a sample implementation of a settings manager for your reference.
 
-This is an implementation of both Update and Setup Settings Managers using multiple inheritance.
-You can see that they add their own command line argument `--production` that is used to toggle the use of the `production` scope.
-For any given invocable, you can pass `-h` or `--help` to show a list of available command line options.
-If you call `-c <path> --help` this list will also include command line options provided from the settings file you provided.
+This is an implementation of both Update and Setup Settings Managers using
+multiple inheritance. You can see that they add their own command line argument
+`--production` that is used to toggle the use of the `production` scope. For any
+given invocable, you can pass `-h` or `--help` to show a list of available
+command line options. If you call `-c <path> --help` this list will also include
+command line options provided from the settings file you provided.
 
-These examples are for building a platform; which needs an instance of UpdateSettingsManager, SetupSettingsManager, BuildSettingsManager, and UefiBuilder.
+These examples are for building a platform; which needs an instance of
+UpdateSettingsManager, SetupSettingsManager, BuildSettingsManager, and
+UefiBuilder.
 
 ## All settings are grouped together
 
@@ -172,8 +177,9 @@ class PlatformBuilder(UefiBuilder, BuildSettingsManager):
 
 ## A note on multi-inheritance
 
-You might notice if you implement several classes, how does the system know which AddCommandLineOptions to call when it's doing update vs setup?
-The answer is that it doesn't.
-It's a classic case of the diamond problem and python's answer for this is the MRO.
-Currently, our advice is to not call super into the settings classes in this package.
-You can call super to your classes that you have implemented that subclass pytool settings classes.
+You might notice if you implement several classes, how does the system know
+which AddCommandLineOptions to call when it's doing update vs setup? The answer
+is that it doesn't. It's a classic case of the diamond problem and python's
+answer for this is the MRO. Currently, our advice is to not call super into the
+settings classes in this package. You can call super to your classes that you
+have implemented that subclass pytool settings classes.
