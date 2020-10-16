@@ -103,8 +103,7 @@ out all the different parts.
 3. Run pytest with coverage data collected
 
     ``` cmd
-    pytest -v --junitxml=test.junit.xml --html=pytest_report.html --self-contained-html --cov=edk2toolext \
-    --cov-report html:cov_html --cov-report xml:cov.xml --cov-config .coveragerc
+    pytest -v --junitxml=test.junit.xml --html=pytest_report.html --self-contained-html --cov=edk2toolext --cov-report html:cov_html --cov-report xml:cov.xml --cov-config .coveragerc
     ```
 
     INFO: If you only want to test a single file you can supply that path at the
