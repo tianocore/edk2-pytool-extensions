@@ -600,16 +600,22 @@ class VERSIONINFOGenerator(object):
 
         return validate_version_number(self._version_dict[PEStrings.FILE_VERSION_STR])
 
-    def write_minimal(self, path: str) -> bool:
+    def write_minimal(self, path: str, version: str) -> bool:
         if not self.validate_minimal():
             logging.error("Invalid input, aborted.")
             return False
 
+        # Comment block for tool generation
+        out_str = "/* Auto-generated VERSIONINFO resource file.\n"
+        out_str += "   Generated %s \n" % datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+        out_str += "   Tool Version: %s */\n\n" % version
+
+        # Add required includes for rc compiler
+        out_str += "#ifdef RC_INVOKED\n"
+
         # Header
-        out_str = "/* Auto-generated VERSIONINFO resource file.\n" \
-                  + "   Generated %s */\n\n" % datetime.now().strftime("%Y/%m/%d %H:%M:%S") \
-                  + "#ifdef RC_INVOKED\nVS_VERSION_INFO\tVERSIONINFO\n" \
-                  + PEStrings.FILE_VERSION_STR + "\t"
+        out_str += "VS_VERSION_INFO\tVERSIONINFO\n"
+        out_str += PEStrings.FILE_VERSION_STR + "\t"
         version = self._version_dict[PEStrings.FILE_VERSION_STR.upper()].split(".")
         if len(version) != 4:
             version = self._version_dict[PEStrings.FILE_VERSION_STR.upper()].split(",")
@@ -638,7 +644,7 @@ class VERSIONINFOGenerator(object):
 
         return True
 
-    def write(self, path: str) -> bool:
+    def write(self, path: str, version: str) -> bool:
         '''
         Encodes the loaded JSON and writes it to VERSION.rc, a resource file comptaible with rc.exe.
         Returns true on success, false otherwise.
@@ -665,15 +671,19 @@ class VERSIONINFOGenerator(object):
                 break
 
         if minimal:
-            return self.write_minimal(path)
+            return self.write_minimal(path, version)
 
         if not self.validate():
             logging.error("Invalid input, aborted.")
             return False
 
-        out_str = "/* Auto-generated VERSIONINFO resource file.\n" \
-                  + "   Generated %s */\n\n" % datetime.now().strftime("%Y/%m/%d %H:%M:%S") \
-                  + "#include <ntdef.h>\n#include <winver.h>\n#ifdef RC_INVOKED\n"
+        # Comment block for tool generation
+        out_str = "/* Auto-generated VERSIONINFO resource file.\n"
+        out_str += "   Generated %s \n" % datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+        out_str += "   Tool Version: %s */\n\n" % version
+
+        # Add required includes for rc compiler
+        out_str += "#include <ntdef.h>\n#include <winver.h>\n#ifdef RC_INVOKED\n"
 
         # Header fields
         out_str += "VS_VERSION_INFO\tVERSIONINFO\n"

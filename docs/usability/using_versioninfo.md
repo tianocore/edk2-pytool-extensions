@@ -4,6 +4,13 @@ A simple command line utility for working with resource sections and PECOFF bina
 Utility can dump the contents of a PECOFF RSRC section into readable json data
 Utility can encode a json file with name/value pairs into a input file for a RC compiler.
 
+!!! warning "BETA feature"
+    This tools is part of a proof of concept project to support embedding version
+    information into UEFI PE images.  As this project advances this may require
+    changes of this tool as well as significant refactoring.  Overall,
+    expect the versioninfo module and cli to be less stable than other parts
+    of pytools.
+
 ## Usage info
 
 run `versioninfo_tool -h`
@@ -15,6 +22,12 @@ Versioninfo Tool is a command-line tool to assist in generating VERSIONINFO
 resource files for use with a Resource Compiler. It takes a JSON representing
 versioning info and produces a resource file that once compiled will create a
 standard resource section.
+
+!!! Warning - BETA Feature
+This tool is still in early development and may change with
+little regard for backward compatibility.
+
+Version: 0.7.0
 
 An example to encode json to rc file might look like:
 versioninfo_tool -e /path/to/version.JSON /path/to/output

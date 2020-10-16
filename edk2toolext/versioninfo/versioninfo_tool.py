@@ -16,18 +16,26 @@ import json
 import logging
 from edk2toolext.versioninfo.versioninfo_helper import PEObject, VERSIONINFOGenerator
 
+TOOL_VERSION = "0.7.0"  # pelase change this as the tool is updated.
+
 TOOL_DESCRIPTION = """
 Versioninfo Tool is a command-line tool to assist in generating VERSIONINFO
 resource files for use with a Resource Compiler. It takes a JSON representing
 versioning info and produces a resource file that once compiled will create a
 standard resource section.
 
+!!! Warning - BETA Feature
+This tool is still in early development and may change with
+little regard for backward compatibility.
+
+Version: %s
+
 An example to encode json to rc file might look like:
 %s -e /path/to/version.JSON /path/to/output
 
 An example to decode a binary efi file and output the rsrc in json might look like:
 %s -d /path/to/app.efi /path/to/output.JSON
-""" % (os.path.basename(sys.argv[0]), os.path.basename(sys.argv[0]))
+""" % (TOOL_VERSION, os.path.basename(sys.argv[0]), os.path.basename(sys.argv[0]))
 
 
 def get_cli_options(args=None):
@@ -81,7 +89,7 @@ def encode_version_info(input_file):
 
 def encode_version_info_dump_rc(input_file, output_file):
     ''' takes in a JSON file (input_file) and outputs an RC file(output_file) '''
-    return encode_version_info(input_file).write(output_file)
+    return encode_version_info(input_file).write(output_file, TOOL_VERSION)
 
 
 def main():
