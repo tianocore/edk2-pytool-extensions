@@ -7,18 +7,18 @@ A simple command-line interface to the Windows Firmware Policy Library.
 General:
 
 ``` cmd
-firmware_policy_tool.py <action> <positional_parameter1> ... [-optional_parameter1] ...
+firmware_policy_tool <action> <positional_parameter1> ... [-optional_parameter1] ...
 ```
 
 Enumerating the supported actions and parameters for those actions:
 
 ``` cmd
-firmware_policy_tool.py -h
+firmware_policy_tool -h
 
-firmware_policy_tool.py <action> -h
+firmware_policy_tool <action> -h
 
-firmware_policy_tool.py create -h
-usage: firmware_policy_tool.py create [-h] [--OEM1 OEM1] [--OEM2 OEM2]
+firmware_policy_tool create -h
+usage: firmware_policy_tool create [-h] [--OEM1 OEM1] [--OEM2 OEM2]
                                       PolicyFilename Manufacturer Product
                                       SerialNumber NonceHex DevicePolicyHex
 
@@ -45,7 +45,7 @@ Examples of ```create``` to create an unsigned Windows Firmware Policy binary bl
 and ```parse``` to parse an unsigned Windows Firmware Policy binary blob and print it in human understandable form.
 
 ``` cmd
-firmware_policy_tool.py create .\test.bin "Contoso LLC." "Laptop Pro" "000-0012345-00S" 0x1a2b3c4d5e6f7890 0x3 --OEM1 "ODM Number One"
+firmware_policy_tool create .\test.bin "Contoso LLC." "Laptop Pro" "000-0012345-00S" 0x1a2b3c4d5e6f7890 0x3 --OEM1 "ODM Number One"
 
-firmware_policy_tool.py parse .\test.bin
+firmware_policy_tool parse .\test.bin
 ```
