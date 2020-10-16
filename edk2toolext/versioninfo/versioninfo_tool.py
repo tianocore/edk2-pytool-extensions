@@ -16,7 +16,7 @@ import json
 import logging
 from edk2toolext.versioninfo.versioninfo_helper import PEObject, VERSIONINFOGenerator
 
-TOOL_VERSION = "0.7.0"  # pelase change this as the tool is updated.
+TOOL_VERSION = "0.7.0"  # please change this as the tool is updated.
 
 TOOL_DESCRIPTION = """
 Versioninfo Tool is a command-line tool to assist in generating VERSIONINFO
