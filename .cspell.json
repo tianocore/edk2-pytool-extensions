@@ -121,6 +121,7 @@
         "deduplicated",
         "Boothole",
         "dbxupdate",
-        "FileFlagsMask"
+        "FileFlagsMask",
+        "markdownlint"
     ]
 }

@@ -27,13 +27,15 @@ jobs:
   - template: basic-setup-steps.yml
   - ${{ parameters.extra_steps }}
   - template: pytest-test-steps.yml
-    parameters: 
+    parameters:
       root_package_folder: ${{parameters.root_package_folder}}
       codecov_enabled: ${{parameters.codecov_enabled}}
 
   - template: flake8-test-steps.yml
 
   - template: spell-test-steps.yml
+
+  - template: markdown-lint-steps.yml
 
   - task: PythonScript@0
     inputs:
