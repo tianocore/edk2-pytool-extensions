@@ -399,7 +399,8 @@ class UefiBuilder(object):
             self.env.SetValue("OUTPUT_DIRECTORY", "Build", "default from uefi_build", True)
 
         # BUILD_OUT_TEMP is a path so the value should use native directory separators
-        self.env.SetValue("BUILD_OUT_TEMP", os.path.normpath(os.path.join(self.ws, self.env.GetValue("OUTPUT_DIRECTORY"))),
+        self.env.SetValue("BUILD_OUT_TEMP",
+                          os.path.normpath(os.path.join(self.ws, self.env.GetValue("OUTPUT_DIRECTORY"))),
                           "Computed in SetEnv")
 
         target = self.env.GetValue("TARGET")
