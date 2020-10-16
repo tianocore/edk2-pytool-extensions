@@ -191,7 +191,7 @@ or
 ### Markdown linting
 
 The linter uses the configuration defined in `.markdownlint.yaml` file found at
-the root of the repoisitory.
+the root of the repository.
 
 #### In-line Ignore
 
