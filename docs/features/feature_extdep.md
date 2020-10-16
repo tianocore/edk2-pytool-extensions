@@ -19,7 +19,8 @@ I will describe the action of the base class here.\
 
 #### __init__
 
-`__init__` sets up all the required fields from the descriptor object. If you are adding a field to the descriptor, just make sure to call `super().__init__(descriptor)`
+`__init__` sets up all the required fields from the descriptor object. If you are adding a field to the descriptor,
+just make sure to call `super().__init__(descriptor)`
 
 #### clean
 
