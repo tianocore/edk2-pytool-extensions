@@ -1,6 +1,7 @@
 # UEFI Secure Boot Database Inspection Tool
 
-A simple command-line interface to the UEFI Secure Boot Database Library focused on inspection of UEFI signature databases
+A simple command-line interface to the UEFI Secure Boot Database Library focused
+on inspection of UEFI signature databases
 
 ## Usage info
 
@@ -34,7 +35,8 @@ sig_db_tool --compact get_canonical mixed_up_dbx.bin
 
 ### Actions
 
-*NOTE:* The ```--compact``` option may precede an action as show above, but is not shown below
+*NOTE:* The ```--compact``` option may precede an action as show above, but is
+not shown below
 
 #### dump
 

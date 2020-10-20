@@ -4,12 +4,15 @@ Any file that ends in `_plug_in` is automatically included in the list of plugin
 The only thing you need to do is to create a class and use it.
 
 You once you have a plugin manager set up:
+
 ```python
 self.plugin_manager = plugin_manager.PluginManager()
 failedPlugins = self.plugin_manager.SetListOfEnvironmentDescriptors(
     build_env.plugins)
 ```
+
 All you need to do is find and run your plugin.
+
 ```python
 # Get list of descriptors for ICiBuildPlugin type objects
 pluginList = self.plugin_manager.GetPluginsOfClass(plugin_manager.ICiBuildPlugin)

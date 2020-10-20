@@ -10,3 +10,4 @@ mkdocs-material
 mkdocs-macros-plugin
 Markdown
 pymdown-extensions
+pefile
