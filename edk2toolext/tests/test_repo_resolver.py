@@ -1,4 +1,4 @@
-## @file test_repo_resolver.py
+# @file test_repo_resolver.py
 # This contains unit tests for repo resolver
 #
 ##
@@ -87,14 +87,15 @@ class test_repo_resolver(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         logger = logging.getLogger('')
+        logger.setLevel(logging.DEBUG)
         logger.addHandler(logging.NullHandler())
         unittest.installHandler()
 
     @classmethod
-    def tearDownClass(cls):
+    def tearDown(cls):
         clean_workspace()
 
-        # check to make sure that we can clone a branch correctly
+    # check to make sure that we can clone a branch correctly
     def test_clone_branch_repo(self):
         # create an empty directory- and set that as the workspace
         repo_resolver.resolve(test_dir, branch_dependency)
@@ -167,7 +168,6 @@ class test_repo_resolver(unittest.TestCase):
             self.fail("We shouldn't fail when we are forcing")
 
     # check to make sure we can clone a commit correctly
-
     def test_clone_commit_repo(self):
         # create an empty directory- and set that as the workspace
         repo_resolver.resolve(test_dir, commit_dependency)
@@ -196,19 +196,22 @@ class test_repo_resolver(unittest.TestCase):
 
     def test_does_update(self):
         # create an empty directory- and set that as the workspace
+        logging.info(f"Resolving at {test_dir}")
         repo_resolver.resolve(test_dir, commit_dependency)
         folder_path = os.path.join(test_dir, commit_dependency["Path"])
+        logging.info(f"Getting details at {folder_path}")
         details = repo_resolver.get_details(folder_path)
 
         self.assertEqual(details['Url'], commit_dependency['Url'])
         self.assertEqual(details['Commit'], commit_dependency['Commit'])
-        # first we checkout
+        # next we checkout and go to the later commit
         try:
             repo_resolver.resolve(
                 test_dir, commit_later_dependency, update_ok=True)
         except:
             self.fail("We are not supposed to throw an exception")
         details = repo_resolver.get_details(folder_path)
+        logging.info(f"Checking {folder_path} for current git commit")
 
         self.assertEqual(details['Url'], commit_later_dependency['Url'])
         self.assertEqual(details['Commit'], commit_later_dependency['Commit'])
@@ -262,6 +265,14 @@ class test_repo_resolver(unittest.TestCase):
 
         details = repo_resolver.get_details(folder_path)
         self.assertEqual(details['Url'], microsoft_branch_dependency['Url'])
+
+    def test_will_switch_branches(self):
+        repo_resolver.resolve(test_dir, branch_dependency)
+        folder_path = os.path.join(test_dir, branch_dependency["Path"])
+        repo_resolver.resolve(test_dir, sub_branch_dependency, force=True)
+        details = repo_resolver.get_details(folder_path)
+        self.assertEqual(details['Url'], branch_dependency['Url'])
+        self.assertEqual(details['Branch'], sub_branch_dependency['Branch'])
 
 
 if __name__ == '__main__':

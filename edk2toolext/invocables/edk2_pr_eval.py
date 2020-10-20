@@ -77,7 +77,14 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         return "PREVALLOG"
 
     def Go(self):
-        self.edk2_path_obj = path_utilities.Edk2Path(self.GetWorkspaceRoot(), self.GetPackagesPath())
+
+        # create path obj for resolving paths.  Since PR eval is run early to determine if a build is
+        # impacted by the changes of a PR we must ignore any packages path that are not valid due to
+        # not having their submodule or folder populated.
+        # A packages path is ok to drop for this because if it isn't populated it is assumed outside
+        # the repository and thus will not trigger the build.
+        self.edk2_path_obj = path_utilities.Edk2Path(
+            self.GetWorkspaceRoot(), self.GetPackagesPath(), error_on_invalid_pp=False)
         self.logger = logging.getLogger("edk2_pr_eval")
         actualPackagesDict = self.get_packages_to_build(self.requested_package_list)
 
@@ -141,7 +148,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
                 pkg = self.edk2_path_obj.GetContainingPackage(os.path.abspath(f))
 
             except Exception as e:
-                self.logger.error(f"Failed to get package for file {f}.  Exception {e}")
+                self.logger.warning(f"Failed to get package for file {f}.  Exception {e}")
                 # Ignore a file in which we fail to get the package
                 continue
 
@@ -167,7 +174,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
                 pkg = self.edk2_path_obj.GetContainingPackage(os.path.abspath(f))
 
             except Exception as e:
-                self.logger.error(f"Failed to get package for file {f}.  Exception {e}")
+                self.logger.warning(f"Failed to get package for file {f}.  Exception {e}")
                 # Ignore a file in which we fail to get the package
                 continue
 
@@ -205,6 +212,8 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
             dsc = DscParser()
             dsc.SetBaseAbsPath(self.edk2_path_obj.WorkspacePath)
             dsc.SetPackagePaths(self.edk2_path_obj.PackagePathList)
+            # given that PR eval runs before dependencies are downloaded we must tolerate errors
+            dsc.SetNoFailMode()
             dsc.SetInputVars(PlatformDscInfo[1])
             dsc.ParseFile(PlatformDscInfo[0])
             allinfs = dsc.OtherMods + dsc.ThreeMods + dsc.SixMods + dsc.Libs  # get list of all INF files
@@ -231,10 +240,16 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         for f in files:
             if os.path.splitext(f) in [".txt", ".md"]:  # ignore markdown and txt files
                 continue
+            try:
+                infs = self.edk2_path_obj.GetContainingModules(os.path.abspath(f))
+            except Exception as e:
+                self.logger.warning(f"Failed to get module for file {f}. Exception: {str(e)}")
+                # ignore errors.  These will occur if a module or last file in folder is deleted as part of the PR
+                continue
 
-            infs = self.edk2_path_obj.GetContainingModules(os.path.abspath(f))
             if len(infs) > 0:  # if this file is part of any INFs
                 modules.extend(infs)
+
         modules = [self.edk2_path_obj.GetEdk2RelativePathFromAbsolutePath(x) for x in set(modules)]
         logging.debug("Changed Modules: " + str(modules))
         return modules
@@ -320,10 +335,14 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         fp = filepath.replace("\\", "/")  # make consistant for easy compare
 
         self.logger.debug("Is public: " + fp)
+
+        if filepath.lower().endswith(".dec"):  # if DEC file then it is public
+            return True
+
         try:
             pkg = self.edk2_path_obj.GetContainingPackage(os.path.abspath(filepath))
         except Exception as e:
-            self.logger.error(f"Failed to GetContainingPackage({filepath}).  Exception: {str(e)}")
+            self.logger.warning(f"Failed to get package for {filepath}.  Exception: {str(e)}")
             return False
 
         dec = None
@@ -337,8 +356,8 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         if dec is None:
             return False
 
-        for includepath in dec.IncludePaths:
-            if (pkg + "/" + includepath) in filepath:
+        for includepath in dec.IncludePaths:  # if in the include path of a package then it is public
+            if (pkg + "/" + includepath + "/") in filepath:
                 return True
 
         return False

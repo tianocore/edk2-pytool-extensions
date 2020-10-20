@@ -186,10 +186,14 @@ class Repo(object):
 
         return True
 
-    def fetch(self):
+    def fetch(self, remote="origin", branch=None):
         return_buffer = StringIO()
 
-        params = "fetch"
+        param_list = ["fetch", remote]
+        if branch is not None:
+            param_list.append(f"{branch}:{branch}")
+
+        params = " ".join(param_list)
 
         ret = RunCmd("git", params, workingdir=self._path,
                      outstream=return_buffer)
@@ -233,19 +237,25 @@ class Repo(object):
         return True
 
     @classmethod
-    def clone_from(self, url, to_path, progress=None, env=None, shallow=False, reference=None, **kwargs):
+    def clone_from(self, url, to_path, branch=None, shallow=False, reference=None, **kwargs):
         _logger = logging.getLogger("git.repo")
         _logger.debug("Cloning {0} into {1}".format(url, to_path))
         # make sure we get the commit if
         # use run command from utilities
         cmd = "git"
         params = ["clone"]
+        if branch:
+            shallow = True
+            params.append(f'--branch {branch}')
+            params.append('--single-branch')
         if shallow:
-            params.append("--shallow-submodules")
+            # params.append("--shallow-submodules")
+            params.append("--depth=5")
         if reference:
             params.append("--reference %s" % reference)
         else:
             params.append("--recurse-submodules")  # if we don't have a reference we can just recurse the submodules
+
         params.append(url)
         params.append(to_path)
 
