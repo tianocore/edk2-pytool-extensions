@@ -40,6 +40,6 @@ def DownloadNuget(unpack_folder: str = None) -> list:
     with open(out_file_name, "rb") as file:
         import hashlib
         temp_file_sha256 = hashlib.sha256(file.read()).hexdigest()
-    if temp_file_sha256 != SHA256:
+    if temp_file_sha256.lower() != SHA256.lower():
         os.remove(out_file_name)
         raise RuntimeError(f"Nuget.exe download - sha256 does not match\n\tdownloaded:\t{temp_file_sha256}\n\t")
