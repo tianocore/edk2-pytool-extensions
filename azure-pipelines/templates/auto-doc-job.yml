@@ -8,7 +8,7 @@
 parameters:
   vm_image: ''
   root_package_folder: '' # set this to root package
-  
+
 jobs:
 
 - job: Generate and Publish Documents
@@ -38,17 +38,11 @@ jobs:
       scriptPath: 'BasicDevTests.py'
     displayName: 'Check basic file and folder tests'
     condition: succeededOrFailed()
-  
+
   - task: PythonScript@0
     inputs:
       scriptSource: 'filePath'
       scriptPath: 'docs/generate.py'
     displayName: 'Generate Documentation'
     condition: succeededOrFailed()
-  
-  - task: PythonScript@0
-    inputs:
-      scriptSource: 'filePath'
-      scriptPath: 'docs/publush.py'
-    displayName: 'Generate Documentation'
 
