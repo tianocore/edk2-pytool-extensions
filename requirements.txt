@@ -3,3 +3,4 @@ pytest-html
 pytest-cov
 flake8==3.8.*
 pyopenssl
+pefile

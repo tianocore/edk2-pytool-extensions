@@ -116,8 +116,12 @@
         "codecov",
         "qemu",
         "ovmf",
+        "pefile",
+        "pecoff",
         "deduplicated",
         "Boothole",
-        "dbxupdate"
+        "dbxupdate",
+        "FileFlagsMask",
+        "markdownlint"
     ]
 }
