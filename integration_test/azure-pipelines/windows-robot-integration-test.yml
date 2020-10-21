@@ -16,15 +16,12 @@ jobs:
       PROJECT_MU:
         Tag: 'ProjectMu'
         Image: 'windows-latest'
-        NeedQemu: 0
       EDK2:
         Tag: 'Edk2NOTQEMU'
         Image: 'windows-latest'
-        NeedQemu: 0
       EDK2_OVMF:
         Tag: 'Edk2ANDQEMU'
         Image: 'windows-latest'
-        NeedQemu: 1
 
   workspace:
     clean: all
@@ -49,7 +46,7 @@ jobs:
 
   - powershell: choco install qemu; Write-Host "##vso[task.prependpath]c:\Program Files\qemu"
     displayName: Install QEMU and Set QEMU on path # friendly name displayed in the UI
-    condition: and(gt(variables.NeedQemu, 0), succeeded())
+    condition: and(contains(variables.Tag, 'AndQemu'), succeeded())
 
   - script: git config --global user.email "you@example.com"
     displayName: Configure git user user.email
