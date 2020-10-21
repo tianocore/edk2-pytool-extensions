@@ -57,7 +57,7 @@ jobs:
   - script: git config --global user.name "Your Name"
     displayName: Configure git user user.name
 
-  - script: python -m robot.run -v TEST_OUTPUT_BASE:$(Build.BinariesDirectory) -d report --include $(Tag) -L TRACE .
+  - script: python -m robot.run -v TEST_OUTPUT_BASE:$(Build.BinariesDirectory) -d report --xunit xunittestresults.xml --include $(Tag) -L TRACE .
     displayName: 'Run Robot Tests'
     workingDirectory: "integration_test"
 
@@ -85,7 +85,7 @@ jobs:
 
   - task: PublishTestResults@2
     inputs:
-      testResultsFiles: output.xml
+      testResultsFiles: xunittestresults.xml
       searchFolder: 'integration_test/report'
     condition: succeededOrFailed()
     displayName: 'Publish Test Results'
