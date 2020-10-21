@@ -1,0 +1,68 @@
+##
+# Azure Pipeline integration test using robot framework
+# and edk2 / Project Mu public repositories
+#
+
+# Copyright (c) 2019, Microsoft Corporation
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+
+jobs:
+- job: Integration_Test
+
+  #Use matrix to speed up the build process
+  strategy:
+    matrix:
+      PROJECT_MU:
+        Tag: 'ProjectMu'
+        Image: 'windows-latest'
+      EDK2:
+        Tag: 'Edk2'
+        Image: 'windows-latest'
+
+  workspace:
+    clean: all
+
+  pool:
+    vmImage: $(Image)
+
+  steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.8.x'
+      architecture: 'x64'
+
+  - script: pip install --upgrade -r requirements.txt
+    displayName: 'Install requirements'
+
+  - script: pip install --upgrade -r integration_test/pip-requirements.txt
+    displayName: 'Install Integration test requirements'
+
+  - script: pip install -e .
+    displayName: 'Install from Source'
+
+  - script: python -m robot.run -v TEST_OUTPUT_BASE:$(Build.BinariesDirectory) -d report --include $(Tag) -L TRACE .
+    displayName: 'Run Robot Tests'
+    workingDirectory: "integration_test"
+
+  # Copy the build logs to the artifact staging directory
+  - task: CopyFiles@2
+    displayName: "Copy logs"
+    inputs:
+      targetFolder: '$(Build.ArtifactStagingDirectory)'
+      SourceFolder: 'integration_test/report'
+      contents: |
+        log.html
+        output.xml
+        report.html
+      flattenFolders: true
+    condition: succeededOrFailed()
+
+  # Publish build artifacts to Azure Artifacts/TFS or a file share
+  - task: PublishBuildArtifacts@1
+    continueOnError: true
+    displayName: "Publish logs"
+    inputs:
+      pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      artifactName: 'Logs $(System.JobName)'
+    condition: succeededOrFailed()
