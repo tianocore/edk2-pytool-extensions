@@ -94,7 +94,7 @@ The following path_env fields are optional or conditional:
 - id
 
   - Part of the Override System, this field defines the name that this file will be referred to as by any override_id fields.
-  It is an error for there to be multiple files with the same id in the same set of scopes. 
+  It is an error for there to be multiple files with the same id in the same set of scopes.
   You are welcome to have the same id if they're on separate scopes that won't overlap.
 
 - override_id
