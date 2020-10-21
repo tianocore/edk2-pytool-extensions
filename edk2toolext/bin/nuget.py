@@ -11,9 +11,9 @@ import urllib.request
 import logging
 
 # Update this when you want a new version of NuGet
-VERSION = "5.3.1"
+VERSION = "5.7.0"
 URL = "https://dist.nuget.org/win-x86-commandline/v{}/nuget.exe".format(VERSION)
-SHA256 = "e3e46eb415561c778a7fdec7194bca9811c6e7f4066cc8cc85244c391b969c11"
+SHA256 = "AE3BB02517B52A744833A4777E99D647CD80B29A62FD360E9AABAA34F09AF59C"
 
 
 def DownloadNuget(unpack_folder: str = None) -> list:
@@ -40,6 +40,6 @@ def DownloadNuget(unpack_folder: str = None) -> list:
     with open(out_file_name, "rb") as file:
         import hashlib
         temp_file_sha256 = hashlib.sha256(file.read()).hexdigest()
-    if temp_file_sha256 != SHA256:
+    if temp_file_sha256.lower() != SHA256.lower():
         os.remove(out_file_name)
         raise RuntimeError(f"Nuget.exe download - sha256 does not match\n\tdownloaded:\t{temp_file_sha256}\n\t")
