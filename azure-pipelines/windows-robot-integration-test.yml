@@ -16,9 +16,11 @@ jobs:
       PROJECT_MU:
         Tag: 'ProjectMu'
         Image: 'windows-latest'
+        NeedQemu: 0
       EDK2:
         Tag: 'Edk2'
         Image: 'windows-latest'
+        NeedQemu: 1
 
   workspace:
     clean: all
@@ -40,6 +42,10 @@ jobs:
 
   - script: pip install -e .
     displayName: 'Install from Source'
+
+  - powershell: choco install qemu; Write-Host "##vso[task.prependpath]c:\Program Files\qemu"
+    displayName: Install QEMU and Set QEMU on path # friendly name displayed in the UI
+    condition: and(gt(variables.NeedQemu, 0), succeeded())
 
   - script: python -m robot.run -v TEST_OUTPUT_BASE:$(Build.BinariesDirectory) -d report --include $(Tag) -L TRACE .
     displayName: 'Run Robot Tests'
@@ -66,3 +72,10 @@ jobs:
       pathtoPublish: '$(Build.ArtifactStagingDirectory)'
       artifactName: 'Logs $(System.JobName)'
     condition: succeededOrFailed()
+
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFiles: output.xml
+      searchFolder: 'integration_test/report'
+      condition: succeededOrFailed()
+      displayName: 'Publish Test Results'
