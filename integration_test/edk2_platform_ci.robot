@@ -51,7 +51,7 @@ Run Edk2 Ovmf PlatformCI
     Stuart update          ${ci_file}  ${arch}  ${target}  ${package}  ${tool_chain}  ${ws_root}
     Build BaseTools        ${tool_chain}  ${ws_root}
     Stuart platform build  ${ci_file}  ${arch}  ${target}  ${tool_chain}  ${ws_root}
-    Stuart platform run    ${ci_file}  ${arch}  ${target}  ${tool_chain}  MAKE_STARTUP_NSH\=TRUE QEMU_HEADLESS\=TRUE  ${ws_root}
+    Stuart platform run    ${ci_file}  ${arch}  ${target}  ${tool_chain}  MAKE_STARTUP_NSH\=TRUE  ${ws_root}
 
 Run Edk2 EmulatorPkg PlatformCI
     [Documentation]  This Test will run Platform CI on the EmulatorPkg X64
