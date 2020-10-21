@@ -18,5 +18,5 @@ steps:
 - script: npm install -g cspell
   displayName: 'Install cspell npm'
 
-- script: cspell -c .cspell.json **/*.py **/*.md
+- script: cspell -c .cspell.json "**/*.py" "**/*.md"
   displayName: run spell check test

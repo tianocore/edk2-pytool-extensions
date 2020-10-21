@@ -1,5 +1,6 @@
 [flake8]
 #E266 too many leading '#' for block comment
 #E722 do not use bare 'except'
-ignore = E266,E722
+#W503 line break before binary operator, see https://www.python.org/dev/peps/pep-0008/#should-a-line-break-before-or-after-a-binary-operator
+ignore = E266,E722,W503
 max_line_length = 120

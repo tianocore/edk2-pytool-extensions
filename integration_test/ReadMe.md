@@ -1,6 +1,8 @@
 # Integration testing for Edk2 Pytool Extensions
 
-This describes what is needed to run integration testing on pytool extensions.  This testing will use known compatible and public open source repositories for validation.  This set of automated tests will run common user level operations and validate that pytools works as expected. Some basic examples are:
+This describes what is needed to run integration testing on pytool extensions.  This testing will use known compatible
+and public open source repositories for validation.  This set of automated tests will run common user level operations
+and validate that pytools works as expected. Some basic examples are:
 
 * Build Edk2 OvmfPkg Platform CI
 * Run Core Ci on Edk2 MdeModulePkg
@@ -64,14 +66,14 @@ collect the stuart log to debug problems.
 
 ## Helpful Robot Links
 
-https://robotframework.org is the main site.  Lots of good info here.  My most commonly used pages are:
+<https://robotframework.org> is the main site.  Lots of good info here.  My most commonly used pages are:
 
-* UserGuide: https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html
-* Operating System Library: https://robotframework.org/robotframework/latest/libraries/OperatingSystem.html
-* BuiltIn Library: https://robotframework.org/robotframework/latest/libraries/BuiltIn.html
-* String Library: https://robotframework.org/robotframework/latest/libraries/String.html
+* UserGuide: <https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html>
+* Operating System Library: <https://robotframework.org/robotframework/latest/libraries/OperatingSystem.html>
+* BuiltIn Library: <https://robotframework.org/robotframework/latest/libraries/BuiltIn.html>
+* String Library: <https://robotframework.org/robotframework/latest/libraries/String.html>
 
 ## Copyright
 
-Copyright (c) Microsoft Corporation.
+Copyright (c) Microsoft Corporation.  
 SPDX-License-Identifier: BSD-2-Clause-Patent

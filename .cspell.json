@@ -115,6 +115,13 @@
         "MSFT",
         "codecov",
         "qemu",
-        "ovmf"
+        "ovmf",
+        "pefile",
+        "pecoff",
+        "deduplicated",
+        "Boothole",
+        "dbxupdate",
+        "FileFlagsMask",
+        "markdownlint"
     ]
 }
