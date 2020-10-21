@@ -22,7 +22,7 @@ jobs:
         Image: 'windows-latest'
         NeedQemu: 0
       EDK2_OVMF:
-        Tag: 'Edk2&QEMU'
+        Tag: 'Edk2ANDQEMU'
         Image: 'windows-latest'
         NeedQemu: 1
 
