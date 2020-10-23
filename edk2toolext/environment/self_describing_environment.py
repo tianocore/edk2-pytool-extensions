@@ -93,24 +93,25 @@ class self_describing_environment(object):
         all_descriptors.extend(_get_all_descriptors_of_type('plug_in', EDF.PluginDescriptor))
 
         # Get the properly scoped descriptors by checking if the scope is in the list of all the scopes
-        scoped_descriptors = [x for x in all_descriptors if x.descriptor_contents['scope'].lower() in all_scopes_lower]
+        scoped_descriptors = list([x for x in all_descriptors if x.descriptor_contents['scope'].lower() in all_scopes_lower])
 
         # Check that each found item has a unique ID, that's an error if it isn't
-        all_ids = [x.descriptor_contents['id'].lower() for x in scoped_descriptors if 'id' in x.descriptor_contents]
-        all_unique_ids = {}
-        for desc_id in all_ids:
-            all_unique_ids[desc_id] = 1 if desc_id not in all_unique_ids else all_unique_ids[desc_id] + 1
-        if len(all_ids) != len(all_unique_ids.keys()):
-            logging.error(f"Multiple descriptor files share the same id: {desc_id}")
-            for desc_id in all_unique_ids:
-                if all_unique_ids[desc_id] == 1:
+        all_ids = list([x.descriptor_contents['id'].lower() for x in scoped_descriptors if 'id' in x.descriptor_contents])
+        all_unique_ids = set(all_ids)
+        if len(all_ids) != len(all_unique_ids):
+            logging.error(f"Multiple descriptor files share the same id")
+            all_unique_id_dict = {}
+            for desc_id in all_ids:
+                all_unique_id_dict[desc_id] = 1 if desc_id not in all_unique_id_dict else all_unique_id_dict[desc_id] + 1
+            for desc_id in all_unique_id_dict:
+                if all_unique_id_dict[desc_id] == 1:
                     continue
                 # get the descriptors
                 desc_of_id = [x for x in scoped_descriptors if x.descriptor_contents['id'].lower() == desc_id]
                 paths_of_desc_of_id = [x.file_path for x in desc_of_id]
                 invalid_desc_paths = f"{os.pathsep} ".join(paths_of_desc_of_id)
                 logging.error(f"Descriptors that have this id {desc_id}: {invalid_desc_paths}")
-                raise RuntimeError(f"Multiple descriptor files share the same id: {desc_id}")
+            raise RuntimeError(f"Multiple descriptor files share the same id")
 
         # Now check for overrides, first get a list of all the descriptors that have an override id tag
         override_descriptors = [x for x in scoped_descriptors if "override_id" in x.descriptor_contents]
@@ -145,9 +146,9 @@ class self_describing_environment(object):
             final_descriptors.append(desc)
 
         # Finally, sort them back in the right categories
-        self.paths = [x.descriptor_contents for x in final_descriptors if isinstance(x, EDF.PathEnvDescriptor)]
-        self.extdeps = [x.descriptor_contents for x in final_descriptors if isinstance(x, EDF.ExternDepDescriptor)]
-        self.plugins = [x.descriptor_contents for x in final_descriptors if isinstance(x, EDF.PluginDescriptor)]
+        self.paths = list([x.descriptor_contents for x in final_descriptors if isinstance(x, EDF.PathEnvDescriptor)])
+        self.extdeps = list([x.descriptor_contents for x in final_descriptors if isinstance(x, EDF.ExternDepDescriptor)])
+        self.plugins = list([x.descriptor_contents for x in final_descriptors if isinstance(x, EDF.PluginDescriptor)])
 
         return self
 
