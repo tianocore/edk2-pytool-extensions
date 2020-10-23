@@ -123,6 +123,7 @@ class self_describing_environment(object):
                 logging.warning(f"File ID being overriden: {override_id}")
                 logging.warning(f"Previous override: {active_overrides[override_id].file_path}")
                 logging.warning(f"New override: {desc.file_path}")
+                raise RuntimeError(f"Multiple descriptor files share the same override_id: {override_id}")
             active_overrides[override_id] = desc
 
         # Now we filter the overriden id's out and debug to the user whether we are including them or not

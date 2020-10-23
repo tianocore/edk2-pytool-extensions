@@ -74,8 +74,9 @@ class Testself_describing_environment(unittest.TestCase):
         tree.create_path_env("testing_corebuild3", var_name="laughs", scope=custom_scope,
                              extra_data={"override_id": "testing_corebuild"})
         # we should get warnings but still have two overrides
-        build_env, shell_env = self_describing_environment.BootstrapEnvironment(self.workspace, scopes)
-        self.assertEqual(len(build_env.paths), 2)
+        with self.assertRaises(RuntimeError):
+            build_env, shell_env = self_describing_environment.BootstrapEnvironment(self.workspace, scopes)
+            self.fail()
 
     def test_override_path_env_swapped_order(self):
         ''' checks the SDE descriptor override system with reversed paths so they are discovered in opposite order'''
@@ -97,6 +98,7 @@ class Testself_describing_environment(unittest.TestCase):
         tree.create_path_env("testing_corebuild")
         with self.assertRaises(RuntimeError):
             self_describing_environment.BootstrapEnvironment(self.workspace, scopes)
+            self.fail()
 
 
 if __name__ == '__main__':
