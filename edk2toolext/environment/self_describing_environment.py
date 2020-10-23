@@ -101,7 +101,7 @@ class self_describing_environment(object):
         all_ids = list(allids_gen)
         all_unique_ids = set(all_ids)
         if len(all_ids) != len(all_unique_ids):
-            logging.error(f"Multiple descriptor files share the same id")
+            logging.error("Multiple descriptor files share the same id")
             all_unique_id_dict = {}
             for desc_id in all_ids:
                 dict_id_seen = desc_id not in all_unique_id_dict
@@ -114,7 +114,7 @@ class self_describing_environment(object):
                 paths_of_desc_of_id = [x.file_path for x in desc_of_id]
                 invalid_desc_paths = f"{os.pathsep} ".join(paths_of_desc_of_id)
                 logging.error(f"Descriptors that have this id {desc_id}: {invalid_desc_paths}")
-            raise RuntimeError(f"Multiple descriptor files share the same id")
+            raise RuntimeError("Multiple descriptor files share the same id")
 
         # Now check for overrides, first get a list of all the descriptors that have an override id tag
         override_descriptors = [x for x in scoped_descriptors if "override_id" in x.descriptor_contents]
