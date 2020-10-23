@@ -94,12 +94,15 @@ The following path_env fields are optional or conditional:
 - id
 
   - Part of the Override System, this field defines the name that this file will be referred to as by any override_id fields.
+  It is an error for there to be multiple files with the same id in the same set of scopes.
+  The SDE will throw an exception in this case.
+  You are welcome to have the same id if they're on separate scopes that won't overlap.
 
 - override_id
 
-  - This file will override any descriptor files found in lower lexical order or scope order. Files are traversed in
-   directory order (depth first) and then scope order (highest to lowest). Overrides are only applied forward in the
-   traversal, not backwards.
+  - This file will override any descriptor files.
+  Override can apply to any type of descriptor (a path env can override an ext_dep for example).
+  If two descriptors override the same file, this is considered an error and the SDE will throw an exception.
 
 ## The Belly of the Beast
 
