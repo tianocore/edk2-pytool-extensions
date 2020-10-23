@@ -64,7 +64,7 @@ class Testself_describing_environment(unittest.TestCase):
         self.assertEqual(len(build_env.paths), 1)
 
     def test_multiple_override_path_env(self):
-        ''' checks the SDE descriptor override system can handle multiple overrides'''
+        ''' checks the SDE descriptor override system will throw an error on multiple overrides'''
         custom_scope = "global"
         scopes = (custom_scope,)
         tree = uefi_tree(self.workspace, create_platform=False)
@@ -73,7 +73,7 @@ class Testself_describing_environment(unittest.TestCase):
                              extra_data={"override_id": "testing_corebuild"})
         tree.create_path_env("testing_corebuild3", var_name="laughs", scope=custom_scope,
                              extra_data={"override_id": "testing_corebuild"})
-        # we should get warnings but still have two overrides
+        # we should get an exception because we have two overrides
         with self.assertRaises(RuntimeError):
             build_env, shell_env = self_describing_environment.BootstrapEnvironment(self.workspace, scopes)
             self.fail()
