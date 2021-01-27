@@ -122,14 +122,22 @@ class NugetDependency(ExternalDependency):
         #
         # Now, try to locate our actual cache path
         nuget_version = NugetDependency.normalize_version(self.version)
+
         cache_search_path = os.path.join(
-            self.global_cache_path, package_name.lower(), nuget_version, package_name)
+            self.global_cache_path, package_name.lower(), nuget_version)
+        inner_cache_search_path = os.path.join(cache_search_path, package_name)
         if os.path.isdir(cache_search_path):
-            logging.info(
-                "Local Cache found for Nuget package '%s'. Skipping fetch.", package_name)
-            shutil.copytree(cache_search_path, self.contents_dir)
-            self.update_state_file()
-            result = True
+            # If we found a cache for this version, let's use it.
+            if os.path.isdir(inner_cache_search_path):
+                logging.info(
+                    "Local Cache found for Nuget package '%s'. Skipping fetch.", package_name)
+                shutil.copytree(inner_cache_search_path, self.contents_dir)
+                self.update_state_file()
+                result = True
+            # If this cache doesn't match our heuristic, let's warn the user.
+            else:
+                logging.warning(
+                    "Local Cache found for Nuget package '%s', but could not find contents. Malformed?", package_name)
 
         return result
 
