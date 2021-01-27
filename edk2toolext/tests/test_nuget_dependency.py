@@ -190,7 +190,7 @@ class TestNugetDependency(unittest.TestCase):
         os.mkdir(cache_dir)
         ext_dep.global_cache_path = cache_dir
         # Then create the directories inside the cache that should hold the contents.
-        package_cache_dir = os.path.join(cache_dir, hw_package_name, good_version)
+        package_cache_dir = os.path.join(cache_dir, hw_package_name.lower(), good_version)
         os.makedirs(package_cache_dir)
         # There are no package directories inside the cache.
         self.assertFalse(ext_dep._fetch_from_cache(hw_package_name))
@@ -216,7 +216,7 @@ class TestNugetDependency(unittest.TestCase):
         os.mkdir(cache_dir)
         ext_dep.global_cache_path = cache_dir
         # Then create the directories inside the cache that should hold the contents.
-        package_cache_dir = os.path.join(cache_dir, hw_package_name, good_version)
+        package_cache_dir = os.path.join(cache_dir, hw_package_name.lower(), good_version)
         os.makedirs(package_cache_dir)
 
         # Create a directory that doesn't match the heuristic.
