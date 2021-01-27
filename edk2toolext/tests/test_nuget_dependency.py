@@ -230,6 +230,5 @@ class TestNugetDependency(unittest.TestCase):
         self.assertTrue(ext_dep.verify())
 
 
-
 if __name__ == '__main__':
     unittest.main()
