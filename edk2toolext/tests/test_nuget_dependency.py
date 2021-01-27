@@ -23,6 +23,7 @@ good_version = "5.2.0"
 bad_version = "5.2.13.1.2"
 missing_version = "5.200.13"
 
+hw_package_name = "NuGet.CommandLine"
 hw_json_template = '''
 {
   "scope": "global",
@@ -161,6 +162,73 @@ class TestNugetDependency(unittest.TestCase):
             ext_dep.fetch()
         self.assertFalse(ext_dep.verify())
         self.assertEqual(ext_dep.version, missing_version)
+
+    def test_cache_path_not_found(self):
+        ext_dep_file_path = os.path.join(test_dir, "hw_ext_dep.json")
+        with open(ext_dep_file_path, "w+") as ext_dep_file:
+            ext_dep_file.write(hw_json_template % good_version)
+
+        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep = NugetDependency(ext_dep_descriptor)
+
+        ext_dep.global_cache_path = "not_a_real_path"
+        self.assertFalse(ext_dep._fetch_from_cache(hw_package_name))
+
+    def test_bad_cached_package(self):
+        ext_dep_file_path = os.path.join(test_dir, "hw_ext_dep.json")
+        with open(ext_dep_file_path, "w+") as ext_dep_file:
+            ext_dep_file.write(hw_json_template % good_version)
+
+        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep = NugetDependency(ext_dep_descriptor)
+
+        #
+        # Create a cache with a bad cached package.
+        #
+        # First, create the cache.
+        cache_dir = os.path.join(test_dir, 'nuget_test_bad_cache')
+        os.mkdir(cache_dir)
+        ext_dep.global_cache_path = cache_dir
+        # Then create the directories inside the cache that should hold the contents.
+        package_cache_dir = os.path.join(cache_dir, hw_package_name, good_version)
+        os.makedirs(package_cache_dir)
+        # There are no package directories inside the cache.
+        self.assertFalse(ext_dep._fetch_from_cache(hw_package_name))
+
+        # Create a directory that doesn't match the heuristic.
+        test_cache_contents = os.path.join(package_cache_dir, "contents", "blah")
+        os.makedirs(test_cache_contents)
+        self.assertFalse(ext_dep._fetch_from_cache(hw_package_name))
+
+    def test_good_cached_package(self):
+        ext_dep_file_path = os.path.join(test_dir, "hw_ext_dep.json")
+        with open(ext_dep_file_path, "w+") as ext_dep_file:
+            ext_dep_file.write(hw_json_template % good_version)
+
+        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep = NugetDependency(ext_dep_descriptor)
+
+        #
+        # Create a cache with a good cached package.
+        #
+        # First, create the cache.
+        cache_dir = os.path.join(test_dir, 'nuget_test_good_cache')
+        os.mkdir(cache_dir)
+        ext_dep.global_cache_path = cache_dir
+        # Then create the directories inside the cache that should hold the contents.
+        package_cache_dir = os.path.join(cache_dir, hw_package_name, good_version)
+        os.makedirs(package_cache_dir)
+
+        # Create a directory that doesn't match the heuristic.
+        test_cache_contents = os.path.join(package_cache_dir, hw_package_name, "working_blah")
+        os.makedirs(test_cache_contents)
+        self.assertTrue(ext_dep._fetch_from_cache(hw_package_name))
+
+        # Make sure that the contents were copied correctly.
+        final_path = os.path.join(ext_dep.contents_dir, "working_blah")
+        self.assertTrue(os.path.isdir(final_path))
+        self.assertTrue(ext_dep.verify())
+
 
 
 if __name__ == '__main__':
