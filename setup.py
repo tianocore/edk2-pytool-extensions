@@ -77,7 +77,7 @@ setuptools.setup(
                             'versioninfo_tool=edk2toolext.versioninfo.versioninfo_tool:main']
     },
     install_requires=[
-        'pyyaml>=5.2',
+        'pyyaml>=5.3.1',
         'edk2-pytool-library>=0.10.13',
         'pefile>=2019.4.18'
     ],
