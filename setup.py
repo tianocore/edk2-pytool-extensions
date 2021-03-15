@@ -71,7 +71,8 @@ setuptools.setup(
                             'stuart_pr_eval=edk2toolext.invocables.edk2_pr_eval:main',
                             'omnicache=edk2toolext.omnicache:main',
                             'nuget-publish=edk2toolext.nuget_publishing:go',
-                            'edk2_capsule_tool=edk2toolext.capsule.capsule_tool:main']
+                            'edk2_capsule_tool=edk2toolext.capsule.capsule_tool:main',
+                            'parse_cper=edk2toolext.telem.cper_parser:main']
     },
     install_requires=[
         'pyyaml>=5.2',
