@@ -22,7 +22,7 @@ from edk2toollib.utility_functions import RunCmd
 
 GLOBAL_SIGNTOOL_PATH = None
 SUPPORTED_SIGNATURE_TYPE_OPTIONS = {
-    'pkcs7': {'detachedSignedData', 'embedded'}
+    'pkcs7': {'detachedSignedData', 'embedded', 'pkcs7DetachedSignedData'}
 }
 
 
@@ -66,9 +66,16 @@ def sign(data: bytes, signature_options: dict, signer_options: dict) -> bytes:
     for opt in signature_options['type_options']:
         if opt not in SUPPORTED_SIGNATURE_TYPE_OPTIONS[signature_options['type']]:
             raise ValueError(f"Unsupported type option: {opt}!  Ensure you have provied a set")
-    if 'embedded' in signature_options['type_options']:
-        if 'detachedSignedData' in signature_options['type_options']:
-            raise ValueError("type_options 'detachedSignedData' and 'embedded' are mutually exclusive")
+
+    mutually_exclusive_options = ('embedded', 'detachedSignedData', 'pkcs7DetachedSignedData')
+    option_found = None
+    for option in mutually_exclusive_options:
+        if option in signature_options['type_options']:
+            if option_found is None:
+                option_found = option
+            else:
+                raise ValueError("type_options '%s' and '%s' are mutually exclusive" % (option_found, option))
+
     if signature_options['encoding'] != 'DER':
         raise ValueError(f"Unsupported signature encoding: {signature_options['type']}!")
     if signature_options['hash_alg'] != 'sha256':
@@ -92,6 +99,8 @@ def sign(data: bytes, signature_options: dict, signer_options: dict) -> bytes:
     signtool_params += ['/fd', signature_options['hash_alg']]
     if 'detachedSignedData' in signature_options['type_options']:
         signtool_params += ['/p7ce', 'DetachedSignedData']
+    elif 'pkcs7DetachedSignedData' in signature_options['type_options']:
+        signtool_params += ['/p7ce', 'PKCS7DetachedSignedData']
     elif 'embedded' in signature_options['type_options']:
         signtool_params += ['/p7ce', 'Embedded']
     else:
