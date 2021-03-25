@@ -11,7 +11,7 @@ import sys
 from edk2toolext.capsule import signtool_signer
 
 
-class Test_pyopenssl_signer(unittest.TestCase):
+class Test_signtool_signer(unittest.TestCase):
 
     @unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
     def test_get_path(self):
@@ -43,10 +43,34 @@ class Test_pyopenssl_signer(unittest.TestCase):
             signtool_signer.sign(b"data", signature, signer)
 
     @unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
-    def test_sign_with_embed_type_and_detached_signdata(self):
+    def test_sign_with_mutually_exclusive_options(self):
         signature = {
             "type": "pkcs7",
             "type_options": ["embedded", "detachedSignedData"]
+        }
+        signer = {}
+        with self.assertRaises(ValueError):
+            signtool_signer.sign(b"data", signature, signer)
+
+        signature = {
+            "type": "pkcs7",
+            "type_options": ["pkcs7DetachedSignedData", "detachedSignedData"]
+        }
+        signer = {}
+        with self.assertRaises(ValueError):
+            signtool_signer.sign(b"data", signature, signer)
+
+        signature = {
+            "type": "pkcs7",
+            "type_options": ["pkcs7DetachedSignedData", "embedded"]
+        }
+        signer = {}
+        with self.assertRaises(ValueError):
+            signtool_signer.sign(b"data", signature, signer)
+
+        signature = {
+            "type": "pkcs7",
+            "type_options": ["detachedSignedData", "pkcs7DetachedSignedData", "embedded"]
         }
         signer = {}
         with self.assertRaises(ValueError):
