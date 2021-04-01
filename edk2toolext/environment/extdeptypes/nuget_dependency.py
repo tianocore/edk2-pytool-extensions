@@ -215,7 +215,17 @@ class NugetDependency(ExternalDependency):
         source_dir = os.path.join(temp_directory, package_name, package_name)
         if not os.path.isdir(source_dir):
             source_dir = os.path.join(temp_directory, package_name)
-        shutil.move(source_dir, self.contents_dir)
+        shutil.copytree(source_dir, self.contents_dir)
+
+        for _ in range(3):  # rmtree doesn't always remove all files. Attempt delete up to 3 times.
+            try:
+                shutil.rmtree(source_dir)
+            except OSError as err:
+                logging.warning(f"Failed to fully remove {source_dir}: {err}")
+            else:
+                break
+        else:
+            raise RuntimeError(f"Failed to remove {source_dir}")
 
         #
         # Add a file to track the state of the dependency.
