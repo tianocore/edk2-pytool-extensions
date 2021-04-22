@@ -211,24 +211,6 @@ class TestWebDependency(unittest.TestCase):
         if not os.path.isfile(file_path):
             self.fail("The downloaded file isn't there")
 
-    # Test that get_internal_path_root works the way we expect with a flat directory structure.
-    # test_dir\inner_dir - test_dir\inner_dir should be the root.
-    def test_get_internal_path_root_flat(self):
-        outer_dir = test_dir
-        inner_dir_name = "inner_dir"
-        inner_dir_path = os.path.join(outer_dir, inner_dir_name)
-        self.assertEqual(WebDependency.get_internal_path_root(outer_dir, inner_dir_name), inner_dir_path)
-
-    # Test that get_internal_path_root works the way we expect with a flat directory structure
-    # test_dir\first_dir\second_dir - test_dir\first_dir should be the root
-    def test_get_internal_path_root_with_subfolders(self):
-        outer_dir = test_dir
-        first_level_dir_name = "first_dir"
-        second_level_dir_name = "second_dir"
-        inner_dir_path = os.path.join(outer_dir, first_level_dir_name)
-        inner_second_dir_path = os.path.join(first_level_dir_name, second_level_dir_name)
-        self.assertEqual(WebDependency.get_internal_path_root(outer_dir, inner_second_dir_path), inner_dir_path)
-
     # Test that a single file zipped is able to be processed by unpack.
     def test_unpack_zip_file(self):
         compressed_file_path = os.path.join(test_dir, "bad_ext_dep_zip.zip")
