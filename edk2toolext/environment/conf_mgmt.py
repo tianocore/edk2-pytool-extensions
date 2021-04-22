@@ -87,7 +87,7 @@ class ConfMgmt():
                     try:
                         version = str(float(line.split("=")[1].split()[0].strip()))
                         break
-                    except:
+                    except Exception:
                         pass
         return version
 
@@ -108,7 +108,7 @@ class ConfMgmt():
             logging.debug("Conf version: %s", str(conf))
             template = float(self._get_version(template_file))
             logging.debug("Template Version: %s", str(template))
-        except:
+        except Exception:
             logging.error("Failed to get version from file")
         finally:
             return (conf < template)

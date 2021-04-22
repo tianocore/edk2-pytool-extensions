@@ -29,7 +29,7 @@ class PostInstallCommand(install):
     def run(self):
         try:
             DownloadNuget()
-        except:
+        except Exception:
             pass
         install.run(self)
 
@@ -39,7 +39,7 @@ class PostDevCommand(develop):
     def run(self):
         try:
             DownloadNuget()
-        except:
+        except Exception:
             pass
         develop.run(self)
 

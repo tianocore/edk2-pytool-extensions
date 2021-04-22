@@ -127,7 +127,7 @@ class Edk2Invocable(BaseAbstractInvocable):
             level = self.PlatformSettings.GetLoggingLevel(loggerType)
             if level is not None:
                 return level
-        except:
+        except Exception:
             pass
 
         if(loggerType == "con") and not self.Verbose:
