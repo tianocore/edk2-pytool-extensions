@@ -68,7 +68,6 @@ class Repo(object):
                 self._logger.error("GIT ERROR for {0}".format(self._path))
                 self._logger.error(e)
                 raise e
-                return False
 
     def _get_submodule_list(self):
         submodule_list = []
@@ -273,6 +272,6 @@ class Repo(object):
             params = ["submodule", "update", "--init", "--recursive"]
             params.append("--reference %s" % reference)
             param_string = " ".join(params)
-            ret = RunCmd(cmd, param_string)
+            RunCmd(cmd, param_string)
 
         return Repo(to_path)

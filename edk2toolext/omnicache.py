@@ -160,7 +160,6 @@ def InitOmnicache(path):
 
 def AddEntry(config, name, url, tags=False):
     logging.info("Adding remote ({0} : {1}) to Omnicache".format(name, url))
-    param = "remote add {0} {1}".format(name, url)
 
     if config.Contains(name):
         logging.info("Updating remote ({0} : {1}) in Omnicache".format(name, url))

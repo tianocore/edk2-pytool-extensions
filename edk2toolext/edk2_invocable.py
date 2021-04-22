@@ -199,9 +199,8 @@ Key=value will get passed to build process for given build type)'''
                 imported_classes = ", ".join(classNameList)  # Join the classes together
                 print(f"The module you imported contains {imported_classes}")
             except Exception:
-                # Otherwise, oh well we'll just ignore this.
                 raise
-                pass
+
             settingsParserObj.print_help()
             sys.exit(1)
 

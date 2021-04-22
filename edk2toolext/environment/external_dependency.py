@@ -117,7 +117,6 @@ class ExternalDependency(object):
     def fetch(self):
         # The base class does not implement a fetch.
         logging.critical("Fetch() CALLED ON BASE EXTDEP CLASS!")
-        pass
 
     def verify(self):
         result = True
