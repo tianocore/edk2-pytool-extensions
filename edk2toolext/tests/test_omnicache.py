@@ -94,6 +94,31 @@ class TestOmniCache(unittest.TestCase):
         (valid, _) = oc._ValidateOmnicache()
         assert(valid)
 
+        # remove the metadata to simulate an older omnicache that is candidate for conversion
+        gitret = utility_functions.RunCmd("git",
+                                          "config --local --unset omnicache.metadata.version",
+                                          workingdir=testcache)
+        assert(gitret == 0)
+
+        # attempt to create a new cache - test repo is valid git repo, but doesn't have the meta.
+        with self.assertRaises(RuntimeError):
+            oc = omnicache.Omnicache(testcache, create=False, convert=False)
+
+        # now make it a non-bare (but technically valid) git repo
+        gitret = utility_functions.RunCmd("git", "config --local core.bare false", workingdir=testcache)
+        assert(gitret == 0)
+
+        # attempt to create a new cache - test repo is valid non-bare git repo
+        with self.assertRaises(RuntimeError):
+            oc = omnicache.Omnicache(testcache, create=False, convert=False)
+
+        # make it it a non-valid git repo
+        os.remove(os.path.join(testcache, "HEAD"))
+
+        # attempt to create a new cache - test repo is not valid git repo
+        with self.assertRaises(RuntimeError):
+            oc = omnicache.Omnicache(testcache, create=False, convert=False)
+
     def test_omnicache_convert(self):
         testcache = os.path.join(os.path.abspath(os.getcwd()), test_dir, "testcache")
 
