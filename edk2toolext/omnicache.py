@@ -114,10 +114,10 @@ class Omnicache():
                 # Remove previous fetch config entries and regenerate them. Proceed to create new ones even if it fails.
                 RunCmd("git", "config --local --unset-all remote.{0}.fetch".format(newName), workingdir=self.path)
                 RunCmd("git",
-                       "config --local remote.{0}.fetch +refs/heads/*:refs/remotes/{0}/*".format(newName),
+                       "config --local --add remote.{0}.fetch +refs/heads/*:refs/remotes/{0}/*".format(newName),
                        workingdir=self.path)
                 RunCmd("git",
-                       "config --local remote.{0}.fetch refs/tags/*:refs/rtags/{0}/*".format(newName),
+                       "config --local --add remote.{0}.fetch refs/tags/*:refs/rtags/{0}/*".format(newName),
                        workingdir=self.path)
                 # Add the original name as a display name
                 RunCmd("git",
@@ -162,6 +162,7 @@ class Omnicache():
 
     def _InvalidateUrlLookupCache(self):
         """Invalidates the URL lookup cache"""
+        logging.debug("Invalidating URL lookup cache.")
         self.urlLookupCache = {}
 
     def _LookupRemoteForUrl(self, url):
@@ -195,7 +196,7 @@ class Omnicache():
                 return ret
         # add a special fetch refspec to fetch remote tags into a per-remote local namespace.
         return RunCmd("git",
-                      "config --local remote.{0}.fetch refs/tags/*:refs/rtags/{0}/*".format(newName),
+                      "config --local --add remote.{0}.fetch refs/tags/*:refs/rtags/{0}/*".format(newName),
                       workingdir=self.path)
 
     def RemoveRemote(self, url):
@@ -205,7 +206,9 @@ class Omnicache():
             logging.critical("Failed to remove node for url {0}: such a remote does not exist.".format(url))
             return 1
         logging.info("Removing remote for url {0}".format(url))
-        return RunCmd("git", "remote remove {0}".format(name), workingdir=self.path)
+        ret = RunCmd("git", "remote remove {0}".format(name), workingdir=self.path)
+        self._InvalidateUrlLookupCache()
+        return ret
 
     def UpdateRemote(self, oldUrl, newUrl=None, newName=None):
         """Updates the remote
@@ -227,9 +230,9 @@ class Omnicache():
         if (newUrl is not None):
             logging.info("Updating url {0} to {1}".format(oldUrl, newUrl))
             ret = RunCmd("git", "remote set-url {0} {1}".format(remote, newUrl), workingdir=self.path)
+            self._InvalidateUrlLookupCache()
             if (ret != 0):
                 return ret
-            self._InvalidateUrlLookupCache
 
         return 0
 
@@ -254,7 +257,10 @@ class Omnicache():
             remoteData[self.urlLookupCache[url]] = {"url": url}
 
         out = StringIO()
-        ret = RunCmd("git", r"config --get-regexp omnicache\..*?\.displayname", workingdir=self.path, outstream=out)
+        ret = RunCmd("git",
+                     r"config --local --get-regexp omnicache\..*?\.displayname",
+                     workingdir=self.path,
+                     outstream=out)
         if (ret != 0):
             return remoteData
 
