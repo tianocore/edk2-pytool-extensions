@@ -27,7 +27,13 @@ def prep_workspace():
         test_dir = tempfile.mkdtemp()
         logging.debug("temp dir is: %s" % test_dir)
     else:
-        shutil.rmtree(test_dir)
+        for _ in range(3):
+            try:
+                shutil.rmtree(test_dir)
+            except OSError as err:
+                logging.warning(f"Failed to fully remove {test_dir}: {err}")
+            else:
+                break
         test_dir = tempfile.mkdtemp()
     current_dir = os.path.abspath(os.getcwd())
 
@@ -39,7 +45,13 @@ def clean_workspace():
         return
 
     if os.path.isdir(test_dir):
-        shutil.rmtree(test_dir)
+        for _ in range(3):
+            try:
+                shutil.rmtree(test_dir)
+            except OSError as err:
+                logging.warning(f"Failed to fully remove {test_dir}: {err}")
+            else:
+                break
         test_dir = None
 
 
@@ -57,84 +69,250 @@ class TestOmniCache(unittest.TestCase):
     def tearDownClass(cls):
         clean_workspace()
 
-    def test_basic_init(self):
-        valueabs = os.path.join(os.path.abspath(os.getcwd()), "test", "test2")
-        result = omnicache.CommonFilePathHandler(valueabs)
-        assert(result == valueabs)
-
-    def test_commonfilepathhandler_real(self):
-        valueabs = os.path.join(os.path.abspath(os.getcwd()), "test", "test2")
-        result = omnicache.CommonFilePathHandler(os.path.join(valueabs, "..", "test2"))
-        assert(result == valueabs)
-
-    def test_commonfilepathhandler_relative(self):
-        valueabs = os.path.join(os.path.abspath(os.getcwd()), "test", "test2")
-        result = omnicache.CommonFilePathHandler(os.path.join("test", "test2"))
-        assert(result == valueabs)
-
-    def test_omnicache_init(self):
+    def test_omnicache_new(self):
         testcache = os.path.join(os.path.abspath(os.getcwd()), test_dir, "testcache")
-        testconfigs = [
-            {
-                "cfgfile": os.path.join(os.path.abspath(os.getcwd()), test_dir, "testcfg.yaml"),
-                "name": "openssl",
-                "url": "https://github.com/openssl/openssl.git",
-                "tag": "true"
-            },
-            {
-                "cfgfile": os.path.join(os.path.abspath(os.getcwd()), test_dir, "testcfg2.yaml"),
-                "name": "openssl",
-                "url": "https://foobar.com/openssl/openssl.git",
-                "tag": "true"
-            }
-        ]
 
-        for testconfig in testconfigs:
-            currentdir = os.path.abspath(os.getcwd())
-            with open(testconfig["cfgfile"], "w") as configyaml:
-                configyaml.write("remotes:\n")
-                configyaml.write("- name: {0}\n".format(testconfig["name"]))
-                configyaml.write("  url: {0}\n".format(testconfig["url"]))
-                configyaml.write("  tag: {0}\n".format(testconfig["tag"]))
+        # create a new cache
+        oc = omnicache.Omnicache(testcache, create=True, convert=False)
 
-            omnicache_config_file = os.path.join(testcache, omnicache.OMNICACHE_FILENAME)
-            if(os.path.isdir(testcache)):
-                if(os.path.isfile(omnicache_config_file)):
-                    logging.debug("OMNICACHE already exists.  No need to initialize")
-            else:
-                omnicache.InitOmnicache(testcache)
+        # check that the new cache was created as a bare repo
+        out = StringIO()
+        gitret = utility_functions.RunCmd("git", "rev-parse --is-bare-repository", workingdir=testcache, outstream=out)
+        assert(gitret == 0)
+        assert(out.getvalue().strip().lower() == "true")
 
-            omnicache_config = omnicache.OmniCacheConfig(omnicache_config_file)
-            os.chdir(testcache)
+        # check that it has the right metadata
+        out = StringIO()
+        gitret = utility_functions.RunCmd("git",
+                                          "config --local omnicache.metadata.version",
+                                          workingdir=testcache,
+                                          outstream=out)
+        assert(gitret == 0)
+        assert(out.getvalue().strip().lower() == omnicache.OMNICACHE_VERSION)
 
-            (count, input_config_remotes) = omnicache.AddEntriesFromConfig(omnicache_config, testconfig["cfgfile"])
+        # check that omnicache thinks it's valid
+        (valid, _) = oc._ValidateOmnicache()
+        assert(valid)
 
-            assert(count == 1)
-            assert(input_config_remotes is not None)
-            assert(input_config_remotes[0]["name"] == testconfig["name"])
-            assert(input_config_remotes[0]["url"] == testconfig["url"])
+    def test_omnicache_convert(self):
+        testcache = os.path.join(os.path.abspath(os.getcwd()), test_dir, "testcache")
 
-            omnicache_config.Save()
+        # create a new cache
+        oc = omnicache.Omnicache(testcache, create=True, convert=False)
 
-            # check that cache properly initialized/updated
-            out = StringIO()
-            param = "remote -v"
-            gitret = utility_functions.RunCmd("git", param, outstream=out)
-            assert(gitret == 0)
+        (valid, _) = oc._ValidateOmnicache()
+        assert(valid)
 
-            lines = out.getvalue().split('\n')
-            out.close()
-            assert (len(lines) > 0)
-            for line in lines:
-                line = line.strip()
-                if(len(line) == 0):
-                    # empty line
-                    continue
-                git = line.split()
-                assert(git[0] == input_config_remotes[0]["name"])
-                assert(git[1] == input_config_remotes[0]["url"])
+        # remove the metadata to simulate an older omnicache that is candidate for conversion
+        gitret = utility_functions.RunCmd("git",
+                                          "config --local --unset omnicache.metadata.version",
+                                          workingdir=testcache)
+        assert(gitret == 0)
 
-            os.chdir(currentdir)
+        # confirm that _ValidateOmnicache correctly identifies cache state
+        (valid, convertible) = oc._ValidateOmnicache()
+        assert(not valid)
+        assert(convertible)
+
+        # add a traditionally-named remote to the cache to simulate an older omnicache
+        gitret = utility_functions.RunCmd(
+            "git",
+            "remote add pytools-ext https://github.com/tianocore/edk2-pytool-extensions.git",
+            workingdir=testcache)
+        assert(gitret == 0)
+
+        # add a second copy of the remote remote with a different name to the cache to simulate a duplicate
+        gitret = utility_functions.RunCmd(
+            "git",
+            "remote add pytools-ext2 https://github.com/tianocore/edk2-pytool-extensions.git",
+            workingdir=testcache)
+        assert(gitret == 0)
+
+        # fetch the remote and its tags to populate the cache for conversion.
+        gitret = utility_functions.RunCmd("git", "fetch pytools-ext --tags", workingdir=testcache)
+        assert(gitret == 0)
+
+        # confirm that _ValidateOmnicache still correctly identifies cache state
+        (valid, convertible) = oc._ValidateOmnicache()
+        assert(not valid)
+        assert(convertible)
+
+        # re-create the omnicache object to trigger conversion
+        oc = omnicache.Omnicache(testcache, create=False, convert=True)
+
+        # validate converted cache
+        (valid, _) = oc._ValidateOmnicache()
+        assert(valid)
+
+        # verify that the traditionally-named remote is no longer in the cache (it should have been renamed with a UUID)
+        remotes = omnicache.Omnicache.GetRemotes(testcache)
+        assert("pytools-ext" not in remotes.keys())
+
+        # verify that the URL still is in the cache
+        assert("https://github.com/tianocore/edk2-pytool-extensions.git" in remotes.values())
+
+        # verify that there is exactly one entry in the cache for this URL (duplicates should be removed)
+        assert(sum(url == "https://github.com/tianocore/edk2-pytool-extensions.git" for url in remotes.values()) == 1)
+
+        # verify that the former remote name is now the "omnicache display name"
+        for (name, url) in remotes.items():
+            if (url == "https://github.com/tianocore/edk2-pytool-extensions.git"):
+                out = StringIO()
+                gitret = utility_functions.RunCmd("git",
+                                                  f"config --local omnicache.{name}.displayname",
+                                                  workingdir=testcache,
+                                                  outstream=out)
+                assert(gitret == 0)
+                displayname = out.getvalue().strip()
+                # if there are duplicates, which displayname is chosen is arbitrary, so allow either.
+                assert(displayname == "pytools-ext" or displayname == "pytools-ext2")
+
+        # verify that there are no global tags in the root.
+        out = StringIO()
+        gitret = utility_functions.RunCmd("git", "tag -l", workingdir=testcache, outstream=out)
+        assert(gitret == 0)
+        assert(out.getvalue().strip() == "")
+
+    def test_omnicache_add_remove(self):
+        testcache = os.path.join(os.path.abspath(os.getcwd()), test_dir, "testcache")
+
+        # create a new cache
+        oc = omnicache.Omnicache(testcache, create=True, convert=False)
+
+        (valid, _) = oc._ValidateOmnicache()
+        assert(valid)
+
+        # add a remote with display name
+        ret = oc.AddRemote("https://github.com/tianocore/edk2-pytool-extensions.git", name="pytools-ext")
+        assert(ret == 0)
+
+        assert(len(omnicache.Omnicache.GetRemotes(testcache).keys()) == 1)
+        assert("https://github.com/tianocore/edk2-pytool-extensions.git"
+               in omnicache.Omnicache.GetRemotes(testcache).values())
+
+        # get the remote UUID
+        remoteName = oc._LookupRemoteForUrl("https://github.com/tianocore/edk2-pytool-extensions.git")
+        assert(remoteName is not None)
+
+        # confirm that remote data is as expected
+        remoteData = oc.GetRemoteData()
+        assert(len(remoteData.keys()) == 1)
+        assert(remoteData[remoteName]["url"] == "https://github.com/tianocore/edk2-pytool-extensions.git")
+        assert(remoteData[remoteName]["displayname"] == "pytools-ext")
+
+        # remove the remote and make sure it is gone
+        ret = oc.RemoveRemote("https://github.com/tianocore/edk2-pytool-extensions.git")
+        assert(ret == 0)
+        assert(len(omnicache.Omnicache.GetRemotes(testcache).keys()) == 0)
+        assert("https://github.com/tianocore/edk2-pytool-extensions.git"
+               not in omnicache.Omnicache.GetRemotes(testcache).values())
+
+        # add a remote without display name
+        ret = oc.AddRemote("https://github.com/tianocore/edk2-pytool-extensions.git")
+        assert(ret == 0)
+
+        assert(len(omnicache.Omnicache.GetRemotes(testcache).keys()) == 1)
+        assert("https://github.com/tianocore/edk2-pytool-extensions.git"
+               in omnicache.Omnicache.GetRemotes(testcache).values())
+
+        # get the remote UUID
+        remoteName = oc._LookupRemoteForUrl("https://github.com/tianocore/edk2-pytool-extensions.git")
+        assert(remoteName is not None)
+
+        # confirm that remote data is as expected
+        remoteData = oc.GetRemoteData()
+        assert(len(remoteData.keys()) == 1)
+        assert(remoteData[remoteName]["url"] == "https://github.com/tianocore/edk2-pytool-extensions.git")
+        assert("displayname" not in remoteData[remoteName])
+
+        # add a remote that already exists (with new display name) and make sure it is treated as an update.
+        ret = oc.AddRemote("https://github.com/tianocore/edk2-pytool-extensions.git", name="pytools-ext2")
+        assert(ret == 0)
+
+        assert(len(omnicache.Omnicache.GetRemotes(testcache).keys()) == 1)
+        assert("https://github.com/tianocore/edk2-pytool-extensions.git"
+               in omnicache.Omnicache.GetRemotes(testcache).values())
+
+        # get the remote UUID
+        remoteName = oc._LookupRemoteForUrl("https://github.com/tianocore/edk2-pytool-extensions.git")
+        assert(remoteName is not None)
+
+        # confirm that remote data is as expected
+        remoteData = oc.GetRemoteData()
+        assert(len(remoteData.keys()) == 1)
+        assert(remoteData[remoteName]["url"] == "https://github.com/tianocore/edk2-pytool-extensions.git")
+        assert(remoteData[remoteName]["displayname"] == "pytools-ext2")
+
+    def test_omnicache_update(self):
+        testcache = os.path.join(os.path.abspath(os.getcwd()), test_dir, "testcache")
+
+        # create a new cache
+        oc = omnicache.Omnicache(testcache, create=True, convert=False)
+
+        (valid, _) = oc._ValidateOmnicache()
+        assert(valid)
+
+        # add a remote with display name
+        ret = oc.AddRemote("https://github.com/tianocore/edk2-pytool-extensions.git", name="pytools-ext")
+        assert(ret == 0)
+
+        assert(len(omnicache.Omnicache.GetRemotes(testcache).keys()) == 1)
+        assert("https://github.com/tianocore/edk2-pytool-extensions.git"
+               in omnicache.Omnicache.GetRemotes(testcache).values())
+
+        # get the remote UUID
+        remoteName = oc._LookupRemoteForUrl("https://github.com/tianocore/edk2-pytool-extensions.git")
+        assert(remoteName is not None)
+
+        # update the URL and displayname of the remote
+        ret = oc.UpdateRemote(
+            "https://github.com/tianocore/edk2-pytool-extensions.git",
+            newUrl="https://github.com/tianocore/edk2-pytool-extensions2.git",
+            newName="pytools-ext2")
+        assert(ret == 0)
+
+        assert(len(omnicache.Omnicache.GetRemotes(testcache).keys()) == 1)
+        assert("https://github.com/tianocore/edk2-pytool-extensions2.git"
+               in omnicache.Omnicache.GetRemotes(testcache).values())
+
+        # make sure UUID didn't change
+        assert(remoteName == oc._LookupRemoteForUrl("https://github.com/tianocore/edk2-pytool-extensions2.git"))
+
+        # confirm that remote data is as expected
+        remoteData = oc.GetRemoteData()
+        assert(len(remoteData.keys()) == 1)
+        assert(remoteData[remoteName]["url"] == "https://github.com/tianocore/edk2-pytool-extensions2.git")
+        assert(remoteData[remoteName]["displayname"] == "pytools-ext2")
+
+    def test_omnicache_fetch(self):
+        testcache = os.path.join(os.path.abspath(os.getcwd()), test_dir, "testcache")
+
+        # create a new cache
+        oc = omnicache.Omnicache(testcache, create=True, convert=False)
+
+        (valid, _) = oc._ValidateOmnicache()
+        assert(valid)
+
+        # add a remote with display name
+        ret = oc.AddRemote("https://github.com/tianocore/edk2-pytool-extensions.git", name="pytools-ext")
+        assert(ret == 0)
+
+        with open(os.path.join(testcache, "config")) as foo:
+            logging.debug(foo.read())
+
+        # fetch the remote
+        ret = oc.Fetch()
+        assert (ret == 0)
+
+        # get the remote UUID
+        remoteName = oc._LookupRemoteForUrl("https://github.com/tianocore/edk2-pytool-extensions.git")
+        assert(remoteName is not None)
+
+        # verify that branches were fetched into the omnicache
+        assert(len(os.listdir(os.path.join(testcache, "refs", "remotes", remoteName))) != 0)
+
+        # verify that tags were fetched into the omnicache
+        assert(len(os.listdir(os.path.join(testcache, "refs", "rtags", remoteName))) != 0)
 
 
 if __name__ == '__main__':
