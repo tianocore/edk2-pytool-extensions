@@ -11,6 +11,7 @@ import unittest
 import logging
 import tempfile
 import shutil
+import yaml
 from io import StringIO
 from edk2toolext import omnicache
 from edk2toollib import utility_functions
@@ -268,6 +269,10 @@ class TestOmniCache(unittest.TestCase):
         assert(remoteData[remoteName]["url"] == "https://github.com/tianocore/edk2-pytool-extensions.git")
         assert(remoteData[remoteName]["displayname"] == "pytools-ext2")
 
+        # attempt to remove a non-existent remote
+        ret = oc.RemoveRemote("http://thisisnot.com/good.git")
+        assert (ret != 0)
+
     def test_omnicache_update(self):
         testcache = os.path.join(os.path.abspath(os.getcwd()), test_dir, "testcache")
 
@@ -322,9 +327,6 @@ class TestOmniCache(unittest.TestCase):
         ret = oc.AddRemote("https://github.com/tianocore/edk2-pytool-extensions.git", name="pytools-ext")
         assert(ret == 0)
 
-        with open(os.path.join(testcache, "config")) as foo:
-            logging.debug(foo.read())
-
         # fetch the remote
         ret = oc.Fetch()
         assert (ret == 0)
@@ -356,6 +358,71 @@ class TestOmniCache(unittest.TestCase):
 
         oc.List()
 
+    def test_config_files(self):
+        testcache = os.path.join(os.path.abspath(os.getcwd()), test_dir, "testcache")
+        testyaml = os.path.join(os.path.abspath(os.getcwd()), test_dir, "cfg.yaml")
+
+        # create a new cache
+        oc = omnicache.Omnicache(testcache, create=True, convert=False)
+
+        (valid, _) = oc._ValidateOmnicache()
+        assert(valid)
+
+        # add a remote with display name
+        ret = oc.AddRemote("https://github.com/tianocore/edk2-pytool-extensions.git", name="pytools-ext")
+        assert(ret == 0)
+
+        # add a remote with no display name
+        ret = oc.AddRemote("https://github.com/tianocore/edk2-pytool-extensions2.git")
+        assert(ret == 0)
+
+        # export yaml cfg
+        ret = omnicache.Export(oc, testyaml)
+        assert(ret == 0)
+
+        # inspect the yaml for correctness
+        with open(testyaml) as yf:
+            content = yaml.safe_load(yf)
+
+        assert("remotes" in content)
+        assert(len(content["remotes"]) == 2)
+        for remote in content["remotes"]:
+            if (remote["url"] == "https://github.com/tianocore/edk2-pytool-extensions.git"):
+                assert (remote["name"] == "pytools-ext")
+            elif (remote["url"] == "https://github.com/tianocore/edk2-pytool-extensions2.git"):
+                assert (omnicache.Omnicache._IsValidUuid(remote["name"]))
+                # remove the "display name" for input test below
+                del remote["name"]
+            else:
+                # not one of the URLs we populated above = bad.
+                assert(remote["url"] not in remote.values())
+
+        # save the yaml file (since we removed one of the displaynames)
+        with open(testyaml, "w") as yf:
+            yaml.dump(content, yf)
+
+        # remove the remotes
+        ret = oc.RemoveRemote("https://github.com/tianocore/edk2-pytool-extensions.git")
+        assert (ret == 0)
+        ret = oc.RemoveRemote("https://github.com/tianocore/edk2-pytool-extensions2.git")
+        assert (ret == 0)
+
+        # confirm we have no remotes
+        assert(len(oc.GetRemoteData()) == 0)
+
+        # import yaml cfg
+        ret = omnicache.ProcessInputConfig(oc, testyaml)
+        assert(ret == 0)
+
+        # check resulting omnicache config
+        for remote in oc.GetRemoteData().values():
+            if (remote["url"] == "https://github.com/tianocore/edk2-pytool-extensions.git"):
+                assert (remote["displayname"] == "pytools-ext")
+            elif (remote["url"] == "https://github.com/tianocore/edk2-pytool-extensions2.git"):
+                assert ("displayname" not in remote)
+            else:
+                # not one of the URLs we populated above = bad.
+                assert(remote["url"] not in remote.values())
 
 if __name__ == '__main__':
     unittest.main()
