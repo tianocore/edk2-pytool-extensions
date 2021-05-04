@@ -318,7 +318,8 @@ def ProcessInputConfig(omnicache, input_config):
 
     if "remotes" in content:
         for remote in content["remotes"]:
-            omnicache.AddRemote(remote["url"], name=remote["name"])
+            # dict.get() used here to set name=None if no name specified in input cfg file.
+            omnicache.AddRemote(remote["url"], name=remote.get("name"))
 
     return 0
 
