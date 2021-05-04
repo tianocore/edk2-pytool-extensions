@@ -339,6 +339,23 @@ class TestOmniCache(unittest.TestCase):
         # verify that tags were fetched into the omnicache
         assert(len(os.listdir(os.path.join(testcache, "refs", "rtags", remoteName))) != 0)
 
+    def test_omnicache_list(self):
+        testcache = os.path.join(os.path.abspath(os.getcwd()), test_dir, "testcache")
+
+        # create a new cache
+        oc = omnicache.Omnicache(testcache, create=True, convert=False)
+
+        (valid, _) = oc._ValidateOmnicache()
+        assert(valid)
+
+        oc.List()
+
+        # add a remote with display name
+        ret = oc.AddRemote("https://github.com/tianocore/edk2-pytool-extensions.git", name="pytools-ext")
+        assert(ret == 0)
+
+        oc.List()
+
 
 if __name__ == '__main__':
     unittest.main()
