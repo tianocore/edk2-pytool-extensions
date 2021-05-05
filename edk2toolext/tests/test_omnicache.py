@@ -114,7 +114,7 @@ class TestOmniCache(unittest.TestCase):
         # set the metadata version to an unexpected value
         gitret = utility_functions.RunCmd(
             "git",
-            "config --local omnicache.metadata.version {0}".format(omnicache.OMNICACHE_VERSION+"x"),
+            "config --local omnicache.metadata.version {0}".format(omnicache.OMNICACHE_VERSION + "x"),
             workingdir=testcache)
         assert(gitret == 0)
 
