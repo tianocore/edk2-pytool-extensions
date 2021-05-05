@@ -353,6 +353,10 @@ class TestOmniCache(unittest.TestCase):
         assert(remoteData[remoteName]["url"] == "https://github.com/tianocore/edk2-pytool-extensions2.git")
         assert(remoteData[remoteName]["displayname"] == "pytools-ext2")
 
+        # update a non-existent URL in the cache and confirm error is returned
+        ret = oc.UpdateRemote("https://not.a.real.url.com/git")
+        assert (ret != 0)
+
     def test_omnicache_fetch(self):
         testcache = os.path.join(os.path.abspath(os.getcwd()), test_dir, "testcache")
 
