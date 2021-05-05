@@ -437,5 +437,6 @@ class TestOmniCache(unittest.TestCase):
         assert(ret == 0)
         sys.argv = oldargs
 
+
 if __name__ == '__main__':
     unittest.main()

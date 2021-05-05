@@ -489,6 +489,8 @@ def main():
         if (ret != 0):
             return -6
 
+    return 0
+
 
 if __name__ == '__main__':
     retcode = main()
