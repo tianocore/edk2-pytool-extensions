@@ -167,6 +167,10 @@ class TestOmniCache(unittest.TestCase):
                                           workingdir=testcache)
         assert(gitret == 0)
 
+        # add an empty file to simulate the old config yaml
+        with open(os.path.join(testcache, omnicache.OMNICACHE_FILENAME), "w") as yf:
+            yf.write("Not A Real YAML File")
+
         # confirm that _ValidateOmnicache correctly identifies cache state
         (valid, convertible) = oc._ValidateOmnicache()
         assert(not valid)
@@ -201,6 +205,9 @@ class TestOmniCache(unittest.TestCase):
         # validate converted cache
         (valid, _) = oc._ValidateOmnicache()
         assert(valid)
+
+        # verify that old config file was deleted.
+        assert(not os.path.exists(os.path.join(testcache, omnicache.OMNICACHE_FILENAME)))
 
         # verify that the traditionally-named remote is no longer in the cache (it should have been renamed with a UUID)
         remotes = omnicache.Omnicache.GetRemotes(testcache)
