@@ -102,7 +102,28 @@ class TestOmniCache(unittest.TestCase):
                                           workingdir=testcache)
         assert(gitret == 0)
 
+        # check that omnicache thinks it's not valid but convertible.
+        (valid, convertible) = oc._ValidateOmnicache()
+        assert(not valid)
+        assert(convertible)
+
         # attempt to create a new cache - test repo is valid git repo, but doesn't have the meta.
+        with self.assertRaises(RuntimeError):
+            oc = omnicache.Omnicache(testcache, create=False, convert=False)
+
+        # set the metadata version to an unexpected value
+        gitret = utility_functions.RunCmd(
+            "git",
+            "config --local omnicache.metadata.version {0}".format(omnicache.OMNICACHE_VERSION+"x"),
+            workingdir=testcache)
+        assert(gitret == 0)
+
+        # check that omnicache thinks it's not valid but convertible.
+        (valid, convertible) = oc._ValidateOmnicache()
+        assert(not valid)
+        assert(convertible)
+
+        # attempt to create a new cache - test repo is valid git repo, but doesn't have the expected meta.
         with self.assertRaises(RuntimeError):
             oc = omnicache.Omnicache(testcache, create=False, convert=False)
 
@@ -110,12 +131,22 @@ class TestOmniCache(unittest.TestCase):
         gitret = utility_functions.RunCmd("git", "config --local core.bare false", workingdir=testcache)
         assert(gitret == 0)
 
+        # check that omnicache thinks it's not valid and not convertible.
+        (valid, convertible) = oc._ValidateOmnicache()
+        assert(not valid)
+        assert(not convertible)
+
         # attempt to create a new cache - test repo is valid non-bare git repo
         with self.assertRaises(RuntimeError):
             oc = omnicache.Omnicache(testcache, create=False, convert=False)
 
         # make it it a non-valid git repo
         os.remove(os.path.join(testcache, "HEAD"))
+
+        # check that omnicache thinks it's not valid and not convertible.
+        (valid, convertible) = oc._ValidateOmnicache()
+        assert(not valid)
+        assert(not convertible)
 
         # attempt to create a new cache - test repo is not valid git repo
         with self.assertRaises(RuntimeError):
