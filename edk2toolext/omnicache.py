@@ -82,6 +82,9 @@ class Omnicache():
             if (out.getvalue().strip() == OMNICACHE_VERSION):
                 logging.debug("{0} - matching omnicache version. valid (convertible don't care).".format(self.path))
                 return (True, True)
+            else:
+                logging.debug("{0} - non-matching omnicache version. not valid (is convertible).".format(self.path))
+                return (False, True)
         logging.debug("{0} - not a bare repo. not valid (not convertible).".format(self.path))
         return (False, False)
 
