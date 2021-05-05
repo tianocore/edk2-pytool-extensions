@@ -474,6 +474,9 @@ class TestOmniCache(unittest.TestCase):
         sys.argv = ["omnicache", "--init", testcache]
         ret = omnicache.main()
         assert(ret == 0)
+        sys.argv = ["omnicache", "--new", testcache]
+        ret = omnicache.main()
+        assert(ret != 0)
         sys.argv = ["omnicache", "--scan", testcache, testcache]
         ret = omnicache.main()
         assert(ret == 0)
