@@ -12,6 +12,7 @@ import logging
 import tempfile
 import shutil
 import yaml
+import sys
 from io import StringIO
 from edk2toolext import omnicache
 from edk2toollib import utility_functions
@@ -423,6 +424,18 @@ class TestOmniCache(unittest.TestCase):
             else:
                 # not one of the URLs we populated above = bad.
                 assert(remote["url"] not in remote.values())
+
+    def test_omnicache_main(self):
+        testcache = os.path.join(os.path.abspath(os.getcwd()), test_dir, "testcache")
+        # shameless code coverage play
+        oldargs = sys.argv
+        sys.argv = ["omnicache", "--init", testcache]
+        ret = omnicache.main()
+        assert(ret == 0)
+        sys.argv = ["omnicache", "--scan", testcache, testcache]
+        ret = omnicache.main()
+        assert(ret == 0)
+        sys.argv = oldargs
 
 if __name__ == '__main__':
     unittest.main()
