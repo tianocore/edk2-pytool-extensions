@@ -172,10 +172,20 @@ class UefiBuilder(object):
                     logging.critical("Flash Image failed")
                     return ret
 
-        except:
+        except Exception:
             logging.critical("Build Process Exception")
             logging.error(traceback.format_exc())
             return -1
+
+        except SystemExit:
+            logging.critical("Build Process Exit")
+            logging.error(traceback.format_exc())
+            return -1
+
+        except KeyboardInterrupt:
+            logging.critical("Build Cancelled by user")
+            return -2
+
         finally:
             end_time = time.perf_counter()
             elapsed_time_s = int((end_time - start_time))

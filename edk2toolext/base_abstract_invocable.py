@@ -93,9 +93,9 @@ class BaseAbstractInvocable(object):
 
         md_log_file = self.GetLoggingLevel("md")
         if(md_log_file is not None):
-            md_file, md_logger = edk2_logging.setup_markdown_logger(log_directory,
-                                                                    self.GetLoggingFileName("md"),
-                                                                    md_log_file)
+            edk2_logging.setup_markdown_logger(log_directory,
+                                               self.GetLoggingFileName("md"),
+                                               md_log_file)
 
         logging.info("Log Started: " + datetime.strftime(datetime.now(), "%A, %B %d, %Y %I:%M%p"))
 

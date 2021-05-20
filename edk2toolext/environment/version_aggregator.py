@@ -32,7 +32,6 @@ class version_aggregator(object):
             old_version = self._Versions[key]
             if old_version["version"] == value and old_version["path"] == path:
                 self._logger.info(f"version_aggregator: {key} re-registered at {path}")
-                pass
             else:
                 error = "version_aggregator: {0} key registered with a different value\n\t" \
                         "Old:{1}@{3}\n\tNew:{2}@{4}\n".format(

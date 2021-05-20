@@ -47,12 +47,14 @@ class WebDependency(ExternalDependency):
         """ return a string representation of this """
         return f"WebDependecy: {self.source}@{self.version}"
 
+    @staticmethod
     def linuxize_path(path):
         '''
         path: path that uses os.sep, to be replaced with / for compatibility with zipfile
         '''
         return "/".join(path.split("\\"))
 
+    @staticmethod
     def unpack(compressed_file_path, destination, internal_path, compression_type):
         '''
         compressed_file_path: name of compressed file to unpack.
@@ -86,11 +88,6 @@ class WebDependency(ExternalDependency):
         for file in files_to_extract:
             _ref.extract(member=file, path=destination)
         _ref.close()
-
-    def get_internal_path_root(outer_dir, internal_path):
-        temp_path_root = internal_path.split(os.sep)[0] if os.sep in internal_path else internal_path
-        unzip_root = os.path.join(outer_dir, temp_path_root)
-        return unzip_root
 
     def fetch(self):
         url = self.source

@@ -235,7 +235,7 @@ def checkout(abs_file_system_path, dep, repo, update_ok=False, ignore_dep_state_
                 # try to fetch it and try to checkout again
                 logger.info("We failed to checkout this branch, we'll try to fetch")
                 repo.fetch(branch=branch)
-                result = repo.checkout(branch=branch)
+                repo.checkout(branch=branch)
             repo.submodule("update", "--init", "--recursive")
         else:
             if repo.active_branch == dep["Branch"]:
