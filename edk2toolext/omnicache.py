@@ -103,7 +103,7 @@ class OmniCacheConfig():
         return name in self.remotes
 
 
-OMNICACHE_VERSION = "0.9"
+OMNICACHE_VERSION = "0.10"
 OMNICACHE_FILENAME = "omnicache.yaml"
 
 
@@ -229,24 +229,31 @@ def ConsistencyCheckCacheConfig(config):
     return 0
 
 
-def FetchEntry(name, tags=False):
+def MultiFetch(remotes, tags=False, retries=3):
     '''
-    do git operation to fetch a single entry
+    do git operations to fetch the specified entries. Supports fetching in parallel for speed, and supports retries to
+    add robustness to transient fetch failures.
 
     return
         0:          success
-        non-zero:   git command line error
+        non-zero:   git command line error unresolved by retry.
     '''
-
-    param = "fetch {0}".format(name)
-    if not tags:
-        param += " --no-tags"
-    else:
-        param += " --tags"
+    param = "fetch"
+    param += " -j {0}".format(len(remotes))
+    if (tags):
         # might want to look at something more complex to avoid tag conflicts
         # https://stackoverflow.com/questions/22108391/git-checkout-a-remote-tag-when-two-remotes-have-the-same-tag-name
         # param += "+refs/heads/:refs/remotes/{0}/ +refs/tags/:refs/rtags/{0}/".format(name)
-    return utility_functions.RunCmd("git", param)
+        param += " --tags"
+    else:
+        param += " --no-tags"
+    param += " --multiple " + " ".join(remotes)
+
+    for _ in range(retries):
+        ret = utility_functions.RunCmd("git", param)
+        if ret == 0:
+            break
+    return ret
 
 
 def get_cli_options():
@@ -402,12 +409,20 @@ def main():
         # as an optimization, if input config file provided, only fetch remotes specified in input config
         # otherwise, fetch all remotes in the OmniCache
         if (input_config_remotes is not None):
-            remotes = (x["name"] for x in input_config_remotes)
+            remotes = [x["name"] for x in input_config_remotes]
         else:
-            remotes = omnicache_config.remotes.keys()
-        for remote in remotes:
-            ret = FetchEntry(omnicache_config.remotes[remote]["name"], ("tag" in omnicache_config.remotes[remote]))
-            if(ret != 0) and (ErrorCode == 0):
+            remotes = [omnicache_config.remotes.keys()]
+
+        # Fetch no-tags and tags separately.
+        no_tags = [omnicache_config.remotes[x]["name"] for x in remotes if "tag" not in omnicache_config.remotes[x]]
+        with_tags = [omnicache_config.remotes[x]["name"] for x in remotes if "tag" in omnicache_config.remotes[x]]
+        if (len(no_tags) > 0):
+            ret = MultiFetch(no_tags, tags=False)
+            if (ret != 0) and (ErrorCode == 0):
+                ErrorCode = ret
+        if (len(with_tags) > 0):
+            ret = MultiFetch(with_tags, tags=True)
+            if (ret != 0) and (ErrorCode == 0):
                 ErrorCode = ret
 
     if args.list:
