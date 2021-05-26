@@ -156,6 +156,8 @@ def create_inf_file(capsule_options, save_path):
         capsule_options['fw_version']
     )
     infgenerator.Manufacturer = capsule_options['mfg_name']
+    if 'fw_integrity_file' in capsule_options:
+        infgenerator.IntegrityFilename = os.path.basename(capsule_options['fw_integrity_file'])
     inf_file_path = os.path.join(save_path, f"{capsule_options['fw_name']}.inf")
     ret = infgenerator.MakeInf(inf_file_path, get_capsule_file_name(capsule_options), capsule_options['is_rollback'])
     if(ret != 0):
