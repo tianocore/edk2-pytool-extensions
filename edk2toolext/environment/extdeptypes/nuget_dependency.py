@@ -72,7 +72,17 @@ class NugetDependency(ExternalDependency):
 
         int_parts = tuple([0 if a == "" else int(a) for a in parts])
 
-        if tag not in [None, "beta", "alpha", "rc"]:
+        if tag is not None:
+            # It might start with "beta*", "alpha*" or "rc*"
+            legit_tag = False
+            for rv in ["beta", "alpha", "rc"]:
+                if tag.startswith(rv):
+                    legit_tag = True
+        else:
+            # Otherwise, it is legit
+            legit_tag = True
+
+        if not legit_tag:
             raise ValueError(f"Unparsable version tag: {tag}")
 
         if len(int_parts) > 4:
