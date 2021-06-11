@@ -122,6 +122,7 @@
         "Boothole",
         "dbxupdate",
         "FileFlagsMask",
-        "markdownlint"
+        "markdownlint",
+        "xffd"
     ]
 }
