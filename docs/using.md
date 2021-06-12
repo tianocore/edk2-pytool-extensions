@@ -87,13 +87,16 @@ everything has been downloaded and is present in the tree.
 ### plugin
 
 Plugins are code files that can be executed according to their scope. There are
-four different interfaces you could choose to implement:
+three different interfaces you could choose to implement:
 
-1) UefiBuildPlugin - Used for platform builds, this interface has two hooks:
-   pre-build and post-build. 2) CiBuildPlugin - Our CI process is to run all
+1. `UefiBuildPlugin` - Used for platform builds, this interface has two hooks: pre-build and post-build.
+2. `CiBuildPlugin` - Our CI process is to run all
    CiBuildPlugins for each package. Each plugin is essentially a test that will
-   be executed on the given code tree. 3) UefiHelperPlugin - Registers one or
+   be executed on the given code tree.
+3. `UefiHelperPlugin` - Registers one or
    more functions that can called by any part of the build system.
+
+[Plugin manager documentation](usability/using_plugin_manager.md)
 
 ### CI
 
