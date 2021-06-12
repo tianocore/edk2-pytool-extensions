@@ -38,9 +38,9 @@ the images in your file tree and make sure they are encoded correctly.
 
 These use cases will fit into our 'CI' tools category.
 
-stuart_ci_setup can be called to clone whatever code repositories would be
+`stuart_ci_setup` can be called to clone whatever code repositories would be
 required for this operation. stuart_update can be called to download all the
-tools the environment says it needs. From there, stuart_ci_build takes a list of
+tools the environment says it needs. From there, `stuart_ci_build` takes a list of
 packages to look at and runs all plugins on each package.
 
 ### 3) I want to do something new
@@ -50,9 +50,9 @@ the process specifically to your use case? You need something to do on the
 weekend?
 
 Great! We have built out invocables to be as robust and extensible as possible.
-We have base_abstract_invocable, which asks for the bare minimum required for
+We have `base_abstract_invocable`, which asks for the bare minimum required for
 environment initialization in the form of abstract functions that you can fill
-out. We have also built edk2_invocable, on top of base_abstract_invocable, which
+out. We have also built `edk2_invocable`, on top of `base_abstract_invocable`, which
 handles getting setup and providing settings in a manner we hope will work well
 for most everyone.
 
@@ -151,17 +151,17 @@ be helpful for a wide variety workflows.
 
 ### stuart_setup
 
-Sets up git repo based on the gitsubmodule file in your repo. It checks to make
+Sets up the git repo based on the gitsubmodule file in your repo. It checks to make
 sure the required repos as provided by settings manager are present.
 
 ### stuart_update
 
-Reads ext_dep files in environment and downloads the appropriate files for the
+Reads ext_dep files in the environment and downloads the appropriate files for the
 active scopes currently defined. These scopes come from the settings manager.
 
 ### stuart_build
 
-Builds a platform. Requires an instance of UefiBuilder to be provided in
+Builds a platform. Requires an instance of `UefiBuilder` to be provided in
 addition to the settings manager.
 
 ### stuart_ci_setup
@@ -180,8 +180,8 @@ checkpoint between each test.
 
 ### .gitignore
 
-We have a couple .gitignore items that are important for keeping git from
-getting it's hands on Stuart!
+We have a couple `.gitignore` items that are important for keeping git from
+getting its hands on Stuart!
 
 ```.gitignore
 *.pyc
