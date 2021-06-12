@@ -134,7 +134,7 @@ be passed in. This way, the invocable script gets all the information it needs
 without needing to carry the overhead of command line parsing and loading the
 class.
 
-[settings manager documentation](features/feature_settings_manager.md)
+[settings manager documentation](usability/using_settings_manager.md)
 
 ### stuart
 
