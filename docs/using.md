@@ -20,17 +20,15 @@ these utilities.
 ### 1) I want to build a platform
 
 You have an EDK2 implementation, a platform DSC, and a platform FDF? Great! You
-are one settings file away from a great platform building experience.
+are one [settings file](usability/using_settings_manager.md) away from a great platform building experience.
 
-If you use submodules, you will find stuart_setup helpful for submodule sync and
-update.
+Once your settings file is created and configured, you can use the [stuart commands](#what-can-ask-stuart-to-do) start building:
 
-stuart_update walks through the environment and downloads all the tools that the
+1. `stuart_setup` - Syncs and updates submodules that your project uses.
+2. `stuart_update` - Walks through the environment and downloads all the tools that the
 environment says it needs.
-
-To build the platform and assemble a ROM according to your FDF, invoke
-stuart_build. Your UefiBuilder instance will provide the opportunity to tweak or
-override at every step of the process.
+3. `stuart_build` - Builds the platform and assembles a ROM according to your FDF. Your `UefiBuilder` instance (in the
+   settings file) will provide the opportunity to tweak or override at every step of the process.
 
 ### 2) I want to manage a codebase
 
