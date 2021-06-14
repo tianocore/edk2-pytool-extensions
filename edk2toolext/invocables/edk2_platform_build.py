@@ -39,7 +39,7 @@ class Edk2PlatformBuild(Edk2Invocable):
         else:
             try:
                 # if it's not, we will try to find it in the module that was originally provided.
-                self.PlatformBuilder = locate_class_in_module(self.PlatformModule, UefiBuilder)()
+                self.PlatformBuilder = locate_class_in_module(self.PlatformModule, AbsBuilder)()
             except (TypeError):
                 raise RuntimeError(f"UefiBuild not found in module:\n{dir(self.PlatformModule)}")
 

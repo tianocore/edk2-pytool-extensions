@@ -23,10 +23,11 @@ from edk2toollib.uefi.edk2.parsers.fdf_parser import FdfParser
 from edk2toollib.utility_functions import RunCmd
 from edk2toolext import edk2_logging
 from edk2toolext.environment.plugintypes.uefi_build_plugin import IUefiBuildPlugin
+from edk2toolext.environment.abs_builder import AbsBuilder
 import datetime
 
 
-class UefiBuilder(object):
+class UefiBuilder(AbsBuilder):
 
     def __init__(self):
         self.SkipBuild = False
