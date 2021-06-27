@@ -159,11 +159,14 @@ def ExtDepFactory(descriptor):
     from edk2toolext.environment.extdeptypes.web_dependency import WebDependency
     from edk2toolext.environment.extdeptypes.nuget_dependency import NugetDependency
     from edk2toolext.environment.extdeptypes.git_dependency import GitDependency
+    from edk2toolext.environment.extdeptypes.localfile_dependency import LocalFileDependency
     if descriptor['type'] == NugetDependency.TypeString:
         return NugetDependency(descriptor)
     elif descriptor['type'] == WebDependency.TypeString:
         return WebDependency(descriptor)
     elif descriptor['type'] == GitDependency.TypeString:
         return GitDependency(descriptor)
+    elif descriptor['type'] == LocalFileDependency.TypeString:
+        return LocalFileDependency(descriptor)
 
     raise ValueError("Unknown extdep type '%s' requested!" % descriptor['type'])
