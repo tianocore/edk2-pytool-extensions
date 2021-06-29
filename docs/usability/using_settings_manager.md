@@ -6,21 +6,22 @@ provides needed information such as scope, repositories, command-line options,
 and other things. This allows scopes to be dynamic but in a standardized way.
 Below is a sample implementation of a settings manager for your reference.
 
-This is an implementation of both Update and Setup Settings Managers using
+This is an implementation of both `UpdateSettingsManager` and `SetupSettingsManager` using
 multiple inheritance. You can see that they add their own command line argument
 `--production` that is used to toggle the use of the `production` scope. For any
 given invocable, you can pass `-h` or `--help` to show a list of available
 command line options. If you call `-c <path> --help` this list will also include
 command line options provided from the settings file you provided.
 
-These examples are for building a platform; which needs an instance of
-UpdateSettingsManager, SetupSettingsManager, BuildSettingsManager, and
-UefiBuilder.
+These examples are for building a platform, which needs instances of
+`UpdateSettingsManager`, `SetupSettingsManager`, `BuildSettingsManager`, and
+`UefiBuilder`. The instances can be grouped together in a single class, or separated into different classes.
 
-## All settings are grouped together
+## Examples
+
+### All settings grouped together
 
 ```python
-
 class SettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSettingsManager):
     def __init__(self):
         SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -93,7 +94,7 @@ class PlatformBuilder(UefiBuilder):
         raise Exception("Flashing not supported")
 ```
 
-## Build Settings is grouped with UefiBuilder, other settings are separate
+### Build Settings grouped with `UefiBuilder`, other settings separate
 
 ```python
 class SettingsManager(UpdateSettingsManager, SetupSettingsManager):
@@ -177,9 +178,9 @@ class PlatformBuilder(UefiBuilder, BuildSettingsManager):
 
 ## A note on multi-inheritance
 
-You might notice if you implement several classes, how does the system know
-which AddCommandLineOptions to call when it's doing update vs setup? The answer
+If you implement several classes, you might wonder how the system knows
+which `AddCommandLineOptions` to call when it's doing update vs setup? The answer
 is that it doesn't. It's a classic case of the diamond problem and python's
-answer for this is the MRO. Currently, our advice is to not call super into the
-settings classes in this package. You can call super to your classes that you
+answer for this is the MRO. Currently, our advice is to not call `super` into the
+settings classes in this package. You can call `super` to your classes that you
 have implemented that subclass pytool settings classes.

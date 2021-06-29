@@ -20,17 +20,15 @@ these utilities.
 ### 1) I want to build a platform
 
 You have an EDK2 implementation, a platform DSC, and a platform FDF? Great! You
-are one settings file away from a great platform building experience.
+are one [settings file](usability/using_settings_manager.md) away from a great platform building experience.
 
-If you use submodules, you will find stuart_setup helpful for submodule sync and
-update.
+Once your settings file is created and configured, you can use the [stuart commands](#what-can-ask-stuart-to-do) start building:
 
-stuart_update walks through the environment and downloads all the tools that the
+1. `stuart_setup` - Syncs and updates submodules that your project uses.
+2. `stuart_update` - Walks through the environment and downloads all the tools that the
 environment says it needs.
-
-To build the platform and assemble a ROM according to your FDF, invoke
-stuart_build. Your UefiBuilder instance will provide the opportunity to tweak or
-override at every step of the process.
+3. `stuart_build` - Builds the platform and assembles a ROM according to your FDF. Your `UefiBuilder` instance (in the
+   settings file) will provide the opportunity to tweak or override at every step of the process.
 
 ### 2) I want to manage a codebase
 
@@ -40,9 +38,9 @@ the images in your file tree and make sure they are encoded correctly.
 
 These use cases will fit into our 'CI' tools category.
 
-stuart_ci_setup can be called to clone whatever code repositories would be
+`stuart_ci_setup` can be called to clone whatever code repositories would be
 required for this operation. stuart_update can be called to download all the
-tools the environment says it needs. From there, stuart_ci_build takes a list of
+tools the environment says it needs. From there, `stuart_ci_build` takes a list of
 packages to look at and runs all plugins on each package.
 
 ### 3) I want to do something new
@@ -52,9 +50,9 @@ the process specifically to your use case? You need something to do on the
 weekend?
 
 Great! We have built out invocables to be as robust and extensible as possible.
-We have base_abstract_invocable, which asks for the bare minimum required for
+We have `base_abstract_invocable`, which asks for the bare minimum required for
 environment initialization in the form of abstract functions that you can fill
-out. We have also built edk2_invocable, on top of base_abstract_invocable, which
+out. We have also built `edk2_invocable`, on top of `base_abstract_invocable`, which
 handles getting setup and providing settings in a manner we hope will work well
 for most everyone.
 
@@ -87,13 +85,16 @@ everything has been downloaded and is present in the tree.
 ### plugin
 
 Plugins are code files that can be executed according to their scope. There are
-four different interfaces you could choose to implement:
+three different interfaces you could choose to implement:
 
-1) UefiBuildPlugin - Used for platform builds, this interface has two hooks:
-   pre-build and post-build. 2) CiBuildPlugin - Our CI process is to run all
+1. `UefiBuildPlugin` - Used for platform builds, this interface has two hooks: pre-build and post-build.
+2. `CiBuildPlugin` - Our CI process is to run all
    CiBuildPlugins for each package. Each plugin is essentially a test that will
-   be executed on the given code tree. 3) UefiHelperPlugin - Registers one or
+   be executed on the given code tree.
+3. `UefiHelperPlugin` - Registers one or
    more functions that can called by any part of the build system.
+
+[Plugin manager documentation](usability/using_plugin_manager.md)
 
 ### CI
 
@@ -134,7 +135,7 @@ be passed in. This way, the invocable script gets all the information it needs
 without needing to carry the overhead of command line parsing and loading the
 class.
 
-[settings manager documentation](features/feature_settings_manager.md)
+[settings manager documentation](usability/using_settings_manager.md)
 
 ### stuart
 
@@ -150,17 +151,17 @@ be helpful for a wide variety workflows.
 
 ### stuart_setup
 
-Sets up git repo based on the gitsubmodule file in your repo. It checks to make
+Sets up the git repo based on the gitsubmodule file in your repo. It checks to make
 sure the required repos as provided by settings manager are present.
 
 ### stuart_update
 
-Reads ext_dep files in environment and downloads the appropriate files for the
+Reads ext_dep files in the environment and downloads the appropriate files for the
 active scopes currently defined. These scopes come from the settings manager.
 
 ### stuart_build
 
-Builds a platform. Requires an instance of UefiBuilder to be provided in
+Builds a platform. Requires an instance of `UefiBuilder` to be provided in
 addition to the settings manager.
 
 ### stuart_ci_setup
@@ -179,8 +180,8 @@ checkpoint between each test.
 
 ### .gitignore
 
-We have a couple .gitignore items that are important for keeping git from
-getting it's hands on Stuart!
+We have a couple `.gitignore` items that are important for keeping git from
+getting its hands on Stuart!
 
 ```.gitignore
 *.pyc
