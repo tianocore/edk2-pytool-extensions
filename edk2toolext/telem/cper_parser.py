@@ -8,6 +8,10 @@
 
 import argparse
 import logging
+import os
+from pathlib import Path
+import struct
+import Evtx.Evtx as evtx
 from edk2toollib.windows.telem import cper_parser_tool as cper
 
 cperlist = [] 
@@ -31,5 +35,66 @@ def main():
     parser.add_argument('-o', '--Output', default='', help='Specify the name of the produced file containing parsed data')
 
     args = parser.parse_args()
+    # cper.main(args.Friendly, args.Source, args.Output, args.Print)
 
-    cper.main(args.Friendly, args.Source, args.Output, args.Print)
+    Source = args.Source
+    Friendly = args.Friendly
+    Output = args.Output
+    Print = args.Print
+    
+    cper.ValidateFriendlyNames()
+
+    hex_list = []
+
+    if Source != '':
+        if Source.endswith(".txt"):
+            if not os.path.isabs(Source):
+                Source = os.path.join(str(Path(__file__).parents[3]), Source)
+            try:
+                with open(Source, "r") as f:
+                    for line in f:
+                        hex_list.append(line)
+            except:
+                print("Unable to open txt source file:")
+                print(Source)
+                return
+
+        elif Source.endswith(".evtx"):
+            if not os.path.isabs(Source):
+                Source = os.path.join(str(Path(__file__).parents[3]), Source)
+            try:
+                with evtx.Evtx(Source) as log:
+                    for rec in log.records():
+                        start_of_cper = rec.data().index("CPER".encode(encoding='utf_8'))
+                        x = struct.unpack("<I", rec.data()[start_of_cper + 20:start_of_cper + 20 + 4])
+                        y = rec.data()[start_of_cper:start_of_cper + x[0]]
+                        hex_list.append(y.hex())
+            except:
+                print("Unable to open evtx source file:")
+                print(Source)
+                return
+
+        if Output != '':
+            if not os.path.isabs(Output):
+                Output = os.path.join(str(Path(__file__).parents[3]), Output)
+            try:
+                with open(Output, "w") as w:
+                    for line in hex_list:
+                        p = cper.CPER(line).PrettyPrint(Friendly)
+                        w.write(p)
+                        w.write("\n")
+                    w.close()
+            except:
+                print("Unable to write to output file:")
+                print(Output)
+                return
+
+        if Print:
+            for line in hex_list:
+                print(cper.CPER(line).PrettyPrint(Friendly))
+            
+        if not Print and Output == '':
+            print("Must specify --Print or a file via --Output followed by a file name")
+            return
+    else:
+        print("Must specify a source file via --Source followed by a file name which can be either .txt or .evtx")
