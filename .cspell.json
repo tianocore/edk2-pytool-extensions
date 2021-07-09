@@ -123,6 +123,7 @@
         "dbxupdate",
         "FileFlagsMask",
         "markdownlint",
-        "xffd"
+        "xffd",
+        "rtags"
     ]
 }
