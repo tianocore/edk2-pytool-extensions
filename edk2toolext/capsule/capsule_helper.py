@@ -24,12 +24,12 @@ from edk2toollib.uefi.edk2.fmp_payload_header import FmpPayloadHeaderClass
 PKCS7_SIGNED_DATA_OID = '1.2.840.113549.1.7.2'
 
 
-def get_capsule_file_name(capsule_options):
+def get_capsule_file_name(capsule_options: dict) -> str:
     '''from the shared capsule_options dictionary, returns the formatted capsule file name'''
     return f"{capsule_options['fw_name']}_{capsule_options['fw_version_string']}.bin"
 
 
-def get_normalized_version_string(version_string):
+def get_normalized_version_string(version_string: str) -> str:
     '''takes in a version string and returns a normalized version that is compatible with inf and cat files'''
     # 19H1 HLK requires a 4 digit version string, or it will fail
     while (version_string.count('.') < 3):
@@ -37,17 +37,17 @@ def get_normalized_version_string(version_string):
     return version_string
 
 
-def get_default_arch():
+def get_default_arch() -> str:
     '''helper function to consistently return the default architecture for windows files'''
     return 'amd64'
 
 
-def get_default_os_string():
+def get_default_os_string() -> str:
     '''helper function to consistently return the default os for windows files'''
     return 'Win10'
 
 
-def build_capsule(capsule_data, capsule_options, signer_module, signer_options):
+def build_capsule(capsule_data: bytes, capsule_options: dict, signer_module: object, signer_options: dict) -> UefiCapsuleHeaderClass:
     '''
     goes through all of the steps of capsule generation for a single-payload FMP capsule
 
@@ -108,7 +108,7 @@ def build_capsule(capsule_data, capsule_options, signer_module, signer_options):
     return uefi_capsule_header
 
 
-def save_capsule(uefi_capsule_header, capsule_options, save_path):
+def save_capsule(uefi_capsule_header: UefiCapsuleHeaderClass, capsule_options: dict, save_path: str) -> str:
     '''
     takes in a UefiCapsuleHeaderClass object, a dictionary of capsule_options, and a filesystem directory path
     and serializes the capsule object to the target directory
@@ -130,7 +130,7 @@ def save_capsule(uefi_capsule_header, capsule_options, save_path):
     return capsule_file_path
 
 
-def create_inf_file(capsule_options, save_path):
+def create_inf_file(capsule_options: dict, save_path: str) -> str:
     '''
     takes in a dictionary of capsule_options and creates the Windows INF file for the UEFI capsule according
     to the provided options
@@ -166,7 +166,7 @@ def create_inf_file(capsule_options, save_path):
     return inf_file_path
 
 
-def create_cat_file(capsule_options, save_path):
+def create_cat_file(capsule_options: dict, save_path: str) -> str:
     '''
     takes in a dictionary of capsule_options and creates the Windows CAT file for the UEFI capsule according
     to the provided options
