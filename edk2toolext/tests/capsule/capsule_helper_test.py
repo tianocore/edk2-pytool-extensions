@@ -25,7 +25,8 @@ DUMMY_OPTIONS = {
         'fw_name': 'TEST_FW',
         'fw_version_string': '1.2.3',  # deliberately use 3-part version to exercise version normalization.
         'provider_name': 'TESTER',
-        'fw_description': 'TEST FW'
+        'fw_description': 'TEST FW',
+        'fw_integrity_file': "IntegrityFile.bin"
     },
     'signer': {
         'option2': 'value2',
