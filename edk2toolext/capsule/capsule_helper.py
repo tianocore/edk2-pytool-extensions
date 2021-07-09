@@ -47,7 +47,8 @@ def get_default_os_string() -> str:
     return 'Win10'
 
 
-def build_capsule(capsule_data: bytes, capsule_options: dict, signer_module: object, signer_options: dict) -> UefiCapsuleHeaderClass:
+def build_capsule(capsule_data: bytes, capsule_options: dict, signer_module: object,
+                  signer_options: dict) -> UefiCapsuleHeaderClass:
     '''
     goes through all of the steps of capsule generation for a single-payload FMP capsule
 
