@@ -33,7 +33,7 @@ OMNICACHE_VERSION = "0.11"
 # configuration. Starting with 0.11, git config entries are used directly. If the file below is present, it will be
 # removed to force re-initialization of the omnicache by older omnicache instances. (e.g. if an old branch with a prior
 # implementation of omnicache is being built and uses the same cache directory)
-OMNICACHE_FILENAME = "omnicache.yaml"
+PRE_0_11_OMNICACHE_FILENAME = "omnicache.yaml"
 
 
 class Omnicache():
@@ -102,8 +102,8 @@ class Omnicache():
     def _ConvertOmnicache(self):
         """Converts an existing bare git repo from a previous omnicache version to the current omnicache version"""
         logging.info("Converting Omnicache in {0} to latest format.".format(self.path))
-        if (os.path.exists(os.path.join(self.path, OMNICACHE_FILENAME))):
-            os.remove(os.path.join(self.path, OMNICACHE_FILENAME))
+        if (os.path.exists(os.path.join(self.path, PRE_0_11_OMNICACHE_FILENAME))):
+            os.remove(os.path.join(self.path, PRE_0_11_OMNICACHE_FILENAME))
         remotes = Omnicache.GetRemotes(self.path)
         logging.info("Renaming non-UUID remotes with UUID.")
         for (name, _) in remotes.items():
