@@ -27,7 +27,7 @@ def CreateCPERFromFile(file_name: str) -> None:
 def main():
     parser = argparse.ArgumentParser(description='CPER Parser')
 
-    parser.add_argument('-f', '--Friendly', action='store_true',help ='Specify if guids names be substituted with friendly names if found')
+    parser.add_argument('-f', '--Friendly', action='store_true', help='Specify if guids names be substituted with friendly names if found')
     parser.add_argument('-p', '--Print', action='store_true', help='If true, the parsed data blobs will be printed to stdout')
     parser.add_argument('-s', '--Source', default='', help='Specify a file of newline-separated raw blobs or an .evtx file to be parsed')
     parser.add_argument('-o', '--Output', default='', help='Specify the name of the produced file containing parsed data')
