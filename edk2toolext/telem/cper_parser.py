@@ -1,5 +1,5 @@
 # @file
-# # TODO: Fill in
+# Command Line Interface for parsing CPERs
 #
 # Copyright (c) Microsoft Corporation
 #
@@ -12,9 +12,7 @@ import os
 from pathlib import Path
 import struct
 import Evtx.Evtx as evtx
-from edk2toollib.windows.telem import cper_parser_tool as cper
-
-cperlist = [] 
+from edk2toollib.windows.telem import cper_parsers as cper
 
 def CreateCPERFromFile(file_name: str) -> None:
     "Basic printing of CPERs seperated by newlines"
