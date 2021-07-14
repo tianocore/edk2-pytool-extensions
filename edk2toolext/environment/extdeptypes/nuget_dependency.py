@@ -46,7 +46,7 @@ class NugetDependency(ExternalDependency):
             for env_var in os.getenv("PATH").split(os.pathsep):
                 env_var = os.path.join(os.path.normpath(env_var), file)
                 if os.path.isfile(env_var):
-                    nuget_path =  env_var
+                    nuget_path = env_var
                     break
 
         # if we're still hosed
@@ -59,7 +59,7 @@ class NugetDependency(ExternalDependency):
             nuget_path = '"' + nuget_path + '"'
 
         cmd += [nuget_path]
-        
+
         return cmd
 
     @staticmethod
