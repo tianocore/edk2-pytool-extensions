@@ -46,14 +46,20 @@ class NugetDependency(ExternalDependency):
             for env_var in os.getenv("PATH").split(os.pathsep):
                 env_var = os.path.join(os.path.normpath(env_var), file)
                 if os.path.isfile(env_var):
-                    nuget_path = '"' + env_var + '"'
+                    nuget_path =  env_var
                     break
-        # we've probably found something by now?
-        cmd += [nuget_path]
+
         # if we're still hosed
         if not os.path.isfile(nuget_path):
             logging.error("We weren't able to find Nuget! Please reinstall your pip environment")
             return None
+
+        # Make sure quoted string if it has spaces
+        if " " in nuget_path.strip():
+            nuget_path = '"' + nuget_path + '"'
+
+        cmd += [nuget_path]
+        
         return cmd
 
     @staticmethod
