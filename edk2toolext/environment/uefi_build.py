@@ -68,23 +68,18 @@ class UefiBuilder(object):
         '''  Retrieve command line options from the argparser'''
         self.OutputConfig = os.path.abspath(args.OutputConfig) if args.OutputConfig else None
 
-        if(args.SKIPBUILD):
-            self.SkipBuild = True
-        elif(args.SKIPPREBUILD):
-            self.SkipPreBuild = True
-        elif(args.SKIPPOSTBUILD):
-            self.SkipPostBuild = True
-        elif(args.FLASHONLY):
+        self.SkipBuild = args.SKIPBUILD
+        self.SkipPreBuild = args.SKIPPREBUILD
+        self.SkipPostBuild = args.SKIPPOSTBUILD
+        self.Clean = args.CLEAN
+        self.FlashImage = args.FLASHROM
+        self.UpdateConf = args.UPDATECONF
+
+        if(args.FLASHONLY):
             self.SkipPostBuild = True
             self.SkipBuild = True
             self.SkipPreBuild = True
             self.FlashImage = True
-        elif(args.FLASHROM):
-            self.FlashImage = True
-        elif(args.UPDATECONF):
-            self.UpdateConf = True
-        elif(args.CLEAN):
-            self.Clean = True
         elif(args.CLEANONLY):
             self.Clean = True
             self.SkipBuild = True
