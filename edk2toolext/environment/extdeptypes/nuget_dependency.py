@@ -14,10 +14,14 @@ from edk2toolext.environment.external_dependency import ExternalDependency
 from edk2toollib.utility_functions import RunCmd
 from edk2toollib.utility_functions import GetHostInfo
 import pkg_resources
+from typing import List
 
 
 class NugetDependency(ExternalDependency):
     TypeString = "nuget"
+
+    ''' Env variable name for path to folder containing NuGet.exe'''
+    NUGET_ENV_VAR_NAME = "NUGET_PATH"
 
     def __init__(self, descriptor):
         super().__init__(descriptor)
@@ -28,28 +32,28 @@ class NugetDependency(ExternalDependency):
     # Used to add nuget support on posix platforms.
     # https://docs.microsoft.com/en-us/nuget/install-nuget-client-tools
     #
+    # Note that the strings returned might not be pathlike given they may be
+    # quoted for use on command line
+    #
     # @return list containing either ["nuget.exe"] or ["mono", "/PATH/TO/nuget.exe"]
+    # @return none if not found
     ####
-    @staticmethod
-    def GetNugetCmd():
-        file = "NuGet.exe"
+    @classmethod
+    def GetNugetCmd(cls) -> List[str]:
+        file_name = "NuGet.exe"
         cmd = []
         if GetHostInfo().os == "Linux":
             cmd += ["mono"]
-        # TODO Find the Nuget rom our bin file
-        requirement = pkg_resources.Requirement.parse("edk2-pytool-extensions")
-        nuget_file_path = os.path.join("edk2toolext", "bin", file)
-        nuget_path = pkg_resources.resource_filename(requirement, nuget_file_path)
 
-        # check if we don't have it, look for nuget in the path
-        if not os.path.isfile(nuget_path):
-            for env_var in os.getenv("PATH").split(os.pathsep):
-                env_var = os.path.join(os.path.normpath(env_var), file)
-                if os.path.isfile(env_var):
-                    nuget_path = env_var
-                    break
+        nuget_path = os.getenv(cls.NUGET_ENV_VAR_NAME)
+        if  nuget_path is None:
+            # No env variable found.  Get it from our package
+            requirement = pkg_resources.Requirement.parse("edk2-pytool-extensions")
+            nuget_file_path = os.path.join("edk2toolext", "bin")
+            nuget_path = pkg_resources.resource_filename(requirement, nuget_file_path)
 
-        # if we're still hosed
+        nuget_path = os.path.join(nuget_path, file_name)
+
         if not os.path.isfile(nuget_path):
             logging.error("We weren't able to find Nuget! Please reinstall your pip environment")
             return None
