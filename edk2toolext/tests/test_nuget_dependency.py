@@ -13,10 +13,12 @@ import logging
 import shutil
 import stat
 import tempfile
+import pkg_resources
 from edk2toollib.utility_functions import RunCmd
 from edk2toolext.environment import environment_descriptor_files as EDF
 from edk2toolext.environment.extdeptypes.nuget_dependency import NugetDependency
 from edk2toolext.environment import version_aggregator
+from edk2toolext.bin import nuget
 
 test_dir = None
 good_version = "5.2.0"
@@ -83,11 +85,31 @@ class TestNugetDependency(unittest.TestCase):
         # we need to reset the version aggregator each time
         version_aggregator.GetVersionAggregator().Reset()
 
+        # Fix the nuget.exe is missing....download again
+        requirement = pkg_resources.Requirement.parse("edk2-pytool-extensions")
+        nuget_file_path = os.path.join("edk2toolext", "bin", "NuGet.exe")
+        nuget_path = pkg_resources.resource_filename(requirement, nuget_file_path)
+
+        if not os.path.isfile(nuget_path):
+            nuget.DownloadNuget()
+
     def test_can_get_nuget_path(self):
         nuget_cmd = NugetDependency.GetNugetCmd()
         nuget_cmd += ["locals", "global-packages", "-list"]
         ret = RunCmd(nuget_cmd[0], ' '.join(nuget_cmd[1:]), outstream=sys.stdout)
         self.assertEqual(ret, 0)  # make sure we have a zero return code
+
+    def test_nuget_exe_on_path(self):
+
+        original = NugetDependency.GetNugetCmd()[-1]  # get last item which will be exe path
+        os.remove(original)
+        path = NugetDependency.GetNugetCmd()
+        self.assertIsNone(path)  #Should not be found
+
+        os.environ["PATH"] = os.environ["PATH"] + os.pathsep + os.path.dirname(test_dir)
+        nuget.DownloadNuget(test_dir)  #download to test dir
+        path = NugetDependency.GetNugetCmd()
+        self.assertIsNotNone(path)
 
     # good case
     def test_download_good_nuget(self):
