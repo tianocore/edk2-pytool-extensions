@@ -15,6 +15,7 @@ import inspect
 import pkg_resources
 import argparse
 from typing import Iterable, Tuple
+from textwrap import dedent
 from edk2toolext.environment import shell_environment
 from edk2toollib.utility_functions import GetHostInfo
 from edk2toolext.environment import version_aggregator
@@ -160,14 +161,16 @@ class Edk2Invocable(BaseAbstractInvocable):
         settingsParserObj = argparse.ArgumentParser(add_help=False)
         # instantiate the second argparser that will get passed around
 
-        epilog = '''
-<key>=<value>               - Set an env variable for the pre/post build process
-BLD_*_<key>=<value>         - Set a build flag for all build types.
-Key=value will get passed to build process
-BLD_<TARGET>_<key>=<value>  - Set a build flag for build type of <target>
-Key=value will get passed to build process for given build type)'''
+        epilog = dedent('''\
+            positional arguments:
+              <key>=<value>              - Set an env variable for the pre/post build process
+              BLD_*_<key>=<value>        - Set a build flag for all build types
+                                           (key=value will get passed to build process)
+              BLD_<TARGET>_<key>=<value> - Set a build flag for build type of <target>
+                                           (key=value will get passed to build process for given build type)
+            ''')
 
-        parserObj = argparse.ArgumentParser(epilog=epilog)
+        parserObj = argparse.ArgumentParser(epilog=epilog, formatter_class=argparse.RawDescriptionHelpFormatter,)
 
         settingsParserObj.add_argument('-c', '--platform_module', dest='platform_module',
                                        default="PlatformBuild.py", type=str,
