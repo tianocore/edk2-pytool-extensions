@@ -113,7 +113,12 @@ class Omnicache():
                 newName = str(uuid.uuid4())
                 ret = RunCmd("git", "remote rename {0} {1}".format(name, newName), workingdir=self.path)
                 if (ret != 0):
-                    return ret
+                    # rename failed; try removal.
+                    logging.warn("Failed to rename {0}. Attempting to remove it.".format(name))
+                    ret = RunCmd("git", "remote remove {0}".format(name), workingdir=self.path)
+                    if (ret != 0):
+                        logging.critical("Failed to rename or remove {0} - skipping.".format(name))
+                        continue
                 # Remove previous fetch config entries and regenerate them. Proceed to create new ones even if it fails.
                 RunCmd("git", "config --local --unset-all remote.{0}.fetch".format(newName), workingdir=self.path)
                 RunCmd("git",
