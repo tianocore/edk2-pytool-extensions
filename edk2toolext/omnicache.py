@@ -16,7 +16,7 @@ from io import StringIO
 from edk2toolext import edk2_logging
 from edk2toollib.utility_functions import RunCmd
 
-# Omnicache version 0.11 design notes:
+# Omnicache version 0.11+ design notes:
 # 1. Only a single remote per URL will be permitted.
 # 2. Remote names inside omnicache will be UUIDs generated when a new URL is added.
 # 3. Users may specify names for remotes, but they will be treated simply as "display names" without git significance.
@@ -27,7 +27,7 @@ from edk2toollib.utility_functions import RunCmd
 #     older omnicache interacts with it. Older omnicache should not crash when encountering a newer omnicache directory
 #     but may take a lot of slow and unecessary actions to "re-initialize" it.
 
-OMNICACHE_VERSION = "0.11"
+OMNICACHE_VERSION = "0.12"
 
 # Prior to version 0.11, an "omnicache.yaml" file in the root of the omnicache repo was used to manage the cache
 # configuration. Starting with 0.11, git config entries are used directly. If the file below is present, it will be
@@ -95,6 +95,11 @@ class Omnicache():
         ret = RunCmd("git", "init --bare", workingdir=self.path)
         if (ret != 0):
             return ret
+
+        ret = RunCmd("git", "config --local fetch.parallel 0", workingdir=self.path)
+        if (ret != 0):
+            return ret
+
         return RunCmd("git",
                       "config --local omnicache.metadata.version {0}".format(OMNICACHE_VERSION),
                       workingdir=self.path)
@@ -150,6 +155,10 @@ class Omnicache():
                 logging.info("Removing remote {0} with duplicate URL {1}".format(name, url))
                 RunCmd("git", "remote remove {0}".format(name), workingdir=self.path)
                 RunCmd("git", "config --local --unset omnicache.{0}.displayname".format(name), workingdir=self.path)
+        # setup fetch.parallel to a reasonable default
+        ret = RunCmd("git", "config --local fetch.parallel 0", workingdir=self.path)
+        if (ret != 0):
+            return ret
         # write current omnicache version into cache
         logging.info("Writing Omnicache version")
         return RunCmd("git",
@@ -244,13 +253,16 @@ class Omnicache():
 
         return 0
 
-    def Fetch(self):
+    def Fetch(self, jobs=0):
         """Fetches all remotes"""
         logging.info("Fetching all remotes.")
         self._RefreshUrlLookupCache()
         # Tricky: we pass no-tags here, since we set up custom fetch refs for tags on a per-remote basis. This prevents
         # git from fetching the first set of tags into the global namespace.
-        return RunCmd("git", "fetch --all -j {0} --no-tags".format(len(self.urlLookupCache)), workingdir=self.path)
+        if (jobs != 0):
+            return RunCmd("git", "fetch --all -j {0} --no-tags".format(len(self.urlLookupCache)), workingdir=self.path)
+        else:
+            return RunCmd("git", "fetch --all --no-tags", workingdir=self.path)
 
     def GetRemoteData(self):
         """Gets Remote Data
@@ -398,6 +410,8 @@ def get_cli_options():
                        help="Update the Omnicache.  All cache changes also cause a fetch", default=False)
     group.add_argument("--no-fetch", dest="no_fetch", action="store_true",
                        help="Prevent auto-fetch if implied by other arguments.", default=False)
+    group.add_argument("--fetch-jobs", dest="fetch_jobs", type=int,
+                       help="Override the default fetch jobs", default=0)
     parser.add_argument("-r", "--remove", dest="remove", nargs=1, action="append",
                         help="remove config entry from OMNICACHE <name>", default=[])
     parser.add_argument('--version', action='version', version='%(prog)s ' + OMNICACHE_VERSION)
@@ -485,7 +499,7 @@ def main():
     # Note: errors are ignored here, since transient network failures may occur that prevent cache update. Those just
     # mean the omnicache may be a a little stale which should not be fatal to users of the cache.
     if(args.fetch or (auto_fetch and not args.no_fetch)):
-        omnicache.Fetch()
+        omnicache.Fetch(args.fetch_jobs)
 
     # list: print out the omnicache contents.
     if (args.list):
