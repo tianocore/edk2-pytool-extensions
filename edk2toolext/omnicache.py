@@ -95,7 +95,8 @@ class Omnicache():
         ret = RunCmd("git", "init --bare", workingdir=self.path)
         if (ret != 0):
             return ret
-
+        # by default, git fetch is single-threaded. This configuration allows git to use a "reasonable" default
+        # (presently equal to the number of cpus) to execute the fetch in parallel.
         ret = RunCmd("git", "config --local fetch.parallel 0", workingdir=self.path)
         if (ret != 0):
             return ret
@@ -155,7 +156,8 @@ class Omnicache():
                 logging.info("Removing remote {0} with duplicate URL {1}".format(name, url))
                 RunCmd("git", "remote remove {0}".format(name), workingdir=self.path)
                 RunCmd("git", "config --local --unset omnicache.{0}.displayname".format(name), workingdir=self.path)
-        # setup fetch.parallel to a reasonable default
+        # by default, git fetch is single-threaded. This configuration allows git to use a "reasonable" default
+        # (presently equal to the number of cpus) to execute the fetch in parallel.
         ret = RunCmd("git", "config --local fetch.parallel 0", workingdir=self.path)
         if (ret != 0):
             return ret
@@ -411,7 +413,7 @@ def get_cli_options():
     group.add_argument("--no-fetch", dest="no_fetch", action="store_true",
                        help="Prevent auto-fetch if implied by other arguments.", default=False)
     group.add_argument("--fetch-jobs", dest="fetch_jobs", type=int,
-                       help="Override the default fetch jobs", default=0)
+                       help="Specify the number of parallel threads (jobs) for fetch operation.", default=0)
     parser.add_argument("-r", "--remove", dest="remove", nargs=1, action="append",
                         help="remove config entry from OMNICACHE <name>", default=[])
     parser.add_argument('--version', action='version', version='%(prog)s ' + OMNICACHE_VERSION)
