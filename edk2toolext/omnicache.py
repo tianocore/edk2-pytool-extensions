@@ -262,7 +262,7 @@ class Omnicache():
         # Tricky: we pass no-tags here, since we set up custom fetch refs for tags on a per-remote basis. This prevents
         # git from fetching the first set of tags into the global namespace.
         if (jobs != 0):
-            return RunCmd("git", "fetch --all -j {0} --no-tags".format(len(self.urlLookupCache)), workingdir=self.path)
+            return RunCmd("git", "fetch --all -j {0} --no-tags".format(jobs), workingdir=self.path)
         else:
             return RunCmd("git", "fetch --all --no-tags", workingdir=self.path)
 
