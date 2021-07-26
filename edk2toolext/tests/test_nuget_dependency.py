@@ -126,7 +126,7 @@ class TestNugetDependency(unittest.TestCase):
         # done with env testing.  clean up
         del os.environ[NugetDependency.NUGET_ENV_VAR_NAME]
         self.assertIsNotNone(found_path)
-        path_should_be = os.path.join(test_dir, "nuget.exe")
+        path_should_be = os.path.join(test_dir, "NuGet.exe")
         self.assertTrue(os.path.samefile(found_path, path_should_be))
 
     def test_nuget_env_var_with_space(self):
@@ -144,7 +144,7 @@ class TestNugetDependency(unittest.TestCase):
         del os.environ[NugetDependency.NUGET_ENV_VAR_NAME]
 
         self.assertIsNotNone(found_path)
-        path_should_be = os.path.join(my_test_dir, "nuget.exe")
+        path_should_be = os.path.join(my_test_dir, "NuGet.exe")
         self.assertTrue(os.path.samefile(found_path.strip('"'), path_should_be))
 
     # good case
