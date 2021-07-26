@@ -46,7 +46,7 @@ class NugetDependency(ExternalDependency):
             cmd += ["mono"]
 
         nuget_path = os.getenv(cls.NUGET_ENV_VAR_NAME)
-        if  nuget_path is None:
+        if nuget_path is None:
             # No env variable found.  Get it from our package
             requirement = pkg_resources.Requirement.parse("edk2-pytool-extensions")
             nuget_file_path = os.path.join("edk2toolext", "bin")

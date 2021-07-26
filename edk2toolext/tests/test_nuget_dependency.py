@@ -108,11 +108,11 @@ class TestNugetDependency(unittest.TestCase):
         if NugetDependency.NUGET_ENV_VAR_NAME in os.environ:
             del os.environ[NugetDependency.NUGET_ENV_VAR_NAME]
 
-        #delete the package file
+        # delete the package file
         original = NugetDependency.GetNugetCmd()[-1]  # get last item which will be exe path
         os.remove(original)
         path = NugetDependency.GetNugetCmd()
-        self.assertIsNone(path)  #Should not be found
+        self.assertIsNone(path)  # Should not be found
 
     def test_nuget_env_var(self):
         if NugetDependency.NUGET_ENV_VAR_NAME in os.environ:
@@ -120,10 +120,10 @@ class TestNugetDependency(unittest.TestCase):
 
         # set the env var to our path
         os.environ[NugetDependency.NUGET_ENV_VAR_NAME] = test_dir
-        nuget.DownloadNuget(test_dir)  #download to test dir
+        nuget.DownloadNuget(test_dir)  # download to test dir
         found_path = NugetDependency.GetNugetCmd()[-1]
 
-        ## done with env testing.  clean up
+        # done with env testing.  clean up
         del os.environ[NugetDependency.NUGET_ENV_VAR_NAME]
         self.assertIsNotNone(found_path)
         path_should_be = os.path.join(test_dir, "nuget.exe")
@@ -137,10 +137,10 @@ class TestNugetDependency(unittest.TestCase):
         my_test_dir = os.path.join(test_dir, "my folder")
         os.makedirs(my_test_dir)
         os.environ[NugetDependency.NUGET_ENV_VAR_NAME] = my_test_dir
-        nuget.DownloadNuget(my_test_dir)  #download to test dir
+        nuget.DownloadNuget(my_test_dir)  # download to test dir
         found_path = NugetDependency.GetNugetCmd()[-1]
 
-        ## done with env testing.  clean up
+        # done with env testing.  clean up
         del os.environ[NugetDependency.NUGET_ENV_VAR_NAME]
 
         self.assertIsNotNone(found_path)
