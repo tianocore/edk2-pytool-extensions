@@ -374,6 +374,10 @@ class TestOmniCache(unittest.TestCase):
         ret = oc.Fetch()
         assert (ret == 0)
 
+        # fetch the remote with 4 jobs
+        ret = oc.Fetch(jobs=4)
+        assert (ret == 0)
+
         # get the remote UUID
         remoteName = oc._LookupRemoteForUrl("https://github.com/tianocore/edk2-pytool-extensions.git")
         assert(remoteName is not None)
