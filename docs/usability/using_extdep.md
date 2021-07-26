@@ -69,6 +69,9 @@ either unauthenticated or authenticated. Support is done by using the nuget
 command line tool. When the ext_dep type is set to **_nuget_** the descriptor
 will be interpreted as a nuget dependency. Nuget has a few nice features such as
 caching, authentication, versioning, and is platform and language agnostic.
+This package has a version of the NuGet.exe binary or a user can configure their
+environment to use a defined version by setting `NUGET_PATH` to the folder containing
+the NuGet.exe that should be used.
 
 ### Web Dependency
 

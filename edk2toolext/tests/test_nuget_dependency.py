@@ -13,10 +13,12 @@ import logging
 import shutil
 import stat
 import tempfile
+import pkg_resources
 from edk2toollib.utility_functions import RunCmd
 from edk2toolext.environment import environment_descriptor_files as EDF
 from edk2toolext.environment.extdeptypes.nuget_dependency import NugetDependency
 from edk2toolext.environment import version_aggregator
+from edk2toolext.bin import nuget
 
 test_dir = None
 good_version = "5.2.0"
@@ -68,6 +70,7 @@ def clean_workspace():
 class TestNugetDependency(unittest.TestCase):
     def setUp(self):
         prep_workspace()
+        self.saved_nuget_path = os.getenv(NugetDependency.NUGET_ENV_VAR_NAME)
 
     @classmethod
     def setUpClass(cls):
@@ -83,11 +86,66 @@ class TestNugetDependency(unittest.TestCase):
         # we need to reset the version aggregator each time
         version_aggregator.GetVersionAggregator().Reset()
 
+        if self.saved_nuget_path is not None:
+            os.environ[NugetDependency.NUGET_ENV_VAR_NAME] = self.saved_nuget_path
+
+        # Fix the nuget.exe is missing....download again
+        requirement = pkg_resources.Requirement.parse("edk2-pytool-extensions")
+        nuget_file_path = os.path.join("edk2toolext", "bin", "NuGet.exe")
+        nuget_path = pkg_resources.resource_filename(requirement, nuget_file_path)
+
+        if not os.path.isfile(nuget_path):
+            nuget.DownloadNuget()
+
     def test_can_get_nuget_path(self):
         nuget_cmd = NugetDependency.GetNugetCmd()
         nuget_cmd += ["locals", "global-packages", "-list"]
         ret = RunCmd(nuget_cmd[0], ' '.join(nuget_cmd[1:]), outstream=sys.stdout)
         self.assertEqual(ret, 0)  # make sure we have a zero return code
+
+    def test_missing_nuget(self):
+
+        if NugetDependency.NUGET_ENV_VAR_NAME in os.environ:
+            del os.environ[NugetDependency.NUGET_ENV_VAR_NAME]
+
+        # delete the package file
+        original = NugetDependency.GetNugetCmd()[-1]  # get last item which will be exe path
+        os.remove(original)
+        path = NugetDependency.GetNugetCmd()
+        self.assertIsNone(path)  # Should not be found
+
+    def test_nuget_env_var(self):
+        if NugetDependency.NUGET_ENV_VAR_NAME in os.environ:
+            del os.environ[NugetDependency.NUGET_ENV_VAR_NAME]
+
+        # set the env var to our path
+        os.environ[NugetDependency.NUGET_ENV_VAR_NAME] = test_dir
+        nuget.DownloadNuget(test_dir)  # download to test dir
+        found_path = NugetDependency.GetNugetCmd()[-1]
+
+        # done with env testing.  clean up
+        del os.environ[NugetDependency.NUGET_ENV_VAR_NAME]
+        self.assertIsNotNone(found_path)
+        path_should_be = os.path.join(test_dir, "NuGet.exe")
+        self.assertTrue(os.path.samefile(found_path, path_should_be))
+
+    def test_nuget_env_var_with_space(self):
+        if NugetDependency.NUGET_ENV_VAR_NAME in os.environ:
+            del os.environ[NugetDependency.NUGET_ENV_VAR_NAME]
+
+        # set the env var to our path
+        my_test_dir = os.path.join(test_dir, "my folder")
+        os.makedirs(my_test_dir)
+        os.environ[NugetDependency.NUGET_ENV_VAR_NAME] = my_test_dir
+        nuget.DownloadNuget(my_test_dir)  # download to test dir
+        found_path = NugetDependency.GetNugetCmd()[-1]
+
+        # done with env testing.  clean up
+        del os.environ[NugetDependency.NUGET_ENV_VAR_NAME]
+
+        self.assertIsNotNone(found_path)
+        path_should_be = os.path.join(my_test_dir, "NuGet.exe")
+        self.assertTrue(os.path.samefile(found_path.strip('"'), path_should_be))
 
     # good case
     def test_download_good_nuget(self):
