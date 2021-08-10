@@ -36,6 +36,26 @@ DUMMY_OPTIONS = {
 DUMMY_OPTIONS_FILE_NAME = 'dummy_options_file'
 DUMMY_PAYLOAD_FILE_NAME = 'dummy_payload'
 
+DUMMY_MULTINODE_OPTIONS = {
+    'capsule': {
+        'fw_version_string': '1.2.3',
+        'fw_name': 'TEST_FW',
+        'provider_name': 'TESTER',
+        'fw_description': 'TEST FW',
+        'fw_version': '0xDEADBEEF'
+    },
+    'payloads': [
+        {
+            'fw_payload_file': 'test1.bin',
+            'esrt_guid': 'ea5c13fe-cac9-4fd7-ac30-37709bd668f2'
+        },
+        {
+            'fw_payload_file': 'test2.bin',
+            'esrt_guid': '43e67b4e-b2f1-4891-9ff2-a6acd9c74cbd'
+        }
+    ]
+}
+
 
 class CapsuleSignerTest(unittest.TestCase):
     @classmethod
@@ -161,6 +181,76 @@ class FileGenerationTest(unittest.TestCase):
     def test_should_be_able_to_generate_cat(self):
         cat_file_path = capsule_helper.create_cat_file(DUMMY_OPTIONS['capsule'], self.temp_dir)
         self.assertTrue(os.path.isfile(cat_file_path))
+
+
+class MultiNodeFileGenerationTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.temp_dir = tempfile.mkdtemp()
+        cls.temp_output_dir = tempfile.mkdtemp()
+
+        cls.dummy_payloads = []
+        cls.dummy_integrity = []
+        for payload in DUMMY_MULTINODE_OPTIONS['payloads']:
+            fmp_capsule_image_header = FmpCapsuleImageHeaderClass()
+            fmp_capsule_image_header.UpdateImageTypeId = uuid.UUID(payload['esrt_guid'])
+            fmp_capsule_image_header.UpdateImageIndex = 1
+
+            fmp_capsule_header = FmpCapsuleHeaderClass()
+            fmp_capsule_header.AddFmpCapsuleImageHeader(fmp_capsule_image_header)
+
+            uefi_capsule_header = UefiCapsuleHeaderClass()
+            uefi_capsule_header.FmpCapsuleHeader = fmp_capsule_header
+            uefi_capsule_header.PersistAcrossReset = True
+            uefi_capsule_header.InitiateReset = True
+            cls.dummy_payloads.append(uefi_capsule_header)
+            cls.dummy_integrity.append(uuid.UUID(payload['esrt_guid']).bytes_le)
+
+    def test_should_be_able_to_save_a_multi_node_capsule(self):
+        capsule_file_path = capsule_helper.save_multinode_capsule(
+            self.dummy_payloads,
+            DUMMY_MULTINODE_OPTIONS['payloads'],
+            self.temp_output_dir)
+
+        # make sure all the files we expect got created
+        for payload in DUMMY_MULTINODE_OPTIONS['payloads']:
+            payloadDataFile = os.path.join(capsule_file_path, payload['fw_payload_file'])
+            self.assertTrue(os.path.isfile(payloadDataFile))
+            with open(payloadDataFile, 'rb') as capsule_file:
+                capsule_bytes = capsule_file.read()
+            self.assertIn(uuid.UUID(payload['esrt_guid']).bytes_le, capsule_bytes)
+
+    def test_should_be_able_to_save_a_multi_node_capsule_with_integrity(self):
+        payloads_with_integrity = DUMMY_MULTINODE_OPTIONS['payloads'].copy()
+        for idx in range(len(payloads_with_integrity)):
+            payloads_with_integrity[idx]['integrity_data'] = self.dummy_integrity[idx]
+            payloads_with_integrity[idx]['fw_integrity_file'] = f"integrity{idx}.bin"
+
+        capsule_file_path = capsule_helper.save_multinode_capsule(
+            self.dummy_payloads,
+            payloads_with_integrity,
+            self.temp_output_dir)
+
+        # make sure all the files we expect got created
+        for payload in DUMMY_MULTINODE_OPTIONS['payloads']:
+            payloadDataFile = os.path.join(capsule_file_path, payload['fw_payload_file'])
+            self.assertTrue(os.path.isfile(payloadDataFile))
+            with open(payloadDataFile, 'rb') as capsule_file:
+                capsule_bytes = capsule_file.read()
+            self.assertIn(uuid.UUID(payload['esrt_guid']).bytes_le, capsule_bytes)
+
+            integrityFile = os.path.join(capsule_file_path, payload['fw_integrity_file'])
+            self.assertTrue(os.path.isfile(integrityFile))
+            with open(integrityFile, 'rb') as integrity_file:
+                integrity_bytes = integrity_file.read()
+            self.assertIn(uuid.UUID(payload['esrt_guid']).bytes_le, integrity_bytes)
+
+    def test_should_be_able_to_generate_multi_node_inf_file(self):
+        inf_file_path = capsule_helper.create_multinode_inf_file(
+            DUMMY_MULTINODE_OPTIONS['capsule'],
+            DUMMY_MULTINODE_OPTIONS['payloads'],
+            self.temp_output_dir)
+        self.assertTrue(os.path.isfile(inf_file_path))
 
 
 if __name__ == '__main__':
