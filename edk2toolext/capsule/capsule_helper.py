@@ -251,14 +251,14 @@ def create_multinode_inf_file(capsule_options: dict, payloads: list, save_path: 
         if 'fw_integrity_file' not in payload:
             payload['fw_integrity_file'] = None
 
-        infFile.addFirmware(
+        infFile.AddFirmware(
             payload['tag'],
             payload['fw_description'],
             payload['esrt_guid'],
             payload['fw_version'],
             payload['fw_payload_file'],
-            rollback=payload['is_rollback'],
-            integrityFile=payload['fw_integrity_file']
+            Rollback=payload['is_rollback'],
+            IntegrityFile=payload['fw_integrity_file']
         )
 
     inf_file_path = os.path.join(save_path, f"{capsule_options['fw_name']}.inf")
