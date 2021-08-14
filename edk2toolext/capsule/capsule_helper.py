@@ -14,6 +14,11 @@ import uuid
 import os
 import struct
 import datetime
+import uuid
+
+from typing import List
+from dataclasses import dataclass
+from dataclasses import field
 
 from edk2toollib.windows.capsule import inf_generator, inf_generator2, cat_generator
 from edk2toollib.uefi.uefi_capsule_header import UefiCapsuleHeaderClass
@@ -23,6 +28,55 @@ from edk2toollib.uefi.edk2.fmp_payload_header import FmpPayloadHeaderClass
 
 # https://docs.microsoft.com/en-us/dotnet/api/system.security.cryptography.pkcs.contentinfo.-ctor?view=netframework-4.8
 PKCS7_SIGNED_DATA_OID = '1.2.840.113549.1.7.2'
+
+
+@dataclass
+class CapsulePayload:
+    '''Stores information about a specific capsule payload.
+
+    CapsulePayload instances have the following attributes:
+    payload              - an instance of UefiCapsuleHeaderClass that represents the payload data.
+    payload_filename     - the payload filename as a string
+    esrt_guid            - the payload ESRT guid as a uuid.UUID instance.
+    version              - the 32-bit ESRT version for the payload.
+    firmware_description - the firmware payload description.
+    tag                  - a string uniquely identifying the payload. optional, if not present, will be auto-generated.
+    rollback             - indicates whether this is a rollback payload. optional, defaults to false.
+    integrity_data       - integrity data for this payload. optional.
+    integrity_filename   - integrity filename. optional if integrity_data is None, required otherwise.
+    '''
+    payload: UefiCapsuleHeaderClass
+    payload_filename: str
+    esrt_guid: uuid.UUID
+    version: int
+    firmware_description: str
+    tag: str = None
+    rollback: bool = False
+    integrity_data: bytes = None
+    integrity_filename: str = None
+
+
+@dataclass
+class Capsule:
+    '''Stores information about a capsule (potentially with multiple payloads)
+
+    Capsule instances have the following attributes:
+    version_string    - the version of the entire capsule driver package as a string (e.g. 1.0.0.1)
+    name              - the name of the capsule package
+    provider_name     - the name of the capsule provider
+    arch              - the architecture targeted by the capsule
+    manufacturer_name - name of the capsule manufacturer. optional, defaults to provider_name if None.
+    date              - a datetime.date object indicating when the capsule was built. optional, defaults to
+                        datetime.date.today().
+    payloads          - a list of capsule payloads. optional, defaults to empty list
+    '''
+    version_string: str
+    name: str
+    provider_name: str
+    arch: str = None
+    manufacturer_name: str = None
+    date: datetime.date = datetime.date.today()
+    payloads: List[CapsulePayload] = field(default_factory=list)
 
 
 def get_capsule_file_name(capsule_options: dict) -> str:
@@ -132,30 +186,27 @@ def save_capsule(uefi_capsule_header: UefiCapsuleHeaderClass, capsule_options: d
     return capsule_file_path
 
 
-def save_multinode_capsule(payloads: list, payload_info: list, save_path: str) -> str:
+def save_multinode_capsule(capsule: Capsule, save_path: str) -> str:
     '''
-    takes in a list of payloads, a list of payload options dictionaries, and a filesystem directory path and serializes
-    the capsule object to the target directory.
+    takes in a Capsule object and a filesystem directory path and generates the capsule files at that path.
 
-    payloads        - list of bytes objects that will be written to files
-    payload_info    - list of information associated with each payload. The following options are used:
-        'fw_payload_file'   - filename to which to write the payload data.
-        'integrity_data'    - optional. if it exists, will be written to a file in the payload directory.
-        'fw_integrity_file' - required if integrity_data is present. filename to which to write the integrity data.
-    save_path       - directory path to save the capsule contents into
+    capsule     - a Capsule object containing the capsule details.
+    save_path   - directory path to save the capsule contents into
 
     returns save_path
     '''
     os.makedirs(save_path, exist_ok=True)
-    for (payload, payload_info) in zip(payloads, payload_info):
-        payload_file_path = os.path.join(save_path, payload_info['fw_payload_file'])
+    for capsule_payload in capsule.payloads:
+        payload_file_path = os.path.join(save_path, capsule_payload.payload_filename)
         with open(payload_file_path, 'wb') as payload_file:
-            payload_file.write(payload.Encode())
+            payload_file.write(capsule_payload.payload.Encode())
 
-        if ('integrity_data' in payload_info):
-            integrity_file_path = os.path.join(save_path, payload_info['fw_integrity_file'])
+        if capsule_payload.integrity_data is not None:
+            if (capsule_payload.integrity_filename is None):
+                raise ValueError("Integrity data specified, but no integrity filename specified.")
+            integrity_file_path = os.path.join(save_path, capsule_payload.integrity_filename)
             with open(integrity_file_path, 'wb') as integrity_file:
-                integrity_file.write(payload_info['integrity_data'])
+                integrity_file.write(capsule_payload.integrity_data)
     return save_path
 
 
@@ -195,75 +246,51 @@ def create_inf_file(capsule_options: dict, save_path: str) -> str:
     return inf_file_path
 
 
-def create_multinode_inf_file(capsule_options: dict, payloads: list, save_path: str) -> str:
+def create_multinode_inf_file(capsule: Capsule, save_path: str) -> str:
     '''
-    takes in a dictionary of capsule_options and a list of dictionaries containing payload information and creates the
-    Windows INF file for the capsule according to the provided options.
+    Takes in a capsule object containing payload information and creates the Windows INF file in save_path
 
-    capsule_options - dictionary of capsule options:
-        'fw_version_string' - the firmware version as a string e.g. 1.0.0.1
-        'fw_name'           - firmware name
-        'provider_name'     - specifies the provider of the capsule
-        'arch'              - optional - specifies the arch for the capsule
-        'mfg_name'          - optional - specifies the mfg_name for the capsule. defaults to 'provider_name'
-        'date'              - optional - specifies the date for the capsule in 01/01/2021 format. defaults to today
-        'fw_description     - optional - used as the default description for payloads if they don't specify one.
-        'fw_version'        - optional - used as the default version strings for payloads if they don't specify one.
-
-    payloads - list of dictionaries containing the payload info for this inf file - each element represents one targeted
-               ESRT node for the capsule:
-        'fw_payload_file'   - payload filename
-        'esrt_guid'         - ESRT GUID for this payload
-        'tag'               - optional - unique identifier for the payload. if not specified, defaults to
-                              Firmware0, Firmware1, etc..
-        'fw_description'    - optional - firmware description. defaults to capsule_options['fw_description']
-        'is_rollback'       - optional - indicates whether this is a rollback payload or not. defaults to false.
-        'fw_integrity_file' - optional - specifies integrity filename
-        'fw_version'        - optional - version string. defaults to capsule_options['fw_version']
-
-    save_path - path to directory where inf file will be created.
+    capsule     - capsule object containing payload information
+    save_path   - path to directory where inf file will be created.
 
     returns the name of the created inf file.
     '''
     # Expand the version string prior to creating INF file.
-    capsule_options['fw_version_string'] = get_normalized_version_string(capsule_options['fw_version_string'])
+    capsule.version_string = get_normalized_version_string(capsule.version_string)
 
-    # Deal with optional parameters when creating the INF file.
-    capsule_options['fw_version_string'] = get_normalized_version_string(capsule_options['fw_version_string'])
-    capsule_options['arch'] = capsule_options.get('arch', get_default_arch())
-    capsule_options['mfg_name'] = capsule_options.get('mfg_name', capsule_options['provider_name'])
-    capsule_options['date'] = capsule_options.get('date', datetime.date.today().strftime("%m/%d/%Y"))
+    # set defaults for non-specified fields
+    if (capsule.arch is None):
+        capsule.arch = get_default_arch()
+    if (capsule.manufacturer_name is None):
+        capsule.manufacturer_name = capsule.provider_name
 
-    infFile = inf_generator2.InfFile(
-        capsule_options['fw_name'],
-        capsule_options['fw_version_string'],
-        capsule_options['date'],
-        capsule_options['provider_name'],
-        capsule_options['mfg_name'],
-        capsule_options['arch']
+    inf_file = inf_generator2.InfFile(
+        capsule.name,
+        capsule.version_string,
+        capsule.date.strftime("%m/%d/%Y"),
+        capsule.provider_name,
+        capsule.manufacturer_name,
+        capsule.arch
     )
 
-    for (payload, idx) in zip(payloads, range(len(payloads))):
-        payload['tag'] = payload.get('tag', f"Firmware{idx}")
-        payload['fw_description'] = payload.get('fw_description', capsule_options['fw_description'])
-        payload['fw_version'] = payload.get('fw_version', capsule_options['fw_version'])
-        payload['is_rollback'] = payload.get('is_rollback', False)
-        if 'fw_integrity_file' not in payload:
-            payload['fw_integrity_file'] = None
-
-        infFile.AddFirmware(
-            payload['tag'],
-            payload['fw_description'],
-            payload['esrt_guid'],
-            payload['fw_version'],
-            payload['fw_payload_file'],
-            Rollback=payload['is_rollback'],
-            IntegrityFile=payload['fw_integrity_file']
+    idx = 0
+    for payload in capsule.payloads:
+        if payload.tag is None:
+            payload.tag = f"Firmware{idx}"
+            idx += 1
+        inf_file.AddFirmware(
+            payload.tag,
+            payload.firmware_description,
+            str(payload.esrt_guid),
+            str(payload.version),
+            payload.payload_filename,
+            Rollback=payload.rollback,
+            IntegrityFile=payload.integrity_filename
         )
 
-    inf_file_path = os.path.join(save_path, f"{capsule_options['fw_name']}.inf")
+    inf_file_path = os.path.join(save_path, f"{capsule.name}.inf")
     with open(inf_file_path, "w") as fp:
-        fp.write(str(infFile))
+        fp.write(str(inf_file))
 
     return inf_file_path
 
