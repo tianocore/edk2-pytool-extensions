@@ -14,6 +14,7 @@ from io import StringIO
 from edk2toolext.environment import shell_environment
 from edk2toolext.environment.external_dependency import ExternalDependency
 from edk2toollib.utility_functions import RunCmd
+from edk2toolext.environment import version_aggregator
 
 
 class AzureCliUniversalDependency(ExternalDependency):
@@ -24,13 +25,46 @@ class AzureCliUniversalDependency(ExternalDependency):
     - source: url of organization (example: https://dev.azure.com/tianocore)
     - project: <name of project for project scoped feed.  If missing assume organization scoped>
     - name: name of artifact
-    - file-filter: <optional> filter for folders and files.  
+    - file-filter: <optional> filter for folders and files.
     - pat_var: shell_var name for PAT for this ext_dep
     '''
     TypeString = "az-universal"
 
     # https://docs.microsoft.com/en-us/azure/devops/cli/log-in-via-pat?view=azure-devops&tabs=windows
     AZURE_CLI_DEVOPS_ENV_VAR = "AZURE_DEVOPS_EXT_PAT"
+
+    VersionLogged = False
+
+    @classmethod
+    def LogToolVersion(cls):
+        """ Log to Version Aggregator the Tool Versions"""
+
+        if cls.VersionLogged:
+            return
+        cmd = ["az", "--version"]
+        results = StringIO()
+        RunCmd("az", "--version", outstream=results, raise_exception_on_nonzero=True)
+        results.seek(0)
+
+        to_find = ["azure-cli", "azure-devops"]  # find these keys in the version output
+        found = dict()
+
+        for l in results.readlines():
+            if len(to_find) == 0:
+                break
+
+            for f in to_find:
+                if f in l:
+                    found[f] = l.split()[1]
+                    to_find.remove(f)
+                    break
+
+        for (k,v) in found.items():    
+            version_aggregator.GetVersionAggregator().ReportVersion(k, v, version_aggregator.VersionTypes.TOOL)
+
+        cls.VersionLogged = True
+
+
     def __init__(self, descriptor):
         super().__init__(descriptor)
         self.global_cache_path = None

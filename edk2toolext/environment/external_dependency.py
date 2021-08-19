@@ -151,6 +151,7 @@ def ExtDepFactory(descriptor):
     elif descriptor['type'] == GitDependency.TypeString:
         return GitDependency(descriptor)
     elif descriptor['type'] == AzureCliUniversalDependency.TypeString:
+        AzureCliUniversalDependency.LogToolVersion()
         return AzureCliUniversalDependency(descriptor)
 
     raise ValueError("Unknown extdep type '%s' requested!" % descriptor['type'])
