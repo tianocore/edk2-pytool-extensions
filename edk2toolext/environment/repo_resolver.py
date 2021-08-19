@@ -8,10 +8,9 @@
 
 import os
 import logging
-import shutil
-import stat
 from edk2toolext import edk2_logging
 from edk2toolext.edk2_git import Repo
+from edk2toollib.utility_functions import RemoveTree
 
 # this follows a documented flow chart
 
@@ -147,25 +146,13 @@ def get_details(abs_file_system_path):
     head = repo.head.commit
     return {"Url": url, "Branch": active_branch, "Commit": head}
 
-
 def clear_folder(abs_file_system_path):
     logger = logging.getLogger("git")
     logger.warning("WARNING: Deleting contents of folder {0} to make way for Git repo".format(
         abs_file_system_path))
-
-    # spell-checker:ignore dorw
-    def dorw(action, name, exc):
-        os.chmod(name, stat.S_IWRITE)
-        if(os.path.isdir(name)):
-            os.rmdir(name)
-        else:
-            os.remove(name)
-
-    shutil.rmtree(abs_file_system_path, onerror=dorw)
+    RemoveTree(abs_file_system_path)
 
 # Clones the repo in the folder we need using the dependency object from the json
-
-
 def clone_repo(abs_file_system_path, DepObj):
     logger = logging.getLogger("git")
     logger.log(edk2_logging.get_progress_level(), "Cloning repo: {0}".format(DepObj["Url"]))

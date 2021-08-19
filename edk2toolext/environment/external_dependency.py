@@ -11,11 +11,10 @@
 
 import os
 import logging
-import shutil
 import time
 import yaml
 from edk2toolext.environment import version_aggregator
-from edk2toollib.utility_functions import GetHostInfo
+from edk2toollib.utility_functions import GetHostInfo, RemoveTree
 
 
 class ExternalDependency(object):
@@ -95,24 +94,10 @@ class ExternalDependency(object):
 
         return new_published_path
 
-    def _clean_directory(self, dir_path):
-        retry = 1
-        while True:
-            try:
-                shutil.rmtree(dir_path)
-            except OSError:
-                if not retry:
-                    # If we're out of retries, bail.
-                    raise
-                time.sleep(5)
-                retry -= 1
-                continue
-            break
-
     def clean(self):
         logging.debug("Cleaning dependency directory for '%s'..." % self.name)
         if os.path.isdir(self.contents_dir):
-            self._clean_directory(self.contents_dir)
+            RemoveTree(self.contents_dir)
 
     def fetch(self):
         # The base class does not implement a fetch.
