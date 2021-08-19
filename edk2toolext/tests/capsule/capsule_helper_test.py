@@ -37,8 +37,6 @@ DUMMY_OPTIONS_FILE_NAME = 'dummy_options_file'
 DUMMY_PAYLOAD_FILE_NAME = 'dummy_payload'
 
 
-
-
 class CapsuleSignerTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
