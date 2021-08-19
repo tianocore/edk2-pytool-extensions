@@ -238,6 +238,18 @@ class TestOmniCache(unittest.TestCase):
         assert(gitret == 0)
         assert(out.getvalue().strip() == "")
 
+        # add an empty file to simulate the old config yaml, but leave metadata in place.
+        # this simulates the case where an old version of omnicache ran and updated the remotes
+        # with some non-UUID versions, but the metadata version still exists. In this case, conversion
+        # should be run to cleanup the remotes.
+        with open(os.path.join(testcache, omnicache.PRE_0_11_OMNICACHE_FILENAME), "w") as yf:
+            yf.write("Not A Real YAML File")
+
+        # confirm that _ValidateOmnicache correctly identifies cache state
+        (valid, convertible) = oc._ValidateOmnicache()
+        assert(not valid)
+        assert(convertible)
+
     def test_omnicache_add_remove(self):
         testcache = os.path.join(os.path.abspath(os.getcwd()), test_dir, "testcache")
 

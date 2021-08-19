@@ -74,6 +74,9 @@ class Omnicache():
             logging.debug("{0} error getting repo state - not valid (not convertible).".format(self.path))
             return (False, False)
         if (out.getvalue().strip().lower() == "true"):
+            if (os.path.exists(os.path.join(self.path, PRE_0_11_OMNICACHE_FILENAME))):
+                logging.debug("{0} - old config file present. not valid (is convertible).".format(self.path))
+                return (False, True)
             out = StringIO()
             ret = RunCmd("git", "config --local omnicache.metadata.version", workingdir=self.path, outstream=out)
             if (ret != 0):
