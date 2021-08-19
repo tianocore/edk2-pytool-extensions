@@ -257,7 +257,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
     def _does_pkg_depend_on_package(self, package_to_eval: str, support_package: str) -> bool:
         ''' return if any module in package_to_eval depends on public files defined in support_package'''
         # get filesystem path of package_to_eval
-        abs_pkg_path = self.edk2_path_obj.GetAbsolutePathOnThisSytemFromEdk2RelativePath(package_to_eval)
+        abs_pkg_path = self.edk2_path_obj.GetAbsolutePathOnThisSystemFromEdk2RelativePath(package_to_eval)
 
         # loop thru all inf files in the package
         inf_files = self._walk_dir_for_filetypes([".inf"], abs_pkg_path)
@@ -349,7 +349,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         if (pkg in self.parsed_dec_cache):
             dec = self.parsed_dec_cache[pkg]
         else:
-            abs_pkg_path = self.edk2_path_obj.GetAbsolutePathOnThisSytemFromEdk2RelativePath(pkg)
+            abs_pkg_path = self.edk2_path_obj.GetAbsolutePathOnThisSystemFromEdk2RelativePath(pkg)
             dec = self._parse_dec_for_package(abs_pkg_path)
             self.parsed_dec_cache[pkg] = dec
 
