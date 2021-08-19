@@ -11,6 +11,7 @@ import logging
 import shutil
 import json
 from io import StringIO
+from edk2toolext.environment import shell_environment
 from edk2toolext.environment.external_dependency import ExternalDependency
 from edk2toollib.utility_functions import RunCmd
 
@@ -24,9 +25,12 @@ class AzureCliUniversalDependency(ExternalDependency):
     - project: <name of project for project scoped feed.  If missing assume organization scoped>
     - name: name of artifact
     - file-filter: <optional> filter for folders and files.  
+    - pat_var: shell_var name for PAT for this ext_dep
     '''
     TypeString = "az-universal"
 
+    # https://docs.microsoft.com/en-us/azure/devops/cli/log-in-via-pat?view=azure-devops&tabs=windows
+    AZURE_CLI_DEVOPS_ENV_VAR = "AZURE_DEVOPS_EXT_PAT"
     def __init__(self, descriptor):
         super().__init__(descriptor)
         self.global_cache_path = None
@@ -34,6 +38,11 @@ class AzureCliUniversalDependency(ExternalDependency):
         self.feed = descriptor.get('feed')
         self.project = descriptor.get('project', None)
         self.file_filter = descriptor.get('file-filter', None)
+        _pat_var = descriptor.get('pat_var', None)
+        self._pat = None
+
+        if _pat_var is not None:
+            self._pat = shell_environment.GetEnvironment().get_shell_var(_pat_var)
 
     def _fetch_from_cache(self, package_name):
         return False
@@ -59,13 +68,18 @@ class AzureCliUniversalDependency(ExternalDependency):
             cmd += ["--file-filter", self.file_filter]
         cmd += ["--path", '"' + install_dir + '"']
 
+        # get the shell environment
+        e = os.environ.copy()
+        # if PAT then add the PAT as special variable
+        if self._pat is not None:
+            e[self.AZURE_CLI_DEVOPS_ENV_VAR] = self._pat
         
         results = StringIO()
-        RunCmd(cmd[0], " ".join(cmd[1:]), outstream=results, raise_exception_on_nonzero=True)
-        results.seek(0)
+        RunCmd(cmd[0], " ".join(cmd[1:]), outstream=results, environ=e, raise_exception_on_nonzero=True)
         # az tool returns json data that includes the downloaded version
         # lets check it to double confirm
-        result_data = json.load(results)
+        result_data = json.loads(results.getvalue())
+        results.close()
         downloaded_version = result_data['Version']
         if self.version != downloaded_version:
             self.version = downloaded_version  # set it so state file is accurate and will fail on verify

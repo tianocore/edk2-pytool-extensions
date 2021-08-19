@@ -1,6 +1,9 @@
 # @file test_az_cli_universal_dependency.py
 # Unit test suite for the Azure CLI Artifacts Universal Packages Dependency class.
 #
+# NOTE: To run this test you need to be logged in to tianocore devops with az-cli
+# or you must specify a valid pat that can read packages from tianocore devops in your environment
+# as PAT_FOR_UNIVERSAL_ORG_TIANOCORE
 ##
 # Copyright (c) Microsoft Corporation
 #
@@ -30,7 +33,8 @@ single_file_json_template = '''
   "source": "https://dev.azure.com/tianocore",
   "project": "edk2-pytool-extensions",
   "version": "%s",
-  "feed": "ext_dep_unit_test_feed"
+  "feed": "ext_dep_unit_test_feed",
+  "pat_var": "PAT_FOR_UNIVERSAL_ORG_TIANOCORE"
 }
 '''
 
@@ -42,7 +46,8 @@ folders_json_template = '''
   "source": "https://dev.azure.com/tianocore",
   "project": "edk2-pytool-extensions",
   "version": "%s",
-  "feed": "ext_dep_unit_test_feed"
+  "feed": "ext_dep_unit_test_feed",
+  "pat_var": "PAT_FOR_UNIVERSAL_ORG_TIANOCORE"
 }
 '''
 
@@ -55,7 +60,8 @@ file_filter_json_template = '''
   "project": "edk2-pytool-extensions",
   "version": "0.2.1",
   "feed": "ext_dep_unit_test_feed",
-  "file-filter": "folder2/*.txt"
+  "file-filter": "folder2/*.txt",
+  "pat_var": "PAT_FOR_UNIVERSAL_ORG_TIANOCORE"
 }
 '''
 
