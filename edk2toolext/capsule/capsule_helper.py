@@ -65,6 +65,7 @@ class Capsule:
     name              - the name of the capsule package
     provider_name     - the name of the capsule provider
     arch              - the architecture targeted by the capsule
+    os                - the OS targeted by the capsule.
     manufacturer_name - name of the capsule manufacturer. optional, defaults to provider_name if None.
     date              - a datetime.date object indicating when the capsule was built. optional, defaults to
                         datetime.date.today().
@@ -74,6 +75,7 @@ class Capsule:
     name: str
     provider_name: str
     arch: str = None
+    os: str = None
     manufacturer_name: str = None
     date: datetime.date = datetime.date.today()
     payloads: List[CapsulePayload] = field(default_factory=list)
