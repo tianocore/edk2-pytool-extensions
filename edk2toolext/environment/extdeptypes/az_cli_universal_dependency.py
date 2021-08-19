@@ -41,7 +41,6 @@ class AzureCliUniversalDependency(ExternalDependency):
 
         if cls.VersionLogged:
             return
-        cmd = ["az", "--version"]
         results = StringIO()
         RunCmd("az", "--version", outstream=results, raise_exception_on_nonzero=True)
         results.seek(0)
@@ -49,21 +48,20 @@ class AzureCliUniversalDependency(ExternalDependency):
         to_find = ["azure-cli", "azure-devops"]  # find these keys in the version output
         found = dict()
 
-        for l in results.readlines():
+        for line in results.readlines():
             if len(to_find) == 0:
                 break
 
             for f in to_find:
-                if f in l:
-                    found[f] = l.split()[1]
+                if f in line:
+                    found[f] = line.split()[1]
                     to_find.remove(f)
                     break
 
-        for (k,v) in found.items():    
+        for (k, v) in found.items():
             version_aggregator.GetVersionAggregator().ReportVersion(k, v, version_aggregator.VersionTypes.TOOL)
 
         cls.VersionLogged = True
-
 
     def __init__(self, descriptor):
         super().__init__(descriptor)
@@ -107,7 +105,7 @@ class AzureCliUniversalDependency(ExternalDependency):
         # if PAT then add the PAT as special variable
         if self._pat is not None:
             e[self.AZURE_CLI_DEVOPS_ENV_VAR] = self._pat
-        
+
         results = StringIO()
         RunCmd(cmd[0], " ".join(cmd[1:]), outstream=results, environ=e, raise_exception_on_nonzero=True)
         # az tool returns json data that includes the downloaded version
@@ -117,8 +115,8 @@ class AzureCliUniversalDependency(ExternalDependency):
         downloaded_version = result_data['Version']
         if self.version != downloaded_version:
             self.version = downloaded_version  # set it so state file is accurate and will fail on verify
-            raise Exception("Download Universal Package version (%s) different than requested (%s)." % (downloaded_version, self.version))
-
+            raise Exception("Download Universal Package version (%s) different than requested (%s)." %
+                            (downloaded_version, self.version))
 
     def fetch(self):
         #

@@ -10,18 +10,14 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 import os
-import sys
 import unittest
 import logging
 import shutil
 import stat
 import tempfile
-import pkg_resources
-from edk2toollib.utility_functions import RunCmd
 from edk2toolext.environment import environment_descriptor_files as EDF
 from edk2toolext.environment.extdeptypes.az_cli_universal_dependency import AzureCliUniversalDependency
 from edk2toolext.environment import version_aggregator
-from edk2toolext.bin import nuget
 
 test_dir = None
 
@@ -64,6 +60,7 @@ file_filter_json_template = '''
   "pat_var": "PAT_FOR_UNIVERSAL_ORG_TIANOCORE"
 }
 '''
+
 
 def prep_workspace():
     global test_dir
@@ -171,15 +168,15 @@ class TestAzCliUniversalDependency(unittest.TestCase):
         self.assertTrue(ext_dep.verify())
         self.assertEqual(ext_dep.version, version)
 
-        #make sure we have 1 folder and 2 file (ext_Dep state file plus our 1 file from package)
-      
-        files=0
-        folders=0
+        # make sure we have 1 folder and 2 file (ext_Dep state file plus our 1 file from package)
+
+        files = 0
+        folders = 0
 
         for (dirpath, dirs, file_names) in os.walk(ext_dep.contents_dir):
             files += len(file_names)
             folders += len(dirs)
-        
+
         self.assertEqual(folders, 1)
         self.assertEqual(files, 2)
 
@@ -198,6 +195,7 @@ class TestAzCliUniversalDependency(unittest.TestCase):
         with self.assertRaises(Exception):
             ext_dep.fetch()
         self.assertFalse(ext_dep.verify())
+
 
 if __name__ == '__main__':
     unittest.main()
