@@ -14,13 +14,12 @@ import uuid
 import os
 import struct
 import datetime
-import uuid
 
 from typing import List
 from dataclasses import dataclass
 from dataclasses import field
 
-from edk2toollib.windows.capsule import inf_generator, inf_generator2, cat_generator
+from edk2toollib.windows.capsule import inf_generator2, cat_generator
 from edk2toollib.uefi.uefi_capsule_header import UefiCapsuleHeaderClass
 from edk2toollib.uefi.fmp_capsule_header import FmpCapsuleHeaderClass, FmpCapsuleImageHeaderClass
 from edk2toollib.uefi.fmp_auth_header import FmpAuthHeaderClass
@@ -219,6 +218,7 @@ def create_inf_file(capsule_options: dict, save_path: str) -> str:
 
     will save the final file to the save_path with a name determined from the capsule_options
     '''
+
     # Expand the version string prior to creating INF file.
     capsule_options['fw_version_string'] = get_normalized_version_string(capsule_options['fw_version_string'])
 
@@ -227,23 +227,28 @@ def create_inf_file(capsule_options: dict, save_path: str) -> str:
     capsule_options['arch'] = capsule_options.get('arch', get_default_arch())
     capsule_options['mfg_name'] = capsule_options.get('mfg_name', capsule_options['provider_name'])
 
-    # Create the INF.
-    infgenerator = inf_generator.InfGenerator(
+    inf_file = inf_generator2.InfFile(
         capsule_options['fw_name'],
-        capsule_options['provider_name'],
-        capsule_options['esrt_guid'],
-        capsule_options['arch'],
-        capsule_options['fw_description'],
         capsule_options['fw_version_string'],
-        capsule_options['fw_version']
+        datetime.date.today().strftime("%m/%d/%Y"),
+        capsule_options['provider_name'],
+        capsule_options['mfg_name'],
+        capsule_options['arch']
     )
-    infgenerator.Manufacturer = capsule_options['mfg_name']
-    if 'fw_integrity_file' in capsule_options:
-        infgenerator.IntegrityFilename = os.path.basename(capsule_options['fw_integrity_file'])
+
+    inf_file.AddFirmware(
+        "Firmware",
+        capsule_options['fw_description'],
+        capsule_options['esrt_guid'],
+        capsule_options['fw_version'],
+        get_capsule_file_name(capsule_options),
+        Rollback=capsule_options['is_rollback'],
+        IntegrityFile=capsule_options.get('fw_integrity_file', None)
+    )
+
     inf_file_path = os.path.join(save_path, f"{capsule_options['fw_name']}.inf")
-    ret = infgenerator.MakeInf(inf_file_path, get_capsule_file_name(capsule_options), capsule_options['is_rollback'])
-    if(ret != 0):
-        raise RuntimeError("MakeInf Failed with errorcode %d!" % ret)
+    with open(inf_file_path, "w") as fp:
+        fp.write(str(inf_file))
 
     return inf_file_path
 
