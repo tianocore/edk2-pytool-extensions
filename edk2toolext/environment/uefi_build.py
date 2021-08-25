@@ -14,13 +14,12 @@ import logging
 from edk2toolext.environment.multiple_workspace import MultipleWorkspace
 from edk2toolext.environment import conf_mgmt
 import traceback
-import shutil
 import time
 from edk2toolext.environment import shell_environment
 from edk2toollib.uefi.edk2.parsers.targettxt_parser import TargetTxtParser
 from edk2toollib.uefi.edk2.parsers.dsc_parser import DscParser
 from edk2toollib.uefi.edk2.parsers.fdf_parser import FdfParser
-from edk2toollib.utility_functions import RunCmd
+from edk2toollib.utility_functions import RunCmd, RemoveTree
 from edk2toolext import edk2_logging
 from edk2toolext.environment.plugintypes.uefi_build_plugin import IUefiBuildPlugin
 import datetime
@@ -199,7 +198,7 @@ class UefiBuilder(object):
             logging.debug("Removing [%s]", d)
             # if the folder is opened in Explorer do not fail the entire Rebuild
             try:
-                shutil.rmtree(d)
+                RemoveTree(d)
             except WindowsError as wex:
                 logging.debug(wex)
 
@@ -210,15 +209,15 @@ class UefiBuilder(object):
         # this needs to be removed in case build flags changed
         d = os.path.join(self.ws, "Conf", ".cache")
         if(os.path.isdir(d)):
-            shutil.rmtree(d)
             logging.debug("Removing [%s]" % d)
+            RemoveTree(d)
 
         if(RemoveConfTemplateFilesToo):
             for a in ["target.txt", "build_rule.txt", "tools_def.txt"]:
                 d = os.path.join(self.ws, "Conf", a)
                 if(os.path.isfile(d)):
-                    os.remove(d)
                     logging.debug("Removing [%s]" % d)
+                    os.remove(d)
 
         return ret
 

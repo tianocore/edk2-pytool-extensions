@@ -16,6 +16,7 @@ import tempfile
 import urllib.error
 import urllib.request
 from edk2toolext.environment.external_dependency import ExternalDependency
+from edk2toollib.utility_functions import RemoveTree
 
 
 class WebDependency(ExternalDependency):
@@ -137,7 +138,7 @@ class WebDependency(ExternalDependency):
             # If the unzipped directory still exists, delete it.
             if os.path.isdir(temp_folder):
                 logging.debug(f"Cleaning up {temp_folder}")
-                shutil.rmtree(temp_folder)
+                RemoveTree(temp_folder)
 
         # If we just downloaded a file, we need to create a directory named self.contents_dir,
         # copy the file inside, and name it self.internal_path

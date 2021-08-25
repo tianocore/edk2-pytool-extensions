@@ -11,7 +11,7 @@ import logging
 import shutil
 from io import StringIO
 from edk2toolext.environment.external_dependency import ExternalDependency
-from edk2toollib.utility_functions import RunCmd
+from edk2toollib.utility_functions import RunCmd, RemoveTree
 from edk2toollib.utility_functions import GetHostInfo
 import pkg_resources
 from typing import List
@@ -237,15 +237,7 @@ class NugetDependency(ExternalDependency):
             source_dir = os.path.join(temp_directory, package_name)
         shutil.copytree(source_dir, self.contents_dir)
 
-        for _ in range(3):  # rmtree doesn't always remove all files. Attempt delete up to 3 times.
-            try:
-                shutil.rmtree(source_dir)
-            except OSError as err:
-                logging.warning(f"Failed to fully remove {source_dir}: {err}")
-            else:
-                break
-        else:
-            raise RuntimeError(f"Failed to remove {source_dir}")
+        RemoveTree(source_dir)
 
         #
         # Add a file to track the state of the dependency.
@@ -255,7 +247,7 @@ class NugetDependency(ExternalDependency):
         #
         # Finally, delete the temp directory.
         #
-        self._clean_directory(temp_directory)
+        RemoveTree(temp_directory)
 
         # The published path may change now that the package has been unpacked.
         self.published_path = self.compute_published_path()
@@ -266,4 +258,4 @@ class NugetDependency(ExternalDependency):
     def clean(self):
         super(NugetDependency, self).clean()
         if os.path.isdir(self.get_temp_dir()):
-            self._clean_directory(self.get_temp_dir())
+            RemoveTree(self.get_temp_dir())
