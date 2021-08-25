@@ -11,7 +11,7 @@ import logging
 import shutil
 from io import StringIO
 from edk2toolext.environment.external_dependency import ExternalDependency
-from edk2toollib.utility_functions import RunCmd
+from edk2toollib.utility_functions import RunCmd, RemoveTree
 from edk2toollib.utility_functions import GetHostInfo
 import pkg_resources
 from typing import List

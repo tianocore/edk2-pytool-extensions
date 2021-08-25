@@ -10,11 +10,10 @@ import os
 import sys
 import unittest
 import logging
-import shutil
 import stat
 import tempfile
 import pkg_resources
-from edk2toollib.utility_functions import RunCmd
+from edk2toollib.utility_functions import RunCmd, RemoveTree
 from edk2toolext.environment import environment_descriptor_files as EDF
 from edk2toolext.environment.extdeptypes.nuget_dependency import NugetDependency
 from edk2toolext.environment import version_aggregator
@@ -54,16 +53,7 @@ def clean_workspace():
         return
 
     if os.path.isdir(test_dir):
-
-        # spell-checker:ignore dorw
-        def dorw(action, name, exc):
-            os.chmod(name, stat.S_IWRITE)
-            if(os.path.isdir(name)):
-                os.rmdir(name)
-            else:
-                os.remove(name)
-
-        shutil.rmtree(test_dir, onerror=dorw)
+        RemoveTree(test_dir)
         test_dir = None
 
 
