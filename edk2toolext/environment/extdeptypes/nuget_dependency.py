@@ -237,7 +237,6 @@ class NugetDependency(ExternalDependency):
             source_dir = os.path.join(temp_directory, package_name)
         shutil.copytree(source_dir, self.contents_dir)
 
-
         RemoveTree(source_dir)
 
         #

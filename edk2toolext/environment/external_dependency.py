@@ -11,7 +11,6 @@
 
 import os
 import logging
-import time
 import yaml
 from edk2toolext.environment import version_aggregator
 from edk2toollib.utility_functions import GetHostInfo, RemoveTree

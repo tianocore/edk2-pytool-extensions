@@ -146,11 +146,13 @@ def get_details(abs_file_system_path):
     head = repo.head.commit
     return {"Url": url, "Branch": active_branch, "Commit": head}
 
+
 def clear_folder(abs_file_system_path):
     logger = logging.getLogger("git")
     logger.warning("WARNING: Deleting contents of folder {0} to make way for Git repo".format(
         abs_file_system_path))
     RemoveTree(abs_file_system_path)
+
 
 # Clones the repo in the folder we need using the dependency object from the json
 def clone_repo(abs_file_system_path, DepObj):

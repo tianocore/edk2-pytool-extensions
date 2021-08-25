@@ -10,7 +10,6 @@ import os
 import sys
 import unittest
 import logging
-import stat
 import tempfile
 import pkg_resources
 from edk2toollib.utility_functions import RunCmd, RemoveTree
