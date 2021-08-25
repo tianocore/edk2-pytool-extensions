@@ -114,7 +114,7 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
             env = shell_environment.GetBuildVars()
 
             # load the package level .ci.yaml
-            pkg_config_file = edk2path.GetAbsolutePathOnThisSytemFromEdk2RelativePath(
+            pkg_config_file = edk2path.GetAbsolutePathOnThisSystemFromEdk2RelativePath(
                 os.path.join(pkgToRunOn, pkgToRunOn + ".ci.yaml"))
             if(pkg_config_file):
                 with open(pkg_config_file, 'r') as f:
