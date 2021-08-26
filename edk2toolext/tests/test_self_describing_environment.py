@@ -100,6 +100,21 @@ class Testself_describing_environment(unittest.TestCase):
             self_describing_environment.BootstrapEnvironment(self.workspace, scopes)
             self.fail()
 
+    def test_duplicate_id_path_env_2(self):
+        ''' check that the SDE will throw an exception if path env have duplicate id's.
+        Since id is not a required member of path env make sure it can handle case where one of the path
+        env files doesn't define an id'''
+        custom_scope = "global"
+        scopes = (custom_scope,)
+        tree = uefi_tree(self.workspace, create_platform=False)
+        tree.create_path_env("testing_corebuild", dir_path="test1")
+        tree.create_path_env("testing_corebuild")
+        tree.create_path_env()
+        with self.assertRaises(RuntimeError):
+            self_describing_environment.BootstrapEnvironment(self.workspace, scopes)
+            self.fail()
+
+
 
 if __name__ == '__main__':
     unittest.main()

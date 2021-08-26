@@ -7,6 +7,7 @@
 import os
 import tempfile
 import json
+import random
 
 
 class uefi_tree:
@@ -80,7 +81,10 @@ class uefi_tree:
         if extra_data is not None:
             data.update(extra_data)
         text = json.dumps(data)
-        file_name = f"{id}_path_env.json"
+        if id is not None:
+            file_name = f"{id}_path_env.json"
+        else:
+            file_name = "None%s_path_env.json" % str(random.randint(1, 100000))
         output_dir = os.path.join(self.workspace, dir_path)
         os.makedirs(output_dir, exist_ok=True)
         output_path = os.path.join(output_dir, file_name)
