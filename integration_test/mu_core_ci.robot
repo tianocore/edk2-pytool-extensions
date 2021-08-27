@@ -16,7 +16,7 @@ Suite Setup  One time setup  ${repo_url}  ${ws_dir}
 
 *** Variables ***
 ${repo_url}           https://github.com/microsoft/mu_basecore
-${master_branch}      release/202002
+${default_branch}     not_yet_set
 ${ws_dir}             mu_basecore
 ${ci_file}            .pytool/CISettings.py
 ${ws_root}            ${TEST_OUTPUT}${/}${ws_dir}
@@ -36,6 +36,9 @@ One time setup
     ## Clone repo
     Run Keyword  Clone the git repo  ${url}  ${folder}
 
+    ## Figure out default branch
+    ${branch}=  Get default branch from remote  ${ws_root}
+    Set Suite Variable  ${default_branch}  ${branch}
 
 *** Test Cases ***
 
@@ -47,8 +50,8 @@ Run ProjectMu MdePkg CoreCI Debug
     ${targets}=          Set Variable    DEBUG
     ${packages}=         Set Variable    MdePkg
 
-    # make sure on master
-    Reset git repo to main branch  ${ws_root}  ${master_branch}
+    # make sure on default branch
+    Reset git repo to default branch  ${ws_root}  ${default_branch}
 
     Stuart setup           ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
     Stuart ci setup        ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
@@ -64,8 +67,8 @@ Run ProjectMu SecurityPkg CoreCI Release
     ${targets}=          Set Variable    RELEASE
     ${packages}=         Set Variable    SecurityPkg
 
-    # make sure on master
-    Reset git repo to main branch  ${ws_root}  ${master_branch}
+    # make sure on default branch
+    Reset git repo to default branch  ${ws_root}  ${default_branch}
 
     Stuart setup           ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
     Stuart ci setup        ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
@@ -81,8 +84,8 @@ Run ProjectMu UefiCpuPkg CoreCI for No-Target
     ${targets}=          Set Variable    NO-TARGET
     ${packages}=         Set Variable    UefiCpuPkg
 
-    # make sure on master
-    Reset git repo to main branch  ${ws_root}  ${master_branch}
+    # make sure on default branch
+    Reset git repo to default branch  ${ws_root}  ${default_branch}
 
     Stuart setup           ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
     Stuart ci setup        ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
@@ -98,8 +101,8 @@ Run ProjectMu MdeModulePkg CoreCI for NOOPT and HostTest
     ${targets}=          Set Variable    NOOPT
     ${packages}=         Set Variable    MdeModulePkg
 
-    # make sure on master
-    Reset git repo to main branch  ${ws_root}  ${master_branch}
+    # make sure on default branch
+    Reset git repo to default branch  ${ws_root}  ${default_branch}
 
     Stuart setup           ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
     Stuart ci setup        ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}

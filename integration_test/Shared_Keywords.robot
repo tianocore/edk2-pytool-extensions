@@ -44,11 +44,11 @@ Clone the git repo
     Log Many  stdout: ${result.stdout}  stderr: ${result.stderr}
     Should Be Equal As Integers  ${result.rc}  0
 
-Reset git repo to main branch
-    [Arguments]     ${ws}  ${main_branch_name}
+Reset git repo to default branch
+    [Arguments]     ${ws}  ${default_branch_name}
 
-    # checkout remote tag for origin/master
-    ${result}=  Run Process  git  checkout  origin/${main_branch_name}
+    # checkout remote tag for origin/<default branch>
+    ${result}=  Run Process  git  checkout  origin/${default_branch_name}
     ...  cwd=${ws}  stdout=stdout.txt  stderr=stderr.txt
     Log Many	stdout: ${result.stdout}  stderr: ${result.stderr}
     Should Be Equal As Integers  ${result.rc}  0
@@ -63,6 +63,27 @@ Reset git repo to main branch
     ...  cwd=${ws}  stdout=stdout.txt  stderr=stderr.txt
     Log Many  stdout: ${result.stdout}  stderr: ${result.stderr}
     Should Be Equal As Integers  ${result.rc}  0
+
+Get default branch from remote
+    [Arguments]     ${ws}
+
+    # Set origin head to auto
+    ${result}=  Run Process  git  remote  set-head  origin  --auto
+    ...  cwd=${ws}
+    Log Many	stdout: ${result.stdout}  stderr: ${result.stderr}
+    Should Be Equal As Integers  ${result.rc}  0
+
+    # get the head
+    ${result}=  Run Process  git  rev-parse  --abbrev-ref  origin/HEAD
+    ...  cwd=${ws}
+    Log Many	stdout: ${result.stdout}  stderr: ${result.stderr}
+    Should Be Equal As Integers  ${result.rc}  0
+
+    # Strip off origin/ from the branch because all other commands
+    # add the remote name.
+    ${branch}=  Get Substring  ${result.stdout}  7
+
+    [Return]  ${branch}
 
 Make new branch
     [Arguments]    ${name}  ${ws}
