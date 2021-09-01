@@ -36,8 +36,9 @@ class AzureCliUniversalDependency(ExternalDependency):
     VersionLogged = False
 
     @classmethod
-    def LogToolVersion(cls):
-        """ Log to Version Aggregator the Tool Versions"""
+    def VerifyToolDependencies(cls):
+        """ Verify any tool environment or dependencies requirements are met.
+        Log to Version Aggregator the Tool Versions"""
 
         if cls.VersionLogged:
             return
@@ -58,8 +59,18 @@ class AzureCliUniversalDependency(ExternalDependency):
                     to_find.remove(f)
                     break
 
+        # Log the versions found
         for (k, v) in found.items():
             version_aggregator.GetVersionAggregator().ReportVersion(k, v, version_aggregator.VersionTypes.TOOL)
+
+        # Check requirements
+
+        # 1 - az cli tool missing will raise exception on call to az --version earlier in function
+
+        # 2 - Check for azure-devops extension
+        if 'azure-devops' not in found.keys():
+            logging.critical("Missing required Azure-cli extension azure-devops")
+            raise EnvironmentError("Missing required Azure-cli extension azure-devops")
 
         cls.VersionLogged = True
 
@@ -74,6 +85,7 @@ class AzureCliUniversalDependency(ExternalDependency):
         self._pat = None
 
         if _pat_var is not None:
+            # Get the PAT or if not defined in shell_var it will return None
             self._pat = shell_environment.GetEnvironment().get_shell_var(_pat_var)
 
     def _fetch_from_cache(self, package_name):

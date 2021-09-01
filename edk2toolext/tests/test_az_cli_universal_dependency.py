@@ -1,9 +1,13 @@
 # @file test_az_cli_universal_dependency.py
 # Unit test suite for the Azure CLI Artifacts Universal Packages Dependency class.
 #
-# NOTE: To run this test you need to be logged in to tianocore devops with az-cli
-# or you must specify a valid pat that can read packages from tianocore devops in your environment
-# as PAT_FOR_UNIVERSAL_ORG_TIANOCORE
+# NOTE: To run most of this test you must specify a valid PAT that can read packages from
+# tianocore devops (https://dev.azure.com/tianocore) in your environment as PAT_FOR_UNIVERSAL_ORG_TIANOCORE
+#
+# Universal Packages do not support anonymous access (even in public feeds) and therefore this unit test can not run
+# in a GitHub PR flow because it would need secrets.
+# https://docs.microsoft.com/en-us/azure/devops/artifacts/concepts/feeds?view=azure-devops#public-feeds
+#
 ##
 # Copyright (c) Microsoft Corporation
 #
@@ -12,12 +16,11 @@
 import os
 import unittest
 import logging
-import shutil
-import stat
 import tempfile
 from edk2toolext.environment import environment_descriptor_files as EDF
 from edk2toolext.environment.extdeptypes.az_cli_universal_dependency import AzureCliUniversalDependency
 from edk2toolext.environment import version_aggregator
+from edk2toollib.utility_functions import RemoveTree
 
 test_dir = None
 
@@ -79,16 +82,7 @@ def clean_workspace():
         return
 
     if os.path.isdir(test_dir):
-
-        # spell-checker:ignore dorw
-        def dorw(action, name, exc):
-            os.chmod(name, stat.S_IWRITE)
-            if(os.path.isdir(name)):
-                os.rmdir(name)
-            else:
-                os.remove(name)
-
-        shutil.rmtree(test_dir, onerror=dorw)
+        RemoveTree(test_dir)
         test_dir = None
 
 
@@ -111,6 +105,8 @@ class TestAzCliUniversalDependency(unittest.TestCase):
         version_aggregator.GetVersionAggregator().Reset()
 
     # good case
+    @unittest.skipIf("PAT_FOR_UNIVERSAL_ORG_TIANOCORE" not in os.environ.keys(),
+                     "PAT not defined therefore universal packages tests will fail")
     def test_download_good_universal_dependency_single_file(self):
         version = "0.0.1"
         ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
@@ -126,6 +122,8 @@ class TestAzCliUniversalDependency(unittest.TestCase):
         ext_dep.clean()
 
     # good case
+    @unittest.skipIf("PAT_FOR_UNIVERSAL_ORG_TIANOCORE" not in os.environ.keys(),
+                     "PAT not defined therefore universal packages tests will fail")
     def test_download_good_universal_dependency_folders_pinned_old_version(self):
         version = "0.2.0"
         ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
@@ -141,6 +139,8 @@ class TestAzCliUniversalDependency(unittest.TestCase):
         ext_dep.clean()
 
     # good case
+    @unittest.skipIf("PAT_FOR_UNIVERSAL_ORG_TIANOCORE" not in os.environ.keys(),
+                     "PAT not defined therefore universal packages tests will fail")
     def test_download_good_universal_dependency_folders_newer_version(self):
         version = "0.2.1"
         ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
@@ -156,6 +156,8 @@ class TestAzCliUniversalDependency(unittest.TestCase):
         ext_dep.clean()
 
     # good case
+    @unittest.skipIf("PAT_FOR_UNIVERSAL_ORG_TIANOCORE" not in os.environ.keys(),
+                     "PAT not defined therefore universal packages tests will fail")
     def test_download_good_universal_dependency_folders_file_filter(self):
         version = "0.2.1"
         ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
@@ -184,6 +186,8 @@ class TestAzCliUniversalDependency(unittest.TestCase):
         ext_dep.clean()
 
     # bad case
+    @unittest.skipIf("PAT_FOR_UNIVERSAL_ORG_TIANOCORE" not in os.environ.keys(),
+                     "PAT not defined therefore universal packages tests will fail")
     def test_download_bad_universal_dependency(self):
         non_existing_version = "0.1.0"
         ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
@@ -195,6 +199,9 @@ class TestAzCliUniversalDependency(unittest.TestCase):
         with self.assertRaises(Exception):
             ext_dep.fetch()
         self.assertFalse(ext_dep.verify())
+
+    def test_az_tool_environment(self):
+        AzureCliUniversalDependency.VerifyToolDependencies()
 
 
 if __name__ == '__main__':
