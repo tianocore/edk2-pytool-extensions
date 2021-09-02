@@ -143,11 +143,15 @@ def ExtDepFactory(descriptor):
     from edk2toolext.environment.extdeptypes.web_dependency import WebDependency
     from edk2toolext.environment.extdeptypes.nuget_dependency import NugetDependency
     from edk2toolext.environment.extdeptypes.git_dependency import GitDependency
+    from edk2toolext.environment.extdeptypes.az_cli_universal_dependency import AzureCliUniversalDependency
     if descriptor['type'] == NugetDependency.TypeString:
         return NugetDependency(descriptor)
     elif descriptor['type'] == WebDependency.TypeString:
         return WebDependency(descriptor)
     elif descriptor['type'] == GitDependency.TypeString:
         return GitDependency(descriptor)
+    elif descriptor['type'] == AzureCliUniversalDependency.TypeString:
+        AzureCliUniversalDependency.VerifyToolDependencies()
+        return AzureCliUniversalDependency(descriptor)
 
     raise ValueError("Unknown extdep type '%s' requested!" % descriptor['type'])
