@@ -89,6 +89,22 @@ checked out. For this ext_dep descriptor the type is **_git_**. A git dependency
 should be treated as read-only because the verify and clean phase will do
 destructive operations where local changes would be destroyed.
 
+### Azure Universal Packages Dependency (az-universal)
+
+Azure Universal packages are yet another package management solution. These
+packages are supported by Azure DevOps server and use the cross platform
+Azure CLI tool to retrieve the content. To use this ext_dep type the development
+environment must have the Azure CLI tool available and the devops extension.  Since
+anonymous feeds are not supported your environment must already be authenticated or
+you must define a system environment variable that will hold a DevOps PAT with package
+read authorization.  
+
+More information:
+
+- Azure Command-Line Interface: <https://docs.microsoft.com/en-us/cli/azure/>
+- Azure DevOps Extension: <https://github.com/Azure/azure-devops-cli-extension>
+- Universal Packages Information: <https://docs.microsoft.com/en-us/azure/devops/artifacts/quickstarts/universal-packages?view=azure-devops>
+
 ### Developer Note
 
 To create a new Dependency type it requires a new subclass of the
@@ -261,6 +277,54 @@ env.set_shell_var('my_url_creds', 'my_user:my_pass')
 
 # URL cloned by the GitDependency object will look like...
 final_url = 'http://my_user:my_pass@example.com/path/to/repo.git'
+```
+
+## Azure Universal Packages Type Schema Differences
+
+- source: url of dev ops organization (example: <https://dev.azure.com/tianocore>)
+- version: semantic version (Major.Minor.Patch)
+
+For this type there are three additional ext_dep fields:
+
+### feed
+
+Name of the Azure DevOps feed
+
+### project (optional)
+
+Name of the project for project scoped feeds.  If not defined it will be treated as
+an organizational scoped feed.
+
+### name
+
+Name of the artifact
+
+### file-filter (optional)
+
+Filter for folders and files to download.  Azure Universal packages supports only partial
+downloads.  See <https://docs.microsoft.com/en-us/azure/devops/artifacts/quickstarts/universal-packages?view=azure-devops#download-specific-files>
+for more details.
+
+### pat_var (optional but suggested)
+
+OS shell variable that contains a personal access token (PAT) for this ext_dep.
+Universal packages do not support anonymous access therefore the developer needs to authenticate
+using `az login` or define a PAT.  The PAT needs to have **Packaging - Read** access.
+
+Example:
+
+``` json
+{
+  "scope": "global",
+  "type": "az-universal",
+  "name": "hello-world-file",
+  "source": "https://dev.azure.com/tianocore",
+  "project": "edk2-pytool-extensions",
+  "version": "1.0.0",
+  "feed": "ext_dep_unit_test_feed",
+  "pat_var": "PAT_FOR_UNIVERSAL_ORG_TIANOCORE",
+  "flags": []
+}
 ```
 
 ## The Flags

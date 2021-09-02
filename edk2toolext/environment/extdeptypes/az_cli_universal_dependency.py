@@ -1,5 +1,7 @@
 # @file az_cli_universal_dependency.py
 # This module implements ExternalDependency for azure cli universal packages.
+# More details here:
+# https://docs.microsoft.com/en-us/azure/devops/artifacts/quickstarts/universal-packages?view=azure-devops
 #
 ##
 # Copyright (c) Microsoft Corporation
