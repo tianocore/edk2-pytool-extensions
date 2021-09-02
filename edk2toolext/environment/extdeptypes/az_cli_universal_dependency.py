@@ -15,7 +15,7 @@ import json
 from io import StringIO
 from edk2toolext.environment import shell_environment
 from edk2toolext.environment.external_dependency import ExternalDependency
-from edk2toollib.utility_functions import RunCmd
+from edk2toollib.utility_functions import RunCmd, RemoveTree
 from edk2toolext.environment import version_aggregator
 
 
@@ -91,6 +91,7 @@ class AzureCliUniversalDependency(ExternalDependency):
             self._pat = shell_environment.GetEnvironment().get_shell_var(_pat_var)
 
     def _fetch_from_cache(self, package_name):
+        ## AZ tool has no cache feature
         return False
 
     def __str__(self):
@@ -134,15 +135,14 @@ class AzureCliUniversalDependency(ExternalDependency):
 
     def fetch(self):
         #
-        # Before trying anything with Nuget feeds,
-        # check to see whether the package is already in
+        # Before trying anything with we should check
+        # to see whether the package is already in
         # our local cache. If it is, we avoid a lot of
         # time and network cost by copying it directly.
         #
         if self._fetch_from_cache(self.name):
             # We successfully found the package in the cache.
             # The published path may change now that the package has been unpacked.
-            # Bail.
             self.published_path = self.compute_published_path()
             return
 
@@ -160,15 +160,7 @@ class AzureCliUniversalDependency(ExternalDependency):
         source_dir = temp_directory
         shutil.copytree(source_dir, self.contents_dir)
 
-        for _ in range(3):  # rmtree doesn't always remove all files. Attempt delete up to 3 times.
-            try:
-                shutil.rmtree(source_dir)
-            except OSError as err:
-                logging.warning(f"Failed to fully remove {source_dir}: {err}")
-            else:
-                break
-        else:
-            raise RuntimeError(f"Failed to remove {source_dir}")
+        RemoveTree(source_dir)
 
         #
         # Add a file to track the state of the dependency.
@@ -184,4 +176,4 @@ class AzureCliUniversalDependency(ExternalDependency):
     def clean(self):
         super(AzureCliUniversalDependency, self).clean()
         if os.path.isdir(self.get_temp_dir()):
-            self._clean_directory(self.get_temp_dir())
+            RemoveTree(self.get_temp_dir())
