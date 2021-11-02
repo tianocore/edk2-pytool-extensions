@@ -218,7 +218,8 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
 
         return failure_num
 
-    def merge_config(self, config, pkg_config, descriptor={}):
+    @staticmethod
+    def merge_config(gbl_config, pkg_config, descriptor={}):
         ''' Merge two configurations.  One global and one specific
             to the package to create the proper config for a plugin
             to execute.
@@ -233,8 +234,8 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
         if plugin_name == "":
             return config
 
-        if plugin_name in config:
-            config.update(config[plugin_name])
+        if plugin_name in gbl_config:
+            config.update(gbl_config[plugin_name])
 
         if plugin_name in pkg_config:
             config.update(pkg_config[plugin_name])

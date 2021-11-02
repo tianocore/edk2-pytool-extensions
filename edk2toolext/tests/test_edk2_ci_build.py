@@ -71,3 +71,37 @@ class TestEdk2CiBuild(unittest.TestCase):
             self.assertEqual(e.code, 0, "We should have a non zero error code")
             pass
         self.assertTrue(os.path.exists(os.path.join(self.minimalTree, "Build")))
+
+    def test_merge_config(self):
+        descriptor = {'descriptor_file': 'C:\\MyRepo\\.pytool\\Plugin\\MyPlugin1\\MyPlugin1_plug_in.yaml',
+                      'module': 'MyPlugin1',
+                      'name': 'My Plugin 1',
+                      'scope': 'cibuild'}
+
+        global_config = {
+            "MyPlugin1": {
+                "MySetting1": 'global value 1',
+                "MySetting2": 'global value 2',
+            },
+            "MyPlugin2": {
+                "MySetting2": 'global value 2'
+            }
+        }
+        package_config = {
+            "MyPlugin1": {
+                "MySetting1": 'package value 1',
+                "MySetting3": 'package value 3'
+            },
+            "MyPlugin3": {
+                "MySetting3": 'package value 3'
+            }
+        }
+        merged_config = {
+            "MySetting1": 'package value 1',
+            "MySetting2": 'global value 2',
+            "MySetting3": 'package value 3'
+        }
+
+        self.assertDictEqual(Edk2CiBuild.merge_config(global_config, {}, descriptor), global_config["MyPlugin1"])
+        self.assertDictEqual(Edk2CiBuild.merge_config({}, package_config, descriptor), package_config["MyPlugin1"])
+        self.assertDictEqual(Edk2CiBuild.merge_config(global_config, package_config, descriptor), merged_config)
