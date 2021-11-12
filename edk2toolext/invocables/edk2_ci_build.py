@@ -150,8 +150,8 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
                     plugin_output_stream = edk2_logging.create_output_stream()
 
                     # merge the repo level and package level for this specific plugin
-                    pkg_plugin_configuration = self.merge_config(self.PlatformSettings.GetPluginSettings(),
-                                                                 pkg_config, Descriptor.descriptor)
+                    pkg_plugin_configuration = Edk2CiBuild.merge_config(self.PlatformSettings.GetPluginSettings(),
+                                                                        pkg_config, Descriptor.descriptor)
 
                     # Still need to see if the package decided this should be skipped
                     if pkg_plugin_configuration is None or\
