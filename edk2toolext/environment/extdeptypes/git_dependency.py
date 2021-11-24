@@ -98,8 +98,9 @@ class GitDependency(ExternalDependency):
                 self.logger.error("Git Dependency: dirty")
                 result = False
 
-            if(r.head.commit != self.version):
-                self.logger.error(f"Git Dependency: head is {r.head.commit} and version is {self.version}")
+            if (r.head.commit != self.version) and (r.active_branch != self.version):
+                self.logger.error(f"Git Dependency: head is {r.head.commit} (branch:{r.active_branch}) "
+                                  f"and version is {self.version}")
                 result = False
 
         self.logger.debug("Verify '%s' returning '%s'." % (self.name, result))
