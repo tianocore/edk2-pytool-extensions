@@ -78,7 +78,7 @@ Setup git user_name
     Log Many  stdout: ${result.stdout}  stderr: ${result.stderr}
     Should Be Equal As Integers  ${result.rc}  0
 
-Confirm or setup git so automation can commit
+Confirm or setup git so automation can can commit
     [Arguments]     ${ws}
 
     Run Keyword  Setup git user_email  ${ws}
@@ -156,7 +156,7 @@ Stage changed file
 
 Commit changes
     [Arguments]    ${msg}  ${ws}
-    Run Keyword  Confirm or setup git so automation can commit  ${ws}
+    Run Keyword  Confirm or setup git so automation can can commit  ${ws}
     ${result}=   Run Process    git  commit  -m  ${msg}
     ...  cwd=${ws}  shell=True
     Log Many	stdout: ${result.stdout}  stderr: ${result.stderr}
