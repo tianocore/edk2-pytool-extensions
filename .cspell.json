@@ -85,7 +85,7 @@
         "distro",
         "distutils",
         "basetoolsbin",
-        "basetools",
+        "basetool",
         "Basetools",
         "raspberrypi",
         "prepended",
