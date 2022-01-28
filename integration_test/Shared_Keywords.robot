@@ -49,7 +49,7 @@ Setup git user_email
     # check if user.email is set
     ${result}=  Run Process  git  config  user.email  cwd=${ws}
     Log Many  stdout: ${result.stdout}  stderr: ${result.stderr}
-    Return From Keyword If    '${result.rc}' == 0
+    Return From Keyword If    '${result.rc}' == '0'
 
     # no email set.  Set a default
     ${result}=  Run Process  git  config  user.email  'ci_test@fake.com'  cwd=${ws}
@@ -66,7 +66,7 @@ Setup git user_name
     # check if user.name is set
     ${result}=  Run Process  git  config  user.name  cwd=${ws}
     Log Many  stdout: ${result.stdout}  stderr: ${result.stderr}
-    Return From Keyword If    '${result.rc}' == 0
+    Return From Keyword If    '${result.rc}' == '0'
 
     # no name set.  Set a default
     ${result}=  Run Process  git  config  user.name  'ci_test'  cwd=${ws}

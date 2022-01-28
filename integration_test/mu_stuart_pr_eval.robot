@@ -185,7 +185,7 @@ Test Stuart PR using ProjectMu for all policies when a PR contains a deleted fol
     [Tags]           PrEval  Delete  ProjectMu
 
     ${branch_name}=      Set Variable    PR_Rand_${{random.randint(0, 10000)}}
-    ${file_to_modify}=   Set Variable    MdeModulePkg${/}Application${/}HelloWorld
+    ${file_to_modify}=   Set Variable    MdePkg${/}Library${/}BasePrintLib
 
     Reset git repo to default branch  ${ws_root}  ${default_branch}
     Make new branch  ${branch_name}  ${ws_root}
@@ -196,7 +196,7 @@ Test Stuart PR using ProjectMu for all policies when a PR contains a deleted fol
     Commit changes  "Changes"  ${ws_root}
 
     # Platform CI test DSC dependnency on implementation file # Policy 4
-    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  SecurityPkg  ${default_branch}  ${EMPTY}  ${ws_root}
+    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  PcAtChipsetPkg  ${default_branch}  ${EMPTY}  ${ws_root}
     Should Be Empty    ${pkgs}
 
     [Teardown]  Delete branch  ${branch_name}  ${default_branch}  ${ws_root}
@@ -205,7 +205,7 @@ Test Stuart PR using ProjectMu for all policies when a PR contains multiple leve
     [Tags]           PrEval  Delete  ProjectMu
 
     ${branch_name}=      Set Variable    PR_Rand_${{random.randint(0, 10000)}}
-    ${file_to_modify}=   Set Variable    UefiCpuPkg${/}CpuDxe
+    ${file_to_modify}=   Set Variable    MdeModulePkg${/}Library
 
     Reset git repo to default branch  ${ws_root}  ${default_branch}
     Make new branch  ${branch_name}  ${ws_root}
@@ -216,7 +216,7 @@ Test Stuart PR using ProjectMu for all policies when a PR contains multiple leve
     Commit changes  "Changes"  ${ws_root}
 
     # Platform CI test DSC dependnency on implementation file # Policy 4
-    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  SecurityPkg  ${default_branch}  ${EMPTY}  ${ws_root}
+    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  PcAtChipsetPkg  ${default_branch}  ${EMPTY}  ${ws_root}
     Should Be Empty    ${pkgs}
 
     [Teardown]  Delete branch  ${branch_name}  ${default_branch}  ${ws_root}
