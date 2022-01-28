@@ -44,6 +44,46 @@ Clone the git repo
     Log Many  stdout: ${result.stdout}  stderr: ${result.stderr}
     Should Be Equal As Integers  ${result.rc}  0
 
+Setup git user_email
+    [Arguments]     ${ws}
+    # check if user.email is set
+    ${result}=  Run Process  git  config  user.email  cwd=${ws}
+    Log Many  stdout: ${result.stdout}  stderr: ${result.stderr}
+    Return From Keyword If    '${result.rc}' == 0
+
+    # no email set.  Set a default
+    ${result}=  Run Process  git  config  user.email  'ci_test@fake.com'  cwd=${ws}
+    Log Many  stdout: ${result.stdout}  stderr: ${result.stderr}
+    Should Be Equal As Integers  ${result.rc}  0
+
+    # verify
+    ${result}=  Run Process  git  config  user.email  cwd=${ws}
+    Log Many  stdout: ${result.stdout}  stderr: ${result.stderr}
+    Should Be Equal As Integers  ${result.rc}  0
+
+Setup git user_name
+    [Arguments]     ${ws}
+    # check if user.name is set
+    ${result}=  Run Process  git  config  user.name  cwd=${ws}
+    Log Many  stdout: ${result.stdout}  stderr: ${result.stderr}
+    Return From Keyword If    '${result.rc}' == 0
+
+    # no name set.  Set a default
+    ${result}=  Run Process  git  config  user.name  'ci_test'  cwd=${ws}
+    Log Many  stdout: ${result.stdout}  stderr: ${result.stderr}
+    Should Be Equal As Integers  ${result.rc}  0
+
+    # verify
+    ${result}=  Run Process  git  config  user.name  cwd=${ws}
+    Log Many  stdout: ${result.stdout}  stderr: ${result.stderr}
+    Should Be Equal As Integers  ${result.rc}  0
+
+Confirm or setup git so automation can can commit
+    [Arguments]     ${ws}
+
+    Run Keyword  Setup git user_email  ${ws}
+    Run Keyword  Setup git user_name  ${ws}
+
 Reset git repo to default branch
     [Arguments]     ${ws}  ${default_branch_name}
 
@@ -116,6 +156,7 @@ Stage changed file
 
 Commit changes
     [Arguments]    ${msg}  ${ws}
+    Run Keyword  Confirm or setup git so automation can can commit  ${ws}
     ${result}=   Run Process    git  commit  -m  ${msg}
     ...  cwd=${ws}  shell=True
     Log Many	stdout: ${result.stdout}  stderr: ${result.stderr}
