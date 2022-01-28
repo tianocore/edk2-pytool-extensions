@@ -85,6 +85,7 @@
         "distro",
         "distutils",
         "basetoolsbin",
+        "basetool",
         "Basetools",
         "raspberrypi",
         "prepended",
@@ -124,6 +125,7 @@
         "FileFlagsMask",
         "markdownlint",
         "xffd",
-        "rtags"
+        "rtags",
+        "Pdbs"
     ]
 }
