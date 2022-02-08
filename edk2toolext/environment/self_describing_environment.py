@@ -360,7 +360,7 @@ def UpdateDependencies(workspace, scopes=(), skipped_dirs=()):
 
 def VerifyEnvironment(workspace, scopes=(), skipped_dirs=()):
     # Bootstrap the environment.
-    (build_env, shell_env) = BootstrapEnvironment(workspace, scopes,  skipped_dirs)
+    (build_env, shell_env) = BootstrapEnvironment(workspace, scopes, skipped_dirs)
 
     # Clean all the dependencies.
     return build_env.verify_extdeps(shell_env)
