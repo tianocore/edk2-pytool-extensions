@@ -36,8 +36,9 @@ class Edk2Update(Edk2MultiPkgAwareInvocable):
     def PerformUpdate(self):
         ws_root = self.GetWorkspaceRoot()
         scopes = self.GetActiveScopes()
-        (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(ws_root, scopes)
-        (success, failure) = self_describing_environment.UpdateDependencies(ws_root, scopes)
+        skipped_dirs = self.GetSkippedDirectories()
+        (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(ws_root, scopes, skipped_dirs)
+        (success, failure) = self_describing_environment.UpdateDependencies(ws_root, scopes, skipped_dirs)
         if success != 0:
             logging.log(edk2_logging.SECTION, f"\tUpdated/Verified {success} dependencies")
         return (build_env, shell_env, failure)
@@ -60,6 +61,10 @@ class Edk2Update(Edk2MultiPkgAwareInvocable):
     def RetrieveCommandLineOptions(self, args):
         '''  Retrieve command line options from the argparser '''
         super().RetrieveCommandLineOptions(args)
+
+    def GetSkippedDirectories(self):
+        '''  Retrieve skipped directories from the settings manager '''
+        return super().GetSkippedDirectories()
 
     def Go(self):
         # Get the environment set up.

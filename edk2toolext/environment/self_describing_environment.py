@@ -9,6 +9,7 @@
 
 import os
 import logging
+import pathlib
 from edk2toolext.environment import shell_environment
 from edk2toolext.environment import environment_descriptor_files as EDF
 from edk2toolext.environment import external_dependency
@@ -21,7 +22,9 @@ ENV_STATE = None
 
 
 class self_describing_environment(object):
-    def __init__(self, workspace_path, scopes=()):
+    def __init__(self, workspace_path, scopes=(), skipped_dirs=()):
+        logging.debug("--- self_describing_environment.__init__()")
+        logging.debug(f"skipped_dirs = {skipped_dirs}")
         super(self_describing_environment, self).__init__()
 
         self.workspace = workspace_path
@@ -29,6 +32,9 @@ class self_describing_environment(object):
         # Determine the final set of scopes.
         # Start with the provided set.
         self.scopes = scopes
+
+        # Allow certain directories to be skipped
+        self.skipped_dirs = tuple(map(pathlib.Path, (os.path.join(self.workspace, d) for d in skipped_dirs)))
 
         # Validate that all scopes are unique.
         if len(self.scopes) != len(set(self.scopes)):
@@ -46,8 +52,8 @@ class self_describing_environment(object):
         # matching the extension.
         matches = {}
         for root, dirs, files in os.walk(base_path, topdown=True):
-            # Check to see whether any of these directories should be skipped.
-            # TODO: Allow these to be passed in via arguments.
+            # Check to see whether any of these directories should be skipped..
+            dirs[:] = [d for d in dirs if pathlib.Path(root, d) not in self.skipped_dirs]
             for index, dir in enumerate(dirs):
                 if dir == '.git':
                     del dirs[index]
@@ -295,7 +301,7 @@ def DestroyEnvironment():
     ENV_STATE = None
 
 
-def BootstrapEnvironment(workspace, scopes=()):
+def BootstrapEnvironment(workspace, scopes=(), skipped_dirs=()):
     global ENVIRONMENT_BOOTSTRAP_COMPLETE, ENV_STATE
 
     if not ENVIRONMENT_BOOTSTRAP_COMPLETE:
@@ -304,7 +310,7 @@ def BootstrapEnvironment(workspace, scopes=()):
         # Locate and load all environment description files.
         #
         build_env = self_describing_environment(
-            workspace, scopes).load_workspace()
+            workspace, scopes, skipped_dirs).load_workspace()
 
         #
         # ENVIRONMENT BOOTSTRAP STAGE 2
@@ -336,25 +342,25 @@ def BootstrapEnvironment(workspace, scopes=()):
     return ENV_STATE
 
 
-def CleanEnvironment(workspace, scopes=()):
+def CleanEnvironment(workspace, scopes=(), skipped_dirs=()):
     # Bootstrap the environment.
-    (build_env, shell_env) = BootstrapEnvironment(workspace, scopes)
+    (build_env, shell_env) = BootstrapEnvironment(workspace, scopes, skipped_dirs)
 
     # Clean all the dependencies.
     build_env.clean_extdeps(shell_env)
 
 
-def UpdateDependencies(workspace, scopes=()):
+def UpdateDependencies(workspace, scopes=(), skipped_dirs=()):
     # Bootstrap the environment.
-    (build_env, shell_env) = BootstrapEnvironment(workspace, scopes)
+    (build_env, shell_env) = BootstrapEnvironment(workspace, scopes, skipped_dirs)
 
     # Clean all the dependencies.
     return build_env.update_extdeps(shell_env)
 
 
-def VerifyEnvironment(workspace, scopes=()):
+def VerifyEnvironment(workspace, scopes=(), skipped_dirs=()):
     # Bootstrap the environment.
-    (build_env, shell_env) = BootstrapEnvironment(workspace, scopes)
+    (build_env, shell_env) = BootstrapEnvironment(workspace, scopes,  skipped_dirs)
 
     # Clean all the dependencies.
     return build_env.verify_extdeps(shell_env)

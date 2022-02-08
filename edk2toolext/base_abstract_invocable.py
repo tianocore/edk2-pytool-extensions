@@ -33,6 +33,10 @@ class BaseAbstractInvocable(object):
         ''' return tuple containing scopes that should be active for this process '''
         raise NotImplementedError()
 
+    def GetSkippedDirectories(self):
+        ''' return tuple containing workspace-relative directory paths that should be skipped for processing'''
+        return ()
+
     def GetLoggingLevel(self, loggerType):
         ''' Get the logging level for a given type (return Logging.Level)
         base == lowest logging level supported
@@ -114,11 +118,11 @@ class BaseAbstractInvocable(object):
         # Next, get the environment set up.
         #
         (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(
-            self.GetWorkspaceRoot(), self.GetActiveScopes())
+            self.GetWorkspaceRoot(), self.GetActiveScopes(), self.GetSkippedDirectories())
 
         # Make sure the environment verifies IF it is required for this invocation
         if self.GetVerifyCheckRequired() and not self_describing_environment.VerifyEnvironment(
-                self.GetWorkspaceRoot(), self.GetActiveScopes()):
+                self.GetWorkspaceRoot(), self.GetActiveScopes(), self.GetSkippedDirectories()):
             raise RuntimeError("SDE is not current.  Please update your env before running this tool.")
 
         # Load plugins
