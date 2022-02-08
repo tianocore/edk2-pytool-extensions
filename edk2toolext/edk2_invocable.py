@@ -65,6 +65,7 @@ class Edk2InvocableSettingsInterface():
         ''' Implement in subclass to return a Tuple containing workspace-relative directories that should be skipped '''
         return ()
 
+
 class Edk2Invocable(BaseAbstractInvocable):
     ''' Base class for Edk2 based invocables.
 

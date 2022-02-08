@@ -117,12 +117,20 @@ class TestEdk2Update(unittest.TestCase):
 
         logging.getLogger().setLevel(logging.WARNING)
 
-        tree.create_ext_dep(dep_type="nuget", name="NuGet.CommandLine", version="5.2.0", dir_path="1", extra_data={"id:": "CmdLine1"})
-        tree.create_ext_dep(dep_type="nuget", name="NuGet.CommandLine", version="5.2.0", dir_path="2", extra_data={"id:": "CmdLine1"})
+        tree.create_ext_dep(dep_type="nuget",
+                            name="NuGet.CommandLine",
+                            version="5.2.0",
+                            dir_path="1",
+                            extra_data={"id:": "CmdLine1"})
+        tree.create_ext_dep(dep_type="nuget",
+                            name="NuGet.CommandLine",
+                            version="5.2.0",
+                            dir_path="2",
+                            extra_data={"id:": "CmdLine1"})
 
         # Do the update. Expect a ValueError from the version aggregator.
         with self.assertRaises(ValueError):
-            updater = self.invoke_update(tree.get_settings_provider_path(), failure_expected=True)
+            self.invoke_update(tree.get_settings_provider_path(), failure_expected=True)
 
     def test_duplicate_ext_deps_skip_dir(self):
         ''' verifies redundant ext_deps pass if one is skipped '''
@@ -132,14 +140,24 @@ class TestEdk2Update(unittest.TestCase):
 
         logging.getLogger().setLevel(logging.WARNING)
 
-        tree.create_ext_dep(dep_type="nuget", name="NuGet.CommandLine", version="5.2.0", dir_path="1", extra_data={"id:": "CmdLine1"})
-        tree.create_ext_dep(dep_type="nuget", name="NuGet.CommandLine", version="5.2.0", dir_path="2", extra_data={"id:": "CmdLine1"})
+        tree.create_ext_dep(dep_type="nuget",
+                            name="NuGet.CommandLine",
+                            version="5.2.0",
+                            dir_path="1",
+                            extra_data={"id:": "CmdLine1"})
+        tree.create_ext_dep(dep_type="nuget",
+                            name="NuGet.CommandLine",
+                            version="5.2.0",
+                            dir_path="2",
+                            extra_data={"id:": "CmdLine1"})
 
         # Update GetSkippedDirectories() implementation
         with open(tree.get_settings_provider_path(), 'r') as s:
             settings_text = s.read()
 
-        settings_text = settings_text.replace('def GetSkippedDirectories(self):\n        return ()', 'def GetSkippedDirectories(self):\n        return (\"2\",)')
+        settings_text = settings_text.replace(
+            'def GetSkippedDirectories(self):\n        return ()',
+            'def GetSkippedDirectories(self):\n        return (\"2\",)')
 
         with open(tree.get_settings_provider_path(), 'w') as s:
             s.write(settings_text)
