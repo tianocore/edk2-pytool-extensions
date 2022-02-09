@@ -61,6 +61,10 @@ class Edk2InvocableSettingsInterface():
         '''  Implement in subclass to retrieve command line options from the argparser namespace '''
         pass
 
+    def GetSkippedDirectories(self) -> Tuple[str]:
+        ''' Implement in subclass to return a Tuple containing workspace-relative directories that should be skipped '''
+        return ()
+
 
 class Edk2Invocable(BaseAbstractInvocable):
     ''' Base class for Edk2 based invocables.
