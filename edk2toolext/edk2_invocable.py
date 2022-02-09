@@ -62,7 +62,8 @@ class Edk2InvocableSettingsInterface():
         pass
 
     def GetSkippedDirectories(self) -> Tuple[str]:
-        ''' Implement in subclass to return a Tuple containing workspace-relative directories that should be skipped '''
+        ''' Implement in subclass to return a Tuple containing workspace-relative directories that should be skipped.
+        Absolute paths are not supported. '''
         return ()
 
 
@@ -148,7 +149,8 @@ class Edk2Invocable(BaseAbstractInvocable):
         pass
 
     def GetSkippedDirectories(self):
-        ''' Implement in subclass to return a Tuple containing workspace-relative directories that should be skipped '''
+        ''' Implement in subclass to return a Tuple containing workspace-relative directories that should be skipped.
+        Absolute paths are not supported. '''
         try:
             return self.PlatformSettings.GetSkippedDirectories()
         except AttributeError:

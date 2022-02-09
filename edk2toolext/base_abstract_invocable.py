@@ -34,7 +34,8 @@ class BaseAbstractInvocable(object):
         raise NotImplementedError()
 
     def GetSkippedDirectories(self):
-        ''' return tuple containing workspace-relative directory paths that should be skipped for processing'''
+        ''' Return tuple containing workspace-relative directory paths that should be skipped for processing.
+        Absolute paths are not supported. '''
         return ()
 
     def GetLoggingLevel(self, loggerType):
