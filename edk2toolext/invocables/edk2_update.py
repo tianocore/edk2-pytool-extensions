@@ -62,10 +62,6 @@ class Edk2Update(Edk2MultiPkgAwareInvocable):
         '''  Retrieve command line options from the argparser '''
         super().RetrieveCommandLineOptions(args)
 
-    def GetSkippedDirectories(self):
-        '''  Retrieve skipped directories from the settings manager '''
-        return super().GetSkippedDirectories()
-
     def Go(self):
         # Get the environment set up.
         RetryCount = 0
