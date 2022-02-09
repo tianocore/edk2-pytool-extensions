@@ -24,7 +24,7 @@ ENV_STATE = None
 class self_describing_environment(object):
     def __init__(self, workspace_path, scopes=(), skipped_dirs=()):
         logging.debug("--- self_describing_environment.__init__()")
-        logging.debug(f"skipped_dirs = {skipped_dirs}")
+        logging.debug(f"Skipped directories specified = {skipped_dirs}")
         super(self_describing_environment, self).__init__()
 
         self.workspace = workspace_path
@@ -45,6 +45,7 @@ class self_describing_environment(object):
         self.plugins = None
 
     def _gather_env_files(self, ext_strings, base_path):
+        logging.debug("--- self_describing_environment._gather_env_files()")
         # Make sure that the search extension matches easily.
         search_files = tuple(ext_string.lower() for ext_string in ext_strings)
 
@@ -53,9 +54,10 @@ class self_describing_environment(object):
         matches = {}
         for root, dirs, files in os.walk(base_path, topdown=True):
             # Check to see whether any of these directories should be skipped..
-            dirs[:] = [d for d in dirs if pathlib.Path(root, d) not in self.skipped_dirs]
             for index, dir in enumerate(dirs):
-                if dir == '.git':
+                dir_path = pathlib.Path(root, dir)
+                if dir_path in self.skipped_dirs or dir_path.name == '.git':
+                    logging.debug(f"Skipping: {dir_path.resolve()}")
                     del dirs[index]
 
             # Check for any files that match the extensions we're looking for.
