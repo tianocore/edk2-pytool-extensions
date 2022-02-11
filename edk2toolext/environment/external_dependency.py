@@ -109,11 +109,10 @@ class ExternalDependency(object):
         result = None
         if self.global_cache_path is not None and os.path.isdir(self.global_cache_path):
             subpath_calc = hashlib.sha1()
-            subpath_calc.update(self.name.encode('utf-8'))
             subpath_calc.update(self.version.encode('utf-8'))
             subpath_calc.update(self.source.encode('utf-8'))
             subpath = subpath_calc.hexdigest()
-            result = os.path.join(self.global_cache_path, self.type, subpath)
+            result = os.path.join(self.global_cache_path, self.type, self.name, subpath)
         return result
 
     def fetch(self):
