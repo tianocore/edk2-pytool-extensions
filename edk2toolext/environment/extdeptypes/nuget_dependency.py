@@ -25,7 +25,7 @@ class NugetDependency(ExternalDependency):
 
     def __init__(self, descriptor):
         super().__init__(descriptor)
-        self.global_cache_path = None
+        self.nuget_cache_path = None
 
     ####
     # Add mono to front of command and resolve full path of exe for mono,
@@ -112,14 +112,14 @@ class NugetDependency(ExternalDependency):
             reformed_ints += "-" + tag
         return reformed_ints
 
-    def _fetch_from_cache(self, package_name):
+    def _fetch_from_nuget_cache(self, package_name):
         result = False
 
         #
         # We still need to use Nuget to figure out where the
         # "global-packages" cache is on this machine.
         #
-        if self.global_cache_path is None:
+        if self.nuget_cache_path is None:
             cmd = NugetDependency.GetNugetCmd()
             cmd += ["locals", "global-packages", "-list"]
             return_buffer = StringIO()
@@ -127,15 +127,15 @@ class NugetDependency(ExternalDependency):
                 # Seek to the beginning of the output buffer and capture the output.
                 return_buffer.seek(0)
                 return_string = return_buffer.read()
-                self.global_cache_path = return_string.strip().strip("global-packages: ")
+                self.nuget_cache_path = return_string.strip().strip("global-packages: ")
 
-        if self.global_cache_path is None:
+        if self.nuget_cache_path is None:
             logging.info("Nuget was unable to provide global packages cache location.")
             return False
         #
         # If the path couldn't be found, we can't do anything else.
         #
-        if not os.path.isdir(self.global_cache_path):
+        if not os.path.isdir(self.nuget_cache_path):
             logging.info("Could not determine Nuget global packages cache location.")
             return False
 
@@ -144,7 +144,7 @@ class NugetDependency(ExternalDependency):
         nuget_version = NugetDependency.normalize_version(self.version)
 
         cache_search_path = os.path.join(
-            self.global_cache_path, package_name.lower(), nuget_version)
+            self.nuget_cache_path, package_name.lower(), nuget_version)
         inner_cache_search_path = os.path.join(cache_search_path, package_name)
         if os.path.isdir(cache_search_path):
             # If we found a cache for this version, let's use it.
@@ -152,7 +152,6 @@ class NugetDependency(ExternalDependency):
                 logging.info(
                     "Local Cache found for Nuget package '%s'. Skipping fetch.", package_name)
                 shutil.copytree(inner_cache_search_path, self.contents_dir)
-                self.update_state_file()
                 result = True
             # If this cache doesn't match our heuristic, let's warn the user.
             else:
@@ -203,16 +202,23 @@ class NugetDependency(ExternalDependency):
 
     def fetch(self):
         package_name = self.name
+
+        # First, check the global cache to see if it's present.
+        if super().fetch():
+            return
+
         #
         # Before trying anything with Nuget feeds,
         # check to see whether the package is already in
         # our local cache. If it is, we avoid a lot of
         # time and network cost by copying it directly.
         #
-        if self._fetch_from_cache(package_name):
+        if self._fetch_from_nuget_cache(package_name):
+            self.copy_to_global_cache(self.contents_dir)
             # We successfully found the package in the cache.
             # The published path may change now that the package has been unpacked.
             # Bail.
+            self.update_state_file()
             self.published_path = self.compute_published_path()
             return
 
@@ -236,6 +242,7 @@ class NugetDependency(ExternalDependency):
         if not os.path.isdir(source_dir):
             source_dir = os.path.join(temp_directory, package_name)
         shutil.copytree(source_dir, self.contents_dir)
+        self.copy_to_global_cache(self.contents_dir)
 
         RemoveTree(source_dir)
 
