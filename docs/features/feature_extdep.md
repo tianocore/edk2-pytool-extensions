@@ -12,6 +12,14 @@ These functions are *not* implemented by the base class.
 
 #### fetch
 
+If you wish your extdep type to be able to take advantage of the Stuart extdep cache,
+make sure to call `super().fetch()` before any type-specific code. If this returns
+`True`, a valid cache was found and the contents have been copied into the final destination.
+
+If a valid cache is not found and type-specific code must be used to fetch, make sure to call
+`self.copy_to_global_cache(...)` after successfully fetching so that the cache may be used
+on subsequent calls. Do this before populating the state file.
+
 ### Optional Functions
 
 These functions *are* implemented by the base class but you could overload them to add more functionality.
