@@ -177,13 +177,17 @@ class self_describing_environment(object):
                 yield EDF.PathEnv(path_descriptor)
 
     # This is a generator to reduce code duplication when wrapping the extdep objects.
-    def _get_extdeps(self):
+    def _get_extdeps(self, env_object):
         if self.extdeps is not None:
+            global_cache_path = env_object.get_shell_var("STUART_EXTDEP_CACHE_PATH")
             # Apply in reverse order to get the expected hierarchy.
             for extdep_descriptor in reversed(self.extdeps):
                 # Use the helper factory to get an object
                 # capable of managing each dependency.
-                yield external_dependency.ExtDepFactory(extdep_descriptor)
+                extdep = external_dependency.ExtDepFactory(extdep_descriptor)
+                if global_cache_path is not None:
+                    extdep.set_global_cache_path(global_cache_path)
+                yield extdep
 
     def _apply_descriptor_object_to_env(self, desc_object, env_object):
         # Walk through each possible environment modification
@@ -207,12 +211,12 @@ class self_describing_environment(object):
 
     def update_extdep_paths(self, env_object):
         logging.debug("--- self_describing_environment.update_extdep_paths()")
-        for extdep in self._get_extdeps():
+        for extdep in self._get_extdeps(env_object):
             self._apply_descriptor_object_to_env(extdep, env_object)
 
     def report_extdep_version(self, env_object):
         logging.debug("--- self_describing_environment.report_extdep_version()")
-        for extdep in self._get_extdeps():
+        for extdep in self._get_extdeps(env_object):
             extdep.report_version()
 
     def update_extdeps(self, env_object):
@@ -245,7 +249,7 @@ class self_describing_environment(object):
                     logging.warning(extdep.error_msg)
                 return False
         # prep the worker pool
-        all_extdeps = self._get_extdeps()
+        all_extdeps = self._get_extdeps(env_object)
         self_extdeps = [(self, x) for x in all_extdeps]
         num_extdeps = len(self_extdeps)
         # if there are no ext_deps to update, bail early
@@ -281,13 +285,13 @@ class self_describing_environment(object):
         return success_count, failure_count
 
     def clean_extdeps(self, env_object):
-        for extdep in self._get_extdeps():
+        for extdep in self._get_extdeps(env_object):
             extdep.clean()
             # TODO: Determine whether we want to update the env.
 
     def verify_extdeps(self, env_object):
         result = True
-        for extdep in self._get_extdeps():
+        for extdep in self._get_extdeps(env_object):
             if not extdep.verify():
                 result = False
                 logging.error("Dependency '%s' is not met!" % extdep.name)

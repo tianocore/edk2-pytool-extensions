@@ -12,6 +12,8 @@
 import os
 import logging
 import yaml
+import hashlib
+import shutil
 from edk2toolext.environment import version_aggregator
 from edk2toollib.utility_functions import GetHostInfo, RemoveTree
 
@@ -43,6 +45,7 @@ class ExternalDependency(object):
         self.flags = descriptor.get('flags', None)
         self.var_name = descriptor.get('var_name', None)
         self.error_msg = descriptor.get('error_msg', None)
+        self.global_cache_path = None
 
         self.descriptor_location = os.path.dirname(
             descriptor['descriptor_file'])
@@ -51,6 +54,10 @@ class ExternalDependency(object):
         self.state_file_path = os.path.join(
             self.contents_dir, "extdep_state.json")
         self.published_path = self.compute_published_path()
+
+    def set_global_cache_path(self, global_cache_path):
+        self.global_cache_path = os.path.abspath(global_cache_path)
+        return self
 
     def compute_published_path(self):
         new_published_path = self.contents_dir
@@ -98,9 +105,42 @@ class ExternalDependency(object):
         if os.path.isdir(self.contents_dir):
             RemoveTree(self.contents_dir)
 
+    def determine_cache_path(self):
+        result = None
+        if self.global_cache_path is not None and os.path.isdir(self.global_cache_path):
+            subpath_calc = hashlib.sha1()
+            subpath_calc.update(self.version.encode('utf-8'))
+            subpath_calc.update(self.source.encode('utf-8'))
+            subpath = subpath_calc.hexdigest()
+            result = os.path.join(self.global_cache_path, self.type, self.name, subpath)
+        return result
+
     def fetch(self):
-        # The base class does not implement a fetch.
-        logging.critical("Fetch() CALLED ON BASE EXTDEP CLASS!")
+        cache_path = self.determine_cache_path()
+        if cache_path is None or not os.path.isdir(cache_path):
+            return False
+        logging.debug("Found %s extdep '%s' in global cache." % (self.type, self.name))
+        self.copy_from_global_cache(self.contents_dir)
+        self.published_path = self.compute_published_path()
+        self.update_state_file()
+        return True
+
+    def copy_from_global_cache(self, dest_path: str):
+        cache_path = self.determine_cache_path()
+        if cache_path is None:
+            return
+        if os.path.isdir(cache_path):
+            shutil.copytree(cache_path, dest_path, dirs_exist_ok=True)
+
+    def copy_to_global_cache(self, source_path: str):
+        cache_path = self.determine_cache_path()
+        if cache_path is None:
+            return
+        if not os.path.isdir(cache_path):
+            os.makedirs(cache_path)
+        else:
+            shutil.rmtree(cache_path)
+        shutil.copytree(source_path, cache_path, dirs_exist_ok=True)
 
     def verify(self):
         result = True
