@@ -16,7 +16,7 @@ Suite Setup  One time setup  ${repo_url}  ${ws_dir}
 
 *** Variables ***
 ${repo_url}           https://github.com/microsoft/mu_basecore
-${master_branch}      release/202002
+${default_branch}     not_yet_set
 ${ws_dir}             mu_basecore
 ${core_ci_file}       .pytool/CISettings.py
 
@@ -36,6 +36,10 @@ One time setup
     ## Clone repo
     Run Keyword  Clone the git repo  ${url}  ${folder}
 
+    ## Figure out default branch
+    ${branch}=  Get default branch from remote  ${ws_root}
+    Set Suite Variable  ${default_branch}  ${branch}
+
     ## clean the repo of all dependencies including additional repos
     ## Project Mu test cases are most useful for multi-repository testing
     ## but for that to be useful the other repositories must not be
@@ -54,7 +58,7 @@ Test Stuart PR using ProjectMu for Policy 1 special files in PrEvalSettingsManag
     ${branch_name}=      Set Variable    PR_Rand_${{random.randint(0, 10000)}}
     ${file_to_modify}=   Set Variable    BaseTools${/}Source${/}C${/}GenFv${/}GenFv.c
 
-    Reset git repo to main branch  ${ws_root}  ${master_branch}
+    Reset git repo to default branch  ${ws_root}  ${default_branch}
     Make new branch  ${branch_name}  ${ws_root}
 
     Append To File  ${ws_root}${/}${file_to_modify}
@@ -64,10 +68,10 @@ Test Stuart PR using ProjectMu for Policy 1 special files in PrEvalSettingsManag
     Commit changes  "Changes"  ${ws_root}
 
     # Core CI test  package dependency # Policy 3
-    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdePkg,MdeModulePkg,UefiCpuPkg  ${master_branch}  ${EMPTY}  ${ws_root}
+    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdePkg,MdeModulePkg,UefiCpuPkg  ${default_branch}  ${EMPTY}  ${ws_root}
     Confirm same contents  ${pkgs}  MdePkg,MdeModulePkg,UefiCpuPkg
 
-    [Teardown]  Delete branch  ${branch_name}  ${master_branch}  ${ws_root}
+    [Teardown]  Delete branch  ${branch_name}  ${default_branch}  ${ws_root}
 
 Test Stuart PR using ProjectMu for Policy 2 in package change of private inf file
     [Tags]           PrEval  ProjectMu
@@ -75,7 +79,7 @@ Test Stuart PR using ProjectMu for Policy 2 in package change of private inf fil
     ${branch_name}=      Set Variable    PR_Rand_${{random.randint(0, 10000)}}
     ${file_to_modify}=   Set Variable    MdePkg${/}Library${/}BaseLib${/}BaseLib.inf
 
-    Reset git repo to main branch  ${ws_root}  ${master_branch}
+    Reset git repo to default branch  ${ws_root}  ${default_branch}
     Make new branch  ${branch_name}  ${ws_root}
 
     Append To File  ${ws_root}${/}${file_to_modify}
@@ -85,14 +89,14 @@ Test Stuart PR using ProjectMu for Policy 2 in package change of private inf fil
     Commit changes  "Changes"  ${ws_root}
 
     # Core CI test same package  # policy 2
-    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdePkg  ${master_branch}  ${EMPTY}  ${ws_root}
+    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdePkg  ${default_branch}  ${EMPTY}  ${ws_root}
     Confirm same contents  ${pkgs}  MdePkg
 
     # Core CI test another package and make sure a it doesn't need to build
-    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdeModulePkg  ${master_branch}  ${EMPTY}  ${ws_root}
+    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdeModulePkg  ${default_branch}  ${EMPTY}  ${ws_root}
     Should Be Empty    ${pkgs}
 
-    [Teardown]  Delete branch  ${branch_name}  ${master_branch}  ${ws_root}
+    [Teardown]  Delete branch  ${branch_name}  ${default_branch}  ${ws_root}
 
 
 Test Stuart PR using ProjectMu for Policy 3 for package dependency on change of public header file
@@ -101,7 +105,7 @@ Test Stuart PR using ProjectMu for Policy 3 for package dependency on change of 
     ${branch_name}=      Set Variable    PR_Rand_${{random.randint(0, 10000)}}
     ${file_to_modify}=   Set Variable    MdePkg${/}Include${/}Protocol${/}DevicePath.h
 
-    Reset git repo to main branch  ${ws_root}  ${master_branch}
+    Reset git repo to default branch  ${ws_root}  ${default_branch}
     Make new branch  ${branch_name}  ${ws_root}
 
     Append To File  ${ws_root}${/}${file_to_modify}
@@ -111,10 +115,10 @@ Test Stuart PR using ProjectMu for Policy 3 for package dependency on change of 
     Commit changes  "Changes"  ${ws_root}
 
     # Core CI test  package dependency # Policy 3
-    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdeModulePkg,UefiCpuPkg  ${master_branch}  ${EMPTY}  ${ws_root}
+    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdeModulePkg,UefiCpuPkg  ${default_branch}  ${EMPTY}  ${ws_root}
     Confirm same contents  ${pkgs}  MdeModulePkg,UefiCpuPkg
 
-    [Teardown]  Delete branch  ${branch_name}  ${master_branch}  ${ws_root}
+    [Teardown]  Delete branch  ${branch_name}  ${default_branch}  ${ws_root}
 
 Test Stuart PR using ProjectMu for Policy 3 for package dependency on change of public header file not dependent
     [Tags]           PrEval  ProjectMu
@@ -122,7 +126,7 @@ Test Stuart PR using ProjectMu for Policy 3 for package dependency on change of 
     ${branch_name}=      Set Variable    PR_Rand_${{random.randint(0, 10000)}}
     ${file_to_modify}=   Set Variable    PcAtChipsetPkg${/}Include${/}Guid${/}PcAtChipsetTokenSpace.h
 
-    Reset git repo to main branch  ${ws_root}  ${master_branch}
+    Reset git repo to default branch  ${ws_root}  ${default_branch}
     Make new branch  ${branch_name}  ${ws_root}
 
     Append To File  ${ws_root}${/}${file_to_modify}
@@ -132,10 +136,10 @@ Test Stuart PR using ProjectMu for Policy 3 for package dependency on change of 
     Commit changes  "Changes"  ${ws_root}
 
     # Core CI test  package dependency # Policy 3
-    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdePkg,MdeModulePkg,UefiCpuPkg  ${master_branch}  ${EMPTY}  ${ws_root}
+    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdePkg,MdeModulePkg,UefiCpuPkg  ${default_branch}  ${EMPTY}  ${ws_root}
     Should Be Empty    ${pkgs}
 
-    [Teardown]  Delete branch  ${branch_name}  ${master_branch}  ${ws_root}
+    [Teardown]  Delete branch  ${branch_name}  ${default_branch}  ${ws_root}
 
 Test Stuart PR using ProjectMu for Policy 3 for package dependency on change of package dec file
     [Tags]           PrEval  ProjectMu
@@ -143,7 +147,7 @@ Test Stuart PR using ProjectMu for Policy 3 for package dependency on change of 
     ${branch_name}=      Set Variable    PR_Rand_${{random.randint(0, 10000)}}
     ${file_to_modify}=   Set Variable    UefiCpuPkg${/}UefiCpuPkg.dec
 
-    Reset git repo to main branch  ${ws_root}  ${master_branch}
+    Reset git repo to default branch  ${ws_root}  ${default_branch}
     Make new branch  ${branch_name}  ${ws_root}
 
     Append To File  ${ws_root}${/}${file_to_modify}
@@ -153,10 +157,10 @@ Test Stuart PR using ProjectMu for Policy 3 for package dependency on change of 
     Commit changes  "Changes"  ${ws_root}
 
     # Core CI test  package dependency # Policy 3
-    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdePkg,MdeModulePkg,PcAtChipsetPkg  ${master_branch}  ${EMPTY}  ${ws_root}
+    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdePkg,MdeModulePkg,PcAtChipsetPkg  ${default_branch}  ${EMPTY}  ${ws_root}
     Confirm same contents  ${pkgs}  PcAtChipsetPkg
 
-    [Teardown]  Delete branch  ${branch_name}  ${master_branch}  ${ws_root}
+    [Teardown]  Delete branch  ${branch_name}  ${default_branch}  ${ws_root}
 
 Test Stuart PR using ProjectMu for all policies when a PR contains a deleted file
     [Tags]           PrEval  Delete  ProjectMu
@@ -164,7 +168,7 @@ Test Stuart PR using ProjectMu for all policies when a PR contains a deleted fil
     ${branch_name}=      Set Variable    PR_Rand_${{random.randint(0, 10000)}}
     ${file_to_modify}=   Set Variable    MdeModulePkg${/}Application${/}HelloWorld${/}HelloWorld.c
 
-    Reset git repo to main branch  ${ws_root}  ${master_branch}
+    Reset git repo to default branch  ${ws_root}  ${default_branch}
     Make new branch  ${branch_name}  ${ws_root}
 
     Remove File  ${ws_root}${/}${file_to_modify}
@@ -172,18 +176,18 @@ Test Stuart PR using ProjectMu for all policies when a PR contains a deleted fil
     Stage changed file  ${file_to_modify}  ${ws_root}
     Commit changes  "Changes"  ${ws_root}
 
-    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdePkg  ${master_branch}  ${EMPTY}  ${ws_root}
+    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdePkg  ${default_branch}  ${EMPTY}  ${ws_root}
     Should Be Empty    ${pkgs}
 
-    [Teardown]  Delete branch  ${branch_name}  ${master_branch}  ${ws_root}
+    [Teardown]  Delete branch  ${branch_name}  ${default_branch}  ${ws_root}
 
 Test Stuart PR using ProjectMu for all policies when a PR contains a deleted folder
     [Tags]           PrEval  Delete  ProjectMu
 
     ${branch_name}=      Set Variable    PR_Rand_${{random.randint(0, 10000)}}
-    ${file_to_modify}=   Set Variable    MdeModulePkg${/}Application${/}HelloWorld
+    ${file_to_modify}=   Set Variable    MdePkg${/}Library${/}BasePrintLib
 
-    Reset git repo to main branch  ${ws_root}  ${master_branch}
+    Reset git repo to default branch  ${ws_root}  ${default_branch}
     Make new branch  ${branch_name}  ${ws_root}
 
     Remove Directory  ${ws_root}${/}${file_to_modify}  True
@@ -192,30 +196,34 @@ Test Stuart PR using ProjectMu for all policies when a PR contains a deleted fol
     Commit changes  "Changes"  ${ws_root}
 
     # Platform CI test DSC dependnency on implementation file # Policy 4
-    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  SecurityPkg  ${master_branch}  ${EMPTY}  ${ws_root}
+    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  PcAtChipsetPkg  ${default_branch}  ${EMPTY}  ${ws_root}
     Should Be Empty    ${pkgs}
 
-    [Teardown]  Delete branch  ${branch_name}  ${master_branch}  ${ws_root}
+    [Teardown]  Delete branch  ${branch_name}  ${default_branch}  ${ws_root}
 
-Test Stuart PR using ProjectMu for all policies when a PR contains multiple levels of deleted folders
-    [Tags]           PrEval  Delete  ProjectMu
+#
+# Given the restructure in MU Basecore there is no longer a small easy multi folder dependency
+#  This test is redundant and will skip for now
+#
+#Test Stuart PR using ProjectMu for all policies when a PR contains multiple levels of deleted folders
+    # [Tags]           PrEval  Delete  ProjectMu
 
-    ${branch_name}=      Set Variable    PR_Rand_${{random.randint(0, 10000)}}
-    ${file_to_modify}=   Set Variable    UefiCpuPkg${/}CpuDxe
+    # ${branch_name}=      Set Variable    PR_Rand_${{random.randint(0, 10000)}}
+    # ${file_to_modify}=   Set Variable    UefiCpuPkg${/}CpuDxe
 
-    Reset git repo to main branch  ${ws_root}  ${master_branch}
-    Make new branch  ${branch_name}  ${ws_root}
+    # Reset git repo to default branch  ${ws_root}  ${default_branch}
+    # Make new branch  ${branch_name}  ${ws_root}
 
-    Remove Directory  ${ws_root}${/}${file_to_modify}  True
+    # Remove Directory  ${ws_root}${/}${file_to_modify}  True
 
-    Stage changed file  ${file_to_modify}  ${ws_root}
-    Commit changes  "Changes"  ${ws_root}
+    # Stage changed file  ${file_to_modify}  ${ws_root}
+    # Commit changes  "Changes"  ${ws_root}
 
-    # Platform CI test DSC dependnency on implementation file # Policy 4
-    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  SecurityPkg  ${master_branch}  ${EMPTY}  ${ws_root}
-    Should Be Empty    ${pkgs}
+    # # Platform CI test DSC dependnency on implementation file # Policy 4
+    # ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  SecurityPkg  ${default_branch}  ${EMPTY}  ${ws_root}
+    # Should Be Empty    ${pkgs}
 
-    [Teardown]  Delete branch  ${branch_name}  ${master_branch}  ${ws_root}
+    # [Teardown]  Delete branch  ${branch_name}  ${default_branch}  ${ws_root}
 
 Test Stuart PR using ProjectMu for all policies when a PR contains file added
     [Tags]           PrEval  Add  ProjectMu
@@ -224,7 +232,7 @@ Test Stuart PR using ProjectMu for all policies when a PR contains file added
     ${file_to_move}=      Set Variable    MdePkg${/}Library${/}BaseS3StallLib${/}S3StallLib.c
     ${location_to_move}=  Set Variable    MdePkg${/}Library${/}BaseLib
 
-    Reset git repo to main branch  ${ws_root}  ${master_branch}
+    Reset git repo to default branch  ${ws_root}  ${default_branch}
     Make new branch  ${branch_name}  ${ws_root}
 
     Move File  ${ws_root}${/}${file_to_move}  ${ws_root}${/}${location_to_move}
@@ -233,10 +241,10 @@ Test Stuart PR using ProjectMu for all policies when a PR contains file added
     Commit changes  "Changes"  ${ws_root}
 
     # Platform CI test DSC dependnency on implementation file # Policy 4
-    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdeModulePkg  ${master_branch}  ${EMPTY}  ${ws_root}
+    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdeModulePkg  ${default_branch}  ${EMPTY}  ${ws_root}
     Should Be Empty    ${pkgs}
 
-    [Teardown]  Delete branch  ${branch_name}  ${master_branch}  ${ws_root}
+    [Teardown]  Delete branch  ${branch_name}  ${default_branch}  ${ws_root}
 
 Test Stuart PR for all policies when a PR contains directory added
     [Tags]           PrEval  Add
@@ -245,7 +253,7 @@ Test Stuart PR for all policies when a PR contains directory added
     ${file_to_move}=      Set Variable    MdePkg${/}Library${/}BaseS3StallLib
     ${location_to_move}=  Set Variable    MdeModulePkg${/}Library
 
-    Reset git repo to main branch  ${ws_root}  ${master_branch}
+    Reset git repo to default branch  ${ws_root}  ${default_branch}
     Make new branch  ${branch_name}  ${ws_root}
 
     Move Directory  ${ws_root}${/}${file_to_move}  ${ws_root}${/}${location_to_move}
@@ -254,10 +262,10 @@ Test Stuart PR for all policies when a PR contains directory added
     Commit changes  "Changes"  ${ws_root}
 
     # Platform CI test DSC dependnency on implementation file # Policy 4
-    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  UefiCpuPkg  ${master_branch}  ${EMPTY}  ${ws_root}
+    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  UefiCpuPkg  ${default_branch}  ${EMPTY}  ${ws_root}
     Should Be Empty    ${pkgs}
 
-    [Teardown]  Delete branch  ${branch_name}  ${master_branch}  ${ws_root}
+    [Teardown]  Delete branch  ${branch_name}  ${default_branch}  ${ws_root}
 
 Test Stuart PR for changing a file at the root of repo
     [Tags]           PrEval
@@ -265,7 +273,7 @@ Test Stuart PR for changing a file at the root of repo
     ${branch_name}=      Set Variable    PR_Rand_${{random.randint(0, 10000)}}
     ${file_to_modify}=   Set Variable    edksetup.bat
 
-    Reset git repo to main branch  ${ws_root}  ${master_branch}
+    Reset git repo to default branch  ${ws_root}  ${default_branch}
     Make new branch  ${branch_name}  ${ws_root}
 
     Append To File  ${ws_root}${/}${file_to_modify}
@@ -275,7 +283,7 @@ Test Stuart PR for changing a file at the root of repo
     Commit changes  "Changes"  ${ws_root}
 
     # Platform CI test DSC dependnency on implementation file # Policy 4
-    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdePkg  ${master_branch}  ${EMPTY}  ${ws_root}
+    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdePkg  ${default_branch}  ${EMPTY}  ${ws_root}
     Should Be Empty    ${pkgs}
 
-    [Teardown]  Delete branch  ${branch_name}  ${master_branch}  ${ws_root}
+    [Teardown]  Delete branch  ${branch_name}  ${default_branch}  ${ws_root}

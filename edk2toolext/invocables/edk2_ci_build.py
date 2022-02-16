@@ -64,7 +64,7 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
         # Bring up the common minimum environment.
         logging.log(edk2_logging.SECTION, "Getting Environment")
         (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(
-            self.GetWorkspaceRoot(), self.GetActiveScopes())
+            self.GetWorkspaceRoot(), self.GetActiveScopes(), self.GetSkippedDirectories())
         env = shell_environment.GetBuildVars()
 
         # Bind our current execution environment into the shell vars.
@@ -150,8 +150,8 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
                     plugin_output_stream = edk2_logging.create_output_stream()
 
                     # merge the repo level and package level for this specific plugin
-                    pkg_plugin_configuration = self.merge_config(self.PlatformSettings.GetPluginSettings(),
-                                                                 pkg_config, Descriptor.descriptor)
+                    pkg_plugin_configuration = Edk2CiBuild.merge_config(self.PlatformSettings.GetPluginSettings(),
+                                                                        pkg_config, Descriptor.descriptor)
 
                     # Still need to see if the package decided this should be skipped
                     if pkg_plugin_configuration is None or\
@@ -218,7 +218,8 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
 
         return failure_num
 
-    def merge_config(self, config, pkg_config, descriptor={}):
+    @staticmethod
+    def merge_config(gbl_config, pkg_config, descriptor={}):
         ''' Merge two configurations.  One global and one specific
             to the package to create the proper config for a plugin
             to execute.
@@ -233,8 +234,8 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
         if plugin_name == "":
             return config
 
-        if plugin_name in config:
-            config.update(config[plugin_name])
+        if plugin_name in gbl_config:
+            config.update(gbl_config[plugin_name])
 
         if plugin_name in pkg_config:
             config.update(pkg_config[plugin_name])
