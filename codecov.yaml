@@ -6,3 +6,6 @@ comment:
   require_head: yes       # [yes :: must have a head report to post]
   branches:               # branch names that can post comment
     - "master"
+
+ignore:
+  - "edk2toolext/capsule/signtool_signer.py"    # This file is Windows only, and reports many missed lines on Linux
