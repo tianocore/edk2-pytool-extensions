@@ -131,6 +131,68 @@ class TestExternalDependency(unittest.TestCase):
 
         self.assertNotEqual(ext_dep1.determine_cache_path(), ext_dep2.determine_cache_path())
 
+    def test_can_copy_to_cache(self):
+        cache_path = os.path.join(TEST_DIR, 'stuart_cache')
+        os.makedirs(cache_path)
+
+        nuget_desc = copy.copy(NUGET_TEMPLATE)
+        nuget_desc['version'] = GOOD_VERSION
+        nuget_desc['descriptor_file'] = os.path.join(TEST_DIR, 'non_file.yaml')
+        ext_dep = ExtDep(nuget_desc)
+        ext_dep.set_global_cache_path(cache_path)
+
+        self.assertFalse(os.path.exists(ext_dep.determine_cache_path()))
+
+        # Create a new directory with a dummy file.
+        test_path = os.path.join(TEST_DIR, 'test_path')
+        test_file = os.path.join(test_path, 'test_file.txt')
+        os.makedirs(test_path)
+        with open(test_file, "w") as fp:
+            fp.write("DEADBEEF\n")
+
+        # Copy the test data to the cache.
+        ext_dep.copy_to_global_cache(test_path)
+
+        self.assertTrue(os.path.exists(ext_dep.determine_cache_path()))
+        copied_file = os.path.join(ext_dep.determine_cache_path(), 'test_file.txt')
+        self.assertTrue(os.path.exists(copied_file))
+        file_contents = None
+        with open(copied_file, "r") as fp:
+            file_contents = fp.read()
+        self.assertTrue("DEADBEEF" in file_contents)
+
+    def test_can_copy_from_cache(self):
+        cache_path = os.path.join(TEST_DIR, 'stuart_cache')
+        os.makedirs(cache_path)
+
+        nuget_desc = copy.copy(NUGET_TEMPLATE)
+        nuget_desc['version'] = GOOD_VERSION
+        nuget_desc['descriptor_file'] = os.path.join(TEST_DIR, 'non_file.yaml')
+        ext_dep = ExtDep(nuget_desc)
+        ext_dep.set_global_cache_path(cache_path)
+
+        self.assertFalse(os.path.exists(ext_dep.determine_cache_path()))
+
+        test_path = os.path.join(TEST_DIR, 'test_path')
+        test_file = os.path.join(test_path, 'test_file.txt')
+        os.makedirs(test_path)
+        with open(test_file, "w") as fp:
+            fp.write("DEADBEEF\n")
+        ext_dep.copy_to_global_cache(test_path)
+
+        test_path2 = os.path.join(TEST_DIR, 'test_path2')
+        self.assertFalse(os.path.exists(test_path2))
+
+        ext_dep.copy_from_global_cache(test_path2)
+
+        self.assertTrue(os.path.exists(test_path2))
+        copied_file = os.path.join(test_path2, 'test_file.txt')
+        self.assertTrue(os.path.exists(copied_file))
+        file_contents = None
+        with open(copied_file, "r") as fp:
+            file_contents = fp.read()
+        self.assertTrue("DEADBEEF" in file_contents)
+
 
 if __name__ == '__main__':
     unittest.main()
