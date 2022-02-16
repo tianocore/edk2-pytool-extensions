@@ -185,7 +185,8 @@ class self_describing_environment(object):
                 # Use the helper factory to get an object
                 # capable of managing each dependency.
                 extdep = external_dependency.ExtDepFactory(extdep_descriptor)
-                extdep.set_global_cache_path(global_cache_path)
+                if global_cache_path is not None:
+                    extdep.set_global_cache_path(global_cache_path)
                 yield extdep
 
     def _apply_descriptor_object_to_env(self, desc_object, env_object):
