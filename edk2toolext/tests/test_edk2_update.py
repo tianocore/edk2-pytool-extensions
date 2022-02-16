@@ -110,6 +110,66 @@ class TestEdk2Update(unittest.TestCase):
         # we should have found two ext deps
         self.assertEqual(len(build_env.extdeps), num_of_ext_deps)
 
+    def test_duplicate_ext_deps(self):
+        ''' verifies redundant ext_deps fail '''
+        WORKSPACE = self.get_temp_folder()
+        tree = uefi_tree(WORKSPACE)
+
+        logging.getLogger().setLevel(logging.WARNING)
+
+        tree.create_ext_dep(dep_type="nuget",
+                            name="NuGet.CommandLine",
+                            version="5.2.0",
+                            dir_path="1",
+                            extra_data={"id:": "CmdLine1"})
+        tree.create_ext_dep(dep_type="nuget",
+                            name="NuGet.CommandLine",
+                            version="5.2.0",
+                            dir_path="2",
+                            extra_data={"id:": "CmdLine1"})
+
+        # Do the update. Expect a ValueError from the version aggregator.
+        with self.assertRaises(ValueError):
+            self.invoke_update(tree.get_settings_provider_path(), failure_expected=True)
+
+    def test_duplicate_ext_deps_skip_dir(self):
+        ''' verifies redundant ext_deps pass if one is skipped '''
+        WORKSPACE = self.get_temp_folder()
+        tree = uefi_tree(WORKSPACE)
+        num_of_ext_deps = 1
+
+        logging.getLogger().setLevel(logging.WARNING)
+
+        tree.create_ext_dep(dep_type="nuget",
+                            name="NuGet.CommandLine",
+                            version="5.2.0",
+                            dir_path="1",
+                            extra_data={"id:": "CmdLine1"})
+        tree.create_ext_dep(dep_type="nuget",
+                            name="NuGet.CommandLine",
+                            version="5.2.0",
+                            dir_path="2",
+                            extra_data={"id:": "CmdLine1"})
+
+        # Update GetSkippedDirectories() implementation
+        with open(tree.get_settings_provider_path(), 'r') as s:
+            settings_text = s.read()
+
+        settings_text = settings_text.replace(
+            'def GetSkippedDirectories(self):\n        return ()',
+            'def GetSkippedDirectories(self):\n        return (\"2\",)')
+
+        with open(tree.get_settings_provider_path(), 'w') as s:
+            s.write(settings_text)
+
+        # Do the update
+        updater = self.invoke_update(tree.get_settings_provider_path())
+        build_env, shell_env, failure = updater.PerformUpdate()
+        # we should have found one ext dep
+        self.assertEqual(len(build_env.extdeps), num_of_ext_deps)
+        # the one ext_dep should be valid
+        self.assertEqual(failure, 0)
+
     def test_bad_ext_dep(self):
         ''' makes sure we can do an update that will fail '''
         WORKSPACE = self.get_temp_folder()

@@ -65,7 +65,7 @@ class Edk2PlatformBuild(Edk2Invocable):
         Edk2PlatformBuild.collect_python_pip_info()
 
         (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(
-            self.GetWorkspaceRoot(), self.GetActiveScopes())
+            self.GetWorkspaceRoot(), self.GetActiveScopes(), self.GetSkippedDirectories())
 
         # Bind our current execution environment into the shell vars.
         ph = os.path.dirname(sys.executable)

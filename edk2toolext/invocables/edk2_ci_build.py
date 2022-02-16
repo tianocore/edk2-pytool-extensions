@@ -64,7 +64,7 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
         # Bring up the common minimum environment.
         logging.log(edk2_logging.SECTION, "Getting Environment")
         (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(
-            self.GetWorkspaceRoot(), self.GetActiveScopes())
+            self.GetWorkspaceRoot(), self.GetActiveScopes(), self.GetSkippedDirectories())
         env = shell_environment.GetBuildVars()
 
         # Bind our current execution environment into the shell vars.

@@ -61,6 +61,11 @@ class Edk2InvocableSettingsInterface():
         '''  Implement in subclass to retrieve command line options from the argparser namespace '''
         pass
 
+    def GetSkippedDirectories(self) -> Tuple[str]:
+        ''' Implement in subclass to return a Tuple containing workspace-relative directories that should be skipped.
+        Absolute paths are not supported. '''
+        return ()
+
 
 class Edk2Invocable(BaseAbstractInvocable):
     ''' Base class for Edk2 based invocables.
@@ -97,7 +102,7 @@ class Edk2Invocable(BaseAbstractInvocable):
     def GetPackagesPath(self) -> Iterable[os.PathLike]:
         ''' Use the SettingsManager to an iterable of paths to be used as Edk2 Packages Path'''
         try:
-            return self.PlatformSettings.GetPackagesPath()
+            return list(set(self.PlatformSettings.GetPackagesPath()) - set(self.GetSkippedDirectories()))
         except AttributeError:
             raise RuntimeError("Can't call this before PlatformSettings has been set up!")
 
@@ -142,6 +147,14 @@ class Edk2Invocable(BaseAbstractInvocable):
     def RetrieveCommandLineOptions(self, args):
         '''  Implement in subclass to retrieve command line options from the argparser '''
         pass
+
+    def GetSkippedDirectories(self):
+        ''' Implement in subclass to return a Tuple containing workspace-relative directories that should be skipped.
+        Absolute paths are not supported. '''
+        try:
+            return self.PlatformSettings.GetSkippedDirectories()
+        except AttributeError:
+            raise RuntimeError("Can't call this before PlatformSettings has been set up!")
 
     def GetSettingsClass(self):
         '''  Child class should provide the class that contains their required settings '''
