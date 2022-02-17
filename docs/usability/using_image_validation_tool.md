@@ -15,7 +15,7 @@ image_validation.py [-h] -i FILE [-d] [-s MODULE] [--set-nx-compat SET_NX_COMPAT
 
     [Optional] Provides information on flags
 
-### -i --file
+### -i, --file
 
     [Required] The input PE/COFF file to be verified
 
