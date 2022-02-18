@@ -33,6 +33,13 @@ def clear_bit(data, bit):
     return data & ~(1 << bit)
 
 
+def fill_missing_requirements(default, target):
+    for key in default:
+        if key not in target:
+            target[key] = default[key]
+    return target
+
+
 class Result:
     PASS = '[PASS]'
     WARN = '[WARNING]'
@@ -265,18 +272,16 @@ class TestManager(object):
         @return Result.ERROR: At least one test failed. Error messages can be found in the log
         """
 
+        # Catch any invalid profiles
         machine_type = MACHINE_TYPE[pe.FILE_HEADER.Machine]
         if not self.config_data[machine_type].get(profile):
             profile = "DEFAULT"
 
         # Fill any missing configurations for the specific module type with the default
-        target_requirements = self.config_data[machine_type][profile]
-        if profile != "DEFAULT":
-            for key in self.config_data[machine_type]["DEFAULT"]:
-                if key not in target_requirements:
-                    target_requirements[key] = self.config_data[machine_type]["DEFAULT"][key]
+        default = self.config_data[machine_type]["DEFAULT"]
+        target = self.config_data[machine_type][profile]
+        target_requirements = fill_missing_requirements(default, target)
 
-        target_requirements = self.config_data[machine_type][profile]
         target_info = {
             "MACHINE_TYPE": machine_type,
             "PROFILE": profile
