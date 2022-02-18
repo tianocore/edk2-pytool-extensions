@@ -6,10 +6,7 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 import unittest
-from edk2toolext.image_validation import Result, TestManager, TestSectionAlignment
-from edk2toolext.image_validation import TestSubsystemValue, TestWriteExecuteFlags
-from edk2toolext.image_validation import set_bit, clear_bit, has_characteristic
-from edk2toolext.image_validation import TestInterface, fill_missing_requirements
+import edk2toolext.image_validation as IV
 
 
 class Section:
@@ -19,9 +16,10 @@ class Section:
 
 
 class OptionalHeader:
-    def __init__(self, SectionAlignment=None, Subsystem=None):
+    def __init__(self, SectionAlignment=None, Subsystem=None, DllCharacteristics=None):
         self.SectionAlignment = SectionAlignment
         self.Subsystem = Subsystem
+        self.DllCharacteristics = DllCharacteristics
 
 
 class FileHeader:
@@ -41,15 +39,15 @@ class TestImageValidationInterface(unittest.TestCase):
 
     def test_add_test(self):
 
-        test_manager = TestManager()
+        test_manager = IV.TestManager()
         self.assertEqual(len(test_manager.tests), 0)
-        test_manager.add_test(TestSectionAlignment())
+        test_manager.add_test(IV.TestSectionAlignment())
         self.assertEqual(len(test_manager.tests), 1)
 
     def test_add_tests(self):
-        test_manager = TestManager()
+        test_manager = IV.TestManager()
         self.assertEqual(len(test_manager.tests), 0)
-        test_manager.add_tests([TestSectionAlignment(), TestSubsystemValue()])
+        test_manager.add_tests([IV.TestSectionAlignment(), IV.TestSubsystemValue()])
         self.assertEqual(len(test_manager.tests), 2)
 
     def test_test_manager(self):
@@ -63,13 +61,13 @@ class TestImageValidationInterface(unittest.TestCase):
                 }
             }
         }
-        test_manager = TestManager(config_data=config_data)
+        test_manager = IV.TestManager(config_data=config_data)
         self.assertEqual(test_manager.config_data, config_data)
 
         pe = PE(sections=[Section("S1.1".encode("utf-8"), characteristics=0x80000000)])
-        test_manager.add_test(TestWriteExecuteFlags())
+        test_manager.add_test(IV.TestWriteExecuteFlags())
         result = test_manager.run_tests(pe, "BAD_PROFILE")
-        self.assertEqual(result, Result.PASS)
+        self.assertEqual(result, IV.Result.PASS)
 
     def test_write_execute_flags_test(self):
         """
@@ -101,8 +99,9 @@ class TestImageValidationInterface(unittest.TestCase):
 
         config_data2 = {"TARGET_REQUIREMENTS": {}}
 
-        test_write_execute_flags = TestWriteExecuteFlags()
-        tests = [(test_pe0, Result.PASS), (test_pe1, Result.FAIL), (test_pe2, Result.PASS), (test_pe3, Result.FAIL)]
+        test_write_execute_flags = IV.TestWriteExecuteFlags()
+        tests = [(test_pe0, IV.Result.PASS), (test_pe1, IV.Result.FAIL),
+                 (test_pe2, IV.Result.PASS), (test_pe3, IV.Result.FAIL)]
 
         config_data0 = {
             "TARGET_REQUIREMENTS": {"DATA_CODE_SEPARATION": True}
@@ -118,13 +117,13 @@ class TestImageValidationInterface(unittest.TestCase):
         for i in range(len(tests)):
             with self.subTest("test_write_execute2", i=i):
                 pe, _ = tests[i]
-                self.assertEqual(test_write_execute_flags.execute(pe, config_data1), Result.SKIP)
+                self.assertEqual(test_write_execute_flags.execute(pe, config_data1), IV.Result.SKIP)
 
         # Test set 3
         for i in range(len(tests)):
             with self.subTest("test_write_execute3", i=i):
                 pe, _ = tests[i]
-                self.assertEqual(test_write_execute_flags.execute(pe, config_data2), Result.SKIP)
+                self.assertEqual(test_write_execute_flags.execute(pe, config_data2), IV.Result.SKIP)
 
     def test_section_alignment_test(self):
         """
@@ -174,10 +173,10 @@ class TestImageValidationInterface(unittest.TestCase):
         test_pe1 = PE(optional_header=OptionalHeader(SectionAlignment=0))
         test_pe2 = PE(optional_header=None)
 
-        test_section_alignment_test = TestSectionAlignment()
-        tests0 = [(config_data0, Result.SKIP), (config_data1, Result.SKIP),
-                  (config_data2, Result.PASS), (config_data3, Result.FAIL),
-                  (config_data4, Result.PASS), (config_data5, Result.FAIL)]
+        test_section_alignment_test = IV.TestSectionAlignment()
+        tests0 = [(config_data0, IV.Result.SKIP), (config_data1, IV.Result.SKIP),
+                  (config_data2, IV.Result.PASS), (config_data3, IV.Result.FAIL),
+                  (config_data4, IV.Result.PASS), (config_data5, IV.Result.FAIL)]
 
         # Test set 1
         for i in range(len(tests0)):
@@ -185,9 +184,9 @@ class TestImageValidationInterface(unittest.TestCase):
                 config, result = tests0[i]
                 self.assertEqual(test_section_alignment_test.execute(test_pe0, config), result)
 
-        tests1 = [(config_data0, Result.SKIP), (config_data1, Result.SKIP),
-                  (config_data2, Result.WARN), (config_data3, Result.WARN),
-                  (config_data4, Result.WARN), (config_data5, Result.WARN)]
+        tests1 = [(config_data0, IV.Result.SKIP), (config_data1, IV.Result.SKIP),
+                  (config_data2, IV.Result.WARN), (config_data3, IV.Result.WARN),
+                  (config_data4, IV.Result.WARN), (config_data5, IV.Result.WARN)]
 
         # Test set 2
         for i in range(len(tests1)):
@@ -256,10 +255,10 @@ class TestImageValidationInterface(unittest.TestCase):
             "TARGET_INFO": {"MACHINE_TYPE": "", "PROFILE": {}}
         }
 
-        test_section_alignment_test = TestSectionAlignment()
+        test_section_alignment_test = IV.TestSectionAlignment()
         pe = PE(optional_header=OptionalHeader(SectionAlignment=4096))
-        tests = [(target_config0, Result.PASS), (target_config1, Result.FAIL), (target_config2, Result.PASS),
-                 (target_config3, Result.FAIL), (target_config4, Result.FAIL), (target_config5, Result.FAIL)]
+        tests = [(target_config0, IV.Result.PASS), (target_config1, IV.Result.FAIL), (target_config2, IV.Result.PASS),
+                 (target_config3, IV.Result.FAIL), (target_config4, IV.Result.FAIL), (target_config5, IV.Result.FAIL)]
 
         for i in range(len(tests)):
             with self.subTest("test_section_alignment_and_or_logic", i=i):
@@ -289,11 +288,11 @@ class TestImageValidationInterface(unittest.TestCase):
                                      "IMAGE_SUBSYSTEM_EFI_APPLICATION"]}
         }
 
-        test_subsystem_value_test = TestSubsystemValue()
+        test_subsystem_value_test = IV.TestSubsystemValue()
 
         TEST_PE0 = PE(optional_header=OptionalHeader(Subsystem=10))
-        tests0 = [(config_data0, Result.SKIP), (config_data1, Result.SKIP),
-                  (config_data2, Result.FAIL), (config_data3, Result.PASS)]
+        tests0 = [(config_data0, IV.Result.SKIP), (config_data1, IV.Result.SKIP),
+                  (config_data2, IV.Result.FAIL), (config_data3, IV.Result.PASS)]
 
         for i in range(len(tests0)):
             with self.subTest("test_subsystem_value0", i=i):
@@ -301,8 +300,8 @@ class TestImageValidationInterface(unittest.TestCase):
                 self.assertEqual(test_subsystem_value_test.execute(TEST_PE0, config), result)
 
         TEST_PE1 = PE(optional_header=OptionalHeader(Subsystem="UEFI_"))
-        tests1 = [(config_data0, Result.SKIP), (config_data1, Result.SKIP),
-                  (config_data2, Result.FAIL), (config_data3, Result.FAIL)]
+        tests1 = [(config_data0, IV.Result.SKIP), (config_data1, IV.Result.SKIP),
+                  (config_data2, IV.Result.FAIL), (config_data3, IV.Result.FAIL)]
 
         for i in range(len(tests1)):
             with self.subTest("test_subsystem_value1", i=i):
@@ -310,8 +309,8 @@ class TestImageValidationInterface(unittest.TestCase):
                 self.assertEqual(test_subsystem_value_test.execute(TEST_PE1, config), result)
 
         TEST_PE2 = PE(optional_header=OptionalHeader(Subsystem=None))
-        tests2 = [(config_data0, Result.SKIP), (config_data1, Result.SKIP),
-                  (config_data2, Result.WARN), (config_data3, Result.WARN)]
+        tests2 = [(config_data0, IV.Result.SKIP), (config_data1, IV.Result.SKIP),
+                  (config_data2, IV.Result.WARN), (config_data3, IV.Result.WARN)]
 
         for i in range(len(tests2)):
             with self.subTest("test_subsystem_value2", i=i):
@@ -325,27 +324,27 @@ class TestImageValidationInterface(unittest.TestCase):
 
         for i in range(len(results)):
             with self.subTest("test_set_bit1", i=i):
-                self.assertEqual(set_bit(data, i), results[i])
+                self.assertEqual(IV.set_bit(data, i), results[i])
 
         data = 0b11111111
         result = 255
         for i in range(7):
             with self.subTest("test_set_bit2", i=i):
-                self.assertEqual(set_bit(data, i), result)
+                self.assertEqual(IV.set_bit(data, i), result)
 
         data = 0b11111111
         result = [254, 253, 251, 247, 239, 223, 191, 127]
 
         for i in range(len(result)):
             with self.subTest("test_clear_bit1", i=i):
-                self.assertEqual(clear_bit(data, i), result[i])
+                self.assertEqual(IV.clear_bit(data, i), result[i])
 
         data = 0b00000000
         result = 0
 
         for i in range(7):
             with self.subTest("test_clear_bit2", i=i):
-                self.assertEqual(clear_bit(data, i), result)
+                self.assertEqual(IV.clear_bit(data, i), result)
 
         data = 0b11001101
         masks = [0b10100000, 0b10000001, 0b10101010, 0b11110000, 0b00000001]
@@ -353,7 +352,7 @@ class TestImageValidationInterface(unittest.TestCase):
 
         for i in range(len(result)):
             with self.subTest("test_has_characteristic", i=i):
-                self.assertEqual(has_characteristic(data, masks[i]), result[i])
+                self.assertEqual(IV.has_characteristic(data, masks[i]), result[i])
 
         default_config = {
             "T1": "T",
@@ -369,12 +368,65 @@ class TestImageValidationInterface(unittest.TestCase):
             "T3": "T"
         }
 
-        self.assertEqual(fill_missing_requirements(default_config, target_config), final_config)
+        self.assertEqual(IV.fill_missing_requirements(default_config, target_config), final_config)
 
     def test_test_interface(self):
-        c = TestInterface()
+        c = IV.TestInterface()
 
         with self.assertRaises(NotImplementedError):
             c.name()
         with self.assertRaises(NotImplementedError):
             c.execute(1, 2)
+
+    def test_get_cli_args(self):
+
+        test1 = ["-i", "file.efi"]
+        test2 = ["-i", "file.efi", "-d"]
+        test3 = ["-i", "file.efi", "-p", "APP"]
+        test4 = ["--file", "file.efi", "--set-nx-compat"]
+        test5 = ["--file", "file.efi", "--get-nx-compat"]
+        test6 = ["--file", "file.efi", "--clear-nx-compat"]
+
+        args = IV.get_cli_args(test1)
+        self.assertEqual(args.file, "file.efi")
+        self.assertEqual(args.debug, False)
+        self.assertEqual(args.profile, None)
+
+        args = IV.get_cli_args(test2)
+        self.assertEqual(args.file, "file.efi")
+        self.assertEqual(args.debug, True)
+        self.assertEqual(args.profile, None)
+
+        args = IV.get_cli_args(test3)
+        self.assertEqual(args.file, "file.efi")
+        self.assertEqual(args.debug, False)
+        self.assertEqual(args.profile, "APP")
+
+        args = IV.get_cli_args(test4)
+        self.assertEqual(args.file, "file.efi")
+        self.assertEqual(args.set_nx_compat, True)
+        self.assertEqual(args.get_nx_compat, False)
+        self.assertEqual(args.clear_nx_compat, False)
+
+        args = IV.get_cli_args(test5)
+        self.assertEqual(args.file, "file.efi")
+        self.assertEqual(args.set_nx_compat, False)
+        self.assertEqual(args.get_nx_compat, True)
+        self.assertEqual(args.clear_nx_compat, False)
+
+        args = IV.get_cli_args(test6)
+        self.assertEqual(args.file, "file.efi")
+        self.assertEqual(args.set_nx_compat, False)
+        self.assertEqual(args.get_nx_compat, False)
+        self.assertEqual(args.clear_nx_compat, True)
+
+    def test_nx_flag_commands(self):
+        pe = PE(optional_header=OptionalHeader(DllCharacteristics=0x0100))
+        pe = IV.clear_nx_compat_flag(pe)
+        self.assertEqual(pe.OPTIONAL_HEADER.DllCharacteristics, 0x0)
+        self.assertEqual(IV.get_nx_compat_flag(pe), 0)
+
+        pe = PE(optional_header=OptionalHeader(DllCharacteristics=0x0000))
+        pe = IV.set_nx_compat_flag(pe)
+        self.assertEqual(pe.OPTIONAL_HEADER.DllCharacteristics, 0x0100)
+        self.assertEqual(IV.get_nx_compat_flag(pe), 1)

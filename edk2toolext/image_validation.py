@@ -33,6 +33,31 @@ def clear_bit(data, bit):
     return data & ~(1 << bit)
 
 
+def set_nx_compat_flag(pe):
+    dllchar = pe.OPTIONAL_HEADER.DllCharacteristics
+    dllchar = set_bit(dllchar, 8)  # 8th bit is the nx_compat_flag
+    pe.OPTIONAL_HEADER.DllCharacteristics = dllchar
+    return pe
+
+
+def get_nx_compat_flag(pe):
+    dllchar = pe.OPTIONAL_HEADER.DllCharacteristics
+
+    if has_characteristic(dllchar, 256):  # 256 (8th bit) is the mask
+        logging.info('True')
+        return 1
+    else:
+        logging.info('False')
+        return 0
+
+
+def clear_nx_compat_flag(pe):
+    dllchar = pe.OPTIONAL_HEADER.DllCharacteristics
+    dllchar = clear_bit(dllchar, 8)  # 8th bit is the nx_compat_flag
+    pe.OPTIONAL_HEADER.DllCharacteristics = dllchar
+    return pe
+
+
 def fill_missing_requirements(default, target):
     for key in default:
         if key not in target:
@@ -509,11 +534,13 @@ def get_cli_args(args):
     group = parser.add_argument_group('NX compatability flag control')
 
     group.add_argument('--set-nx-compat',
-                       type=str,
+                       action='store_true',
+                       default=False,
                        help='[Optional] Sets the NX_COMPAT flag. returns <file>_nx_set.<filetype>')
 
     group.add_argument('--clear-nx-compat',
-                       type=str,
+                       action='store_true',
+                       default=False,
                        help='[Optional] Clears the NX_COMPAT flag')
 
     group.add_argument('--get-nx-compat',
@@ -539,37 +566,27 @@ def main():
     logging.info("Log Started: " + datetime.strftime(
         datetime.now(), "%A, %B %d, %Y %I:%M%p"))
 
+    # pe.write(filename=f'{basename[0]}_nx_clear.{basename[1]}'
+
     # Set the nx compatability flag and exit
     if args.set_nx_compat is not None:
         pe = PE(args.file)
-        dllchar = pe.OPTIONAL_HEADER.DllCharacteristics
-        dllchar = set_bit(dllchar, 8)  # 8th bit is the nx_compat_flag
-        pe.OPTIONAL_HEADER.DllCharacteristics = dllchar
-        basename = os.path.basename(args.file).split('.')
-        pe.write(args.set_nx_compat, filename=f'{basename[0]}_nx_set.{basename[1]}')
-        sys.exit(0)
+        set_nx_compat_flag(pe)
+        os.remove(args.file)
+        pe.write(args.file)
+        exit(0)
 
     # clear the nx compatability flag and exit
     if args.clear_nx_compat is not None:
         pe = PE(args.file)
-        dllchar = pe.OPTIONAL_HEADER.DllCharacteristics
-        dllchar = clear_bit(dllchar, 8)  # 8th bit is the nx_compat_flag
-        pe.OPTIONAL_HEADER.DllCharacteristics = dllchar
-        basename = os.path.basename(args.file).split('.')
-        pe.write(args.set_nx_compat, filename=f'{basename[0]}_nx_clear.{basename[1]}')
-        sys.exit(0)
+        clear_nx_compat_flag(pe)
+        os.remove(args.file)
+        pe.write(args.file)
+        exit(0)
 
     # exit with status equal to if nx compatability is present or not
     if args.get_nx_compat is True:
-        pe = PE(args.file)
-        dllchar = pe.OPTIONAL_HEADER.DllCharacteristics
-
-        if has_characteristic(dllchar, 256):  # 256 (8th bit) is the mask
-            logging.info('True')
-            sys.exit(1)
-        else:
-            logging.info('False')
-            sys.exit(0)
+        exit(get_nx_compat_flag(args.file))
 
     test_manager = TestManager()
     test_manager.add_test(TestWriteExecuteFlags())
@@ -577,10 +594,10 @@ def main():
     test_manager.add_test(TestSubsystemValue())
 
     pe = PE(args.file)
-    if not args.module:
+    if not args.profile:
         result = test_manager.run_tests(pe)
     else:
-        result = test_manager.run_tests(pe, args.module)
+        result = test_manager.run_tests(pe, args.profile)
 
     logging.info(f'Overall Result: {result}')
     if result == Result.SKIP:
