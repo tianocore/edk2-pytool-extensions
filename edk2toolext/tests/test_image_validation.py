@@ -32,11 +32,6 @@ class PE:
 # def subTest(self, msg=_subtest_msg_sentinel, **params):
 class Test_image_validation(unittest.TestCase):
 
-    @classmethod
-    def setUpClass(cls):
-        logger = logging.getLogger('')
-        logger.disabled = True
-
     def test_add_test(self):
 
         test_manager = TestManager()
