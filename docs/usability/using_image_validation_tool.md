@@ -38,7 +38,7 @@ image_validation.py [-h] -i FILE [-d] [-s MODULE] [--set-nx-compat SET_NX_COMPAT
 ### Status codes returned
 
     0 - All tests returned pass or warn
-    1 - One ore more tests returned fail, or an error has occurred
+    1 - One or more tests returned fail, or an error has occurred
 
 ## Tests
 
