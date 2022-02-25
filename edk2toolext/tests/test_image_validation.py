@@ -34,7 +34,6 @@ class PE:
         self.FILE_HEADER = FileHeader()
 
 
-# def subTest(self, msg=_subtest_msg_sentinel, **params):
 class TestImageValidationInterface(unittest.TestCase):
 
     def test_add_test(self):
@@ -67,6 +66,9 @@ class TestImageValidationInterface(unittest.TestCase):
         pe = PE(sections=[Section("S1.1".encode("utf-8"), characteristics=0x80000000)])
         test_manager.add_test(IV.TestWriteExecuteFlags())
         result = test_manager.run_tests(pe, "BAD_PROFILE")
+        self.assertEqual(result, IV.Result.FAIL)
+
+        result = test_manager.run_tests(pe)
         self.assertEqual(result, IV.Result.PASS)
 
     def test_write_execute_flags_test(self):

@@ -128,7 +128,6 @@ class TestManager(object):
                             "IMAGE_SUBSYSTEM_EFI_ROM"
                         ]
                     },
-                    "PEI": {}
                 },
                 "IMAGE_FILE_MACHINE_ARM": {
                     "DEFAULT": {
@@ -300,7 +299,8 @@ class TestManager(object):
         # Catch any invalid profiles
         machine_type = MACHINE_TYPE[pe.FILE_HEADER.Machine]
         if not self.config_data[machine_type].get(profile):
-            profile = "DEFAULT"
+            logging.error(f'Profile type {profile} is invalid. Exiting...')
+            return Result.FAIL
 
         # Fill any missing configurations for the specific module type with the default
         default = self.config_data[machine_type]["DEFAULT"]
@@ -323,7 +323,7 @@ class TestManager(object):
 
             result = test.execute(pe, test_config_data)
 
-            # Overall Result an only go lower (Pass -> Warn -> Error)
+            # Overall Result can only go lower (Pass -> Warn -> Fail)
             if result == Result.PASS:
                 logging.debug(f'{result}')
             elif result == Result.SKIP:
@@ -368,8 +368,7 @@ class TestWriteExecuteFlags(TestInterface):
     def execute(self, pe, config_data):
         target_requirements = config_data["TARGET_REQUIREMENTS"]
 
-        if (not target_requirements.get("DATA_CODE_SEPARATION")
-           or target_requirements.get("DATA_CODE_SEPARATION") is False):
+        if target_requirements.get("DATA_CODE_SEPARATION", False) is False:
             return Result.SKIP
 
         for section in pe.sections:
@@ -520,7 +519,7 @@ def get_cli_args(args):
     parser.add_argument('-i', '--file',
                         type=str,
                         required=True,
-                        help='The image that needs validated.')
+                        help='path to the image that needs validated.')
     parser.add_argument('-d', '--debug',
                         action='store_true',
                         default=False)
@@ -528,25 +527,25 @@ def get_cli_args(args):
     parser.add_argument('-p', '--profile',
                         type=str,
                         default=None,
-                        help='[Optional] The profile config to be verified againt. \
+                        help='the profile config to be verified against. \
                             Will use the default, if not provided')
 
-    group = parser.add_argument_group('NX compatability flag control')
+    group = parser.add_mutually_exclusive_group()
 
     group.add_argument('--set-nx-compat',
                        action='store_true',
                        default=False,
-                       help='[Optional] Sets the NX_COMPAT flag. returns <file>_nx_set.<filetype>')
+                       help='sets the NX_COMPAT flag')
 
     group.add_argument('--clear-nx-compat',
                        action='store_true',
                        default=False,
-                       help='[Optional] Clears the NX_COMPAT flag')
+                       help='clears the NX_COMPAT flag')
 
     group.add_argument('--get-nx-compat',
                        action='store_true',
                        default=False,
-                       help='Returns the value of the NX_COMPAT flag')
+                       help='returns the value of the NX_COMPAT flag')
 
     return parser.parse_args(args)
 

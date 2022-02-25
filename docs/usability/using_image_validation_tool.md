@@ -26,7 +26,7 @@ image_validation.py [-h] -i FILE [-d] [-p PROFILE] [--set-nx-compat] [--clear-nx
 ### -d, --debug
 
     [Optional] Sets the logging mode to debug
-    
+
 ### --set-nx-compat
 
     [Optional] Sets the NX_COMPAT flag. returns <file>_nx_set.<filetype>
@@ -110,10 +110,6 @@ the default, most restrictive, profile will automatically be used.
   - Write / Execute Separation = Required
   - Alignment = 4096
   - Subsystem = Boot Service Driver, Runtime Driver, ROM
-- PEI
-  - Write / Execute Separation = Required
-  - Alignment = 4096
-  - Subsystem = Boot Service Driver, ROM
 
 ### IA32 Profiles
 
