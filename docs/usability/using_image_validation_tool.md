@@ -1,13 +1,13 @@
 # PE/COFF Image Validation
 
-The PE/COFF image validation tool is a command line tool used to verify tha
+The PE/COFF image validation tool is a command line tool used to verify that
 memory protection requirements such as section alignment and write / execute
 settings are applied correctly. This tool also provides the ability to check,
 set, and clear the NX_COMPAT flag found in OPTIONAL_HEADER.DllCharacteristics.
 
 ## Synopsis
 
-image_validation.py [-h] -i FILE [-d] [-s MODULE] [--set-nx-compat SET_NX_COMPAT] [--clear-nx-compat CLEAR_NX_COMPAT] [--get-nx-compat]
+image_validation.py [-h] -i FILE [-d] [-p PROFILE] [--set-nx-compat] [--clear-nx-compat] [--get-nx-compat]
 
 ## Options
 
@@ -23,6 +23,10 @@ image_validation.py [-h] -i FILE [-d] [-s MODULE] [--set-nx-compat SET_NX_COMPAT
 
     [Optional] The profile config to be verified against. Will use the default, if not provided
 
+### -d, --debug
+
+    [Optional] Sets the logging mode to debug
+    
 ### --set-nx-compat
 
     [Optional] Sets the NX_COMPAT flag. returns <file>_nx_set.<filetype>
