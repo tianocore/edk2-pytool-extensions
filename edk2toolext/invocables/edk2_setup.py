@@ -122,9 +122,10 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
                 logging.error("FAILED!\n")
                 logging.error("Error while trying to clean the environment!")
                 logging.error(str(e))
-                return
+                return -1
 
         # Grab the remaining Git repos.
+        result = 0
         if required_submodules and len(required_submodules) > 0:
 
             # Git Repos: STEP 1 --------------------------------------
@@ -140,7 +141,7 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
                 logging.error("FAILED!\n")
                 logging.error("Error while trying to synchronize the environment!")
                 logging.error(str(e))
-                return
+                return -1
 
             # Git Repos: STEP 2 --------------------------------------
             # Iterate through all repos and see whether they should be fetched.
@@ -190,8 +191,9 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
                     logging.error("FAILED!\n")
                     logging.error("Failed to fetch required repository!\n")
                     logging.error(str(e))
+                    result = -1
 
-        return 0
+        return result
 
 
 def main():
