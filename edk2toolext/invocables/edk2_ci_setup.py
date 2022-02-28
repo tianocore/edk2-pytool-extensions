@@ -78,7 +78,7 @@ class Edk2CiBuildSetup(Edk2MultiPkgAwareInvocable):
 
         logging.info(f"Repo resolver resolved {ret}")
 
-        return 0
+        return ret
 
 
 def main():
