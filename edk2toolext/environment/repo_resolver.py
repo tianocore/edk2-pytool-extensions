@@ -109,7 +109,7 @@ def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=F
 # dependencies is a list of objects - it has Path, Commit, Branch,
 
 
-def resolve_all(WORKSPACE_PATH, dependencies, force=False, ignore=False, update_ok=False, omnicache_dir=None):
+def resolve_all(workspace_path, dependencies, force=False, ignore=False, update_ok=False, omnicache_dir=None):
     logger = logging.getLogger("git")
     repos = []
     if force:
@@ -122,14 +122,14 @@ def resolve_all(WORKSPACE_PATH, dependencies, force=False, ignore=False, update_
         if "ReferencePath" not in dependency and omnicache_dir:
             dependency["ReferencePath"] = omnicache_dir
         if "ReferencePath" in dependency:  # make sure that the omnicache dir is relative to the working directory
-            dependency["ReferencePath"] = os.path.join(WORKSPACE_PATH, dependency["ReferencePath"])
-        git_path = os.path.join(WORKSPACE_PATH, dep_path)
+            dependency["ReferencePath"] = os.path.join(workspace_path, dependency["ReferencePath"])
+        git_path = os.path.join(workspace_path, dep_path)
         repos.append(git_path)
         resolve(git_path, dependency, force, ignore, update_ok)
 
     # print out the details- this is optional
     for dependency in dependencies:
-        git_path = os.path.join(WORKSPACE_PATH, dependency["Path"])
+        git_path = os.path.join(workspace_path, dependency["Path"])
         GitDetails = get_details(git_path)
         # print out details
         logger.info("{3} = Git Details: Url: {0} Branch {1} Commit {2}".format(
