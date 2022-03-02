@@ -70,15 +70,16 @@ class Edk2CiBuildSetup(Edk2MultiPkgAwareInvocable):
         return "CISETUP"
 
     def Go(self):
-
-        ret = repo_resolver.resolve_all(self.GetWorkspaceRoot(),
-                                        self.PlatformSettings.GetDependencies(),
+        setup_dependencies = self.PlatformSettings.GetDependencies()
+        logging.debug(f"Dependencies list {setup_dependencies}")
+        repos = repo_resolver.resolve_all(self.GetWorkspaceRoot(),
+                                        setup_dependencies,
                                         ignore=self.git_ignore, force=self.git_force,
                                         update_ok=self.git_update, omnicache_dir=self.omnicache_path)
 
-        logging.info(f"Repo resolver resolved {ret}")
+        logging.info(f"Repo resolver resolved {repos}")
 
-        return ret
+        return 0 if None not in repos else -1
 
 
 def main():
