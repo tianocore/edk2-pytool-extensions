@@ -73,9 +73,9 @@ class Edk2CiBuildSetup(Edk2MultiPkgAwareInvocable):
         setup_dependencies = self.PlatformSettings.GetDependencies()
         logging.debug(f"Dependencies list {setup_dependencies}")
         repos = repo_resolver.resolve_all(self.GetWorkspaceRoot(),
-                                        setup_dependencies,
-                                        ignore=self.git_ignore, force=self.git_force,
-                                        update_ok=self.git_update, omnicache_dir=self.omnicache_path)
+                                          setup_dependencies,
+                                          ignore=self.git_ignore, force=self.git_force,
+                                          update_ok=self.git_update, omnicache_dir=self.omnicache_path)
 
         logging.info(f"Repo resolver resolved {repos}")
 
