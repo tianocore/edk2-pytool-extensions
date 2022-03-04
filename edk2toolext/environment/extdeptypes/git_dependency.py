@@ -104,3 +104,7 @@ class GitDependency(ExternalDependency):
 
         self.logger.debug("Verify '%s' returning '%s'." % (self.name, result))
         return result
+
+    # Override to include the repository name in published path
+    def compute_published_path(self):
+        return os.path.join(super().compute_published_path(), self.name)
