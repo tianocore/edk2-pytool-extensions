@@ -170,6 +170,49 @@ class TestEdk2Update(unittest.TestCase):
         # the one ext_dep should be valid
         self.assertEqual(failure, 0)
 
+    def test_multiple_duplicate_ext_deps_skip_dir(self):
+        ''' verifies multiple ext_deps in sub dirs are skipped'''
+        WORKSPACE = self.get_temp_folder()
+        tree = uefi_tree(WORKSPACE)
+        num_of_ext_deps = 1
+
+        logging.getLogger().setLevel(logging.WARNING)
+
+        tree.create_ext_dep(dep_type="nuget",
+                            name="NuGet.CommandLine",
+                            version="5.2.0",
+                            dir_path="first/second",
+                            extra_data={"id:": "CmdLine1"})
+        tree.create_ext_dep(dep_type="nuget",
+                            name="NuGet.CommandLine",
+                            version="5.2.0",
+                            dir_path="third/fourth/fifth",
+                            extra_data={"id:": "CmdLine1"})
+        tree.create_ext_dep(dep_type="nuget",
+                            name="NuGet.CommandLine",
+                            version="5.2.0",
+                            dir_path="sixth/seventh/eighth",
+                            extra_data={"id:": "CmdLine1"})
+
+        # Update GetSkippedDirectories() implementation
+        with open(tree.get_settings_provider_path(), 'r') as s:
+            settings_text = s.read()
+
+        settings_text = settings_text.replace(
+            'def GetSkippedDirectories(self):\n        return ()',
+            'def GetSkippedDirectories(self):\n        return (\"third\",\"sixth\")')
+
+        with open(tree.get_settings_provider_path(), 'w') as s:
+            s.write(settings_text)
+
+        # Do the update
+        updater = self.invoke_update(tree.get_settings_provider_path())
+        build_env, shell_env, failure = updater.PerformUpdate()
+        # we should have found one ext dep
+        self.assertEqual(len(build_env.extdeps), num_of_ext_deps)
+        # the one ext_dep should be valid
+        self.assertEqual(failure, 0)
+
     def test_bad_ext_dep(self):
         ''' makes sure we can do an update that will fail '''
         WORKSPACE = self.get_temp_folder()
