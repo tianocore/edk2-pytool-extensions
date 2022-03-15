@@ -54,7 +54,11 @@ class self_describing_environment(object):
         matches = {}
         for root, dirs, files in os.walk(base_path, topdown=True):
             # Check to see whether any of these directories should be skipped..
-            dirs[:] = [d for d in dirs if pathlib.Path(root, d) not in self.skipped_dirs and pathlib.Path(root, d).name != '.git']
+            dirs[:] = [d
+                       for d
+                       in dirs
+                       if pathlib.Path(root, d) not in self.skipped_dirs
+                       and pathlib.Path(root, d).name != '.git']
 
             # Check for any files that match the extensions we're looking for.
             for file in files:
