@@ -29,11 +29,11 @@ image_validation.py [-h] -i FILE [-d] [-p PROFILE] [--set-nx-compat | --clear-nx
 
 ### --set-nx-compat
 
-    [Optional] Sets the NX_COMPAT flag. returns <file>_nx_set.<filetype>
+    [Optional] Sets the NX_COMPAT flag of the input file
 
 ### --clear-nx-compat
 
-    [Optional] Clears the NX_COMPAT flag. returns <file>_nx_clear.<filetype>
+    [Optional] Clears the NX_COMPAT flag of the input file
 
 ### --get-nx-compat
 
@@ -100,70 +100,58 @@ the default, most restrictive, profile will automatically be used.
 
 - DEFAULT
   - Write / Execute Separation = Required
-  - Alignment = 4096
+  - Section Alignment = 4kB
   - Subsystem = Boot Service Driver, ROM
 - APP
   - Write / Execute Separation = Required
-  - Alignment = 4096
+  - Section Alignment = 4kB
   - Subsystem = Application
 - DRIVER
   - Write / Execute Separation = Required
-  - Alignment = 4096
+  - Section Alignment = 4kB
   - Subsystem = Boot Service Driver, Runtime Driver, ROM
 
 ### IA32 Profiles
 
 - DEFAULT
   - Write / Execute Separation = Required
-  - Alignment = 4096
+  - Section Alignment = 4kB
   - Subsystem = Boot Service Driver, ROM
 - APP
   - Write / Execute Separation = Required
-  - Alignment = 4096
+  - Section Alignment = 4kB
   - Subsystem = Application
 - DRIVER
   - Write / Execute Separation = Required
-  - Alignment = 4096
+  - Section Alignment = 4kB
   - Subsystem = Boot Service Driver, Runtime Driver, ROM
-- PEI
-  - Write / Execute Separation = Required
-  - Alignment = 4096
-  - Subsystem = Boot Service Driver, ROM
 
 ### AARCH64 Profiles
 
 - DEFAULT
   - Write / Execute Separation = Required
-  - Alignment = 32, 64
+  - Section Alignment = 4kB or 64kB
   - Subsystem = Boot Service Driver, ROM
 - APP
   - Write / Execute Separation = Required
-  - Alignment = 64
+  - Section Alignment = 4kB or 64kB
   - Subsystem = Application
 - DRIVER
   - Write / Execute Separation = Required
-  - Alignment = 64
+  - Section Alignment = 4kB or 64kB
   - Subsystem = Boot Service Driver, Runtime Driver, ROM
-- PEI
-  - Write / Execute Separation = Required
-  - Alignment = 32
-  - Subsystem = Boot Service Driver, ROM
 
 ### ARM Profiles
 
 - DEFAULT
   - Write / Execute Separation = Required
-  - Alignment = 32, 64
+  - Section Alignment = 4kB or 64kB
   - Subsystem = Boot Service Driver, ROM
 - APP
   - Write / Execute Separation = Required
-  - Alignment = 64
+  - Section Alignment = 4kB or 64kB
   - Subsystem = Application
 - DRIVER
   - Write / Execute Separation = Required
-  - Alignment = 64
+  - Section Alignment = 4kB or 64kB
   - Subsystem = Boot Service Driver, Runtime Driver, ROM
-- PEI
-  - Write / Execute Separation = Required
-  - Alignment = 32
-  - Subsystem = Boot Service Driver, ROM

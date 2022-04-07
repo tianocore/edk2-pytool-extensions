@@ -26,12 +26,17 @@ class FileHeader:
     def __init__(self):
         self.Machine = 0x8664
 
+# A Dummy class to represent a PE.
+
 
 class PE:
     def __init__(self, sections=None, optional_header=None):
         self.sections = sections
         self.OPTIONAL_HEADER = optional_header
         self.FILE_HEADER = FileHeader()
+
+    def merge_modified_section_data(self):
+        pass
 
 
 class TestImageValidationInterface(unittest.TestCase):
