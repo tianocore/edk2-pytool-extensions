@@ -15,13 +15,13 @@ jobs:
     matrix:
       PROJECT_MU:
         Tag: 'ProjectMu'
-        Image: 'windows-latest'
+        Image: 'windows-2019'
       EDK2:
         Tag: 'Edk2NOTQEMU'
-        Image: 'windows-latest'
+        Image: 'windows-2019'
       EDK2_OVMF:
         Tag: 'Edk2ANDQEMU'
-        Image: 'windows-latest'
+        Image: 'windows-2019'
 
   workspace:
     clean: all
