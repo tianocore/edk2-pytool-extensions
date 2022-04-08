@@ -137,15 +137,10 @@ class TestManager(object):
                             "IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER",
                             "IMAGE_SUBSYSTEM_EFI_ROM"
                         ],
-                        "ALIGNMENT_LOGIC_SEP": "OR",
                         "ALIGNMENT": [
                             {
                                 "COMPARISON": "==",
                                 "VALUE": 4096
-                            },
-                            {
-                                "COMPARISON": "==",
-                                "VALUE": 65536
                             }
                         ]
                     },
@@ -168,15 +163,10 @@ class TestManager(object):
                             "IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER",
                             "IMAGE_SUBSYSTEM_EFI_ROM"
                         ],
-                        "ALIGNMENT_LOGIC_SEP": "OR",
                         "ALIGNMENT": [
                             {
                                 "COMPARISON": "==",
                                 "VALUE": 4096
-                            },
-                            {
-                                "COMPARISON": "==",
-                                "VALUE": 65536
                             }
                         ]
                     },
@@ -200,15 +190,10 @@ class TestManager(object):
                             "IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER",
                             "IMAGE_SUBSYSTEM_EFI_ROM"
                         ],
-                        "ALIGNMENT_LOGIC_SEP": "OR",
                         "ALIGNMENT": [
                             {
                                 "COMPARISON": "==",
                                 "VALUE": 4096
-                            },
-                            {
-                                "COMPARISON": "==",
-                                "VALUE": 65536
                             }
                         ]
                     },

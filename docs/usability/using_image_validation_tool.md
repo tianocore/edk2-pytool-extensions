@@ -130,28 +130,28 @@ the default, most restrictive, profile will automatically be used.
 
 - DEFAULT
   - Write / Execute Separation = Required
-  - Section Alignment = 4kB or 64kB
+  - Section Alignment = 4kB
   - Subsystem = Boot Service Driver, ROM
 - APP
   - Write / Execute Separation = Required
-  - Section Alignment = 4kB or 64kB
+  - Section Alignment = 4kB
   - Subsystem = Application
 - DRIVER
   - Write / Execute Separation = Required
-  - Section Alignment = 4kB or 64kB
+  - Section Alignment = 4kB
   - Subsystem = Boot Service Driver, Runtime Driver, ROM
 
 ### ARM Profiles
 
 - DEFAULT
   - Write / Execute Separation = Required
-  - Section Alignment = 4kB or 64kB
+  - Section Alignment = 4kB
   - Subsystem = Boot Service Driver, ROM
 - APP
   - Write / Execute Separation = Required
-  - Section Alignment = 4kB or 64kB
+  - Section Alignment = 4kB
   - Subsystem = Application
 - DRIVER
   - Write / Execute Separation = Required
-  - Section Alignment = 4kB or 64kB
+  - Section Alignment = 4kB
   - Subsystem = Boot Service Driver, Runtime Driver, ROM
