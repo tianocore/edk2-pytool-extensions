@@ -20,7 +20,7 @@ ${default_branch}     not_yet_set
 ${ws_dir}             mu_basecore
 ${ci_file}            .pytool/CISettings.py
 ${ws_root}            ${TEST_OUTPUT}${/}${ws_dir}
-${tool_chain}         VS2019
+${tool_chain}         VS2022
 
 
 *** Keywords ***
@@ -44,7 +44,7 @@ One time setup
 
 Run ProjectMu MdePkg CoreCI Debug
     [Documentation]  This Test will run X64 DEBUG build of Core CI on the MdePkg
-    [Tags]           CoreCI  Windows  VS2019  Compile  ProjectMu
+    [Tags]           CoreCI  Windows  VS2022  Compile  ProjectMu
 
     ${archs}=            Set Variable    X64
     ${targets}=          Set Variable    DEBUG
@@ -60,7 +60,7 @@ Run ProjectMu MdePkg CoreCI Debug
 
 Run ProjectMu MdeModulePkg CoreCI Release
     [Documentation]  This Test will run IA32 RELEASE build of Core CI on the MdeModulePkg
-    [Tags]           CoreCI  Windows  VS2019  Compile  ProjectMu
+    [Tags]           CoreCI  Windows  VS2022  Compile  ProjectMu
 
     ${archs}=            Set Variable    IA32
     ${targets}=          Set Variable    RELEASE
@@ -76,7 +76,7 @@ Run ProjectMu MdeModulePkg CoreCI Release
 
 Run ProjectMu UefiCpuPkg CoreCI for No-Target
     [Documentation]  This Test will run NO-TARGET Core CI test on the UefiCpuPkg
-    [Tags]           CoreCI  Windows  VS2019  NO-TARGET  ProjectMu
+    [Tags]           CoreCI  Windows  VS2022  NO-TARGET  ProjectMu
 
     ${archs}=            Set Variable    X64,IA32,AARCH64,ARM
     ${targets}=          Set Variable    NO-TARGET
@@ -92,7 +92,7 @@ Run ProjectMu UefiCpuPkg CoreCI for No-Target
 
 Run ProjectMu MdeModulePkg CoreCI for NOOPT and HostTest
     [Documentation]  This Test will run NOOPT Core CI which includes Host-Tests on the MdeModulePkg
-    [Tags]           CoreCI  Windows  VS2019  NOOPT  HOST-TEST  ProjectMu
+    [Tags]           CoreCI  Windows  VS2022  NOOPT  HOST-TEST  ProjectMu
 
     ${archs}=            Set Variable    X64
     ${targets}=          Set Variable    NOOPT
