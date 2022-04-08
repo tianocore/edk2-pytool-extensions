@@ -81,25 +81,25 @@ class GitDependency(ExternalDependency):
         result = True
 
         if not os.path.isdir(self._local_repo_root_path):
-            self.logger.error("no dir for Git Dependency")
+            self.logger.info("no dir for Git Dependency")
             result = False
 
         if result and len(os.listdir(self._local_repo_root_path)) == 0:
-            self.logger.error("no files in Git Dependency")
+            self.logger.info("no files in Git Dependency")
             result = False
 
         if result:
             # valid repo folder
             r = Repo(self._local_repo_root_path)
             if(not r.initalized):
-                self.logger.error("Git Dependency: Not Initialized")
+                self.logger.info("Git Dependency: Not Initialized")
                 result = False
             elif(r.dirty):
-                self.logger.error("Git Dependency: dirty")
+                self.logger.warning("Git Dependency: dirty")
                 result = False
 
             if(r.head.commit != self.version):
-                self.logger.error(f"Git Dependency: head is {r.head.commit} and version is {self.version}")
+                self.logger.info(f"Git Dependency: head is {r.head.commit} and version is {self.version}")
                 result = False
 
         self.logger.debug("Verify '%s' returning '%s'." % (self.name, result))
