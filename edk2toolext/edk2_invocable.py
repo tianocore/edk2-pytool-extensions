@@ -102,7 +102,7 @@ class Edk2Invocable(BaseAbstractInvocable):
     def GetPackagesPath(self) -> Iterable[os.PathLike]:
         ''' Use the SettingsManager to an iterable of paths to be used as Edk2 Packages Path'''
         try:
-            return list(set(self.PlatformSettings.GetPackagesPath()) - set(self.GetSkippedDirectories()))
+            return [x for x in self.PlatformSettings.GetPackagesPath() if x not in self.GetSkippedDirectories()]
         except AttributeError:
             raise RuntimeError("Can't call this before PlatformSettings has been set up!")
 
