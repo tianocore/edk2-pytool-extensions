@@ -15,7 +15,7 @@ jobs:
     matrix:
       PROJECT_MU:
         Tag: 'ProjectMu'
-        Image: 'windows-latest'
+        Image: 'windows-2022'
       EDK2:
         Tag: 'Edk2NOTQEMU'
         Image: 'windows-2019'
