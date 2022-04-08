@@ -102,19 +102,7 @@ class Edk2Invocable(BaseAbstractInvocable):
     def GetPackagesPath(self) -> Iterable[os.PathLike]:
         ''' Use the SettingsManager to an iterable of paths to be used as Edk2 Packages Path'''
         try:
-            packages = [x for x in self.PlatformSettings.GetPackagesPath() if x not in self.GetSkippedDirectories()]
-
-            # Temporarily sort, remove duplicates, and match os specific
-            # separators to simplify finding any nested packages.
-            paths = sorted(list(set([os.path.abspath(path) for path in packages])), key=len, reverse=True)
-            for i in range(len(paths)):
-                for j in range(i + 1, len(paths)):
-                    if paths[i].startswith(paths[j]):
-                        if paths[i][len(paths[j])] == os.sep:
-                            logging.error(f'Cannot have nested packages. {paths[j]} in {paths[i]}')
-                            raise RuntimeError(f'Cannot have nested packages. {paths[j]} in {paths[i]}')
-
-            return packages
+            return [x for x in self.PlatformSettings.GetPackagesPath() if x not in self.GetSkippedDirectories()]
         except AttributeError:
             raise RuntimeError("Can't call this before PlatformSettings has been set up!")
 
