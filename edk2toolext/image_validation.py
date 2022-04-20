@@ -7,7 +7,6 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 
-from datetime import datetime
 import os
 from pefile import PE, SECTION_CHARACTERISTICS, MACHINE_TYPE, SUBSYSTEM_TYPE
 import logging
@@ -37,6 +36,7 @@ def set_nx_compat_flag(pe):
     dllchar = pe.OPTIONAL_HEADER.DllCharacteristics
     dllchar = set_bit(dllchar, 8)  # 8th bit is the nx_compat_flag
     pe.OPTIONAL_HEADER.DllCharacteristics = dllchar
+    pe.merge_modified_section_data()
     return pe
 
 
@@ -55,6 +55,7 @@ def clear_nx_compat_flag(pe):
     dllchar = pe.OPTIONAL_HEADER.DllCharacteristics
     dllchar = clear_bit(dllchar, 8)  # 8th bit is the nx_compat_flag
     pe.OPTIONAL_HEADER.DllCharacteristics = dllchar
+    pe.merge_modified_section_data()
     return pe
 
 
@@ -136,15 +137,10 @@ class TestManager(object):
                             "IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER",
                             "IMAGE_SUBSYSTEM_EFI_ROM"
                         ],
-                        "ALIGNMENT_LOGIC_SEP": "OR",
                         "ALIGNMENT": [
                             {
                                 "COMPARISON": "==",
-                                "VALUE": 64
-                            },
-                            {
-                                "COMPARISON": "==",
-                                "VALUE": 32
+                                "VALUE": 4096
                             }
                         ]
                     },
@@ -152,33 +148,13 @@ class TestManager(object):
                         "ALLOWED_SUBSYSTEMS": [
                             "IMAGE_SUBSYSTEM_EFI_APPLICATION"
                         ],
-                        "ALIGNMENT": [
-                            {
-                                "COMPARISON": "==",
-                                "VALUE": 64
-                            }
-                        ]
                     },
-                    "DXE_DRIVER": {
+                    "DRIVER": {
                         "ALLOWED_SUBSYSTEMS": [
                             "IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER",
                             "IMAGE_SUBSYSTEM_EFI_RUNTIME_DRIVER",
                             "IMAGE_SUBSYSTEM_EFI_ROM"
-                        ],
-                        "ALIGNMENT": [
-                            {
-                                "COMPARISON": "==",
-                                "VALUE": 64
-                            }
-                        ]},
-                    "PEI": {
-                        "ALIGNMENT": [
-                            {
-                                "COMPARISON": "==",
-                                "VALUE": 32
-                            }
-                        ]
-                    }
+                        ]}
                 },
                 "IMAGE_FILE_MACHINE_ARM64": {
                     "DEFAULT": {
@@ -187,47 +163,23 @@ class TestManager(object):
                             "IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER",
                             "IMAGE_SUBSYSTEM_EFI_ROM"
                         ],
-                        "ALIGNMENT_LOGIC_SEP": "OR",
                         "ALIGNMENT": [
                             {
                                 "COMPARISON": "==",
-                                "VALUE": 64
-                            },
-                            {
-                                "COMPARISON": "==",
-                                "VALUE": 32
+                                "VALUE": 4096
                             }
                         ]
                     },
                     "APP": {
                         "ALLOWED_SUBSYSTEMS": [
                             "IMAGE_SUBSYSTEM_EFI_APPLICATION"
-                        ],
-                        "ALIGNMENT": [
-                            {
-                                "COMPARISON": "==",
-                                "VALUE": 64
-                            }
                         ]
                     },
-                    "DXE_DRIVER": {
+                    "DRIVER": {
                         "ALLOWED_SUBSYSTEMS": [
                             "IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER",
                             "IMAGE_SUBSYSTEM_EFI_RUNTIME_DRIVER",
                             "IMAGE_SUBSYSTEM_EFI_ROM"
-                        ],
-                        "ALIGNMENT": [
-                            {
-                                "COMPARISON": "==",
-                                "VALUE": 64
-                            }
-                        ]},
-                    "PEI": {
-                        "ALIGNMENT": [
-                            {
-                                "COMPARISON": "==",
-                                "VALUE": 32
-                            }
                         ]
                     }
                 },
@@ -256,8 +208,7 @@ class TestManager(object):
                             "IMAGE_SUBSYSTEM_EFI_RUNTIME_DRIVER"
                             "IMAGE_SUBSYSTEM_EFI_ROM"
                         ]
-                    },
-                    "PEI": {}
+                    }
                 }
             }
 
@@ -562,13 +513,8 @@ def main():
     if args.debug is True:
         console.setLevel(logging.DEBUG)
 
-    logging.info("Log Started: " + datetime.strftime(
-        datetime.now(), "%A, %B %d, %Y %I:%M%p"))
-
-    # pe.write(filename=f'{basename[0]}_nx_clear.{basename[1]}'
-
     # Set the nx compatability flag and exit
-    if args.set_nx_compat is not None:
+    if args.set_nx_compat is True:
         pe = PE(args.file)
         set_nx_compat_flag(pe)
         os.remove(args.file)
@@ -576,7 +522,7 @@ def main():
         exit(0)
 
     # clear the nx compatability flag and exit
-    if args.clear_nx_compat is not None:
+    if args.clear_nx_compat is True:
         pe = PE(args.file)
         clear_nx_compat_flag(pe)
         os.remove(args.file)
@@ -585,7 +531,8 @@ def main():
 
     # exit with status equal to if nx compatability is present or not
     if args.get_nx_compat is True:
-        exit(get_nx_compat_flag(args.file))
+        pe = PE(args.file)
+        exit(get_nx_compat_flag(pe))
 
     test_manager = TestManager()
     test_manager.add_test(TestWriteExecuteFlags())
