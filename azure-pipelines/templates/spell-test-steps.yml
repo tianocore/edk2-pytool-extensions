@@ -4,6 +4,7 @@
 # and run spell test
 #
 # Copyright (c) Microsoft Corporation
+# Copyright (c) 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 
@@ -13,7 +14,7 @@ parameters:
 steps:
 - task: NodeTool@0
   inputs:
-    versionSpec: '12.x'
+    versionSpec: '16.x'
 
 - script: npm install -g cspell
   displayName: 'Install cspell npm'
