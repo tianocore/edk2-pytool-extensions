@@ -13,7 +13,7 @@ parameters:
 steps:
 - task: NodeTool@0
   inputs:
-    versionSpec: '12.x'
+    versionSpec: '18.x'
 
 - script: npm install -g cspell
   displayName: 'Install cspell npm'
