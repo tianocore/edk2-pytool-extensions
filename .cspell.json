@@ -7,6 +7,7 @@
         "python",
         "cpp"
     ],
+    "allowCompoundWords": true,
     "ignorePaths": [
         "*.exe"
     ],
