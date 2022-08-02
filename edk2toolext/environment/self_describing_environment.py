@@ -268,7 +268,7 @@ class self_describing_environment(object):
         old_count = num_extdeps
         # wait for the pool_handle (MapResult) to finish
         while pool_handle._number_left != 0:
-            while(old_count != pool_handle._number_left and old_count > 0):
+            while (old_count != pool_handle._number_left and old_count > 0):
                 print(".", end="", flush=True)
                 old_count -= 1
             time.sleep(0.1)  # wait 100 ms

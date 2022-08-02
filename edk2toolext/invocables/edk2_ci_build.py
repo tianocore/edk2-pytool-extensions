@@ -116,7 +116,7 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
             # load the package level .ci.yaml
             pkg_config_file = edk2path.GetAbsolutePathOnThisSystemFromEdk2RelativePath(
                 os.path.join(pkgToRunOn, pkgToRunOn + ".ci.yaml"))
-            if(pkg_config_file):
+            if (pkg_config_file):
                 with open(pkg_config_file, 'r') as f:
                     pkg_config = yaml.safe_load(f)
             else:
@@ -134,7 +134,7 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
                 # For each target
                 for target in self.requested_target_list:
 
-                    if(target not in Descriptor.Obj.RunsOnTargetList()):
+                    if (target not in Descriptor.Obj.RunsOnTargetList()):
                         continue
 
                     edk2_logging.log_progress(f"--Running {pkgToRunOn}: {Descriptor.Name} {target} --")
@@ -183,15 +183,15 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
                                 exp), "UNEXPECTED EXCEPTION")
                             rc = 1
 
-                        if(rc > 0):
+                        if (rc > 0):
                             failure_num += 1
-                            if(rc is None):
+                            if (rc is None):
                                 logging.error(
                                     f"--->Test Failed: {Descriptor.Name} {target} returned NoneType")
                             else:
                                 logging.error(
                                     f"--->Test Failed: {Descriptor.Name} {target} returned {rc}")
-                        elif(rc < 0):
+                        elif (rc < 0):
                             logging.warn(f"--->Test Skipped: in plugin! {Descriptor.Name} {target}")
                         else:
                             edk2_logging.log_progress(f"--->Test Success: {Descriptor.Name} {target}")
@@ -210,7 +210,7 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
         JunitReport.Output(os.path.join(self.GetWorkspaceRoot(), "Build", "TestSuites.xml"))
 
         # Print Overall Success
-        if(failure_num != 0):
+        if (failure_num != 0):
             logging.error("Overall Build Status: Error")
             edk2_logging.log_progress(f"There were {failure_num} failures out of {total_num} attempts")
         else:

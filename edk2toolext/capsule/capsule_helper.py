@@ -320,7 +320,7 @@ def create_cat_file(capsule_options: dict, save_path: str) -> str:
     )
     cat_file_path = os.path.join(save_path, f"{capsule_options['fw_name']}.cat")
     ret = catgenerator.MakeCat(cat_file_path)
-    if(ret != 0):
+    if (ret != 0):
         raise RuntimeError("MakeCat Failed with errorcode %d!" % ret)
 
     return cat_file_path

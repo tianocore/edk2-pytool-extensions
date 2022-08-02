@@ -503,7 +503,7 @@ def main():
     # fetch: update the omnicache with objects from its remotes.
     # Note: errors are ignored here, since transient network failures may occur that prevent cache update. Those just
     # mean the omnicache may be a a little stale which should not be fatal to users of the cache.
-    if(args.fetch or (auto_fetch and not args.no_fetch)):
+    if (args.fetch or (auto_fetch and not args.no_fetch)):
         omnicache.Fetch(args.fetch_jobs)
 
     # list: print out the omnicache contents.

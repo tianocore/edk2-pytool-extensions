@@ -105,9 +105,9 @@ class ICiBuildPlugin(object):
                 for Extension in extensionlist_lower:
                     if File.lower().endswith(Extension):
                         ignoreIt = False
-                        if(ignorelist is not None):
+                        if (ignorelist is not None):
                             for c in ignorelist_lower:
-                                if(File.lower().startswith(c)):
+                                if (File.lower().startswith(c)):
                                     ignoreIt = True
                                     break
                         if not ignoreIt:

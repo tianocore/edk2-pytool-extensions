@@ -60,7 +60,7 @@ class ConfMgmt():
                     template_file_path = p
                     break
 
-            if(template_file_path is None):
+            if (template_file_path is None):
                 self.Logger.critical(
                     "Failed to find Template file for %s" % outfiles[x])
                 raise Exception("Template File Missing", outfiles[x])
@@ -83,7 +83,7 @@ class ConfMgmt():
         version = "0.0"
         with open(conf_file, "r") as f:
             for line in f.readlines():
-                if(line.startswith("#!VERSION=")):
+                if (line.startswith("#!VERSION=")):
                     try:
                         version = str(float(line.split("=")[1].split()[0].strip()))
                         break
@@ -127,14 +127,14 @@ class ConfMgmt():
             self.Logger.debug(f"{conf_file} file not found.  Creating from Template file {template_file}")
             shutil.copy2(template_file, conf_file)
 
-        elif(override_conf):
+        elif (override_conf):
             # caller requested override even for existing file
             self.Logger.debug(f"{conf_file} file replaced as requested")
             shutil.copy2(template_file, conf_file)
 
         else:
             # Both file exists.  Do a quick version check
-            if(self._is_older_version(conf_file, template_file)):
+            if (self._is_older_version(conf_file, template_file)):
                 # Conf dir file is older.  Warn user.
                 self.Logger.critical(f"{conf_file} file is out-of-date.  Please update your conf files!")
                 self.Logger.critical("Sleeping 30 seconds to encourage update....")

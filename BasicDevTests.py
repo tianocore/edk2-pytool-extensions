@@ -79,15 +79,15 @@ py_files = glob.glob(os.path.join(p, "**", "*.py"), recursive=True)
 error = 0
 for a in py_files:
     aRelativePath = os.path.relpath(a, os.getcwd())
-    if(not TestEncodingOk(a, "ascii")):
+    if (not TestEncodingOk(a, "ascii")):
         error += 1
-    if(not TestFilenameLowercase(aRelativePath)):
+    if (not TestFilenameLowercase(aRelativePath)):
         error += 1
-    if(not TestNoSpaces(aRelativePath)):
+    if (not TestNoSpaces(aRelativePath)):
         error += 1
-    if(not TestRequiredLicense(a)):
+    if (not TestRequiredLicense(a)):
         error += 1
-    if(not PackageAndModuleValidCharacters(aRelativePath)):  # use relative path so only test within package
+    if (not PackageAndModuleValidCharacters(aRelativePath)):  # use relative path so only test within package
         error += 1
 
 logging.critical(f"Found {error} error(s) in {len(py_files)} file(s)")

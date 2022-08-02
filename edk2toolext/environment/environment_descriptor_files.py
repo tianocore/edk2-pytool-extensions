@@ -67,7 +67,7 @@ class DescriptorFile(object):
 
         # clean up each string item for more reliable processing
         for (k, v) in self.descriptor_contents.items():
-            if(isinstance(v, str)):
+            if (isinstance(v, str)):
                 self.descriptor_contents[k] = self.sanitize_string(v)
 
     #
@@ -120,6 +120,6 @@ class PluginDescriptor(DescriptorFile):
                     self.file_path, required_field))
 
         # Make sure the module item doesn't have .py on the end
-        if(self.descriptor_contents["module"].lower().endswith(".py")):
+        if (self.descriptor_contents["module"].lower().endswith(".py")):
             # remove last 3 chars
             self.descriptor_contents["module"] = self.descriptor_contents["module"][:-3]
