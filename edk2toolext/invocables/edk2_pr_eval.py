@@ -152,7 +152,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
                 # Ignore a file in which we fail to get the package
                 continue
 
-            if(pkg not in packages_to_build.keys() and pkg in remaining_packages):
+            if (pkg not in packages_to_build.keys() and pkg in remaining_packages):
                 packages_to_build[pkg] = "Policy 2 - Build any package that has changed"
                 remaining_packages.remove(pkg)
 
@@ -188,7 +188,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         # NOTE: future enhancement could be to check actual file dependencies
         for a in public_package_changes:
             for p in remaining_packages[:]:  # slice so we can delete as we go
-                if(self._does_pkg_depend_on_package(p, a)):
+                if (self._does_pkg_depend_on_package(p, a)):
                     packages_to_build[p] = f"Policy 3 - Package depends on {a}"
                     remaining_packages.remove(p)  # remove from remaining packages
 
@@ -286,20 +286,20 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         cmd_params = f"diff --name-only HEAD..{base_branch}"
         rc = RunCmd("git", cmd_params, outstream=output)
 
-        if(rc == 0):
+        if (rc == 0):
             self.logger.debug("git diff command returned successfully!")
         else:
             self.logger.critical("git diff returned error return value: %s" % str(rc))
-            return(rc, [])
+            return (rc, [])
 
-        if(output.getvalue() is None):
+        if (output.getvalue() is None):
             self.logger.info("No files listed in diff")
-            return(0, [])
+            return (0, [])
 
         files = output.getvalue().split()
         for f in files:
             self.logger.debug(f"File Changed: {f}")
-        return(0, files)
+        return (0, files)
 
     def _parse_dec_for_package(self, path_to_package):
         ''' find DEC for package and parse it'''
@@ -392,9 +392,9 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
                 for Extension in extensionlist_lower:
                     if File.lower().endswith(Extension):
                         ignoreIt = False
-                        if(ignorelist is not None):
+                        if (ignorelist is not None):
                             for c in ignorelist_lower:
-                                if(File.lower().startswith(c)):
+                                if (File.lower().startswith(c)):
                                     ignoreIt = True
                                     break
                         if not ignoreIt:

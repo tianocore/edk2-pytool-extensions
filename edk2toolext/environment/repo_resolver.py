@@ -51,7 +51,7 @@ def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=F
             checkout(git_path, dependency, repo, True, False)
             return repo
         else:
-            if(ignore):
+            if (ignore):
                 logger.warning(
                     "Folder {0} is not a git repo but Force parameter not used.  "
                     "Ignore State Allowed.".format(git_path))
@@ -71,7 +71,7 @@ def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=F
             checkout(git_path, dependency, repo, True, False)
             return repo
         else:
-            if(ignore):
+            if (ignore):
                 logger.warning(
                     "Folder {0} is a git repo but is dirty and Force parameter not used.  "
                     "Ignore State Allowed.".format(git_path))

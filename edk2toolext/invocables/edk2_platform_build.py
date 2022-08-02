@@ -91,7 +91,7 @@ class Edk2PlatformBuild(Edk2Invocable):
             raise Exception("One or more plugins failed to load.")
 
         helper = HelperFunctions()
-        if(helper.LoadFromPluginManager(pm) > 0):
+        if (helper.LoadFromPluginManager(pm) > 0):
             raise Exception("One or more helper plugins failed to load.")
 
         # Make a pathobj so we can normalize and validate the workspace

@@ -90,14 +90,14 @@ class BaseAbstractInvocable(object):
         log_directory = os.path.join(self.GetWorkspaceRoot(), self.GetLoggingFolderRelativeToRoot())
 
         txtlogfile = self.GetLoggingLevel("txt")
-        if(txtlogfile is not None):
+        if (txtlogfile is not None):
             logfile, filelogger = edk2_logging.setup_txt_logger(log_directory,
                                                                 self.GetLoggingFileName("txt"),
                                                                 txtlogfile)
             self.log_filename = logfile
 
         md_log_file = self.GetLoggingLevel("md")
-        if(md_log_file is not None):
+        if (md_log_file is not None):
             edk2_logging.setup_markdown_logger(log_directory,
                                                self.GetLoggingFileName("md"),
                                                md_log_file)
@@ -139,13 +139,13 @@ class BaseAbstractInvocable(object):
             raise Exception("One or more plugins failed to load.")
 
         self.helper = HelperFunctions()
-        if(self.helper.LoadFromPluginManager(self.plugin_manager) > 0):
+        if (self.helper.LoadFromPluginManager(self.plugin_manager) > 0):
             raise Exception("One or more helper plugins failed to load.")
 
         logging.log(edk2_logging.SECTION, "Start Invocable Tool")
         retcode = self.Go()
         logging.log(edk2_logging.SECTION, "Summary")
-        if(retcode != 0):
+        if (retcode != 0):
             logging.error("Error")
         else:
             edk2_logging.log_progress("Success")

@@ -91,14 +91,14 @@ class GitDependency(ExternalDependency):
         if result:
             # valid repo folder
             r = Repo(self._local_repo_root_path)
-            if(not r.initalized):
+            if (not r.initalized):
                 self.logger.info("Git Dependency: Not Initialized")
                 result = False
-            elif(r.dirty):
+            elif (r.dirty):
                 self.logger.warning("Git Dependency: dirty")
                 result = False
 
-            if(r.head.commit != self.version):
+            if (r.head.commit != self.version):
                 self.logger.info(f"Git Dependency: head is {r.head.commit} and version is {self.version}")
                 result = False
 

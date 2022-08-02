@@ -136,7 +136,7 @@ class Edk2Invocable(BaseAbstractInvocable):
         except Exception:
             pass
 
-        if(loggerType == "con") and not self.Verbose:
+        if (loggerType == "con") and not self.Verbose:
             return logging.WARNING
         return logging.DEBUG
 
