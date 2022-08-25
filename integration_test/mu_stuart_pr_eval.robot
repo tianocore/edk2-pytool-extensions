@@ -271,7 +271,7 @@ Test Stuart PR for changing a file at the root of repo
     [Tags]           PrEval
 
     ${branch_name}=      Set Variable    PR_Rand_${{random.randint(0, 10000)}}
-    ${file_to_modify}=   Set Variable    edksetup.bat
+    ${file_to_modify}=   Set Variable    ReadMe.rst
 
     Reset git repo to default branch  ${ws_root}  ${default_branch}
     Make new branch  ${branch_name}  ${ws_root}
