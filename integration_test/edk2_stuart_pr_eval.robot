@@ -127,7 +127,7 @@ Test Stuart PR for Policy 3 for package dependency on change of public header fi
     Commit changes  "Changes"  ${ws_root}
 
     # Core CI test  package dependency # Policy 3
-    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdePkg,MdeModulePkg,UefiCpuPkg  ${default_branch}  ${EMPTY}  ${ws_root}
+    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdePkg,MdeModulePkg  ${default_branch}  ${EMPTY}  ${ws_root}
     Should Be Empty    ${pkgs}
 
     [Teardown]  Delete branch  ${branch_name}  ${default_branch}  ${ws_root}
