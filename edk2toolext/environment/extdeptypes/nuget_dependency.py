@@ -8,6 +8,7 @@
 ##
 import os
 import logging
+import semantic_version
 import shutil
 from io import StringIO
 from edk2toolext.environment.external_dependency import ExternalDependency
@@ -66,51 +67,14 @@ class NugetDependency(ExternalDependency):
 
         return cmd
 
-    @staticmethod
-    def normalize_version(version):
-        if len(version) == 0:
-            raise ValueError("Unparsable version: empty string")
-
-        if str(version).count("-") > 1:
-            raise ValueError(f"Unparsable version: '{version}'!")
-
-        tag = None
-
-        parts = version.split(".")
-        if "-" in parts[-1]:
-            parts[-1], tag = parts[-1].split("-")
-
-        int_parts = tuple([0 if a == "" else int(a) for a in parts])
-
-        if tag is not None:
-            # It might start with "beta*", "alpha*" or "rc*"
-            legit_tag = False
-            for rv in ["beta", "alpha", "rc"]:
-                if tag.startswith(rv):
-                    legit_tag = True
-        else:
-            # Otherwise, it is legit
-            legit_tag = True
-
-        if not legit_tag:
-            raise ValueError(f"Unparsable version tag: {tag}")
-
-        if len(int_parts) > 4:
-            raise ValueError(f"Unparsable version: '{version}'!")
-
-        # Remove extra trailing zeros (beyond 3 elements).
-        if len(int_parts) == 4 and int_parts[3] == 0:
-            int_parts = int_parts[0:3]  # drop the last item
-
-        # Add missing trailing zeros (below 3 elements).
-        if len(int_parts) < 3:
-            int_parts = int_parts + (0,) * (3 - len(int_parts))
-
-        # Return reformed version.
-        reformed_ints = ".".join((str(num) for num in int_parts))
-        if tag is not None:
-            reformed_ints += "-" + tag
-        return reformed_ints
+    def _normalize_version(self):
+        # A ValueError will be raised if the version string is invalid
+        try:
+            return str(semantic_version.Version(self.version))
+        except ValueError:
+            print(f"NuGet dependency {self.name} has an invalid version "
+                  f"string: {self.version}")
+            raise
 
     def _fetch_from_nuget_cache(self, package_name):
         result = False
@@ -141,7 +105,7 @@ class NugetDependency(ExternalDependency):
 
         #
         # Now, try to locate our actual cache path
-        nuget_version = NugetDependency.normalize_version(self.version)
+        nuget_version = self._normalize_version()
 
         cache_search_path = os.path.join(
             self.nuget_cache_path, package_name.lower(), nuget_version)
