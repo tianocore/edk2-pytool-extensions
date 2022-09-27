@@ -47,14 +47,14 @@ class HelperFunctions(object):
     # @param filepath[in] filepath registering function.  used for tracking and debug purposes
     #
     def Register(self, name, function, filepath):
-        if(name in self.RegisteredFunctions.keys()):
+        if (name in self.RegisteredFunctions.keys()):
             raise Exception("Function %s already registered from plugin file %s.  Can't register again from %s" % (
                 name, self.RegisteredFunctions[name], filepath))
         setattr(self, name, function)
         self.RegisteredFunctions[name] = filepath
 
     def HasFunction(self, name):
-        if(name in self.RegisteredFunctions.keys()):
+        if (name in self.RegisteredFunctions.keys()):
             return True
         else:
             return False

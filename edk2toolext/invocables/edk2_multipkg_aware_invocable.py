@@ -110,14 +110,14 @@ class Edk2MultiPkgAwareInvocable(Edk2Invocable):
         ''' This function is called once all the input parameters are collected
             and can be used to initialize environment
         '''
-        if(len(self.requested_package_list) == 0):
+        if (len(self.requested_package_list) == 0):
             self.requested_package_list = list(self.PlatformSettings.GetPackagesSupported())
         self.PlatformSettings.SetPackages(self.requested_package_list)
 
-        if(len(self.requested_architecture_list) == 0):
+        if (len(self.requested_architecture_list) == 0):
             self.requested_architecture_list = list(self.PlatformSettings.GetArchitecturesSupported())
         self.PlatformSettings.SetArchitectures(self.requested_architecture_list)
 
-        if(len(self.requested_target_list) == 0):
+        if (len(self.requested_target_list) == 0):
             self.requested_target_list = list(self.PlatformSettings.GetTargetsSupported())
         self.PlatformSettings.SetTargets(self.requested_target_list)

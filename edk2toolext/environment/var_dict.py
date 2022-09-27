@@ -21,7 +21,7 @@ class EnvEntry(object):
     def PrintEntry(self, f=None):
         print("Value: %s" % self.Value, file=f)
         print("Comment: %s" % self.Comment, file=f)
-        if(self.Overrideable):
+        if (self.Overrideable):
             print("Value overridable", file=f)
         print("**********************", file=f)
     #
@@ -32,7 +32,7 @@ class EnvEntry(object):
         if (value == self.Value) and (overridable == self.Overrideable):
             return True
 
-        if(not self.Overrideable):
+        if (not self.Overrideable):
             logging.debug("Can't set value [%s] as it isn't overrideable. Previous comment %s" % (
                 value, self.Comment))
             return False
@@ -72,14 +72,14 @@ class VarDict(object):
         return new_copy
 
     def GetValue(self, k, default=None):
-        if(k is None):
+        if (k is None):
             logging.debug(
                 "GetValue - Invalid Parameter key is None.")
             return None
 
         key = k.upper()
         en = self.GetEntry(key)
-        if(en is not None):
+        if (en is not None):
             self.Logger.debug("Key %s found.  Value %s" % (key, en.GetValue()))
             return en.GetValue()
         else:
@@ -91,7 +91,7 @@ class VarDict(object):
         en = self.GetEntry(key)
         value = str(v)
         self.Logger.debug("Trying to set key %s to value %s" % (k, v))
-        if(en is None):
+        if (en is None):
             # new entry
             en = EnvEntry(value, comment, overridable)
             self.Dstore[key] = en
@@ -102,7 +102,7 @@ class VarDict(object):
     def AllowOverride(self, k):
         key = k.upper()
         en = self.GetEntry(key)
-        if(en is not None):
+        if (en is not None):
             self.Logger.warning("Allowing Override for key %s" % k)
             en.AllowOverride()
             return True
@@ -122,15 +122,15 @@ class VarDict(object):
     def GetBuildValue(self, key, BuildType=None):
         rv = None
 
-        if(BuildType is None):
+        if (BuildType is None):
             BuildType = self.GetValue("TARGET")
 
-        if(BuildType is None):
+        if (BuildType is None):
             logging.debug(
                 "GetBuildValue - Invalid Parameter BuildType is None and Target Not set. Key is: " + key)
             return None
 
-        if(key is None):
+        if (key is None):
             logging.debug(
                 "GetBuildValue - Invalid Parameter key is None. BuildType is: " + BuildType)
             return None
@@ -140,7 +140,7 @@ class VarDict(object):
         # see if specific
         k = "BLD_" + ty + "_" + tk
         rv = self.GetValue(k)
-        if(rv is None):
+        if (rv is None):
             # didn't fine build type specific so check for generic
             k = "BLD_*_" + tk
             rv = self.GetValue(k)
@@ -159,10 +159,10 @@ class VarDict(object):
     #
     def GetAllBuildKeyValues(self, BuildType=None):
         returndict = {}
-        if(BuildType is None):
+        if (BuildType is None):
             BuildType = self.GetValue("TARGET")
 
-        if(BuildType is None):
+        if (BuildType is None):
             logging.debug(
                 "GetAllBuildKeyValues - Invalid Parameter BuildType is None and Target Not Set.")
             return returndict
@@ -172,7 +172,7 @@ class VarDict(object):
 
         # get all the generic build options
         for key, value in self.Dstore.items():
-            if(key.startswith("BLD_*_")):
+            if (key.startswith("BLD_*_")):
                 k = key[6:]
                 returndict[k] = value.GetValue()
 
@@ -180,7 +180,7 @@ class VarDict(object):
         # figure out offset part of key name to strip
         ks = len(ty) + 5
         for key, value in self.Dstore.items():
-            if(key.startswith("BLD_" + ty + "_")):
+            if (key.startswith("BLD_" + ty + "_")):
                 k = key[ks:]
                 returndict[k] = value.GetValue()
 
@@ -193,16 +193,16 @@ class VarDict(object):
         returndict = {}
         # get all the generic build options
         for key, value in self.Dstore.items():
-            if(not key.startswith("BLD_")):
+            if (not key.startswith("BLD_")):
                 returndict[key] = value.GetValue()
         return returndict
 
     def PrintAll(self, fp=None):
         f = None
-        if(fp is not None):
+        if (fp is not None):
             f = open(fp, 'a+')
         for key, value in self.Dstore.items():
             print("Key = %s" % key, file=f)
             value.PrintEntry(f)
-        if(f):
+        if (f):
             f.close()

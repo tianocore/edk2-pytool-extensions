@@ -8,6 +8,7 @@
 ##
 import os
 import logging
+import semantic_version
 import shutil
 from io import StringIO
 from edk2toolext.environment.external_dependency import ExternalDependency
@@ -25,7 +26,7 @@ class NugetDependency(ExternalDependency):
 
     def __init__(self, descriptor):
         super().__init__(descriptor)
-        self.global_cache_path = None
+        self.nuget_cache_path = None
 
     ####
     # Add mono to front of command and resolve full path of exe for mono,
@@ -66,60 +67,23 @@ class NugetDependency(ExternalDependency):
 
         return cmd
 
-    @staticmethod
-    def normalize_version(version):
-        if len(version) == 0:
-            raise ValueError("Unparsable version: empty string")
+    def _normalize_version(self):
+        # A ValueError will be raised if the version string is invalid
+        try:
+            return str(semantic_version.Version(self.version))
+        except ValueError:
+            print(f"NuGet dependency {self.name} has an invalid version "
+                  f"string: {self.version}")
+            raise
 
-        if str(version).count("-") > 1:
-            raise ValueError(f"Unparsable version: '{version}'!")
-
-        tag = None
-
-        parts = version.split(".")
-        if "-" in parts[-1]:
-            parts[-1], tag = parts[-1].split("-")
-
-        int_parts = tuple([0 if a == "" else int(a) for a in parts])
-
-        if tag is not None:
-            # It might start with "beta*", "alpha*" or "rc*"
-            legit_tag = False
-            for rv in ["beta", "alpha", "rc"]:
-                if tag.startswith(rv):
-                    legit_tag = True
-        else:
-            # Otherwise, it is legit
-            legit_tag = True
-
-        if not legit_tag:
-            raise ValueError(f"Unparsable version tag: {tag}")
-
-        if len(int_parts) > 4:
-            raise ValueError(f"Unparsable version: '{version}'!")
-
-        # Remove extra trailing zeros (beyond 3 elements).
-        if len(int_parts) == 4 and int_parts[3] == 0:
-            int_parts = int_parts[0:3]  # drop the last item
-
-        # Add missing trailing zeros (below 3 elements).
-        if len(int_parts) < 3:
-            int_parts = int_parts + (0,) * (3 - len(int_parts))
-
-        # Return reformed version.
-        reformed_ints = ".".join((str(num) for num in int_parts))
-        if tag is not None:
-            reformed_ints += "-" + tag
-        return reformed_ints
-
-    def _fetch_from_cache(self, package_name):
+    def _fetch_from_nuget_cache(self, package_name):
         result = False
 
         #
         # We still need to use Nuget to figure out where the
         # "global-packages" cache is on this machine.
         #
-        if self.global_cache_path is None:
+        if self.nuget_cache_path is None:
             cmd = NugetDependency.GetNugetCmd()
             cmd += ["locals", "global-packages", "-list"]
             return_buffer = StringIO()
@@ -127,24 +91,24 @@ class NugetDependency(ExternalDependency):
                 # Seek to the beginning of the output buffer and capture the output.
                 return_buffer.seek(0)
                 return_string = return_buffer.read()
-                self.global_cache_path = return_string.strip().strip("global-packages: ")
+                self.nuget_cache_path = return_string.strip().strip("global-packages: ")
 
-        if self.global_cache_path is None:
+        if self.nuget_cache_path is None:
             logging.info("Nuget was unable to provide global packages cache location.")
             return False
         #
         # If the path couldn't be found, we can't do anything else.
         #
-        if not os.path.isdir(self.global_cache_path):
+        if not os.path.isdir(self.nuget_cache_path):
             logging.info("Could not determine Nuget global packages cache location.")
             return False
 
         #
         # Now, try to locate our actual cache path
-        nuget_version = NugetDependency.normalize_version(self.version)
+        nuget_version = self._normalize_version()
 
         cache_search_path = os.path.join(
-            self.global_cache_path, package_name.lower(), nuget_version)
+            self.nuget_cache_path, package_name.lower(), nuget_version)
         inner_cache_search_path = os.path.join(cache_search_path, package_name)
         if os.path.isdir(cache_search_path):
             # If we found a cache for this version, let's use it.
@@ -152,7 +116,6 @@ class NugetDependency(ExternalDependency):
                 logging.info(
                     "Local Cache found for Nuget package '%s'. Skipping fetch.", package_name)
                 shutil.copytree(inner_cache_search_path, self.contents_dir)
-                self.update_state_file()
                 result = True
             # If this cache doesn't match our heuristic, let's warn the user.
             else:
@@ -203,16 +166,23 @@ class NugetDependency(ExternalDependency):
 
     def fetch(self):
         package_name = self.name
+
+        # First, check the global cache to see if it's present.
+        if super().fetch():
+            return
+
         #
         # Before trying anything with Nuget feeds,
         # check to see whether the package is already in
         # our local cache. If it is, we avoid a lot of
         # time and network cost by copying it directly.
         #
-        if self._fetch_from_cache(package_name):
+        if self._fetch_from_nuget_cache(package_name):
+            self.copy_to_global_cache(self.contents_dir)
             # We successfully found the package in the cache.
             # The published path may change now that the package has been unpacked.
             # Bail.
+            self.update_state_file()
             self.published_path = self.compute_published_path()
             return
 
@@ -236,6 +206,7 @@ class NugetDependency(ExternalDependency):
         if not os.path.isdir(source_dir):
             source_dir = os.path.join(temp_directory, package_name)
         shutil.copytree(source_dir, self.contents_dir)
+        self.copy_to_global_cache(self.contents_dir)
 
         RemoveTree(source_dir)
 

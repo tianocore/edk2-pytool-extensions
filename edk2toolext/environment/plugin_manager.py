@@ -39,7 +39,7 @@ class PluginManager(object):
             return []
         for a in newlist:
             b = PluginDescriptor(a)
-            if(self._load(b) == 0):
+            if (self._load(b) == 0):
                 val = env.GetValue(b.Module.upper())
                 if val and val == "skip":
                     logging.info(f"{b.Module} turned off by environment variable")
@@ -55,7 +55,7 @@ class PluginManager(object):
     def GetPluginsOfClass(self, classobj):
         temp = []
         for a in self.Descriptors:
-            if(isinstance(a.Obj, classobj)):
+            if (isinstance(a.Obj, classobj)):
                 temp.append(a)
         return temp
 

@@ -13,7 +13,7 @@ import sys
 
 p = os.path.join(os.getcwd(), "dist")
 whl_file = glob.glob(os.path.join(p, "*.whl"))
-if(len(whl_file) != 1):
+if (len(whl_file) != 1):
     for filename in whl_file:
         print(filename)
     raise Exception("Too many wheel files")

@@ -22,7 +22,8 @@ these utilities.
 You have an EDK2 implementation, a platform DSC, and a platform FDF? Great! You
 are one [settings file](usability/using_settings_manager.md) away from a great platform building experience.
 
-Once your settings file is created and configured, you can use the [stuart commands](#what-can-ask-stuart-to-do) start building:
+Once your settings file is created and configured, you can use the [stuart commands](#what-can-i-ask-stuart-to-do) start
+building:
 
 1. `stuart_setup` - Syncs and updates submodules that your project uses.
 2. `stuart_update` - Walks through the environment and downloads all the tools that the

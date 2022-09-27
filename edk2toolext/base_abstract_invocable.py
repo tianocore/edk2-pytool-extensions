@@ -33,6 +33,11 @@ class BaseAbstractInvocable(object):
         ''' return tuple containing scopes that should be active for this process '''
         raise NotImplementedError()
 
+    def GetSkippedDirectories(self):
+        ''' Return tuple containing workspace-relative directory paths that should be skipped for processing.
+        Absolute paths are not supported. '''
+        return ()
+
     def GetLoggingLevel(self, loggerType):
         ''' Get the logging level for a given type (return Logging.Level)
         base == lowest logging level supported
@@ -85,14 +90,14 @@ class BaseAbstractInvocable(object):
         log_directory = os.path.join(self.GetWorkspaceRoot(), self.GetLoggingFolderRelativeToRoot())
 
         txtlogfile = self.GetLoggingLevel("txt")
-        if(txtlogfile is not None):
+        if (txtlogfile is not None):
             logfile, filelogger = edk2_logging.setup_txt_logger(log_directory,
                                                                 self.GetLoggingFileName("txt"),
                                                                 txtlogfile)
             self.log_filename = logfile
 
         md_log_file = self.GetLoggingLevel("md")
-        if(md_log_file is not None):
+        if (md_log_file is not None):
             edk2_logging.setup_markdown_logger(log_directory,
                                                self.GetLoggingFileName("md"),
                                                md_log_file)
@@ -114,11 +119,11 @@ class BaseAbstractInvocable(object):
         # Next, get the environment set up.
         #
         (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(
-            self.GetWorkspaceRoot(), self.GetActiveScopes())
+            self.GetWorkspaceRoot(), self.GetActiveScopes(), self.GetSkippedDirectories())
 
         # Make sure the environment verifies IF it is required for this invocation
         if self.GetVerifyCheckRequired() and not self_describing_environment.VerifyEnvironment(
-                self.GetWorkspaceRoot(), self.GetActiveScopes()):
+                self.GetWorkspaceRoot(), self.GetActiveScopes(), self.GetSkippedDirectories()):
             raise RuntimeError("SDE is not current.  Please update your env before running this tool.")
 
         # Load plugins
@@ -134,13 +139,13 @@ class BaseAbstractInvocable(object):
             raise Exception("One or more plugins failed to load.")
 
         self.helper = HelperFunctions()
-        if(self.helper.LoadFromPluginManager(self.plugin_manager) > 0):
+        if (self.helper.LoadFromPluginManager(self.plugin_manager) > 0):
             raise Exception("One or more helper plugins failed to load.")
 
         logging.log(edk2_logging.SECTION, "Start Invocable Tool")
         retcode = self.Go()
         logging.log(edk2_logging.SECTION, "Summary")
-        if(retcode != 0):
+        if (retcode != 0):
             logging.error("Error")
         else:
             edk2_logging.log_progress("Success")

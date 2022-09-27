@@ -67,11 +67,11 @@ class NugetSupport(object):
         self.NewVersion = None
         self.ConfigChanged = False
 
-        if(ConfigFile is not None):
+        if (ConfigFile is not None):
             self.FromConfigfile(ConfigFile)
             self.Name = self.ConfigData["name"]
         else:
-            if(Name is None):
+            if (Name is None):
                 raise ValueError("Cannot construct object with both Name and ConfigFile as None")
             self.ConfigData = {"name": Name}
             self.Config = None
@@ -85,18 +85,18 @@ class NugetSupport(object):
     # Save the object config contents to file
     #
     def ToConfigFile(self, filepath=None):
-        if(not self.ConfigChanged):
+        if (not self.ConfigChanged):
             logging.debug("No Config Changes.  Skip Writing config file")
             return 0
 
-        if(filepath is None and self.Config is None):
+        if (filepath is None and self.Config is None):
             logging.error("No Config File to save to.")
             return -1
 
-        if(filepath is not None):
+        if (filepath is not None):
             self.Config = filepath
 
-        if(filepath is None):
+        if (filepath is None):
             logging.error("No filepath for Config File")
 
         with open(filepath, "w") as c:
@@ -140,7 +140,7 @@ class NugetSupport(object):
     def Print(self):
         print("=======================================")
         print(" Name:        " + self.Name)
-        if(self.Config):
+        if (self.Config):
             print(" ConfigFile:  " + self.Config)
         else:
             print(" ConfigFile:  NOT SET")
@@ -158,7 +158,7 @@ class NugetSupport(object):
     def LogObject(self):
         logging.debug("=======================================")
         logging.debug(" Name:        " + self.Name)
-        if(self.Config):
+        if (self.Config):
             logging.debug(" ConfigFile:  " + self.Config)
         else:
             logging.debug(" ConfigFile:  NOT SET")
@@ -195,12 +195,12 @@ class NugetSupport(object):
         f.set("target", self.Name)
         f.set("src", ContentDir + "\\**\\*")
 
-        if(ReleaseNotesText is not None):
+        if (ReleaseNotesText is not None):
             logging.debug("Make Nuspec Xml - ReleaseNotesText is not none.")
             #
             # Make sure it doesn't exceed reasonable length of string
             #
-            if(len(ReleaseNotesText) > NugetSupport.RELEASE_NOTE_SHORT_STRING_MAX_LENGTH):
+            if (len(ReleaseNotesText) > NugetSupport.RELEASE_NOTE_SHORT_STRING_MAX_LENGTH):
                 logging.info("Make Nuspec Xml - ReleaseNotesText too long.  Length is (%d)" % len(ReleaseNotesText))
                 logging.debug("Original ReleaseNotesText is: %s" % ReleaseNotesText)
                 # cut it off at max length
@@ -262,7 +262,7 @@ class NugetSupport(object):
         # cmd += ["-NonInteractive"]
         ret = RunCmd(cmd[0], " ".join(cmd[1:]))
 
-        if(ret != 0):
+        if (ret != 0):
             logging.error("Failed on nuget commend.  RC = 0x%x" % ret)
             return ret
 
@@ -271,7 +271,7 @@ class NugetSupport(object):
         return ret
 
     def Push(self, nuPackage, apikey):
-        if(not os.path.isfile(nuPackage)):
+        if (not os.path.isfile(nuPackage)):
             raise Exception("Invalid file path for NuPkg file")
         logging.debug("Pushing %s file to server %s" % (nuPackage, self.ConfigData["server_url"]))
 
@@ -284,7 +284,7 @@ class NugetSupport(object):
         output_buffer = StringIO()
         ret = RunCmd(cmd[0], " ".join(cmd[1:]), outstream=output_buffer)
 
-        if(ret != 0):
+        if (ret != 0):
             # Rewind the buffer and capture the contents.
             output_buffer.seek(0)
             output_contents = output_buffer.read()
@@ -313,7 +313,7 @@ def GatherArguments():
     parser.add_argument('--Operation', dest="Operation", choices=["New", "Pack", "Push", "PackAndPush"], required=True)
     parser.add_argument("--OutputLog", dest="OutputLog", help="Create an output log file")
 
-    if(args.op.lower() == "new"):
+    if (args.op.lower() == "new"):
         parser.add_argument("--ConfigFileFolderPath", dest="ConfigFileFolderPath",
                             help="<Required>Path to folder to save new config file to", required=True)
         parser.add_argument('--Name',
@@ -333,7 +333,7 @@ def GatherArguments():
                             help="<Required>Feed Url of the nuget server feed", required=True)
         parser.add_argument('--Copyright', dest="Copyright", help="Copyright string", required=False)
 
-    elif(args.op.lower() == "pack" or args.op.lower() == "packandpush"):
+    elif (args.op.lower() == "pack" or args.op.lower() == "packandpush"):
         parser.add_argument("--ConfigFilePath", dest="ConfigFilePath",
                             help="<Required>Path to config file", required=True)
         parser.add_argument('--Version', dest="Version", help="<Required> Version to publish", required=True)
@@ -350,7 +350,7 @@ def GatherArguments():
                             help="<Optional>Api key to use. Default is 'VSTS' which will invoke interactive login",
                             default="VSTS")
 
-    elif(args.op.lower() == "push"):
+    elif (args.op.lower() == "push"):
         parser.add_argument("--ConfigFilePath", dest="ConfigFilePath",
                             help="<Required>Path to config file",
                             required=True)
@@ -359,7 +359,7 @@ def GatherArguments():
                             help="<Optional>Api key to use. Default is 'VSTS' which will invoke interactive login",
                             default="VSTS")
 
-    if(args.op.lower() == "pack"):
+    if (args.op.lower() == "pack"):
         parser.add_argument('--OutputFolderPath',
                             dest="OutputFolderPath",
                             help="<Optional>Output folder where nupkg will be saved.  Default is cwd",
@@ -373,8 +373,8 @@ def main():
     ret = 0
 
     # setup file based logging if outputReport specified
-    if(args.OutputLog):
-        if(len(args.OutputLog) < 2):
+    if (args.OutputLog):
+        if (len(args.OutputLog) < 2):
             logging.critical("the output log file parameter is invalid")
             return -2
 
@@ -388,16 +388,16 @@ def main():
     TempOutDir = None
     NuPkgFilePath = None
 
-    if(args.Operation.lower() == "new"):
+    if (args.Operation.lower() == "new"):
         logging.critical("Generating new nuget configuration...")
         logging.debug("Checking input parameters for new")
         ConfigFilePath = os.path.join(args.ConfigFileFolderPath, args.Name.strip() + ".config.yaml")
 
-        if(not os.path.isdir(args.ConfigFileFolderPath)):
+        if (not os.path.isdir(args.ConfigFileFolderPath)):
             logging.critical("Config File Folder Path doesn't exist.  %s" % args.ConfigFileFolderPath)
             raise Exception("Invalid Config File Folder.  Doesn't exist")
 
-        if(os.path.isfile(ConfigFilePath)):
+        if (os.path.isfile(ConfigFilePath)):
             logging.critical("Config File already exists at that path.  %s" % ConfigFilePath)
             raise Exception("Can't Create New Config file when file already exists")
 
@@ -405,26 +405,26 @@ def main():
 
         # license
         license_url = args.LicenseUrl
-        if(args.LicenseType is not None):
+        if (args.LicenseType is not None):
             license_url = LICENSE_TYPE_SUPPORTED[args.LicenseType]
         nu.SetBasicData(args.Author, license_url, args.Project, args.Description, args.FeedUrl, args.Copyright)
         nu.LogObject()
         ret = nu.ToConfigFile(ConfigFilePath)
         return ret
 
-    elif(args.Operation.lower() == "pack" or args.Operation.lower() == "packandpush"):
+    elif (args.Operation.lower() == "pack" or args.Operation.lower() == "packandpush"):
         logging.critical("Creating nuget package")
         logging.debug("Checking input parameters for packing")
         # check args
-        if(not os.path.isfile(args.ConfigFilePath)):
+        if (not os.path.isfile(args.ConfigFilePath)):
             logging.critical("Invalid Config File (%s).  File doesn't exist" % args.ConfigFilePath)
             raise Exception("Invalid Config File.  File doesn't exist")
-        if(not os.path.isdir(args.InputFolderPath)):
+        if (not os.path.isdir(args.InputFolderPath)):
             logging.critical("Invalid Input folder (%s).  Folder doesn't exist" % args.InputFolderPath)
             raise Exception("Invalid Input folder.  folder doesn't exist")
         contents = os.listdir(args.InputFolderPath)
         logging.debug("Input Folder contains %d files" % len(contents))
-        if(len(contents) == 0):
+        if (len(contents) == 0):
             logging.critical("No binary contents to pack in %s" % args.InputFolderPath)
             raise Exception("No binary contents to package")
 
@@ -433,7 +433,7 @@ def main():
         os.mkdir(TempOutDir)
 
         nu = NugetSupport(ConfigFile=args.ConfigFilePath)
-        if(args.Copyright is not None):
+        if (args.Copyright is not None):
             nu.UpdateCopyright(args.Copyright)
         if (len(args.Tags) > 0):
             tagListSet = set()
@@ -459,39 +459,39 @@ def main():
 
         NuPkgFilePath = nu.NuPackageFile
 
-    if(args.Operation.lower() == "pack"):
-        if(not os.path.isdir(args.OutputFolderPath)):
+    if (args.Operation.lower() == "pack"):
+        if (not os.path.isdir(args.OutputFolderPath)):
             logging.critical("Invalid Pack Output Folder (%s).  Folder doesn't exist" % args.OutputFolderPath)
             raise Exception("Invalid Output folder.  folder doesn't exist")
         # since it is pack only lets copy nupkg file to output
         shutil.copyfile(NuPkgFilePath, os.path.join(args.OutputFolderPath, os.path.basename(NuPkgFilePath)))
         NuPkgFilePath = os.path.join(args.OutputFolderPath, os.path.basename(NuPkgFilePath))
 
-    if(args.Operation.lower() == "push"):
+    if (args.Operation.lower() == "push"):
         # set the parameters for push
         logging.debug("Checking input parameters for push")
         # check args
-        if(not os.path.isfile(args.ConfigFilePath)):
+        if (not os.path.isfile(args.ConfigFilePath)):
             logging.critical("Invalid Config File (%s).  File doesn't exist" % args.ConfigFilePath)
             raise Exception("Invalid Config File.  File doesn't exist")
         NuPkgFilePath = args.PackageFile
         nu = NugetSupport(ConfigFile=args.ConfigFilePath)
 
-    if(args.Operation.lower() == "push" or args.Operation.lower() == "packandpush"):
+    if (args.Operation.lower() == "push" or args.Operation.lower() == "packandpush"):
         # do the pushing
         logging.critical("Pushing the package")
         logging.debug("NuPkgFilePath is %s" % NuPkgFilePath)
         # check args
-        if(not os.path.isfile(NuPkgFilePath)):
+        if (not os.path.isfile(NuPkgFilePath)):
             logging.critical("NuPkgFilePath is not valid file.  %s" % NuPkgFilePath)
             raise Exception("Invalid Pkg File.  File doesn't exist")
         ret = nu.Push(NuPkgFilePath, args.ApiKey)
 
     nu.LogObject()
     nu.ToConfigFile(args.ConfigFilePath)  # save any changes
-    if(not args.Dirty):
+    if (not args.Dirty):
         nu.CleanUp()
-        if(TempOutDir is not None):
+        if (TempOutDir is not None):
             os.removedirs(TempOutDir)
     return ret
 

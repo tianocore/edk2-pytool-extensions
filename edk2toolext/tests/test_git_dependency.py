@@ -55,7 +55,7 @@ def clean_workspace():
         # spell-checker:ignore dorw
         def dorw(action, name, exc):
             os.chmod(name, stat.S_IWRITE)
-            if(os.path.isdir(name)):
+            if (os.path.isdir(name)):
                 os.rmdir(name)
             else:
                 os.remove(name)

@@ -163,43 +163,6 @@ class TestNugetDependency(unittest.TestCase):
             ext_dep.fetch()
         self.assertFalse(ext_dep.verify())
 
-    def test_normalize_version(self):
-        version1 = "5.10.05.0"
-        proper_version1 = "5.10.5"
-        self.assertEqual(proper_version1, NugetDependency.normalize_version(version1))
-        version2 = "6.10"
-        proper_version2 = "6.10.0"
-        self.assertEqual(proper_version2, NugetDependency.normalize_version(version2))
-        version3 = "6"
-        proper_version3 = "6.0.0"
-        self.assertEqual(proper_version3, NugetDependency.normalize_version(version3))
-        version4 = "6-beta"
-        proper_version4 = "6.0.0-beta"
-        self.assertEqual(proper_version4, NugetDependency.normalize_version(version4))
-        version5 = "3.2.1.-alpha"
-        proper_version5 = "3.2.1-alpha"
-        self.assertEqual(proper_version5, NugetDependency.normalize_version(version5))
-        version6 = "3.2.1.0-rc1"
-        proper_version6 = "3.2.1-rc1"
-        self.assertEqual(proper_version6, NugetDependency.normalize_version(version6))
-        # try some bad cases
-        with self.assertRaises(ValueError):
-            NugetDependency.normalize_version("not a number")
-        with self.assertRaises(ValueError):
-            NugetDependency.normalize_version("6.0-beta-beta")
-        with self.assertRaises(ValueError):
-            NugetDependency.normalize_version("6.0-bad")
-        with self.assertRaises(ValueError):
-            NugetDependency.normalize_version("6.0-")
-        with self.assertRaises(ValueError):
-            NugetDependency.normalize_version("--")
-        with self.assertRaises(ValueError):
-            NugetDependency.normalize_version("6-")
-        with self.assertRaises(ValueError):
-            NugetDependency.normalize_version("")
-        with self.assertRaises(ValueError):
-            NugetDependency.normalize_version(bad_version)
-
     # missing case
     def test_download_missing_nuget(self):
         ext_dep_file_path = os.path.join(test_dir, "hw_ext_dep.json")
@@ -221,8 +184,8 @@ class TestNugetDependency(unittest.TestCase):
         ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
         ext_dep = NugetDependency(ext_dep_descriptor)
 
-        ext_dep.global_cache_path = "not_a_real_path"
-        self.assertFalse(ext_dep._fetch_from_cache(hw_package_name))
+        ext_dep.nuget_cache_path = "not_a_real_path"
+        self.assertFalse(ext_dep._fetch_from_nuget_cache(hw_package_name))
 
     def test_bad_cached_package(self):
         ext_dep_file_path = os.path.join(test_dir, "hw_ext_dep.json")
@@ -238,17 +201,17 @@ class TestNugetDependency(unittest.TestCase):
         # First, create the cache.
         cache_dir = os.path.join(test_dir, 'nuget_test_bad_cache')
         os.mkdir(cache_dir)
-        ext_dep.global_cache_path = cache_dir
+        ext_dep.nuget_cache_path = cache_dir
         # Then create the directories inside the cache that should hold the contents.
         package_cache_dir = os.path.join(cache_dir, hw_package_name.lower(), good_version)
         os.makedirs(package_cache_dir)
         # There are no package directories inside the cache.
-        self.assertFalse(ext_dep._fetch_from_cache(hw_package_name))
+        self.assertFalse(ext_dep._fetch_from_nuget_cache(hw_package_name))
 
         # Create a directory that doesn't match the heuristic.
         test_cache_contents = os.path.join(package_cache_dir, "contents", "blah")
         os.makedirs(test_cache_contents)
-        self.assertFalse(ext_dep._fetch_from_cache(hw_package_name))
+        self.assertFalse(ext_dep._fetch_from_nuget_cache(hw_package_name))
 
     def test_good_cached_package(self):
         ext_dep_file_path = os.path.join(test_dir, "hw_ext_dep.json")
@@ -264,15 +227,16 @@ class TestNugetDependency(unittest.TestCase):
         # First, create the cache.
         cache_dir = os.path.join(test_dir, 'nuget_test_good_cache')
         os.mkdir(cache_dir)
-        ext_dep.global_cache_path = cache_dir
+        ext_dep.nuget_cache_path = cache_dir
         # Then create the directories inside the cache that should hold the contents.
         package_cache_dir = os.path.join(cache_dir, hw_package_name.lower(), good_version)
         os.makedirs(package_cache_dir)
 
-        # Create a directory that doesn't match the heuristic.
+        # Create a directory that does match the heuristic.
         test_cache_contents = os.path.join(package_cache_dir, hw_package_name, "working_blah")
         os.makedirs(test_cache_contents)
-        self.assertTrue(ext_dep._fetch_from_cache(hw_package_name))
+        self.assertTrue(ext_dep._fetch_from_nuget_cache(hw_package_name))
+        ext_dep.update_state_file()
 
         # Make sure that the contents were copied correctly.
         final_path = os.path.join(ext_dep.contents_dir, "working_blah")

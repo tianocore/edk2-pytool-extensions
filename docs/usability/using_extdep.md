@@ -4,7 +4,7 @@
 
 External dependencies are a way within the build environment to describe
 external dependencies and have Stuart fetch them when doing the
-_stuart_update_operation. Stuart will also verify the ext_dep state when doing a
+`stuart_update` operation. Stuart will also verify the ext_dep state when doing a
 build to ensure the environment is in the required state prior to building.
 
 Ext_deps have solved three major issues.
@@ -111,6 +111,25 @@ To create a new Dependency type it requires a new subclass of the
 `ExternalDependency` class. The subclass needs to have a type field and then
 factory method in `ExternalDependency.py` needs to be updated to create new
 instances of the new type.
+
+## Local Caching
+
+In some cases (e.g. a CI server), it is necessary to set up and tear down multiple
+repos and/or branches, and this can severely impact the network time to fetch all
+new dependencies. While Nuget has it's own caching system, this does not scale to the
+other dependency types.
+
+To address this, Stuart provides the `STUART_EXTDEP_CACHE_PATH` environment variable.
+If this variable is set, and points to a valid directory on the local filesystem, it
+will be populated with a copy of any extdep that is fetched by Stuart during the process
+of a build. This cache will be checked prior to invoking any type-specific extdep
+fetch operation. If the extdep already exists in the cache, it will be copied from the
+local cache into its final destination.
+
+This cache will keep unique entries for versions and sources. In other words, multiple
+versions of the same extdep from the same source will be cached independently, but the
+same version from multiple sources will _also_ be cached independently. This is to prevent
+possible cache corruption when consuming external code that may have a name collision.
 
 ## A note on NuGet on Linux
 

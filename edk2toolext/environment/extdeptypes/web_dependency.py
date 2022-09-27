@@ -91,6 +91,10 @@ class WebDependency(ExternalDependency):
         _ref.close()
 
     def fetch(self):
+        # First, check the global cache to see if it's present.
+        if super().fetch():
+            return
+
         url = self.source
         temp_folder = tempfile.mkdtemp()
         temp_file_path = os.path.join(temp_folder, f"{self.name}_{self.version}")
@@ -147,6 +151,8 @@ class WebDependency(ExternalDependency):
             complete_internal_path = os.path.join(self.contents_dir, self.internal_path)
             logging.info(f"Copying file to {complete_internal_path}")
             shutil.move(temp_file_path, complete_internal_path)
+
+        self.copy_to_global_cache(self.contents_dir)
 
         # Add a file to track the state of the dependency.
         self.update_state_file()

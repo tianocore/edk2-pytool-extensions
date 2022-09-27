@@ -173,6 +173,8 @@ class TestSettingsManager(BuildSettingsManager, SetupSettingsManager, Edk2CiBuil
     def GetTargetsSupported(self):
         return []
 
+    def GetSkippedDirectories(self):
+        return ()
 
 class TestBuilder(UefiBuilder):
     def SetPlatformEnv(self):
