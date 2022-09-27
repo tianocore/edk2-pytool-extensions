@@ -58,7 +58,7 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
         self.force_it = args.force
         self.omnicache_path = args.omnicache_path
         if (self.omnicache_path is not None) and (not os.path.exists(self.omnicache_path)):
-            logging.warning(f"Omnicache path set to invalid path: {args.omnicache_Path}")
+            logging.warning(f"Omnicache path set to invalid path: {args.omnicache_path}")
             self.omnicache_path = None
 
         super().RetrieveCommandLineOptions(args)

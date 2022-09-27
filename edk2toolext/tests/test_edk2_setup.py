@@ -69,3 +69,13 @@ class TestEdk2Setup(unittest.TestCase):
         except SystemExit as e:
             self.assertEqual(e.code, 0, "We should have a non zero error code")
             pass
+
+    def test_setup_bad_omnicache_path(self):
+        builder = Edk2PlatformSetup()
+        settings_file = os.path.join(self.minimalTree, "settings.py")
+        sys.argv = ["stuart_setup", "-c", settings_file, "-v", "--omnicache", "does_not_exist"]
+        try:
+            builder.Invoke()
+        except SystemExit as e:
+            self.assertEqual(e.code, 0, "We should have a non zero error code")
+            pass
