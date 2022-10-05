@@ -163,6 +163,60 @@ class TestNugetDependency(unittest.TestCase):
             ext_dep.fetch()
         self.assertFalse(ext_dep.verify())
 
+    def test_normalize_version(self):
+        version = "5.10.05.0"
+        proper_version = "5.10.5"
+        self.assertEqual(proper_version, NugetDependency.normalize_version(version))
+        version = "6.10"
+        proper_version = "6.10.0"
+        self.assertEqual(proper_version, NugetDependency.normalize_version(version))
+        version = "6"
+        proper_version = "6.0.0"
+        self.assertEqual(proper_version, NugetDependency.normalize_version(version))
+        version = "6-beta"
+        proper_version = "6.0.0-beta"
+        self.assertEqual(proper_version, NugetDependency.normalize_version(version))
+        version = "3.2.1.-alpha"
+        proper_version = "3.2.1-alpha"
+        self.assertEqual(proper_version, NugetDependency.normalize_version(version))
+        version = "3.2.1.0-rc1"
+        proper_version = "3.2.1-rc1"
+        self.assertEqual(proper_version, NugetDependency.normalize_version(version))
+        version = "1.18.9.2"
+        proper_version = "1.18.9.2"
+        self.assertEqual(proper_version, NugetDependency.normalize_version(version))
+        version = "0.4.0"
+        proper_version = "0.4.0"
+        self.assertEqual(proper_version, NugetDependency.normalize_version(version))
+        version = "21.0.1056.1"
+        proper_version = "21.0.1056.1"
+        self.assertEqual(proper_version, NugetDependency.normalize_version(version))
+        version = "2022.02.1"
+        proper_version = "2022.2.1"
+        self.assertEqual(proper_version, NugetDependency.normalize_version(version))
+        version = "2.15.05"
+        proper_version = "2.15.5"
+        self.assertEqual(proper_version, NugetDependency.normalize_version(version))
+        version = "2.8.4-92"
+        proper_version = "2.8.4-92"
+        self.assertEqual(proper_version, NugetDependency.normalize_version(version))
+
+        # try some bad cases
+        with self.assertRaises(ValueError):
+            NugetDependency.normalize_version("not a number")
+        with self.assertRaises(ValueError):
+            NugetDependency.normalize_version("6.0-beta-beta")
+        with self.assertRaises(ValueError):
+            NugetDependency.normalize_version("6.0-")
+        with self.assertRaises(ValueError):
+            NugetDependency.normalize_version("--")
+        with self.assertRaises(ValueError):
+            NugetDependency.normalize_version("6-")
+        with self.assertRaises(ValueError):
+            NugetDependency.normalize_version("")
+        with self.assertRaises(ValueError):
+            NugetDependency.normalize_version(bad_version)
+
     # missing case
     def test_download_missing_nuget(self):
         ext_dep_file_path = os.path.join(test_dir, "hw_ext_dep.json")
