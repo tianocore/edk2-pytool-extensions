@@ -67,14 +67,79 @@ class NugetDependency(ExternalDependency):
 
         return cmd
 
-    def _normalize_version(self):
-        # A ValueError will be raised if the version string is invalid
-        try:
-            return str(semantic_version.Version(self.version))
-        except ValueError:
-            print(f"NuGet dependency {self.name} has an invalid version "
-                  f"string: {self.version}")
-            raise
+    @staticmethod
+    def normalize_version(version, nuget_name=""):
+        # The following link describes where NuGet versioning diverges from
+        # Semantic Versioning:
+        # https://learn.microsoft.com/en-us/nuget/concepts/package-versioning#where-nugetversion-diverges-from-semantic-versioning
+        #
+        # These cases will be handled before a "Semantic Version compatible"
+        # set of data is passed to the Semantic Version checker.
+
+        # 1. NuGetVersion requires the major segment to be defined
+        if not version:
+            raise ValueError("String is empty. At least major version is "
+                             "required.")
+
+        # 2. NuGetVersion uses case insensitive string comparisons for
+        #    pre-release components
+        reformed_ver = version.strip().lower()
+
+        tag = None
+        parts = version.split(".")
+
+        if "-" in parts[-1]:
+            parts[-1], tag = parts[-1].split("-")
+
+        # 3. Drop leading zeroes from individual version parts
+        int_parts = tuple([0 if a == "" else int(a) for a in parts])
+
+        # 4. A maximum of 4 version segments are allowed
+        if len(int_parts) > 4:
+            raise ValueError(f"Maximum of 4 version segments allowed: "
+                             f"'{version}'!")
+
+        # 5. Allow a fourth version segment - "Revision" normally not
+        #    allowed in Semantic versions but allowed in NuGet versions.
+        #
+        #    Version in this case is: <Major>.<Minor>.<Patch>.<Revision>
+
+        # 6. Remove trailing zeros (beyond 3 patch segment)
+        #    i.e. If Revision is zero, omit from the normalized string
+        if len(int_parts) == 4 and int_parts[3] == 0:
+            int_parts = int_parts[0:3]
+
+        # 7. Add missing trailing zeros (below 3 elements).
+        #    i.e. 1, 1.0, 1.0.0, and 1.0.0.0 are all accepted and
+        #    equal.
+        if len(int_parts) < 3:
+            int_parts = int_parts + (0,) * (3 - len(int_parts))
+
+        # 8. Reassemble the string for final semantic version validation
+        reformed_ver = ".".join((str(num) for num in int_parts))
+        if tag is not None:
+            reformed_ver += "-" + tag
+
+        # 9. Use semantic_version to further validate the version string
+        if len(int_parts) == 4:
+            nuget_ver = semantic_version.Version.coerce(reformed_ver)
+
+            # A ValueError will be raised if the version string is invalid
+            major, minor, patch, prerelease, build = \
+                semantic_version.Version.parse(str(nuget_ver))
+        else:
+            # A ValueError will be raised if the version string is invalid
+            nuget_ver = semantic_version.Version(reformed_ver)
+            major, minor, patch, prerelease, build = tuple(nuget_ver)
+
+        logging.info(f"NuGet version parts:\n"
+                     f"  Major Version: {major}\n"
+                     f"  Minor Version: {minor}\n"
+                     f"  Patch Version: {patch}\n"
+                     f"  Pre-Release Version {prerelease}\n"
+                     f"  Revision (Build) Version: {build}")
+
+        return reformed_ver
 
     def _fetch_from_nuget_cache(self, package_name):
         result = False
@@ -105,7 +170,12 @@ class NugetDependency(ExternalDependency):
 
         #
         # Now, try to locate our actual cache path
-        nuget_version = self._normalize_version()
+        nuget_version = self.version
+        try:
+            nuget_version = NugetDependency.normalize_version(self.version)
+        except ValueError:
+            logging.error(f"NuGet dependency {self.name} has an invalid "
+                          f"version string: {self.version}")
 
         cache_search_path = os.path.join(
             self.nuget_cache_path, package_name.lower(), nuget_version)
