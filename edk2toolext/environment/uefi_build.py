@@ -11,6 +11,8 @@
 
 import os
 import logging
+import shutil
+import stat
 from edk2toolext.environment.multiple_workspace import MultipleWorkspace
 from edk2toolext.environment import conf_mgmt
 import traceback
@@ -19,11 +21,12 @@ from edk2toolext.environment import shell_environment
 from edk2toollib.uefi.edk2.parsers.targettxt_parser import TargetTxtParser
 from edk2toollib.uefi.edk2.parsers.dsc_parser import DscParser
 from edk2toollib.uefi.edk2.parsers.fdf_parser import FdfParser
-from edk2toollib.utility_functions import RunCmd, RemoveTree
+from edk2toollib.utility_functions import GetHostInfo, RunCmd, RemoveTree
 from edk2toolext import edk2_logging
 from edk2toolext.environment.plugintypes.uefi_build_plugin import IUefiBuildPlugin
 import datetime
 
+DEFAULT_CODEQL_PATH = 'Build/codeql-database'
 
 class UefiBuilder(object):
 
@@ -37,6 +40,9 @@ class UefiBuilder(object):
         self.Clean = False
         self.UpdateConf = False
         self.OutputConfig = None
+        self.CodeQl = False
+        self.CodeQlPath = None
+        self.CodeQlDbPath = None
 
     def AddPlatformCommandLineOptions(self, parserObj):
         ''' adds command line options to the argparser '''
@@ -59,6 +65,12 @@ class UefiBuilder(object):
         parserObj.add_argument("--CLEANONLY", "--cleanonly", "--CleanOnly", dest="CLEANONLY",
                                action='store_true', default=False,
                                help="Clean Only. Do clean operation and don't build just exit.")
+        parserObj.add_argument("--CODEQL", "--codeql", "--CodeQl", dest="CODEQL",
+                               action='store_true', default=False,
+                               help="Produce CodeQL database from build. Implies --clean.")
+        parserObj.add_argument("--CODEQLDBPATH", "--codeqldbpath", "--CodeQL", dest="CODEQLDBPATH",
+                               action='store_true', default=DEFAULT_CODEQL_PATH,
+                               help="Path relative to workspace root where the CodeQL database is created.")
         parserObj.add_argument("--OUTPUTCONFIG", "--outputconfig", "--OutputConfig",
                                dest='OutputConfig', required=False, type=str,
                                help='Provide shell variables in a file')
@@ -85,6 +97,8 @@ class UefiBuilder(object):
             self.SkipPreBuild = True
             self.SkipPostBuild = True
             self.FlashImage = False
+        elif args.CODEQL:
+            self.EnableCodeQl(args.CODEQLDBPATH)
 
     def Go(self, WorkSpace, PackagesPath, PInHelper, PInManager):
         self.env = shell_environment.GetBuildVars()
@@ -143,6 +157,19 @@ class UefiBuilder(object):
             if (self.SkipBuild):
                 edk2_logging.log_progress("Skipping Build")
             else:
+                if self.CodeQl:
+                    # The CodeQL executable path can be passed via the
+                    # STUART_CODEQL_PATH environment variable (override with a
+                    # custom value for this run) or read from the system path.
+                    if self.env.GetValue("STUART_CODEQL_PATH"):
+                        self.CodeQlPath = self.env.GetValue("STUART_CODEQL_PATH")
+                    elif shutil.which("codeql"):
+                        self.CodeQlPath = shutil.which("codeql")
+                    else:
+                        logging.critical("CodeQL build enabled but application "
+                                        "not found.")
+                        return -1
+
                 ret = self.Build()
 
                 if (ret != 0):
@@ -269,7 +296,49 @@ class UefiBuilder(object):
         pre_build_env_chk = env.checkpoint()
         env.set_shell_var('PYTHONHASHSEED', '0')
         env.log_environment()
-        ret = RunCmd("build", params)
+
+        if self.CodeQl:
+            edk2_logging.log_progress("Building for CodeQL...")
+            logging.warn(f"CodeQL database is being written to "
+                         f"{self.CodeQlDbPath}")
+
+            # CodeQL CLI does not handle spaces passed in CLI commands well
+            # (perhaps at all) as discussed here:
+            #   1. https://github.com/github/codeql-cli-binaries/issues/73
+            #   2. https://github.com/github/codeql/issues/4910
+            #
+            # Since it's unclear how quotes are handled and may change in the
+            # future, this code is going to use the workaround to place the
+            # command in an executable file that is instead passed to CodeQL.
+            codeql_cmd_path = self.mws.join(self.ws, self.env.GetValue(
+                "BUILD_OUTPUT_BASE"), "codeql_build_command")
+
+            codeql_build_cmd = ""
+            if GetHostInfo().os == "Windows":
+                codeql_cmd_path += '.bat'
+            elif GetHostInfo().os == "Linux":
+                codeql_cmd_path += '.sh'
+                codeql_build_cmd += f"#!/bin/bash{os.linesep * 2}"
+            codeql_build_cmd += "build " + params
+
+            with open(codeql_cmd_path, 'w', encoding='utf8') as f:
+                f.write(codeql_build_cmd)
+
+            if GetHostInfo().os == "Linux":
+                os.chmod(codeql_cmd_path, os.stat(codeql_cmd_path).st_mode | stat.S_IEXEC)
+
+            try:
+                codeql_params = (f'database create {self.CodeQlDbPath} '
+                                 f'--language=cpp '
+                                 f'--source-root={self.ws} '
+                                 f'--command={codeql_cmd_path}')
+
+                ret = RunCmd("codeql", codeql_params)
+            finally:
+                os.remove(codeql_cmd_path)
+        else:
+            ret = RunCmd("build", params)
+
         # WORKAROUND - Undo the workaround.
         env.restore_checkpoint(pre_build_env_chk)
 
@@ -282,6 +351,21 @@ class UefiBuilder(object):
             return ret
 
         return 0
+
+    def EnableCodeQl(self, codeql_db_path: str = None):
+        self.CodeQl = True
+
+        self.CodeQlDbPath = codeql_db_path
+        if self.CodeQlDbPath is None:
+            self.CodeQlDbPath = DEFAULT_CODEQL_PATH
+
+        # CodeQL can only generate a database on clean build
+        self.Clean = True
+        # CodeQL can only trace build commands if a build happens
+        self.SkipBuild = False
+        # Some post-build plugins have path assumptions that fail when
+        # running CodeQL
+        self.SkipPostBuild = True
 
     def PreBuild(self):
         edk2_logging.log_progress("Running Pre Build")
