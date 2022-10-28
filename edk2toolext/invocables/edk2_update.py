@@ -6,6 +6,12 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""Updates external dependencies.
+
+Contains a UpdateSettingsManager that must be subclassed in a build settings
+file. This provides platform specific information to Edk2Update invocable
+while allowing the invocable itself to remain platform agnostic.
+"""
 import logging
 from edk2toolext import edk2_logging
 from edk2toolext.environment import self_describing_environment
@@ -14,26 +20,31 @@ from edk2toolext.invocables.edk2_multipkg_aware_invocable import MultiPkgAwareSe
 
 
 class UpdateSettingsManager(MultiPkgAwareSettingsInterface):
-    ''' Platform settings will be accessed through this implementation.
+    """Platform specific settings for Edk2Update.
 
-    Update settings manager has no additional APIs not already defined in it's super class  '''
+    Provides information necessary for `stuart_update.exe` or `edk2_update.py`
+    when updating the platform.
+
+    Update settings manager has no additional APIs not already defined in it's super class, however
+    The class should still be overwritten by the platform.
+    """
     pass
 
 
 def build_env_changed(build_env, build_env_2):
-    ''' return True if build_env has changed '''
-
+    """Return True if build_env has changed."""
     return (build_env.paths != build_env_2.paths) or \
            (build_env.extdeps != build_env_2.extdeps) or \
            (build_env.plugins != build_env_2.plugins)
 
 
 class Edk2Update(Edk2MultiPkgAwareInvocable):
-    ''' Updates dependencies in workspace for active scopes '''
+    """Updates dependencies in workspace for active scopes."""
 
     MAX_RETRY_COUNT = 10
 
     def PerformUpdate(self):
+        """Updates the dependencies."""
         ws_root = self.GetWorkspaceRoot()
         scopes = self.GetActiveScopes()
         skipped_dirs = self.GetSkippedDirectories()
@@ -44,26 +55,30 @@ class Edk2Update(Edk2MultiPkgAwareInvocable):
         return (build_env, shell_env, failure)
 
     def GetVerifyCheckRequired(self):
-        ''' Will not call self_describing_environment.VerifyEnvironment because ext_deps haven't been unpacked yet '''
+        """Will not call self_describing_environment.VerifyEnvironment because ext_deps haven't been unpacked yet."""
         return False
 
     def GetSettingsClass(self):
-        '''  Providing UpdateSettingsManger '''
+        """Returns the UpdateSettingsManager class.
+
+        WARNING: UpdateSettingsManager must be subclassed in your platform settings file.
+        """
         return UpdateSettingsManager
 
     def GetLoggingFileName(self, loggerType):
+        """Returns the filename (UPDATE_LOG) of where the logs for the Edk2CiBuild invocable are stored in."""
         return "UPDATE_LOG"
 
     def AddCommandLineOptions(self, parserObj):
-        ''' adds command line options to the argparser '''
+        """Adds command line options to the argparser."""
         super().AddCommandLineOptions(parserObj)
 
     def RetrieveCommandLineOptions(self, args):
-        '''  Retrieve command line options from the argparser '''
+        """Retrieve command line options from the argparser."""
         super().RetrieveCommandLineOptions(args)
 
     def Go(self):
-        # Get the environment set up.
+        """Executes the core functionality of the Edk2Update invocable."""
         RetryCount = 0
         failure_count = 0
         logging.log(edk2_logging.SECTION, "Initial update of environment")
@@ -98,4 +113,5 @@ class Edk2Update(Edk2MultiPkgAwareInvocable):
 
 
 def main():
+    """Entry point to invoke Edk2Update."""
     Edk2Update().Invoke()

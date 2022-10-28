@@ -5,29 +5,30 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""Plugin that supports Pre and Post Build Steps."""
 
 
 class IUefiBuildPlugin(object):
+    """Plugin that supports Pre and Post Build Steps."""
 
-    ##
-    # Run Post Build Operations
-    #
-    # @param thebuilder - UefiBuild object to get env information
-    #
-    # @return 0 for success NonZero for error.
-    ##
     def do_post_build(self, thebuilder):
+        """Runs Post Build Plugin Operations.
+
+        Args:
+            thebuilder (UefiBuilder): UefiBuild object for env information
+
+        Returns:
+            (int): 0 or NonZero for success or failure
+        """
         return 0
 
-    ##
-    # Run Pre Build Operations
-    #
-    # @param thebuilder - UefiBuild object to get env information
-    #
-    # @return 0 for success NonZero for error.
-    ##
     def do_pre_build(self, thebuilder):
-        '''
-        Run Pre build Operation
-        '''
+        """Runs Pre Build Plugin Operations.
+
+        Args:
+            thebuilder (UefiBuilder): UefiBuild object for env information
+
+        Returns:
+            (int): 0 or NonZero for success or failure
+        """
         return 0

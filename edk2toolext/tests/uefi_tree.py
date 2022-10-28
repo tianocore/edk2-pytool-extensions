@@ -4,6 +4,7 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 
+"""Used for creating a minimal uefi tree for testing."""
 import os
 import tempfile
 import json
@@ -11,13 +12,21 @@ import random
 
 
 class uefi_tree:
-    '''
-    This class represents a minimal UEFI tree that you can setup
-    It is configurable and offers options to modify the tree for
-    '''
+    """A minimal UEFI tree.
+
+    This class represents a minimal UEFI tree that you can setup.
+    It is configurable and offers options to modify the tree for.
+
+    Attributes:
+        workspace (str): Path to a directory for the minimal tree
+
+    Args:
+        workspace (str): Path to a directory for the minimal tree
+        create_platform (bool): create the tree or use an existing
+    """
 
     def __init__(self, workspace=None, create_platform=True):
-        ''' copy the minimal tree to a folder, if one is not provided we will create a new temporary folder for you '''
+        """Inits uefi_tree."""
         if workspace is None:
             workspace = os.path.abspath(tempfile.mkdtemp())
         self.workspace = workspace
@@ -33,10 +42,11 @@ class uefi_tree:
         return os.path.join(uefi_tree._get_src_folder(), "optional")
 
     def get_workspace(self):
+        """Returns the workspace path."""
         return self.workspace
 
     def _create_tree(self):
-        ''' Creates a settings.py, test.dsc, Conf folder (with build_rule, target, and tools_def) '''
+        """Creates a settings.py, test.dsc, Conf folder (with build_rule, target, and tools_def)."""
         settings_path = self.get_settings_provider_path()
         uefi_tree.write_to_file(settings_path, self._settings_file_text)
         dsc_path = os.path.join(self.workspace, "Test.dsc")
@@ -52,24 +62,25 @@ class uefi_tree:
 
     @staticmethod
     def write_to_file(path, contents, close=True):
+        """Writes contents to a file."""
         f = open(path, "w")
         f.writelines(contents)
         if close:
             f.close()
 
     def get_settings_provider_path(self):
-        ''' gets the settings provider in the workspace '''
+        """Gets the settings provider in the workspace."""
         return os.path.join(self.workspace, "settings.py")
 
     def get_optional_file(self, file):
-        ''' gets the path of an optional file '''
+        """Gets the path of an optional file."""
         optional_path = os.path.join(uefi_tree._get_optional_folder(), file)
         if os.path.exists(optional_path):
             return os.path.abspath(optional_path)
         raise ValueError(f"Optional file not found {file}")
 
     def create_path_env(self, id=None, flags=[], var_name=None, scope="global", dir_path="", extra_data=None):
-        ''' creates an ext dep in your workspace '''
+        """Creates an ext dep in your workspace."""
         data = {
             "scope": scope,
             "flags": flags,
@@ -91,10 +102,11 @@ class uefi_tree:
         uefi_tree.write_to_file(output_path, text)
 
     def create_Edk2TestUpdate_ext_dep(self, version="0.0.1", extra_data=None):
+        """Creates an Edk2TestUpdate ext dep in your workspace."""
         self.create_ext_dep("nuget", "Edk2TestUpdate", version, extra_data=extra_data)
 
     def create_ext_dep(self, dep_type, name, version, source=None, scope="global", dir_path="", extra_data=None):
-        ''' creates an ext dep in your workspace '''
+        """Creates an ext dep in your workspace."""
         dep_type = dep_type.lower()
         if source is None and dep_type == "nuget":
             source = "https://api.nuget.org/v3/index.json"

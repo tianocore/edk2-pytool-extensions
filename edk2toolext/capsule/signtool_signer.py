@@ -11,8 +11,14 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""Abstracted signing interface for Windows Signtool.
 
+This interface abstraction takes in the signature_options and signer_options
+dictionaries that are used by capsule_tool and capsule_helper.
 
+Will attempt to locate a valid installation of Windows Signtool using the
+utility_functions provided by edk2toollib.
+"""
 import os
 import tempfile
 import warnings
@@ -27,11 +33,11 @@ SUPPORTED_SIGNATURE_TYPE_OPTIONS = {
 
 
 def get_signtool_path():
-    '''
-    helper function to locate a valid installation of Windows Signtool. Will
-    attempt to reuse a previously located version, since this call can be
-    lengthy
-    '''
+    """Locates a valid installation of Windows Signtool.
+
+    Will attempt to reuse a previously located version, since this call can be
+    lengthy.
+    """
     global GLOBAL_SIGNTOOL_PATH
 
     if GLOBAL_SIGNTOOL_PATH is None:
@@ -41,13 +47,22 @@ def get_signtool_path():
 
 
 def sign(data: bytes, signature_options: dict, signer_options: dict) -> bytes:
-    '''
-    primary signing interface. Takes n the signature_options and signer_options
+    """Primary signing interface.
+
+    Takes in the signature_options and signer_options
     dictionaries that are used by capsule_tool and capsule_helper
-    '''
 
-    # NOTE: Currently, we only support the necessary options for capsules & Windows Firmware Policies
+    Args:
+        data (bytes): data to write into the sign tool.
+        signature_options (dict): dictionary containing signature options
+        signer_options (dict): dictionary containing signer options
 
+    Raises:
+        (ValueError()): Unsupported signature or signer options
+        (RuntimeError()): Signtool.exe returned with error
+
+    Note: Currently, only support the necessary options for capsules & Windows Firmware Policies
+    """
     # The following _if_ clause handles the deprecated signature_option 'sign_alg' for backwards compatibility
     # when the deprecated option is supplied, this code adds the new, required options based on prior code behavior
     if 'sign_alg' in signature_options:
@@ -131,11 +146,22 @@ def sign(data: bytes, signature_options: dict, signer_options: dict) -> bytes:
 
 
 def sign_in_place(sign_file_path, signature_options, signer_options):
-    '''
-    alternate module-specific signing interface to support particular signatures associated
-    with Windows capsule files (e.g. CAT files). Takes n the signature_options and signer_options
-    dictionaries that are used by capsule_tool and capsule_helper
-    '''
+    """Alternate module-specific signing interface.
+
+    Supports particular signatures associated with windows capsule files
+    (e.g. CAT files). Takes in the signature_options and signer_options
+    dictionaries that are used by capsule_tool and capsule_helper.
+
+    Args:
+        sign_file_path (str): sign file path
+        signature_options (Dict): dictionary containing signature options
+        signer_options (Dict): dictionary containing signer options
+
+    Raises:
+        (ValueError()): Unsupported signature or signer options
+        (RuntimeError()): Signtool.exe returned with error.
+
+    """
     # NOTE: Currently, we only support the necessary algorithms for capsules.
     if signature_options['sign_alg'] != 'pkcs12':
         raise ValueError(f"Unsupported signature algorithm: {signature_options['sign_alg']}!")

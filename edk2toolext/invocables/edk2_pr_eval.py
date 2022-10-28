@@ -6,7 +6,14 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""Invocable that checks the diff between a branch and head.
 
+Identifies any packages that needs to be build.
+
+Contains a PrEvalSettingsManager that must be subclassed in a build settings
+file. This provides platform specific information to Edk2PrEval invocable
+while allowing the invocable itself to remain platform agnostic.
+"""
 import os
 import logging
 from io import StringIO
@@ -21,29 +28,70 @@ from edk2toollib.utility_functions import RunCmd
 
 
 class PrEvalSettingsManager(MultiPkgAwareSettingsInterface):
-    ''' Platform settings will be accessed through this implementation. '''
+    """Platform specific Settings for Edk2PrEval.
+
+    provide information necessary for `stuart_pr_eval.exe` or
+    `edk2_pr_eval.py` to successfully execute.
+
+    Example: Example: Overriding PrEvalSettingsManager
+        ```python
+        from edk2toolext.invocables.edk2_pr_eval import PrEvalSettingsManager
+        class PrEvalManager(PrEvalSettingsManager):
+            def FilterPackagesToTest(self, changedFilesList: list, potentialPackagesList: list) -> list:
+                filtered_packages = []
+                for file in changedFilesList:
+                    for package in potentialPackagesList:
+                        if package.startswith(potentialPackagesList):
+                            filtered_packages.append(package)
+
+                return list(set(filtered_packages))
+
+            def GetPlatformDscAndConfig(self) -> tuple:
+                return None
+        ```
+    """
 
     def FilterPackagesToTest(self, changedFilesList: list, potentialPackagesList: list) -> list:
-        ''' Filter potential packages to test based on changed files. '''
+        """Filter potential packages to test based on changed files.
 
+        TIP: Optional Override in a subclass
+
+        Arguments:
+            changedFilesList (list): files changed in this PR
+            potentialPackagesList (list): packages from `GetPackagesSupported()` or from command line
+                option -p, --pkg, --pkg-dir from `Edk2MultiPkgAwareInvocable`
+
+        Returns:
+            (list): filtered packages to test
+        Note:
+            Default implementation does zero filtering
+        """
         # default implementation does zero filtering.
         return potentialPackagesList
 
     def GetPlatformDscAndConfig(self) -> tuple:
-        ''' If a platform desires to provide its DSC then Policy 4 will evaluate if
+        """Provide a platform dsc and config.
+
+        If a platform desires to provide its DSC then Policy 4 will evaluate if
         any of the changes will be built in the dsc.
 
-        The tuple should be (<workspace relative path to dsc file>, <input dictionary of dsc key value pairs>)
-        '''
+        TIP: Optional Override in a subclass
+
+        Returns:
+            (tuple): (workspace relative path to dsc file, input dictionary of dsc key value pairs)
+        """
         return None
 
 
 class Edk2PrEval(Edk2MultiPkgAwareInvocable):
-    ''' Evaluate the changes and determine what packages of the supplied packages should
-        be tested based on impact from the changes '''
+    """Invocable to determine what packages should be tested.
+
+    Evaluate the changes and determine what packages of the supplied packages should
+    be tested based on impact from the changes
+    """
 
     def AddCommandLineOptions(self, parserObj):
-        ''' adds command line options to the argparser '''
+        """Adds command line options to the argparser."""
         parserObj.add_argument("--pr-target", dest='pr_target', type=str, default=None,
                                help="PR Branch Target.  Allows build optimizations for pull request"
                                " validation based on files changed. If a package doesn't need testing then it will"
@@ -59,25 +107,29 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         super().AddCommandLineOptions(parserObj)
 
     def RetrieveCommandLineOptions(self, args):
-        '''  Retrieve command line options from the argparser '''
+        """Retrieve command line options from the argparser."""
         self.pr_target = args.pr_target
         self.output_csv_format_string = args.output_csv_format_string
         self.output_count_format_string = args.output_count_format_string
         super().RetrieveCommandLineOptions(args)
 
     def GetVerifyCheckRequired(self):
-        ''' Will not call self_describing_environment.VerifyEnvironment because it might not be set up yet '''
+        """Will not call self_describing_environment.VerifyEnvironment because it might not be set up yet."""
         return False
 
     def GetSettingsClass(self):
-        '''  Providing PrEvalSettingsManager  '''
+        """Returns the PrEvalSettingsManager class.
+
+        WARNING: PrEvalSettingsManager must be subclassed in your platform settings file.
+        """
         return PrEvalSettingsManager
 
     def GetLoggingFileName(self, loggerType):
+        """Returns the filename (PREVALLOG) of where the logs for the Edk2CiBuild invocable are stored in."""
         return "PREVALLOG"
 
     def Go(self):
-
+        """Executes the core functionality of the Edk2CiBuild invocable."""
         # create path obj for resolving paths.  Since PR eval is run early to determine if a build is
         # impacted by the changes of a PR we must ignore any packages path that are not valid due to
         # not having their submodule or folder populated.
@@ -115,6 +167,14 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         return 0
 
     def get_packages_to_build(self, possible_packages: list) -> dict:
+        """Returns a dictionary of packages to build.
+
+        Arguments:
+            possible_packages: list of possible packages
+
+        Returns:
+            (dict): filtered packages to build
+        """
         self.parsed_dec_cache = {}
         (rc, files) = self._get_files_that_changed_in_this_pr(self.pr_target)
         if rc != 0:
@@ -234,7 +294,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         return packages_to_build
 
     def _get_unique_module_infs_changed(self, files: list):
-        '''return a list of edk2 relative paths to modules infs that have changed files'''
+        """Returns a list of edk2 relative paths to modules infs that have changed files."""
         modules = []
 
         for f in files:
@@ -255,7 +315,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         return modules
 
     def _does_pkg_depend_on_package(self, package_to_eval: str, support_package: str) -> bool:
-        ''' return if any module in package_to_eval depends on public files defined in support_package'''
+        """Return if any module in package_to_eval depends on public files defined in support_package."""
         # get filesystem path of package_to_eval
         abs_pkg_path = self.edk2_path_obj.GetAbsolutePathOnThisSystemFromEdk2RelativePath(package_to_eval)
 
@@ -277,10 +337,11 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         return False
 
     def _get_files_that_changed_in_this_pr(self, base_branch) -> tuple:
-        ''' Get all the files that changed in this pr.
-            Return the error code and list of files
-        '''
+        """Get all the files that changed in this pr.
 
+        Returns:
+            (int, list[str]): error code, list of files
+        """
         # get file differences between pr and base
         output = StringIO()
         cmd_params = f"diff --name-only HEAD..{base_branch}"
@@ -302,7 +363,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         return (0, files)
 
     def _parse_dec_for_package(self, path_to_package):
-        ''' find DEC for package and parse it'''
+        """Find DEC for package and parse it."""
         # find DEC file
         path = None
         try:
@@ -331,7 +392,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         return dec
 
     def _is_public_file(self, filepath):
-        ''' return if file is a public files '''
+        """Returns if file is a public files."""
         fp = filepath.replace("\\", "/")  # make consistant for easy compare
 
         self.logger.debug("Is public: " + fp)
@@ -363,8 +424,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         return False
 
     def _walk_dir_for_filetypes(self, extensionlist, directory, ignorelist=None):
-        ''' Walks a directory for all items ending in certain extension '''
-
+        """Walks a directory for all items ending in certain extension."""
         if not isinstance(extensionlist, list):
             raise ValueError("Expected list but got " + str(type(extensionlist)))
 
@@ -405,4 +465,5 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
 
 
 def main():
+    """Entry point to invoke Edk2PrEval."""
     Edk2PrEval().Invoke()

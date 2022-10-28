@@ -9,7 +9,12 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""Code to help with the selection and loading of a signer module.
 
+These signer modules can be built-in to the edk2toolext module, loaded from
+other Pip or Python modules that are on the current pypath, or passed as a
+file path to a local Python module that should be dynamically loaded.
+"""
 
 import importlib
 
@@ -24,16 +29,18 @@ LOCAL_MODULE_SIGNER = 'local_module'
 
 
 def get_signer(type, specifier=None):
-    '''
-    based on the type and optional specifier, load a signer module and return it
+    """Load a signer module based on the arguments.
 
-    if type is PYPATH_MODULE_SIGNER, the specifier should be the Python module
-        package/namespace path
-        example: edk2toolext.capsule.pyopenssl_signer
+    if type is PYPATH_MODULE_SIGNER, the specifier should be the python module.
+    i.e. edk2toolext.capsule.pyopenssl_signer
 
     if the type is LOCAL_MODULE_SIGNER, the specifier should be a filesystem
-        path to a Python module that can be loaded as the signer
-    '''
+    path to a Python module that can be loaded as the signer.
+
+    Args:
+        type (str): PYOPENSSL_SIGNER, SIGNTOOL_SIGNER, PYPATH_MODULE_SIGNER, LOCAL_MODULE_SIGNER
+        specifier (module): python module to import
+    """
     if type == PYOPENSSL_SIGNER:
         try:
             from edk2toolext.capsule import pyopenssl_signer

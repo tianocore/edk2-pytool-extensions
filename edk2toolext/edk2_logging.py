@@ -6,6 +6,10 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""Handles basic logging config for builds.
+
+Splits logs into a master log and per package log.
+"""
 import logging
 import os
 import shutil
@@ -42,6 +46,7 @@ PROGRESS = logging.CRITICAL - 1  # just below critical
 
 # sub_directory is relative to ws argument
 def clean_build_logs(ws, sub_directory=None):
+    """Removes all build logs."""
     # Make sure that we have a clean environment.
     if sub_directory is None:
         sub_directory = os.path.join("Build", "BuildLogs")
@@ -50,18 +55,22 @@ def clean_build_logs(ws, sub_directory=None):
 
 
 def get_section_level():
+    """Returns SECTION."""
     return SECTION
 
 
 def get_subsection_level():
+    """Returns SUB_SECTION."""
     return SUB_SECTION
 
 
 def get_progress_level():
+    """Returns PROGRESS."""
     return PROGRESS
 
 
 def get_edk2_filter(verbose=False):
+    """Returns an edk2 filter."""
     gEdk2Filter = Edk2LogFilter()
     if verbose:
         gEdk2Filter.setVerbose(verbose)
@@ -69,10 +78,12 @@ def get_edk2_filter(verbose=False):
 
 
 def log_progress(message):
+    """Creates a logging message at the progress section level."""
     logging.log(get_progress_level(), message)
 
 
 def setup_section_level():
+    """Sets up different sections to log to."""
     # todo define section level
     # add section as a level to the logger
     section_level = get_section_level()
@@ -89,6 +100,7 @@ def setup_section_level():
 # creates the the plaintext logger
 def setup_txt_logger(directory, filename="log", logging_level=logging.INFO,
                      formatter=None, logging_namespace='', isVerbose=False):
+    """Configures a text logger."""
     logger = logging.getLogger(logging_namespace)
     log_formatter = formatter
     if log_formatter is None:
@@ -112,7 +124,7 @@ def setup_txt_logger(directory, filename="log", logging_level=logging.INFO,
 # creates the markdown logger
 def setup_markdown_logger(directory, filename="log", logging_level=logging.INFO,
                           formatter=None, logging_namespace='', isVerbose=False):
-
+    """Configures a markdown logger."""
     logger = logging.getLogger(logging_namespace)
     log_formatter = formatter
     if log_formatter is None:
@@ -144,7 +156,7 @@ def setup_markdown_logger(directory, filename="log", logging_level=logging.INFO,
 # sets up a colored console logger
 def setup_console_logging(logging_level=logging.INFO, formatter=None, logging_namespace='',
                           isVerbose=False, use_azure_colors=False, use_color=True):
-
+    """Configures a console logger."""
     if formatter is None and isVerbose:
         formatter_msg = "%(name)s: %(levelname)s - %(message)s"
     elif formatter is None:
@@ -178,6 +190,7 @@ def setup_console_logging(logging_level=logging.INFO, formatter=None, logging_na
 
 
 def stop_logging(loghandle, logging_namespace=''):
+    """Stops logging on a log handle."""
     logger = logging.getLogger(logging_namespace)
     if loghandle is None:
         return
@@ -192,6 +205,7 @@ def stop_logging(loghandle, logging_namespace=''):
 
 
 def create_output_stream(level=logging.INFO, logging_namespace=''):
+    """Creates an output stream to log to."""
     # creates an output stream that is in memory
     if string_handler:
         handler = string_handler.StringStreamHandler()
@@ -204,6 +218,7 @@ def create_output_stream(level=logging.INFO, logging_namespace=''):
 
 
 def remove_output_stream(handler, logging_namespace=''):
+    """Removes an output stream to log to."""
     logger = logging.getLogger(logging_namespace)
     if isinstance(handler, list):
         for single_handler in handler:
@@ -213,6 +228,12 @@ def remove_output_stream(handler, logging_namespace=''):
 
 
 def scan_compiler_output(output_stream):
+    """Scans the compiler for errors and warnings.
+
+    Returns:
+        (list[Tuple[logging.Type, str]]): list of tuples containing the type
+            of issue (Error, warning) and the description.
+    """
     # seek to the start of the output stream
     def output_compiler_error(match, line, start_txt="Compiler"):
         start, end = match.span()
@@ -253,22 +274,27 @@ def scan_compiler_output(output_stream):
 
 
 class Edk2LogFilter(logging.Filter):
+    """Subclass of logging.Filter."""
     _allowedLoggers = ["root"]
 
     def __init__(self):
+        """Inits a filter."""
         logging.Filter.__init__(self)
         self._verbose = False
         self._currentSection = "root"
 
     def setVerbose(self, isVerbose=True):
+        """Sets the filter verbosity."""
         self._verbose = isVerbose
 
     def addSection(self, section):
+        """Adds a section to the filter."""
         # TODO request the global singleton?
         # how to make this class static
         Edk2LogFilter._allowedLoggers.append(section)
 
     def filter(self, record):
+        """Adds a filter for a record if it doesn't already exist."""
         # check to make sure we haven't already filtered this record
         if record.name not in Edk2LogFilter._allowedLoggers and record.levelno < logging.WARNING and not self._verbose:
             return False

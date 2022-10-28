@@ -7,7 +7,11 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""Code that supports the Tianocore Edk2 build system.
 
+This class is designed to be subclassed by a platform to allow more extensive
+and custom behavior.
+"""
 
 import os
 import logging
@@ -26,8 +30,34 @@ import datetime
 
 
 class UefiBuilder(object):
+    """Object responsible for the full build process.
+
+    The following steps are completed by the `UefiBuilder` and is overridable
+    by the platform:
+
+    1. `PlatformPreBuild()`
+    2. `UefiBuildPlugins` that implement `do_pre_build()`
+    3. `Build()` (should not be overridden)
+    4. `UefiBuildPlugins` that implement `do_post_build()`
+    5. `PlatformFlashImage()`
+
+    Attributes:
+        SkipPreBuild (bool): Skip Pre Build or not
+        SkipPostBuild (bool): Skip Post Build or not
+        SkipBuild (bool): Skip Build or not
+        FlashImage (bool): Flash the image not
+        Clean (bool): Clean the build directory or not
+        Update Conf (bool): Update the conf or not
+        env (VarDict): Special dictionary containing build and env vars
+        mws (MultipleWorkspace): multiple workspace manager
+        ws (str): Workspace root dir
+        pp (str): packagespath separated by os.pathsep
+        Helper (HelperFunctions): object containing registered helper functions
+        pm (PluginManager): The plugin manager
+    """
 
     def __init__(self):
+        """Inits an empty UefiBuilder."""
         self.SkipBuild = False
         self.SkipPreBuild = False
         self.SkipPostBuild = False
@@ -39,7 +69,11 @@ class UefiBuilder(object):
         self.OutputConfig = None
 
     def AddPlatformCommandLineOptions(self, parserObj):
-        ''' adds command line options to the argparser '''
+        """Adds command line options to the argparser.
+
+        Args:
+            parserObj(argparser): argparser object
+        """
         parserObj.add_argument("--SKIPBUILD", "--skipbuild", "--SkipBuild", dest="SKIPBUILD",
                                action='store_true', default=False, help="Skip the build process")
         parserObj.add_argument("--SKIPPREBUILD", "--skipprebuild", "--SkipPrebuild", dest="SKIPPREBUILD",
@@ -64,7 +98,11 @@ class UefiBuilder(object):
                                help='Provide shell variables in a file')
 
     def RetrievePlatformCommandLineOptions(self, args):
-        '''  Retrieve command line options from the argparser'''
+        """Retrieve command line options from the argparser.
+
+        Args:
+            args (Namespace): namespace containing gathered args from argparser
+        """
         self.OutputConfig = os.path.abspath(args.OutputConfig) if args.OutputConfig else None
 
         self.SkipBuild = args.SKIPBUILD
@@ -87,6 +125,7 @@ class UefiBuilder(object):
             self.FlashImage = False
 
     def Go(self, WorkSpace, PackagesPath, PInHelper, PInManager):
+        """Core executable that performs all build steps."""
         self.env = shell_environment.GetBuildVars()
         self.mws = MultipleWorkspace()
         self.mws.setWs(WorkSpace, PackagesPath)
@@ -189,6 +228,11 @@ class UefiBuilder(object):
         return 0
 
     def CleanTree(self, RemoveConfTemplateFilesToo=False):
+        """Cleans the build directory.
+
+        Args:
+            RemoveConfTemplateFilesToo (bool): deletes conf files used for building makefiles
+        """
         ret = 0
         # loop thru each build target set.
         edk2_logging.log_progress("Cleaning All Output for Build")
@@ -221,11 +265,8 @@ class UefiBuilder(object):
 
         return ret
 
-    #
-    # Build step
-    #
-
     def Build(self):
+        """Adds all arguments to the build command and runs it."""
         BuildType = self.env.GetValue("TARGET")
         edk2_logging.log_progress("Running Build %s" % BuildType)
 
@@ -284,6 +325,10 @@ class UefiBuilder(object):
         return 0
 
     def PreBuild(self):
+        """Performs internal PreBuild steps.
+
+        This including calling the platform overridable `PlatformPreBuild()`
+        """
         edk2_logging.log_progress("Running Pre Build")
         #
         # Run the platform pre-build steps.
@@ -313,6 +358,10 @@ class UefiBuilder(object):
         return ret
 
     def PostBuild(self):
+        """Performs internal PostBuild steps.
+
+        This includes calling the platform overridable `PlatformPostBuild()`.
+        """
         edk2_logging.log_progress("Running Post Build")
         #
         # Run the platform post-build steps.
@@ -344,6 +393,10 @@ class UefiBuilder(object):
         return ret
 
     def SetEnv(self):
+        """Performs internal SetEnv steps.
+
+        This includes platform overridable `SetPlatformEnv()` and `SetPlatformEnvAfterTarget().
+        """
         edk2_logging.log_progress("Setting up the Environment")
         shell_environment.GetEnvironment().set_shell_var("WORKSPACE", self.ws)
         shell_environment.GetBuildVars().SetValue("WORKSPACE", self.ws, "Set in SetEnv")
@@ -427,6 +480,7 @@ class UefiBuilder(object):
         return 0
 
     def FlashRomImage(self):
+        """Executes platform overridable `PlatformFlashImage()`."""
         return self.PlatformFlashImage()
 
     # -----------------------------------------------------------------------
@@ -435,42 +489,59 @@ class UefiBuilder(object):
 
     @classmethod
     def PlatformPreBuild(self):
+        """Perform Platform PreBuild Steps."""
         return 0
 
     @classmethod
     def PlatformPostBuild(self):
+        """Perform Platform PostBuild Steps."""
         return 0
 
     @classmethod
     def SetPlatformEnv(self):
+        """Set and read Platform Env variables.
+
+        This is performed before platform files like the DSC and FDF have been parsed.
+
+        TIP: If a platform file (DSC, FDF, etc) relies on a variable set in
+        the `UefiBuilder`, it must be set here, before the platform files
+        have been parsed and values have been set.
+        """
         return 0
 
     @classmethod
     def SetPlatformEnvAfterTarget(self):
+        """Set and read Platform Env variables after platform files have been parsed."""
         return 0
 
     @classmethod
     def PlatformBuildRom(self):
+        """Build the platform Rom.
+
+        TIP: Typically called by the platform in PlatformFlashImage. Not called
+        automatically by the `UefiBuilder`.
+        """
         return 0
 
     @classmethod
     def PlatformFlashImage(self):
+        """Flashes the image to the system."""
         return 0
 
     @classmethod
     def PlatformGatedBuildShouldHappen(self):
+        """Specifies if a gated build should happen."""
         return True
 
     # ------------------------------------------------------------------------
     #  HELPER FUNCTIONS
     # ------------------------------------------------------------------------
     #
-
-    #
-    # Parse the TargetText file and add them as env settings.
-    # set them so they can be overridden.
-    #
     def ParseTargetFile(self):
+        """Parses the target.txt file and adds values as env settings.
+
+        "Sets them so they can be overriden.
+        """
         if (os.path.isfile(self.mws.join(self.ws, "Conf", "target.txt"))):
             # parse TargetTxt File
             logging.debug("Parse Target.txt file")
@@ -494,6 +565,10 @@ class UefiBuilder(object):
         return 0
 
     def ParseToolsDefFile(self):
+        """Parses the tools_def.txt file and adds values as env settings.
+
+        "Sets them so they can be overriden.
+        """
         if (os.path.isfile(self.mws.join(self.ws, "Conf", "tools_def.txt"))):
             # parse ToolsdefTxt File
             logging.debug("Parse tools_def.txt file")
@@ -513,11 +588,12 @@ class UefiBuilder(object):
 
         return 0
 
-    #
-    # Parse the Active platform DSC file.  This will get lots of variable info to
-    # be used in the build.  This makes it so we don't have to define things twice
-    #
     def ParseDscFile(self):
+        """Parses the active platform DSC file.
+
+        This will get lots of variable info to be used in the build. This
+        makes it so we don't have to define things twice.
+        """
         if self.env.GetValue("ACTIVE_PLATFORM") is None:
             logging.error("The DSC file was not set. Please set ACTIVE_PLATFORM")
             return -1
@@ -545,13 +621,13 @@ class UefiBuilder(object):
 
         return 0
 
-    #
-    # Parse the Active platform FDF file.  This will get lots of variable info to
-    # be used in the build.  This makes it so we don't have to define things twice
-    # the FDF file usually comes from the Active Platform DSC file so it needs to
-    # be parsed first.
-    #
     def ParseFdfFile(self):
+        """Parses the active platform FDF file.
+
+        This will get lots of variable info to be used in the build. This makes
+        it so we don't have to define things twice the FDF file usually comes
+        from the Active Platform DSC file so it needs to be parsed first.
+        """
         if (self.env.GetValue("FLASH_DEFINITION") is None):
             logging.debug("No flash definition set")
             return 0
@@ -577,11 +653,8 @@ class UefiBuilder(object):
 
         return 0
 
-    #
-    # Function used to set default values for numerous build
-    # flow control variables
-    #
     def SetBasicDefaults(self):
+        """Sets default values for numerous build control flow variables."""
         self.env.SetValue("WORKSPACE", self.ws, "DEFAULT")
         if (self.pp is not None):
             self.env.SetValue("PACKAGES_PATH", self.pp, "DEFAULT")

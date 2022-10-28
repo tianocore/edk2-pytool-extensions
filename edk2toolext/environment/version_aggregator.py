@@ -6,7 +6,11 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""Used to facilitate the collection of information.
 
+Used to facilitate the collection of information regarding the tools,
+binaries, submodule configuration used in a build.
+"""
 import copy
 import logging
 from enum import Enum
@@ -15,18 +19,25 @@ VERSION_AGGREGATOR = None
 
 
 class version_aggregator(object):
+    """Used to facilitate the collection of information.
+
+    Used to facilitate the collection of information regarding the tools,
+    binaries, submodule configuration used in a build.
+    """
     def __init__(self):
+        """Inits an empty verion aggregator."""
         super(version_aggregator, self).__init__()
         self._Versions = {}
         self._logger = logging.getLogger("version_aggregator")
 
     def ReportVersion(self, key, value, versionType, path=None):
-        """
-        Report the version of something.
+        """Report the version of something.
 
-        key -- The name of what you are reporting.
-        value -- The value of what you are reporting.
-        versionType -- The method of categorizing what is being reported. See VersionTypes for details.
+        Args:
+            key (str): the name of what you are reporting.
+            value (str): The value of what you are reporting.
+            versionType (str): The method of categorizing what is being reported. See VersionTypes for details.
+            path (:obj:'str', optional): the associated path.
         """
         if key in self._Versions:
             old_version = self._Versions[key]
@@ -49,7 +60,7 @@ class version_aggregator(object):
         self._logger.debug("version_aggregator logging version: {0}".format(str(self._Versions[key])))
 
     def Print(self):
-        """ Prints out the current information from the version aggregator """
+        """Prints out the current information from the version aggregator."""
         for version_key in self._Versions:
             version = self._Versions[version_key]
             print(f"{version['type']} - {version['name']}: {version['version']}")
@@ -57,22 +68,23 @@ class version_aggregator(object):
             print("VERSION AGGREGATOR IS EMPTY")
 
     def GetAggregatedVersionInformation(self):
-        """
-        Returns a copy of the aggregated information.
-        """
+        """Returns a copy of the aggregated information."""
         return copy.deepcopy(self._Versions)
 
     def Reset(self):
+        """Resets all versions."""
         self._Versions = {}
 
 
 class VersionTypes(Enum):
-    """
-    COMMIT is for the commit hash of a repository.
-    BINARY is for a pre-packaged binary that is distributed with a version number.
-    TOOL is for recording the version number of a tool that was used during the build process.
-    INFO is for recording miscellaneous information.
-    PIP is for recording a python pip package.
+    """Enumerator representing the different version types for recording.
+
+    Attributes:
+        COMMIT: the commit hash of a repository.
+        BINARY: pre-packaged binary that is distributed with a version number.
+        TOOL: the version number of a tool that was used during the build process.
+        INFO: miscellaneous information.
+        PIP: a python pip package.
     """
     TOOL = 1
     COMMIT = 2
@@ -82,9 +94,7 @@ class VersionTypes(Enum):
 
 
 def GetVersionAggregator():
-    """
-    Returns a singleton instance of this class for global use.
-    """
+    """Returns a singleton instance of this class for global use."""
     global VERSION_AGGREGATOR
 
     if VERSION_AGGREGATOR is None:
@@ -95,7 +105,5 @@ def GetVersionAggregator():
 
 
 def ResetVersionAggregator():
-    '''
-    Resets the version Aggregator singleton
-    '''
+    """Resets the version Aggregator singleton."""
     GetVersionAggregator().Reset()

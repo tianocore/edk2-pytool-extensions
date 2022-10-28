@@ -5,6 +5,7 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""This module contains code that knows how to download nuget."""
 import os
 import urllib.error
 import urllib.request
@@ -17,11 +18,18 @@ SHA256 = "852b71cc8c8c2d40d09ea49d321ff56fd2397b9d6ea9f96e532530307bbbafd3"
 
 
 def DownloadNuget(unpack_folder: str = None) -> list:
-    '''
-     Downloads a version of NuGet to the specific folder as NuGet.exe
-     If the file already exists, it won't be redownloaded.
-     The file will be checked against a SHA256 hash for accuracy
-    '''
+    """Downloads a version of NuGet to the specific folder as Nuget.exe.
+
+    If the file already exists, it won't be redownloaded.
+    The file will be checked against a SHA256 hash for accuracy
+
+    Args:
+        unpack_folder (str): where to download NuGet
+
+    Raises:
+        (HTTPError): Issue downloading NuGet
+        (RuntimeError): Sha256 did not match
+    """
     if unpack_folder is None:
         unpack_folder = os.path.dirname(__file__)
 

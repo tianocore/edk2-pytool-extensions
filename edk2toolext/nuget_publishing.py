@@ -6,6 +6,7 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""Provides configuration, packing, and publishing nuget packages to a release feed."""
 import os
 import sys
 import argparse
@@ -30,6 +31,7 @@ LICENSE_TYPE_SUPPORTED = {
 
 
 class NugetSupport(object):
+    """Support object for Nuget Publishing tool to configure NuPkg information, pack and send."""
     # NOTE: This *should* have a namespace (http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd)
     #       but ElementTree is incredibly stupid with namespaces.
     NUSPEC_TEMPLATE_XML = r'''<?xml version="1.0" encoding="utf-8"?>
@@ -56,12 +58,12 @@ class NugetSupport(object):
 
     RELEASE_NOTE_SHORT_STRING_MAX_LENGTH = 500
 
-    #
-    # constructor that creates the NugetSupport object
-    #   for new instances without existing config provide the Name parameter.
-    #   for creating instance based on config file provide the path to the ConfigFile
-    #
     def __init__(self, Name=None, ConfigFile=None):
+        """Inits a new NugetSupport object.
+
+        for new instances without existing config provide the Name parameter.
+        for creating instance based on config file provide the path to the ConfigFile
+        """
         self.Name = Name
         self.TempFileToDelete = []  # everytime a temp is created add to list to cleanup
         self.NewVersion = None
@@ -77,14 +79,13 @@ class NugetSupport(object):
             self.Config = None
 
     def CleanUp(self):
+        """Remove all temporary files."""
         logging.debug("CleanUp Called.  Deleting all Temp Files")
         for a in self.TempFileToDelete:
             os.remove(a)
 
-    #
-    # Save the object config contents to file
-    #
     def ToConfigFile(self, filepath=None):
+        """Save config to a yaml file."""
         if (not self.ConfigChanged):
             logging.debug("No Config Changes.  Skip Writing config file")
             return 0
@@ -106,11 +107,13 @@ class NugetSupport(object):
         return 0
 
     def FromConfigfile(self, filepath):
+        """Load config from a yaml file."""
         self.Config = filepath
         with open(self.Config, "r") as c:
             self.ConfigData = yaml.safe_load(c)
 
     def SetBasicData(self, authors, license, project, description, server, copyright):
+        """Set basic data in the config data."""
         self.ConfigData["author_string"] = authors
         self.ConfigData["license_url"] = license
         self.ConfigData["project_url"] = project
@@ -126,18 +129,17 @@ class NugetSupport(object):
         self.ConfigChanged = True
 
     def UpdateCopyright(self, copyright):
+        """Update copyright in the config data."""
         self.ConfigData["copyright_string"] = copyright
         self.ConfigChanged = True
 
     def UpdateTags(self, tags=[]):
+        """Update tags in the config data."""
         self.ConfigData["tags_string"] = " ".join(tags)
         self.ConfigChanged = True
 
-    #
-    # Print info about this object
-    #
-    #
     def Print(self):
+        """Print info about the Nuget Object."""
         print("=======================================")
         print(" Name:        " + self.Name)
         if (self.Config):
@@ -156,6 +158,7 @@ class NugetSupport(object):
         print("=======================================")
 
     def LogObject(self):
+        """Logs info about Nuget Object to the logger."""
         logging.debug("=======================================")
         logging.debug(" Name:        " + self.Name)
         if (self.Config):
@@ -235,11 +238,8 @@ class NugetSupport(object):
         s += ".nupkg"
         return s
 
-    ##
-    # Pack the current contents into
-    # Nupkg
-    #
     def Pack(self, version, OutputDirectory, ContentDir, RelNotesText=None):
+        """Pack the current contents into Nupkg."""
         self.NewVersion = version
 
         # content must be absolute path in nuspec otherwise it is assumed
@@ -271,6 +271,11 @@ class NugetSupport(object):
         return ret
 
     def Push(self, nuPackage, apikey):
+        """Push nuget package to the server.
+
+        Raises:
+            (Exception): file path is invalid
+        """
         if (not os.path.isfile(nuPackage)):
             raise Exception("Invalid file path for NuPkg file")
         logging.debug("Pushing %s file to server %s" % (nuPackage, self.ConfigData["server_url"]))
@@ -300,6 +305,7 @@ class NugetSupport(object):
 
 
 def GatherArguments():
+    """Adds CLI arguments for controlling the nuget_publishing tool."""
     tempparser = argparse.ArgumentParser(
         description='Nuget Helper Script for creating, packing, and pushing packages', add_help=False)
     tempparser.add_argument('--Operation', dest="op", choices=["New", "Pack", "Push", "PackAndPush"], required=True)
@@ -369,6 +375,7 @@ def GatherArguments():
 
 
 def main():
+    """Entry point into nuget_publishing after initial configuration."""
     args = GatherArguments()
     ret = 0
 
@@ -496,8 +503,8 @@ def main():
     return ret
 
 
-# the main method
 def go():
+    """Main entry into the nuget publishing tool."""
     # setup main console as logger
     logger = logging.getLogger('')
     logger.setLevel(logging.DEBUG)
