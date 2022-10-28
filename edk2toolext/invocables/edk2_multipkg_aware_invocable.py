@@ -10,71 +10,166 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""An intermediate class that supports a multi-package aware invocable process.
+
+Provides two main classes, the MultiPkgAwareSettingsInterface and the
+Edk2MultiPkgAwareInvocable that act as an intermediate class that other
+invocables that require a multi-package aware invocable process. These classes
+should only be subclassed if a new invocable is being developed. Any
+Edk2MultiPkgAwareInvocable should be platform agnostic and work for any
+platform. Platform specific data is provided via the
+MultiPkgAwareSettingsInterface
+"""
 from edk2toolext.edk2_invocable import Edk2Invocable, Edk2InvocableSettingsInterface
 
 
 class MultiPkgAwareSettingsInterface(Edk2InvocableSettingsInterface):
-    ''' Settings to support Multi-Pkg functionality.
-        This is an interface definition only
-        to show which functions are required to be implemented
-        and which functions can be implemented.
-     '''
+    """Settings to support Multi-Pkg functionality.
+
+    This is an interface definition only to show which functions are required
+    to be implemented and which functions can be implemented.
+
+    Example: Overriding MultiPkgAwareSettingsInterface
+        ``` python
+        import os
+        import logging
+        import argparse
+        from typing import Iterable, Tuple
+        from edk2toolext.edk2_multipkg_aware_invocable import MultiPkgAwareSettingsInterface
+        class NewInvocableSettingsManager(MultiPkgAwareSettingsInterface):
+
+            def GetPackagesSupported(self):
+                return ("PlatformPkg",)
+
+            def GetArchitecturesSupported(self):
+                return ("IA32","X64)
+
+            def GetTargetsSupported(self):
+                return ("TARGET", "RELEASE")
+
+            def SetPackages(self, list_of_requested_packages):
+
+                if len(filter(lambda pkg: pkg in self.GetPackagesSupported(), list_of_requested_packages)) !=
+                   len(list_of_requested_packages):
+                   raise Exception("Requested Packages contains unsupported Package")
+                else:
+                    self.pkgs = list_of_requested_packages
+
+            def SetArchitectures(self, list_of_requested_architectures):
+                if list_of_requested_architectures != self.GetPackagesSupported():
+                    raise Exception("Only Support IA32,X64 combination")
+            def SetTargets(self, list_of_requested_targets):
+                if list_of_requested_targets != self.GetArchitecturesSupported():
+                    raise Exception("Only Support "TARGET", "RELEASE combination")
+        ```
+
+    Warning:
+        This interface should not be subclassed directly unless creating a new invocable type. Override these
+        methods as a part of other subclasses invocable settings managers such as SetupSettingsManager, etc.
+    """
 
     # ####################################################################################### #
     #                           Supported Values and Defaults                                 #
     # ####################################################################################### #
     def GetPackagesSupported(self):
-        ''' return iterable of edk2 packages supported by this build.
-        These should be edk2 workspace relative paths '''
+        """Returns an iterable of edk2 packages supported by this build.
+
+        TIP: Required Override in a subclass
+
+        Returns:
+            (Iterable): edk2 packages
+
+        Note:
+            packages should be relative to workspace or package path
+        """
         raise NotImplementedError()
 
     def GetArchitecturesSupported(self):
-        ''' return iterable of edk2 architectures supported by this build '''
+        """Returns an iterable of edk2 architectures supported by this build.
+
+        TIP: Required Override in a subclass
+
+        Returns:
+            (Iterable): architectures (X64, I32, etc.)
+        """
         raise NotImplementedError()
 
     def GetTargetsSupported(self):
-        ''' return iterable of edk2 target tags supported by this build '''
+        """Returns an iterable of edk2 target tags supported by this build.
+
+        TIP: Required Override in a subclass
+
+        Returns:
+            (Iterable): targets (DEBUG, RELEASE, etc)
+        """
         raise NotImplementedError()
 
     # ####################################################################################### #
     #                     Verify and Save requested Config                                    #
     # ####################################################################################### #
     def SetPackages(self, list_of_requested_packages):
-        ''' Confirm the requests package list is valid and configure SettingsManager
-        to build only the requested packages.
+        """Confirms the requested package list is valid.
 
-        Raise Exception if a requested_package is not supported
-        '''
+        TIP: Optional Override in a subclass
+
+        Args:
+            list_of_requested_packages (list[str]): packages to be built
+
+        Raises:
+            Exception: A requested package is not supported
+        """
         pass
 
     def SetArchitectures(self, list_of_requested_architectures):
-        ''' Confirm the requests architecture list is valid and configure SettingsManager
-        to run only the requested architectures.
+        """Confirms the requested architecture list is valid.
 
-        Raise Exception if a requested_architecture is not supported
-        '''
+        TIP: Optional Override in a subclass
+
+        Args:
+            list_of_requested_architectures (list[str]): architectures to be built
+
+        Raises:
+            Exception: A requested architecture is not supported
+        """
         pass
 
     def SetTargets(self, list_of_requested_target):
-        ''' Confirm the requests target list is valid and configure SettingsManager
-        to run only the requested targets.
+        """Confirms the requested target list is valid.
 
-        Raise Exception if a requested_target is not supported
-        '''
+        TIP: Optional Override in a subclass
+
+        Args:
+            list_of_requested_targets (list[str]): targets to use
+
+        Raises:
+            Exception: A requested target is not supported
+        """
         pass
 
 
 class Edk2MultiPkgAwareInvocable(Edk2Invocable):
-    ''' Base class for Multi-Pkg aware invocable '''
+    """Base class for Multi-Pkg aware invocable.
+
+    Attributes:
+        requested_architecture_list (list): requested architectures to build
+        requested_package_list (list): requested packages to build
+        requested_target_list (list): requested targets to use
+
+    TIP: Checkout Edk2Invocable Attributes
+    to find any additional attributes that might exist.
+
+    WARNING: This invocable should only be subclassed if creating a new invocable
+    """
 
     def __init__(self):
+        """Initializes the Invocable."""
         self.requested_architecture_list = []
         self.requested_package_list = []
         self.requested_target_list = []
         super().__init__()
 
     def AddCommandLineOptions(self, parserObj):
-        ''' adds command line options to the argparser '''
+        """Adds command line options to the argparser."""
         # This will parse the packages that we are going to update
         parserObj.add_argument('-p', '--pkg', '--pkg-dir', dest='packageList', type=str,
                                help='Optional - A package or folder you want to update (workspace relative).'
@@ -86,7 +181,7 @@ class Edk2MultiPkgAwareInvocable(Edk2Invocable):
                                help="Optional - CSV of targets requested to update.  Example: -t DEBUG,NOOPT")
 
     def RetrieveCommandLineOptions(self, args):
-        '''  Retrieve command line options from the argparser '''
+        """Retrieve command line options from the argparser ."""
         packageListSet = set()
         for item in args.packageList:  # Parse out the individual packages
             item_list = item.split(",")
@@ -107,9 +202,7 @@ class Edk2MultiPkgAwareInvocable(Edk2Invocable):
             self.requested_target_list = []
 
     def InputParametersConfiguredCallback(self):
-        ''' This function is called once all the input parameters are collected
-            and can be used to initialize environment
-        '''
+        """Initializes the environment once input parameters are collected."""
         if (len(self.requested_package_list) == 0):
             self.requested_package_list = list(self.PlatformSettings.GetPackagesSupported())
         self.PlatformSettings.SetPackages(self.requested_package_list)

@@ -7,7 +7,10 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""This module contains code that supports simple git operations.
 
+This should not be used as an extensive git lib, but as what is needed for CI/CD builds.
+"""
 import os
 import logging
 from io import StringIO
@@ -15,15 +18,19 @@ from edk2toollib.utility_functions import RunCmd
 
 
 class ObjectDict(object):
+    """A class representing an ObjectDict."""
     def __init__(self):
+        """Inits an empty ObjectDict."""
         self.__values = list()
 
     def __setattr__(self, key, value):
+        """Sets an attribute."""
         if not key.startswith("_"):
             self.__values.append(key)
         super().__setattr__(key, value)
 
     def __str__(self):
+        """String representation of ObjectDict."""
         result = list()
         result.append("ObjectDict:")
         for value in self.__values:
@@ -31,12 +38,14 @@ class ObjectDict(object):
         return "\n".join(result)
 
     def set(self, key, value):
+        """Sets a key value pair."""
         self.__setattr__(key, value)
 
 
 class Repo(object):
-
+    """A class representing a git repo."""
     def __init__(self, path=None):
+        """Inits an empty Repo object."""
         self._path = path  # the path that the repo is pointed at
         self.active_branch = None  # the active branch or none if detached
         self.bare = True  # if the repo is bare
@@ -169,6 +178,7 @@ class Repo(object):
         return os.path.isdir(os.path.join(self._path, ".git"))
 
     def submodule(self, command, *args):
+        """Performs a git command on a submodule."""
         self._logger.debug(
             "Calling command on submodule {0} with {1}".format(command, args))
         return_buffer = StringIO()
@@ -186,6 +196,7 @@ class Repo(object):
         return True
 
     def fetch(self, remote="origin", branch=None):
+        """Performs a git fetch."""
         return_buffer = StringIO()
 
         param_list = ["fetch", remote]
@@ -205,6 +216,7 @@ class Repo(object):
         return True
 
     def pull(self):
+        """Performs a git pull."""
         return_buffer = StringIO()
 
         params = "pull"
@@ -220,6 +232,7 @@ class Repo(object):
         return True
 
     def checkout(self, branch=None, commit=None):
+        """Checks out a branch or commit."""
         return_buffer = StringIO()
         if branch is not None:
             params = "checkout %s" % branch
@@ -237,6 +250,7 @@ class Repo(object):
 
     @classmethod
     def clone_from(self, url, to_path, branch=None, shallow=False, reference=None, **kwargs):
+        """Clones a repository."""
         _logger = logging.getLogger("git.repo")
         _logger.debug("Cloning {0} into {1}".format(url, to_path))
         # make sure we get the commit if

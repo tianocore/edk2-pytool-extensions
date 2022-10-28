@@ -7,7 +7,13 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""A Command-line tool to generate VERSIONINFO resource files.
 
+Versioninfo Tool is a command-line tool to assist in generating VERSIONINFO
+resource files for use with a Resource Compiler. It takes a JSON representing
+versioning info and produces a resource file that once compiled will create a
+standard resource section.
+"""
 
 import os
 import sys
@@ -39,10 +45,11 @@ An example to decode a binary efi file and output the rsrc in json might look li
 
 
 def get_cli_options(args=None):
-    '''
-    will parse the primary options from the command line. If provided, will take the options as
+    """Parse options from the command line.
+
+    Will parse the primary options from the command line. If provided, will take the options as
     an array in the first parameter
-    '''
+    """
     parser = argparse.ArgumentParser(description=TOOL_DESCRIPTION, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('input_file', type=str,
                         help='a filesystem path to a json/PE file to load')
@@ -59,7 +66,14 @@ def get_cli_options(args=None):
 
 
 def decode_version_info(input_file):
-    ''' takes in a PE file (input_file) and returns the version dictionary '''
+    """Takes in a PE file (input_file) and returns the version dictionary.
+
+    Args:
+        input_file (str): path to a PE file
+
+    Returns:
+        (Dict): version dictionary
+    """
     if not os.path.exists(input_file):
         raise FileNotFoundError(input_file)
     pe = PEObject(input_file)
@@ -67,10 +81,15 @@ def decode_version_info(input_file):
 
 
 def decode_version_info_dump_json(input_file, output_file):
-    '''
-    Takes in a PE file (input_file) and dumps the output as json to (output_file)
-    returns True on success
-    '''
+    """Takes in a PE file (input_file) and dumps the output as json to (output_file).
+
+    Args:
+        input_file (str): Path to a PE file
+        output_file (str): Path to json dump
+
+    Returns:
+        (Boolean): result of parsing and dumping
+    """
     version_info = decode_version_info(input_file)
     if not version_info:
         logging.error(f"{input_file} doesn't have version info.")
@@ -81,19 +100,34 @@ def decode_version_info_dump_json(input_file, output_file):
 
 
 def encode_version_info(input_file):
-    ''' takes in a JSON file (inputfile) and returns an object '''
+    """Takes in a JSON file (inputfile) and returns an object.
+
+    Args:
+        input_file (str): path to JSON File
+
+    Returns:
+        (VERSIONINFOGenerator): VERSIONINFO rc file Generator object
+    """
     if not os.path.exists(input_file):
         raise FileNotFoundError(input_file)
     return VERSIONINFOGenerator(input_file)
 
 
 def encode_version_info_dump_rc(input_file, output_file):
-    ''' takes in a JSON file (input_file) and outputs an RC file(output_file) '''
+    """Takes in a JSON file (input_file) and outputs an RC file(output_file).
+
+    Args:
+        input_file (str): path to JSON file
+        output_file (str): path to RC file
+
+    Returns:
+        (Boolean): Result of writing to file
+    """
     return encode_version_info(input_file).write(output_file, TOOL_VERSION)
 
 
 def main():
-    ''' parse args, executes versioninfo_tool '''
+    """Parse args, executes versioninfo_tool."""
     logging.getLogger().addHandler(logging.StreamHandler())
     args = get_cli_options()
     if not os.path.isfile(args.input_file):

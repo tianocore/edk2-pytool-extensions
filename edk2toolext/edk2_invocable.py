@@ -8,6 +8,14 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 
+"""Edk2 Invocable Interface to be overriden in a subclass.
+
+Provides two main classes, the Edk2InvocableSettingsInterface and the
+Edk2Invocable, which should be used as subclasses to create invocables that
+perform tasks associated with the EDK2 build system. Any Edk2Invocable subclass
+should be platform agnostic and work for any platform. Platform specific data
+is provided via the Edk2InvocableSettingsInterface.
+"""
 import os
 import sys
 import logging
@@ -25,61 +33,146 @@ from edk2toolext.base_abstract_invocable import BaseAbstractInvocable
 
 
 class Edk2InvocableSettingsInterface():
-    ''' Settings APIs to support an Edk2Invocable
+    """Settings APIs to support an Edk2Invocable.
 
-        This is an interface definition only
-        to show which functions are required to be implemented
-        and can be implemented in a settings manager.
-    '''
+    This is an interface definition only to show which functions are
+    required to be implemented and can be implemented in a settings
+    manager.
+
+    Example: Overriding Edk2InvocableSettingsInterface
+        ``` python
+        import os
+        import logging
+        import argparse
+        from typing import Iterable, Tuple
+        from edk2toolext.edk2_invocable import Edk2InvocableSettingsInterface
+        class NewInvocableSettingsManager(Edk2InvocableSettingsInterface):
+            def GetWorkspaceRoot(self) -> str:
+                return os.path.abspath(__file__)
+            def GetPackagesPath(self) -> Iterable[os.PathLike]
+                return ["C:/src/MU_BASECORE", "Common/MU"]
+            def GetActiveScopes(self) -> Tuple[str]:
+                return ("edk2-build", "pipbuild-win")
+            def GetLoggingLevel(self, loggerType: str) -> str:
+                if loggerType == 'txt':
+                    return logging.WARNING
+                else:
+                    return logging.INFO
+            def AddCommandLineOptions(self, parserObj: object) -> None:
+                parserObj.add_argument('-a', "--arch", dest="build_arch", type=str, default="IA32,X64")
+            def RetrieveCommandLineOptions(self, args: object) -> None:
+                self.arch = args.build_arch
+            def GetSkippedDirectories(self) -> Tuple[str]:
+                return ("Downloads/Extra")
+        ```
+
+    WARNING: This interface should not be subclassed directly unless you are creating a new invocable
+    Other invocables subclass from this interface, so you have the ability to
+    call the functions in this class as a part of those invocable settings managers.
+    """
 
     def GetWorkspaceRoot(self) -> str:
-        ''' get absolute path to WorkspaceRoot '''
+        """Return the workspace root for initializing the SDE.
+
+        TIP: Required Override in a subclass
+
+        The absolute path to the root of the workspace
+
+        Returns:
+            (str): path to workspace root
+        """
         raise NotImplementedError()
 
     def GetPackagesPath(self) -> Iterable[os.PathLike]:
-        ''' Optional API to return an Iterable of paths that should be mapped as edk2 PackagesPath '''
+        """Provides an iterable of paths should should be mapped as edk2 PackagePaths.
+
+        TIP: Optional Override in a subclass
+
+        Returns:
+            (Iterable[os.PathLike]): paths
+        """
         return []
 
     def GetActiveScopes(self) -> Tuple[str]:
-        ''' Optional API to return Tuple containing scopes that should be active for this process '''
+        """Provides scopes that should be active for this process.
+
+        TIP: Optional Override in a subclass
+
+        Returns:
+            (Tuple[str]): scopes
+        """
         return ()
 
     def GetLoggingLevel(self, loggerType: str) -> str:
-        ''' Get the logging level for a given type
+        """Get the logging level depending on logger type.
+
+        TIP: Optional Override in a subclass
+
+        Returns:
+            (Logging.Level): The logging level
+
+        HINT: loggerType possible values
         base == lowest logging level supported
         con  == Screen logging
         txt  == plain text file logging
         md   == markdown file logging
-        '''
+        """
         return None
 
     def AddCommandLineOptions(self, parserObj: object) -> None:
-        ''' Implement in subclass to add command line options to the argparser '''
+        """Add command line options to the argparser.
+
+        TIP: Optional override in a subclass
+
+        Args:
+            parserObj: Argparser object.
+        """
         pass
 
     def RetrieveCommandLineOptions(self, args: object) -> None:
-        '''  Implement in subclass to retrieve command line options from the argparser namespace '''
+        """Retrieve Command line options from the argparser.
+
+        TIP: Optional override in a subclass
+
+        Args:
+            args: argparser args namespace containing command line options
+        """
         pass
 
     def GetSkippedDirectories(self) -> Tuple[str]:
-        ''' Implement in subclass to return a Tuple containing workspace-relative directories that should be skipped.
-        Absolute paths are not supported. '''
+        """Returns a tuple containing workspace-relative directories to be skipped.
+
+        TIP: Optional override in a subclass
+
+        Returns:
+            (Tuple[str]): directories to be skipped.
+        """
         return ()
 
 
 class Edk2Invocable(BaseAbstractInvocable):
-    ''' Base class for Edk2 based invocables.
+    """Base class for Edk2 based invocables.
 
-        Edk2 means it has common features like workspace, packagespath,
-        scopes, and other name value pairs
-    '''
+    Edk2 means it has common features like workspace, packagespath,
+    scopes, and other name value pairs
+
+    Attributes:
+        PlatformSettings(Edk2InvocableSettingsInterface): A settings class
+        PlatformModule(object): The platform module
+        Verbose(bool): CLI Argument to determine whether or not to have verbose
+
+    TIP: Checkout BaseAbstractInvocable Attributes
+    to find any additional attributes that might exist.
+
+    WARNING: This Invocable should only be subclassed if creating a new invocable
+    """
 
     @classmethod
     def collect_python_pip_info(cls):
-        ''' Class method to collect all pip packages names and
-            versions and report them to the global version_aggregator as
-            well as print them to the screen.
-        '''
+        """Class method to collect all pip packages names and versions.
+
+        Reports them to the global version_aggregator as well as print them to the screen.
+        """
         # Get the current python version
         cur_py = "%d.%d.%d" % sys.version_info[:3]
         ver_agg = version_aggregator.GetVersionAggregator()
@@ -93,21 +186,41 @@ class Edk2Invocable(BaseAbstractInvocable):
             ver_agg.ReportVersion(package.project_name, version, version_aggregator.VersionTypes.PIP)
 
     def GetWorkspaceRoot(self) -> os.PathLike:
-        ''' Use the SettingsManager to get the absolute path to the workspace root '''
+        """Returns the absolute path to the workspace root.
+
+        HINT: Workspace Root is platform specific and thus provided by the PlatformSettings.
+
+        Returns:
+            (PathLike): absolute path
+        """
         try:
             return self.PlatformSettings.GetWorkspaceRoot()
         except AttributeError:
             raise RuntimeError("Can't call this before PlatformSettings has been set up!")
 
     def GetPackagesPath(self) -> Iterable[os.PathLike]:
-        ''' Use the SettingsManager to an iterable of paths to be used as Edk2 Packages Path'''
+        """Returns an iterable of packages path.
+
+        HINT: PackagesPath is platform specific and thus provided by the PlatformSettings.
+
+        Returns:
+            Iterable[os.PathLike]: Packages path
+        """
         try:
             return [x for x in self.PlatformSettings.GetPackagesPath() if x not in self.GetSkippedDirectories()]
         except AttributeError:
             raise RuntimeError("Can't call this before PlatformSettings has been set up!")
 
     def GetActiveScopes(self) -> Tuple[str]:
-        ''' Use the SettingsManager to return tuple containing scopes that should be active for this process.'''
+        """Returns an iterable of Active scopes.
+
+        HINT: Scopes are platform specific and thus provided by the PlatformSettings.
+
+        Adds an os specific scope in addition to scopes provided by SettingsManager
+
+        Returns:
+            Tuple[str]: scopes
+        """
         try:
             scopes = self.PlatformSettings.GetActiveScopes()
         except AttributeError:
@@ -123,12 +236,13 @@ class Edk2Invocable(BaseAbstractInvocable):
         return scopes
 
     def GetLoggingLevel(self, loggerType):
-        ''' Get the logging level for a given type
-        base == lowest logging level supported
-        con  == Screen logging
-        txt  == plain text file logging
-        md   == markdown file logging
-        '''
+        """Get the logging level for a given logger type.
+
+        HINT: Logging Level is platform specific and thus provided by the PlatformSettings.
+
+        Returns:
+            (logging.Level): logging level
+        """
         try:
             level = self.PlatformSettings.GetLoggingLevel(loggerType)
             if level is not None:
@@ -141,35 +255,57 @@ class Edk2Invocable(BaseAbstractInvocable):
         return logging.DEBUG
 
     def AddCommandLineOptions(self, parserObj):
-        ''' Implement in subclass to add command line options to the argparser '''
+        """Add command line options to the argparser.
+
+        HINT: Optional Override to add functionality
+        """
         pass
 
     def RetrieveCommandLineOptions(self, args):
-        '''  Implement in subclass to retrieve command line options from the argparser '''
+        """Retrieve command line options from the argparser.
+
+        HINT: Optional Override to add functionality
+        """
         pass
 
     def GetSkippedDirectories(self):
-        ''' Implement in subclass to return a Tuple containing workspace-relative directories that should be skipped.
-        Absolute paths are not supported. '''
+        """Returns a Tuple containing workspace-relative directories that should be skipped.
+
+        HINT: Override in a subclass to add invocable specific directories to skip
+
+        HINT: Skipped Directories are platform specific and thus provided by the PlatformSettings.
+
+        WARNING: Absolute paths are not supported
+
+        Returns:
+            Tuple[str]: skipped directories
+        """
         try:
             return self.PlatformSettings.GetSkippedDirectories()
         except AttributeError:
             raise RuntimeError("Can't call this before PlatformSettings has been set up!")
 
     def GetSettingsClass(self):
-        '''  Child class should provide the class that contains their required settings '''
+        """The required settings manager for the invocable.
+
+        HINT: Required override to define Edk2InvocableSettingsInterface subclass specific to the invocable.
+
+        Returns:
+            (Edk2InvocableSettingsInterface): Subclass of Edk2InvocableSettingsInterface
+        """
         raise NotImplementedError()
 
     def GetLoggingFolderRelativeToRoot(self):
+        """Directory containing all logging files."""
         return "Build"
 
     def ParseCommandLineOptions(self):
-        '''
-        Parses command line options.
+        """Parses command line options.
+
         Sets up argparser specifically to get PlatformSettingsManager instance.
         Then sets up second argparser and passes it to child class and to PlatformSettingsManager.
         Finally, parses all known args and then reads the unknown args in to build vars.
-        '''
+        """
         # first argparser will only get settings manager and help will be disabled
         settingsParserObj = argparse.ArgumentParser(add_help=False)
         # instantiate the second argparser that will get passed around

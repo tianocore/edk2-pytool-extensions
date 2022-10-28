@@ -7,6 +7,12 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""Code that supports CI/CD via the ci_build invocable.
+
+Contains a CIBuildSettingsManager that must be subclassed in a build settings
+file. This provides platform specific information to Edk2CiBuild invocable
+while allowing the invocable itself to remain platform agnostic.
+"""
 import os
 import sys
 import logging
@@ -24,29 +30,68 @@ from edk2toolext import edk2_logging
 
 
 class CiBuildSettingsManager(MultiPkgAwareSettingsInterface):
-    ''' Platform settings will be accessed through this implementation. '''
+    """Platform specific settings for Edk2CiBuild.
+
+    Provide information necessary for `stuart_ci_build.exe` or
+    `edk2_ci_build.py` to successfully execute.
+
+    Example: Example: Overriding CiBuildSettingsManager
+        ```python
+        from edk2toolext.invocables.edk2_ci_build import CiBuildSettingsManager
+        import yaml
+        class CiManager(CiBuildSettingsManager):
+            def GetDependencies(self):
+                return {
+                    "Path": "/Common/MU",
+                    "Url":  "https://github.com/Microsoft/mu_tiano_plus.git"
+                }
+        ```
+    """
 
     def GetName(self) -> str:
-        ''' Get the name of the repo, platform, or product being build by CI '''
+        """Get the name of the repo, platform, or product being build by CI.
+
+        TIP: Required Override in a subclass
+
+        Returns:
+            (str): repo, platform, product
+        """
         raise NotImplementedError()
 
     def GetPluginSettings(self) -> Dict[str, Any]:
-        '''  Implement in subclass to pass dictionary of settings for individual plugins '''
+        """Provide a dictionary of global settings for individual plugins.
+
+        TIP: Optional Override in a subclass
+
+        WARNING:
+            This sets the global plugin configurations. Edk2CiBuild automatically searches for,
+            and loads, the package ci settings file if it exists. This file will override these
+            settings. This file must be located at the base of the package named <Package>.ci.yaml.
+
+            Ex: EmbeddedPkg/EmbeddedPkg.ci.yaml.
+
+        Returns:
+            (Dict[str, Any]): plugin settings
+        """
         return {}
 
 
 class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
-    ''' Invocable supporting an iterative multi-package build and test process
-        leveraging CI build plugins
-    '''
+    """Invocable supporting an iterative multi-package build and test process leveraging CI build plugins."""
 
     def GetSettingsClass(self):
+        """Returns the CiBuildSettingsManager class.
+
+        WARNING: CiBuildSettingsManager must be subclassed in your platform settings file.
+        """
         return CiBuildSettingsManager
 
     def GetLoggingFileName(self, loggerType):
+        """Returns the filename (CI_BUILDLOG) of where the logs for the Edk2CiBuild invocable are stored in."""
         return "CI_BUILDLOG"
 
     def Go(self):
+        """Executes the core functionality of the Edk2CiBuild invocable."""
         log_directory = os.path.join(self.GetWorkspaceRoot(), self.GetLoggingFolderRelativeToRoot())
 
         Edk2CiBuild.collect_python_pip_info()
@@ -220,10 +265,14 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
 
     @staticmethod
     def merge_config(gbl_config, pkg_config, descriptor={}):
-        ''' Merge two configurations.  One global and one specific
-            to the package to create the proper config for a plugin
-            to execute.
-        '''
+        """Merge two configurations.
+
+        One global and one specificto the package to create the proper config
+        for a plugin to execute.
+
+        Returns:
+            (dict): Dictionary of config settings
+        """
         plugin_name = ""
         config = dict()
         if "module" in descriptor:
@@ -244,4 +293,5 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
 
 
 def main():
+    """Entry point to invoke Edk2CiBuild."""
     Edk2CiBuild().Invoke()

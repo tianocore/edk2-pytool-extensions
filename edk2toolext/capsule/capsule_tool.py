@@ -7,7 +7,7 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
-
+"""CLI interface for creating EDK FMP UEFI Capsules from payload files."""
 
 import os
 import sys
@@ -31,10 +31,7 @@ An example call might look like:
 
 
 def get_cli_options(args=None):
-    '''
-    will parse the primary options from the command line. If provided, will take the options as
-    an array in the first parameter
-    '''
+    """Parse the primary options from the command line."""
     parser = argparse.ArgumentParser(description=TOOL_DESCRIPTION, formatter_class=argparse.RawDescriptionHelpFormatter)
 
     # Add the group for the signer specifier.
@@ -65,10 +62,7 @@ def get_cli_options(args=None):
 
 
 def load_options_file(in_file):
-    '''
-    takes in a string to a file path and loads it as a json-/yaml-encoded options
-    file, returning the contents in a dictionary
-    '''
+    """Loads a yaml file into a dictionary and returns it."""
     if not hasattr(in_file, 'read'):
         return None
 
@@ -76,11 +70,12 @@ def load_options_file(in_file):
 
 
 def update_options(file_options, capsule_options, signer_options):
-    '''
-    takes in a pre-loaded options dictionary and walks add all corresponding options
-    from the command line. Command line options will be organized by type (into capsule_options
-    or signer_options) and in lists of strings that look like '<option_name>=<option_value>'
-    '''
+    """Takes in a pre-loaded options dictionary and adds all corresponding options from the command line.
+
+    Command line options will be organized by type (into capsule_options or
+    signer_options) and in lists of strings that look like
+    '<option_name>=<option_value>'.
+    """
     if file_options is not None:
         updated_options = copy.copy(file_options)
     else:
@@ -100,6 +95,7 @@ def update_options(file_options, capsule_options, signer_options):
 
 
 def main():
+    """Main entry point into the Capsule Tool."""
     args = get_cli_options()
     final_options = update_options(load_options_file(args.options_file), args.capsule_options, args.signer_options)
 

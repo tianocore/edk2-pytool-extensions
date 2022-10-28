@@ -8,12 +8,26 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""This module contains code for working with the JSON environment descriptor files.
+
+It can parse the files, validate them, and return objects representing their contents.
+"""
 import os
 import yaml
 
 
 class PathEnv(object):
+    """Path env object that is created from the descriptor file.
+
+    Attributes:
+        scope (string): scope the path env is associated with
+        flags (List[str]): flags associated with the path env
+        var_name (string): ENV var to set with the object
+        descriptor_location (string): location of the PathEnv
+        published_path (string): location of the PathEnv
+    """
     def __init__(self, descriptor):
+        """Init with the descriptor information."""
         super(PathEnv, self).__init__()
 
         #
@@ -29,7 +43,21 @@ class PathEnv(object):
 
 
 class DescriptorFile(object):
+    """The base class for the different types of descriptor files.
+
+    Attributes:
+        file_path (str): descriptor file path
+        descriptor_contents (Dict): Contents of the descriptor file
+    """
     def __init__(self, file_path):
+        """Loads the contents of the descriptor file and validates.
+
+        Args:
+            file_path (str): path to descriptor file
+
+        Raises:
+            (ValueError): Missing specified value from descriptor file
+        """
         super(DescriptorFile, self).__init__()
 
         self.file_path = file_path
@@ -70,16 +98,22 @@ class DescriptorFile(object):
             if (isinstance(v, str)):
                 self.descriptor_contents[k] = self.sanitize_string(v)
 
-    #
-    # Clean up a string "value" in the descriptor file.
-    #
     def sanitize_string(self, s):
+        """Clean up a string "value" in the descriptor file."""
         # Perform any actions needed to clean the string.
         return s.strip()
 
 
 class PathEnvDescriptor(DescriptorFile):
+    """Descriptor File for a PATH ENV."""
     def __init__(self, file_path):
+        """Inits the descriptor as a PathEnvDescriptor from the provided path.
+
+        Loads the contents of the filepath into descriptor_contents
+
+        Args:
+            file_path (str): path to the yaml descriptor file
+        """
         super(PathEnvDescriptor, self).__init__(file_path)
 
         #
@@ -93,7 +127,20 @@ class PathEnvDescriptor(DescriptorFile):
 
 
 class ExternDepDescriptor(DescriptorFile):
+    """Descriptor File for a External Dependency.
+
+    Attributes:
+            descriptor_contents (Dict): Contents of the Descriptor yaml file
+            file_path (PathLike): path to the descriptor file
+    """
     def __init__(self, file_path):
+        """Inits the descriptor as a ExternDepDescriptor from the provided path.
+
+        Loads the contents of the filepath into descriptor_contents
+
+        Args:
+            file_path (str): path to the yaml descriptor file
+        """
         super(ExternDepDescriptor, self).__init__(file_path)
 
         #
@@ -107,7 +154,20 @@ class ExternDepDescriptor(DescriptorFile):
 
 
 class PluginDescriptor(DescriptorFile):
+    """Descriptor File for a Plugin.
+
+    Attributes:
+        descriptor_contents (Dict): Contents of the Descriptor yaml file
+        file_path (PathLike): path to the descriptor file
+    """
     def __init__(self, file_path):
+        """Inits the descriptor as a PluginDescriptor from the provided path.
+
+        Loads the contents of the filepath into descriptor_contents
+
+        Args:
+            file_path (str): path to the yaml descriptor file
+        """
         super(PluginDescriptor, self).__init__(file_path)
 
         #

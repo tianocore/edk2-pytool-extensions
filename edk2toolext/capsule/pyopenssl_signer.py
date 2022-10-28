@@ -8,8 +8,11 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""Abstracted signing interface for pyopenssl.
 
-
+This interface abstraction takes in the signature_options and signer_options
+dictionaries that are used by capsule_tool and capsule_helper.
+"""
 import logging
 import warnings
 
@@ -17,12 +20,22 @@ from OpenSSL import crypto
 
 
 def sign(data: bytes, signature_options: dict, signer_options: dict) -> bytes:
-    '''
-    primary signing interface. Takes n the signature_options and signer_options
-    dictionaries that are used by capsule_tool and capsule_helper
-    '''
-    # NOTE: Currently, we only support the necessary algorithms for capsules.
+    """Primary signing interface.
 
+    Takes in the signature_options and signer_options
+    dictionaries that are used by capsule_tool and capsule_helper.
+
+    Args:
+        data (bytes): data to write into the sign tool.
+        signature_options (dict): dictionary containing signature options
+        signer_options (dict): dictionary containing signer options
+
+    Raises:
+        (ValueError()): Unsupported signature or signer options
+        (RuntimeError()): Signtool.exe returned with error
+
+    NOTE: Currently, we only support the necessary algorithms for capsules.
+    """
     # The following _if_ clause handles the deprecated signature_option 'sign_alg' for backwards compatibility
     # when the deprecated option is supplied, this code adds the new, required options based on prior code behavior
     if 'sign_alg' in signature_options:

@@ -6,47 +6,58 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
-
+"""Plugin that supports adding Extension or helper methods to the build environment."""
 import logging
 
 
 class IUefiHelperPlugin(object):
+    """The class that should be subclassed when creating a UEFI Helper Plugin."""
 
-    ##
-    # Function that allows plugin to register its functions with the
-    # obj.
-    # @param obj[in, out]: HelperFunctions object that allows functional
-    # registration.
-    #
     def RegisterHelpers(self, obj):
-        pass
+        """Allows a plugin to register its functions.
 
-# Supports IUefiHelperPlugin type
+        TIP: obj.Register()
+
+        Args:
+            obj (HelperFunctions): HelperFunctions object that allows functional registration
+        """
+        pass
 
 
 class HelperFunctions(object):
+    """A class that contains all registed functions.
+
+    Attributes:
+        RegisteredFunctions(dict): registered functions
+    """
     def __init__(self):
+        """Initializes instance."""
         self.RegisteredFunctions = {}
 
-    #
-    # Function to logging.debug all registered functions and their source path
-    #
     def DebugLogRegisteredFunctions(self):
+        """Logs all registered functions and their source path.
+
+        Uses logging.debug to write all registered functions and their source path.
+        """
         logging.debug("Logging all Registered Helper Functions:")
         for name, file in self.RegisteredFunctions.items():
             logging.debug("  Function %s registered from file %s", name, file)
         logging.debug("Finished logging %d functions",
                       len(self.RegisteredFunctions))
 
-    #
-    # Plugins that want to register a helper function should call
-    # this routine for each function
-    #
-    # @param name[in]: name of function
-    # @param function[in] function being registered
-    # @param filepath[in] filepath registering function.  used for tracking and debug purposes
-    #
     def Register(self, name, function, filepath):
+        """Registers a plugin.
+
+        Plugins that want to register a helper function should call
+        this routine for each function
+
+        Args:
+            name (str): name of the function
+            function (func): function being registered
+            filepath (str): filepath to this file
+
+        TIP: os.path.abspath(__file__)
+        """
         if (name in self.RegisteredFunctions.keys()):
             raise Exception("Function %s already registered from plugin file %s.  Can't register again from %s" % (
                 name, self.RegisteredFunctions[name], filepath))
@@ -54,12 +65,31 @@ class HelperFunctions(object):
         self.RegisteredFunctions[name] = filepath
 
     def HasFunction(self, name):
+        """Returns if a function exists.
+
+        Args:
+            name (str): name of the function
+
+        Returns:
+            (bool): if the function is registered or not.
+        """
         if (name in self.RegisteredFunctions.keys()):
             return True
         else:
             return False
 
     def LoadFromPluginManager(self, pm):
+        """Load all IUefiHelperPlugins into the class.
+
+        Uses the PluginManager class to get all IUefiHelperPlugins in the environment,
+        then stores them all in a dict.
+
+        Args:
+            pm (PluginManager): class holding all plugins
+
+        Returns:
+            (int): number of plugins that failed to be loaded.
+        """
         error = 0
         for Descriptor in pm.GetPluginsOfClass(IUefiHelperPlugin):
             logging.info(Descriptor)

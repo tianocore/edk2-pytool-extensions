@@ -6,7 +6,7 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
-
+"""Script to check that the wheel/package created is aligned on a git tag."""
 import glob
 import os
 import sys

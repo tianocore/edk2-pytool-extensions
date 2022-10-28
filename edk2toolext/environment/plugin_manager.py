@@ -5,6 +5,7 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""This module contains code that supports Build Plugins."""
 
 import sys
 import os
@@ -14,25 +15,38 @@ from edk2toolext.environment import shell_environment
 
 
 class PluginDescriptor(object):
+    """Plugin Descripter.
+
+    Attributes:
+        descripter(Dict): descriptor
+        Obj (obj): Object
+        Name (str): name attribute from descriptor
+        Module (obj): module attribute from descriptor
+    """
     def __init__(self, t):
+        """Inits the Plugin descriptor with the Descriptor."""
         self.descriptor = t
         self.Obj = None
         self.Name = t["name"]
         self.Module = t["module"]
 
     def __str__(self):
+        """String representation of the plugin descriptor."""
         return "PLUGIN DESCRIPTOR:{0}".format(self.Name)
 
 
 class PluginManager(object):
+    """A class that manages all plugins in the environment.
 
+    Attributes:
+        Descriptors (List[PluginDescriptor]): list of plugin descriptors
+    """
     def __init__(self):
+        """Inits an empty plugin manager."""
         self.Descriptors = []
 
-    #
-    # Pass tuple of Environment Descriptor dictionaries to be loaded as plugins
-    #
     def SetListOfEnvironmentDescriptors(self, newlist):
+        """Passes a tuple of environment descriptor dictionaries to be loaded as plugins."""
         env = shell_environment.GetBuildVars()
         failed = []
         if newlist is None:
@@ -49,26 +63,24 @@ class PluginManager(object):
                 failed.append(a)
         return failed
 
-    #
-    # Return List of all plugins of a given class
-    #
     def GetPluginsOfClass(self, classobj):
+        """Return list of all plugins of a given class."""
         temp = []
         for a in self.Descriptors:
             if (isinstance(a.Obj, classobj)):
                 temp.append(a)
         return temp
 
-    #
-    # Return List of all plugins
-    #
     def GetAllPlugins(self):
+        """Return list of all plugins."""
         return self.Descriptors
 
-    #
-    # Load and Instantiate the plugin
-    #
     def _load(self, PluginDescriptor):
+        """Load and instantiate the plugin.
+
+        Arguments:
+            PluginDescriptor(PluginDescriptor): the plugin descriptor
+        """
         PluginDescriptor.Obj = None
         PythonFileName = PluginDescriptor.descriptor["module"] + ".py"
         PyModulePath = os.path.join(os.path.dirname(os.path.abspath(
