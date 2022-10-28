@@ -1,0 +1,27 @@
+# File pydocstyle-test-steps.yml
+#
+# template file to run pydocstyle and if error publish log
+#
+# Copyright (c) Microsoft Corporation
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+
+parameters:
+  none: ''
+  
+steps:
+- script: pydocstyle .
+  displayName: 'Run pydocstyle'
+  condition: succeededOrFailed()
+
+# Only capture and archive the lint log on failures.
+- script: pydocstyle . > pydocstyle.err.log
+  displayName: 'Capture pydocstyle failures'
+  condition: Failed()
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: 'pydocstyle.err.log' 
+    artifactName: 'Pydocstyle Error log file'
+  continueOnError: true
+  condition: Failed()
