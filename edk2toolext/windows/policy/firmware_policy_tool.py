@@ -6,13 +6,14 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""A basic command-line interface for creating and decoding windows firmware policy blobs."""
 
 from edk2toollib.windows.policy.firmware_policy import FirmwarePolicy
 import argparse
 
 
 def PrintPolicy(filename: str) -> None:
-    """Attempts to parse filename as a Windows Firmware Policy and print it"""
+    """Attempts to parse filename as a Windows Firmware Policy and print it."""
     try:
         with open(filename, 'rb') as f:
             policy = FirmwarePolicy(fs=f)
@@ -24,10 +25,9 @@ def PrintPolicy(filename: str) -> None:
 
 def CreatePolicyFromParameters(filename: str, manufacturer: str, product: str,
                                sn: str, nonce: int, oem1: str, oem2: str, devicePolicy: int) -> None:
-    """
-    Populates a Windows FirmwarePolicy object with the provided parameters and serializes it to filename
+    """Populates a Windows FirmwarePolicy object with the provided parameters and serializes it to filename.
 
-    Filename must be a new file, will not overwrite existing files.
+    WARNING: Filename must be a new file, will not overwrite existing files.
     """
     with open(filename, 'xb') as f:
         policy = FirmwarePolicy()
@@ -44,7 +44,7 @@ def CreatePolicyFromParameters(filename: str, manufacturer: str, product: str,
 
 
 def main():
-    """Parses command-line parameters using ArgumentParser, passing them to helper functions to perform the requests"""
+    """Parses command-line parameters using ArgumentParser, passing them to helper functions to perform the requests."""
     parser = argparse.ArgumentParser(description='Firmware Policy Tool')
     subparsers = parser.add_subparsers(required=True, dest='action')
 

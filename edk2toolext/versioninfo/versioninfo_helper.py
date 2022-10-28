@@ -10,17 +10,26 @@
 ##
 
 # spell-checker:ignore NOFONT, ntdef
+"""This module contains functions for creating VERSIONINFO resources.
 
+This module contains helper functions for creating VERSIONINFO resources
+from json files, along with the functions to output version information from
+PE/PE+ files.
+"""
 import pefile
 import json
 import logging
 from datetime import datetime
+from typing import Tuple
 
 
 class PEStrings(object):
-    '''
-    String literals for fields in PE/PE+ header and required fields for VERSIONINFO resource
-    '''
+    """PE/PE+ field String literals.
+
+    String literals for fields in PE/PE+ header and required fields for
+    VERSIONINFO resource.
+    """
+
     FILE_OS_STRINGS = {
         0x00010000: "VOS_DOS",
         0x00040000: "VOS_NT",
@@ -246,7 +255,14 @@ class PEStrings(object):
 
 
 def validate_version_number(version_str: str) -> bool:
-    '''Helper function to check if a version string format is valid or not'''
+    """Helper function to check if a version string format is valid or not.
+
+    Args:
+        version_str (str): the version
+
+    Returns:
+        (bool): if the version string is valid or not
+    """
     if version_str.count('.') != 3 and version_str.count(',') != 3:
         logging.error("Invalid version string: " + version_str + ". Version must be in form "
                       + "\"INTEGER.INTEGER.INTEGER.INTEGER\".")
@@ -271,8 +287,17 @@ def validate_version_number(version_str: str) -> bool:
     return True
 
 
-def version_str_to_int(version_str: str) -> (int, int):
-    '''Given a valid version string, returns raw version number in the form (32 MS bits, 32 LS bits)'''
+def version_str_to_int(version_str: str) -> Tuple[int, int]:
+    """Converts a valid version string to a number.
+
+    Given a valid version string, returns raw version number
+
+    Args:
+        version_str (str): version string
+
+    Result:
+        (Tuple[int, int]): (32 MS bits, 32 LS bits)
+    """
     split = None
     if version_str.count('.') == 3:
         split = version_str.split(".")
@@ -285,29 +310,43 @@ def version_str_to_int(version_str: str) -> (int, int):
 
 
 def hex_to_version_str(val: int) -> str:
-    '''Helper function to convert hex version number to string'''
+    """Converts hex version number to string.
+
+    Args:
+        val (int): value to convert
+
+    Returns:
+        (str): string represention
+    """
     return str(((val & ~0) >> 16) & 0xffff) + "." + str(val & 0xffff)
 
 
 class PEObject(object):
-    '''
-    Class for parsing PE/PE+ files. Gives functionality for reading VS_VERSIONINFO metadata and .rsrc section.
-    '''
+    """Class for parsing PE/PE+ files.
+
+    Gives functionality for reading VS_VERSIONINFO metadata and .rsrc section.
+    """
     _pe: pefile.PE = None
 
     def __init__(self, filepath: str) -> None:
-        '''
-        Initializes PE parser
+        """Initializes PE parser.
 
-        filepath - filepath to PE/PE+ file to parse
-        '''
+        Args:
+            filepath (str): filepath to PE/PE+ file to parse
+        """
         try:
             self._pe = pefile.PE(filepath)
         except pefile.PEFormatError as e:
             logging.error("Error loading PE: " + str(e))
 
     def _populate_entry(self, key: str, val: int, dict: dict) -> None:
-        '''Helper function to format and insert VERSIONINFO fields into dictionary'''
+        """Formats and inserts VERSIONINFO fields into dictionary.
+
+        Args:
+            key (str): dict key for value
+            val (int): value to store in dict
+            dict (dict): dictionary to store key/value pair
+        """
         if key.upper() == PEStrings.FILE_OS_STR:
             if val in PEStrings.FILE_OS_STRINGS:
                 dict[key] = PEStrings.FILE_OS_STRINGS[val]
@@ -331,14 +370,22 @@ class PEObject(object):
         dict[key] = hex(val)
 
     def contains_rsrc(self) -> bool:
-        '''Returns true if PE object contains .rsrc section, false otherwise'''
+        """Checks if PE object contains .rsrc section.
+
+        Returns:
+            (bool): whether a .rsrc section exists in the PE
+        """
         for section in self._pe.sections:
             if section.Name.decode(PEStrings.PE_ENCODING).replace("\x00", "") == PEStrings.RSRC_STR:
                 return True
         return False
 
     def get_version_dict(self) -> dict:
-        '''Parses PE/PE+ loaded into PEObject and returns dictionary contaning metadata from header and .rsrc section'''
+        """Parses PE/PE+ loaded into PEObject.
+
+        Returns:
+            (dict): dict containing metadata from header and .rsrc section
+        """
         if not self._pe:
             logging.fatal("Cannot parse, PE not loaded.")
             return None
@@ -411,7 +458,8 @@ class PEObject(object):
 
 
 class VERSIONINFOGenerator(object):
-    '''
+    """A Generator for a VERSIONINFO rc file via a given JSON settings file.
+
     Given a JSON file, object creates generator for VERSIONINFO rc file for the given JSON.
     Provides validation of some basic requirements and generates VERSIONINFO.rc source to be used with rc.exe.
     If "Minimal" attribute is set to false, JSON defines a complete rc section.
@@ -453,7 +501,7 @@ class VERSIONINFOGenerator(object):
         "CompanyName": "Example Company",
         "OriginalFilename": "ExampleApp.efi"
     }
-    '''
+    """
     _minimal_required_fields = {
         PEStrings.FILE_VERSION_STR.upper(),
         PEStrings.COMPANY_NAME_STR.upper(),
@@ -463,11 +511,14 @@ class VERSIONINFOGenerator(object):
     _version_dict = None
 
     def __init__(self, filepath: str) -> None:
-        '''
-        Initializes generator
+        """Initializes the VERSIONINFO generator.
 
-        filepath - filepath to JSON file containing VERSIONINFO information in format shown above
-        '''
+        Initializes the VERSIONINFO generator using a JSON file containing
+        VERSIONINFO information in the format shown in the class description.
+
+        Args:
+            filepath (str): filepath to the JSON file
+        """
         with open(filepath, "r") as jsonFile:
             data = jsonFile.read()
             try:
@@ -479,9 +530,11 @@ class VERSIONINFOGenerator(object):
                 logging.error("Invalid JSON format, " + str(e))
 
     def validate(self) -> bool:
-        '''
-        Returns true if loaded JSON file represents a valid VERSIONINFO resource, false otherwise
-        '''
+        """Checks if the loaded JSON file represents a valid VERSIONINFO resource.
+
+        Returns:
+            (bool): valid or not
+        """
         valid = True
 
         # First Pass: Check to see if all required fields are present
@@ -583,9 +636,11 @@ class VERSIONINFOGenerator(object):
         return valid
 
     def validate_minimal(self) -> bool:
-        '''
-        Returns true if loaded JSON file represents a valid minimal VERSIONINFO resource, false otherwise
-        '''
+        """Checks if the loaded JSON file represents a valid minimal VERSIONINFO resource.
+
+        Returns:
+            (bool): valid or not
+        """
         valid = True
         required = self._minimal_required_fields.copy()
         for key in self._version_dict:
@@ -601,6 +656,15 @@ class VERSIONINFOGenerator(object):
         return validate_version_number(self._version_dict[PEStrings.FILE_VERSION_STR])
 
     def write_minimal(self, path: str, version: str) -> bool:
+        """Write a minimal VERSIONINFO resource file.
+
+        Args:
+            path (str): path to write
+            version (str): version
+
+        Returns:
+            (bool): result of writing
+        """
         if not self.validate_minimal():
             logging.error("Invalid input, aborted.")
             return False
@@ -645,12 +709,17 @@ class VERSIONINFOGenerator(object):
         return True
 
     def write(self, path: str, version: str) -> bool:
-        '''
-        Encodes the loaded JSON and writes it to VERSION.rc, a resource file comptaible with rc.exe.
-        Returns true on success, false otherwise.
+        """Encodes the loaded JSON and writes it to VERSION.rc.
 
-        path - path to directory that VERSIONINFO.rc will be written to
-        '''
+        Encodes the loaded JSON and writes it to VERSION.rc, a resource file compatible with rc.exe.
+
+        Args:
+            path (str): path to the directory that VERSIONINFO.rc will be written to.
+            version (str): version
+
+        Returns:
+            (bool): result of encoding and writing
+        """
         if not self._version_dict:
             logging.error("Invalid input, aborted.")
             return False

@@ -8,8 +8,12 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""Helper Functions for building EDK2 FMP UEFI Capsules.
 
-
+This module contains helper functions for building EDK2 FMP UEFI capsules from
+binary payloads, along with the functions to standardize the creation of the Windows
+driver installation files
+"""
 import uuid
 import os
 import struct
@@ -31,19 +35,19 @@ PKCS7_SIGNED_DATA_OID = '1.2.840.113549.1.7.2'
 
 @dataclass
 class CapsulePayload:
-    '''Stores information about a specific capsule payload.
+    """Stores information about a specific capsule payload.
 
-    CapsulePayload instances have the following attributes:
-    payload              - an instance of UefiCapsuleHeaderClass that represents the payload data.
-    payload_filename     - the payload filename as a string
-    esrt_guid            - the payload ESRT guid as a uuid.UUID instance.
-    version              - the 32-bit ESRT version for the payload.
-    firmware_description - the firmware payload description.
-    tag                  - a string uniquely identifying the payload. optional, if not present, will be auto-generated.
-    rollback             - indicates whether this is a rollback payload. optional, defaults to false.
-    integrity_data       - integrity data for this payload. optional.
-    integrity_filename   - integrity filename. optional if integrity_data is None, required otherwise.
-    '''
+    Attributes:
+        payload (UefiCapsuleHeaderClass): an instance of UefiCapsuleHeaderClass that represents the payload data.
+        payload_filename (str):  the payload filename as a string
+        esrt_guid (uuid.UUID): the payload ESRT guid as a uuid.UUID instance.
+        version (int): the 32-bit ESRT version for the payload.
+        firmware_description (str): the firmware payload description.
+        tag (str):  a uniquely identifying the payload. optional, if not present, will be auto-generated.
+        rollback (bool): indicates whether this is a rollback payload. optional, defaults to false.
+        integrity_data (bytes):  integrity data for this payload. optional.
+        integrity_filename (str): integrity filename. optional if integrity_data is None, required otherwise.
+    """
     payload: UefiCapsuleHeaderClass
     payload_filename: str
     esrt_guid: uuid.UUID
@@ -57,19 +61,18 @@ class CapsulePayload:
 
 @dataclass
 class Capsule:
-    '''Stores information about a capsule (potentially with multiple payloads)
+    """Stores information about a capsule (potentially with multiple payloads).
 
-    Capsule instances have the following attributes:
-    version_string    - the version of the entire capsule driver package as a string (e.g. 1.0.0.1)
-    name              - the name of the capsule package
-    provider_name     - the name of the capsule provider
-    arch              - the architecture targeted by the capsule
-    os                - the OS targeted by the capsule.
-    manufacturer_name - name of the capsule manufacturer. optional, defaults to provider_name if None.
-    date              - a datetime.date object indicating when the capsule was built. optional, defaults to
-                        datetime.date.today().
-    payloads          - a list of capsule payloads. optional, defaults to empty list
-    '''
+    Attributes:
+        version_string (str): the version of the entire capsule driver package as a string (e.g. 1.0.0.1)
+        name (str): the name of the capsule package
+        provider_name (str): the name of the capsule provider
+        arch (str): the architecture targeted by the capsule
+        os (str): the OS targeted by the capsule.
+        manufacturer_name (str): name of the capsule manufacturer. optional, defaults to provider_name if None.
+        date (datetime.date): when the capsule was built. optional, defaults to datetime.date.today().
+        payloads (List[CapsulePayload]): a list of capsule payloads. optional, defaults to empty list
+    """
     version_string: str
     name: str
     provider_name: str
@@ -81,12 +84,12 @@ class Capsule:
 
 
 def get_capsule_file_name(capsule_options: dict) -> str:
-    '''from the shared capsule_options dictionary, returns the formatted capsule file name'''
+    """Returns the formatted capsule file name from the capsule_options dict."""
     return f"{capsule_options['fw_name']}_{capsule_options['fw_version_string']}.bin"
 
 
 def get_normalized_version_string(version_string: str) -> str:
-    '''takes in a version string and returns a normalized version that is compatible with inf and cat files'''
+    """Normalizes a version string that is compatible with INF and CAT files."""
     # 19H1 HLK requires a 4 digit version string, or it will fail
     while (version_string.count('.') < 3):
         version_string += '.0'
@@ -94,19 +97,18 @@ def get_normalized_version_string(version_string: str) -> str:
 
 
 def get_default_arch() -> str:
-    '''helper function to consistently return the default architecture for windows files'''
+    """Consistently return the default architecture for windows files."""
     return 'amd64'
 
 
 def get_default_os_string() -> str:
-    '''helper function to consistently return the default os for windows files'''
+    """Consistently return the default os for windows files."""
     return 'Win10'
 
 
 def build_capsule(capsule_data: bytes, capsule_options: dict, signer_module: object,
                   signer_options: dict) -> UefiCapsuleHeaderClass:
-    '''
-    goes through all of the steps of capsule generation for a single-payload FMP capsule
+    """Goes through all steps of capsule generation for a single-payload FMP capsule.
 
     takes in capsule_data as a byte string, a signer module, and capsule and signer options,
     and produces all of the headers necessary. Will use the signer module to produce the cert data
@@ -114,17 +116,18 @@ def build_capsule(capsule_data: bytes, capsule_options: dict, signer_module: obj
 
     NOTE: Uses a fixed MonotonicCount of 1.
 
-    capsule_data - a byte string for the innermost payload
-    capsule_options - a dictionary that will be used for all the capsule payload fields. Must include
-                        'fw_version', 'lsv_version', and 'esrt_guid' at a minimum. These should all be
-                        strings and the two versions should be strings of hex number (e.g. 0x12345)
-    signer_module - a capsule signer module that implements the sign() function (see pyopenssl_signer or
-                        signtool_signer built-in modules for examples)
-    signer_options - a dictionary of options that will be passed to the signer_module. The required values
-                        depend on the expectations of the signer_module provided
+    Args:
+        capsule_data (bytes): innermost payload
+        capsule_options (dict): contains the capsule payload fields. Must include
+            'fw_version', 'lsv_version', and 'esrt_guid' at minimum. These should
+            all be strings and the two versions should be strings of hex number
+        signer_module (object): a capsule signer module that implements the sign() function
+            (see pyopenssl_signer or signtool_signer build-in modules for examples)
+        signer_options (dict): options that will be passed to the signer_module.
 
-    returns a UefiCapsuleHeaderClass object containing all of the provided data
-    '''
+    Returns:
+        (UefiCapsuleHeaderClass): the capsule header containing all data provided.
+    """
     # Start building the capsule as we go.
     # Create the FMP Payload and set all the necessary options.
     fmp_payload_header = FmpPayloadHeaderClass()
@@ -166,13 +169,19 @@ def build_capsule(capsule_data: bytes, capsule_options: dict, signer_module: obj
 
 
 def save_capsule(uefi_capsule_header: UefiCapsuleHeaderClass, capsule_options: dict, save_path: str) -> str:
-    '''
+    """Serializes the capsule object to the target directory.
+
     takes in a UefiCapsuleHeaderClass object, a dictionary of capsule_options, and a filesystem directory path
     and serializes the capsule object to the target directory
 
-    will use get_capsule_file_name() to determine the final filename
-    will create all intermediate directories if save_path does not already exist
-    '''
+    Args:
+        uefi_capsule_header (UefiCapsuleHeaderClass): header to encode
+        capsule_options (dict): used to get the capsule file name
+        save_path (str): where to save the file to.
+
+    Returns:
+        (str): path the file was saved to.
+    """
     # Expand the version string prior to creating the payload file.
     capsule_options['fw_version_string'] = get_normalized_version_string(capsule_options['fw_version_string'])
 
@@ -188,14 +197,17 @@ def save_capsule(uefi_capsule_header: UefiCapsuleHeaderClass, capsule_options: d
 
 
 def save_multinode_capsule(capsule: Capsule, save_path: str) -> str:
-    '''
+    """Generates capsule files from capsule object.
+
     takes in a Capsule object and a filesystem directory path and generates the capsule files at that path.
 
-    capsule     - a Capsule object containing the capsule details.
-    save_path   - directory path to save the capsule contents into
+    Args:
+        capsule (Capsule): a Capsule object containing the capsule details.
+        save_path (str): directory path to save the capsule contents into
 
-    returns save_path
-    '''
+    Returns:
+        (str): the save path
+    """
     os.makedirs(save_path, exist_ok=True)
     for capsule_payload in capsule.payloads:
         payload_file_path = os.path.join(save_path, capsule_payload.payload_filename)
@@ -212,13 +224,20 @@ def save_multinode_capsule(capsule: Capsule, save_path: str) -> str:
 
 
 def create_inf_file(capsule_options: dict, save_path: str) -> str:
-    '''
+    """Creates the Windows INF file for the UEFI capsule.
+
     takes in a dictionary of capsule_options and creates the Windows INF file for the UEFI capsule according
     to the provided options
 
-    will save the final file to the save_path with a name determined from the capsule_options
-    '''
+    Args:
+        capsule_options (dict): options to create the INF file
+        save_path (str): directory to save the file.
 
+    Returns:
+        (str): INF file path
+
+    NOTE: will save the final file to the save_path with a name determined from the capsule_options
+    """
     # Expand the version string prior to creating INF file.
     capsule_options['fw_version_string'] = get_normalized_version_string(capsule_options['fw_version_string'])
 
@@ -254,14 +273,17 @@ def create_inf_file(capsule_options: dict, save_path: str) -> str:
 
 
 def create_multinode_inf_file(capsule: Capsule, save_path: str) -> str:
-    '''
+    """Creates the Windows INF file from a capsule object.
+
     Takes in a capsule object containing payload information and creates the Windows INF file in save_path
 
-    capsule     - capsule object containing payload information
-    save_path   - path to directory where inf file will be created.
+    Args:
+        capsule (Capsule): capsule object containing payload information
+        save_path (str): path to directory where inf file will be created
 
-    returns the name of the created inf file.
-    '''
+    Returns:
+        name of created inf file
+    """
     # Expand the version string prior to creating INF file.
     capsule.version_string = get_normalized_version_string(capsule.version_string)
 
@@ -303,12 +325,20 @@ def create_multinode_inf_file(capsule: Capsule, save_path: str) -> str:
 
 
 def create_cat_file(capsule_options: dict, save_path: str) -> str:
-    '''
-    takes in a dictionary of capsule_options and creates the Windows CAT file for the UEFI capsule according
+    """Creates the Windows CAT file for the UEFI capsule.
+
+    Takes in a dictionary of capsule_options and creates the Windows CAT file for the UEFI capsule according
     to the provided options
 
-    will save the final file to the save_path with a name determined from the capsule_options
-    '''
+    Args:
+        capsule_options (dict): options to create the cat file
+        save_path (str): directory to save file.
+
+    Returns:
+        (str): cat file path
+
+    NOTE: will save the final file to the save_path with a name determined from the capsule_options
+    """
     # Deal with optional parameters when creating the CAT file.
     capsule_options['arch'] = capsule_options.get('arch', get_default_arch())
     capsule_options['os_string'] = capsule_options.get('os_string', get_default_os_string())

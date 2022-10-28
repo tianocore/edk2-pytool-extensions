@@ -6,7 +6,10 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""Code that helps manage and maintain the build environment.
 
+This management includes PATH, PYTHONPATH and ENV Variables.
+"""
 import os
 import sys
 import copy
@@ -21,21 +24,28 @@ MY_LOGGER = logging.getLogger(LOGGING_GROUP)
 # Copy the Singleton pattern from...
 #   https://stackoverflow.com/a/6798042
 #
-class Singleton(type):
+class Singleton(type): # noqa
     _instances = {}
 
-    def __call__(cls, *args, **kwargs):
+    def __call__(cls, *args, **kwargs): # noqa
         if cls not in cls._instances:
             cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[cls]
 
 
 class ShellEnvironment(metaclass=Singleton):
+    """An active copy of the current OS environment.
+
+    Allows for easy manipulation of the environment including taking
+    screenshots (checkpoints) that are stored and can be accessed
+    later.
+    """
     # Easy definition for the very first checkpoint
     # when the environment is first created.
     INITIAL_CHECKPOINT = 0
 
     def __init__(self):
+        """Inits the local environment with the initial os environment."""
         # Add all of our logging to the EnvDict group.
         self.logger = logging.getLogger(LOGGING_GROUP)
 
@@ -57,6 +67,7 @@ class ShellEnvironment(metaclass=Singleton):
     # These methods manage the singleton, the surrounding environment, and checkpoints.
     #
     def import_environment(self):
+        """Loads the local environment with os environment."""
         # Create a complete copy of os.environ
         self.active_environ = dict()
         for key, value in os.environ.items():
@@ -79,6 +90,7 @@ class ShellEnvironment(metaclass=Singleton):
         self.active_environ.pop("PYTHONPATH", None)
 
     def export_environment(self):
+        """Exports enviornment to the OS."""
         # Purge all keys that aren't in the export.
         for key, value in os.environ.items():
             if key not in self.active_environ:
@@ -95,6 +107,7 @@ class ShellEnvironment(metaclass=Singleton):
         sys.path = self.active_pypath
 
     def log_environment(self):
+        """Logs the current environment to the logger."""
         self.logger.debug("FINAL PATH:")
         self.logger.debug(", ".join(self.active_path))
 
@@ -108,6 +121,14 @@ class ShellEnvironment(metaclass=Singleton):
         self.logger.debug(", ".join(environ_list))
 
     def checkpoint(self):
+        """Creates a checkpoint in time.
+
+        Checkpoint stores the following:
+        1. active_environment
+        2. active_path
+        3. active_pypath
+        4. active_buildvars
+        """
         new_index = len(self.checkpoints)
         self.checkpoints.append({
             'environ': copy.copy(self.active_environ),
@@ -119,6 +140,7 @@ class ShellEnvironment(metaclass=Singleton):
         return new_index
 
     def restore_checkpoint(self, index):
+        """Restore a specific checkpoint."""
         if index < len(self.checkpoints):
             check_point = self.checkpoints[index]
             self.active_environ = copy.copy(check_point['environ'])
@@ -132,6 +154,7 @@ class ShellEnvironment(metaclass=Singleton):
             raise IndexError("Checkpoint %s does not exist" % index)
 
     def restore_initial_checkpoint(self):
+        """Restore the initial checkpoint made."""
         self.restore_checkpoint(ShellEnvironment.INITIAL_CHECKPOINT)
 
     #
@@ -148,23 +171,36 @@ class ShellEnvironment(metaclass=Singleton):
         sys.path = self.active_pypath
 
     def set_path(self, new_path):
+        """Set the path.
+
+        Args:
+            new_path (str): path to override with
+        """
         self.logger.debug("Overriding PATH with new value.")
         if type(new_path) is str:
             new_path = list(new_path.split(os.pathsep))
         self._internal_set_path(new_path)
 
     def set_pypath(self, new_path):
+        """Set the pypath.
+
+        Args:
+            new_path (str): path to override with
+        """
         self.logger.debug("Overriding PYTHONPATH with new value.")
         if type(new_path) is str:
             new_path = list(new_path.split(os.pathsep))
         self._internal_set_pypath(new_path)
 
     def append_path(self, path_element):
-        ''' append to the end of path
+        """Append to the end of path.
+
         if path_element already exists within path it will be removed
         from the current location and appended to the end
-        '''
 
+        Args:
+            path_element (str): path element to append
+        """
         self.logger.debug("Appending PATH element '%s'." % path_element)
         if path_element in self.active_path:
             # remove so we don't have duplicates but we respect the order
@@ -173,11 +209,14 @@ class ShellEnvironment(metaclass=Singleton):
         self._internal_set_path(self.active_path + [path_element])
 
     def insert_path(self, path_element):
-        '''insert at front of the path
+        """Insert at front of the path.
+
         if path_element already exists within path it will be removed
         from the current location and prepended to the front
-        '''
 
+        Args:
+            path_element (str): path element to insert
+        """
         self.logger.debug("Inserting PATH element '%s'." % path_element)
         if path_element in self.active_path:
             # remove so we don't have duplicates but we respect the order
@@ -186,10 +225,14 @@ class ShellEnvironment(metaclass=Singleton):
         self._internal_set_path([path_element] + self.active_path)
 
     def append_pypath(self, path_element):
-        ''' append to the end of pypath
+        """Append to the end of pypath.
+
         if path_element already exists within pypath it will be removed
         from the current location and appended to the end
-        '''
+
+        Args:
+            path_element (str): path element to append
+        """
         self.logger.debug("Appending PYTHONPATH element '%s'." % path_element)
         if path_element in self.active_pypath:
             # remove so we don't have duplicates but we respect the order
@@ -198,10 +241,14 @@ class ShellEnvironment(metaclass=Singleton):
         self._internal_set_pypath(self.active_pypath + [path_element])
 
     def insert_pypath(self, path_element):
-        '''insert at front of the pypath
+        """Insert at front of the pypath.
+
         if path_element already exists within pypath it will be removed
         from the current location and prepended to the front
-        '''
+
+        Args:
+            path_element (str): path element to insert
+        """
         self.logger.debug("Inserting PYTHONPATH element '%s'." % path_element)
         if path_element in self.active_pypath:
             # remove so we don't have duplicates but we respect the order
@@ -210,41 +257,101 @@ class ShellEnvironment(metaclass=Singleton):
         self._internal_set_pypath([path_element] + self.active_pypath)
 
     def replace_path_element(self, old_path_element, new_path_element):
-        # Generate a new PATH by iterating through the old PATH and replacing
-        # old_path_element with new_path_element where it is found.
+        """Replaces the PATH element.
+
+        Generates a new PATH by iterating through the old PATH and replacing
+        old_path_element with new_path_element where it is found.
+
+        Args:
+            old_path_element (str): element to replace
+            new_path_element (str): element to replace with
+
+        """
         self.logger.debug("Replacing PATH element {0} with {1}".format(old_path_element, new_path_element))
         self._internal_set_path([x if x != old_path_element else new_path_element for x in self.active_path])
 
     def replace_pypath_element(self, old_pypath_element, new_pypath_element):
-        # Generate a new PYPATH by iterating through the old PYPATH and replacing
-        # old_pypath_element with new_pypath_element where it is found.
+        """Replaces the PYPATH element.
+
+        Generates a new PYPATH by iterating through the old PYPATH and replacing
+        old_pypath_element with new_pypath_element where it is found.
+
+        Args:
+            old_pypath_element (str): element to replace
+            new_pypath_element (str): element to replace with
+
+        """
         self.logger.debug("Replacing PYPATH element {0} with {1}".format(old_pypath_element, new_pypath_element))
         self._internal_set_pypath([x if x != old_pypath_element else new_pypath_element for x in self.active_pypath])
 
     def remove_path_element(self, path_element):
-        # Generate a new PATH by iterating through the old PYPATH and removing
-        # path_element if it is found.
+        """Removes the PATH element.
+
+        Generates a new PATH by iterating through the old PATH and removing
+        path_element if it is found.
+
+        Args:
+            path_element (str): path element to remove
+        """
         self.logger.debug("Removing PATH element {0}".format(path_element))
         self._internal_set_path([x for x in self.active_path if x != path_element])
 
     def remove_pypath_element(self, pypath_element):
-        # Generate a new PYPATH by iterating through the old PYPATH and removing
-        # pypath_element if it is found.
+        """Removes the PYPATH element.
+
+        Generates a new PYPATH by iterating through the old PYPATH and removing
+        pypath_element if it is found.
+
+        Args:
+            pypath_element (str): pypath element to remove
+        """
         self.logger.debug("Removing PYPATH element {0}".format(pypath_element))
         self._internal_set_pypath([x for x in self.active_pypath if x != pypath_element])
 
     def get_build_var(self, var_name):
+        """Gets the build variable.
+
+        Args:
+            var_name (str): variable to get the value of
+        Returns:
+            (obj): value associated with the var_name
+        """
         return self.active_buildvars.GetValue(var_name)
 
     def set_build_var(self, var_name, var_data):
+        """Sets the build var.
+
+        Args:
+            var_name (str): variable to set the value for
+            var_data (obj): data to set
+
+        WARNING: Unlike `set_shell_var`, this only sets the variable in the
+        `VarDict`
+        """
         self.logger.debug(
             "Updating BUILD VAR element '%s': '%s'." % (var_name, var_data))
         self.active_buildvars.SetValue(var_name, var_data, '', overridable=True)
 
     def get_shell_var(self, var_name):
+        """Gets the shell variable.
+
+        Args:
+            var_name (str): variable to get the value of
+
+        Returns:
+            (obj): value associated with the var name
+        """
         return self.active_environ.get(var_name, None)
 
     def set_shell_var(self, var_name, var_data):
+        """Sets the shell variable.
+
+        Args:
+            var_name (str): variable to set the value for
+            var_data (obj): data to set
+
+        The variable is set both in the `VarDict` and in the OS
+        """
         # Check for the "special" shell vars.
         if var_name.upper() == 'PATH':
             self.set_path(var_data)
@@ -258,10 +365,20 @@ class ShellEnvironment(metaclass=Singleton):
 
 
 def GetEnvironment():
+    """Returns the environment.
+
+    Returns:
+        (ShellEnvironment): Singleton class
+    """
     return ShellEnvironment()
 
 
 def GetBuildVars():
+    """The current checkpoint buildvar values.
+
+    Returns:
+        (VarDict): A special dictionary containing build vars
+    """
     #
     # Tricky!
     # Define a wrapper class that always forwards commands to the
@@ -287,6 +404,7 @@ checkpoint_list = list()
 
 
 def CheckpointBuildVars():
+    """Creates a checkpoint [a screenshot in time] of all current build var values."""
     global checkpoint_list
     new_checkpoint = ShellEnvironment().checkpoint()
     checkpoint_list.append(new_checkpoint)
@@ -294,6 +412,7 @@ def CheckpointBuildVars():
 
 
 def RevertBuildVars():
+    """Reverts all build var values to the most recent checkpoint."""
     global checkpoint_list
     if len(checkpoint_list) > 0:
         last_checkpoint = checkpoint_list.pop()

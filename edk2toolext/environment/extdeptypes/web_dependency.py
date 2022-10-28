@@ -6,6 +6,7 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""An ExternalDependency subclass able to download from a url."""
 
 import os
 import logging
@@ -20,19 +21,29 @@ from edk2toollib.utility_functions import RemoveTree
 
 
 class WebDependency(ExternalDependency):
-    '''
-    ext_dep fields:
-    - internal_path: Describes layout of what we're downloading. Include / at the beginning
-                     if the ext_dep is a directory. Item located at internal_path will
-                     unpacked into the ext_dep folder and this is what the path/shell vars
-                     will point to when compute_published_path is run.
-    - compression_type: optional. supports zip and tar. If the file isn't compressed, do not include this field.
-    - sha256: optional. hash of downloaded file to be checked against.
-    '''
+    """An ExternalDependency subclass able to download from a url.
+
+    Able to download an uncrompressed, zip, or tar file from the web and can
+    optionally compare the hash to a provided hash.
+
+    Attributes:
+        internal_path (str): Describes layout of what we're downloading.
+                             Include / at the beginning if the ext_dep is a
+                             directory. Item located at internal_path will
+                             unpacked into the ext_dep folder and this is what
+                             the path/shell vars will point to when
+                             compute_published_path is run.
+        compression_type (str): Supports zip and tar. If the file isn't
+                                compressed, do not include this field. Optional
+        sha256 (str): Hash of downloaded file to be checked against. Optional
+
+    TIP: The attributes are what must be described in the ext_dep yaml file!
+    """
 
     TypeString = "web"
 
     def __init__(self, descriptor):
+        """Inits a web dependency based off the provided descriptor."""
         super().__init__(descriptor)
         self.internal_path = os.path.normpath(descriptor['internal_path'])
         self.compression_type = descriptor.get('compression_type', None)
@@ -45,25 +56,28 @@ class WebDependency(ExternalDependency):
         self.internal_path = self.internal_path.strip(os.path.sep)
 
     def __str__(self):
-        """ return a string representation of this """
+        """Returns a string representation."""
         return f"WebDependecy: {self.source}@{self.version}"
 
     @staticmethod
     def linuxize_path(path):
-        '''
-        path: path that uses os.sep, to be replaced with / for compatibility with zipfile
-        '''
+        """Replaces windows style separators with linux style separators.
+
+        Arguments:
+            path (str): the path
+        """
         return "/".join(path.split("\\"))
 
     @staticmethod
     def unpack(compressed_file_path, destination, internal_path, compression_type):
-        '''
-        compressed_file_path: name of compressed file to unpack.
-        destination: directory you would like it unpacked into.
-        internal_path: internal structure of the compressed volume that you would like extracted.
-        compression_type: type of compression. tar and zip supported.
-        '''
+        """Unpacks a compressed file to the specified location; zip or tar supported.
 
+        Arguments:
+            compressed_file_path (str): Name of compressed file to unpack.
+            destination (str): directory to unpacked into.
+            internal_path (str): internal structure of the compressed volume that you would like extracted.
+            compression_type (str): type of compression. tar and zip supported.
+        """
         # First, we will open the file depending on the type of compression we're dealing with.
 
         # tarfile and zipfile both use the Linux path seperator / instead of using os.sep
@@ -91,6 +105,7 @@ class WebDependency(ExternalDependency):
         _ref.close()
 
     def fetch(self):
+        """Fetches the dependency using internal state from the init."""
         # First, check the global cache to see if it's present.
         if super().fetch():
             return

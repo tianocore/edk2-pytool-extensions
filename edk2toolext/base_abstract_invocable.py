@@ -5,6 +5,8 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+
+"""The Base abstract Invocable that all other invocables should inherit from."""
 import os
 import sys
 import logging
@@ -16,69 +18,151 @@ from edk2toolext.environment import self_describing_environment
 
 
 class BaseAbstractInvocable(object):
+    """The Abstract Invocable.
 
+    The base abstract invocable that other invocables should inherit from.
+    Provides base functionality to configure logging and the environment.
+
+    Attributes:
+        log_filename (str): logfile path
+        plugin_manager (PluginManager): the plugin manager
+        helper (HelperFunctions): container for all helper functions
+    """
     def __init__(self):
+        """Init the Invocable."""
         self.log_filename = None
         return
 
     def ParseCommandLineOptions(self):
-        ''' parse arguments '''
+        """Parse command line arguments.
+
+        TIP: Required Override in a subclass
+
+        HINT: argparse.ArgumentParser
+        """
         raise NotImplementedError()
 
     def GetWorkspaceRoot(self):
-        ''' Return the workspace root for initializing the SDE '''
+        """Return the workspace root for initializing the SDE.
+
+        TIP: Required Override in a subclass
+
+        The absolute path to the root of the workspace
+
+        Returns:
+            (str): path to workspace root
+
+        """
         raise NotImplementedError()
 
     def GetActiveScopes(self):
-        ''' return tuple containing scopes that should be active for this process '''
+        """Return tuple containing scopes that should be active for this process.
+
+        TIP: Required Override in a subclass
+
+        TIP: A single scope should end in a comma i.e. (scope,)
+
+        Returns:
+            (Tuple): scopes
+        """
         raise NotImplementedError()
 
     def GetSkippedDirectories(self):
-        ''' Return tuple containing workspace-relative directory paths that should be skipped for processing.
-        Absolute paths are not supported. '''
+        """Return tuple containing workspace-relative directory paths that should be skipped for processing.
+
+        TIP: Optional Override in a subclass
+
+        WARNING: Absolute paths are not supported.
+
+        TIP: A single directory should end with a comma i.e. (dir,)
+
+        Returns:
+            (Tuple): directories
+        """
         return ()
 
     def GetLoggingLevel(self, loggerType):
-        ''' Get the logging level for a given type (return Logging.Level)
+        """Get the logging level depending on logger type.
+
+        TIP: Required Override in a subclass
+
+        Returns:
+            (Logging.Level): The logging level
+
+        HINT: loggerType possible values
         base == lowest logging level supported
         con  == Screen logging
         txt  == plain text file logging
         md   == markdown file logging
-        '''
+        HINT: Return None for no logging for this type.
+        """
         raise NotImplementedError()
 
     def GetLoggingFolderRelativeToRoot(self):
-        ''' Return a path to folder for log files '''
+        """Return the path to a directory to hold all log files.
+
+        TIP: Required Override in a subclass
+
+        Returns:
+            (str): path to the directory
+        """
         raise NotImplementedError()
 
     def InputParametersConfiguredCallback(self):
-        ''' This function is called once all the input parameters
-        are collected and can be used to initialize environment
-        '''
+        """A Callback once all input parameters are collected.
+
+        TIP: Optional override in subclass
+        If you need to do something after input variables have been configured.
+        """
         pass
 
     def GetVerifyCheckRequired(self):
-        ''' Will call self_describing_environment.VerifyEnvironment if this returns True '''
+        """Will call self_describing_environment.VerifyEnvironment if this returns True.
+
+        TIP: Optional override in a subclass
+
+        Returns:
+            (bool): whether verify check is required or not
+        """
         return True
 
     def GetLoggingFileName(self, loggerType):
-        ''' Get the logging file name for the type.
-        Return None if the logger shouldn't be created
+        """Get the logging File name.
 
-        base == lowest logging level supported
-        con  == Screen logging
-        txt  == plain text file logging
-        md   == markdown file logging
-        '''
+        TIP: Required Override this in a subclass
+        Provides logger file name customization.
+
+        Args:
+            loggerType: values can be base, con, txt, md. See hint below
+
+        Returns:
+            (str): filename
+
+        HINT: Return None if the logger shouldn't be created
+
+        HINT: loggerType possible values
+            base == lowest logging level supported
+            con  == Screen logging
+            txt  == plain text file logging
+            md   == markdown file logging
+        """
         raise NotImplementedError()
 
     def Go(self):
-        ''' Main function to run '''
+        """Main function to run.
+
+        Main function to run after the environment and logging has been configured.
+
+        TIP: Required Override in a subclass
+        """
         raise NotImplementedError()
 
     def ConfigureLogging(self):
-        ''' Set up the logging.  This function only needs to be overridden if new behavior is needed'''
+        """Sets up the logging.
 
+        TIP: Optional override in a subclass
+        Only if new behavior is needed.
+        """
         logger = logging.getLogger('')
         logger.setLevel(self.GetLoggingLevel("base"))
 
@@ -107,8 +191,12 @@ class BaseAbstractInvocable(object):
         return
 
     def Invoke(self):
-        ''' Main process function.  Should not need to be overwritten '''
+        """Main process function.
 
+        What actually configure logging and the environment.
+
+        WARNING: Do not override this method
+        """
         self.ParseCommandLineOptions()
         self.ConfigureLogging()
         self.InputParametersConfiguredCallback()

@@ -8,17 +8,36 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""A special overridable dictionary.
+
+Stores most of the build configuration data and allows extensive config
+sharing for the build process, pre-build, and post-build.
+"""
 
 import logging
 
 
 class EnvEntry(object):
+    """A single Environment Variable entry for VarDict.
+
+    Attributes:
+        Value (obj): The value to store in the dictionary
+        Comment (str): A debug comment specifying where / how the value was set
+        overridable (bool): If the value can be overwritten in the future
+    """
+
     def __init__(self, value, comment, overridable=False):
+        """Inits an entry with the specified values."""
         self.Value = value
         self.Comment = comment
         self.Overrideable = overridable
 
     def PrintEntry(self, f=None):
+        """Prints the value.
+
+        Args:
+            f (:obj:`str`, optional): a file to write to instead of the terminal.
+        """
         print("Value: %s" % self.Value, file=f)
         print("Comment: %s" % self.Comment, file=f)
         if (self.Overrideable):
@@ -29,6 +48,16 @@ class EnvEntry(object):
     #
 
     def SetValue(self, value, comment, overridable=False):
+        """Sets the value of the entry if it os overridable.
+
+        Args:
+            value (obj): value to set
+            comment (str): A debug comment specifying where / how the value was set
+            overridable (bool): If the value can be overwritten in the future
+
+        WARNING: Even if you set a value as overridable=False, another entity can
+            call `AllowOverride()` and change the value anyway.
+        """
         if (value == self.Value) and (overridable == self.Overrideable):
             return True
 
@@ -43,22 +72,29 @@ class EnvEntry(object):
         return True
 
     def AllowOverride(self):
+        """Allows the value to be overwritten in the future."""
         self.Overrideable = True
         return True
 
     def GetValue(self):
+        """Returns the value."""
         return self.Value
 
 
 class VarDict(object):
+    """An overridable dictionary to store build configuration data."""
+
     def __init__(self):
+        """Inits an empty VarDict."""
         self.Logger = logging.getLogger("EnvDict")
         self.Dstore = {}  # a set of envs
 
     def GetEntry(self, key):
+        """Returns an entry in the Dstore Dict."""
         return self.Dstore.get(key.upper())
 
     def __copy__(self):
+        """Copies data into a new VarDict."""
         new_copy = VarDict()
         new_copy.Logger = self.Logger
 
@@ -72,6 +108,18 @@ class VarDict(object):
         return new_copy
 
     def GetValue(self, k, default=None):
+        """Gets a value from the variable dictionary that was set during build.
+
+        Note:
+            Values set in DSC, FDF, and CLI stored as strings
+
+        Args:
+            k (str): The key the value was stored as
+            default (varied): default value if key is not present
+
+        Returns:
+            (varied): The value of the key, if present, else default value
+        """
         if (k is None):
             logging.debug(
                 "GetValue - Invalid Parameter key is None.")
@@ -87,6 +135,19 @@ class VarDict(object):
             return default
 
     def SetValue(self, k, v, comment, overridable=False):
+        """Sets an environment variable to be used throughout the build.
+
+        Args:
+            k (str): The key to store the value under
+            v (varied): The value to store
+            comment (str): A comment to show where / how the variable was stored.
+                Useful for debugging
+            overrideable (bool): Specifies if the variable is allowed to be override
+                elsewhere in the build
+
+        Returns:
+            (bool): If the variable was successfully stored or not
+        """
         key = k.upper()
         en = self.GetEntry(key)
         value = str(v)
@@ -100,6 +161,17 @@ class VarDict(object):
         return en.SetValue(value, comment, overridable)
 
     def AllowOverride(self, k):
+        """Forces the key/value pair to be overridable.
+
+        Note: Even if overridable was specifically set to False,
+        it still allows it.
+
+        Args:
+            k (str): The key the value was stored as
+
+        Returns:
+            (bool): if the key existed or not
+        """
         key = k.upper()
         en = self.GetEntry(key)
         if (en is not None):
@@ -108,18 +180,22 @@ class VarDict(object):
             return True
         return False
 
-    #
-    # function used to get a build var value for given key and buildtype
-    #
-    # if BuildType is None
-    # Build vars are defined by vars that start with BLD_
-    #  BLD_*_<YOUR KEY HERE> means all build types
-    #  BLD_DEBUG_<YOUR KEY HERE> means build of debug type
-    #  BLD_RELEASE_<YOUR KEY HERE> means build of release type
-    #  etc
-    #
-
     def GetBuildValue(self, key, BuildType=None):
+        """Get a build var value for given key and buildtype.
+
+        TIP: Build vars are defined by vars that start with BLD_
+        BLD_*_<YOUR VAR HERE> means all build types
+        BLD_DEBUG_<YOUR VAR HERE> means build of debug type
+        BLD_RELEASE_<YOUR VAR HERE> means build of release type
+        etc
+
+        Args:
+            key (str): The key the value was stored as
+            BuildType (:obj:`str`, optional): DEBUG/RELEASE
+
+        Returns:
+            (str): The value of the key, if present, else None
+        """
         rv = None
 
         if (BuildType is None):
@@ -148,16 +224,22 @@ class VarDict(object):
         # return value...if not found should return None
         return rv
 
-    #
-    # function used to get a dictionary for all build vars
-    #
-    # Build vars are defined by vars that start with BLD_
-    #  BLD_*_<YOUR VAR HERE> means all build types
-    #  BLD_DEBUG_<YOUR VAR HERE> means build of debug type
-    #  BLD_RELEASE_<YOUR VAR HERE> means build of release type
-    #  etc
-    #
     def GetAllBuildKeyValues(self, BuildType=None):
+        """Gets a dictionary for all build vars.
+
+        TIP: Build vars are defined by vars that start with BLD_
+        BLD_*_<YOUR VAR HERE> means all build types
+        BLD_DEBUG_<YOUR VAR HERE> means build of debug type
+        BLD_RELEASE_<YOUR VAR HERE> means build of release type
+        etc
+
+        Args:
+            BuildType (:obj:`str`, optional): DEBUG/RELEASE
+
+        Returns:
+            (dict): all keys, values in the environment which are build keys
+
+        """
         returndict = {}
         if (BuildType is None):
             BuildType = self.GetValue("TARGET")
@@ -187,9 +269,11 @@ class VarDict(object):
         return returndict
 
     def GetAllNonBuildKeyValues(self):
-        ''' Return a copy of the dictionary of all keys, values
-            in the environment which are not Build Keys
-        '''
+        """Returns a dict of non Build Key values.
+
+        Return a copy of the dictionary of all keys, values in the environment
+        which are not Build Keys.
+        """
         returndict = {}
         # get all the generic build options
         for key, value in self.Dstore.items():
@@ -198,6 +282,13 @@ class VarDict(object):
         return returndict
 
     def PrintAll(self, fp=None):
+        """Prints all variables.
+
+        If fp is not none, writes to a fp also
+
+        Args:
+            fp (:obj:`str`, optional): file pointer to print to
+        """
         f = None
         if (fp is not None):
             f = open(fp, 'a+')

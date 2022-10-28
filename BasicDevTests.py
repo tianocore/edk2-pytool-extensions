@@ -9,6 +9,7 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""Check that python code in the package aligns with pep8 and file encoding."""
 
 import glob
 import os
@@ -17,7 +18,7 @@ import logging
 import re
 
 
-def TestEncodingOk(apath, encodingValue):
+def TestEncodingOk(apath, encodingValue): # noqa
     try:
         with open(apath, "rb") as f_obj:
             f_obj.read().decode(encodingValue)
@@ -28,7 +29,7 @@ def TestEncodingOk(apath, encodingValue):
     return True
 
 
-def TestFilenameLowercase(apath):
+def TestFilenameLowercase(apath): # noqa
     if apath != apath.lower():
         logging.critical(f"Lowercase failure: file {apath} not lower case path")
         logging.error(f"\n\tLOWERCASE: {apath.lower()}\n\tINPUTPATH: {apath}")
@@ -37,8 +38,7 @@ def TestFilenameLowercase(apath):
 
 
 def PackageAndModuleValidCharacters(apath):
-    ''' check pep8 recommendations for package and module names'''
-
+    """Check pep8 recommendations for package and module names."""
     match = re.match('^[a-z0-9_/.]+$', apath.replace("\\", "/"))
     if match is None:
         logging.critical(
@@ -47,14 +47,14 @@ def PackageAndModuleValidCharacters(apath):
     return True
 
 
-def TestNoSpaces(apath):
+def TestNoSpaces(apath): # noqa
     if " " in apath:
         logging.critical(f"NoSpaces failure: file {apath} has spaces in path")
         return False
     return True
 
 
-def TestRequiredLicense(apath):
+def TestRequiredLicense(apath): # noqa
     licenses = ["SPDX-License-Identifier: BSD-2-Clause-Patent", ]
     try:
         with open(apath, "rb") as f_obj:

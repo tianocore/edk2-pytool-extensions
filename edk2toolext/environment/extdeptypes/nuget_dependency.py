@@ -6,6 +6,7 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""An ExternalDependency subclass able to download from NuGet."""
 import os
 import logging
 import semantic_version
@@ -19,28 +20,38 @@ from typing import List
 
 
 class NugetDependency(ExternalDependency):
+    """An ExternalDependency subclass able to download from NuGet.
+
+    Attributes:
+        source (str): Source of the nuget dependency.
+        version (str): Version of the web dependency.
+
+    TIP: The attributes are what must be described in the ext_dep yaml file!
+    """
     TypeString = "nuget"
 
-    ''' Env variable name for path to folder containing NuGet.exe'''
+    # Env variable name for path to folder containing NuGet.exe
     NUGET_ENV_VAR_NAME = "NUGET_PATH"
 
     def __init__(self, descriptor):
+        """Inits a nuget dependency based off the provided descriptor."""
         super().__init__(descriptor)
         self.nuget_cache_path = None
 
-    ####
-    # Add mono to front of command and resolve full path of exe for mono,
-    # Used to add nuget support on posix platforms.
-    # https://docs.microsoft.com/en-us/nuget/install-nuget-client-tools
-    #
-    # Note that the strings returned might not be pathlike given they may be
-    # quoted for use on command line
-    #
-    # @return list containing either ["nuget.exe"] or ["mono", "/PATH/TO/nuget.exe"]
-    # @return none if not found
-    ####
     @classmethod
     def GetNugetCmd(cls) -> List[str]:
+        """Appends mono to the command and resolves the full path of the exe for mono.
+
+        Used to add nuget support on posix platforms.
+        https://docs.microsoft.com/en-us/nuget/install-nuget-client-tools
+
+        Note: Strings returned might not be pathlike given they may be quoted
+        for use on the command line.
+
+        Returns:
+            (list): ["nuget.exe"] or ["mono", "/PATH/TO/nuget.exe"]
+            (None): none was found
+        """
         file_name = "NuGet.exe"
         cmd = []
         if GetHostInfo().os == "Linux":
@@ -69,13 +80,13 @@ class NugetDependency(ExternalDependency):
 
     @staticmethod
     def normalize_version(version, nuget_name=""):
-        # The following link describes where NuGet versioning diverges from
-        # Semantic Versioning:
-        # https://learn.microsoft.com/en-us/nuget/concepts/package-versioning#where-nugetversion-diverges-from-semantic-versioning
-        #
-        # These cases will be handled before a "Semantic Version compatible"
-        # set of data is passed to the Semantic Version checker.
+        """Normalizes the version as NuGet versioning diverges from Semantic Versioning.
 
+        https://learn.microsoft.com/en-us/nuget/concepts/package-versioning#where-nugetversion-diverges-from-semantic-versioning
+
+        These cases will be handled befpre a Semantic Version Compatible" set
+        of data is passed to the Semantic Version checker.
+        """
         # 1. NuGetVersion requires the major segment to be defined
         if not version:
             raise ValueError("String is empty. At least major version is "
@@ -195,7 +206,7 @@ class NugetDependency(ExternalDependency):
         return result
 
     def __str__(self):
-        """ return a string representation of this """
+        """Return a string representation."""
         return f"NugetDependecy: {self.name}@{self.version}"
 
     def _attempt_nuget_install(self, install_dir, non_interactive=True):
@@ -235,6 +246,7 @@ class NugetDependency(ExternalDependency):
                 raise RuntimeError(f"[Nuget] We failed to install this version {self.version} of {package_name}")
 
     def fetch(self):
+        """Fetches the dependency using internal state from the init."""
         package_name = self.name
 
         # First, check the global cache to see if it's present.
@@ -294,9 +306,11 @@ class NugetDependency(ExternalDependency):
         self.published_path = self.compute_published_path()
 
     def get_temp_dir(self):
+        """Returns the temporary directory the NuGet package is downloaded to."""
         return self.contents_dir + "_temp"
 
     def clean(self):
+        """Removes the temporary directory the NuGet package is downloaded to."""
         super(NugetDependency, self).clean()
         if os.path.isdir(self.get_temp_dir()):
             RemoveTree(self.get_temp_dir())
