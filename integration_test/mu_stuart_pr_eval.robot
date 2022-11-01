@@ -282,8 +282,7 @@ Test Stuart PR for changing a file at the root of repo
     Stage changed file  ${file_to_modify}  ${ws_root}
     Commit changes  "Changes"  ${ws_root}
 
-    # Platform CI test DSC dependency on implementation file # Policy 4
     ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdePkg  ${default_branch}  ${EMPTY}  ${ws_root}
-    Should Be Empty    ${pkgs}
+    Confirm same contents  ${pkgs}  MdePkg
 
     [Teardown]  Delete branch  ${branch_name}  ${default_branch}  ${ws_root}

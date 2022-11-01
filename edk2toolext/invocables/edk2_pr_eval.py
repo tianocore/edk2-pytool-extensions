@@ -181,6 +181,18 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         if rc != 0:
             return {}
 
+        #
+        # Policy 0 - A file outside a package was modified and force build
+        #            all packages on a modified file outside a package setting
+        #            is enabled.
+        #
+        for f in files:
+            if not self.edk2_path_obj.GetContainingPackage(os.path.abspath(f)):
+                return dict.fromkeys(possible_packages,
+                                     "Policy 0 - Build all packages if "
+                                     "a file is modified outside a "
+                                     "package.")
+
         remaining_packages = possible_packages.copy()  # start with all possible packages and remove each
         # package once it is determined to be build.  This optimization
         # avoids checking packages that already will be built.
