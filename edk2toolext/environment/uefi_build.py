@@ -28,6 +28,7 @@ import datetime
 
 DEFAULT_CODEQL_PATH = 'Build/codeql-database'
 
+
 class UefiBuilder(object):
 
     def __init__(self):
@@ -167,7 +168,7 @@ class UefiBuilder(object):
                         self.CodeQlPath = shutil.which("codeql")
                     else:
                         logging.critical("CodeQL build enabled but application "
-                                        "not found.")
+                                         "not found.")
                         return -1
 
                 ret = self.Build()
