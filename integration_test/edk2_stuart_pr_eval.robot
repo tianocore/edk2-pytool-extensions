@@ -168,7 +168,7 @@ Test Stuart PR for Policy 4 module c file changed that platform dsc depends on
     Stage changed file  ${file_to_modify}  ${ws_root}
     Commit changes  "Changes"  ${ws_root}
 
-    # Platform CI test DSC dependnency on implementation file # Policy 4
+    # Platform CI test DSC dependency on implementation file # Policy 4
     ${pkgs}=  Stuart pr evaluation  ${platform_ci_file}  OvmfPkg  ${default_branch}  ${EMPTY}  ${ws_root}
     Confirm same contents  ${pkgs}  OvmfPkg
 
@@ -189,7 +189,7 @@ Test Stuart PR for Policy 4 module c file changed that platform dsc does not dep
     Stage changed file  ${file_to_modify}  ${ws_root}
     Commit changes  "Changes"  ${ws_root}
 
-    # Platform CI test DSC dependnency on implementation file # Policy 4
+    # Platform CI test DSC dependency on implementation file # Policy 4
     ${pkgs}=  Stuart pr evaluation  ${platform_ci_file}  OvmfPkg  ${default_branch}  ${EMPTY}  ${ws_root}
     Should Be Empty    ${pkgs}
 
@@ -209,7 +209,7 @@ Test Stuart PR for all policies when a PR contains a deleted file
     Stage changed file  ${file_to_modify}  ${ws_root}
     Commit changes  "Changes"  ${ws_root}
 
-    # Platform CI test DSC dependnency on implementation file # Policy 4
+    # Platform CI test DSC dependency on implementation file # Policy 4
     ${pkgs}=  Stuart pr evaluation  ${platform_ci_file}  OvmfPkg  ${default_branch}  ${EMPTY}  ${ws_root}
     Should Be Empty    ${pkgs}
 
@@ -229,7 +229,7 @@ Test Stuart PR for all policies when a PR contains a deleted folder
     Stage changed file  ${file_to_modify}  ${ws_root}
     Commit changes  "Changes"  ${ws_root}
 
-    # Platform CI test DSC dependnency on implementation file # Policy 4
+    # Platform CI test DSC dependency on implementation file # Policy 4
     ${pkgs}=  Stuart pr evaluation  ${platform_ci_file}  OvmfPkg  ${default_branch}  ${EMPTY}  ${ws_root}
     Should Be Empty    ${pkgs}
 
@@ -249,7 +249,7 @@ Test Stuart PR for all policies when a PR contains multiple levels of deleted fo
     Stage changed file  ${file_to_modify}  ${ws_root}
     Commit changes  "Changes"  ${ws_root}
 
-    # Platform CI test DSC dependnency on implementation file # Policy 4
+    # Platform CI test DSC dependency on implementation file # Policy 4
     ${pkgs}=  Stuart pr evaluation  ${platform_ci_file}  OvmfPkg  ${default_branch}  ${EMPTY}  ${ws_root}
     Confirm same contents  ${pkgs}  OvmfPkg
 
@@ -270,7 +270,7 @@ Test Stuart PR for all policies when a PR contains file added
     Stage changed file  ${location_to_move}  ${ws_root}
     Commit changes  "Changes"  ${ws_root}
 
-    # Platform CI test DSC dependnency on implementation file # Policy 4
+    # Platform CI test DSC dependency on implementation file # Policy 4
     ${pkgs}=  Stuart pr evaluation  ${platform_ci_file}  OvmfPkg  ${default_branch}  ${EMPTY}  ${ws_root}
     Confirm same contents  ${pkgs}  OvmfPkg
 
@@ -291,7 +291,7 @@ Test Stuart PR for all policies when a PR contains directory added
     Stage changed file  ${location_to_move}  ${ws_root}
     Commit changes  "Changes"  ${ws_root}
 
-    # Platform CI test DSC dependnency on implementation file # Policy 4
+    # Platform CI test DSC dependency on implementation file # Policy 4
     ${pkgs}=  Stuart pr evaluation  ${platform_ci_file}  OvmfPkg  ${default_branch}  ${EMPTY}  ${ws_root}
     Should Be Empty    ${pkgs}
 
@@ -312,7 +312,7 @@ Test Stuart PR for changing a file at the root of repo
     Stage changed file  ${file_to_modify}  ${ws_root}
     Commit changes  "Changes"  ${ws_root}
 
-    # Platform CI test DSC dependnency on implementation file # Policy 4
+    # Platform CI test DSC dependency on implementation file # Policy 4
     ${pkgs}=  Stuart pr evaluation  ${platform_ci_file}  OvmfPkg  ${default_branch}  ${EMPTY}  ${ws_root}
     Should Be Empty    ${pkgs}
 
