@@ -27,4 +27,14 @@ Web dependencies. After the initial fetch, this can greatly improve the performa
 calling `stuart_update` and make it far easier to switch between multiple branches or
 scopes where dependencies may change.
 
+## EDK_BUILD_CMD
+
+If present, the absolute path to an application to use for the edk build process will be
+invoked instead of `build`. This is primarily used to allow a tool to wrap around `build`.
+
+## EDK_BUILD_PARAMS
+
+If present, these parameters will be passed to the build command. This is primarily used to
+pair wrapper-specific parameters with the wrapper passed in `EDK_BUILD_CMD`.
+
 For more info, see [the External Dependencies docs](using_extdep.md).
