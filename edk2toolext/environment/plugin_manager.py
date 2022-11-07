@@ -95,6 +95,11 @@ class PluginManager(object):
                 py_module_name, py_module_path)
             module = importlib.util.module_from_spec(spec)
             sys.modules[py_module_name] = module
+
+            py_module_dir = os.path.dirname(py_module_path)
+            if py_module_dir not in sys.path:
+                sys.path.append(py_module_dir)
+
             spec.loader.exec_module(module)
         except Exception:
             exc_info = sys.exc_info()
