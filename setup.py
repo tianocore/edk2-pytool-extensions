@@ -6,6 +6,7 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""Setup info for edk2-pytool-extensions pip module."""
 import setuptools
 from setuptools.command.sdist import sdist
 from setuptools.command.install import install
@@ -18,7 +19,7 @@ with open("readme.md", "r") as fh:
 
 class PostSdistCommand(sdist):
     """Post-sdist."""
-    def run(self):
+    def run(self): # noqa
         # we need to download nuget so throw the exception if we don't get it
         DownloadNuget()
         sdist.run(self)
@@ -26,7 +27,7 @@ class PostSdistCommand(sdist):
 
 class PostInstallCommand(install):
     """Post-install."""
-    def run(self):
+    def run(self): # noqa
         try:
             DownloadNuget()
         except Exception:
@@ -36,7 +37,7 @@ class PostInstallCommand(install):
 
 class PostDevCommand(develop):
     """Post-develop."""
-    def run(self):
+    def run(self): # noqa
         try:
             DownloadNuget()
         except Exception:

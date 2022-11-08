@@ -5,7 +5,12 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""Code that updates required submodules.
 
+Contains a SetupSettingsManager that must be subclassed in a build settings
+file. This provides platform specific information to Edk2PlatformSetup invocable
+while allowing the invocable itself to remain platform agnostic.
+"""
 import os
 import logging
 from io import StringIO
@@ -19,34 +24,52 @@ from edk2toollib.utility_functions import version_compare
 
 
 class RequiredSubmodule():
-
+    """A class containing information about a git submodule."""
     def __init__(self, path: str, recursive: bool = True):
-        '''
-        Object to hold necessary information for resolving submodules
+        """Object to hold necessary information for resolving submodules.
 
-        path:   workspace relative path to submodule that must be
+        Args:
+            path (str): workspace relative path to submodule that must be
                 synchronized and updated
-        recursive: boolean if recursion should be used in this submodule
-        '''
+            recursive (bool): if recursion should be used in this submodule
+        """
         self.path = path
         self.recursive = recursive
 
 
 class SetupSettingsManager(MultiPkgAwareSettingsInterface):
-    ''' Platform settings will be accessed through this implementation. '''
+    """Platform specific settings for Edk2PlatformSetup.
+
+    Provides information necessary for `stuart_setup.exe` or `edk2_setup.py`
+    to successfully execute for a given platform.
+    Example: Example: Overriding SetupSettingsManager
+        ```python
+        from edk2toolext.invocables.edk2_setup import SetupSettingsManager, RequiredSubmodule
+        class PlatformManager(SetupSettingsManager):
+            def GetRequiredSubmodules(self) -> List[RequiredSubmodule]:
+                return [RequiredSubmodule('Common/MU', True)]
+        ```
+    """
 
     def GetRequiredSubmodules(self) -> List[RequiredSubmodule]:
-        ''' return iterable containing RequiredSubmodule objects.
-        If no RequiredSubmodules return an empty list
-        '''
+        """Provides a list of required git submodules.
+
+        These submodules are those that must be setup for the platform
+        to successfully build.
+
+         TIP: Optional Override in a subclass
+
+        Returns:
+            A list of required submodules, or an empty list
+        """
         return []
 
 
 class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
-    ''' Updates git submodules listed in RequiredSubmodules '''
+    """Invocable that updates git submodules listed in RequiredSubmodules."""
 
     def AddCommandLineOptions(self, parserObj):
-        ''' adds command line options to the argparser '''
+        """Adds command line options to the argparser."""
         parserObj.add_argument('--force', '--FORCE', '--Force', dest="force", action='store_true', default=False)
         parserObj.add_argument('--omnicache', '--OMNICACHE', '--Omnicache', dest='omnicache_path',
                                default=os.environ.get('OMNICACHE_PATH'))
@@ -54,7 +77,7 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
         super().AddCommandLineOptions(parserObj)
 
     def RetrieveCommandLineOptions(self, args):
-        '''  Retrieve command line options from the argparser '''
+        """Retrieve command line options from the argparser."""
         self.force_it = args.force
         self.omnicache_path = args.omnicache_path
         if (self.omnicache_path is not None) and (not os.path.exists(self.omnicache_path)):
@@ -64,17 +87,22 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
         super().RetrieveCommandLineOptions(args)
 
     def GetVerifyCheckRequired(self):
-        ''' Will not call self_describing_environment.VerifyEnvironment because it hasn't been set up yet '''
+        """Will not call self_describing_environment.VerifyEnvironment because it hasn't been set up yet."""
         return False
 
     def GetSettingsClass(self):
-        '''  Providing SetupSettingsManager  '''
+        """Returns the SetupSettingsManager class.
+
+        WARNING: SetupSettingsManager must be subclassed in your platform settings file.
+        """
         return SetupSettingsManager
 
     def GetLoggingFileName(self, loggerType):
+        """Returns the filename (SETUPLOG) of where the logs for the Edk2CiBuild invocable are stored in."""
         return "SETUPLOG"
 
     def Go(self):
+        """Executes the core functionality of the Edk2PlatformSetup invocable."""
         required_submodules = self.PlatformSettings.GetRequiredSubmodules()
         workspace_path = self.GetWorkspaceRoot()
         # Make sure git is installed
@@ -197,4 +225,5 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
 
 
 def main():
+    """Entry point to invoke Edk2PlatformSetup."""
     Edk2PlatformSetup().Invoke()

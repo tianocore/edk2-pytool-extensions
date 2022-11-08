@@ -5,7 +5,7 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
-
+"""This module supports git operations."""
 import os
 import logging
 from edk2toolext import edk2_logging
@@ -17,6 +17,18 @@ from edk2toollib.utility_functions import RemoveTree
 
 # checks out dependency at git_path
 def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=False):
+    """Resolves a particular repo.
+
+    Args:
+        file_system_path (Pathlike): path to repo
+        dependency (Dict): contains Path, Commit, Branch
+        force (bool): If it is OK to update the commit or branch
+        ignore (bool): If it is OK to ignore errors or not.
+        update_ok (bool): If it is OK to update the commit or branch
+
+    Raises:
+        (Exception): An error resolving a repo and ignore=False
+    """
     logger = logging.getLogger("git")
     logger.info("Checking for dependency {0}".format(dependency["Path"]))
     git_path = os.path.abspath(file_system_path)
@@ -110,6 +122,19 @@ def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=F
 
 
 def resolve_all(workspace_path, dependencies, force=False, ignore=False, update_ok=False, omnicache_dir=None):
+    """Resolves all repos.
+
+    Args:
+        workspace_path (Pathlike): workspace root
+        dependencies (List[Dict]): Dict contains Path, Commit, Branch
+        force (bool): If it is OK to update the commit or branch
+        ignore (bool): If it is OK to ignore errors or not.
+        update_ok (bool): If it is OK to update the commit or branch
+        omnicache_dir (:obj:`bool`, optional): Omnicache path, if used
+
+    Raises:
+        (Exception): An error resolving a repo and ignore=False
+    """
     logger = logging.getLogger("git")
     repos = []
     if force:
@@ -138,8 +163,15 @@ def resolve_all(workspace_path, dependencies, force=False, ignore=False, update_
     return repos
 
 
-# Gets the details of a particular repo
 def get_details(abs_file_system_path):
+    """Gets the Url, Branch, and Commit of a particular repo.
+
+    Args:
+        abs_file_system_path (PathLike): repo directory
+
+    Returns:
+        (Dict): Url, Branch, Commit
+    """
     repo = Repo(abs_file_system_path)
     url = repo.remotes.origin.url
     active_branch = repo.active_branch
@@ -148,14 +180,27 @@ def get_details(abs_file_system_path):
 
 
 def clear_folder(abs_file_system_path):
+    """Cleans the folder.
+
+    Args:
+        abs_file_system_path (PathLike): Directory to delete.
+    """
     logger = logging.getLogger("git")
     logger.warning("WARNING: Deleting contents of folder {0} to make way for Git repo".format(
         abs_file_system_path))
     RemoveTree(abs_file_system_path)
 
 
-# Clones the repo in the folder we need using the dependency object from the json
 def clone_repo(abs_file_system_path, DepObj):
+    """Clones the repo in the folder using the dependency object.
+
+    Args:
+        abs_file_system_path (PathLike): destination to clone
+        DepObj (Dict): dict containing Commit, Full, Branch, etc
+
+    Returns:
+        (Tuple[PathLike, bool]): (destination, result)
+    """
     logger = logging.getLogger("git")
     logger.log(edk2_logging.get_progress_level(), "Cloning repo: {0}".format(DepObj["Url"]))
     dest = abs_file_system_path
@@ -188,6 +233,21 @@ def clone_repo(abs_file_system_path, DepObj):
 
 
 def checkout(abs_file_system_path, dep, repo, update_ok=False, ignore_dep_state_mismatch=False, force=False):
+    """Checks out a commit or branch.
+
+    Args:
+        abs_file_system_path (PathLike): The path to the repo
+        dep (Dict): A dictionary containing a either a Commit or Branch, and also a Path
+        repo (Repo): A valid repo object
+        update_ok (bool): If it is OK to update the commit or branch
+        ignore_dep_state_mismatch (bool): Whether a mismatch will result in an exception or not.
+        force (bool): If it is OK to update the commit or branch
+
+    Raises:
+        (Exception): dependency state mismatch if ignore_dep_state_mismatch = False
+
+    TIP: Either abs_file_system_path or repo is necessary. Not both.
+    """
     logger = logging.getLogger("git")
     if repo is None:
         repo = Repo(abs_file_system_path)

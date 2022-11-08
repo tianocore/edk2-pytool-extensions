@@ -8,8 +8,8 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 
-"""
-Tool for inspecting UEFI Secure Boot databases
+"""Tool for inspecting UEFI Secure Boot databases.
+
 The input file is a concatenations of EFI_SIGNATURE_LISTS, as is read by calling GetVariable() on
     Secure Boot variables (i.e. PK, KEK, db, dbx)
 The output can be standard human-readable or compact for easier diffing
@@ -21,8 +21,11 @@ from edk2toollib.uefi.authenticated_variables_structure_support import EfiSignat
 
 
 def main():
-    """Parses command-line parameters using ArgumentParser, delegating to helper functions to fulfill the requests"""
+    """Parses command-line parameters using ArgumentParser.
 
+    Parses command-line parameters using ArgumentParser delegating to helper
+    functions to fulfill the requests.
+    """
     filenameHelp = 'Filename containing a UEFI Signature Database, \
         a concatenation of EFI_SIGNATURE_LISTs as read from GetVariable([PK, KEK, db, dbx])'
 

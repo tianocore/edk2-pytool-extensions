@@ -7,6 +7,7 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""An ExternalDependency subclass able to clone from git."""
 import os
 import logging
 from urllib.parse import urlsplit, urlunsplit
@@ -17,16 +18,19 @@ from edk2toolext.environment import shell_environment
 
 
 class GitDependency(ExternalDependency):
-    '''
-    ext_dep fields:
-    - source:  url for git clone
-    - version: commit from git repo
-    - url_creds_var: shell_var name for credential updating [optional]
-    '''
+    """An ExternalDependency subclass able to clone from git.
 
+    Attributes:
+        source (str): url for git clone
+        version (str): commit from git repo
+        url_creds_var (str): shell_var name for credential updating. Optional
+
+    TIP: The attributes are what must be described in the ext_dep yaml file!
+    """
     TypeString = "git"
 
     def __init__(self, descriptor):
+        """Inits a git dependency based off the provided descriptor."""
         super().__init__(descriptor)
 
         # Check to see whether this URL should be patched.
@@ -55,11 +59,11 @@ class GitDependency(ExternalDependency):
         self._repo_resolver_dep_obj = {"Path": self.name, "Url": self.repo_url, "Commit": self.commit}
 
     def __str__(self):
-        """ return a string representation of this """
+        """Return a string representation."""
         return f"GitDependecy: {self.repo_url}@{self.commit}"
 
     def fetch(self):
-
+        """Fetches the dependency using internal state from the init."""
         # def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=False):
         repo_resolver.resolve(self._local_repo_root_path, self._repo_resolver_dep_obj, update_ok=True)
 
@@ -67,6 +71,7 @@ class GitDependency(ExternalDependency):
         self.update_state_file()
 
     def clean(self):
+        """Removes the local clone of the repo."""
         self.logger.debug("Cleaning git dependency directory for '%s'..." % self.name)
 
         if os.path.isdir(self._local_repo_root_path):
@@ -76,8 +81,8 @@ class GitDependency(ExternalDependency):
         # Let super class clean up common dependency stuff
         super().clean()
 
-    # override verify due to different scheme with git
     def verify(self):
+        """Verifies the clone was successful."""
         result = True
 
         if not os.path.isdir(self._local_repo_root_path):
@@ -105,6 +110,6 @@ class GitDependency(ExternalDependency):
         self.logger.debug("Verify '%s' returning '%s'." % (self.name, result))
         return result
 
-    # Override to include the repository name in published path
     def compute_published_path(self):
+        """Override to include the repository name in the published path."""
         return os.path.join(super().compute_published_path(), self.name)

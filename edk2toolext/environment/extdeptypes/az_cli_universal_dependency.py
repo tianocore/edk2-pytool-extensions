@@ -8,6 +8,7 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""An ExternalDependency subclass able to download from an Azure feed."""
 import os
 import logging
 import shutil
@@ -20,16 +21,19 @@ from edk2toolext.environment import version_aggregator
 
 
 class AzureCliUniversalDependency(ExternalDependency):
-    '''
-    ext_dep fields:
-    - feed:  feed name
-    - version: semantic version <Major.Minor.Patch>
-    - source: url of organization (example: https://dev.azure.com/tianocore)
-    - project: <name of project for project scoped feed.  If missing assume organization scoped>
-    - name: name of artifact
-    - file-filter: <optional> filter for folders and files.
-    - pat_var: shell_var name for PAT for this ext_dep
-    '''
+    """An ExternalDependency subclass able to download from an Azure feed.
+
+    Attributes:
+        feed (str): feed name
+        version (str): semantic version <Major.Minor.Patch>
+        source (str): url of organization (example: https://dev.azure.com/tianocore)
+        project (str) <name of project for project scoped feed.  If missing assume organization scoped>
+        name (str): name of artifact
+        file-filter (str): <optional> filter for folders and files.
+        pat_var (str): shell_var name for PAT for this ext_dep
+
+    TIP: The attributes are what must be described in the ext_dep yaml file!
+    """
     TypeString = "az-universal"
 
     # https://docs.microsoft.com/en-us/azure/devops/cli/log-in-via-pat?view=azure-devops&tabs=windows
@@ -39,9 +43,10 @@ class AzureCliUniversalDependency(ExternalDependency):
 
     @classmethod
     def VerifyToolDependencies(cls):
-        """ Verify any tool environment or dependencies requirements are met.
-        Log to Version Aggregator the Tool Versions"""
+        """Verify any tool environment or dependencies requirements are met.
 
+        Log to Version Aggregator the Tool Versions
+        """
         if cls.VersionLogged:
             return
         results = StringIO()
@@ -77,6 +82,7 @@ class AzureCliUniversalDependency(ExternalDependency):
         cls.VersionLogged = True
 
     def __init__(self, descriptor):
+        """Inits a Azure CLI dependency based off the provided descriptior."""
         super().__init__(descriptor)
         self.global_cache_path = None
         self.organization = self.source
@@ -95,7 +101,7 @@ class AzureCliUniversalDependency(ExternalDependency):
         return False
 
     def __str__(self):
-        """ return a string representation of this """
+        """Return a string representation."""
         return f"AzCliUniversalDependency: {self.name}@{self.version}"
 
     def _attempt_universal_install(self, install_dir):
@@ -134,6 +140,7 @@ class AzureCliUniversalDependency(ExternalDependency):
                             (downloaded_version, self.version))
 
     def fetch(self):
+        """Fetches the dependency using internal state from the init."""
         #
         # Before trying anything with we should check
         # to see whether the package is already in
@@ -171,9 +178,11 @@ class AzureCliUniversalDependency(ExternalDependency):
         self.published_path = self.compute_published_path()
 
     def get_temp_dir(self):
+        """Returns the temporary directory the Azure CLI feed is downloaded to."""
         return self.contents_dir + "_temp"
 
     def clean(self):
+        """Removes the temporary directory the NuGet package is downloaded to."""
         super(AzureCliUniversalDependency, self).clean()
         if os.path.isdir(self.get_temp_dir()):
             RemoveTree(self.get_temp_dir())

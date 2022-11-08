@@ -5,7 +5,7 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
-
+"""Plugin that supports adding tests or operations to the ci environment."""
 
 import os
 import logging
@@ -13,63 +13,70 @@ from typing import List, Tuple
 
 
 class ICiBuildPlugin(object):
-
-    ##
-    # External function of plugin.  This function is used to perform the task of the CiBuild Plugin
-    #
-    #   - package is the edk2 path to package.  This means workspace/package path relative.
-    #   - edk2path object configured with workspace and packages path
-    #   - PkgConfig Object (dict) for the pkg
-    #   - EnvConfig Object
-    #   - Plugin Manager Instance
-    #   - Plugin Helper Obj Instance
-    #   - tc - test case that needs state configured for reporting by plugin.
-    #   - output_stream the StringIO output stream from this plugin via logging
-    #
-    #   Returns  >0 : number of errors found
-    #             0 : passed successfully
-    #            -1 : skipped for missing prereq
-    #
-    #
+    """Plugin that supports adding tests or operations to the ci environment."""
     def RunBuildPlugin(self, packagename, Edk2pathObj, pkgconfig, environment, PLM, PLMHelper, tc, output_stream):
+        """External function of plugin.
+
+        This function is used to perform the task of the CiBuild Plugin
+
+        Args:
+            packagename (str): edk2 path to package (workspace/package path relative)
+            Edk2pathObj (Edk2Path): Edk2Path configured with workspace and package path
+            pkgconfig (dict): Package config
+            environment (EnvConfig): Environment config
+            PLM (PluginManager): Plugin manager instance
+            PLMHelper (HelperFunctions): Plugin helper object instace
+            tc (obj): test case that needs state configured for reporting by plugin
+            output_stream (StringIO): output stream from this plugin via logging
+
+        Returns:
+            (int): >0 - number of errors found
+            (int): 0 - passed successfully
+            (int): -1 - skipped for missing prereq
+        """
         pass
 
     def GetTestName(self, packagename: str, environment: object) -> Tuple[str, str]:
-        ''' Given the package name and configuration provide the caller
-            the name of the test case and the class name.  These are both used in logging
-            and reporting test status.
+        """Provides the test case and class name.
 
-            @packagename: String - Package Name
-            @environment: EnvDict Object - Environment Dictionary configuration
+        Given the package name and configuration provide the caller
+        the name of the test case and the class name.  These are both used in logging
+        and reporting test status.
 
-            @returns tuple of (test case name, test case base class name)
-        '''
+        Args:
+            packagename (str): Package Name
+            environment (EnvDict): Environment Dictionary configuration
+
+        Returns:
+            (Tuple[str, str]): (test case name, test case base class name)
+        """
         pass
 
     def RunsOnTargetList(self) -> List[str]:
-        ''' Returns a list of edk2 TARGETs that this plugin would like to run on
+        """Returns a list of edk2 TARGETs that this plugin would like to run on.
 
-            KNOWN TARGET VALUES:
-            DEBUG
-            RELEASE
-            NOOPT
-            NO-TARGET
+        HINT: known target values:
+        DEBUG
+        RELEASE
+        NOOPT
+        NO-TARGET
 
-            If the plugin is not Target specific it should return a list of
-            one element of "NO-TARGET"
-        '''
+        HINT: If the plugin is not Target specific it should return a list of one element of "NO-TARGET"
+        """
         return ["NO-TARGET"]
 
     def WalkDirectoryForExtension(self, extensionlist: List[str], directory: os.PathLike,
                                   ignorelist: List[str] = None) -> List[os.PathLike]:
-        ''' Walks a file directory recursively for all items ending in certain extension
+        """Walks a file directory recursively for all items ending in certain extension.
 
-            @extensionlist: List[str] list of file extensions
-            @directory: Path - absolute path to directory to start looking
-            @ignorelist: List[str] or None.  optional - default is None: a list of case insensitive filenames to ignore
+        Args:
+            extensionlist (List[str]): list of file extensions
+            directory (PathLike): absolute path to directory to start looking
+            ignorelist (List[str]): a list of case insensitive filenames to ignore (Optional)
 
-            @returns a List of file paths to matching files
-        '''
+        Returns:
+            (List): file paths to matching files
+        """
         if not isinstance(extensionlist, list):
             logging.critical("Expected list but got " + str(type(extensionlist)))
             raise TypeError("extensionlist must be a list")

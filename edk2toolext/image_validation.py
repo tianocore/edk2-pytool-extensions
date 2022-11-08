@@ -6,6 +6,10 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""This tool allows the user to validate a PE/COFF file against specific requirements.
+
+It also provides CLI functions to set and clear the nx_compat flag.
+"""
 
 import os
 from pefile import PE, SECTION_CHARACTERISTICS, MACHINE_TYPE, SUBSYSTEM_TYPE
@@ -21,18 +25,22 @@ from edk2toolext import edk2_logging
 
 
 def has_characteristic(data, mask):
+    """Checks if data has a specific mask."""
     return ((data & mask) == mask)
 
 
 def set_bit(data, bit):
+    """Sets a specific bit."""
     return data | (1 << bit)
 
 
 def clear_bit(data, bit):
+    """Clears a specific bit."""
     return data & ~(1 << bit)
 
 
 def set_nx_compat_flag(pe):
+    """Sets the nx_compat flag to 1 in the PE/COFF file."""
     dllchar = pe.OPTIONAL_HEADER.DllCharacteristics
     dllchar = set_bit(dllchar, 8)  # 8th bit is the nx_compat_flag
     pe.OPTIONAL_HEADER.DllCharacteristics = dllchar
@@ -41,6 +49,7 @@ def set_nx_compat_flag(pe):
 
 
 def get_nx_compat_flag(pe):
+    """Reads the nx_compat flag of the PE/COFF file."""
     dllchar = pe.OPTIONAL_HEADER.DllCharacteristics
 
     if has_characteristic(dllchar, 256):  # 256 (8th bit) is the mask
@@ -52,6 +61,7 @@ def get_nx_compat_flag(pe):
 
 
 def clear_nx_compat_flag(pe):
+    """Sets the nx_compat flag to 0 in the PE/COFF file."""
     dllchar = pe.OPTIONAL_HEADER.DllCharacteristics
     dllchar = clear_bit(dllchar, 8)  # 8th bit is the nx_compat_flag
     pe.OPTIONAL_HEADER.DllCharacteristics = dllchar
@@ -60,6 +70,12 @@ def clear_nx_compat_flag(pe):
 
 
 def fill_missing_requirements(default, target):
+    """Fills missing requirements for a specific test config with default config.
+
+    As an example, If there are specific requirements for an APP PE/COFF, those
+    will take override the default requirements.Any requirement not specified
+    by the APP config will be filled by the DEFAULT config.
+    """
     for key in default:
         if key not in target:
             target[key] = default[key]
@@ -67,6 +83,7 @@ def fill_missing_requirements(default, target):
 
 
 class Result:
+    """Test results."""
     PASS = '[PASS]'
     WARN = '[WARNING]'
     SKIP = '[SKIP]'
@@ -74,24 +91,38 @@ class Result:
 
 
 class TestInterface:
-
+    """Interface for creating tests to execute on parsed PE/COFF files."""
     def name(self):
-        """Returns the name of the test"""
+        """Returns the name of the test.
+
+        "WARNING: Implement in a subclass.
+        """
         raise NotImplementedError("Must Override Test Interface")
 
     def execute(self, pe, config_data):
-        """
-        Executes the test
+        """Executes the test on the pefile.
 
-        @param pe: The parser pefile
-        @param config_data: Configuration data for the specific target machine
-            and profile
+        Arguments:
+            pe (pefile): a parsed PE/COFF image file
+            config_data (dict): config data for the test
+
+        Returns:
+            (Result): SKIP, WARN, FAIL, PASS
+
+        WARNING: Implement in a subclass.
         """
         raise NotImplementedError("Must Override Test Interface")
 
 
 class TestManager(object):
+    """Manager responsible for executing all tests on all parsed PE/COFF files."""
     def __init__(self, config_data=None):
+        """Inits the TestManager with configuration data.
+
+        Args:
+            config_data (dict, optional): the configuration data, loads default
+                data if not provided.
+        """
         self.tests = []
         if config_data:
             self.config_data = config_data
@@ -213,40 +244,41 @@ class TestManager(object):
             }
 
     def add_test(self, test):
-        """
-        Adds a test to the test manager. Will be executed in the order added
+        """Adds a test to the test manager.
 
-        @param test: [Test(TestInterface)] A class that inherits and overrides
-            the TestInterface class
+        Will be executed in the order added.
+
+        Args:
+            test (TestInterface): A subclasses of the TestInterface
         """
         self.tests.append(test)
 
     def add_tests(self, tests):
-        """
-        Adds multiple test to the test manager. Tests will be executed in the
-        order added.
+        """Adds multiple test to the test manager.
 
-        @param test: [List[Test(TestInterface)]] A list of classes that
-            inherits and overrides the TestInterface class
+        Tests will be executed in the order added.
+
+        Args:
+            tests (List[TestInterface]): A list of subclasses of the TestInterface
         """
         self.tests.extend(tests)
 
     def run_tests(self, pe, profile="DEFAULT"):
+        """Runs all tests that have been added to the test manager.
+
+        Tests will be executed in the order added
+
+        Args:
+            pe (pefile): The parsed pe
+            target_info (dict):  MACHINE_TYPE and PROFILE information. If
+                MachineType is not present, it will be pulled from the parsed
+                pe, however the user must provide the ModuleType
+
+        Returns:
+            (Result.PASS): All tests passed successfully (including warnings)
+            (Result.SKIP): There is no information in the config file for the target and fv file type
+            (Result.FAIL): At least one test failed. Error messages can be found in the log
         """
-        Runs all tests that have been added to the test manager. Tests will be
-        executed in the order added
-
-        @param pe         : [PE] The parsed pe
-        @param target_info: [Dict] A Dict that contains MACHINE_TYPE and
-            PROFILE information. If MachineType is not present, it will be
-            pulled from the parsed pe, however the user must provide the Module
-            Type
-
-        @return Result.PASS : All tests passed successfully (including warnings)
-        @return Result.SKIP : There is no information in the config file for the target and fv file type
-        @return Result.ERROR: At least one test failed. Error messages can be found in the log
-        """
-
         # Catch any invalid profiles
         machine_type = MACHINE_TYPE[pe.FILE_HEADER.Machine]
         if not self.config_data[machine_type].get(profile):
@@ -291,15 +323,13 @@ class TestManager(object):
 #       TESTS START       #
 ###########################
 class TestWriteExecuteFlags(TestInterface):
-    """
-    Test: Section data / code separation verification
+    """Section data / code separation verification Test.
 
-    Detailed Description:
-        This test ensures that each section of the binary is not both
-        write-able and execute-able. Sections can only be one or the other
-        (or neither).This test is done by iterating over each section and
-        checking the characteristics label for the Write Mask (0x80000000)
-        and Execute Mask (0x20000000).
+    This test ensures that each section of the binary is not both
+    write-able and execute-able. Sections can only be one or the other
+    (or neither).This test is done by iterating over each section and
+    checking the characteristics label for the Write Mask (0x80000000)
+    and Execute Mask (0x20000000).
 
     Output:
         @Success: Only one (or neither) of the two masks (Write, Execute) are
@@ -314,9 +344,19 @@ class TestWriteExecuteFlags(TestInterface):
     """
 
     def name(self):
+        """Returns the name of the test."""
         return 'Section data / code separation verification'
 
     def execute(self, pe, config_data):
+        """Executes the test on the pefile.
+
+        Arguments:
+            pe (pefile): a parsed PE/COFF image file
+            config_data (dict): config data for the test
+
+        Returns:
+            (Result): SKIP, WARN, FAIL, PASS
+        """
         target_requirements = config_data["TARGET_REQUIREMENTS"]
 
         if target_requirements.get("DATA_CODE_SEPARATION", False) is False:
@@ -333,13 +373,11 @@ class TestWriteExecuteFlags(TestInterface):
 
 
 class TestSectionAlignment(TestInterface):
-    """
-    Test: Section alignment verification
+    """Section alignment verification Test.
 
-    Detailed Description:
-        Checks the section alignment of the binary by accessing the optional
-        header, then the section alignment. This value must meet the
-        requirements specified in the config file.
+    Checks the section alignment of the binary by accessing the optional
+    header, then the section alignment. This value must meet the
+    requirements specified in the config file.
 
     Output:
         @Success: Image alignment meets the requirement specified in the
@@ -349,15 +387,26 @@ class TestSectionAlignment(TestInterface):
         @Skip: No Alignment requirements specified in the config file
         @Fail: Image alignment does not meet the requirements specified in
             the config file
+
     Possible Solution:
         Update the section alignment of the binary to match the
         requirements specified in the config file
     """
 
     def name(self):
+        """Returns the name of the test."""
         return 'Section alignment verification'
 
     def execute(self, pe, config_data):
+        """Executes the test on the pefile.
+
+        Arguments:
+            pe (pefile): a parsed PE/COFF image file
+            config_data (dict): config data for the test
+
+        Returns:
+            (Result): SKIP, WARN, FAIL, PASS
+        """
         target_requirements = config_data["TARGET_REQUIREMENTS"]
         target_info = config_data["TARGET_INFO"]
 
@@ -405,13 +454,11 @@ class TestSectionAlignment(TestInterface):
 
 
 class TestSubsystemValue(TestInterface):
-    """
-    Test: Subsystem type verification
+    """Subsystem type verification Test.
 
-    Detailed Description:
-        Checks the subsystem value by accessing the optional header, then
-        subsystem value. This value must match one of the allowed subsystem
-        described in the config file
+    Checks the subsystem value by accessing the optional header, then
+    subsystem value. This value must match one of the allowed subsystem
+    described in the config file
 
     Output:
         @Success: Subsystem type found in the optional header matches one of
@@ -426,9 +473,19 @@ class TestSubsystemValue(TestInterface):
     """
 
     def name(self):
+        """Returns the name of the test."""
         return 'Subsystem type verification'
 
     def execute(self, pe, config_data):
+        """Executes the test on the pefile.
+
+        Arguments:
+            pe (pefile): a parsed PE/COFF image file
+            config_data (dict): config data for the test
+
+        Returns:
+            (Result): SKIP, WARN, FAIL, PASS
+        """
         target_requirements = config_data["TARGET_REQUIREMENTS"]
 
         subsystems = target_requirements.get("ALLOWED_SUBSYSTEMS")
@@ -461,10 +518,8 @@ class TestSubsystemValue(TestInterface):
 ###########################
 
 
-#
-# Command Line Interface configuration
-#
 def get_cli_args(args):
+    """Adds CLI arguments for using the image validation tool."""
     parser = argparse.ArgumentParser(description='A Image validation tool for memory mitigation')
 
     parser.add_argument('-i', '--file',
@@ -502,6 +557,7 @@ def get_cli_args(args):
 
 
 def main():
+    """Main entry point into the image validation tool."""
     # setup main console as logger
     logger = logging.getLogger('')
     logger.setLevel(logging.INFO)

@@ -6,7 +6,11 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""An environment capable of scanning the source tree.
 
+Scans the environment for files that describe the source and dependencies
+and then acts upon those files.
+"""
 import os
 import logging
 import pathlib
@@ -22,7 +26,13 @@ ENV_STATE = None
 
 
 class self_describing_environment(object):
+    """An environment capable of scanning the source tree.
+
+    Scans the environment for files that describe the source and dependencies
+    and then acts upon those files.
+    """
     def __init__(self, workspace_path, scopes=(), skipped_dirs=()):
+        """Inits an empty self describing environment."""
         logging.debug("--- self_describing_environment.__init__()")
         logging.debug(f"Skipped directories specified = {skipped_dirs}")
         super(self_describing_environment, self).__init__()
@@ -73,6 +83,7 @@ class self_describing_environment(object):
         return matches
 
     def load_workspace(self):
+        """Loads the workspace."""
         logging.debug("--- self_describing_environment.load_workspace()")
         logging.debug("Loading workspace: %s" % self.workspace)
         logging.debug("  Including scopes: %s" % ', '.join(self.scopes))
@@ -205,21 +216,25 @@ class self_describing_environment(object):
                 desc_object.var_name, desc_object.published_path)
 
     def update_simple_paths(self, env_object):
+        """Updates simple paths."""
         logging.debug("--- self_describing_environment.update_simple_paths()")
         for path in self._get_paths():
             self._apply_descriptor_object_to_env(path, env_object)
 
     def update_extdep_paths(self, env_object):
+        """Updates external dependency paths."""
         logging.debug("--- self_describing_environment.update_extdep_paths()")
         for extdep in self._get_extdeps(env_object):
             self._apply_descriptor_object_to_env(extdep, env_object)
 
     def report_extdep_version(self, env_object):
+        """Reports the version of all external dependencies."""
         logging.debug("--- self_describing_environment.report_extdep_version()")
         for extdep in self._get_extdeps(env_object):
             extdep.report_version()
 
     def update_extdeps(self, env_object):
+        """Updates external dependencies."""
         logging.debug("--- self_describing_environment.update_extdeps()")
         # This function is called by our thread pool
 
@@ -285,11 +300,13 @@ class self_describing_environment(object):
         return success_count, failure_count
 
     def clean_extdeps(self, env_object):
+        """Cleans external dependencies."""
         for extdep in self._get_extdeps(env_object):
             extdep.clean()
             # TODO: Determine whether we want to update the env.
 
     def verify_extdeps(self, env_object):
+        """Verifies external dependencies."""
         result = True
         for extdep in self._get_extdeps(env_object):
             if not extdep.verify():
@@ -300,7 +317,7 @@ class self_describing_environment(object):
 
 
 def DestroyEnvironment():
-    ''' Destroys global environment state '''
+    """Destroys global environment state."""
     global ENVIRONMENT_BOOTSTRAP_COMPLETE, ENV_STATE
 
     ENVIRONMENT_BOOTSTRAP_COMPLETE = False
@@ -308,6 +325,21 @@ def DestroyEnvironment():
 
 
 def BootstrapEnvironment(workspace, scopes=(), skipped_dirs=()):
+    """Performs a multistage bootstrap of the environment.
+
+    1. Locate and load all environment description files
+    2. Parse all PATH-related descriptor files
+    3. Load modules that had dependencies
+    4. Report versions into the version aggregator
+
+    Args:
+        workspace (str): workspace root
+        scopes (Tuple): scopes being built against
+        skipped_dirs (Tuple): directories to ignore
+
+    WARNING: if only one scope or skipped_dir, the tuple should end with a comma
+    example: '(myscope,)'
+    """
     global ENVIRONMENT_BOOTSTRAP_COMPLETE, ENV_STATE
 
     if not ENVIRONMENT_BOOTSTRAP_COMPLETE:
@@ -349,6 +381,19 @@ def BootstrapEnvironment(workspace, scopes=(), skipped_dirs=()):
 
 
 def CleanEnvironment(workspace, scopes=(), skipped_dirs=()):
+    """Cleans all external dependencies based on environment.
+
+    Environment is bootstrapped from provided arguments and all dependencies
+    are cleaned from that.
+
+    Args:
+        workspace (str): workspace root
+        scopes (Tuple): scopes being built against
+        skipped_dirs (Tuple): directories to ignore
+
+    WARNING: if only one scope or skipped_dir, the tuple should end with a comma
+    example: '(myscope,)'
+    """
     # Bootstrap the environment.
     (build_env, shell_env) = BootstrapEnvironment(workspace, scopes, skipped_dirs)
 
@@ -357,16 +402,42 @@ def CleanEnvironment(workspace, scopes=(), skipped_dirs=()):
 
 
 def UpdateDependencies(workspace, scopes=(), skipped_dirs=()):
+    """Updates all external dependencies based on environment.
+
+    Environment is bootstrapped from provided arguments and all dependencies
+    are updated from that.
+
+    Args:
+        workspace (str): workspace root
+        scopes (Tuple): scopes being built against
+        skipped_dirs (Tuple): directories to ignore
+
+    WARNING: if only one scope or skipped_dir, the tuple should end with a comma
+    example: '(myscope,)'
+    """
     # Bootstrap the environment.
     (build_env, shell_env) = BootstrapEnvironment(workspace, scopes, skipped_dirs)
 
-    # Clean all the dependencies.
+    # Update all the dependencies.
     return build_env.update_extdeps(shell_env)
 
 
 def VerifyEnvironment(workspace, scopes=(), skipped_dirs=()):
+    """Verifies all external dependencies based on environment.
+
+    Environment is bootstrapped from provided arguments and all dependencies
+    are verified from that.
+
+    Args:
+        workspace (str): workspace root
+        scopes (Tuple): scopes being built against
+        skipped_dirs (Tuple): directories to ignore
+
+    WARNING: if only one scope or skipped_dir, the tuple should end with a comma
+    example: '(myscope,)'
+    """
     # Bootstrap the environment.
     (build_env, shell_env) = BootstrapEnvironment(workspace, scopes, skipped_dirs)
 
-    # Clean all the dependencies.
+    # Verify all the dependencies.
     return build_env.verify_extdeps(shell_env)

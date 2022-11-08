@@ -159,10 +159,10 @@ Stuart platform build
     Should Be Equal As Integers  ${result.rc}  0
 
 Stuart platform run
-    [Arguments]  ${setting_file}  ${arch}  ${target}  ${tool_chain}  ${addtional_flags}  ${ws}
+    [Arguments]  ${setting_file}  ${arch}  ${target}  ${tool_chain}  ${additional_flags}  ${ws}
     Log to console  Stuart Build Run
     ${result}=   Run Process    stuart_build
-    ...  -c  ${setting_file}  -a  ${arch}  TOOL_CHAIN_TAG\=${tool_chain}  TARGET\=${target}  --FlashOnly  ${addtional_flags}
+    ...  -c  ${setting_file}  -a  ${arch}  TOOL_CHAIN_TAG\=${tool_chain}  TARGET\=${target}  --FlashOnly  ${additional_flags}
     ...  cwd=${ws}  stdout=stdout.txt  stderr=stderr.txt
     Log Many	stdout: ${result.stdout}  stderr: ${result.stderr}
     Should Be Equal As Integers  ${result.rc}  0

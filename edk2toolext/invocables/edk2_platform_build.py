@@ -6,6 +6,13 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""Invocable class that does a build.
+
+Contains a BuildSettingsManager that must be subclassed in a build settings
+file, along with a UefiBuilder subclass. This provides platform specific
+information to the Edk2PlatformBuild invocable while allowing the invocable
+itself to remain platform agnostic.
+"""
 import os
 import sys
 import logging
@@ -20,19 +27,36 @@ from edk2toollib.uefi.edk2.path_utilities import Edk2Path
 
 
 class BuildSettingsManager(Edk2InvocableSettingsInterface):
-    ''' Platform settings will be accessed through this implementation. '''
+    """Platform specific settings for Edk2PlatformBuild.
 
-    def GetName(self):
-        ''' Get the name of the repo, platform, or product being build '''
+    Provides information necessary for `stuart_build.exe`
+    or `edk2_platform_build.py` to successfully execute.
+
+    Example: Example: Overriding BuildSettingsManager
+        ```python
+        from edk2toolext.invocables.edk2_platform_build import BuildSettingsManager
+        class PlatformManager(BuildSettingsManager):
+            def GetName(self) -> str:
+                return "QemuQ35"
+        ```
+    """
+
+    def GetName(self) -> str:
+        """Get the name of the repo, platform, or product being build.
+
+        TIP: Optional Override in subclass
+
+        Returns:
+            (str): Name of the repo, platform, or product
+        """
         return None
 
 
 class Edk2PlatformBuild(Edk2Invocable):
-    ''' Imports UefiBuilder and calls go '''
+    """Invocable that performs some environment setup,Imports UefiBuilder and calls go."""
 
     def AddCommandLineOptions(self, parserObj):
-        ''' adds command line options to the argparser '''
-
+        """Adds command line options to the argparser."""
         # PlatformSettings could also be a subclass of UefiBuilder, who knows!
         if isinstance(self.PlatformSettings, UefiBuilder):
             self.PlatformBuilder = self.PlatformSettings
@@ -46,20 +70,25 @@ class Edk2PlatformBuild(Edk2Invocable):
         self.PlatformBuilder.AddPlatformCommandLineOptions(parserObj)
 
     def RetrieveCommandLineOptions(self, args):
-        '''  Retrieve command line options from the argparser '''
+        """Retrieve command line options from the argparser."""
         self.PlatformBuilder.RetrievePlatformCommandLineOptions(args)
 
     def GetSettingsClass(self):
-        '''  Providing BuildSettingsManager  '''
+        """Returns the BuildSettingsManager class.
+
+        WARNING: CiSetupSettingsManager must be subclassed in your platform settings file.
+        """
         return BuildSettingsManager
 
     def GetLoggingFileName(self, loggerType):
+        """Returns the filename of where the logs for the Edk2PlatformBuild invocable are stored in."""
         name = self.PlatformSettings.GetName()
         if name is not None:
             return f"BUILDLOG_{name}"
         return "BUILDLOG"
 
     def Go(self):
+        """Executes the core functionality of the Edk2PlatformBuild invocable."""
         logging.info("Running Python version: " + str(sys.version_info))
 
         Edk2PlatformBuild.collect_python_pip_info()
@@ -110,4 +139,5 @@ class Edk2PlatformBuild(Edk2Invocable):
 
 
 def main():
+    """Entry point invoke Edk2PlatformBuild."""
     Edk2PlatformBuild().Invoke()

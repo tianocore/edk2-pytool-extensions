@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 # spell-checker:ignore rtags
+"""Omnicache tool for lessening network usage and time of cloning repositories."""
 import os
 import sys
 import logging
@@ -37,14 +38,15 @@ PRE_0_11_OMNICACHE_FILENAME = "omnicache.yaml"
 
 
 class Omnicache():
-    """ Class for managing an omnicache instance"""
-
+    """Class for managing an omnicache instance."""
     def __init__(self, cachepath, create=False, convert=True):
-        """Initializes an omnicache
-            cachepath   - path to the omnicache git repo
-            create      - if True, and omnicache doesn't already exist at cachepath, create a new omnicache instance
-            convert     - if True, and old (but compatible) omnicache already exists, at cachepath, convert it to this
-                          version of Omnicache
+        """Initializes an omnicache.
+
+        Args:
+            cachepath (str): path to the omnicache git repo
+            create (bool):  create a new omnicache instance if it doesn't exist
+            convert (bool): if an old (but compatible) omnicache already exists, at cachepath, convert it to this
+                version of Omnicache
         """
         self.path = cachepath
         self._InvalidateUrlLookupCache()
@@ -61,8 +63,12 @@ class Omnicache():
 
     def _ValidateOmnicache(self):
         """Validates whether self.path has a valid omnicache instance.
-        Returns: (valid, convertible) where "valid" is True if a compatible Omnicache exists at self.path, and
-                 "convertible" is True if an older Omnicache that can be converted exists at self.path.
+
+        Returns:
+            (bool, bool): valid, convertible
+
+        NOTE: "valid" is True if a compatible Omnicache exists at self.path
+        NOTE: "convertible" is True if an older Omnicache that can be converted exists at self.path.
         """
         logging.info("Checking if {0} is valid omnicache.".format(self.path))
         if (not os.path.isdir(self.path)):
@@ -92,7 +98,7 @@ class Omnicache():
         return (False, False)
 
     def _InitOmnicache(self):
-        """Initializes a new omnicache instance"""
+        """Initializes a new omnicache instance."""
         logging.critical("Initializing Omnicache in {0}".format(self.path))
         os.makedirs(self.path, exist_ok=True)
         ret = RunCmd("git", "init --bare", workingdir=self.path)
@@ -109,7 +115,7 @@ class Omnicache():
                       workingdir=self.path)
 
     def _ConvertOmnicache(self):
-        """Converts an existing bare git repo from a previous omnicache version to the current omnicache version"""
+        """Converts an existing bare git repo from a previous omnicache version to the current omnicache version."""
         logging.info("Converting Omnicache in {0} to latest format.".format(self.path))
         if (os.path.exists(os.path.join(self.path, PRE_0_11_OMNICACHE_FILENAME))):
             os.remove(os.path.join(self.path, PRE_0_11_OMNICACHE_FILENAME))
@@ -171,7 +177,7 @@ class Omnicache():
                       workingdir=self.path)
 
     def _RefreshUrlLookupCache(self):
-        """Refreshes the URL lookup cache"""
+        """Refreshes the URL lookup cache."""
         if (len(self.urlLookupCache) == 0):
             logging.info("Regenerating URL lookup cache.")
             out = StringIO()
@@ -183,21 +189,23 @@ class Omnicache():
                 self.urlLookupCache[remote.split()[1]] = ".".join(remote.split()[0].split(".")[1:-1])
 
     def _InvalidateUrlLookupCache(self):
-        """Invalidates the URL lookup cache"""
+        """Invalidates the URL lookup cache."""
         logging.debug("Invalidating URL lookup cache.")
         self.urlLookupCache = {}
 
     def _LookupRemoteForUrl(self, url):
-        """Returns the git remote name for the specified URL, or None if it doesn't exist"""
+        """Returns the git remote name for the specified URL, or None if it doesn't exist."""
         self._RefreshUrlLookupCache()
         if (url in self.urlLookupCache):
             return self.urlLookupCache[url]
         return None
 
     def AddRemote(self, url, name=None):
-        """Adds a remote for the specified URL to the omnicache
-            url - URL for which to add a remote
-            name - (optional) - provides a "display name" to be associated with this remote.
+        """Adds a remote for the specified URL to the omnicache.
+
+        Args:
+            url (str): URL for which to add a remote
+            name(str, optional): provides a "display name" to be associated with this remote.
         """
         # if we already have this remote (i.e. a remote with this URL exists), then just update.
         if (self._LookupRemoteForUrl(url) is not None):
@@ -222,7 +230,7 @@ class Omnicache():
                       workingdir=self.path)
 
     def RemoveRemote(self, url):
-        """Removes the remote for the specified url from the cache"""
+        """Removes the remote for the specified url from the cache."""
         name = self._LookupRemoteForUrl(url)
         if (name is None):
             logging.critical("Failed to remove node for url {0}: such a remote does not exist.".format(url))
@@ -233,10 +241,12 @@ class Omnicache():
         return ret
 
     def UpdateRemote(self, oldUrl, newUrl=None, newName=None):
-        """Updates the remote
-            oldUrl - current url for the remote
-            newUrl - (optional) if specified, updates the remote to point to the new URL.
-            newName - (optional) if specified, updates the "displayname" for the remote.
+        """Updates the remote.
+
+        Args:
+            oldUrl (str): current url for the remote
+            newUrl (str, optional): updates the remote to point to the new URL.
+            newName (str, optional): updates the "displayname" for the remote.
         """
         remote = self._LookupRemoteForUrl(oldUrl)
         if (remote is None):
@@ -259,7 +269,7 @@ class Omnicache():
         return 0
 
     def Fetch(self, jobs=0):
-        """Fetches all remotes"""
+        """Fetches all remotes."""
         logging.info("Fetching all remotes.")
         self._RefreshUrlLookupCache()
         # Tricky: we pass no-tags here, since we set up custom fetch refs for tags on a per-remote basis. This prevents
@@ -270,10 +280,12 @@ class Omnicache():
             return RunCmd("git", "fetch --all --no-tags", workingdir=self.path)
 
     def GetRemoteData(self):
-        """Gets Remote Data
-            Returns: a dict of dicts of the form:
-            {"<uuid>":{"url":<url>, "displayname":<displayname>}}
-            note that "displayname" may not be present if the remote has no display name.
+        """Gets Remote Data.
+
+        Returns:
+            (dict(dict)): {"<uuid>":{"url":<url>, "displayname":<displayname>}}
+
+        Note: "displayname" may not be present if the remote has no display name.
         """
         logging.info("Retrieving all remote data")
         self._RefreshUrlLookupCache()
@@ -296,7 +308,7 @@ class Omnicache():
         return remoteData
 
     def List(self):
-        """Prints the current set of remotes"""
+        """Prints the current set of remotes."""
         print("List OMNICACHE content:\n")
         remoteData = self.GetRemoteData()
         if (len(remoteData) == 0):
@@ -307,7 +319,9 @@ class Omnicache():
     @staticmethod
     def GetRemotes(path):
         """Gets the remotes for the git repository at the specified path.
-        Returns: dict of the form {<remote>:<url>}
+
+        Returns:
+            (dict): {<remote>:<url>}
         """
         logging.info("Retreiving remotes")
         remotes = {}
@@ -326,7 +340,7 @@ class Omnicache():
 
     @staticmethod
     def _IsValidUuid(val):
-        """Returns whether the input is valid UUID"""
+        """Returns whether the input is valid UUID."""
         try:
             uuid.UUID(str(val))
             return True
@@ -336,7 +350,7 @@ class Omnicache():
 
 
 def ProcessInputConfig(omnicache, input_config):
-    """Adds a list of remotes from a YAML config file to the omnicache"""
+    """Adds a list of remotes from a YAML config file to the omnicache."""
     logging.info("Adding remotes from {0}".format(input_config))
     with open(input_config) as icf:
         content = yaml.safe_load(icf)
@@ -350,7 +364,7 @@ def ProcessInputConfig(omnicache, input_config):
 
 
 def ScanDirectory(omnicache, scanpath):
-    """Recursively scans a directory for git repositories and adds remotes and submodule remotes to omnicache"""
+    """Recursively scans a directory for git repositories and adds remotes and submodule remotes to omnicache."""
     logging.info("Scanning {0} for remotes to add.".format(scanpath))
     if (not os.path.isdir(scanpath)):
         logging.critical("specified scan path is invalid.")
@@ -375,7 +389,7 @@ def ScanDirectory(omnicache, scanpath):
 
 
 def Export(omnicache, exportPath):
-    """Exports omnicache configuration to YAML"""
+    """Exports omnicache configuration to YAML."""
     logging.info("Exporting omnicache config for {0} to {1}".format(omnicache.path, exportPath))
     content = []
     for (name, data) in omnicache.GetRemoteData().items():
@@ -393,6 +407,7 @@ def Export(omnicache, exportPath):
 
 
 def get_cli_options():
+    """Add CLI arguments to argparse for controlling the omnicache."""
     parser = argparse.ArgumentParser(description='Tool to provide easy method create and manage the OMNICACHE', )
     parser.add_argument(dest="cache_dir", help="path to an existing or desired OMNICACHE directory")
     parser.add_argument("--scan", dest="scan", default=None,
@@ -427,6 +442,7 @@ def get_cli_options():
 
 
 def main():
+    """Main entry point to managing the omnicache."""
     # setup main console as logger
     logger = logging.getLogger('')
     logger.setLevel(logging.NOTSET)
