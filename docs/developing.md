@@ -97,7 +97,7 @@ out all the different parts.
 2. Run a Basic Python docstring Check (using pydocstring) and resolve any issues
 
     ``` cmd
-    pydocstyle .
+    pydocstyle edk2toolext
     ```
 
 3. Run the `BasicDevTests.py` script to check file encoding, file naming, etc
