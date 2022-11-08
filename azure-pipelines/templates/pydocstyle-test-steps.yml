@@ -7,17 +7,15 @@
 ##
 
 parameters:
-  none: ''
+  root_package_folder: ''
   
 steps:
-- script: pydocstyle .
-  workingDirectory: $(root_package_folder)/
+- script: pydocstyle ${{parameters.root_package_folder}}
   displayName: 'Run pydocstyle'
   condition: succeededOrFailed()
 
 # Only capture and archive the lint log on failures.
-- script: pydocstyle . > pydocstyle.err.log
-  workingDirectory: $(root_package_folder)/
+- script: pydocstyle ${{parameters.root_package_folder}} > pydocstyle.err.log
   displayName: 'Capture pydocstyle failures'
   condition: Failed()
 

@@ -34,6 +34,8 @@ jobs:
   - template: flake8-test-steps.yml
 
   - template: pydocstyle-test-steps.yml
+    parameters:
+      root_package_folder: ${{parameters.root_package_folder}}
 
   - template: spell-test-steps.yml
 
