@@ -195,7 +195,7 @@ Test Stuart PR using ProjectMu for all policies when a PR contains a deleted fol
     Stage changed file  ${file_to_modify}  ${ws_root}
     Commit changes  "Changes"  ${ws_root}
 
-    # Platform CI test DSC dependnency on implementation file # Policy 4
+    # Platform CI test DSC dependency on implementation file # Policy 4
     ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  PcAtChipsetPkg  ${default_branch}  ${EMPTY}  ${ws_root}
     Should Be Empty    ${pkgs}
 
@@ -219,7 +219,7 @@ Test Stuart PR using ProjectMu for all policies when a PR contains a deleted fol
     # Stage changed file  ${file_to_modify}  ${ws_root}
     # Commit changes  "Changes"  ${ws_root}
 
-    # # Platform CI test DSC dependnency on implementation file # Policy 4
+    # # Platform CI test DSC dependency on implementation file # Policy 4
     # ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  SecurityPkg  ${default_branch}  ${EMPTY}  ${ws_root}
     # Should Be Empty    ${pkgs}
 
@@ -240,7 +240,7 @@ Test Stuart PR using ProjectMu for all policies when a PR contains file added
     Stage changed file  ${location_to_move}  ${ws_root}
     Commit changes  "Changes"  ${ws_root}
 
-    # Platform CI test DSC dependnency on implementation file # Policy 4
+    # Platform CI test DSC dependency on implementation file # Policy 4
     ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdeModulePkg  ${default_branch}  ${EMPTY}  ${ws_root}
     Should Be Empty    ${pkgs}
 
@@ -261,7 +261,7 @@ Test Stuart PR for all policies when a PR contains directory added
     Stage changed file  ${location_to_move}  ${ws_root}
     Commit changes  "Changes"  ${ws_root}
 
-    # Platform CI test DSC dependnency on implementation file # Policy 4
+    # Platform CI test DSC dependency on implementation file # Policy 4
     ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  UefiCpuPkg  ${default_branch}  ${EMPTY}  ${ws_root}
     Should Be Empty    ${pkgs}
 
@@ -282,7 +282,7 @@ Test Stuart PR for changing a file at the root of repo
     Stage changed file  ${file_to_modify}  ${ws_root}
     Commit changes  "Changes"  ${ws_root}
 
-    # Platform CI test DSC dependnency on implementation file # Policy 4
+    # Platform CI test DSC dependency on implementation file # Policy 4
     ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdePkg  ${default_branch}  ${EMPTY}  ${ws_root}
     Should Be Empty    ${pkgs}
 
