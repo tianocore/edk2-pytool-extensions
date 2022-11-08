@@ -10,7 +10,7 @@ parameters:
   none: ''
   
 steps:
-- script: pydocstyle .
+- script: pydocstyle edk2toolext
   displayName: 'Run pydocstyle'
   condition: succeededOrFailed()
 
