@@ -314,12 +314,12 @@ class UefiBuilder(object):
         edk2_build_cmd = self.env.GetValue("EDK_BUILD_CMD")
         if edk2_build_cmd is None:
             edk2_build_cmd = "build"
-        logging.debug("The edk2 build command is %s" % edk2_build_cmd)
+        logging.debug(f"The edk2 build command is {edk2_build_cmd}")
 
         edk2_build_params = self.env.GetValue("EDK_BUILD_PARAMS")
         if edk2_build_params is None:
             edk2_build_params = params
-        logging.debug("Edk2 build parameters are %s" % edk2_build_params)
+        logging.debug(f"Edk2 build parameters are {edk2_build_params}")
 
         ret = RunCmd(edk2_build_cmd, edk2_build_params)
         # WORKAROUND - Undo the workaround.
