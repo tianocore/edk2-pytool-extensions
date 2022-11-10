@@ -22,6 +22,18 @@ body:
       description: "A clear and concise description of what the bug is."
     validations:
       required: true
+  - type: dropdown
+    id: py_version
+    attributes:
+      label: What Python version are you using?
+      description: "Note: Bug fixes are only supported on these Python versions."
+      multiple: true
+      options:
+        - Python 3.9
+        - Python 3.10
+        - Python 3.11
+    validations:
+      required: true
   - type: textarea
     id: repro
     attributes:
@@ -45,7 +57,7 @@ body:
     id: env
     attributes:
       label: Execution Environment
-      description: "List the OS, python version, system environment variables, etc."
+      description: "List the OS, python micro version (e.g. 3.10.8), system environment variables, etc."
     validations:
       required: false
   - type: textarea
