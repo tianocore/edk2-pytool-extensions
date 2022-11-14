@@ -3,6 +3,6 @@ pytest-html == 3.2.0
 pytest-cov == 4.0.0
 flake8 == 5.0.4
 pydocstyle == 6.1.1
-pyopenssl == 22.0.0
+pyopenssl == 22.1.0
 pefile == 2022.5.30
 semantic_version == 2.10.0
