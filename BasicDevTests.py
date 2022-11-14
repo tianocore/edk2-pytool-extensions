@@ -18,7 +18,7 @@ import logging
 import re
 
 
-def TestEncodingOk(apath, encodingValue): # noqa
+def TestEncodingOk(apath, encodingValue):
     try:
         with open(apath, "rb") as f_obj:
             f_obj.read().decode(encodingValue)
@@ -29,7 +29,7 @@ def TestEncodingOk(apath, encodingValue): # noqa
     return True
 
 
-def TestFilenameLowercase(apath): # noqa
+def TestFilenameLowercase(apath):
     if apath != apath.lower():
         logging.critical(f"Lowercase failure: file {apath} not lower case path")
         logging.error(f"\n\tLOWERCASE: {apath.lower()}\n\tINPUTPATH: {apath}")
@@ -47,14 +47,14 @@ def PackageAndModuleValidCharacters(apath):
     return True
 
 
-def TestNoSpaces(apath): # noqa
+def TestNoSpaces(apath):
     if " " in apath:
         logging.critical(f"NoSpaces failure: file {apath} has spaces in path")
         return False
     return True
 
 
-def TestRequiredLicense(apath): # noqa
+def TestRequiredLicense(apath):
     licenses = ["SPDX-License-Identifier: BSD-2-Clause-Patent", ]
     try:
         with open(apath, "rb") as f_obj:

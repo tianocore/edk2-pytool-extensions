@@ -28,3 +28,13 @@ calling `stuart_update` and make it far easier to switch between multiple branch
 scopes where dependencies may change.
 
 For more info, see [the External Dependencies docs](using_extdep.md).
+
+## EDK_BUILD_CMD
+
+If present, the absolute path to an application to use for the edk build process will be
+invoked instead of `build`. This is primarily used to allow a tool to wrap around `build`.
+
+## EDK_BUILD_PARAMS
+
+If present, these parameters will be passed to the build command. This is primarily used to
+pair wrapper-specific parameters with the wrapper passed in `EDK_BUILD_CMD`.
