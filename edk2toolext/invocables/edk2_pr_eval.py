@@ -17,6 +17,7 @@ while allowing the invocable itself to remain platform agnostic.
 import os
 import logging
 from io import StringIO
+from pathlib import Path
 from edk2toolext import edk2_logging
 from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable
 from edk2toolext.invocables.edk2_multipkg_aware_invocable import MultiPkgAwareSettingsInterface
@@ -180,6 +181,18 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         if rc != 0:
             return {}
 
+        #
+        # Policy 0 - A file outside a package was modified and force build
+        #            all packages on a modified file outside a package setting
+        #            is enabled.
+        #
+        for f in files:
+            if not self.edk2_path_obj.GetContainingPackage(os.path.abspath(f)):
+                return dict.fromkeys(possible_packages,
+                                     "Policy 0 - Build all packages if "
+                                     "a file is modified outside a "
+                                     "package.")
+
         remaining_packages = possible_packages.copy()  # start with all possible packages and remove each
         # package once it is determined to be build.  This optimization
         # avoids checking packages that already will be built.
@@ -267,6 +280,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
 
             # files are all the files changed edk2 workspace root relative path
             changed_modules = self._get_unique_module_infs_changed(files)
+            changed_modules = [Path(m) for m in changed_modules]
 
             # now check DSC
             dsc = DscParser()
@@ -277,6 +291,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
             dsc.SetInputVars(PlatformDscInfo[1])
             dsc.ParseFile(PlatformDscInfo[0])
             allinfs = dsc.OtherMods + dsc.ThreeMods + dsc.SixMods + dsc.Libs  # get list of all INF files
+            allinfs = [Path(i) for i in allinfs]
 
             #
             # Note: for now we assume that remaining_packages has only 1 package and that it corresponds
@@ -285,7 +300,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
             for p in remaining_packages[:]:  # slice so we can delete as we go
                 for cm in changed_modules:
                     if cm in allinfs:  # is the changed module listed in the DSC file?
-                        packages_to_build[p] = f"Policy 4 - Package Dsc depends on {cm}"
+                        packages_to_build[p] = f"Policy 4 - Package Dsc depends on {str(cm)}"
                         remaining_packages.remove(p)  # remove from remaining packages
                         break
 

@@ -10,9 +10,12 @@ import unittest
 from edk2toolext.environment import uefi_build
 from edk2toolext.environment.plugintypes import uefi_helper_plugin
 from edk2toolext.environment.plugin_manager import PluginManager
+from edk2toollib.utility_functions import GetHostInfo
 import argparse
 import tempfile
 import os
+import stat
+from inspect import cleandoc
 from edk2toolext.environment import shell_environment
 
 
@@ -90,6 +93,72 @@ class TestUefiBuild(unittest.TestCase):
         helper = uefi_helper_plugin.HelperFunctions()
         ret = builder.Go(self.WORKSPACE, "", helper, manager)
         self.assertEqual(ret, 0)
+
+    def test_build_wrapper(self):
+        """Tests that a build wrapper can be used."""
+        builder = uefi_build.UefiBuilder()
+
+        # Post-build is not needed to test the build wrapper
+        builder.SkipPostBuild = True
+
+        # Some basic build variables need to be set to make it through
+        # the build preamble to the point the wrapper gets called.
+        shell_environment.GetBuildVars().SetValue("TARGET_ARCH",
+                                                  "IA32",
+                                                  "Set in build wrapper test")
+        shell_environment.GetBuildVars().SetValue("EDK_TOOLS_PATH",
+                                                  self.WORKSPACE,
+                                                  "Set in build wrapper test")
+
+        # "build_wrapper" -> The actual build_wrapper script
+        # "test_file" -> An empty file written by build_wrapper
+        build_wrapper_path = os.path.join(self.WORKSPACE, "build_wrapper")
+        test_file_path = os.path.join(self.WORKSPACE, "test_file")
+
+        # This script will write an empty file called "test_file" to the
+        # temporary directory (workspace) to demonstrate that it ran successfully
+        build_wrapper_file_content = """
+            import os
+            import sys
+
+            test_file_dir = os.path.dirname(os.path.realpath(__file__))
+            test_file_path = os.path.join(test_file_dir, "test_file")
+
+            with open(test_file_path, 'w'):
+                pass
+
+            sys.exit(0)
+            """
+
+        build_wrapper_cmd = "python"
+        build_wrapper_params = os.path.normpath(build_wrapper_path)
+
+        TestUefiBuild.write_to_file(
+            build_wrapper_path,
+            cleandoc(build_wrapper_file_content))
+
+        if GetHostInfo().os == "Linux":
+            os.chmod(build_wrapper_path,
+                     os.stat(build_wrapper_path).st_mode | stat.S_IEXEC)
+
+        # This is the main point of this test. The wrapper file should be
+        # executed instead of the build command. In real scenarios, the wrapper
+        # script would subsequently call the build command.
+        shell_environment.GetBuildVars().SetValue(
+            "EDK_BUILD_CMD", build_wrapper_cmd, "Set in build wrapper test")
+        shell_environment.GetBuildVars().SetValue(
+            "EDK_BUILD_PARAMS", build_wrapper_params, "Set in build wrapper test")
+
+        manager = PluginManager()
+        helper = uefi_helper_plugin.HelperFunctions()
+        ret = builder.Go(self.WORKSPACE, "", helper, manager)
+
+        # Check the build wrapper return code
+        self.assertEqual(ret, 0)
+
+        # Check that the build wrapper ran successfully by checking that the
+        # file written by the build wrapper file exists
+        self.assertTrue(os.path.isfile(test_file_path))
 
     # TODO finish unit test
 

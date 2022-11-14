@@ -9,7 +9,7 @@
 
 import sys
 import os
-import imp
+import importlib
 import logging
 from edk2toolext.environment import shell_environment
 
@@ -82,32 +82,39 @@ class PluginManager(object):
             PluginDescriptor(PluginDescriptor): the plugin descriptor
         """
         PluginDescriptor.Obj = None
-        PythonFileName = PluginDescriptor.descriptor["module"] + ".py"
-        PyModulePath = os.path.join(os.path.dirname(os.path.abspath(
-            PluginDescriptor.descriptor["descriptor_file"])), PythonFileName)
-        logging.debug("Loading Plugin from %s", PyModulePath)
-        try:
-            with open(PyModulePath, "r") as plugin_file:
-                _module = imp.load_module(
-                    "UefiBuild_Plugin_" + PluginDescriptor.descriptor["module"],
-                    plugin_file,
-                    PyModulePath,
-                    ("py", "r", imp.PY_SOURCE))
 
+        py_file_path = PluginDescriptor.descriptor["module"] + ".py"
+        py_module_path = os.path.join(os.path.dirname(os.path.abspath(
+            PluginDescriptor.descriptor["descriptor_file"])), py_file_path)
+        py_module_name = "UefiBuild_Plugin_" + PluginDescriptor.descriptor["module"]
+
+        logging.debug("Loading Plugin from %s", py_module_path)
+
+        try:
+            spec = importlib.util.spec_from_file_location(
+                py_module_name, py_module_path)
+            module = importlib.util.module_from_spec(spec)
+            sys.modules[py_module_name] = module
+
+            py_module_dir = os.path.dirname(py_module_path)
+            if py_module_dir not in sys.path:
+                sys.path.append(py_module_dir)
+
+            spec.loader.exec_module(module)
         except Exception:
             exc_info = sys.exc_info()
             logging.error("Failed to import plugin: %s",
-                          PyModulePath, exc_info=exc_info)
+                          py_module_path, exc_info=exc_info)
             return -1
 
         # Instantiate the plugin
         try:
-            obj = getattr(_module, PluginDescriptor.descriptor["module"])
+            obj = getattr(module, PluginDescriptor.descriptor["module"])
             PluginDescriptor.Obj = obj()
         except AttributeError:
             exc_info = sys.exc_info()
             logging.error("Failed to instantiate plugin: %s",
-                          PyModulePath, exc_info=exc_info)
+                          py_module_path, exc_info=exc_info)
             return -1
 
         return 0
