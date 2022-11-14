@@ -310,7 +310,18 @@ class UefiBuilder(object):
         pre_build_env_chk = env.checkpoint()
         env.set_shell_var('PYTHONHASHSEED', '0')
         env.log_environment()
-        ret = RunCmd("build", params)
+
+        edk2_build_cmd = self.env.GetValue("EDK_BUILD_CMD")
+        if edk2_build_cmd is None:
+            edk2_build_cmd = "build"
+        logging.debug(f"The edk2 build command is {edk2_build_cmd}")
+
+        edk2_build_params = self.env.GetValue("EDK_BUILD_PARAMS")
+        if edk2_build_params is None:
+            edk2_build_params = params
+        logging.debug(f"Edk2 build parameters are {edk2_build_params}")
+
+        ret = RunCmd(edk2_build_cmd, edk2_build_params)
         # WORKAROUND - Undo the workaround.
         env.restore_checkpoint(pre_build_env_chk)
 

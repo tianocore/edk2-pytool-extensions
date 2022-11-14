@@ -80,7 +80,7 @@ setuptools.setup(
     },
     install_requires=[
         'pyyaml>=5.3.1',
-        'edk2-pytool-library>=0.11.0',
+        'edk2-pytool-library>=0.12.1',
         'pefile>=2019.4.18',
         'semantic_version>=2.10.0'
     ],

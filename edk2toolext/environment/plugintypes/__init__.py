@@ -3,5 +3,4 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
-
-# noqa
+"""This package contains the different plugin types available in the environment."""
