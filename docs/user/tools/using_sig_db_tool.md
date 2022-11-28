@@ -1,4 +1,4 @@
-# UEFI Secure Boot Database Inspection Tool
+# Secure Boot Database Inspection Tool
 
 A simple command-line interface to the UEFI Secure Boot Database Library focused
 on inspection of UEFI signature databases

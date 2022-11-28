@@ -1,4 +1,4 @@
-# invocables
+# Invocables
 
 Invocables exist as a way to setup the EDK2 environment in a consistent way such that any script could be run in the
 context of a UEFI environment. The base_abstract_invocable describes the necessities of the EDK2 environment, to be

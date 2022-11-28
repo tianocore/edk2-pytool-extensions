@@ -61,7 +61,7 @@ Examples:
 ## License
 
 All content in this repository is licensed under [BSD-2-Clause Plus Patent
-License](license.txt).
+License](https://github.com/tianocore/edk2-pytool-extensions/blob/master/LICENSE).
 
 [![PyPI -
 License](https://img.shields.io/pypi/l/edk2_pytool_extensions.svg)](https://pypi.org/project/edk2-pytool-extensions/)
@@ -120,4 +120,17 @@ details.
 
 ## Documentation
 
-See the github repo __docs__ folder
+Documentation is located in the ```docs/``` folder and is split into two
+separate categories. The first is located at ```docs/user/``` and is
+documentation and API references for those that are using this package in their
+own project. Users can generate a local copy of the
+[ReadTheDocs](https://readthedocs.org/) documentation by executing the
+following command from the root of the project:
+
+```cmd
+pip install --upgrade -r .\docs\user\requirements.txt
+mkdocs serve
+```
+
+The second is located at ```docs/contributor/``` and is documentation for
+contributing to the edk2-pytool-extensions repository.

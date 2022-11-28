@@ -1,4 +1,4 @@
-# Windows Firmware Policy Command-Line Tool
+# Firmware Policy Tool
 
 A simple command-line interface to the Windows Firmware Policy Library.
 

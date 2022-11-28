@@ -1,4 +1,4 @@
-# Omnicache
+# Omnicache Tool
 
 Omnicache, the tool, is a command line tool that helps setup and update an
 Omnicache.

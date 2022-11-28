@@ -1,4 +1,4 @@
-# Making a new Plugin Type
+# Creating a Plugin
 
 Any file that ends in `_plug_in` is automatically included in the list of plugins.
 The only thing you need to do is to create a class and use it.
