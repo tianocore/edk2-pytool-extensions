@@ -127,6 +127,8 @@
         "markdownlint",
         "xffd",
         "rtags",
-        "Pdbs"
+        "Pdbs",
+        "uncrustify",
+        "mkdocs"
     ]
 }

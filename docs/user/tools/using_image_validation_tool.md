@@ -1,4 +1,4 @@
-# PE/COFF Image Validation
+# PE/COFF Image Validation Tool
 
 The PE/COFF image validation tool is a command line tool used to verify that
 memory protection requirements such as section alignment and write / execute

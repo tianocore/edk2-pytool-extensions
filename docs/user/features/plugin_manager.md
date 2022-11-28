@@ -53,8 +53,7 @@ executed.
 
 ## Writing your own
 
-Writing your own plugin is fairly simple. See MuEnvironment\plugin_manager.py
-for the interface definition and required functions for each type of plugin.
+See [Creating a Plugin](/features/creating_plugins)
 
 For IUefiBuildPlugin type the plugin will simply be called during the pre and
 post build steps after the platform builder object runs its step. The

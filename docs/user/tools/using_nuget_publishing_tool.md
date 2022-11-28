@@ -1,4 +1,4 @@
-# NugetPublishing
+# Nuget Publishing Tool
 
 Tool to help create and publish nuget packages for Project Mu resources
 
