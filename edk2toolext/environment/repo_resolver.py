@@ -246,7 +246,8 @@ def checkout(abs_file_system_path, dep, repo, update_ok=False, ignore_dep_state_
     Raises:
         (Exception): dependency state mismatch if ignore_dep_state_mismatch = False
 
-    TIP: Either abs_file_system_path or repo is necessary. Not both.
+    !!! tip
+        Either abs_file_system_path or repo is necessary. Not both.
     """
     logger = logging.getLogger("git")
     if repo is None:

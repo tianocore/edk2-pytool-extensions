@@ -39,13 +39,14 @@ class Edk2InvocableSettingsInterface():
     required to be implemented and can be implemented in a settings
     manager.
 
-    Example: Overriding Edk2InvocableSettingsInterface
+    !!! example "Example of Overriding Edk2InvocableSettingsInterface"
         ``` python
         import os
         import logging
         import argparse
         from typing import Iterable, Tuple
         from edk2toolext.edk2_invocable import Edk2InvocableSettingsInterface
+
         class NewInvocableSettingsManager(Edk2InvocableSettingsInterface):
             def GetWorkspaceRoot(self) -> str:
                 return os.path.abspath(__file__)
@@ -66,15 +67,17 @@ class Edk2InvocableSettingsInterface():
                 return ("Downloads/Extra")
         ```
 
-    WARNING: This interface should not be subclassed directly unless you are creating a new invocable
-    Other invocables subclass from this interface, so you have the ability to
-    call the functions in this class as a part of those invocable settings managers.
+    !!! warning
+        This interface should not be subclassed directly unless you are creating a new invocable
+        Other invocables subclass from this interface, so you have the ability to
+        call the functions in this class as a part of those invocable settings managers.
     """
 
     def GetWorkspaceRoot(self) -> str:
         """Return the workspace root for initializing the SDE.
 
-        TIP: Required Override in a subclass
+        !!! tip
+            Required Override in a subclass
 
         The absolute path to the root of the workspace
 
@@ -86,7 +89,8 @@ class Edk2InvocableSettingsInterface():
     def GetPackagesPath(self) -> Iterable[os.PathLike]:
         """Provides an iterable of paths should should be mapped as edk2 PackagePaths.
 
-        TIP: Optional Override in a subclass
+        !!! tip
+            Optional Override in a subclass
 
         Returns:
             (Iterable[os.PathLike]): paths
@@ -96,7 +100,8 @@ class Edk2InvocableSettingsInterface():
     def GetActiveScopes(self) -> Tuple[str]:
         """Provides scopes that should be active for this process.
 
-        TIP: Optional Override in a subclass
+        !!! tip
+            Optional Override in a subclass
 
         Returns:
             (Tuple[str]): scopes
@@ -106,23 +111,28 @@ class Edk2InvocableSettingsInterface():
     def GetLoggingLevel(self, loggerType: str) -> str:
         """Get the logging level depending on logger type.
 
-        TIP: Optional Override in a subclass
+        !!! tip
+            Optional Override in a subclass
 
         Returns:
             (Logging.Level): The logging level
 
-        HINT: loggerType possible values
-        base == lowest logging level supported
-        con  == Screen logging
-        txt  == plain text file logging
-        md   == markdown file logging
+        !!! note "loggerType possible values"
+            "base": lowest logging level supported
+
+            "con": logs to screen
+
+            "txt": logs to plain text file
+
+            "md": logs to markdown file
         """
         return None
 
     def AddCommandLineOptions(self, parserObj: object) -> None:
         """Add command line options to the argparser.
 
-        TIP: Optional override in a subclass
+        !!! tip
+            Optional override in a subclass
 
         Args:
             parserObj: Argparser object.
@@ -132,7 +142,8 @@ class Edk2InvocableSettingsInterface():
     def RetrieveCommandLineOptions(self, args: object) -> None:
         """Retrieve Command line options from the argparser.
 
-        TIP: Optional override in a subclass
+        !!! tip
+            Optional override in a subclass
 
         Args:
             args: argparser args namespace containing command line options
@@ -142,7 +153,8 @@ class Edk2InvocableSettingsInterface():
     def GetSkippedDirectories(self) -> Tuple[str]:
         """Returns a tuple containing workspace-relative directories to be skipped.
 
-        TIP: Optional override in a subclass
+        !!! tip
+            Optional override in a subclass
 
         Returns:
             (Tuple[str]): directories to be skipped.
@@ -157,14 +169,15 @@ class Edk2Invocable(BaseAbstractInvocable):
     scopes, and other name value pairs
 
     Attributes:
-        PlatformSettings(Edk2InvocableSettingsInterface): A settings class
-        PlatformModule(object): The platform module
-        Verbose(bool): CLI Argument to determine whether or not to have verbose
+        PlatformSettings (Edk2InvocableSettingsInterface): A settings class
+        PlatformModule (object): The platform module
+        Verbose (bool): CLI Argument to determine whether or not to have verbose
 
-    TIP: Checkout BaseAbstractInvocable Attributes
-    to find any additional attributes that might exist.
+    !!! tip
+        Checkout BaseAbstractInvocable Attributes to find any additional attributes that might exist.
 
-    WARNING: This Invocable should only be subclassed if creating a new invocable
+    !!! warning
+        This Invocable should only be subclassed if creating a new invocable
     """
 
     @classmethod
@@ -188,10 +201,11 @@ class Edk2Invocable(BaseAbstractInvocable):
     def GetWorkspaceRoot(self) -> os.PathLike:
         """Returns the absolute path to the workspace root.
 
-        HINT: Workspace Root is platform specific and thus provided by the PlatformSettings.
+        !!! note
+            Workspace Root is platform specific and thus provided by the PlatformSettings
 
         Returns:
-            (PathLike): absolute path
+            absolute path to workspace root
         """
         try:
             return self.PlatformSettings.GetWorkspaceRoot()
@@ -201,10 +215,11 @@ class Edk2Invocable(BaseAbstractInvocable):
     def GetPackagesPath(self) -> Iterable[os.PathLike]:
         """Returns an iterable of packages path.
 
-        HINT: PackagesPath is platform specific and thus provided by the PlatformSettings.
+        !!! note
+            PackagesPath is platform specific and thus provided by the PlatformSettings
 
         Returns:
-            Iterable[os.PathLike]: Packages path
+            Packages path
         """
         try:
             return [x for x in self.PlatformSettings.GetPackagesPath() if x not in self.GetSkippedDirectories()]
@@ -214,12 +229,13 @@ class Edk2Invocable(BaseAbstractInvocable):
     def GetActiveScopes(self) -> Tuple[str]:
         """Returns an iterable of Active scopes.
 
-        HINT: Scopes are platform specific and thus provided by the PlatformSettings.
+        !!! note
+            Scopes are platform specific and thus provided by the PlatformSettings
 
-        Adds an os specific scope in addition to scopes provided by SettingsManager
+        This function adds an os specific scope in addition to scopes provided by SettingsManager
 
         Returns:
-            Tuple[str]: scopes
+            active scopes
         """
         try:
             scopes = self.PlatformSettings.GetActiveScopes()
@@ -238,7 +254,8 @@ class Edk2Invocable(BaseAbstractInvocable):
     def GetLoggingLevel(self, loggerType):
         """Get the logging level for a given logger type.
 
-        HINT: Logging Level is platform specific and thus provided by the PlatformSettings.
+        !!! note
+            Logging Level is platform specific and thus provided by the PlatformSettings
 
         Returns:
             (logging.Level): logging level
@@ -257,28 +274,30 @@ class Edk2Invocable(BaseAbstractInvocable):
     def AddCommandLineOptions(self, parserObj):
         """Add command line options to the argparser.
 
-        HINT: Optional Override to add functionality
+        !!! note
+            Optional Override to add functionality
         """
         pass
 
     def RetrieveCommandLineOptions(self, args):
         """Retrieve command line options from the argparser.
 
-        HINT: Optional Override to add functionality
+        !!! note
+            Optional Override to add functionality
         """
         pass
 
     def GetSkippedDirectories(self):
         """Returns a Tuple containing workspace-relative directories that should be skipped.
 
-        HINT: Override in a subclass to add invocable specific directories to skip
+        !!! tip
+            Override in a subclass to add invocable specific directories to skip
 
-        HINT: Skipped Directories are platform specific and thus provided by the PlatformSettings.
-
-        WARNING: Absolute paths are not supported
+        !!! note
+            Skipped Directories are platform specific and thus provided by the PlatformSettings
 
         Returns:
-            Tuple[str]: skipped directories
+            (Tuple[str]): skipped directories as relative paths
         """
         try:
             return self.PlatformSettings.GetSkippedDirectories()
@@ -288,7 +307,8 @@ class Edk2Invocable(BaseAbstractInvocable):
     def GetSettingsClass(self):
         """The required settings manager for the invocable.
 
-        HINT: Required override to define Edk2InvocableSettingsInterface subclass specific to the invocable.
+        !!! note
+            Required override to define Edk2InvocableSettingsInterface subclass specific to the invocable
 
         Returns:
             (Edk2InvocableSettingsInterface): Subclass of Edk2InvocableSettingsInterface

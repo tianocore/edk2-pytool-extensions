@@ -25,7 +25,8 @@ class GitDependency(ExternalDependency):
         version (str): commit from git repo
         url_creds_var (str): shell_var name for credential updating. Optional
 
-    TIP: The attributes are what must be described in the ext_dep yaml file!
+    !!! tip
+        The attributes are what must be described in the ext_dep yaml file!
     """
     TypeString = "git"
 

@@ -29,7 +29,7 @@ class MultiPkgAwareSettingsInterface(Edk2InvocableSettingsInterface):
     This is an interface definition only to show which functions are required
     to be implemented and which functions can be implemented.
 
-    Example: Overriding MultiPkgAwareSettingsInterface
+    !!! example " Example of Overriding MultiPkgAwareSettingsInterface"
         ``` python
         import os
         import logging
@@ -42,7 +42,7 @@ class MultiPkgAwareSettingsInterface(Edk2InvocableSettingsInterface):
                 return ("PlatformPkg",)
 
             def GetArchitecturesSupported(self):
-                return ("IA32","X64)
+                return ("IA32","X64")
 
             def GetTargetsSupported(self):
                 return ("TARGET", "RELEASE")
@@ -63,7 +63,7 @@ class MultiPkgAwareSettingsInterface(Edk2InvocableSettingsInterface):
                     raise Exception("Only Support "TARGET", "RELEASE combination")
         ```
 
-    Warning:
+    !!! warning
         This interface should not be subclassed directly unless creating a new invocable type. Override these
         methods as a part of other subclasses invocable settings managers such as SetupSettingsManager, etc.
     """
@@ -74,7 +74,8 @@ class MultiPkgAwareSettingsInterface(Edk2InvocableSettingsInterface):
     def GetPackagesSupported(self):
         """Returns an iterable of edk2 packages supported by this build.
 
-        TIP: Required Override in a subclass
+        !!! tip
+            Required Override in a subclass
 
         Returns:
             (Iterable): edk2 packages
@@ -87,7 +88,8 @@ class MultiPkgAwareSettingsInterface(Edk2InvocableSettingsInterface):
     def GetArchitecturesSupported(self):
         """Returns an iterable of edk2 architectures supported by this build.
 
-        TIP: Required Override in a subclass
+        !!! tip
+            Required Override in a subclass
 
         Returns:
             (Iterable): architectures (X64, I32, etc.)
@@ -97,7 +99,8 @@ class MultiPkgAwareSettingsInterface(Edk2InvocableSettingsInterface):
     def GetTargetsSupported(self):
         """Returns an iterable of edk2 target tags supported by this build.
 
-        TIP: Required Override in a subclass
+        !!! tip
+            Required Override in a subclass
 
         Returns:
             (Iterable): targets (DEBUG, RELEASE, etc)
@@ -110,7 +113,8 @@ class MultiPkgAwareSettingsInterface(Edk2InvocableSettingsInterface):
     def SetPackages(self, list_of_requested_packages):
         """Confirms the requested package list is valid.
 
-        TIP: Optional Override in a subclass
+        !!! tip
+            Optional Override in a subclass
 
         Args:
             list_of_requested_packages (list[str]): packages to be built
@@ -123,7 +127,8 @@ class MultiPkgAwareSettingsInterface(Edk2InvocableSettingsInterface):
     def SetArchitectures(self, list_of_requested_architectures):
         """Confirms the requested architecture list is valid.
 
-        TIP: Optional Override in a subclass
+        !!! tip
+            Optional Override in a subclass
 
         Args:
             list_of_requested_architectures (list[str]): architectures to be built
@@ -136,10 +141,11 @@ class MultiPkgAwareSettingsInterface(Edk2InvocableSettingsInterface):
     def SetTargets(self, list_of_requested_target):
         """Confirms the requested target list is valid.
 
-        TIP: Optional Override in a subclass
+        !!! tip
+            Optional Override in a subclass
 
         Args:
-            list_of_requested_targets (list[str]): targets to use
+            list_of_requested_target (list[str]): targets to use
 
         Raises:
             Exception: A requested target is not supported
@@ -155,10 +161,11 @@ class Edk2MultiPkgAwareInvocable(Edk2Invocable):
         requested_package_list (list): requested packages to build
         requested_target_list (list): requested targets to use
 
-    TIP: Checkout Edk2Invocable Attributes
-    to find any additional attributes that might exist.
+    !!! tip
+        Checkout Edk2Invocable Attributes to find any additional attributes that might exist.
 
-    WARNING: This invocable should only be subclassed if creating a new invocable
+    !!! warning
+        This invocable should only be subclassed if creating a new invocable
     """
 
     def __init__(self):

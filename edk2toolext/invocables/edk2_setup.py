@@ -42,7 +42,8 @@ class SetupSettingsManager(MultiPkgAwareSettingsInterface):
 
     Provides information necessary for `stuart_setup.exe` or `edk2_setup.py`
     to successfully execute for a given platform.
-    Example: Example: Overriding SetupSettingsManager
+
+    !!! example "Example of Overriding SetupSettingsManager"
         ```python
         from edk2toolext.invocables.edk2_setup import SetupSettingsManager, RequiredSubmodule
         class PlatformManager(SetupSettingsManager):
@@ -57,7 +58,8 @@ class SetupSettingsManager(MultiPkgAwareSettingsInterface):
         These submodules are those that must be setup for the platform
         to successfully build.
 
-         TIP: Optional Override in a subclass
+        !!! tip
+            Optional Override in a subclass
 
         Returns:
             A list of required submodules, or an empty list
@@ -93,7 +95,8 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
     def GetSettingsClass(self):
         """Returns the SetupSettingsManager class.
 
-        WARNING: SetupSettingsManager must be subclassed in your platform settings file.
+        !!! warning
+            SetupSettingsManager must be subclassed in your platform settings file.
         """
         return SetupSettingsManager
 

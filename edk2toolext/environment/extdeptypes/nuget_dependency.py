@@ -26,7 +26,8 @@ class NugetDependency(ExternalDependency):
         source (str): Source of the nuget dependency.
         version (str): Version of the web dependency.
 
-    TIP: The attributes are what must be described in the ext_dep yaml file!
+    !!! tip
+        The attributes are what must be described in the ext_dep yaml file!
     """
     TypeString = "nuget"
 
@@ -45,8 +46,9 @@ class NugetDependency(ExternalDependency):
         Used to add nuget support on posix platforms.
         https://docs.microsoft.com/en-us/nuget/install-nuget-client-tools
 
-        Note: Strings returned might not be pathlike given they may be quoted
-        for use on the command line.
+        !!! note
+            Strings returned might not be pathlike given they may be quoted
+            for use on the command line.
 
         Returns:
             (list): ["nuget.exe"] or ["mono", "/PATH/TO/nuget.exe"]
@@ -194,6 +196,7 @@ class NugetDependency(ExternalDependency):
         if os.path.isdir(cache_search_path):
             # If we found a cache for this version, let's use it.
             if os.path.isdir(inner_cache_search_path):
+                logging.info(self.nuget_cache_path)
                 logging.info(
                     "Local Cache found for Nuget package '%s'. Skipping fetch.", package_name)
                 shutil.copytree(inner_cache_search_path, self.contents_dir)

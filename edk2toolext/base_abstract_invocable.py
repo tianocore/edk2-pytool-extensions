@@ -25,7 +25,7 @@ class BaseAbstractInvocable(object):
 
     Attributes:
         log_filename (str): logfile path
-        plugin_manager (PluginManager): the plugin manager
+        plugin_manager (plugin_manager.PluginManager): the plugin manager
         helper (HelperFunctions): container for all helper functions
     """
     def __init__(self):
@@ -36,21 +36,19 @@ class BaseAbstractInvocable(object):
     def ParseCommandLineOptions(self):
         """Parse command line arguments.
 
-        TIP: Required Override in a subclass
-
-        HINT: argparse.ArgumentParser
+        !!! tip
+            Required Override in a subclass
         """
         raise NotImplementedError()
 
     def GetWorkspaceRoot(self):
         """Return the workspace root for initializing the SDE.
 
-        TIP: Required Override in a subclass
-
-        The absolute path to the root of the workspace
+        !!! tip
+            Required Override in a subclass
 
         Returns:
-            (str): path to workspace root
+            (str): absolute path to workspace root
 
         """
         raise NotImplementedError()
@@ -58,9 +56,11 @@ class BaseAbstractInvocable(object):
     def GetActiveScopes(self):
         """Return tuple containing scopes that should be active for this process.
 
-        TIP: Required Override in a subclass
+        !!! tip
+            Required Override in a subclass
 
-        TIP: A single scope should end in a comma i.e. (scope,)
+        !!! warning
+            A single scope should end in a comma i.e. (scope,)
 
         Returns:
             (Tuple): scopes
@@ -70,11 +70,11 @@ class BaseAbstractInvocable(object):
     def GetSkippedDirectories(self):
         """Return tuple containing workspace-relative directory paths that should be skipped for processing.
 
-        TIP: Optional Override in a subclass
+        !!! tip
+            Optional Override in a subclass
 
-        WARNING: Absolute paths are not supported.
-
-        TIP: A single directory should end with a comma i.e. (dir,)
+        !!! warning
+            A single directory should end with a comma i.e. (dir,)
 
         Returns:
             (Tuple): directories
@@ -84,24 +84,32 @@ class BaseAbstractInvocable(object):
     def GetLoggingLevel(self, loggerType):
         """Get the logging level depending on logger type.
 
-        TIP: Required Override in a subclass
+        !!! tip
+            Required Override in a subclass
+
+        Args:
+            loggerType (str): type of logger being logged to
 
         Returns:
-            (Logging.Level): The logging level
+            (logging.Level): The logging level
+            (None): No logging of this type
 
-        HINT: loggerType possible values
-        base == lowest logging level supported
-        con  == Screen logging
-        txt  == plain text file logging
-        md   == markdown file logging
-        HINT: Return None for no logging for this type.
+        !!! note "loggerType possible values"
+            "base": lowest logging level supported
+
+            "con": logs to screen
+
+            "txt": logs to plain text file
+
+            "md": logs to markdown file
         """
         raise NotImplementedError()
 
     def GetLoggingFolderRelativeToRoot(self):
         """Return the path to a directory to hold all log files.
 
-        TIP: Required Override in a subclass
+        !!! hint
+            Required Override in a subclass
 
         Returns:
             (str): path to the directory
@@ -111,15 +119,16 @@ class BaseAbstractInvocable(object):
     def InputParametersConfiguredCallback(self):
         """A Callback once all input parameters are collected.
 
-        TIP: Optional override in subclass
-        If you need to do something after input variables have been configured.
+        !!! hint
+            Optional override in subclass
         """
         pass
 
     def GetVerifyCheckRequired(self):
         """Will call self_describing_environment.VerifyEnvironment if this returns True.
 
-        TIP: Optional override in a subclass
+        !!! hint
+            Optional override in a subclass
 
         Returns:
             (bool): whether verify check is required or not
@@ -127,24 +136,26 @@ class BaseAbstractInvocable(object):
         return True
 
     def GetLoggingFileName(self, loggerType):
-        """Get the logging File name.
+        """Get the logging File name to provide file name customization.
 
-        TIP: Required Override this in a subclass
-        Provides logger file name customization.
+        !!! hint
+            Required Override this in a subclass
 
         Args:
-            loggerType: values can be base, con, txt, md. See hint below
+            loggerType (obj): values can be base, con, txt, md. See hint below
 
         Returns:
             (str): filename
+            (None): No logging file should be created
 
-        HINT: Return None if the logger shouldn't be created
+        !!! note "loggerType possible values"
+            "base": lowest logging level supported
 
-        HINT: loggerType possible values
-            base == lowest logging level supported
-            con  == Screen logging
-            txt  == plain text file logging
-            md   == markdown file logging
+            "con": logs to screen
+
+            "txt": logs to plain text file
+
+            "md": logs to markdown file
         """
         raise NotImplementedError()
 
@@ -153,15 +164,16 @@ class BaseAbstractInvocable(object):
 
         Main function to run after the environment and logging has been configured.
 
-        TIP: Required Override in a subclass
+        !!! tip
+            Required Override in a subclass
         """
         raise NotImplementedError()
 
     def ConfigureLogging(self):
         """Sets up the logging.
 
-        TIP: Optional override in a subclass
-        Only if new behavior is needed.
+        !!! tip
+            Optional override in a subclass if new behavior is needed
         """
         logger = logging.getLogger('')
         logger.setLevel(self.GetLoggingLevel("base"))
@@ -191,11 +203,10 @@ class BaseAbstractInvocable(object):
         return
 
     def Invoke(self):
-        """Main process function.
+        """Main process function to configure logging and the environment.
 
-        What actually configure logging and the environment.
-
-        WARNING: Do not override this method
+        !!! danger
+            Do not override this method
         """
         self.ParseCommandLineOptions()
         self.ConfigureLogging()

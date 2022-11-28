@@ -337,8 +337,8 @@ def BootstrapEnvironment(workspace, scopes=(), skipped_dirs=()):
         scopes (Tuple): scopes being built against
         skipped_dirs (Tuple): directories to ignore
 
-    WARNING: if only one scope or skipped_dir, the tuple should end with a comma
-    example: '(myscope,)'
+    !!! warning
+        if only one scope or skipped_dir, the tuple should end with a comma example: '(myscope,)'
     """
     global ENVIRONMENT_BOOTSTRAP_COMPLETE, ENV_STATE
 
@@ -391,8 +391,8 @@ def CleanEnvironment(workspace, scopes=(), skipped_dirs=()):
         scopes (Tuple): scopes being built against
         skipped_dirs (Tuple): directories to ignore
 
-    WARNING: if only one scope or skipped_dir, the tuple should end with a comma
-    example: '(myscope,)'
+    !!! warning
+        If only one scope or skipped_dir, the tuple should end with a comma example: '(myscope,)'
     """
     # Bootstrap the environment.
     (build_env, shell_env) = BootstrapEnvironment(workspace, scopes, skipped_dirs)
@@ -412,8 +412,8 @@ def UpdateDependencies(workspace, scopes=(), skipped_dirs=()):
         scopes (Tuple): scopes being built against
         skipped_dirs (Tuple): directories to ignore
 
-    WARNING: if only one scope or skipped_dir, the tuple should end with a comma
-    example: '(myscope,)'
+    !!! warning
+        If only one scope or skipped_dir, the tuple should end with a comma example: '(myscope,)'
     """
     # Bootstrap the environment.
     (build_env, shell_env) = BootstrapEnvironment(workspace, scopes, skipped_dirs)
@@ -433,8 +433,8 @@ def VerifyEnvironment(workspace, scopes=(), skipped_dirs=()):
         scopes (Tuple): scopes being built against
         skipped_dirs (Tuple): directories to ignore
 
-    WARNING: if only one scope or skipped_dir, the tuple should end with a comma
-    example: '(myscope,)'
+    !!! warning
+        If only one scope or skipped_dir, the tuple should end with a comma example: '(myscope,)'
     """
     # Bootstrap the environment.
     (build_env, shell_env) = BootstrapEnvironment(workspace, scopes, skipped_dirs)

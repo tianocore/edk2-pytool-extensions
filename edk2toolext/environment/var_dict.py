@@ -36,7 +36,7 @@ class EnvEntry(object):
         """Prints the value.
 
         Args:
-            f (:obj:`str`, optional): a file to write to instead of the terminal.
+            f (str): a file to write to instead of the terminal.
         """
         print("Value: %s" % self.Value, file=f)
         print("Comment: %s" % self.Comment, file=f)
@@ -55,7 +55,8 @@ class EnvEntry(object):
             comment (str): A debug comment specifying where / how the value was set
             overridable (bool): If the value can be overwritten in the future
 
-        WARNING: Even if you set a value as overridable=False, another entity can
+        !!! warning
+            Even if you set a value as overridable=False, another entity can
             call `AllowOverride()` and change the value anyway.
         """
         if (value == self.Value) and (overridable == self.Overrideable):
@@ -110,7 +111,7 @@ class VarDict(object):
     def GetValue(self, k, default=None):
         """Gets a value from the variable dictionary that was set during build.
 
-        Note:
+        !!! note
             Values set in DSC, FDF, and CLI stored as strings
 
         Args:
@@ -142,7 +143,7 @@ class VarDict(object):
             v (varied): The value to store
             comment (str): A comment to show where / how the variable was stored.
                 Useful for debugging
-            overrideable (bool): Specifies if the variable is allowed to be override
+            overridable (bool): Specifies if the variable is allowed to be override
                 elsewhere in the build
 
         Returns:
@@ -183,15 +184,20 @@ class VarDict(object):
     def GetBuildValue(self, key, BuildType=None):
         """Get a build var value for given key and buildtype.
 
-        TIP: Build vars are defined by vars that start with BLD_
-        BLD_*_<YOUR VAR HERE> means all build types
-        BLD_DEBUG_<YOUR VAR HERE> means build of debug type
-        BLD_RELEASE_<YOUR VAR HERE> means build of release type
-        etc
+        !!! tip
+            Build vars are defined by vars that start with BLD_
+
+            BLD_*_<YOUR VAR HERE> means all build types
+
+            BLD_DEBUG_<YOUR VAR HERE> means build of debug type
+
+            BLD_RELEASE_<YOUR VAR HERE> means build of release type
+
+            etc
 
         Args:
             key (str): The key the value was stored as
-            BuildType (:obj:`str`, optional): DEBUG/RELEASE
+            BuildType (str): DEBUG/RELEASE
 
         Returns:
             (str): The value of the key, if present, else None
@@ -227,11 +233,16 @@ class VarDict(object):
     def GetAllBuildKeyValues(self, BuildType=None):
         """Gets a dictionary for all build vars.
 
-        TIP: Build vars are defined by vars that start with BLD_
-        BLD_*_<YOUR VAR HERE> means all build types
-        BLD_DEBUG_<YOUR VAR HERE> means build of debug type
-        BLD_RELEASE_<YOUR VAR HERE> means build of release type
-        etc
+        !!! tip
+            Build vars are defined by vars that start with BLD_
+
+            BLD_*_<YOUR VAR HERE> means all build types
+
+            BLD_DEBUG_<YOUR VAR HERE> means build of debug type
+
+            BLD_RELEASE_<YOUR VAR HERE> means build of release type
+
+            etc
 
         Args:
             BuildType (:obj:`str`, optional): DEBUG/RELEASE
@@ -287,7 +298,7 @@ class VarDict(object):
         If fp is not none, writes to a fp also
 
         Args:
-            fp (:obj:`str`, optional): file pointer to print to
+            fp (str): file pointer to print to
         """
         f = None
         if (fp is not None):

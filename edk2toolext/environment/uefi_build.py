@@ -72,7 +72,7 @@ class UefiBuilder(object):
         """Adds command line options to the argparser.
 
         Args:
-            parserObj(argparser): argparser object
+            parserObj (argparser): argparser object
         """
         parserObj.add_argument("--SKIPBUILD", "--skipbuild", "--SkipBuild", dest="SKIPBUILD",
                                action='store_true', default=False, help="Skip the build process")
@@ -338,7 +338,7 @@ class UefiBuilder(object):
     def PreBuild(self):
         """Performs internal PreBuild steps.
 
-        This including calling the platform overridable `PlatformPreBuild()`
+        This includes calling the platform overridable `PlatformPreBuild()`
         """
         edk2_logging.log_progress("Running Pre Build")
         #
@@ -500,12 +500,20 @@ class UefiBuilder(object):
 
     @classmethod
     def PlatformPreBuild(self):
-        """Perform Platform PreBuild Steps."""
+        """Perform Platform PreBuild Steps.
+
+        Returns:
+            (int): 0 on success, 1 on failure
+        """
         return 0
 
     @classmethod
     def PlatformPostBuild(self):
-        """Perform Platform PostBuild Steps."""
+        """Perform Platform PostBuild Steps.
+
+        Returns:
+            (int): 0 on success, 1 on failure
+        """
         return 0
 
     @classmethod
@@ -514,34 +522,51 @@ class UefiBuilder(object):
 
         This is performed before platform files like the DSC and FDF have been parsed.
 
-        TIP: If a platform file (DSC, FDF, etc) relies on a variable set in
-        the `UefiBuilder`, it must be set here, before the platform files
-        have been parsed and values have been set.
+        !!! tip
+            If a platform file (DSC, FDF, etc) relies on a variable set in
+            the `UefiBuilder`, it must be set here, before the platform files
+            have been parsed and values have been set.
+
+        Returns:
+            (int): 0 on success, 1 on failure
         """
         return 0
 
     @classmethod
     def SetPlatformEnvAfterTarget(self):
-        """Set and read Platform Env variables after platform files have been parsed."""
+        """Set and read Platform Env variables after platform files have been parsed.
+
+        Returns:
+            (int): 0 on success, 1 on failure
+        """
         return 0
 
     @classmethod
     def PlatformBuildRom(self):
         """Build the platform Rom.
 
-        TIP: Typically called by the platform in PlatformFlashImage. Not called
-        automatically by the `UefiBuilder`.
+        !!! tip
+            Typically called by the platform in PlatformFlashImage. Not called
+            automatically by the `UefiBuilder`.
         """
         return 0
 
     @classmethod
     def PlatformFlashImage(self):
-        """Flashes the image to the system."""
+        """Flashes the image to the system.
+
+        Returns:
+            (int): 0 on success, 1 on failure
+        """
         return 0
 
     @classmethod
     def PlatformGatedBuildShouldHappen(self):
-        """Specifies if a gated build should happen."""
+        """Specifies if a gated build should happen.
+
+        Returns:
+            (bool): True if gated build should happen, else False
+        """
         return True
 
     # ------------------------------------------------------------------------

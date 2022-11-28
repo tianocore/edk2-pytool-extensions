@@ -55,13 +55,11 @@ class ICiBuildPlugin(object):
     def RunsOnTargetList(self) -> List[str]:
         """Returns a list of edk2 TARGETs that this plugin would like to run on.
 
-        HINT: known target values:
-        DEBUG
-        RELEASE
-        NOOPT
-        NO-TARGET
+        !!! note "Known target values"
+            DEBUG, RELEASE, NOOPT, NO-TARGET
 
-        HINT: If the plugin is not Target specific it should return a list of one element of "NO-TARGET"
+        !!! hint
+            If the plugin is not Target specific it should return a list of one element of "NO-TARGET"
         """
         return ["NO-TARGET"]
 

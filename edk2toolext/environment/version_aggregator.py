@@ -37,7 +37,7 @@ class version_aggregator(object):
             key (str): the name of what you are reporting.
             value (str): The value of what you are reporting.
             versionType (str): The method of categorizing what is being reported. See VersionTypes for details.
-            path (:obj:'str', optional): the associated path.
+            path (str): the associated path.
         """
         if key in self._Versions:
             old_version = self._Versions[key]

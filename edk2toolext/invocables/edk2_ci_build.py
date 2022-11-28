@@ -35,7 +35,7 @@ class CiBuildSettingsManager(MultiPkgAwareSettingsInterface):
     Provide information necessary for `stuart_ci_build.exe` or
     `edk2_ci_build.py` to successfully execute.
 
-    Example: Example: Overriding CiBuildSettingsManager
+    !!! example "Example of Overriding CiBuildSettingsManager"
         ```python
         from edk2toolext.invocables.edk2_ci_build import CiBuildSettingsManager
         import yaml
@@ -51,7 +51,8 @@ class CiBuildSettingsManager(MultiPkgAwareSettingsInterface):
     def GetName(self) -> str:
         """Get the name of the repo, platform, or product being build by CI.
 
-        TIP: Required Override in a subclass
+        !!! tip
+            Required Override in a subclass
 
         Returns:
             (str): repo, platform, product
@@ -61,12 +62,13 @@ class CiBuildSettingsManager(MultiPkgAwareSettingsInterface):
     def GetPluginSettings(self) -> Dict[str, Any]:
         """Provide a dictionary of global settings for individual plugins.
 
-        TIP: Optional Override in a subclass
+        !!! tip
+            Optional Override in a subclass
 
-        WARNING:
+        !!! warning
             This sets the global plugin configurations. Edk2CiBuild automatically searches for,
             and loads, the package ci settings file if it exists. This file will override these
-            settings. This file must be located at the base of the package named <Package>.ci.yaml.
+            settings. This file must be located at the base of the package named [Package].ci.yaml.
 
             Ex: EmbeddedPkg/EmbeddedPkg.ci.yaml.
 
@@ -82,7 +84,8 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
     def GetSettingsClass(self):
         """Returns the CiBuildSettingsManager class.
 
-        WARNING: CiBuildSettingsManager must be subclassed in your platform settings file.
+        !!! warning
+            CiBuildSettingsManager must be subclassed in your platform settings file.
         """
         return CiBuildSettingsManager
 

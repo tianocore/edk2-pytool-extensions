@@ -27,12 +27,13 @@ class AzureCliUniversalDependency(ExternalDependency):
         feed (str): feed name
         version (str): semantic version <Major.Minor.Patch>
         source (str): url of organization (example: https://dev.azure.com/tianocore)
-        project (str) <name of project for project scoped feed.  If missing assume organization scoped>
+        project (str): <name of project for project scoped feed.  If missing assume organization scoped>
         name (str): name of artifact
         file-filter (str): <optional> filter for folders and files.
         pat_var (str): shell_var name for PAT for this ext_dep
 
-    TIP: The attributes are what must be described in the ext_dep yaml file!
+    !!! tip
+        The attributes are what must be described in the ext_dep yaml file!
     """
     TypeString = "az-universal"
 
