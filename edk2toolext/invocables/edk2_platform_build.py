@@ -32,7 +32,7 @@ class BuildSettingsManager(Edk2InvocableSettingsInterface):
     Provides information necessary for `stuart_build.exe`
     or `edk2_platform_build.py` to successfully execute.
 
-    Example: Example: Overriding BuildSettingsManager
+    !!! example "Example of Overriding BuildSettingsManager"
         ```python
         from edk2toolext.invocables.edk2_platform_build import BuildSettingsManager
         class PlatformManager(BuildSettingsManager):
@@ -44,7 +44,8 @@ class BuildSettingsManager(Edk2InvocableSettingsInterface):
     def GetName(self) -> str:
         """Get the name of the repo, platform, or product being build.
 
-        TIP: Optional Override in subclass
+        !!! tip
+            Optional Override in subclass
 
         Returns:
             (str): Name of the repo, platform, or product
@@ -76,7 +77,8 @@ class Edk2PlatformBuild(Edk2Invocable):
     def GetSettingsClass(self):
         """Returns the BuildSettingsManager class.
 
-        WARNING: CiSetupSettingsManager must be subclassed in your platform settings file.
+        !!! warning
+            CiSetupSettingsManager must be subclassed in your platform settings file.
         """
         return BuildSettingsManager
 

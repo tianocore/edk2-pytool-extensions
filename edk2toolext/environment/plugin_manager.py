@@ -78,7 +78,7 @@ class PluginManager(object):
     def _load(self, PluginDescriptor):
         """Load and instantiate the plugin.
 
-        Arguments:
+        Args:
             PluginDescriptor(PluginDescriptor): the plugin descriptor
         """
         PluginDescriptor.Obj = None

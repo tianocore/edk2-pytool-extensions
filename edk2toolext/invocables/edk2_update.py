@@ -61,7 +61,8 @@ class Edk2Update(Edk2MultiPkgAwareInvocable):
     def GetSettingsClass(self):
         """Returns the UpdateSettingsManager class.
 
-        WARNING: UpdateSettingsManager must be subclassed in your platform settings file.
+        !!! warning
+            UpdateSettingsManager must be subclassed in your platform settings file.
         """
         return UpdateSettingsManager
 

@@ -37,7 +37,8 @@ class WebDependency(ExternalDependency):
                                 compressed, do not include this field. Optional
         sha256 (str): Hash of downloaded file to be checked against. Optional
 
-    TIP: The attributes are what must be described in the ext_dep yaml file!
+    !!! tip
+        The attributes are what must be described in the ext_dep yaml file!
     """
 
     TypeString = "web"

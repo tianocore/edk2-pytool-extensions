@@ -26,7 +26,7 @@ class CiSetupSettingsManager(MultiPkgAwareSettingsInterface):
     Provide information necessary for `stuart_ci_setup.exe` or
     `edk2_ci_setup.py` to successfully execute.
 
-    Example: Example: Overriding CiSetupSettingsManager
+    !!! example: "Example of Overriding CiSetupSettingsManager"
         ```python
         from edk2toolext.invocables.edk2_ci_setup import CiSetupSettingsManager
         class CiManager(CiSetupSettingsManager):
@@ -43,17 +43,21 @@ class CiSetupSettingsManager(MultiPkgAwareSettingsInterface):
 
         This list of repositories will be resolved during the setup step.
 
-        TIP: Optional Override in subclass
+        !!! tip
+            Optional Override in subclass
 
-        TIP: Return an iterable of dictionary objects with the following fields
-        {
-            Path: <required> Workspace relative path
-            Url: <required> Url of git repo
-            Commit: <optional> Commit to checkout of repo
-            Branch: <optional> Branch to checkout (will checkout most recent commit in branch)
-            Full: <optional> Boolean to do shallow or Full checkout.  (default is False)
-            ReferencePath: <optional> Workspace relative path to git repo to use as "reference"
-        }
+        !!! tip
+            Return an iterable of dictionary objects with the following fields
+            ```json
+            {
+                Path: <required> Workspace relative path
+                Url: <required> Url of git repo
+                Commit: <optional> Commit to checkout of repo
+                Branch: <optional> Branch to checkout (will checkout most recent commit in branch)
+                Full: <optional> Boolean to do shallow or Full checkout.  (default is False)
+                ReferencePath: <optional> Workspace relative path to git repo to use as "reference"
+            }
+            ```
         """
         return []
 
@@ -94,7 +98,8 @@ class Edk2CiBuildSetup(Edk2MultiPkgAwareInvocable):
     def GetSettingsClass(self):
         """Returns the CiSetupSettingsManager class.
 
-        WARNING: CiSetupSettingsManager must be subclassed in your platform settings file.
+        !!! warning
+            CiSetupSettingsManager must be subclassed in your platform settings file.
         """
         return CiSetupSettingsManager
 

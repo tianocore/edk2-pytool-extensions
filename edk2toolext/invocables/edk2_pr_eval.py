@@ -34,7 +34,7 @@ class PrEvalSettingsManager(MultiPkgAwareSettingsInterface):
     provide information necessary for `stuart_pr_eval.exe` or
     `edk2_pr_eval.py` to successfully execute.
 
-    Example: Example: Overriding PrEvalSettingsManager
+    !!! example "Example of Overriding PrEvalSettingsManager"
         ```python
         from edk2toolext.invocables.edk2_pr_eval import PrEvalSettingsManager
         class PrEvalManager(PrEvalSettingsManager):
@@ -55,7 +55,8 @@ class PrEvalSettingsManager(MultiPkgAwareSettingsInterface):
     def FilterPackagesToTest(self, changedFilesList: list, potentialPackagesList: list) -> list:
         """Filter potential packages to test based on changed files.
 
-        TIP: Optional Override in a subclass
+        !!! tip
+            Optional Override in a subclass
 
         Arguments:
             changedFilesList (list): files changed in this PR
@@ -64,7 +65,8 @@ class PrEvalSettingsManager(MultiPkgAwareSettingsInterface):
 
         Returns:
             (list): filtered packages to test
-        Note:
+
+        !!! Note
             Default implementation does zero filtering
         """
         # default implementation does zero filtering.
@@ -76,7 +78,8 @@ class PrEvalSettingsManager(MultiPkgAwareSettingsInterface):
         If a platform desires to provide its DSC then Policy 4 will evaluate if
         any of the changes will be built in the dsc.
 
-        TIP: Optional Override in a subclass
+        !!! tip
+            Optional Override in a subclass
 
         Returns:
             (tuple): (workspace relative path to dsc file, input dictionary of dsc key value pairs)
@@ -121,7 +124,8 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
     def GetSettingsClass(self):
         """Returns the PrEvalSettingsManager class.
 
-        WARNING: PrEvalSettingsManager must be subclassed in your platform settings file.
+        !!! warning
+            PrEvalSettingsManager must be subclassed in your platform settings file.
         """
         return PrEvalSettingsManager
 
@@ -170,7 +174,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
     def get_packages_to_build(self, possible_packages: list) -> dict:
         """Returns a dictionary of packages to build.
 
-        Arguments:
+        Args:
             possible_packages: list of possible packages
 
         Returns:

@@ -39,7 +39,7 @@ class MultipleWorkspace(object):
             Path (str): Path to be converted to match workspace
 
         Returns:
-            (str) Converted path.
+            (str): Converted path.
         """
         if str(os.path.normcase(Path)).startswith(Ws):
             return os.path.join(Ws, Path[len(Ws) + 1:])
@@ -108,7 +108,7 @@ class MultipleWorkspace(object):
 
         Args:
             cls (obj): The class pointer
-            ws (str): the current WORKSPACE
+            Ws (str): the current WORKSPACE
             Path (str): path of the inf/dec/dsc/fdf/conf file
 
         Returns:
@@ -126,8 +126,7 @@ class MultipleWorkspace(object):
     def handleWsMacro(cls, PathStr):
         """Handle the $(WORKSPACE) tag.
 
-        If current workspace is an invalid path relative to the tool, replace
-        it.
+        If current workspace is an invalid path relative to the tool, replace it.
 
         Args:
             cls (obj): The class pointer

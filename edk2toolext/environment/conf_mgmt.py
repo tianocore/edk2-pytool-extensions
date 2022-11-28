@@ -83,7 +83,8 @@ class ConfMgmt():
 
         version should be in #!VERSION={value} format
 
-        NOTE: "0.0" is returned if no version is found
+        !!! note
+            "0.0" is returned if no version is found
         """
         version = "0.0"
         with open(conf_file, "r") as f:

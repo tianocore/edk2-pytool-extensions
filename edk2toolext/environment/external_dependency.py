@@ -39,7 +39,8 @@ class ExternalDependency(object):
                            More info: (docs/feature_extdep/)
         var_name (str): Used with set_*_var flag. Determines name of var to be set.
 
-    TIP: The attributes are what must be described in the ext_dep yaml file!
+    !!! tip
+        The attributes are what must be described in the ext_dep yaml file!
     """
 
     def __init__(self, descriptor):
@@ -215,8 +216,8 @@ class ExternalDependency(object):
 def ExtDepFactory(descriptor):
     """External Dependency Factory capable of generating each type of dependency.
 
-    Note: Ensure all external dependencies are imported in this class to
-    avoid errors.
+    !!! Note
+        Ensure all external dependencies are imported in this class to avoid errors.
     """
     from edk2toolext.environment.extdeptypes.web_dependency import WebDependency
     from edk2toolext.environment.extdeptypes.nuget_dependency import NugetDependency
