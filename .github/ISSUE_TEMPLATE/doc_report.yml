@@ -1,0 +1,30 @@
+name: Documentation Update
+description: Request a Documentation Update
+title: "[Doc]: "
+labels: ["new", "documentation"]
+
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to request a documentation update!
+  - type: input
+    id: doc-location
+    attributes:
+      label: Link to the documentation
+      description: "Python source if for an API reference, or the markdown file if not."
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description of Documentation Update
+      description: "Why does the documentation need updated?"
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: "Any other additional context about the problem not covered by the above."
+    validations:
+      required: false
