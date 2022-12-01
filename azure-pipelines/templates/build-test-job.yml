@@ -12,45 +12,48 @@ parameters:
   name: '' #set the job name
   codecov_enabled: false # by default, we don't do codecoverage
   extra_steps: []
+  python_minor_versions: []
 
 jobs:
+- ${{each python_minor_version in parameters.python_minor_versions}}:
+  - job: Build_and_Test_${{parameters.name}}_Python_3_${{python_minor_version}}
 
-- job: Build_and_Test_${{parameters.name}}
+    workspace:
+      clean: all
 
-  workspace:
-    clean: all
+    pool:
+      vmImage: ${{ parameters.vm_image }}
 
-  pool:
-    vmImage: ${{ parameters.vm_image }}
-
-  steps:
-  - template: basic-setup-steps.yml
-  - ${{ parameters.extra_steps }}
-  - template: pytest-test-steps.yml
-    parameters:
-      root_package_folder: ${{parameters.root_package_folder}}
-      codecov_enabled: ${{parameters.codecov_enabled}}
-
-  - template: flake8-test-steps.yml
-
-  - template: pydocstyle-test-steps.yml
-    parameters:
-      root_package_folder: ${{parameters.root_package_folder}}
-
-  - template: spell-test-steps.yml
-
-  - template: markdown-lint-steps.yml
-
-  - task: PythonScript@0
-    inputs:
-      scriptSource: 'filePath'
-      scriptPath: 'BasicDevTests.py'
-    displayName: 'Check basic file and folder tests'
-    condition: succeededOrFailed()
-
-  - ${{ if ne(parameters.pypi_auth_feed, '') }}:
-    - template: build-publish-whl-steps.yml
+    steps:
+    - template: basic-setup-steps.yml
       parameters:
-        pypi_auth_feed: ${{parameters.pypi_auth_feed}}
+        python_version: 3.${{ python_minor_version }}.x
 
+    - ${{ parameters.extra_steps }}
+    
+    - template: pytest-test-steps.yml
+      parameters:
+        root_package_folder: ${{parameters.root_package_folder}}
+        codecov_enabled: ${{parameters.codecov_enabled}}
 
+    - template: flake8-test-steps.yml
+
+    - template: pydocstyle-test-steps.yml
+      parameters:
+        root_package_folder: ${{parameters.root_package_folder}}
+
+    - template: spell-test-steps.yml
+
+    - template: markdown-lint-steps.yml
+
+    - task: PythonScript@0
+      inputs:
+        scriptSource: 'filePath'
+        scriptPath: 'BasicDevTests.py'
+      displayName: 'Check basic file and folder tests'
+      condition: succeededOrFailed()
+
+    - ${{ if ne(parameters.pypi_auth_feed, '') }}:
+      - template: build-publish-whl-steps.yml
+        parameters:
+          pypi_auth_feed: ${{parameters.pypi_auth_feed}}

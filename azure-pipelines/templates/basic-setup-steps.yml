@@ -7,7 +7,7 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 parameters:
-  none: ''
+  python_version: ''
 
 steps:
 - checkout: self
@@ -15,7 +15,7 @@ steps:
 
 - task: UsePythonVersion@0
   inputs:
-    versionSpec: '3.10.x'
+    versionSpec: ${{ parameters.python_version }}
     architecture: 'x64'
 
 - script: pip install --upgrade -r requirements.txt

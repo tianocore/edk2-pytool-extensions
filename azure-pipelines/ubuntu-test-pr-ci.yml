@@ -13,10 +13,10 @@ pr:
 - master
 
 jobs:
-
 - template: templates/build-test-job.yml
   parameters:
     vm_image: 'ubuntu-latest'
     root_package_folder: "edk2toolext"
     name: 'ubuntu'
     codecov_enabled: true
+    python_minor_versions: ['9', '10', '11']

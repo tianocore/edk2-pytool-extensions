@@ -19,3 +19,4 @@ jobs:
     root_package_folder: "edk2toolext"
     name: 'windows'
     codecov_enabled: true
+    python_minor_versions: ['9', '10', '11']
