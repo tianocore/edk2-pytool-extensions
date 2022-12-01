@@ -6,11 +6,11 @@
 # Copyright (c) 2019, Microsoft Corporation
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+parameters:
+  PythonVersion: ['3.9.x', '3.10.x', '3.11.x']
 
 jobs:
 - job: Integration_Test
-  parameters:
-    PythonVersion: ['3.9.x', '3.10.x', '3.11.x']
   #Use matrix to speed up the build process
   strategy:
     matrix:
