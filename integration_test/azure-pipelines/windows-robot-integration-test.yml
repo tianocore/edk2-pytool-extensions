@@ -25,11 +25,11 @@ jobs:
           Tag: 'ProjectMu'
           Image: 'windows-2022'
           PythonVersion: ${{PyVer.value}}}
-        EDK2_PY_3_${{PyMinorVer}}:
+        EDK2_PY_${{PyVer.key}}:
           Tag: 'Edk2NOTQEMU'
           Image: 'windows-2019'
           PythonVersion: ${{PyVer.value}}
-        EDK2_OVMF_3_${{PyMinorVer}}:
+        EDK2_OVMF_PY_${{PyVer.key}}:
           Tag: 'Edk2ANDQEMU'
           Image: 'windows-2019'
           PythonVersion: ${{PyVer.value}}
