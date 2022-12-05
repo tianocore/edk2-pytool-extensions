@@ -11,9 +11,9 @@ parameters:
 - name: PythonMinorVersionList
   type: object
   default:
-    '3_9': '3.9'
-    '3_10': '3.10'
-    '3_11': '3.11'
+    '3_9': 3.9
+    '3_10': 3.10
+    '3_11': 3.11
 
 jobs:
 - job: Integration_Test
@@ -43,7 +43,7 @@ jobs:
   steps:
   - task: UsePythonVersion@0
     inputs:
-      versionSpec: $(PythonVersion)
+      versionSpec: '$(PythonVersion)'
       architecture: 'x64'
 
   - script: pip install --upgrade -r requirements.txt
