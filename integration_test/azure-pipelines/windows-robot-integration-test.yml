@@ -11,9 +11,9 @@ parameters:
 - name: PythonMinorVersionList
   type: object
   default:
-    '3_9': 3.9
-    '3_10': 3.10
-    '3_11': 3.11
+    '3_9': '3.9'
+    '3_10': '3.10'
+    '3_11': '3.11'
 
 jobs:
 - job: Integration_Test
