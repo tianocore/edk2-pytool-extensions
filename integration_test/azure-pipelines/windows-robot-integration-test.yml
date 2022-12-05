@@ -24,7 +24,7 @@ jobs:
         PROJECT_MU_PY_${{PyVer.key}}:
           Tag: 'ProjectMu'
           Image: 'windows-2022'
-          PythonVersion: ${{PyVer.value}}}
+          PythonVersion: ${{PyVer.value}}
         EDK2_PY_${{PyVer.key}}:
           Tag: 'Edk2NOTQEMU'
           Image: 'windows-2019'

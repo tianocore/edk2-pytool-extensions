@@ -12,11 +12,13 @@ parameters:
   name: '' #set the job name
   codecov_enabled: false # by default, we don't do codecoverage
   extra_steps: []
-  python_minor_versions: []
+  python_versions: []
+      # Job Titles cannot have periods, so we iterate
+      # With a map using entry.key and entry.value
 
 jobs:
-- ${{each python_minor_version in parameters.python_minor_versions}}:
-  - job: Build_and_Test_${{parameters.name}}_Python_3_${{python_minor_version}}
+- ${{each py_ver in parameters.python_versions}}:
+  - job: Build_and_Test_${{parameters.name}}_Python_${{py_ver.key}}
 
     workspace:
       clean: all
@@ -27,7 +29,7 @@ jobs:
     steps:
     - template: basic-setup-steps.yml
       parameters:
-        python_version: 3.${{ python_minor_version }}
+        python_version: ${{py_ver.value}}
 
     - ${{ parameters.extra_steps }}
     
