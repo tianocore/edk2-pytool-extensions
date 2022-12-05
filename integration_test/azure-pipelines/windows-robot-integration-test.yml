@@ -8,7 +8,7 @@
 ##
 
 parameters:
-- name: PythonMinorVersionList
+- name: PythonVersionList
   type: object
   default:
     # Job Titles cannot have periods, so we iterate
@@ -22,7 +22,7 @@ jobs:
   #Use matrix to speed up the build process
   strategy:
     matrix:
-      ${{each PyVer in parameters.PythonMinorVersionList}}:
+      ${{each PyVer in parameters.PythonVersionList}}:
         PROJECT_MU_PY_${{PyVer.key}}:
           Tag: 'ProjectMu'
           Image: 'windows-2022'
