@@ -20,9 +20,17 @@ jobs:
   strategy:
     matrix:
       ${{each PyMinorVer in parameters.PythonMinorVersionList}}:
-        PROJECT_MY_PY_${{PyMinorVer}}:
+        PROJECT_MU_PY_3_${{PyMinorVer}}:
           Tag: 'ProjectMu'
           Image: 'windows-2022'
+          PythonVersion: '3.${{PyMinorVer}}.x'
+        EDK2_PY_3_${{PyMinorVer}}:
+          Tag: 'Edk2NOTQEMU'
+          Image: 'windows-2019'
+          PythonVersion: '3.${{PyMinorVer}}.x'
+        EDK2_OVMF_3_${{PyMinorVer}}:
+          Tag: 'Edk2ANDQEMU'
+          Image: 'windows-2019'
           PythonVersion: '3.${{PyMinorVer}}.x'
       # PROJECT_MU_PY_3_9:
       #   Tag: 'ProjectMu'
