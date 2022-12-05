@@ -7,49 +7,53 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 parameters:
-  PythonVersion: ['3.9.x', '3.10.x', '3.11.x']
+  PythonMinorVersionList: ['9', '10', '11']
 
 jobs:
 - job: Integration_Test
   #Use matrix to speed up the build process
   strategy:
     matrix:
-      PROJECT_MU_PY_3_9:
+      ${{each PyMinorVer in parameters.PythonMinorVersionList}}:
         Tag: 'ProjectMu'
         Image: 'windows-2022'
-        PythonVersion: ${{parameters.PythonVersion[0]}}
-      PROJECT_MU_PY_3_10:
-        Tag: 'ProjectMu'
-        Image: 'windows-2022'
-        PythonVersion: ${{parameters.PythonVersion[1]}}
-      PROJECT_MU_PY_3_11:
-        Tag: 'ProjectMu'
-        Image: 'windows-2022'
-        PythonVersion: ${{parameters.PythonVersion[2]}}      
-      EDK2_PY_3_9:
-        Tag: 'Edk2NOTQEMU'
-        Image: 'windows-2019'
-        PythonVersion: ${{parameters.PythonVersion[0]}}
-      EDK2_PY_3_10:
-        Tag: 'Edk2NOTQEMU'
-        Image: 'windows-2019'
-        PythonVersion: ${{parameters.PythonVersion[1]}}
-      EDK2_PY_3_11:
-        Tag: 'Edk2NOTQEMU'
-        Image: 'windows-2019'
-        PythonVersion: ${{parameters.PythonVersion[2]}}
-      EDK2_OVMF_PY_3_9:
-        Tag: 'Edk2ANDQEMU'
-        Image: 'windows-2019'
-        PythonVersion: ${{parameters.PythonVersion[0]}}
-      EDK2_OVMF_PY_3_10:
-        Tag: 'Edk2ANDQEMU'
-        Image: 'windows-2019'
-        PythonVersion: ${{parameters.PythonVersion[1]}}
-      EDK2_OVMF_PY_3_11:
-        Tag: 'Edk2ANDQEMU'
-        Image: 'windows-2019'
-        PythonVersion: ${{parameters.PythonVersion[2]}}
+        PythonVersion: '3.${{PyMinorVer}}.x'
+      # PROJECT_MU_PY_3_9:
+      #   Tag: 'ProjectMu'
+      #   Image: 'windows-2022'
+      #   PythonVersion: ${{parameters.PythonVersion[0]}}
+      # PROJECT_MU_PY_3_10:
+      #   Tag: 'ProjectMu'
+      #   Image: 'windows-2022'
+      #   PythonVersion: ${{parameters.PythonVersion[1]}}
+      # PROJECT_MU_PY_3_11:
+      #   Tag: 'ProjectMu'
+      #   Image: 'windows-2022'
+      #   PythonVersion: ${{parameters.PythonVersion[2]}}      
+      # EDK2_PY_3_9:
+      #   Tag: 'Edk2NOTQEMU'
+      #   Image: 'windows-2019'
+      #   PythonVersion: ${{parameters.PythonVersion[0]}}
+      # EDK2_PY_3_10:
+      #   Tag: 'Edk2NOTQEMU'
+      #   Image: 'windows-2019'
+      #   PythonVersion: ${{parameters.PythonVersion[1]}}
+      # EDK2_PY_3_11:
+      #   Tag: 'Edk2NOTQEMU'
+      #   Image: 'windows-2019'
+      #   PythonVersion: ${{parameters.PythonVersion[2]}}
+      # EDK2_OVMF_PY_3_9:
+      #   Tag: 'Edk2ANDQEMU'
+      #   Image: 'windows-2019'
+      #   PythonVersion: ${{parameters.PythonVersion[0]}}
+      # EDK2_OVMF_PY_3_10:
+      #   Tag: 'Edk2ANDQEMU'
+      #   Image: 'windows-2019'
+      #   PythonVersion: ${{parameters.PythonVersion[1]}}
+      # EDK2_OVMF_PY_3_11:
+      #   Tag: 'Edk2ANDQEMU'
+      #   Image: 'windows-2019'
+      #   PythonVersion: ${{parameters.PythonVersion[2]}}
 
   workspace:
     clean: all
