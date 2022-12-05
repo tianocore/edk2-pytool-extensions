@@ -32,42 +32,6 @@ jobs:
           Tag: 'Edk2ANDQEMU'
           Image: 'windows-2019'
           PythonVersion: '3.${{PyMinorVer}}.x'
-      # PROJECT_MU_PY_3_9:
-      #   Tag: 'ProjectMu'
-      #   Image: 'windows-2022'
-      #   PythonVersion: ${{parameters.PythonVersion[0]}}
-      # PROJECT_MU_PY_3_10:
-      #   Tag: 'ProjectMu'
-      #   Image: 'windows-2022'
-      #   PythonVersion: ${{parameters.PythonVersion[1]}}
-      # PROJECT_MU_PY_3_11:
-      #   Tag: 'ProjectMu'
-      #   Image: 'windows-2022'
-      #   PythonVersion: ${{parameters.PythonVersion[2]}}      
-      # EDK2_PY_3_9:
-      #   Tag: 'Edk2NOTQEMU'
-      #   Image: 'windows-2019'
-      #   PythonVersion: ${{parameters.PythonVersion[0]}}
-      # EDK2_PY_3_10:
-      #   Tag: 'Edk2NOTQEMU'
-      #   Image: 'windows-2019'
-      #   PythonVersion: ${{parameters.PythonVersion[1]}}
-      # EDK2_PY_3_11:
-      #   Tag: 'Edk2NOTQEMU'
-      #   Image: 'windows-2019'
-      #   PythonVersion: ${{parameters.PythonVersion[2]}}
-      # EDK2_OVMF_PY_3_9:
-      #   Tag: 'Edk2ANDQEMU'
-      #   Image: 'windows-2019'
-      #   PythonVersion: ${{parameters.PythonVersion[0]}}
-      # EDK2_OVMF_PY_3_10:
-      #   Tag: 'Edk2ANDQEMU'
-      #   Image: 'windows-2019'
-      #   PythonVersion: ${{parameters.PythonVersion[1]}}
-      # EDK2_OVMF_PY_3_11:
-      #   Tag: 'Edk2ANDQEMU'
-      #   Image: 'windows-2019'
-      #   PythonVersion: ${{parameters.PythonVersion[2]}}
 
   workspace:
     clean: all
