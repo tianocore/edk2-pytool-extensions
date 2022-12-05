@@ -10,26 +10,29 @@
 parameters:
 - name: PythonMinorVersionList
   type: object
-  default: ['9', '10', '11']
+  default:
+    '3_9': 3.9
+    '3_10': 3.10
+    '3_11': 3.11
 
 jobs:
 - job: Integration_Test
   #Use matrix to speed up the build process
   strategy:
     matrix:
-      ${{each PyMinorVer in parameters.PythonMinorVersionList}}:
-        PROJECT_MU_PY_3_${{PyMinorVer}}:
+      ${{each PyVer in parameters.PythonMinorVersionList}}:
+        PROJECT_MU_PY_${{PyVer.key}}:
           Tag: 'ProjectMu'
           Image: 'windows-2022'
-          PythonVersion: 3.${{PyMinorVer}}
+          PythonVersion: ${{PyVer.value}}}
         EDK2_PY_3_${{PyMinorVer}}:
           Tag: 'Edk2NOTQEMU'
           Image: 'windows-2019'
-          PythonVersion: 3.${{PyMinorVer}}
+          PythonVersion: ${{PyVer.value}}
         EDK2_OVMF_3_${{PyMinorVer}}:
           Tag: 'Edk2ANDQEMU'
           Image: 'windows-2019'
-          PythonVersion: 3.${{PyMinorVer}}
+          PythonVersion: ${{PyVer.value}}
 
   workspace:
     clean: all
