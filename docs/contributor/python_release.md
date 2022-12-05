@@ -51,7 +51,7 @@ sure we keep this front page information up to date.
 Due to this, we must update the table under `Current Status`. Within the table,
 you must update the `Toolchain` column to the correct python version and the
 `Test Status` sections to point towards the correct pipeline job. Whenever the
-python version is updated, it changes the job title, so the associatd entry in
+python version is updated, it changes the job title, so the associated entry in
 this table must be updated.
 
 Below is an example of an update due to the job title changing:
