@@ -43,7 +43,7 @@ jobs:
   steps:
   - task: UsePythonVersion@0
     inputs:
-      versionSpec: ${{PythonVersion}}
+      versionSpec: $(PythonVersion)
       architecture: 'x64'
 
   - script: pip install --upgrade -r requirements.txt
