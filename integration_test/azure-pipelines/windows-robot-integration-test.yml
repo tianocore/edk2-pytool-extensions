@@ -21,15 +21,15 @@ jobs:
         PROJECT_MU_PY_3_${{PyMinorVer}}:
           Tag: 'ProjectMu'
           Image: 'windows-2022'
-          PythonVersion: '3.${{PyMinorVer}}.x'
+          PythonVersion: '3.${{PyMinorVer}}'
         EDK2_PY_3_${{PyMinorVer}}:
           Tag: 'Edk2NOTQEMU'
           Image: 'windows-2019'
-          PythonVersion: '3.${{PyMinorVer}}.x'
+          PythonVersion: '3.${{PyMinorVer}}'
         EDK2_OVMF_3_${{PyMinorVer}}:
           Tag: 'Edk2ANDQEMU'
           Image: 'windows-2019'
-          PythonVersion: '3.${{PyMinorVer}}.x'
+          PythonVersion: '3.${{PyMinorVer}}'
 
   workspace:
     clean: all

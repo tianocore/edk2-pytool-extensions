@@ -27,7 +27,7 @@ jobs:
     steps:
     - template: basic-setup-steps.yml
       parameters:
-        python_version: 3.${{ python_minor_version }}.x
+        python_version: 3.${{ python_minor_version }}
 
     - ${{ parameters.extra_steps }}
     
