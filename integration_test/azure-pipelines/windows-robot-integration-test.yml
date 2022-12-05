@@ -9,6 +9,11 @@
 parameters:
   PythonMinorVersionList: ['9', '10', '11']
 
+parameters:
+- name: PythonMinorVersionList
+  type: object
+  default: ['9', '10', '11']
+
 jobs:
 - job: Integration_Test
   #Use matrix to speed up the build process
