@@ -19,9 +19,3 @@ jobs:
     root_package_folder: "edk2toolext"
     name: 'ubuntu'
     codecov_enabled: true
-    python_versions:
-      # Job Titles cannot have periods, so we iterate
-      # With a map using entry.key and entry.value
-      '3_9': 3.9
-      '3_10': 3.10
-      '3_11': 3.11

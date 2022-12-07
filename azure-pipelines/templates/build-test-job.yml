@@ -12,9 +12,13 @@ parameters:
   name: '' #set the job name
   codecov_enabled: false # by default, we don't do codecoverage
   extra_steps: []
-  python_versions: []
-      # Job Titles cannot have periods, so we iterate
-      # With a map using entry.key and entry.value
+  python_versions:
+    # Job Titles cannot have periods, so we iterate
+    # With a map using entry.key and entry.value
+    '3_9': 3.9
+    '3_10': 3.10
+    '3_11': 3.11
+
 
 jobs:
 - ${{each py_ver in parameters.python_versions}}:
