@@ -1,0 +1,25 @@
+# File mkdocs-test-steps.yml
+#
+# template file to run mkdocs and if error or warn publish log
+#
+# Copyright (c) Microsoft Corporation
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+  
+steps:
+# Catch any mkdocs warnings 
+- script: mkdocs build --strict
+  displayName: 'Check MkDocs for site building warnings or errors'
+  condition: succeededOrFailed()
+
+# Only capture and archive the lint log on failures.
+- script: mkdocs build --strict > mkdocs.err.log
+  displayName: 'Capture MkDocs warnings and failures'
+  condition: Failed()
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: 'mkdocs.err.log' 
+    artifactName: 'MkDocs Error log file'
+  continueOnError: true
+  condition: Failed()

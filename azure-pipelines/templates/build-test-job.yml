@@ -37,6 +37,8 @@ jobs:
     parameters:
       root_package_folder: ${{parameters.root_package_folder}}
 
+  - template: mkdocs-test-steps.yml
+
   - template: spell-test-steps.yml
 
   - template: markdown-lint-steps.yml

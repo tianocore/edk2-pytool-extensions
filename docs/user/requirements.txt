@@ -6,3 +6,4 @@ markdown-include==0.6.0
 mkdocs-gen-files==0.4.0
 mkdocs-exclude==1.0.2
 mkdocs-awesome-pages-plugin==2.8.0
+black==22.10.0
