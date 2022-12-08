@@ -21,12 +21,12 @@ parameters:
   default: ['ubuntu-latest, windows-latest']
 
 jobs:
-- job: IntegrationTest
+- job:
   #Use matrix to speed up the build process
   strategy:
     matrix:
       ${{each PyVer in parameters.PythonVersionList}}:
-        ProjectMu,Windows.Python${{PyVer.key}}:
+        ProjectMu, Windows, Python${{PyVer.value}}:
           Tag: 'ProjectMu'
           Image: 'windows-2022'
           PythonVersion: '${{PyVer.value}}'
