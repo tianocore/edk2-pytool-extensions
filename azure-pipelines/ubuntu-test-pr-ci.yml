@@ -13,6 +13,7 @@ pr:
 - master
 
 jobs:
+
 - template: templates/build-test-job.yml
   parameters:
     vm_image: 'ubuntu-latest'
