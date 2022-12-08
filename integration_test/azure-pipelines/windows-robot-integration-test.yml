@@ -11,9 +11,6 @@ parameters:
 - name: PythonVersionList
   type: object
   default: ['3.9', '3.10', '3.11']
-- name: os
-  type: object
-  default: ['ubuntu-latest, windows-latest']
 
 jobs:
 - job:
@@ -62,6 +59,10 @@ jobs:
 
   - script: pip install -e .
     displayName: 'Install from Source'
+
+  - task: PythonScript@0
+    inputs:
+    scriptPath: log.py
 
   - powershell: choco install qemu --version=2020.08.14; Write-Host "##vso[task.prependpath]c:\Program Files\qemu"
     displayName: Install QEMU and Set QEMU on path # friendly name displayed in the UI
