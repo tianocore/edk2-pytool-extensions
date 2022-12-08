@@ -12,54 +12,44 @@ parameters:
   name: '' #set the job name
   codecov_enabled: false # by default, we don't do codecoverage
   extra_steps: []
-  python_versions:
-    # Job Titles cannot have periods, so we iterate
-    # With a map using entry.key and entry.value
-    '3_9': 3.9
-    '3_10': 3.10
-    '3_11': 3.11
-
 
 jobs:
-- ${{each py_ver in parameters.python_versions}}:
-  - job: Build_and_Test_${{parameters.name}}_Python_${{py_ver.key}}
 
-    workspace:
-      clean: all
+- job: Build_and_Test_${{parameters.name}}
 
-    pool:
-      vmImage: ${{ parameters.vm_image }}
+  workspace:
+    clean: all
 
-    steps:
-    - template: basic-setup-steps.yml
+  pool:
+    vmImage: ${{ parameters.vm_image }}
+
+  steps:
+  - template: basic-setup-steps.yml
+  - ${{ parameters.extra_steps }}
+  - template: pytest-test-steps.yml
+    parameters:
+      root_package_folder: ${{parameters.root_package_folder}}
+      codecov_enabled: ${{parameters.codecov_enabled}}
+
+  - template: flake8-test-steps.yml
+
+  - template: pydocstyle-test-steps.yml
+    parameters:
+      root_package_folder: ${{parameters.root_package_folder}}
+
+  - template: spell-test-steps.yml
+
+  - template: markdown-lint-steps.yml
+
+  - task: PythonScript@0
+    inputs:
+      scriptSource: 'filePath'
+      scriptPath: 'BasicDevTests.py'
+    displayName: 'Check basic file and folder tests'
+    condition: succeededOrFailed()
+
+  - ${{ if ne(parameters.pypi_auth_feed, '') }}:
+    - template: build-publish-whl-steps.yml
       parameters:
-        python_version: '${{py_ver.value}}'
+        pypi_auth_feed: ${{parameters.pypi_auth_feed}}
 
-    - ${{ parameters.extra_steps }}
-    
-    - template: pytest-test-steps.yml
-      parameters:
-        root_package_folder: ${{parameters.root_package_folder}}
-        codecov_enabled: ${{parameters.codecov_enabled}}
-
-    - template: flake8-test-steps.yml
-
-    - template: pydocstyle-test-steps.yml
-      parameters:
-        root_package_folder: ${{parameters.root_package_folder}}
-
-    - template: spell-test-steps.yml
-
-    - template: markdown-lint-steps.yml
-
-    - task: PythonScript@0
-      inputs:
-        scriptSource: 'filePath'
-        scriptPath: 'BasicDevTests.py'
-      displayName: 'Check basic file and folder tests'
-      condition: succeededOrFailed()
-
-    - ${{ if ne(parameters.pypi_auth_feed, '') }}:
-      - template: build-publish-whl-steps.yml
-        parameters:
-          pypi_auth_feed: ${{parameters.pypi_auth_feed}}

@@ -20,5 +20,3 @@ jobs:
     pypi_auth_feed: 'Pypi-edk2-pytool-extensions'
     root_package_folder: "edk2toolext"
     name: 'windows'
-    python_versions:
-      '3_11': 3.11
