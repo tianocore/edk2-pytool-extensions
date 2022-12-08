@@ -33,7 +33,7 @@ jobs:
           ToolChain: 'VS2022'
         PROJECT_MU_UBUNTU_PY_${{PyVer.key}}:
           Tag: 'ProjectMu'
-          Image: 'ubuntu-2004'
+          Image: 'ubuntu-20.04'
           PythonVersion: '${{PyVer.value}}'
           ToolChain: 'GCC5'
         EDK2_WINDOWS_PY_${{PyVer.key}}:
@@ -43,7 +43,7 @@ jobs:
           ToolChain: 'VS2019'
         EDK2_UBUNTU_PY_${{PyVer.key}}:
           Tag: 'Edk2'
-          Image: 'ubuntu-2004'
+          Image: 'ubuntu-20.04'
           ToolChain: 'GCC5'
           PythonVersion: '${{PyVer.value}}'
 
