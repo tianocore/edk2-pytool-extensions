@@ -24,23 +24,23 @@ jobs:
         ProjectMu, Windows, Python ${{PyVer}}:
           Tag: 'ProjectMu'
           Image: 'windows-2022'
-          PythonVersion: '${{PyVer.value}}'
+          PythonVersion: '${{PyVer}}'
           ToolChain: 'VS2022'
         ProjectMu, Ubuntu, Python ${{PyVer}}:
           Tag: 'ProjectMu'
           Image: 'ubuntu-20.04'
-          PythonVersion: '${{PyVer.value}}'
+          PythonVersion: '${{PyVer}}'
           ToolChain: 'GCC5'
         Edk2, Windows, Python ${{PyVer}}:
           Tag: 'Edk2'
           Image: 'windows-2019'
-          PythonVersion: '${{PyVer.value}}'
+          PythonVersion: '${{PyVer}}'
           ToolChain: 'VS2019'
         Edk2, Ubuntu, Python ${{PyVer}}:
           Tag: 'Edk2'
           Image: 'ubuntu-20.04'
           ToolChain: 'GCC5'
-          PythonVersion: '${{PyVer.value}}'
+          PythonVersion: '${{PyVer}}'
 
   workspace:
     clean: all
