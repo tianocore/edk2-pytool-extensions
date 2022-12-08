@@ -16,6 +16,9 @@ parameters:
     '3_9': '3.9'
     '3_10': '3.10'
     '3_11': '3.11'
+- name: os
+  type: object
+  default: ['ubuntu-latest, windows-latest']
 
 jobs:
 - job: Integration_Test
@@ -23,17 +26,25 @@ jobs:
   strategy:
     matrix:
       ${{each PyVer in parameters.PythonVersionList}}:
-        PROJECT_MU_PY_${{PyVer.key}}:
+        PROJECT_MU_WINDOWS_PY_${{PyVer.key}}:
           Tag: 'ProjectMu'
           Image: 'windows-2022'
           PythonVersion: '${{PyVer.value}}'
-        EDK2_PY_${{PyVer.key}}:
-          Tag: 'Edk2NOTQEMU'
+          ToolChain: 'VS2022'
+        PROJECT_MU_UBUNTU_PY_${{PyVer.key}}:
+          Tag: 'ProjectMu'
+          Image: 'ubuntu-2004'
+          PythonVersion: '${{PyVer.value}}'
+          ToolChain: 'GCC5'
+        EDK2_WINDOWS_PY_${{PyVer.key}}:
+          Tag: 'Edk2'
           Image: 'windows-2019'
           PythonVersion: '${{PyVer.value}}'
-        EDK2_OVMF_PY_${{PyVer.key}}:
-          Tag: 'Edk2ANDQEMU'
-          Image: 'windows-2019'
+          ToolChain: 'VS2019'
+        EDK2_UBUNTU_PY_${{PyVer.key}}:
+          Tag: 'Edk2'
+          Image: 'ubuntu-2004'
+          ToolChain: 'GCC5'
           PythonVersion: '${{PyVer.value}}'
 
   workspace:
@@ -59,7 +70,13 @@ jobs:
 
   - powershell: choco install qemu --version=2020.08.14; Write-Host "##vso[task.prependpath]c:\Program Files\qemu"
     displayName: Install QEMU and Set QEMU on path # friendly name displayed in the UI
-    condition: and(contains(variables.Tag, 'AndQemu'), succeeded())
+    condition: and(contains(variables.Image, 'windows'), succeeded())
+  
+  - script: |
+      sudo apt-get update
+      sudo apt-get install gcc g++ make uuid-dev qemu
+    displayName: Install packages for ubuntu
+    condition: and(contains(variables.Image, 'ubuntu'), succeeded())
 
   - script: git config --global user.email "you@example.com"
     displayName: Configure git user user.email
@@ -67,7 +84,7 @@ jobs:
   - script: git config --global user.name "Your Name"
     displayName: Configure git user user.name
 
-  - script: python -m robot.run -v TEST_OUTPUT_BASE:$(Build.BinariesDirectory) -d report --xunit xunittestresults.xml --include $(Tag) -L TRACE .
+  - script: python -m robot.run -v TEST_OUTPUT_BASE:$(Build.BinariesDirectory) -v TOOL_CHAIN_TAG:$(ToolChain) -d report --xunit xunittestresults.xml --include $(Tag) -L TRACE .
     displayName: 'Run Robot Tests'
     workingDirectory: "integration_test"
 

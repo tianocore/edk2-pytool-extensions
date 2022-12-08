@@ -19,7 +19,7 @@ ${repo_url}           https://github.com/tianocore/edk2.git
 ${default_branch}     not_yet_set
 ${ws_dir}             edk2
 ${ws_root}            ${TEST_OUTPUT}${/}${ws_dir}
-${tool_chain}         VS2019
+${tool_chain}         ${TOOL_CHAIN_TAG}
 
 
 *** Keywords ***
