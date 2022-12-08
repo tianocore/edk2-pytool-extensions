@@ -10,12 +10,7 @@
 parameters:
 - name: PythonVersionList
   type: object
-  default:
-    # Job Titles cannot have periods, so we iterate
-    # With a map using entry.key and entry.value
-    '39': '3.9'
-    '310': '3.10'
-    '311': '3.11'
+  default: ['3.9', '3.10', '3.11']
 - name: os
   type: object
   default: ['ubuntu-latest, windows-latest']
@@ -26,22 +21,22 @@ jobs:
   strategy:
     matrix:
       ${{each PyVer in parameters.PythonVersionList}}:
-        ProjectMu, Windows, Python${{PyVer.value}}:
+        ProjectMu, Windows, Python ${{PyVer}}:
           Tag: 'ProjectMu'
           Image: 'windows-2022'
           PythonVersion: '${{PyVer.value}}'
           ToolChain: 'VS2022'
-        PROJECT_MU_UBUNTU_PY_${{PyVer.key}}:
+        ProjectMu, Ubuntu, Python ${{PyVer}}:
           Tag: 'ProjectMu'
           Image: 'ubuntu-20.04'
           PythonVersion: '${{PyVer.value}}'
           ToolChain: 'GCC5'
-        EDK2_WINDOWS_PY_${{PyVer.key}}:
+        Edk2, Windows, Python ${{PyVer}}:
           Tag: 'Edk2'
           Image: 'windows-2019'
           PythonVersion: '${{PyVer.value}}'
           ToolChain: 'VS2019'
-        EDK2_UBUNTU_PY_${{PyVer.key}}:
+        Edk2, Windows, Python ${{PyVer}}:
           Tag: 'Edk2'
           Image: 'ubuntu-20.04'
           ToolChain: 'GCC5'
