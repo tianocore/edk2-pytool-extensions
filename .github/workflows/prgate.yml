@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       python-version: "3.11"
-      node-version: "18"
+      node-version: "19"
       package-src: "edk2toolext"
     steps:
       - uses: actions/checkout@v3
@@ -62,7 +62,17 @@ jobs:
           pip install -r requirements.txt
           pip install -r docs/user/requirements.txt
           pip install -e .
+
+      - name: Run code coverage
+        run: |
+          pip install coverage
+          coverage run -m unittest
       
+      - name: Upload coverage to codecov
+        uses: codecov/codecov-action@v2
+        with:
+          verbose: false
+
       - name: Install npm dependencies
         run: |
           npm install -g markdownlint-cli
@@ -82,14 +92,4 @@ jobs:
       
       - name: Run basic dev tests
         run: python BasicDevTests.py
-      
-      - name: Run code coverage
-        run: |
-          pip install coverage
-          coverage run -m unittest
-      
-      - name: Upload Coverage to Codecov
-        uses: codecov/codecov-action@v2
-        with:
-          verbose: false
-      
+  
