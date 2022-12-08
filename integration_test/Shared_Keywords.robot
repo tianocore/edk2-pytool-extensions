@@ -35,7 +35,7 @@ Clone the git repo
     [Arguments]    ${git_url}   ${ws_name}
 
     Log To console    cloning ${git_url} to ${TEST_OUTPUT}
-    ${result}=  Run Process       git.exe   clone   ${git_url}   ${ws_name}
+    ${result}=  Run Process       git   clone   ${git_url}   ${ws_name}
     ...  cwd=${TEST_OUTPUT}  stdout=stdout.txt  stderr=stderr.txt
     Log Many  stdout: ${result.stdout}  stderr: ${result.stderr}
 

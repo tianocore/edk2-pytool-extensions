@@ -13,20 +13,20 @@ parameters:
   default:
     # Job Titles cannot have periods, so we iterate
     # With a map using entry.key and entry.value
-    '3_9': '3.9'
-    '3_10': '3.10'
-    '3_11': '3.11'
+    '39': '3.9'
+    '310': '3.10'
+    '311': '3.11'
 - name: os
   type: object
   default: ['ubuntu-latest, windows-latest']
 
 jobs:
-- job: Integration_Test
+- job: IntegrationTest
   #Use matrix to speed up the build process
   strategy:
     matrix:
       ${{each PyVer in parameters.PythonVersionList}}:
-        PROJECT_MU_WINDOWS_PY_${{PyVer.key}}:
+        ProjectMu,Windows.Python${{PyVer.key}}:
           Tag: 'ProjectMu'
           Image: 'windows-2022'
           PythonVersion: '${{PyVer.value}}'
