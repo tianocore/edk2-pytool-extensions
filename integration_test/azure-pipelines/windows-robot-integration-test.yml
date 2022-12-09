@@ -18,22 +18,22 @@ jobs:
   strategy:
     matrix:
       ${{each PyVer in parameters.PythonVersionList}}:
-        ProjectMu, Windows, Python ${{PyVer}}:
+        ProjectMu_Windows_Python${{replace(PyVer, ".","_"}}:
           Tag: 'ProjectMu'
           Image: 'windows-2022'
           PythonVersion: '${{PyVer}}'
           ToolChain: 'VS2022'
-        ProjectMu, Ubuntu, Python ${{PyVer}}:
+        ProjectMu_Ubuntu_Python${{replace(PyVer, ".","_"}}:
           Tag: 'ProjectMu'
           Image: 'ubuntu-20.04'
           PythonVersion: '${{PyVer}}'
           ToolChain: 'GCC5'
-        Edk2, Windows, Python ${{PyVer}}:
+        Edk2_Windows_Python${{replace(PyVer, ".","_"}}:
           Tag: 'Edk2ANDQEMU'
           Image: 'windows-2019'
           PythonVersion: '${{PyVer}}'
           ToolChain: 'VS2019'
-        Edk2, Ubuntu, Python ${{PyVer}}:
+        Edk2_Ubuntu_Python${{replace(PyVer, ".","_"}}:
           Tag: 'Edk2NOTQEMU'
           Image: 'ubuntu-18.04'
           ToolChain: 'GCC5'
@@ -105,7 +105,7 @@ jobs:
     displayName: "Publish logs"
     inputs:
       pathtoPublish: '$(Build.ArtifactStagingDirectory)'
-      artifactName: 'Integration Test Logs $(Tag) $(Image) ${{replace($(PythonVersion),".",""}}'
+      artifactName: 'Integration Test Logs $(Tag) $(Image) $(PythonVersion)'
     condition: succeededOrFailed()
 
   - task: PublishTestResults@2
