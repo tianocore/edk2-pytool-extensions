@@ -34,7 +34,7 @@ jobs:
           PythonVersion: '${{PyVer}}'
           ToolChain: 'VS2019'
         Edk2, Ubuntu, Python ${{PyVer}}:
-          Tag: 'Edk2'
+          Tag: 'Edk2NOTQEMU'
           Image: 'ubuntu-18.04'
           ToolChain: 'GCC5'
           PythonVersion: '${{PyVer}}'
