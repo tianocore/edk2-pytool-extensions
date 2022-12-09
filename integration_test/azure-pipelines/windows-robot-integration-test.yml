@@ -10,7 +10,7 @@
 parameters:
 - name: PythonVersionList
   type: object
-  default: ['3.8', '3.9', '3.10', '3.11']
+  default: ['3.9', '3.10', '3.11']
 
 jobs:
 - job:
@@ -23,21 +23,21 @@ jobs:
         #   Image: 'windows-2022'
         #   PythonVersion: '${{PyVer}}'
         #   ToolChain: 'VS2022'
-        ProjectMu, Ubuntu, Python ${{PyVer}}:
-          Tag: 'ProjectMu'
-          Image: 'ubuntu-20.04'
-          PythonVersion: '${{PyVer}}'
-          ToolChain: 'GCC5'
+        # ProjectMu, Ubuntu, Python ${{PyVer}}:
+        #   Tag: 'ProjectMu'
+        #   Image: 'ubuntu-20.04'
+        #   PythonVersion: '${{PyVer}}'
+        #   ToolChain: 'GCC5'
         # Edk2, Windows, Python ${{PyVer}}:
         #   Tag: 'Edk2'
         #   Image: 'windows-2019'
         #   PythonVersion: '${{PyVer}}'
         #   ToolChain: 'VS2019'
-        # Edk2, Ubuntu, Python ${{PyVer}}:
-        #   Tag: 'Edk2'
-        #   Image: 'ubuntu-20.04'
-        #   ToolChain: 'GCC5'
-        #   PythonVersion: '${{PyVer}}'
+        Edk2, Ubuntu, Python ${{PyVer}}:
+          Tag: 'Edk2'
+          Image: 'ubuntu-20.04'
+          ToolChain: 'GCC5'
+          PythonVersion: '${{PyVer}}'
 
   workspace:
     clean: all
