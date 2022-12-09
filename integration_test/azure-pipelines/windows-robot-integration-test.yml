@@ -18,24 +18,24 @@ jobs:
   strategy:
     matrix:
       ${{each PyVer in parameters.PythonVersionList}}:
-        # ProjectMu, Windows, Python ${{PyVer}}:
-        #   Tag: 'ProjectMu'
-        #   Image: 'windows-2022'
-        #   PythonVersion: '${{PyVer}}'
-        #   ToolChain: 'VS2022'
-        # ProjectMu, Ubuntu, Python ${{PyVer}}:
-        #   Tag: 'ProjectMu'
-        #   Image: 'ubuntu-20.04'
-        #   PythonVersion: '${{PyVer}}'
-        #   ToolChain: 'GCC5'
-        # Edk2, Windows, Python ${{PyVer}}:
-        #   Tag: 'Edk2'
-        #   Image: 'windows-2019'
-        #   PythonVersion: '${{PyVer}}'
-        #   ToolChain: 'VS2019'
+        ProjectMu, Windows, Python ${{PyVer}}:
+          Tag: 'ProjectMu'
+          Image: 'windows-2022'
+          PythonVersion: '${{PyVer}}'
+          ToolChain: 'VS2022'
+        ProjectMu, Ubuntu, Python ${{PyVer}}:
+          Tag: 'ProjectMu'
+          Image: 'ubuntu-20.04'
+          PythonVersion: '${{PyVer}}'
+          ToolChain: 'GCC5'
+        Edk2, Windows, Python ${{PyVer}}:
+          Tag: 'Edk2'
+          Image: 'windows-2019'
+          PythonVersion: '${{PyVer}}'
+          ToolChain: 'VS2019'
         Edk2, Ubuntu, Python ${{PyVer}}:
           Tag: 'Edk2'
-          Image: 'ubuntu-20.04'
+          Image: 'ubuntu-18.04'
           ToolChain: 'GCC5'
           PythonVersion: '${{PyVer}}'
 
@@ -79,6 +79,8 @@ jobs:
   - script: python -m robot.run -v TEST_OUTPUT_BASE:$(Build.BinariesDirectory) -v TOOL_CHAIN_TAG:$(ToolChain) -d report --xunit xunittestresults.xml --include $(Tag) -L TRACE .
     displayName: 'Run Robot Tests'
     workingDirectory: "integration_test"
+    condition: and(eq(variables.PythonVersion), '3.9'), contains('ubuntu'))  # Temp workaround for known ubuntu python 3.9 Tar file bug
+                                                                             # https://bugzilla.tianocore.org/show_bug.cgi?id=3891
 
   # Copy the build logs to the artifact staging directory
   - task: CopyFiles@2
