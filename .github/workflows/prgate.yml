@@ -19,7 +19,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.9"] # ["3.9", "3.10", "3.11"]
-        os: [ windows-latest ] #[ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest]
 
     steps:
     - uses: actions/checkout@v3
@@ -36,7 +36,9 @@ jobs:
         pip install -e . 
     
     - name: Run Unit Tests
-      run: coverage run --include=edk2toolext/* -m pytest --junitxml=test.junit.xml --html=pytest_report.html --self-contained-html 
+      run: |
+        coverage run --include=edk2toolext\* -m pytest --junitxml=test.junit.xml --html=pytest_report.html --self-contained-html
+        coverage report
 
     - name: Upload coverage to codecov
       uses: codecov/codecov-action@v2
@@ -49,6 +51,7 @@ jobs:
         path: |
           pytest_report.html
           test.junit.xml
+      if: failure()
   
   ci:
     name: CI Tests
