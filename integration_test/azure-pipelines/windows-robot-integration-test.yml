@@ -18,22 +18,22 @@ jobs:
   strategy:
     matrix:
       ${{each PyVer in parameters.PythonVersionList}}:
-        ProjectMu_Windows_Python${{replace(PyVer, ".","_"}}:
+        ProjectMu_Windows_Python${{replace(PyVer, ''.'',''}}:
           Tag: 'ProjectMu'
           Image: 'windows-2022'
           PythonVersion: '${{PyVer}}'
           ToolChain: 'VS2022'
-        ProjectMu_Ubuntu_Python${{replace(PyVer, ".","_"}}:
+        ProjectMu_Ubuntu_Python${{replace(PyVer, ''.'',''}}:
           Tag: 'ProjectMu'
           Image: 'ubuntu-20.04'
           PythonVersion: '${{PyVer}}'
           ToolChain: 'GCC5'
-        Edk2_Windows_Python${{replace(PyVer, ".","_"}}:
+        Edk2_Windows_Python${{replace(PyVer, ''.'',''}}:
           Tag: 'Edk2ANDQEMU'
           Image: 'windows-2019'
           PythonVersion: '${{PyVer}}'
           ToolChain: 'VS2019'
-        Edk2_Ubuntu_Python${{replace(PyVer, ".","_"}}:
+        Edk2_Ubuntu_Python${{replace(PyVer, ''.'',''}}:
           Tag: 'Edk2NOTQEMU'
           Image: 'ubuntu-18.04'
           ToolChain: 'GCC5'

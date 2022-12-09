@@ -150,7 +150,7 @@ contributing to the edk2-pytool-extensions repository.
 [edk2-windows-test2]: https://img.shields.io/azure-devops/tests/tianocore/edk2-pytool-extensions/52/master?Job=Edk2,%20Windows,%20Python%203.10.svg
 [edk2-windows-test3]: https://img.shields.io/azure-devops/tests/tianocore/edk2-pytool-extensions/52/master?Job=Edk2,%20Windows,%20Python%203.11.svg
 
-[edk2-ubuntu-test1]: https://img.shields.io/github/issues/detail/label/tianocore/edk2-pytool-extensions/359?color=red&label=issue%20359
+[edk2-ubuntu-test1]: https://img.shields.io/github/issues/detail/label/tianocore/edk2-pytool-extensions/359?color=orange&label=issue%20359
 [edk2-ubuntu-test2]: https://img.shields.io/azure-devops/tests/tianocore/edk2-pytool-extensions/52/master?Job=Edk2,%20Ubuntu,%20Python%203.10.svg
 [edk2-ubuntu-test3]: https://img.shields.io/azure-devops/tests/tianocore/edk2-pytool-extensions/52/master?Job=Edk2,%20Ubuntu,%20Python%203.11.svg
 
@@ -158,6 +158,6 @@ contributing to the edk2-pytool-extensions repository.
 [mu-windows-test2]: https://img.shields.io/azure-devops/tests/tianocore/edk2-pytool-extensions/52/master?Job=ProjectMu,%20Windows,%20Python%203.10.svg
 [mu-windows-test3]: https://img.shields.io/azure-devops/tests/tianocore/edk2-pytool-extensions/52/master?Job=ProjectMu,%20Windows,%20Python%203.11.svg
 
-[mu-ubuntu-test1]: https://img.shields.io/github/issues/detail/label/tianocore/edk2-pytool-extensions/359?color=red&label=issue%20359
+[mu-ubuntu-test1]: https://img.shields.io/github/issues/detail/label/tianocore/edk2-pytool-extensions/359?color=orange&label=issue%20359
 [mu-ubuntu-test2]: https://img.shields.io/azure-devops/tests/tianocore/edk2-pytool-extensions/52/master?Job=ProjectMu,%20Ubuntu,%20Python%203.10.svg
 [mu-ubuntu-test3]: https://img.shields.io/azure-devops/tests/tianocore/edk2-pytool-extensions/52/master?Job=ProjectMu,%20Ubuntu,%20Python%203.11.svg
