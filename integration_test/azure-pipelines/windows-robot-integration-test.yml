@@ -7,21 +7,37 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 
-jobs:
-- job: Integration_Test
+parameters:
+- name: PythonVersionList
+  type: object
+  default: ['3.9', '3.10', '3.11']
 
+jobs:
+- job:
   #Use matrix to speed up the build process
   strategy:
     matrix:
-      PROJECT_MU:
-        Tag: 'ProjectMu'
-        Image: 'windows-2022'
-      EDK2:
-        Tag: 'Edk2NOTQEMU'
-        Image: 'windows-2019'
-      EDK2_OVMF:
-        Tag: 'Edk2ANDQEMU'
-        Image: 'windows-2019'
+      ${{each PyVer in parameters.PythonVersionList}}:
+        ProjectMu_Windows_Python${{ replace(PyVer, '.','') }}:
+          Tag: 'ProjectMu'
+          Image: 'windows-2022'
+          PythonVersion: '${{PyVer}}'
+          ToolChain: 'VS2022'
+        ProjectMu_Ubuntu_Python${{ replace(PyVer, '.','') }}:
+          Tag: 'ProjectMu'
+          Image: 'ubuntu-22.04'
+          PythonVersion: '${{PyVer}}'
+          ToolChain: 'GCC5'
+        Edk2_Windows_Python${{ replace(PyVer, '.','') }}:
+          Tag: 'Edk2ANDQEMU'
+          Image: 'windows-2019'
+          PythonVersion: '${{PyVer}}'
+          ToolChain: 'VS2019'
+        Edk2_Ubuntu_Python${{ replace(PyVer, '.','') }}:
+          Tag: 'Edk2NOTQEMU'
+          Image: 'ubuntu-20.04'
+          ToolChain: 'GCC5'
+          PythonVersion: '${{PyVer}}'
 
   workspace:
     clean: all
@@ -32,7 +48,7 @@ jobs:
   steps:
   - task: UsePythonVersion@0
     inputs:
-      versionSpec: '3.10.x'
+      versionSpec: '$(PythonVersion)'
       architecture: 'x64'
 
   - script: pip install --upgrade -r requirements.txt
@@ -46,7 +62,13 @@ jobs:
 
   - powershell: choco install qemu --version=2020.08.14; Write-Host "##vso[task.prependpath]c:\Program Files\qemu"
     displayName: Install QEMU and Set QEMU on path # friendly name displayed in the UI
-    condition: and(contains(variables.Tag, 'AndQemu'), succeeded())
+    condition: and(contains(variables.Image, 'windows'), succeeded())
+  
+  - script: |
+      sudo apt-get update
+      sudo apt-get install gcc g++ make uuid-dev qemu
+    displayName: Install packages for ubuntu
+    condition: and(contains(variables.Image, 'ubuntu'), succeeded())
 
   - script: git config --global user.email "you@example.com"
     displayName: Configure git user user.email
@@ -54,9 +76,12 @@ jobs:
   - script: git config --global user.name "Your Name"
     displayName: Configure git user user.name
 
-  - script: python -m robot.run -v TEST_OUTPUT_BASE:$(Build.BinariesDirectory) -d report --xunit xunittestresults.xml --include $(Tag) -L TRACE .
+  - script: python -m robot.run -v TEST_OUTPUT_BASE:$(Build.BinariesDirectory) -v TOOL_CHAIN_TAG:$(ToolChain) -d report --xunit xunittestresults.xml --include $(Tag) -L TRACE .
     displayName: 'Run Robot Tests'
     workingDirectory: "integration_test"
+    condition: not(and(eq(variables.PythonVersion, '3.9'), contains(variables.Image, 'ubuntu')))  
+    # Above conditional is a temp workaround for known ubuntu python 3.9 Tar file bug
+    # https://bugzilla.tianocore.org/show_bug.cgi?id=3891
 
   # Copy the build logs to the artifact staging directory
   - task: CopyFiles@2
@@ -69,7 +94,10 @@ jobs:
         output.xml
         report.html
       flattenFolders: true
-    condition: succeededOrFailed()
+    # condition: succeededOrFailed()
+    condition: and(succeededOrFailed(), not(and(eq(variables.PythonVersion, '3.9'), contains(variables.Image, 'ubuntu'))))  
+    # Above conditional is a temp workaround for known ubuntu python 3.9 Tar file bug
+    # https://bugzilla.tianocore.org/show_bug.cgi?id=3891
 
   # Publish build artifacts to Azure Artifacts/TFS or a file share
   - task: PublishBuildArtifacts@1
@@ -77,7 +105,7 @@ jobs:
     displayName: "Publish logs"
     inputs:
       pathtoPublish: '$(Build.ArtifactStagingDirectory)'
-      artifactName: 'Logs $(System.JobName)'
+      artifactName: 'Integration Test Logs $(Tag) $(Image) $(PythonVersion)'
     condition: succeededOrFailed()
 
   - task: PublishTestResults@2

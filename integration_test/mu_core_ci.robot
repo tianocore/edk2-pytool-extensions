@@ -20,7 +20,7 @@ ${default_branch}     not_yet_set
 ${ws_dir}             mu_basecore
 ${ci_file}            .pytool/CISettings.py
 ${ws_root}            ${TEST_OUTPUT}${/}${ws_dir}
-${tool_chain}         VS2022
+${tool_chain}         ${TOOL_CHAIN_TAG}
 
 
 *** Keywords ***

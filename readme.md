@@ -25,10 +25,20 @@ This is a supplemental package and is not required to be used for edk2 builds.
 
 ## Current Status
 
-| Host Type | Toolchain | Branch | Build Status | Test Status | Code Coverage |
+| Host Type | Toolchain | Project | Build Status | Test Status | Code Coverage |
 | :-------- | :-------- | :---- | :----- | :---- | :--- |
-| Windows Server 2019 | Python 3.10.x | master | [![Build Status](https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Master%20CI%20Build%20-%20Win%20VS2017?branchName=master)](https://dev.azure.com/tianocore/edk2-pytool-extensions/_build/latest?definitionId=8&branchName=master) | ![Azure DevOps tests](https://img.shields.io/azure-devops/tests/tianocore/edk2-pytool-extensions/8.svg) | ![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/tianocore/edk2-pytool-extensions/8.svg) |
-| Linux Ubuntu 1804 | Python 3.10.x | master | [![Build Status](https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Master%20CI%20Build%20-%20Linux?branchName=master)](https://dev.azure.com/tianocore/edk2-pytool-extensions/_build/latest?definitionId=7&branchName=master) | ![Azure DevOps tests](https://img.shields.io/azure-devops/tests/tianocore/edk2-pytool-extensions/7.svg) | ![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/tianocore/edk2-pytool-extensions/7.svg) |
+| Windows Server 2019 | Python 3.9 | Edk2 | [![Build Status](https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Master%20CI%20Build%20-%20Win%20VS2017?branchName=master)](https://dev.azure.com/tianocore/edk2-pytool-extensions/_build/latest?definitionId=8&branchName=master) | ![edk2-windows-test1] | ![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/tianocore/edk2-pytool-extensions/8.svg) |
+| Windows Server 2019 | Python 3.10 | Edk2 | [![Build Status](https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Master%20CI%20Build%20-%20Win%20VS2017?branchName=master)](https://dev.azure.com/tianocore/edk2-pytool-extensions/_build/latest?definitionId=8&branchName=master) | ![edk2-windows-test2] | ![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/tianocore/edk2-pytool-extensions/8.svg) |
+| Windows Server 2019 | Python 3.11 | Edk2 | [![Build Status](https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Master%20CI%20Build%20-%20Win%20VS2017?branchName=master)](https://dev.azure.com/tianocore/edk2-pytool-extensions/_build/latest?definitionId=8&branchName=master) | ![edk2-windows-test3] | ![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/tianocore/edk2-pytool-extensions/8.svg) |
+| Linux Ubuntu 18.04 | Python 3.9 | Edk2 | [![Build Status](https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Master%20CI%20Build%20-%20Linux?branchName=master)](https://dev.azure.com/tianocore/edk2-pytool-extensions/_build/latest?definitionId=7&branchName=master) | ![edk2-ubuntu-test1] | ![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/tianocore/edk2-pytool-extensions/7.svg) |
+| Linux Ubuntu 18.04 | Python 3.10 | Edk2 | [![Build Status](https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Master%20CI%20Build%20-%20Linux?branchName=master)](https://dev.azure.com/tianocore/edk2-pytool-extensions/_build/latest?definitionId=7&branchName=master) | ![edk2-ubuntu-test2] | ![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/tianocore/edk2-pytool-extensions/7.svg) |
+| Linux Ubuntu 18.04 | Python 3.11 | Edk2 | [![Build Status](https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Master%20CI%20Build%20-%20Linux?branchName=master)](https://dev.azure.com/tianocore/edk2-pytool-extensions/_build/latest?definitionId=7&branchName=master) | ![edk2-ubuntu-test3] | ![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/tianocore/edk2-pytool-extensions/7.svg) |
+| Windows Server 2022 | Python 3.9 | Project Mu | [![Build Status](https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Master%20CI%20Build%20-%20Win%20VS2017?branchName=master)](https://dev.azure.com/tianocore/edk2-pytool-extensions/_build/latest?definitionId=8&branchName=master) | ![mu-windows-test1] | ![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/tianocore/edk2-pytool-extensions/8.svg) |
+| Windows Server 2022 | Python 3.10 | Project Mu | [![Build Status](https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Master%20CI%20Build%20-%20Win%20VS2017?branchName=master)](https://dev.azure.com/tianocore/edk2-pytool-extensions/_build/latest?definitionId=8&branchName=master) | ![mu-windows-test2] | ![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/tianocore/edk2-pytool-extensions/8.svg) |
+| Windows Server 2022 | Python 3.11 | Project Mu | [![Build Status](https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Master%20CI%20Build%20-%20Win%20VS2017?branchName=master)](https://dev.azure.com/tianocore/edk2-pytool-extensions/_build/latest?definitionId=8&branchName=master) | ![mu-windows-test3] | ![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/tianocore/edk2-pytool-extensions/8.svg) |
+| Linux Ubuntu 20.04 | Python 3.9 | Project Mu | [![Build Status](https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Master%20CI%20Build%20-%20Linux?branchName=master)](https://dev.azure.com/tianocore/edk2-pytool-extensions/_build/latest?definitionId=7&branchName=master) | ![mu-ubuntu-test1] | ![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/tianocore/edk2-pytool-extensions/7.svg) |
+| Linux Ubuntu 20.04 | Python 3.10 | Project Mu | [![Build Status](https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Master%20CI%20Build%20-%20Linux?branchName=master)](https://dev.azure.com/tianocore/edk2-pytool-extensions/_build/latest?definitionId=7&branchName=master) | ![mu-ubuntu-test2] | ![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/tianocore/edk2-pytool-extensions/7.svg) |
+| Linux Ubuntu 20.04 | Python 3.11 | Project Mu | [![Build Status](https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Master%20CI%20Build%20-%20Linux?branchName=master)](https://dev.azure.com/tianocore/edk2-pytool-extensions/_build/latest?definitionId=7&branchName=master) | ![mu-ubuntu-test3] | ![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/tianocore/edk2-pytool-extensions/7.svg) |
 
 ### Current Release
 
@@ -134,3 +144,19 @@ mkdocs serve
 
 The second is located at ```docs/contributor/``` and is documentation for
 contributing to the edk2-pytool-extensions repository.
+
+[edk2-windows-test1]: https://img.shields.io/azure-devops/tests/tianocore/edk2-pytool-extensions/52/master?Job=Edk2_Windows_Python39.svg
+[edk2-windows-test2]: https://img.shields.io/azure-devops/tests/tianocore/edk2-pytool-extensions/52/master?Job=Edk2_Windows_Python310.svg
+[edk2-windows-test3]: https://img.shields.io/azure-devops/tests/tianocore/edk2-pytool-extensions/52/master?Job=Edk2_Windows_Python311.svg
+
+[edk2-ubuntu-test1]: https://img.shields.io/github/issues/detail/label/tianocore/edk2-pytool-extensions/359?color=orange&label=issue%20359
+[edk2-ubuntu-test2]: https://img.shields.io/azure-devops/tests/tianocore/edk2-pytool-extensions/52/master?Job=Edk2_Ubuntu_Python310.svg
+[edk2-ubuntu-test3]: https://img.shields.io/azure-devops/tests/tianocore/edk2-pytool-extensions/52/master?Job=Edk2_Ubuntu_Python311.svg
+
+[mu-windows-test1]: https://img.shields.io/azure-devops/tests/tianocore/edk2-pytool-extensions/52/master?Job=ProjectMu_Windows_Python39.svg
+[mu-windows-test2]: https://img.shields.io/azure-devops/tests/tianocore/edk2-pytool-extensions/52/master?Job=ProjectMu_Windows_Python310.svg
+[mu-windows-test3]: https://img.shields.io/azure-devops/tests/tianocore/edk2-pytool-extensions/52/master?Job=ProjectMu_Windows_Python311.svg
+
+[mu-ubuntu-test1]: https://img.shields.io/github/issues/detail/label/tianocore/edk2-pytool-extensions/359?color=orange&label=issue%20359
+[mu-ubuntu-test2]: https://img.shields.io/azure-devops/tests/tianocore/edk2-pytool-extensions/52/master?Job=ProjectMu_Ubuntu_Python310.svg
+[mu-ubuntu-test3]: https://img.shields.io/azure-devops/tests/tianocore/edk2-pytool-extensions/52/master?Job=ProjectMu_Ubuntu_Python311.svg
