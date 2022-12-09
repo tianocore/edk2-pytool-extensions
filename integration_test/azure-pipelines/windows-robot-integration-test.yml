@@ -25,7 +25,7 @@ jobs:
           ToolChain: 'VS2022'
         ProjectMu_Ubuntu_Python${{ replace(PyVer, '.','') }}:
           Tag: 'ProjectMu'
-          Image: 'ubuntu-20.04'
+          Image: 'ubuntu-22.04'
           PythonVersion: '${{PyVer}}'
           ToolChain: 'GCC5'
         Edk2_Windows_Python${{ replace(PyVer, '.','') }}:
@@ -35,7 +35,7 @@ jobs:
           ToolChain: 'VS2019'
         Edk2_Ubuntu_Python${{ replace(PyVer, '.','') }}:
           Tag: 'Edk2NOTQEMU'
-          Image: 'ubuntu-18.04'
+          Image: 'ubuntu-20.04'
           ToolChain: 'GCC5'
           PythonVersion: '${{PyVer}}'
 
