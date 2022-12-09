@@ -79,7 +79,7 @@ jobs:
   - script: python -m robot.run -v TEST_OUTPUT_BASE:$(Build.BinariesDirectory) -v TOOL_CHAIN_TAG:$(ToolChain) -d report --xunit xunittestresults.xml --include $(Tag) -L TRACE .
     displayName: 'Run Robot Tests'
     workingDirectory: "integration_test"
-    condition: not(and(eq(variables.PythonVersion, '3.9'), eq(variables.Tag, 'Edk2'), contains(variables.Image, 'ubuntu')))  
+    condition: not(and(eq(variables.PythonVersion, '3.9'), contains(variables.Image, 'ubuntu')))  
     # Above conditional is a temp workaround for known ubuntu python 3.9 Tar file bug
     # https://bugzilla.tianocore.org/show_bug.cgi?id=3891
 
@@ -95,7 +95,7 @@ jobs:
         report.html
       flattenFolders: true
     # condition: succeededOrFailed()
-    condition: and(succeededOrFailed(), not(and(eq(variables.PythonVersion, '3.9'), eq(variables.Tag, 'Edk2'), contains(variables.Image, 'ubuntu'))))  
+    condition: and(succeededOrFailed(), not(and(eq(variables.PythonVersion, '3.9'), contains(variables.Image, 'ubuntu'))))  
     # Above conditional is a temp workaround for known ubuntu python 3.9 Tar file bug
     # https://bugzilla.tianocore.org/show_bug.cgi?id=3891
 
