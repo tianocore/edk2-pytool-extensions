@@ -45,7 +45,7 @@ jobs:
     
     - uses: actions/upload-artifact@v3
       with:
-        name: Artifacts-${{matrix.os}}-${{python-version}}
+        name: Artifacts-${{matrix.os}}-${{matrix.python-version}}
         path: |
           pytest_report.html
           test.junit.xml
