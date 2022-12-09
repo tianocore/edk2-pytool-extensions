@@ -29,7 +29,7 @@ jobs:
           PythonVersion: '${{PyVer}}'
           ToolChain: 'GCC5'
         Edk2, Windows, Python ${{PyVer}}:
-          Tag: 'Edk2'
+          Tag: 'Edk2ANDQEMU'
           Image: 'windows-2019'
           PythonVersion: '${{PyVer}}'
           ToolChain: 'VS2019'
@@ -105,7 +105,7 @@ jobs:
     displayName: "Publish logs"
     inputs:
       pathtoPublish: '$(Build.ArtifactStagingDirectory)'
-      artifactName: 'Integration Test Logs $(Tag) $(Image) $(PythonVersion)'
+      artifactName: 'Integration Test Logs $(Tag) $(Image) ${{replace($(PythonVersion),".",""}}'
     condition: succeededOrFailed()
 
   - task: PublishTestResults@2
