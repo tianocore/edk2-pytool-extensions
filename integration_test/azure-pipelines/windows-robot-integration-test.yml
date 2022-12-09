@@ -79,8 +79,8 @@ jobs:
   - script: python -m robot.run -v TEST_OUTPUT_BASE:$(Build.BinariesDirectory) -v TOOL_CHAIN_TAG:$(ToolChain) -d report --xunit xunittestresults.xml --include $(Tag) -L TRACE .
     displayName: 'Run Robot Tests'
     workingDirectory: "integration_test"
-    condition: and(eq(variables.PythonVersion, '3.9'), contains(variables.Image, 'ubuntu'))  # Temp workaround for known ubuntu python 3.9 Tar file bug
-                                                                                             # https://bugzilla.tianocore.org/show_bug.cgi?id=3891
+    condition: not(and(eq(variables.PythonVersion, '3.9'), contains(variables.Image, 'ubuntu')))  # Temp workaround for known ubuntu python 3.9 Tar file bug
+                                                                                                  # https://bugzilla.tianocore.org/show_bug.cgi?id=3891
 
   # Copy the build logs to the artifact staging directory
   - task: CopyFiles@2
@@ -93,7 +93,9 @@ jobs:
         output.xml
         report.html
       flattenFolders: true
-    condition: succeededOrFailed()
+    # condition: succeededOrFailed()
+    condition: and(succeededOrFailed(), not(and(eq(variables.PythonVersion, '3.9'), contains(variables.Image, 'ubuntu'))))  # Temp workaround for known ubuntu python 3.9 Tar file bug
+                                                                                                                            # https://bugzilla.tianocore.org/show_bug.cgi?id=3891
 
   # Publish build artifacts to Azure Artifacts/TFS or a file share
   - task: PublishBuildArtifacts@1
@@ -101,7 +103,7 @@ jobs:
     displayName: "Publish logs"
     inputs:
       pathtoPublish: '$(Build.ArtifactStagingDirectory)'
-      artifactName: 'Logs $(System.JobName)'
+      artifactName: 'Integration Test Logs $(variables.Tag) $(variables.Image) $(variables.Image)'
     condition: succeededOrFailed()
 
   - task: PublishTestResults@2
