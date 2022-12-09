@@ -105,7 +105,7 @@ jobs:
     displayName: "Publish logs"
     inputs:
       pathtoPublish: '$(Build.ArtifactStagingDirectory)'
-      artifactName: 'Integration Test Logs $(Tag) $(Image) $(Image)'
+      artifactName: 'Integration Test Logs $(Tag) $(Image) $(PythonVersion)'
     condition: succeededOrFailed()
 
   - task: PublishTestResults@2
