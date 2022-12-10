@@ -2,7 +2,7 @@
 # python versions on windows and ubuntu.
 
 
-name: PR Gate
+name: CI
 
 on:
   push:
@@ -18,7 +18,7 @@ jobs:
     
     strategy:
       matrix:
-        python-version: ["3.9"] # ["3.9", "3.10", "3.11"]
+        python-version: ["3.9", "3.10", "3.11"]
         os: [ubuntu-latest, windows-latest]
 
     steps:
@@ -32,7 +32,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        pip install --upgrade -r requirements.txt
         pip install -e . 
     
     - name: Run Unit Tests
@@ -77,13 +77,13 @@ jobs:
       - name: Install pip dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install -r docs/user/requirements.txt
+          pip install --upgrade -r requirements.txt
+          pip install --upgrade -r docs/user/requirements.txt
           pip install -e .
 
       - name: Install npm dependencies
         run: |
-          npm install -g markdownlint-cli
+          npm install -g markdownlint-cli@0.32.2
           npm install -g cspell@5.20.0
       
       - name: Run flake8
