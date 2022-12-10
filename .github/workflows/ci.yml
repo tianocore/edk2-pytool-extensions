@@ -1,6 +1,8 @@
-# This workflow runs unit tests and integration tests against the last three
-# python versions on windows and ubuntu.
-
+# This workflow runs unit tests against the specified python versions on both
+# ubuntu and windows. Additionally, it performs CI against the codebase.
+#
+# Copyright (c) Microsoft Corporation.
+# SPDX-License-Identifier: BSD-2-Clause-Patent
 
 name: CI
 
@@ -38,7 +40,7 @@ jobs:
     - name: Run Unit Tests
       run: |
         coverage run --include=edk2toolext\* -m pytest --junitxml=test.junit.xml --html=pytest_report.html --self-contained-html
-        coverage report
+        
 
     - name: Upload coverage to codecov
       uses: codecov/codecov-action@v2
@@ -87,17 +89,22 @@ jobs:
           npm install -g cspell@5.20.0
       
       - name: Run flake8
+        if: success() || failure()
         run: flake8 ${{ env.package-src }}
       
       - name: Run markdownlint
+        if: success() || failure()
         run: markdownlint "**/*.md"
       
       - name: Run cspell
+        if: success() || failure()
         run: cspell -c .cspell.json "**/*.py" "**/*.md"
       
       - name: Run pydocstyle
+        if: success() || failure()
         run: pydocstyle ${{ env.package-src }}
       
       - name: Run basic dev tests
+        if: success() || failure()
         run: python BasicDevTests.py
   
