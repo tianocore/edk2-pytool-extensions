@@ -27,7 +27,7 @@ jobs:
     steps:
       - name: Set Python Versions
         id: set-python
-        run: echo "VERSIONS=$env.versions" >> $GITHUB_OUTPUT
+        run: echo "VERSIONS=$versions" >> $GITHUB_OUTPUT
 
   unit-test:
     name: Unit Tests
