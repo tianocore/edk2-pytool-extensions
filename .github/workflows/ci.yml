@@ -16,14 +16,14 @@ jobs:
   set-python:
     name: Set Python Versions
     env:
-      python-version: "['3.11', '3.10', '3.9']"
+      python: "['3.11', '3.10', '3.9']"
     runs-on: ubuntu-latest
     outputs:
-      python-version: ${{ steps.set.outputs.python-version }}
+      python: ${{ steps.set.outputs.python }}
     steps:
       - name: Set Python
         id: set
-        run: echo "python-version=$env.python-version" >> $GITHUB_OUPUT
+        run: echo "python=$env.python" >> $GITHUB_OUPUT
 
   unit-test:
     name: Unit Tests
