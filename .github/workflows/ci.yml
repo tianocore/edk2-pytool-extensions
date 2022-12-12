@@ -4,25 +4,31 @@
 # Copyright (c) Microsoft Corporation.
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 
-name: CI
 
-on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
 
 jobs:
+  job1:
+    env:
+      python-version: "['3.11', '3.10', '3.9']"
+    runs-on: ubuntu-latest
+    outputs:
+      python-version: ${{ steps.set.outputs.python-version }}
+    steps:
+      - name: Set Python
+        id: set
+        run: echo "::set-output name=python-version::$env.python-version"
+
   unit-test:
     name: Unit Tests
-    
+    needs: job1
+
     runs-on: ${{ matrix.os }}
-    
+  
     strategy:
       matrix:
         # Reminder! When updating this python version, also update the python
         # Version around line 64.
-        python-version: ["3.9", "3.10", "3.11"]
+        python-version: ${{ fromJson(needs.job1.outputs.python-version) }}
         os: [ubuntu-latest, windows-latest]
 
     steps:
@@ -59,19 +65,21 @@ jobs:
   
   ci:
     name: CI Tests
+    needs: job1
+
     runs-on: ubuntu-latest
+    
     env:
-      python-version: "3.11"
       node-version: "19"
       package-src: "edk2toolext"
     
     steps:
       - uses: actions/checkout@v3
       
-      - name: Set up Python ${{ env.python-version }}
+      - name: Set up Python
         uses: actions/setup-python@v3
         with:
-          python-version: ${{ env.python-version }}
+          python-version: ${{ fromJson(needs.job1.outputs.python-version)[0] }}
       
       - name: Set up Node ${{ env.node-version}}
         uses: actions/setup-node@v3
