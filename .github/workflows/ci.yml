@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
-      versions: "['3.11', '3.10', '3.9']" # Keep in descending order
+      versions: "['3.11', '3.10', '3.9']" # Keep Python Versions in descending order
 
     outputs:
       VERSIONS: ${{ steps.set-python.outputs.VERSIONS}}
