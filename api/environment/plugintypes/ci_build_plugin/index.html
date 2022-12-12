@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../../img/favicon.ico" />
+    <title>Ci build plugin - Tianocore Edk2 Pytool Extensions (edk2toolext)</title>
+    <link rel="stylesheet" href="../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Ci build plugin";
+        var mkdocs_page_input_path = "api\\environment\\plugintypes\\ci_build_plugin.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../.." class="icon icon-home"> Tianocore Edk2 Pytool Extensions (edk2toolext)
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../..">Our Philosophy</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Using Stuart</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../using/install/">Installation Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../using/build/">Build Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../using/ci/">Core CI Instructions</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Integrating Stuart</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../integrate/build/">Build with Stuart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../integrate/manage/">Core CI with Stuart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../integrate/porting/">Porting Example</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tools</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../tools/using_capsule_tool/">Capsule Helper and Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../tools/using_firmware_policy_tool/">Firmware Policy Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../tools/using_image_validation_tool/">PE/COFF Image Validation Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../tools/using_nuget_publishing_tool/">Nuget Publishing Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../tools/using_omnicache_tool/">Omnicache Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../tools/using_sig_db_tool/">Secure Boot Database Inspection Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../tools/using_versioninfo_tool/">Version Info Tool</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Advanced Features</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../features/invocable/">Invocables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../features/creating_invocable/">Creating Invocables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../features/extdep/">Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../features/creating_extdep/">Creating Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../features/plugin_manager/">Plugins</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../features/creating_plugins/">Create a Plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../features/environment_variables/">Environment Variables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../features/sde/">Self Describing Environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../features/settings_manager/">Settings Manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../features/logging/">Logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../features/using_linux/">WSL</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API Reference</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../../../base_abstract_invocable/">Base abstract invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../edk2_git/">Edk2 git</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../edk2_invocable/">Edk2 invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../edk2_logging/">Edk2 logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../conf_mgmt/">Conf mgmt</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../environment_descriptor_files/">Environment descriptor files</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../external_dependency/">External dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../multiple_workspace/">Multiple workspace</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../plugin_manager/">Plugin manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../repo_resolver/">Repo resolver</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../self_describing_environment/">Self describing environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../shell_environment/">Shell environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../uefi_build/">Uefi build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../var_dict/">Var dict</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../version_aggregator/">Version aggregator</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../extdeptypes/az_cli_universal_dependency/">Az cli universal dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../extdeptypes/git_dependency/">Git dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../extdeptypes/nuget_dependency/">Nuget dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../extdeptypes/web_dependency/">Web dependency</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Ci build plugin</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#edk2toolext.environment.plugintypes.ci_build_plugin.ICiBuildPlugin">ICiBuildPlugin</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.plugintypes.ci_build_plugin.ICiBuildPlugin.RunBuildPlugin">RunBuildPlugin()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.plugintypes.ci_build_plugin.ICiBuildPlugin.GetTestName">GetTestName()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.plugintypes.ci_build_plugin.ICiBuildPlugin.RunsOnTargetList">RunsOnTargetList()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.plugintypes.ci_build_plugin.ICiBuildPlugin.WalkDirectoryForExtension">WalkDirectoryForExtension()</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../dsc_processor_plugin/">Dsc processor plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../uefi_build_plugin/">Uefi build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../uefi_helper_plugin/">Uefi helper plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../invocables/edk2_ci_build/">Edk2 ci build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../invocables/edk2_ci_setup/">Edk2 ci setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../invocables/edk2_multipkg_aware_invocable/">Edk2 multipkg aware invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../invocables/edk2_platform_build/">Edk2 platform build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../invocables/edk2_pr_eval/">Edk2 pr eval</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../invocables/edk2_setup/">Edk2 setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../invocables/edk2_update/">Edk2 update</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../..">Tianocore Edk2 Pytool Extensions (edk2toolext)</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+          <li>API Reference &raquo;</li>
+      <li>Ci build plugin</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tianocore/edk2-pytool-extensions/edit/master/docs/..\edk2toolext\environment\plugintypes\ci_build_plugin.py" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<h2 id="edk2toolext.environment.plugintypes.ci_build_plugin" class="doc doc-heading">
+          <span class="doc doc-object-name doc-module-name">ci_build_plugin</span>
+
+
+<a href="#edk2toolext.environment.plugintypes.ci_build_plugin" class="headerlink" title="Permanent link">&para;</a></h2>
+
+  <div class="doc doc-contents first">
+  
+      <p>Plugin that supports adding tests or operations to the ci environment.</p>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="edk2toolext.environment.plugintypes.ci_build_plugin.ICiBuildPlugin" class="doc doc-heading">
+        <span class="doc doc-object-name doc-class-name">ICiBuildPlugin</span>
+
+
+<a href="#edk2toolext.environment.plugintypes.ci_build_plugin.ICiBuildPlugin" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+
+  
+      <p>Plugin that supports adding tests or operations to the ci environment.</p>
+
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.plugintypes.ci_build_plugin.ICiBuildPlugin.RunBuildPlugin" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">RunBuildPlugin</span>
+
+
+<a href="#edk2toolext.environment.plugintypes.ci_build_plugin.ICiBuildPlugin.RunBuildPlugin" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">RunBuildPlugin</span><span class="p">(</span>
+    <span class="n">packagename</span><span class="p">,</span>
+    <span class="n">Edk2pathObj</span><span class="p">,</span>
+    <span class="n">pkgconfig</span><span class="p">,</span>
+    <span class="n">environment</span><span class="p">,</span>
+    <span class="n">PLM</span><span class="p">,</span>
+    <span class="n">PLMHelper</span><span class="p">,</span>
+    <span class="n">tc</span><span class="p">,</span>
+    <span class="n">output_stream</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>External function of plugin.</p>
+<p>This function is used to perform the task of the CiBuild Plugin</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>packagename</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>edk2 path to package (workspace/package path relative)</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>Edk2pathObj</code></td>
+          <td>
+                <code>Edk2Path</code>
+          </td>
+          <td><p>Edk2Path configured with workspace and package path</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>pkgconfig</code></td>
+          <td>
+                <code>dict</code>
+          </td>
+          <td><p>Package config</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>environment</code></td>
+          <td>
+                <code>EnvConfig</code>
+          </td>
+          <td><p>Environment config</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>PLM</code></td>
+          <td>
+                <code>PluginManager</code>
+          </td>
+          <td><p>Plugin manager instance</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>PLMHelper</code></td>
+          <td>
+                <code>HelperFunctions</code>
+          </td>
+          <td><p>Plugin helper object instace</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>tc</code></td>
+          <td>
+                <code>obj</code>
+          </td>
+          <td><p>test case that needs state configured for reporting by plugin</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>output_stream</code></td>
+          <td>
+                <code>StringIO</code>
+          </td>
+          <td><p>output stream from this plugin via logging</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>int</code>
+          </td>
+          <td><blockquote>
+<p>0 - number of errors found</p>
+</blockquote></td>
+        </tr>
+        <tr>
+          <td>
+                <code>int</code>
+          </td>
+          <td><p>0 - passed successfully</p></td>
+        </tr>
+        <tr>
+          <td>
+                <code>int</code>
+          </td>
+          <td><p>-1 - skipped for missing prereq</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.plugintypes.ci_build_plugin.ICiBuildPlugin.GetTestName" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">GetTestName</span>
+
+
+<a href="#edk2toolext.environment.plugintypes.ci_build_plugin.ICiBuildPlugin.GetTestName" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">GetTestName</span><span class="p">(</span>
+    <span class="n">packagename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">environment</span><span class="p">:</span> <span class="nb">object</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Provides the test case and class name.</p>
+<p>Given the package name and configuration provide the caller
+the name of the test case and the class name.  These are both used in logging
+and reporting test status.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>packagename</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>Package Name</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>environment</code></td>
+          <td>
+                <code>EnvDict</code>
+          </td>
+          <td><p>Environment Dictionary configuration</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><span title="typing.Tuple">Tuple</span>[str, str]</code>
+          </td>
+          <td><p>(test case name, test case base class name)</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.plugintypes.ci_build_plugin.ICiBuildPlugin.RunsOnTargetList" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">RunsOnTargetList</span>
+
+
+<a href="#edk2toolext.environment.plugintypes.ci_build_plugin.ICiBuildPlugin.RunsOnTargetList" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">RunsOnTargetList</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Returns a list of edk2 TARGETs that this plugin would like to run on.</p>
+<div class="admonition note">
+<p class="admonition-title">Known target values</p>
+<p>DEBUG, RELEASE, NOOPT, NO-TARGET</p>
+</div>
+<div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p>If the plugin is not Target specific it should return a list of one element of "NO-TARGET"</p>
+</div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.plugintypes.ci_build_plugin.ICiBuildPlugin.WalkDirectoryForExtension" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">WalkDirectoryForExtension</span>
+
+
+<a href="#edk2toolext.environment.plugintypes.ci_build_plugin.ICiBuildPlugin.WalkDirectoryForExtension" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">WalkDirectoryForExtension</span><span class="p">(</span>
+    <span class="n">extensionlist</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">directory</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span>
+    <span class="n">ignorelist</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">]</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Walks a file directory recursively for all items ending in certain extension.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>extensionlist</code></td>
+          <td>
+                <code><span title="typing.List">List</span>[str]</code>
+          </td>
+          <td><p>list of file extensions</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>directory</code></td>
+          <td>
+                <code>PathLike</code>
+          </td>
+          <td><p>absolute path to directory to start looking</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>ignorelist</code></td>
+          <td>
+                <code><span title="typing.List">List</span>[str]</code>
+          </td>
+          <td><p>a list of case insensitive filenames to ignore (Optional)</p></td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><span title="typing.List">List</span></code>
+          </td>
+          <td><p>file paths to matching files</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+
+
+  </div>
+
+  </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../extdeptypes/web_dependency/" class="btn btn-neutral float-left" title="Web dependency"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../dsc_processor_plugin/" class="btn btn-neutral float-right" title="Dsc processor plugin">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright (c) Microsoft.  All rights reserved</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tianocore/edk2-pytool-extensions" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../../extdeptypes/web_dependency/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../dsc_processor_plugin/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../../../..';</script>
+    <script src="../../../../js/theme_extra.js" defer></script>
+    <script src="../../../../js/theme.js" defer></script>
+      <script src="https://unpkg.com/mermaid@8.7.0/dist/mermaid.min.js" defer></script>
+      <script src="../../../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Settings Manager - Tianocore Edk2 Pytool Extensions (edk2toolext)</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Settings Manager";
+        var mkdocs_page_input_path = "features\\settings_manager.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Tianocore Edk2 Pytool Extensions (edk2toolext)
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Our Philosophy</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Using Stuart</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/install/">Installation Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/build/">Build Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/ci/">Core CI Instructions</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Integrating Stuart</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../integrate/build/">Build with Stuart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../integrate/manage/">Core CI with Stuart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../integrate/porting/">Porting Example</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tools</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_capsule_tool/">Capsule Helper and Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_firmware_policy_tool/">Firmware Policy Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_image_validation_tool/">PE/COFF Image Validation Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_nuget_publishing_tool/">Nuget Publishing Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_omnicache_tool/">Omnicache Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_sig_db_tool/">Secure Boot Database Inspection Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_versioninfo_tool/">Version Info Tool</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Advanced Features</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../invocable/">Invocables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../creating_invocable/">Creating Invocables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../extdep/">Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../creating_extdep/">Creating Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../plugin_manager/">Plugins</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../creating_plugins/">Create a Plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../environment_variables/">Environment Variables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../sde/">Self Describing Environment</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Settings Manager</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#all-settings-grouped-together">All settings grouped together</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#build-settings-grouped-with-uefibuilder-other-settings-separate">Build Settings grouped with UefiBuilder, other settings separate</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#a-note-on-multi-inheritance">A note on multi-inheritance</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../logging/">Logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../using_linux/">WSL</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API Reference</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/base_abstract_invocable/">Base abstract invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/edk2_git/">Edk2 git</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/edk2_invocable/">Edk2 invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/edk2_logging/">Edk2 logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/conf_mgmt/">Conf mgmt</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/environment_descriptor_files/">Environment descriptor files</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/external_dependency/">External dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/multiple_workspace/">Multiple workspace</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugin_manager/">Plugin manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/repo_resolver/">Repo resolver</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/self_describing_environment/">Self describing environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/shell_environment/">Shell environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/uefi_build/">Uefi build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/var_dict/">Var dict</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/version_aggregator/">Version aggregator</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/az_cli_universal_dependency/">Az cli universal dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/git_dependency/">Git dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/nuget_dependency/">Nuget dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/web_dependency/">Web dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/ci_build_plugin/">Ci build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/dsc_processor_plugin/">Dsc processor plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/uefi_build_plugin/">Uefi build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/uefi_helper_plugin/">Uefi helper plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_ci_build/">Edk2 ci build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_ci_setup/">Edk2 ci setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_multipkg_aware_invocable/">Edk2 multipkg aware invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_platform_build/">Edk2 platform build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_pr_eval/">Edk2 pr eval</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_setup/">Edk2 setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_update/">Edk2 update</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Tianocore Edk2 Pytool Extensions (edk2toolext)</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+          <li>Advanced Features &raquo;</li>
+      <li>Settings Manager</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tianocore/edk2-pytool-extensions/edit/master/docs/features/settings_manager.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="settings-manager">Settings manager<a class="headerlink" href="#settings-manager" title="Permanent link">&para;</a></h1>
+<p>Each edk2 invocable has an abstract definition of a Settings Manager class that
+provides needed information such as scope, repositories, command-line options,
+and other things. This allows scopes to be dynamic but in a standardized way.
+Below is a sample implementation of a settings manager for your reference.</p>
+<p>This is an implementation of both <code>UpdateSettingsManager</code> and <code>SetupSettingsManager</code> using
+multiple inheritance. You can see that they add their own command line argument
+<code>--production</code> that is used to toggle the use of the <code>production</code> scope. For any
+given invocable, you can pass <code>-h</code> or <code>--help</code> to show a list of available
+command line options. If you call <code>-c &lt;path&gt; --help</code> this list will also include
+command line options provided from the settings file you provided.</p>
+<p>These examples are for building a platform, which needs instances of
+<code>UpdateSettingsManager</code>, <code>SetupSettingsManager</code>, <code>BuildSettingsManager</code>, and
+<code>UefiBuilder</code>. The instances can be grouped together in a single class, or separated into different classes.</p>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
+<h3 id="all-settings-grouped-together">All settings grouped together<a class="headerlink" href="#all-settings-grouped-together" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">SettingsManager</span><span class="p">(</span><span class="n">UpdateSettingsManager</span><span class="p">,</span> <span class="n">SetupSettingsManager</span><span class="p">,</span> <span class="n">BuildSettingsManager</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">SCRIPT_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">WORKSPACE_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">SCRIPT_PATH</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PRODUCTION_SCOPE</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;production&#39;</span><span class="p">,</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">BASE_SCOPE</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;imxfamily&#39;</span><span class="p">,</span> <span class="s1">&#39;imx8&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">production</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">GetProjectScope</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; get scope &#39;&#39;&#39;</span>
+        <span class="n">SCOPE</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">BASE_SCOPE</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">production</span><span class="p">:</span>
+            <span class="n">SCOPE</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PRODUCTION_SCOPE</span>
+        <span class="k">return</span> <span class="n">SCOPE</span>
+
+    <span class="k">def</span> <span class="nf">GetWorkspaceRoot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; get WorkspacePath &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">WORKSPACE_PATH</span>
+
+    <span class="k">def</span> <span class="nf">GetPackagesPath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Return a list of workspace relative paths that should be mapped as edk2 PackagesPath &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;MU_BASECORE&#39;</span><span class="p">,</span><span class="s1">&#39;Silicon/ARM/NXP&#39;</span><span class="p">,</span> <span class="s1">&#39;Common/MU&#39;</span><span class="p">,</span><span class="s1">&#39;Common/MU_TIANO&#39;</span><span class="p">,</span> <span class="s1">&#39;Common/MU_OEM_SAMPLE&#39;</span><span class="p">,</span><span class="s1">&#39;Silicon/ARM/MU_TIANO&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">GetRequiredSubmodules</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; return iterable containing RequiredSubmodule objects.</span>
+<span class="sd">        If no RequiredSubmodules return an empty iterable</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">RequiredSubmodule</span><span class="p">(</span><span class="s1">&#39;MU_BASECORE&#39;</span><span class="p">),</span>
+                <span class="n">RequiredSubmodule</span><span class="p">(</span><span class="s1">&#39;Silicon/ARM/NXP&#39;</span><span class="p">),</span>
+                <span class="n">RequiredSubmodule</span><span class="p">(</span><span class="s1">&#39;Common/MU&#39;</span><span class="p">),</span>
+                <span class="n">RequiredSubmodule</span><span class="p">(</span><span class="s1">&#39;Common/MU_TIANO&#39;</span><span class="p">),</span>
+                <span class="n">RequiredSubmodule</span><span class="p">(</span><span class="s1">&#39;Common/MU_OEM_SAMPLE&#39;</span><span class="p">),</span>
+                <span class="n">RequiredSubmodule</span><span class="p">(</span><span class="s1">&#39;Silicon/ARM/MU_TIANO&#39;</span><span class="p">)</span> <span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">AddCommandLineOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parserObj</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Add command line options to the argparser &#39;&#39;&#39;</span>
+        <span class="n">parserObj</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--production&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;production&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">RetrieveCommandLineOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;  Retrieve command line options from the argparser &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">production</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">production</span>
+
+<span class="c1">#--------------------------------------------------------------------------------------------------------</span>
+<span class="c1"># Subclass the UEFI builder and add platform specific functionality.</span>
+<span class="c1">#</span>
+<span class="k">class</span> <span class="nc">PlatformBuilder</span><span class="p">(</span><span class="n">UefiBuilder</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">SetPlatformEnv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">SetPlatformEnvAfterTarget</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">PlatformPostBuild</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">PlatformPreBuild</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">PlatformGatedBuildShouldHappen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">ComputeVersionValue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">ValidateVersionValue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">PlatformFlashImage</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Flashing not supported&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="build-settings-grouped-with-uefibuilder-other-settings-separate">Build Settings grouped with <code>UefiBuilder</code>, other settings separate<a class="headerlink" href="#build-settings-grouped-with-uefibuilder-other-settings-separate" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">SettingsManager</span><span class="p">(</span><span class="n">UpdateSettingsManager</span><span class="p">,</span> <span class="n">SetupSettingsManager</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">SCRIPT_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">WORKSPACE_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">SCRIPT_PATH</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PRODUCTION_SCOPE</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;production&#39;</span><span class="p">,</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">BASE_SCOPE</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;imxfamily&#39;</span><span class="p">,</span> <span class="s1">&#39;imx8&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">production</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">GetProjectScope</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; get scope &#39;&#39;&#39;</span>
+        <span class="n">SCOPE</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">BASE_SCOPE</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">production</span><span class="p">:</span>
+            <span class="n">SCOPE</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PRODUCTION_SCOPE</span>
+        <span class="k">return</span> <span class="n">SCOPE</span>
+
+    <span class="k">def</span> <span class="nf">GetWorkspaceRoot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; get WorkspacePath &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">WORKSPACE_PATH</span>
+
+    <span class="k">def</span> <span class="nf">GetPackagesPath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Return a list of workspace relative paths that should be mapped as edk2 PackagesPath &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;MU_BASECORE&#39;</span><span class="p">,</span><span class="s1">&#39;Silicon/ARM/NXP&#39;</span><span class="p">,</span> <span class="s1">&#39;Common/MU&#39;</span><span class="p">,</span><span class="s1">&#39;Common/MU_TIANO&#39;</span><span class="p">,</span> <span class="s1">&#39;Common/MU_OEM_SAMPLE&#39;</span><span class="p">,</span><span class="s1">&#39;Silicon/ARM/MU_TIANO&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">GetRequiredSubmodules</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; return iterable containing RequiredSubmodule objects.</span>
+<span class="sd">        If no RequiredSubmodules return an empty iterable</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">RequiredSubmodule</span><span class="p">(</span><span class="s1">&#39;MU_BASECORE&#39;</span><span class="p">),</span>
+                <span class="n">RequiredSubmodule</span><span class="p">(</span><span class="s1">&#39;Silicon/ARM/NXP&#39;</span><span class="p">),</span>
+                <span class="n">RequiredSubmodule</span><span class="p">(</span><span class="s1">&#39;Common/MU&#39;</span><span class="p">),</span>
+                <span class="n">RequiredSubmodule</span><span class="p">(</span><span class="s1">&#39;Common/MU_TIANO&#39;</span><span class="p">),</span>
+                <span class="n">RequiredSubmodule</span><span class="p">(</span><span class="s1">&#39;Common/MU_OEM_SAMPLE&#39;</span><span class="p">),</span>
+                <span class="n">RequiredSubmodule</span><span class="p">(</span><span class="s1">&#39;Silicon/ARM/MU_TIANO&#39;</span><span class="p">)]</span>
+
+    <span class="k">def</span> <span class="nf">AddCommandLineOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parserObj</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Add command line options to the argparser &#39;&#39;&#39;</span>
+        <span class="n">parserObj</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--production&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;production&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">RetrieveCommandLineOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;  Retrieve command line options from the argparser &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">production</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">production</span>
+
+<span class="k">class</span> <span class="nc">PlatformBuilder</span><span class="p">(</span><span class="n">UefiBuilder</span><span class="p">,</span> <span class="n">BuildSettingsManager</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">UefiBuilder</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">SCRIPT_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">WORKSPACE_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">SCRIPT_PATH</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PRODUCTION_SCOPE</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;production&#39;</span><span class="p">,</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">BASE_SCOPE</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;imxfamily&#39;</span><span class="p">,</span> <span class="s1">&#39;imx8&#39;</span><span class="p">)</span>
+        <span class="n">MODULE_PKGS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;MU_BASECORE&#39;</span><span class="p">,</span><span class="s1">&#39;Silicon/ARM/NXP&#39;</span><span class="p">,</span> <span class="s1">&#39;Common/MU&#39;</span><span class="p">,</span><span class="s1">&#39;Common/MU_TIANO&#39;</span><span class="p">,</span> <span class="s1">&#39;Common/MU_OEM_SAMPLE&#39;</span><span class="p">,</span><span class="s1">&#39;Silicon/ARM/MU_TIANO&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">MODULE_PKG_PATHS</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">pathsep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">WORKSPACE_PATH</span><span class="p">,</span> <span class="n">pkg_name</span><span class="p">)</span> <span class="k">for</span> <span class="n">pkg_name</span> <span class="ow">in</span> <span class="n">MODULE_PKGS</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">production</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">GetProjectScope</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; return tuple containing scopes that should be active for this process &#39;&#39;&#39;</span>
+        <span class="n">SCOPE</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">BASE_SCOPE</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">production</span><span class="p">:</span>
+            <span class="n">SCOPE</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PRODUCTION_SCOPE</span>
+        <span class="k">return</span> <span class="n">SCOPE</span>
+
+    <span class="k">def</span> <span class="nf">GetWorkspaceRoot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; get WorkspacePath &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">WORKSPACE_PATH</span>
+
+    <span class="k">def</span> <span class="nf">GetPackagesPath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Return a list of workspace relative paths that should be mapped as edk2 PackagesPath &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;MU_BASECORE&#39;</span><span class="p">,</span><span class="s1">&#39;Silicon/ARM/NXP&#39;</span><span class="p">,</span> <span class="s1">&#39;Common/MU&#39;</span><span class="p">,</span><span class="s1">&#39;Common/MU_TIANO&#39;</span><span class="p">,</span> <span class="s1">&#39;Common/MU_OEM_SAMPLE&#39;</span><span class="p">,</span><span class="s1">&#39;Silicon/ARM/MU_TIANO&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">AddCommandLineOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parserObj</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Add command line options to the argparser &#39;&#39;&#39;</span>
+        <span class="n">UefiBuilder</span><span class="o">.</span><span class="n">AddCommandLineOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parserObj</span><span class="p">)</span>
+        <span class="n">parserObj</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--production&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;production&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">RetrieveCommandLineOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;  Retrieve command line options from the argparser &#39;&#39;&#39;</span>
+        <span class="n">UefiBuilder</span><span class="o">.</span><span class="n">RetrieveCommandLineOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">production</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">production</span>
+</code></pre></div>
+<h2 id="a-note-on-multi-inheritance">A note on multi-inheritance<a class="headerlink" href="#a-note-on-multi-inheritance" title="Permanent link">&para;</a></h2>
+<p>If you implement several classes, you might wonder how the system knows
+which <code>AddCommandLineOptions</code> to call when it's doing update vs setup? The answer
+is that it doesn't. It's a classic case of the diamond problem and python's
+answer for this is the MRO. Currently, our advice is to not call <code>super</code> into the
+settings classes in this package. You can call <code>super</code> to your classes that you
+have implemented that subclass pytool settings classes.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../sde/" class="btn btn-neutral float-left" title="Self Describing Environment"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../logging/" class="btn btn-neutral float-right" title="Logging">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright (c) Microsoft.  All rights reserved</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tianocore/edk2-pytool-extensions" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../sde/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../logging/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme_extra.js" defer></script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="https://unpkg.com/mermaid@8.7.0/dist/mermaid.min.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

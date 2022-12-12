@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Self describing environment - Tianocore Edk2 Pytool Extensions (edk2toolext)</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Self describing environment";
+        var mkdocs_page_input_path = "api\\environment\\self_describing_environment.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Tianocore Edk2 Pytool Extensions (edk2toolext)
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Our Philosophy</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Using Stuart</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../using/install/">Installation Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../using/build/">Build Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../using/ci/">Core CI Instructions</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Integrating Stuart</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../integrate/build/">Build with Stuart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../integrate/manage/">Core CI with Stuart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../integrate/porting/">Porting Example</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tools</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../tools/using_capsule_tool/">Capsule Helper and Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../tools/using_firmware_policy_tool/">Firmware Policy Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../tools/using_image_validation_tool/">PE/COFF Image Validation Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../tools/using_nuget_publishing_tool/">Nuget Publishing Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../tools/using_omnicache_tool/">Omnicache Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../tools/using_sig_db_tool/">Secure Boot Database Inspection Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../tools/using_versioninfo_tool/">Version Info Tool</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Advanced Features</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/invocable/">Invocables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/creating_invocable/">Creating Invocables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/extdep/">Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/creating_extdep/">Creating Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/plugin_manager/">Plugins</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/creating_plugins/">Create a Plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/environment_variables/">Environment Variables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/sde/">Self Describing Environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/settings_manager/">Settings Manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/logging/">Logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/using_linux/">WSL</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API Reference</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../../base_abstract_invocable/">Base abstract invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../edk2_git/">Edk2 git</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../edk2_invocable/">Edk2 invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../edk2_logging/">Edk2 logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../conf_mgmt/">Conf mgmt</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../environment_descriptor_files/">Environment descriptor files</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../external_dependency/">External dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../multiple_workspace/">Multiple workspace</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../plugin_manager/">Plugin manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../repo_resolver/">Repo resolver</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Self describing environment</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#edk2toolext.environment.self_describing_environment.self_describing_environment">self_describing_environment</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.self_describing_environment.self_describing_environment.__init__">__init__()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.self_describing_environment.self_describing_environment.load_workspace">load_workspace()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.self_describing_environment.self_describing_environment.update_simple_paths">update_simple_paths()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.self_describing_environment.self_describing_environment.update_extdep_paths">update_extdep_paths()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.self_describing_environment.self_describing_environment.report_extdep_version">report_extdep_version()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.self_describing_environment.self_describing_environment.update_extdeps">update_extdeps()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.self_describing_environment.self_describing_environment.clean_extdeps">clean_extdeps()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.self_describing_environment.self_describing_environment.verify_extdeps">verify_extdeps()</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#edk2toolext.environment.self_describing_environment.DestroyEnvironment">DestroyEnvironment()</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#edk2toolext.environment.self_describing_environment.BootstrapEnvironment">BootstrapEnvironment()</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#edk2toolext.environment.self_describing_environment.CleanEnvironment">CleanEnvironment()</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#edk2toolext.environment.self_describing_environment.UpdateDependencies">UpdateDependencies()</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#edk2toolext.environment.self_describing_environment.VerifyEnvironment">VerifyEnvironment()</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../shell_environment/">Shell environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../uefi_build/">Uefi build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../var_dict/">Var dict</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../version_aggregator/">Version aggregator</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../extdeptypes/az_cli_universal_dependency/">Az cli universal dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../extdeptypes/git_dependency/">Git dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../extdeptypes/nuget_dependency/">Nuget dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../extdeptypes/web_dependency/">Web dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../plugintypes/ci_build_plugin/">Ci build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../plugintypes/dsc_processor_plugin/">Dsc processor plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../plugintypes/uefi_build_plugin/">Uefi build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../plugintypes/uefi_helper_plugin/">Uefi helper plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../invocables/edk2_ci_build/">Edk2 ci build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../invocables/edk2_ci_setup/">Edk2 ci setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../invocables/edk2_multipkg_aware_invocable/">Edk2 multipkg aware invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../invocables/edk2_platform_build/">Edk2 platform build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../invocables/edk2_pr_eval/">Edk2 pr eval</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../invocables/edk2_setup/">Edk2 setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../invocables/edk2_update/">Edk2 update</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Tianocore Edk2 Pytool Extensions (edk2toolext)</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+          <li>API Reference &raquo;</li>
+      <li>Self describing environment</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tianocore/edk2-pytool-extensions/edit/master/docs/..\edk2toolext\environment\self_describing_environment.py" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<h2 id="edk2toolext.environment.self_describing_environment" class="doc doc-heading">
+          <span class="doc doc-object-name doc-module-name">self_describing_environment</span>
+
+
+<a href="#edk2toolext.environment.self_describing_environment" class="headerlink" title="Permanent link">&para;</a></h2>
+
+  <div class="doc doc-contents first">
+  
+      <p>An environment capable of scanning the source tree.</p>
+<p>Scans the environment for files that describe the source and dependencies
+and then acts upon those files.</p>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="edk2toolext.environment.self_describing_environment.self_describing_environment" class="doc doc-heading">
+        <span class="doc doc-object-name doc-class-name">self_describing_environment</span>
+
+
+<a href="#edk2toolext.environment.self_describing_environment.self_describing_environment" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+
+  
+      <p>An environment capable of scanning the source tree.</p>
+<p>Scans the environment for files that describe the source and dependencies
+and then acts upon those files.</p>
+
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.self_describing_environment.self_describing_environment.__init__" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">__init__</span>
+
+
+<a href="#edk2toolext.environment.self_describing_environment.self_describing_environment.__init__" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="fm">__init__</span><span class="p">(</span><span class="n">workspace_path</span><span class="p">,</span> <span class="n">scopes</span> <span class="o">=</span> <span class="p">(),</span> <span class="n">skipped_dirs</span> <span class="o">=</span> <span class="p">())</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Inits an empty self describing environment.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.self_describing_environment.self_describing_environment.load_workspace" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">load_workspace</span>
+
+
+<a href="#edk2toolext.environment.self_describing_environment.self_describing_environment.load_workspace" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">load_workspace</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Loads the workspace.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.self_describing_environment.self_describing_environment.update_simple_paths" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">update_simple_paths</span>
+
+
+<a href="#edk2toolext.environment.self_describing_environment.self_describing_environment.update_simple_paths" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">update_simple_paths</span><span class="p">(</span><span class="n">env_object</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Updates simple paths.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.self_describing_environment.self_describing_environment.update_extdep_paths" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">update_extdep_paths</span>
+
+
+<a href="#edk2toolext.environment.self_describing_environment.self_describing_environment.update_extdep_paths" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">update_extdep_paths</span><span class="p">(</span><span class="n">env_object</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Updates external dependency paths.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.self_describing_environment.self_describing_environment.report_extdep_version" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">report_extdep_version</span>
+
+
+<a href="#edk2toolext.environment.self_describing_environment.self_describing_environment.report_extdep_version" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">report_extdep_version</span><span class="p">(</span><span class="n">env_object</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Reports the version of all external dependencies.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.self_describing_environment.self_describing_environment.update_extdeps" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">update_extdeps</span>
+
+
+<a href="#edk2toolext.environment.self_describing_environment.self_describing_environment.update_extdeps" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">update_extdeps</span><span class="p">(</span><span class="n">env_object</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Updates external dependencies.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.self_describing_environment.self_describing_environment.clean_extdeps" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">clean_extdeps</span>
+
+
+<a href="#edk2toolext.environment.self_describing_environment.self_describing_environment.clean_extdeps" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">clean_extdeps</span><span class="p">(</span><span class="n">env_object</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Cleans external dependencies.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.self_describing_environment.self_describing_environment.verify_extdeps" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">verify_extdeps</span>
+
+
+<a href="#edk2toolext.environment.self_describing_environment.self_describing_environment.verify_extdeps" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">verify_extdeps</span><span class="p">(</span><span class="n">env_object</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Verifies external dependencies.</p>
+
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="edk2toolext.environment.self_describing_environment.DestroyEnvironment" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">DestroyEnvironment</span>
+
+
+<a href="#edk2toolext.environment.self_describing_environment.DestroyEnvironment" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">DestroyEnvironment</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Destroys global environment state.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="edk2toolext.environment.self_describing_environment.BootstrapEnvironment" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">BootstrapEnvironment</span>
+
+
+<a href="#edk2toolext.environment.self_describing_environment.BootstrapEnvironment" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">BootstrapEnvironment</span><span class="p">(</span>
+    <span class="n">workspace</span><span class="p">,</span> <span class="n">scopes</span><span class="o">=</span><span class="p">(),</span> <span class="n">skipped_dirs</span><span class="o">=</span><span class="p">()</span>
+<span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Performs a multistage bootstrap of the environment.</p>
+<ol>
+<li>Locate and load all environment description files</li>
+<li>Parse all PATH-related descriptor files</li>
+<li>Load modules that had dependencies</li>
+<li>Report versions into the version aggregator</li>
+</ol>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>workspace</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>workspace root</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>scopes</code></td>
+          <td>
+                <code>Tuple</code>
+          </td>
+          <td><p>scopes being built against</p></td>
+          <td>
+                <code>()</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>skipped_dirs</code></td>
+          <td>
+                <code>Tuple</code>
+          </td>
+          <td><p>directories to ignore</p></td>
+          <td>
+                <code>()</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+      <div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>if only one scope or skipped_dir, the tuple should end with a comma example: '(myscope,)'</p>
+</div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="edk2toolext.environment.self_describing_environment.CleanEnvironment" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">CleanEnvironment</span>
+
+
+<a href="#edk2toolext.environment.self_describing_environment.CleanEnvironment" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">CleanEnvironment</span><span class="p">(</span><span class="n">workspace</span><span class="p">,</span> <span class="n">scopes</span> <span class="o">=</span> <span class="p">(),</span> <span class="n">skipped_dirs</span> <span class="o">=</span> <span class="p">())</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Cleans all external dependencies based on environment.</p>
+<p>Environment is bootstrapped from provided arguments and all dependencies
+are cleaned from that.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>workspace</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>workspace root</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>scopes</code></td>
+          <td>
+                <code>Tuple</code>
+          </td>
+          <td><p>scopes being built against</p></td>
+          <td>
+                <code>()</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>skipped_dirs</code></td>
+          <td>
+                <code>Tuple</code>
+          </td>
+          <td><p>directories to ignore</p></td>
+          <td>
+                <code>()</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+      <div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If only one scope or skipped_dir, the tuple should end with a comma example: '(myscope,)'</p>
+</div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="edk2toolext.environment.self_describing_environment.UpdateDependencies" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">UpdateDependencies</span>
+
+
+<a href="#edk2toolext.environment.self_describing_environment.UpdateDependencies" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">UpdateDependencies</span><span class="p">(</span>
+    <span class="n">workspace</span><span class="p">,</span> <span class="n">scopes</span><span class="o">=</span><span class="p">(),</span> <span class="n">skipped_dirs</span><span class="o">=</span><span class="p">()</span>
+<span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Updates all external dependencies based on environment.</p>
+<p>Environment is bootstrapped from provided arguments and all dependencies
+are updated from that.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>workspace</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>workspace root</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>scopes</code></td>
+          <td>
+                <code>Tuple</code>
+          </td>
+          <td><p>scopes being built against</p></td>
+          <td>
+                <code>()</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>skipped_dirs</code></td>
+          <td>
+                <code>Tuple</code>
+          </td>
+          <td><p>directories to ignore</p></td>
+          <td>
+                <code>()</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+      <div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If only one scope or skipped_dir, the tuple should end with a comma example: '(myscope,)'</p>
+</div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="edk2toolext.environment.self_describing_environment.VerifyEnvironment" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">VerifyEnvironment</span>
+
+
+<a href="#edk2toolext.environment.self_describing_environment.VerifyEnvironment" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">VerifyEnvironment</span><span class="p">(</span>
+    <span class="n">workspace</span><span class="p">,</span> <span class="n">scopes</span><span class="o">=</span><span class="p">(),</span> <span class="n">skipped_dirs</span><span class="o">=</span><span class="p">()</span>
+<span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Verifies all external dependencies based on environment.</p>
+<p>Environment is bootstrapped from provided arguments and all dependencies
+are verified from that.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>workspace</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>workspace root</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>scopes</code></td>
+          <td>
+                <code>Tuple</code>
+          </td>
+          <td><p>scopes being built against</p></td>
+          <td>
+                <code>()</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>skipped_dirs</code></td>
+          <td>
+                <code>Tuple</code>
+          </td>
+          <td><p>directories to ignore</p></td>
+          <td>
+                <code>()</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+      <div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If only one scope or skipped_dir, the tuple should end with a comma example: '(myscope,)'</p>
+</div>
+
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../repo_resolver/" class="btn btn-neutral float-left" title="Repo resolver"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../shell_environment/" class="btn btn-neutral float-right" title="Shell environment">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright (c) Microsoft.  All rights reserved</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tianocore/edk2-pytool-extensions" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../repo_resolver/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../shell_environment/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../../..';</script>
+    <script src="../../../js/theme_extra.js" defer></script>
+    <script src="../../../js/theme.js" defer></script>
+      <script src="https://unpkg.com/mermaid@8.7.0/dist/mermaid.min.js" defer></script>
+      <script src="../../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Var dict - Tianocore Edk2 Pytool Extensions (edk2toolext)</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Var dict";
+        var mkdocs_page_input_path = "api\\environment\\var_dict.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Tianocore Edk2 Pytool Extensions (edk2toolext)
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Our Philosophy</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Using Stuart</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../using/install/">Installation Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../using/build/">Build Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../using/ci/">Core CI Instructions</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Integrating Stuart</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../integrate/build/">Build with Stuart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../integrate/manage/">Core CI with Stuart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../integrate/porting/">Porting Example</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tools</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../tools/using_capsule_tool/">Capsule Helper and Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../tools/using_firmware_policy_tool/">Firmware Policy Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../tools/using_image_validation_tool/">PE/COFF Image Validation Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../tools/using_nuget_publishing_tool/">Nuget Publishing Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../tools/using_omnicache_tool/">Omnicache Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../tools/using_sig_db_tool/">Secure Boot Database Inspection Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../tools/using_versioninfo_tool/">Version Info Tool</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Advanced Features</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/invocable/">Invocables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/creating_invocable/">Creating Invocables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/extdep/">Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/creating_extdep/">Creating Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/plugin_manager/">Plugins</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/creating_plugins/">Create a Plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/environment_variables/">Environment Variables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/sde/">Self Describing Environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/settings_manager/">Settings Manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/logging/">Logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/using_linux/">WSL</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API Reference</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../../base_abstract_invocable/">Base abstract invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../edk2_git/">Edk2 git</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../edk2_invocable/">Edk2 invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../edk2_logging/">Edk2 logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../conf_mgmt/">Conf mgmt</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../environment_descriptor_files/">Environment descriptor files</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../external_dependency/">External dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../multiple_workspace/">Multiple workspace</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../plugin_manager/">Plugin manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../repo_resolver/">Repo resolver</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../self_describing_environment/">Self describing environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../shell_environment/">Shell environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../uefi_build/">Uefi build</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Var dict</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#edk2toolext.environment.var_dict.EnvEntry">EnvEntry</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.var_dict.EnvEntry.__init__">__init__()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.var_dict.EnvEntry.PrintEntry">PrintEntry()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.var_dict.EnvEntry.SetValue">SetValue()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.var_dict.EnvEntry.AllowOverride">AllowOverride()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.var_dict.EnvEntry.GetValue">GetValue()</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#edk2toolext.environment.var_dict.VarDict">VarDict</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.var_dict.VarDict.__init__">__init__()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.var_dict.VarDict.GetEntry">GetEntry()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.var_dict.VarDict.__copy__">__copy__()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.var_dict.VarDict.GetValue">GetValue()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.var_dict.VarDict.SetValue">SetValue()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.var_dict.VarDict.AllowOverride">AllowOverride()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.var_dict.VarDict.GetBuildValue">GetBuildValue()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.var_dict.VarDict.GetAllBuildKeyValues">GetAllBuildKeyValues()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.var_dict.VarDict.GetAllNonBuildKeyValues">GetAllNonBuildKeyValues()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.var_dict.VarDict.PrintAll">PrintAll()</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../version_aggregator/">Version aggregator</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../extdeptypes/az_cli_universal_dependency/">Az cli universal dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../extdeptypes/git_dependency/">Git dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../extdeptypes/nuget_dependency/">Nuget dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../extdeptypes/web_dependency/">Web dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../plugintypes/ci_build_plugin/">Ci build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../plugintypes/dsc_processor_plugin/">Dsc processor plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../plugintypes/uefi_build_plugin/">Uefi build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../plugintypes/uefi_helper_plugin/">Uefi helper plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../invocables/edk2_ci_build/">Edk2 ci build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../invocables/edk2_ci_setup/">Edk2 ci setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../invocables/edk2_multipkg_aware_invocable/">Edk2 multipkg aware invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../invocables/edk2_platform_build/">Edk2 platform build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../invocables/edk2_pr_eval/">Edk2 pr eval</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../invocables/edk2_setup/">Edk2 setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../invocables/edk2_update/">Edk2 update</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Tianocore Edk2 Pytool Extensions (edk2toolext)</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+          <li>API Reference &raquo;</li>
+      <li>Var dict</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tianocore/edk2-pytool-extensions/edit/master/docs/..\edk2toolext\environment\var_dict.py" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<h2 id="edk2toolext.environment.var_dict" class="doc doc-heading">
+          <span class="doc doc-object-name doc-module-name">var_dict</span>
+
+
+<a href="#edk2toolext.environment.var_dict" class="headerlink" title="Permanent link">&para;</a></h2>
+
+  <div class="doc doc-contents first">
+  
+      <p>A special overridable dictionary.</p>
+<p>Stores most of the build configuration data and allows extensive config
+sharing for the build process, pre-build, and post-build.</p>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="edk2toolext.environment.var_dict.EnvEntry" class="doc doc-heading">
+        <span class="doc doc-object-name doc-class-name">EnvEntry</span>
+
+
+<a href="#edk2toolext.environment.var_dict.EnvEntry" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+
+  
+      <p>A single Environment Variable entry for VarDict.</p>
+
+  <p><strong>Attributes:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>Value</code></td>
+          <td>
+                <code>obj</code>
+          </td>
+          <td><p>The value to store in the dictionary</p></td>
+        </tr>
+        <tr>
+          <td><code>Comment</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>A debug comment specifying where / how the value was set</p></td>
+        </tr>
+        <tr>
+          <td><code>overridable</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td><p>If the value can be overwritten in the future</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.var_dict.EnvEntry.__init__" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">__init__</span>
+
+
+<a href="#edk2toolext.environment.var_dict.EnvEntry.__init__" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="fm">__init__</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">comment</span><span class="p">,</span> <span class="n">overridable</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Inits an entry with the specified values.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.var_dict.EnvEntry.PrintEntry" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">PrintEntry</span>
+
+
+<a href="#edk2toolext.environment.var_dict.EnvEntry.PrintEntry" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">PrintEntry</span><span class="p">(</span><span class="n">f</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Prints the value.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>f</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>a file to write to instead of the terminal.</p></td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.var_dict.EnvEntry.SetValue" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">SetValue</span>
+
+
+<a href="#edk2toolext.environment.var_dict.EnvEntry.SetValue" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">SetValue</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">comment</span><span class="p">,</span> <span class="n">overridable</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Sets the value of the entry if it os overridable.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>value</code></td>
+          <td>
+                <code>obj</code>
+          </td>
+          <td><p>value to set</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>comment</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>A debug comment specifying where / how the value was set</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>overridable</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td><p>If the value can be overwritten in the future</p></td>
+          <td>
+                <code>False</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+      <div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Even if you set a value as overridable=False, another entity can
+call <code>AllowOverride()</code> and change the value anyway.</p>
+</div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.var_dict.EnvEntry.AllowOverride" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">AllowOverride</span>
+
+
+<a href="#edk2toolext.environment.var_dict.EnvEntry.AllowOverride" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">AllowOverride</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Allows the value to be overwritten in the future.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.var_dict.EnvEntry.GetValue" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">GetValue</span>
+
+
+<a href="#edk2toolext.environment.var_dict.EnvEntry.GetValue" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">GetValue</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Returns the value.</p>
+
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="edk2toolext.environment.var_dict.VarDict" class="doc doc-heading">
+        <span class="doc doc-object-name doc-class-name">VarDict</span>
+
+
+<a href="#edk2toolext.environment.var_dict.VarDict" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+
+  
+      <p>An overridable dictionary to store build configuration data.</p>
+
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.var_dict.VarDict.__init__" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">__init__</span>
+
+
+<a href="#edk2toolext.environment.var_dict.VarDict.__init__" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="fm">__init__</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Inits an empty VarDict.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.var_dict.VarDict.GetEntry" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">GetEntry</span>
+
+
+<a href="#edk2toolext.environment.var_dict.VarDict.GetEntry" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">GetEntry</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Returns an entry in the Dstore Dict.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.var_dict.VarDict.__copy__" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">__copy__</span>
+
+
+<a href="#edk2toolext.environment.var_dict.VarDict.__copy__" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">__copy__</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Copies data into a new VarDict.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.var_dict.VarDict.GetValue" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">GetValue</span>
+
+
+<a href="#edk2toolext.environment.var_dict.VarDict.GetValue" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">GetValue</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Gets a value from the variable dictionary that was set during build.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Values set in DSC, FDF, and CLI stored as strings</p>
+</div>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>k</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>The key the value was stored as</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>default</code></td>
+          <td>
+                <code>varied</code>
+          </td>
+          <td><p>default value if key is not present</p></td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>varied</code>
+          </td>
+          <td><p>The value of the key, if present, else default value</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.var_dict.VarDict.SetValue" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">SetValue</span>
+
+
+<a href="#edk2toolext.environment.var_dict.VarDict.SetValue" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">SetValue</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">comment</span><span class="p">,</span> <span class="n">overridable</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Sets an environment variable to be used throughout the build.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>k</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>The key to store the value under</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>v</code></td>
+          <td>
+                <code>varied</code>
+          </td>
+          <td><p>The value to store</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>comment</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>A comment to show where / how the variable was stored.
+Useful for debugging</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>overridable</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td><p>Specifies if the variable is allowed to be override
+elsewhere in the build</p></td>
+          <td>
+                <code>False</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>bool</code>
+          </td>
+          <td><p>If the variable was successfully stored or not</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.var_dict.VarDict.AllowOverride" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">AllowOverride</span>
+
+
+<a href="#edk2toolext.environment.var_dict.VarDict.AllowOverride" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">AllowOverride</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Forces the key/value pair to be overridable.</p>
+<p>Note: Even if overridable was specifically set to False,
+it still allows it.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>k</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>The key the value was stored as</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>bool</code>
+          </td>
+          <td><p>if the key existed or not</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.var_dict.VarDict.GetBuildValue" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">GetBuildValue</span>
+
+
+<a href="#edk2toolext.environment.var_dict.VarDict.GetBuildValue" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">GetBuildValue</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">BuildType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Get a build var value for given key and buildtype.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Build vars are defined by vars that start with BLD_</p>
+<p>BLD_*_<YOUR VAR HERE> means all build types</p>
+<p>BLD_DEBUG_<YOUR VAR HERE> means build of debug type</p>
+<p>BLD_RELEASE_<YOUR VAR HERE> means build of release type</p>
+<p>etc</p>
+</div>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>key</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>The key the value was stored as</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>BuildType</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>DEBUG/RELEASE</p></td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>The value of the key, if present, else None</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.var_dict.VarDict.GetAllBuildKeyValues" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">GetAllBuildKeyValues</span>
+
+
+<a href="#edk2toolext.environment.var_dict.VarDict.GetAllBuildKeyValues" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">GetAllBuildKeyValues</span><span class="p">(</span><span class="n">BuildType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Gets a dictionary for all build vars.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Build vars are defined by vars that start with BLD_</p>
+<p>BLD_*_<YOUR VAR HERE> means all build types</p>
+<p>BLD_DEBUG_<YOUR VAR HERE> means build of debug type</p>
+<p>BLD_RELEASE_<YOUR VAR HERE> means build of release type</p>
+<p>etc</p>
+</div>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>BuildType</code></td>
+          <td>
+          </td>
+          <td></td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>dict</code>
+          </td>
+          <td><p>all keys, values in the environment which are build keys</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.var_dict.VarDict.GetAllNonBuildKeyValues" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">GetAllNonBuildKeyValues</span>
+
+
+<a href="#edk2toolext.environment.var_dict.VarDict.GetAllNonBuildKeyValues" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">GetAllNonBuildKeyValues</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Returns a dict of non Build Key values.</p>
+<p>Return a copy of the dictionary of all keys, values in the environment
+which are not Build Keys.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.var_dict.VarDict.PrintAll" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">PrintAll</span>
+
+
+<a href="#edk2toolext.environment.var_dict.VarDict.PrintAll" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">PrintAll</span><span class="p">(</span><span class="n">fp</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Prints all variables.</p>
+<p>If fp is not none, writes to a fp also</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>fp</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>file pointer to print to</p></td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+
+
+  </div>
+
+  </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../uefi_build/" class="btn btn-neutral float-left" title="Uefi build"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../version_aggregator/" class="btn btn-neutral float-right" title="Version aggregator">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright (c) Microsoft.  All rights reserved</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tianocore/edk2-pytool-extensions" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../uefi_build/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../version_aggregator/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../../..';</script>
+    <script src="../../../js/theme_extra.js" defer></script>
+    <script src="../../../js/theme.js" defer></script>
+      <script src="https://unpkg.com/mermaid@8.7.0/dist/mermaid.min.js" defer></script>
+      <script src="../../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

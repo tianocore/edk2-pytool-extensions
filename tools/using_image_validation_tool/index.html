@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>PE/COFF Image Validation Tool - Tianocore Edk2 Pytool Extensions (edk2toolext)</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "PE/COFF Image Validation Tool";
+        var mkdocs_page_input_path = "tools\\using_image_validation_tool.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Tianocore Edk2 Pytool Extensions (edk2toolext)
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Our Philosophy</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Using Stuart</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/install/">Installation Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/build/">Build Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/ci/">Core CI Instructions</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Integrating Stuart</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../integrate/build/">Build with Stuart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../integrate/manage/">Core CI with Stuart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../integrate/porting/">Porting Example</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tools</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../using_capsule_tool/">Capsule Helper and Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../using_firmware_policy_tool/">Firmware Policy Tool</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">PE/COFF Image Validation Tool</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#synopsis">Synopsis</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#options">Options</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#-h-help">-h, --help</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#-i-file">-i, --file</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#-p-profile">-p, --profile</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#-d-debug">-d, --debug</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#-set-nx-compat">--set-nx-compat</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#-clear-nx-compat">--clear-nx-compat</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#-get-nx-compat">--get-nx-compat</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#status-codes-returned">Status codes returned</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#tests">Tests</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#1-section-data-code-separation-verification">1. Section Data / Code Separation Verification</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2-section-alignment-verification">2. Section Alignment Verification</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#3-subsystem-type-verification">3. Subsystem Type Verification</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#profile-configurations">Profile Configurations</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#x64-profiles">X64 Profiles</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#ia32-profiles">IA32 Profiles</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#aarch64-profiles">AARCH64 Profiles</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#arm-profiles">ARM Profiles</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../using_nuget_publishing_tool/">Nuget Publishing Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../using_omnicache_tool/">Omnicache Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../using_sig_db_tool/">Secure Boot Database Inspection Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../using_versioninfo_tool/">Version Info Tool</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Advanced Features</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/invocable/">Invocables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/creating_invocable/">Creating Invocables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/extdep/">Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/creating_extdep/">Creating Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/plugin_manager/">Plugins</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/creating_plugins/">Create a Plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/environment_variables/">Environment Variables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/sde/">Self Describing Environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/settings_manager/">Settings Manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/logging/">Logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/using_linux/">WSL</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API Reference</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/base_abstract_invocable/">Base abstract invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/edk2_git/">Edk2 git</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/edk2_invocable/">Edk2 invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/edk2_logging/">Edk2 logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/conf_mgmt/">Conf mgmt</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/environment_descriptor_files/">Environment descriptor files</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/external_dependency/">External dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/multiple_workspace/">Multiple workspace</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugin_manager/">Plugin manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/repo_resolver/">Repo resolver</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/self_describing_environment/">Self describing environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/shell_environment/">Shell environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/uefi_build/">Uefi build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/var_dict/">Var dict</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/version_aggregator/">Version aggregator</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/az_cli_universal_dependency/">Az cli universal dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/git_dependency/">Git dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/nuget_dependency/">Nuget dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/web_dependency/">Web dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/ci_build_plugin/">Ci build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/dsc_processor_plugin/">Dsc processor plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/uefi_build_plugin/">Uefi build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/uefi_helper_plugin/">Uefi helper plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_ci_build/">Edk2 ci build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_ci_setup/">Edk2 ci setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_multipkg_aware_invocable/">Edk2 multipkg aware invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_platform_build/">Edk2 platform build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_pr_eval/">Edk2 pr eval</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_setup/">Edk2 setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_update/">Edk2 update</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Tianocore Edk2 Pytool Extensions (edk2toolext)</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+          <li>Tools &raquo;</li>
+      <li>PE/COFF Image Validation Tool</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tianocore/edk2-pytool-extensions/edit/master/docs/tools/using_image_validation_tool.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="pecoff-image-validation-tool">PE/COFF Image Validation Tool<a class="headerlink" href="#pecoff-image-validation-tool" title="Permanent link">&para;</a></h1>
+<p>The PE/COFF image validation tool is a command line tool used to verify that
+memory protection requirements such as section alignment and write / execute
+settings are applied correctly. This tool also provides the ability to check,
+set, and clear the NX_COMPAT flag found in OPTIONAL_HEADER.DllCharacteristics.</p>
+<h2 id="synopsis">Synopsis<a class="headerlink" href="#synopsis" title="Permanent link">&para;</a></h2>
+<p>image_validation.py [-h] -i FILE [-d] [-p PROFILE] [--set-nx-compat | --clear-nx-compat | --get-nx-compat]</p>
+<h2 id="options">Options<a class="headerlink" href="#options" title="Permanent link">&para;</a></h2>
+<h3 id="-h-help">-h, --help<a class="headerlink" href="#-h-help" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="o">[</span><span class="n">Optional</span><span class="o">]</span><span class="w"> </span><span class="n">Provides</span><span class="w"> </span><span class="n">information</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="n">flags</span><span class="w"></span>
+</code></pre></div>
+
+<h3 id="-i-file">-i, --file<a class="headerlink" href="#-i-file" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="o">[</span><span class="n">Required</span><span class="o">]</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">input</span><span class="w"> </span><span class="n">PE</span><span class="o">/</span><span class="n">COFF</span><span class="w"> </span><span class="k">file</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">verified</span><span class="w"></span>
+</code></pre></div>
+
+<h3 id="-p-profile">-p, --profile<a class="headerlink" href="#-p-profile" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="o">[</span><span class="n">Optional</span><span class="o">]</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">profile</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">verified</span><span class="w"> </span><span class="n">against</span><span class="p">.</span><span class="w"> </span><span class="n">Will</span><span class="w"> </span><span class="k">use</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="k">default</span><span class="p">,</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">provided</span><span class="w"></span>
+</code></pre></div>
+
+<h3 id="-d-debug">-d, --debug<a class="headerlink" href="#-d-debug" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="o">[</span><span class="n">Optional</span><span class="o">]</span><span class="w"> </span><span class="k">Sets</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">logging</span><span class="w"> </span><span class="n">mode</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">debug</span><span class="w"></span>
+</code></pre></div>
+
+<h3 id="-set-nx-compat">--set-nx-compat<a class="headerlink" href="#-set-nx-compat" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="o">[</span><span class="n">Optional</span><span class="o">]</span><span class="w"> </span><span class="k">Sets</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">NX_COMPAT</span><span class="w"> </span><span class="n">flag</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="k">input</span><span class="w"> </span><span class="k">file</span><span class="w"></span>
+</code></pre></div>
+
+<h3 id="-clear-nx-compat">--clear-nx-compat<a class="headerlink" href="#-clear-nx-compat" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="o">[</span><span class="n">Optional</span><span class="o">]</span><span class="w"> </span><span class="n">Clears</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">NX_COMPAT</span><span class="w"> </span><span class="n">flag</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="k">input</span><span class="w"> </span><span class="k">file</span><span class="w"></span>
+</code></pre></div>
+
+<h3 id="-get-nx-compat">--get-nx-compat<a class="headerlink" href="#-get-nx-compat" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="o">[</span><span class="n">Optional</span><span class="o">]</span><span class="w"> </span><span class="k">Returns</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="k">value</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">NX_COMPAT</span><span class="w"> </span><span class="n">flag</span><span class="w"></span>
+</code></pre></div>
+
+<h3 id="status-codes-returned">Status codes returned<a class="headerlink" href="#status-codes-returned" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="mf">0</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">All</span><span class="w"> </span><span class="n">tests</span><span class="w"> </span><span class="kr">return</span><span class="n">ed</span><span class="w"> </span><span class="n">pass</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="n">warn</span><span class="w"></span>
+<span class="mf">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="kr">On</span><span class="n">e</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="n">more</span><span class="w"> </span><span class="n">tests</span><span class="w"> </span><span class="kr">return</span><span class="n">ed</span><span class="w"> </span><span class="n">fail</span><span class="p">,</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="n">has</span><span class="w"> </span><span class="n">occurred</span><span class="w"></span>
+</code></pre></div>
+
+<h2 id="tests">Tests<a class="headerlink" href="#tests" title="Permanent link">&para;</a></h2>
+<h3 id="1-section-data-code-separation-verification">1. Section Data / Code Separation Verification<a class="headerlink" href="#1-section-data-code-separation-verification" title="Permanent link">&para;</a></h3>
+<p>Description:</p>
+<ul>
+<li>This test ensures that each section of the binary is not both write-able and
+execute-able. Sections can only be one or the other (or neither). This test is
+done by iterating over each section and checking the characteristics label for
+the Write Mask (0x80000000) and Execute Mask (0x20000000).</li>
+</ul>
+<p>Output:</p>
+<ul>
+<li>@Pass: Only one (or neither) of the two masks (Write, Execute) are present</li>
+<li>@Skip: Test Skipped per profile configuration</li>
+<li>@Fail: Both of the two masks (Write, Execute) are set on at least one section</li>
+</ul>
+<h3 id="2-section-alignment-verification">2. Section Alignment Verification<a class="headerlink" href="#2-section-alignment-verification" title="Permanent link">&para;</a></h3>
+<p>Description:</p>
+<ul>
+<li>This test checks the section alignment value found in the optional header.
+It must meet the requirements specified in the profile configuration.</li>
+</ul>
+<p>Output:</p>
+<ul>
+<li>@Pass: The Image alignment passes all requirements specified in the profile configuration</li>
+<li>@Warn: The Image alignment is not found in the optional header</li>
+<li>@Skip: No image alignment requirements are specified in the profile configuration</li>
+<li>@Fail: The Image alignment does not meet at least one of the requirements
+specified in the profile configuration</li>
+</ul>
+<h3 id="3-subsystem-type-verification">3. Subsystem Type Verification<a class="headerlink" href="#3-subsystem-type-verification" title="Permanent link">&para;</a></h3>
+<p>Description:</p>
+<ul>
+<li>This check verifies the subsystem value found in the optional header.
+It must be one of the subsystem types specified in the profile configuration</li>
+</ul>
+<p>Output:</p>
+<ul>
+<li>@Pass: The subsystem is one of the types specified in the profile configuration</li>
+<li>@Warn: The subsystem is not found in the optional header</li>
+<li>@Skip: There are no subsystem restrictions in the profile configuration</li>
+<li>@Fail: The subsystem is not one of the types specified in the profile configuration</li>
+</ul>
+<h2 id="profile-configurations">Profile Configurations<a class="headerlink" href="#profile-configurations" title="Permanent link">&para;</a></h2>
+<p>Configurations are first split by the target architecture, which is determined
+from parsing the PE/COFF file. The profile must be specified by the user, or
+the default, most restrictive, profile will automatically be used.</p>
+<h3 id="x64-profiles">X64 Profiles<a class="headerlink" href="#x64-profiles" title="Permanent link">&para;</a></h3>
+<ul>
+<li>DEFAULT</li>
+<li>Write / Execute Separation = Required</li>
+<li>Section Alignment = 4kB</li>
+<li>Subsystem = Boot Service Driver, ROM</li>
+<li>APP</li>
+<li>Write / Execute Separation = Required</li>
+<li>Section Alignment = 4kB</li>
+<li>Subsystem = Application</li>
+<li>DRIVER</li>
+<li>Write / Execute Separation = Required</li>
+<li>Section Alignment = 4kB</li>
+<li>Subsystem = Boot Service Driver, Runtime Driver, ROM</li>
+</ul>
+<h3 id="ia32-profiles">IA32 Profiles<a class="headerlink" href="#ia32-profiles" title="Permanent link">&para;</a></h3>
+<ul>
+<li>DEFAULT</li>
+<li>Write / Execute Separation = Required</li>
+<li>Section Alignment = 4kB</li>
+<li>Subsystem = Boot Service Driver, ROM</li>
+<li>APP</li>
+<li>Write / Execute Separation = Required</li>
+<li>Section Alignment = 4kB</li>
+<li>Subsystem = Application</li>
+<li>DRIVER</li>
+<li>Write / Execute Separation = Required</li>
+<li>Section Alignment = 4kB</li>
+<li>Subsystem = Boot Service Driver, Runtime Driver, ROM</li>
+</ul>
+<h3 id="aarch64-profiles">AARCH64 Profiles<a class="headerlink" href="#aarch64-profiles" title="Permanent link">&para;</a></h3>
+<ul>
+<li>DEFAULT</li>
+<li>Write / Execute Separation = Required</li>
+<li>Section Alignment = 4kB</li>
+<li>Subsystem = Boot Service Driver, ROM</li>
+<li>APP</li>
+<li>Write / Execute Separation = Required</li>
+<li>Section Alignment = 4kB</li>
+<li>Subsystem = Application</li>
+<li>DRIVER</li>
+<li>Write / Execute Separation = Required</li>
+<li>Section Alignment = 4kB</li>
+<li>Subsystem = Boot Service Driver, Runtime Driver, ROM</li>
+</ul>
+<h3 id="arm-profiles">ARM Profiles<a class="headerlink" href="#arm-profiles" title="Permanent link">&para;</a></h3>
+<ul>
+<li>DEFAULT</li>
+<li>Write / Execute Separation = Required</li>
+<li>Section Alignment = 4kB</li>
+<li>Subsystem = Boot Service Driver, ROM</li>
+<li>APP</li>
+<li>Write / Execute Separation = Required</li>
+<li>Section Alignment = 4kB</li>
+<li>Subsystem = Application</li>
+<li>DRIVER</li>
+<li>Write / Execute Separation = Required</li>
+<li>Section Alignment = 4kB</li>
+<li>Subsystem = Boot Service Driver, Runtime Driver, ROM</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../using_firmware_policy_tool/" class="btn btn-neutral float-left" title="Firmware Policy Tool"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../using_nuget_publishing_tool/" class="btn btn-neutral float-right" title="Nuget Publishing Tool">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright (c) Microsoft.  All rights reserved</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tianocore/edk2-pytool-extensions" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../using_firmware_policy_tool/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../using_nuget_publishing_tool/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme_extra.js" defer></script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="https://unpkg.com/mermaid@8.7.0/dist/mermaid.min.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

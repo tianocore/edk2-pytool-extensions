@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Build with Stuart - Tianocore Edk2 Pytool Extensions (edk2toolext)</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Build with Stuart";
+        var mkdocs_page_input_path = "integrate\\build.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Tianocore Edk2 Pytool Extensions (edk2toolext)
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Our Philosophy</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Using Stuart</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/install/">Installation Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/build/">Build Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/ci/">Core CI Instructions</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Integrating Stuart</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Build with Stuart</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting Started</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#stuart-setup">Stuart Setup</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#stuart-update">Stuart Update</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#stuart-build">Stuart Build</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#uefibuilder">UefiBuilder</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#command-line-options">Command Line options</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#edk2toolext.environment.uefi_build.UefiBuilder.AddPlatformCommandLineOptions">AddPlatformCommandLineOptions</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#platform-environment-variables">Platform Environment Variables</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#setting-getting-environment-variables">Setting / Getting Environment Variables</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#example">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pre-post-build-customization">Pre / Post Build Customization</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#helper-plugins">Helper Plugins</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#the-environment">The Environment</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#edk2-pytool-library">Edk2 Pytool Library</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../manage/">Core CI with Stuart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../porting/">Porting Example</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tools</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_capsule_tool/">Capsule Helper and Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_firmware_policy_tool/">Firmware Policy Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_image_validation_tool/">PE/COFF Image Validation Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_nuget_publishing_tool/">Nuget Publishing Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_omnicache_tool/">Omnicache Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_sig_db_tool/">Secure Boot Database Inspection Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_versioninfo_tool/">Version Info Tool</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Advanced Features</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/invocable/">Invocables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/creating_invocable/">Creating Invocables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/extdep/">Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/creating_extdep/">Creating Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/plugin_manager/">Plugins</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/creating_plugins/">Create a Plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/environment_variables/">Environment Variables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/sde/">Self Describing Environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/settings_manager/">Settings Manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/logging/">Logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/using_linux/">WSL</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API Reference</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/base_abstract_invocable/">Base abstract invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/edk2_git/">Edk2 git</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/edk2_invocable/">Edk2 invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/edk2_logging/">Edk2 logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/conf_mgmt/">Conf mgmt</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/environment_descriptor_files/">Environment descriptor files</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/external_dependency/">External dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/multiple_workspace/">Multiple workspace</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugin_manager/">Plugin manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/repo_resolver/">Repo resolver</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/self_describing_environment/">Self describing environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/shell_environment/">Shell environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/uefi_build/">Uefi build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/var_dict/">Var dict</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/version_aggregator/">Version aggregator</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/az_cli_universal_dependency/">Az cli universal dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/git_dependency/">Git dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/nuget_dependency/">Nuget dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/web_dependency/">Web dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/ci_build_plugin/">Ci build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/dsc_processor_plugin/">Dsc processor plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/uefi_build_plugin/">Uefi build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/uefi_helper_plugin/">Uefi helper plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_ci_build/">Edk2 ci build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_ci_setup/">Edk2 ci setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_multipkg_aware_invocable/">Edk2 multipkg aware invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_platform_build/">Edk2 platform build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_pr_eval/">Edk2 pr eval</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_setup/">Edk2 setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_update/">Edk2 update</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Tianocore Edk2 Pytool Extensions (edk2toolext)</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+          <li>Integrating Stuart &raquo;</li>
+      <li>Build with Stuart</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tianocore/edk2-pytool-extensions/edit/master/docs/integrate/build.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="building-a-platform">Building A Platform<a class="headerlink" href="#building-a-platform" title="Permanent link">&para;</a></h1>
+<p>You have an EDK2 implementation, a platform DSC, and a platform FDF? Great! You
+are one <a href="/features/settings_manager">settings file</a> away from a great
+platform building experience.</p>
+<p>The build process has three <a href="/#what-can-i-ask-stuart-to-do">stuart commands</a>
+to take your firmware code tree from freshly cloned to fully built: <code>stuart_setup</code>, <code>stuart_update</code>, <code>stuart_build</code>
+(hereby known has the "command(s)"). Behind the scenes, each command is an <a href="/features/invocable">Invocable</a>
+that has a corresponding <a href="/features/settings_manager">Settings Manager</a> that the platform subclasses to provide
+platform specific information.</p>
+<p>In hopes of keeping this section as light as possible, the information provided will be broad and more conversational
+then tutorial. If you want a step by step example of porting a platform, we have one! Please see
+<a href="/integrate/porting">Porting the Raspberry Pi 3</a>.</p>
+<h2 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h2>
+<p>Stuart needs a settings file to configure itself. This settings file must provide a settings manager subclasses for each
+command you plan on using. This settings manager is the interface that provides platform specific information to the
+platform agnostic invocable. This is done via subclassing the corresponding settings file and overriding the necessary
+methods described in the <a href="/features/settings_manager">Settings Manager</a>.</p>
+<p>In terms of building a platform, there are five classes that you need to be aware of. The first two are interfaces that
+provide functions used across all three commands and can be shared among the SettingsManagers by using
+<a href="/features/settings_manager/#a-note-on-multi-inheritance">Multiple Inheritance</a>.</p>
+<ol>
+<li><a href="/api/edk2_invocable/#edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface">Edk2InvocableSettingsInterface</a></li>
+<li><a href="/api/invocables/edk2_multipkg_aware_invocable/#edk2toolext.invocables.edk2_multipkg_aware_invocable.MultiPkgAwareSettingsInterface">MultiPkgAwareSettingsInterface</a></li>
+<li><a href="/api/invocables/edk2_setup/#edk2toolext.invocables.edk2_setup.SetupSettingsManager">SetupSettingsManager</a></li>
+<li><a href="/api/invocables/edk2_update/#edk2toolext.invocables.edk2_update.UpdateSettingsManager">UpdateSettingsManager</a></li>
+<li><a href="/api/invocables/edk2_ci_build/#edk2toolext.invocables.edk2_ci_build.CiBuildSettingsManager">BuildSettingsManager</a></li>
+</ol>
+<p>The final class we inherit from in the settings file the
+<a href="/api/environment/uefi_build/#edk2toolext.environment.uefi_build.UefiBuilder">UefiBuilder</a>
+and is what provides the bulk of customization EDK2 Pytools affords you.
+This is also where you can utilize many of the features and functionality
+spread across Edk2-Pytools (Extensions and Library).</p>
+<p>Lets take a look at each command!</p>
+<h2 id="stuart-setup">Stuart Setup<a class="headerlink" href="#stuart-setup" title="Permanent link">&para;</a></h2>
+<p><code>stuart_setup</code> is the first command and is responsible for setting up the code tree. Currently, this only involves
+preparing the git submodules necessary for build. If you've created an <a href="/tools/using_omnicache_tool/">Omnicache</a>, here
+is where you would use it to save on network bandwidth, disk space, and time when cloning repos. As you might expect,
+<code>stuart_setup</code> does not automatically know what submodules are necessary for each platform; we must use the
+<a href="/api/invocables/edk2_setup/#edk2toolext.invocables.edk2_setup.SetupSettingsManager">SetupSettingsManager</a>
+to provide that information.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The command specific <a href="/features/settings_manager">Settings Manager</a> may not provide <em>ALL</em> platform data
+required by the command; it only provides the platform data specific to that command. You still need to override some
+methods from
+<a href="/api/edk2_invocable/#edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface">Edk2InvocableSettingsInterface</a>
+and <a href="/api/invocables/edk2_multipkg_aware_invocable/#edk2toolext.invocables.edk2_multipkg_aware_invocable.MultiPkgAwareSettingsInterface">MultiPkgAwareSettingsInterface</a>
+that multiple (or all) commands use, which is why they are in the parent class. Don't worry though! If you miss
+overriding a required method, you'll raise a <code>NotImplementedError</code>!</p>
+</div>
+<p><strong>Review the <code>stuart_setup</code> specific settings manager <a href="/api/invocables/edk2_setup/#edk2toolext.invocables.edk2_setup.SetupSettingsManager">here</a>.</strong></p>
+<h2 id="stuart-update">Stuart Update<a class="headerlink" href="#stuart-update" title="Permanent link">&para;</a></h2>
+<p>Next up is <code>stuart_update</code>, which is responsible for updating any external dependencies in the workspace. This includes
+downloading and performing miscellaneous tasks for external dependencies. You can find details on how external
+dependencies work and how to utilize them in the <a href="/features/extdep">ext_dep</a> section.</p>
+<p>As you'll see in the API reference for <code>UpdateSettingsManager</code>, no additional methods need to be overwritten. At first
+glance, it may seem like <code>stuart_update</code> does not need any platform specific information, but it actually does. The key
+takeaway is that you'll still need to inherit from <code>UpdateSettingsManager</code>; it's just that the necessary platform data
+for this command comes from overriding methods in the parent class
+<a href="/api/edk2_invocable/#edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface">Edk2InvocableSettingsInterface</a>
+and/or <a href="/api/invocables/edk2_multipkg_aware_invocable/#edk2toolext.invocables.edk2_multipkg_aware_invocable.MultiPkgAwareSettingsInterface">MultiPkgAwareSettingsInterface</a>.</p>
+<p><strong>Review the <code>stuart_update</code> specific settings manager <a href="/api/invocables/edk2_update/#edk2toolext.invocables.edk2_update.UpdateSettingsManager">here</a>.</strong></p>
+<h2 id="stuart-build">Stuart Build<a class="headerlink" href="#stuart-build" title="Permanent link">&para;</a></h2>
+<p>Lastly is the <code>stuart_build</code> command, which actually has two phases to it. The first phase is executed via the
+<code>stuart_build</code> command and uses the <code>BuildSettingsManager</code> to setup the environment in preparation for the build. It
+will then invoke the <code>UefiBuilder</code>, signaling the start of the second phase which consists of most of the customization
+afforded to you by EDK2 Pytools.</p>
+<p><strong>Review the <code>stuart_build</code> specific settings manager <a href="/api/invocables/edk2_ci_build/#edk2toolext.invocables.edk2_ci_build.CiBuildSettingsManager">here</a>.</strong></p>
+<h2 id="uefibuilder">UefiBuilder<a class="headerlink" href="#uefibuilder" title="Permanent link">&para;</a></h2>
+<p>So what has all of these commands been culminating to? They've all been working to prepare a
+<a href="/features/sde">Self Describing Environment</a> for the <code>UefiBuilder</code> to operate in. The purpose of the
+<code>UefiBuilder</code> is to allow the platform to perform various tasks using this environment. Custom made
+<a href="/features/plugin_manager/#types-of-plugins">UefiBuildPlugins</a> will automatically be run Pre and Post build for
+all platforms while <a href="/features/plugin_manager/#types-of-plugins">UefiHelperPlugins</a> will be available to the
+developer to help create Platform specific Pre and Post build functionality. The <code>UefiBuilder</code> class has a lot to it, so
+let's take a look at each part.</p>
+<h3 id="command-line-options">Command Line options<a class="headerlink" href="#command-line-options" title="Permanent link">&para;</a></h3>
+<p><code>UefiBuilder</code> has multiple built in command line options that control the flow of the build. The below code snippet
+shows these command line variables and are accessible via <code>self.&lt;dest&gt;</code>. Developers can use this to help control flow in
+any of the overrideable methods described in the following sections, however they are also used to control build flow
+outside the control of the developer.</p>
+
+
+<div class="doc doc-object doc-function">
+
+
+<a id="edk2toolext.environment.uefi_build.UefiBuilder.AddPlatformCommandLineOptions"></a>
+  <div class="doc doc-contents first">
+  
+      <p>Adds command line options to the argparser.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>parserObj</code></td>
+          <td>
+                <code>argparser</code>
+          </td>
+          <td><p>argparser object</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <details class="quote">
+        <summary>Source code in <code>edk2toolext\environment\uefi_build.py</code></summary>
+        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span>
+<span class="normal">96</span>
+<span class="normal">97</span>
+<span class="normal">98</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">AddPlatformCommandLineOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parserObj</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Adds command line options to the argparser.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        parserObj (argparser): argparser object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">parserObj</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--SKIPBUILD&quot;</span><span class="p">,</span> <span class="s2">&quot;--skipbuild&quot;</span><span class="p">,</span> <span class="s2">&quot;--SkipBuild&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;SKIPBUILD&quot;</span><span class="p">,</span>
+                           <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Skip the build process&quot;</span><span class="p">)</span>
+    <span class="n">parserObj</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--SKIPPREBUILD&quot;</span><span class="p">,</span> <span class="s2">&quot;--skipprebuild&quot;</span><span class="p">,</span> <span class="s2">&quot;--SkipPrebuild&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;SKIPPREBUILD&quot;</span><span class="p">,</span>
+                           <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Skip prebuild process&quot;</span><span class="p">)</span>
+    <span class="n">parserObj</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--SKIPPOSTBUILD&quot;</span><span class="p">,</span> <span class="s2">&quot;--skippostbuild&quot;</span><span class="p">,</span> <span class="s2">&quot;--SkipPostBuild&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;SKIPPOSTBUILD&quot;</span><span class="p">,</span>
+                           <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Skip postbuild process&quot;</span><span class="p">)</span>
+    <span class="n">parserObj</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--FLASHONLY&quot;</span><span class="p">,</span> <span class="s2">&quot;--flashonly&quot;</span><span class="p">,</span> <span class="s2">&quot;--FlashOnly&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;FLASHONLY&quot;</span><span class="p">,</span>
+                           <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Flash rom after build.&quot;</span><span class="p">)</span>
+    <span class="n">parserObj</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--FLASHROM&quot;</span><span class="p">,</span> <span class="s2">&quot;--flashrom&quot;</span><span class="p">,</span> <span class="s2">&quot;--FlashRom&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;FLASHROM&quot;</span><span class="p">,</span>
+                           <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Flash rom.  Rom must be built previously.&quot;</span><span class="p">)</span>
+    <span class="n">parserObj</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--UPDATECONF&quot;</span><span class="p">,</span> <span class="s2">&quot;--updateconf&quot;</span><span class="p">,</span> <span class="s2">&quot;--UpdateConf&quot;</span><span class="p">,</span>
+                           <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;UPDATECONF&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                           <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Update Conf. Builders Conf files will be replaced with latest template files&quot;</span><span class="p">)</span>
+    <span class="n">parserObj</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--CLEAN&quot;</span><span class="p">,</span> <span class="s2">&quot;--clean&quot;</span><span class="p">,</span> <span class="s2">&quot;--CLEAN&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;CLEAN&quot;</span><span class="p">,</span>
+                           <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                           <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Clean. Remove all old build artifacts and intermediate files&quot;</span><span class="p">)</span>
+    <span class="n">parserObj</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--CLEANONLY&quot;</span><span class="p">,</span> <span class="s2">&quot;--cleanonly&quot;</span><span class="p">,</span> <span class="s2">&quot;--CleanOnly&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;CLEANONLY&quot;</span><span class="p">,</span>
+                           <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                           <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Clean Only. Do clean operation and don&#39;t build just exit.&quot;</span><span class="p">)</span>
+    <span class="n">parserObj</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--OUTPUTCONFIG&quot;</span><span class="p">,</span> <span class="s2">&quot;--outputconfig&quot;</span><span class="p">,</span> <span class="s2">&quot;--OutputConfig&quot;</span><span class="p">,</span>
+                           <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;OutputConfig&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+                           <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Provide shell variables in a file&#39;</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div><p>While we don't provide you the ability to override this function (without being hacky like overriding it anyway and
+calling the superclass in your override), there is an easy way to add CLI options to your build, which is through
+Platform Environment Variables</p>
+<h3 id="platform-environment-variables">Platform Environment Variables<a class="headerlink" href="#platform-environment-variables" title="Permanent link">&para;</a></h3>
+<p>Platform environment variables are a powerful tool used throughout the build process. Not only do environment variables
+allow you to control build flow within the <code>UefiBuilder</code>, but they also are used by the platform fdf and dsc. You can
+set platform environment variables in the platform DSC, FDF, Settings File, and Command Line; any variable set in one is
+available in the others! A simple example of this would be to add or remove features based off some criteria. With
+Edk2-Pytools this is as simple as setting a single env variable during build. We will walk through this example soon.</p>
+<h4 id="setting-getting-environment-variables">Setting / Getting Environment Variables<a class="headerlink" href="#setting-getting-environment-variables" title="Permanent link">&para;</a></h4>
+<p>It's easy set and get environment variables in the FDF, DSC, Settings file, and Command line as seen in the table below:</p>
+<table>
+<thead>
+<tr>
+<th><strong>Type</strong></th>
+<th><strong>Set</strong></th>
+<th><strong>Get</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Command Line</td>
+<td>VAR=Value</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>FDF/DSC</td>
+<td>DEFINE VAR = Value</td>
+<td>$(VAR)</td>
+</tr>
+<tr>
+<td>Settings File</td>
+<td>env.SetValue(Var, Value)</td>
+<td>env.GetValue(Var, DefaultValue)</td>
+</tr>
+</tbody>
+</table>
+<p>While you can set and get variables anywhere in the <code>UefiBuilder</code> portion of the settings file, we provide the following
+two methods to set environment variables, ensuring they are available everywhere that you are allowed to customize:</p>
+<ul>
+<li>
+<p><a href="/api/environment/uefi_build/#edk2toolext.environment.uefi_build.UefiBuilder.SetPlatformEnv">SetPlatformEnv</a></p>
+</li>
+<li>
+<p><a href="/api/environment/uefi_build/#edk2toolext.environment.uefi_build.UefiBuilder.SetPlatformEnvAfterTarget">SetPlatfromEnvAfterTarget</a></p>
+</li>
+</ul>
+<p>Simply override these two functions in your subclass of the <code>UefiBuilder</code> and set environment variables until your heart
+is content!</p>
+<h4 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h4>
+<p>As mentioned above, lets walk through a simple example of build customization with Edk2-Pytools. In this scenario, we
+want a simple way to build our platform in three distinct ways. To keep it simple, all we want to customize is the
+target type (DEBUG/RELEASE) and the inclusion of the EdkShell. These builds will be DEV, SELFHOST, and RELEASE. From the
+command line, we we would call <code>stuart_build -c Platform.py PROFILE=DEV</code>. All that needs to be done is to check the
+value of profile during <code>SetPlatformEnv()</code> and make our build customizations from there.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">profiles</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;DEV&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="s2">&quot;TARGET&quot;</span> <span class="p">:</span> <span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span> <span class="s2">&quot;EDK_SHELL&quot;</span><span class="p">:</span> <span class="s2">&quot;TRUE&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;SELFHOST&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="s2">&quot;TARGET&quot;</span> <span class="p">:</span> <span class="s2">&quot;RELEASE&quot;</span><span class="p">,</span> <span class="s2">&quot;EDK_SHELL&quot;</span><span class="p">:</span> <span class="s2">&quot;TRUE&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;RELEASE&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="s2">&quot;TARGET&quot;</span> <span class="p">:</span> <span class="s2">&quot;RELEASE&quot;</span><span class="p">,</span> <span class="s2">&quot;EDK_SHELL&quot;</span><span class="p">:</span> <span class="s2">&quot;FALSE&quot;</span><span class="p">}</span>
+    <span class="p">}</span>
+<span class="o">...</span>
+
+<span class="k">def</span> <span class="nf">SetPlatformEnv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">profile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">GetValue</span><span class="p">(</span><span class="s2">&quot;PROFILE&quot;</span><span class="p">,</span> <span class="s2">&quot;DEV&quot;</span><span class="p">)</span> <span class="c1"># Default DEV</span>
+    <span class="k">if</span> <span class="n">profile</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">profiles</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">profile</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">SetValue</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="s2">&quot;PROFILE VALUE&quot;</span><span class="p">)</span>
+<span class="o">...</span>
+</code></pre></div>
+<p>The environment variables are set, whats next? The target is automatically picked up by the build system, so all that
+needs to be done is to add the logic of including the Edk shell or not. This can be done in the platform fdf as seen below:</p>
+<div class="highlight"><pre><span></span><code>!if <span class="k">$(</span><span class="nv">EDK_SHELL</span><span class="o">=</span> TRUE<span class="k">)</span>
+FILE <span class="nv">APPLICATION</span> <span class="o">=</span> PCD<span class="o">(</span>gPcBdsPkgTokenSpaceGuid.PcdShellFile<span class="o">)</span> <span class="o">{</span>
+  SECTION <span class="nv">PE32</span> <span class="o">=</span> &lt;SomePath&gt;/Shell.efi
+  SECTION <span class="nv">UI</span> <span class="o">=</span> <span class="s2">&quot;EdkShell&quot;</span>
+<span class="o">}</span>
+!endif
+</code></pre></div>
+<h3 id="pre-post-build-customization">Pre / Post Build Customization<a class="headerlink" href="#pre-post-build-customization" title="Permanent link">&para;</a></h3>
+<p>Edk2 Pytools offer developers multiple ways to customize the build experience, both Pre and Post Build. The first way is
+through <a href="/features/plugin_manager/#types-of-plugins">UefiBuildPlugins</a> (executed automatically for all platforms)
+which is discussed in <a href="/features/creating_plugins">Create a Plugin</a> section, and through three methods to override in
+the <code>UefiBuilder</code> (specific to the platform) which will be the focus here.</p>
+<ul>
+<li><a href="/api/environment/uefi_build/#edk2toolext.environment.uefi_build.UefiBuilder.PlatformPreBuild">PlatformPreBuild</a></li>
+<li><a href="/api/environment/uefi_build/#edk2toolext.environment.uefi_build.UefiBuilder.PlatformPostBuild">PlatformPostBuild</a></li>
+<li><a href="/api/environment/uefi_build/#edk2toolext.environment.uefi_build.UefiBuilder.PlatformFlashImage">PlatformFlashImage</a></li>
+</ul>
+<p>All three of the callbacks that you can override have access to the same environment, but each happens at a different
+time in the build process as outlined below. You can choose to perform specific tasks both prebuild and postbuild such
+as moving files around pre build or patching in binary data post build. We also offer a callback for flashing your image
+to the device, if you have the infrastructure to do so via command line. You'll have to fully implement it yourself, but
+it can greatly speed up the time it takes to get your firmware on your platform.</p>
+<ol>
+<li><code>PlatformPreBuild()</code></li>
+<li><code>UefiBuildPlugins</code> that implement <code>do_pre_build()</code></li>
+<li><code>Build()</code></li>
+<li><code>PlatformPostBuild()</code></li>
+<li><code>UefiBuildPlugins</code> that implement <code>do_post_build()</code></li>
+<li><code>PlatformFlashImage()</code></li>
+</ol>
+<p>Lets end this section by mentioning some of the important things (but not everything) you have access to during the
+callbacks mentioned above:</p>
+<h4 id="helper-plugins">Helper Plugins<a class="headerlink" href="#helper-plugins" title="Permanent link">&para;</a></h4>
+<p>This is another type of plugin that is talked about in the <a href="/features/creating_plugins">Create a Plugin</a>
+that allows the developers to add in extensions or helper methods to the build
+environment that are easy to access. You can easily access them through
+<code>self.Helper.&lt;FunctionName&gt;()</code>. As an example, if we made that helper called
+<code>YamlToBin(yaml_obj)</code>, then we could call it via <code>self.Helper.JsonToBin(yaml)</code>.</p>
+<h4 id="the-environment">The Environment<a class="headerlink" href="#the-environment" title="Permanent link">&para;</a></h4>
+<p>As we alluded to in one of the previous sections, you'll have access to all of the environment variables set throughout
+the DSC, FDF, CLI, and anywhere else in the build. you'll be able to access the environment via <code>self.env</code>. To see the
+available methods to use, please review the <a href="/api/environment/var_dict/#edk2toolext.environment.var_dict.VarDict">VarDict</a>.</p>
+<h4 id="edk2-pytool-library">Edk2 Pytool Library<a class="headerlink" href="#edk2-pytool-library" title="Permanent link">&para;</a></h4>
+<p>The second half of Edk2 Pytools is <a href="https://github.com/tianocore/edk2-pytool-library">Edk2 Pytool Library</a>, which
+provides the building blocks of tools that are relevant to UEFI firmware developers. Some of these tools include file
+parsers for edk2 specific file types and UEFI defined values and interfaces for usage in python. You can think of Edk2
+Pytool Extensions (This) as the simple framework to get your platform building and Edk2 Pytool Library as the building
+blocks to do more advanced customization of the build.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../using/ci/" class="btn btn-neutral float-left" title="Core CI Instructions"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../manage/" class="btn btn-neutral float-right" title="Core CI with Stuart">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright (c) Microsoft.  All rights reserved</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tianocore/edk2-pytool-extensions" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../../using/ci/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../manage/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme_extra.js" defer></script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="https://unpkg.com/mermaid@8.7.0/dist/mermaid.min.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

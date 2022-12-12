@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Uefi build - Tianocore Edk2 Pytool Extensions (edk2toolext)</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Uefi build";
+        var mkdocs_page_input_path = "api\\environment\\uefi_build.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Tianocore Edk2 Pytool Extensions (edk2toolext)
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Our Philosophy</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Using Stuart</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../using/install/">Installation Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../using/build/">Build Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../using/ci/">Core CI Instructions</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Integrating Stuart</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../integrate/build/">Build with Stuart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../integrate/manage/">Core CI with Stuart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../integrate/porting/">Porting Example</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tools</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../tools/using_capsule_tool/">Capsule Helper and Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../tools/using_firmware_policy_tool/">Firmware Policy Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../tools/using_image_validation_tool/">PE/COFF Image Validation Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../tools/using_nuget_publishing_tool/">Nuget Publishing Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../tools/using_omnicache_tool/">Omnicache Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../tools/using_sig_db_tool/">Secure Boot Database Inspection Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../tools/using_versioninfo_tool/">Version Info Tool</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Advanced Features</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/invocable/">Invocables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/creating_invocable/">Creating Invocables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/extdep/">Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/creating_extdep/">Creating Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/plugin_manager/">Plugins</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/creating_plugins/">Create a Plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/environment_variables/">Environment Variables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/sde/">Self Describing Environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/settings_manager/">Settings Manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/logging/">Logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/using_linux/">WSL</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API Reference</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../../base_abstract_invocable/">Base abstract invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../edk2_git/">Edk2 git</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../edk2_invocable/">Edk2 invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../edk2_logging/">Edk2 logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../conf_mgmt/">Conf mgmt</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../environment_descriptor_files/">Environment descriptor files</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../external_dependency/">External dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../multiple_workspace/">Multiple workspace</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../plugin_manager/">Plugin manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../repo_resolver/">Repo resolver</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../self_describing_environment/">Self describing environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../shell_environment/">Shell environment</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Uefi build</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#edk2toolext.environment.uefi_build.UefiBuilder">UefiBuilder</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.uefi_build.UefiBuilder.__init__">__init__()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.uefi_build.UefiBuilder.AddPlatformCommandLineOptions">AddPlatformCommandLineOptions()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.uefi_build.UefiBuilder.RetrievePlatformCommandLineOptions">RetrievePlatformCommandLineOptions()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.uefi_build.UefiBuilder.Go">Go()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.uefi_build.UefiBuilder.CleanTree">CleanTree()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.uefi_build.UefiBuilder.Build">Build()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.uefi_build.UefiBuilder.PreBuild">PreBuild()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.uefi_build.UefiBuilder.PostBuild">PostBuild()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.uefi_build.UefiBuilder.SetEnv">SetEnv()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.uefi_build.UefiBuilder.FlashRomImage">FlashRomImage()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.uefi_build.UefiBuilder.PlatformPreBuild">PlatformPreBuild()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.uefi_build.UefiBuilder.PlatformPostBuild">PlatformPostBuild()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.uefi_build.UefiBuilder.SetPlatformEnv">SetPlatformEnv()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.uefi_build.UefiBuilder.SetPlatformEnvAfterTarget">SetPlatformEnvAfterTarget()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.uefi_build.UefiBuilder.PlatformBuildRom">PlatformBuildRom()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.uefi_build.UefiBuilder.PlatformFlashImage">PlatformFlashImage()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.uefi_build.UefiBuilder.PlatformGatedBuildShouldHappen">PlatformGatedBuildShouldHappen()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.uefi_build.UefiBuilder.ParseTargetFile">ParseTargetFile()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.uefi_build.UefiBuilder.ParseToolsDefFile">ParseToolsDefFile()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.uefi_build.UefiBuilder.ParseDscFile">ParseDscFile()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.uefi_build.UefiBuilder.ParseFdfFile">ParseFdfFile()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.environment.uefi_build.UefiBuilder.SetBasicDefaults">SetBasicDefaults()</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../var_dict/">Var dict</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../version_aggregator/">Version aggregator</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../extdeptypes/az_cli_universal_dependency/">Az cli universal dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../extdeptypes/git_dependency/">Git dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../extdeptypes/nuget_dependency/">Nuget dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../extdeptypes/web_dependency/">Web dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../plugintypes/ci_build_plugin/">Ci build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../plugintypes/dsc_processor_plugin/">Dsc processor plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../plugintypes/uefi_build_plugin/">Uefi build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../plugintypes/uefi_helper_plugin/">Uefi helper plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../invocables/edk2_ci_build/">Edk2 ci build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../invocables/edk2_ci_setup/">Edk2 ci setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../invocables/edk2_multipkg_aware_invocable/">Edk2 multipkg aware invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../invocables/edk2_platform_build/">Edk2 platform build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../invocables/edk2_pr_eval/">Edk2 pr eval</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../invocables/edk2_setup/">Edk2 setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../invocables/edk2_update/">Edk2 update</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Tianocore Edk2 Pytool Extensions (edk2toolext)</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+          <li>API Reference &raquo;</li>
+      <li>Uefi build</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tianocore/edk2-pytool-extensions/edit/master/docs/..\edk2toolext\environment\uefi_build.py" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<h2 id="edk2toolext.environment.uefi_build" class="doc doc-heading">
+          <span class="doc doc-object-name doc-module-name">uefi_build</span>
+
+
+<a href="#edk2toolext.environment.uefi_build" class="headerlink" title="Permanent link">&para;</a></h2>
+
+  <div class="doc doc-contents first">
+  
+      <p>Code that supports the Tianocore Edk2 build system.</p>
+<p>This class is designed to be subclassed by a platform to allow more extensive
+and custom behavior.</p>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="edk2toolext.environment.uefi_build.UefiBuilder" class="doc doc-heading">
+        <span class="doc doc-object-name doc-class-name">UefiBuilder</span>
+
+
+<a href="#edk2toolext.environment.uefi_build.UefiBuilder" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+
+  
+      <p>Object responsible for the full build process.</p>
+<p>The following steps are completed by the <code>UefiBuilder</code> and is overridable
+by the platform:</p>
+<ol>
+<li><code>PlatformPreBuild()</code></li>
+<li><code>UefiBuildPlugins</code> that implement <code>do_pre_build()</code></li>
+<li><code>Build()</code> (should not be overridden)</li>
+<li><code>UefiBuildPlugins</code> that implement <code>do_post_build()</code></li>
+<li><code>PlatformFlashImage()</code></li>
+</ol>
+
+  <p><strong>Attributes:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>SkipPreBuild</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td><p>Skip Pre Build or not</p></td>
+        </tr>
+        <tr>
+          <td><code>SkipPostBuild</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td><p>Skip Post Build or not</p></td>
+        </tr>
+        <tr>
+          <td><code>SkipBuild</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td><p>Skip Build or not</p></td>
+        </tr>
+        <tr>
+          <td><code>FlashImage</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td><p>Flash the image not</p></td>
+        </tr>
+        <tr>
+          <td><code>Clean</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td><p>Clean the build directory or not</p></td>
+        </tr>
+        <tr>
+          <td><code>Update</code></td>
+          <td>
+                <code>Conf (bool</code>
+          </td>
+          <td><p>Update the conf or not</p></td>
+        </tr>
+        <tr>
+          <td><code>env</code></td>
+          <td>
+                <code>VarDict</code>
+          </td>
+          <td><p>Special dictionary containing build and env vars</p></td>
+        </tr>
+        <tr>
+          <td><code>mws</code></td>
+          <td>
+                <code><a class="autorefs autorefs-internal" title="edk2toolext.environment.multiple_workspace.MultipleWorkspace" href="../multiple_workspace/#edk2toolext.environment.multiple_workspace.MultipleWorkspace">MultipleWorkspace</a></code>
+          </td>
+          <td><p>multiple workspace manager</p></td>
+        </tr>
+        <tr>
+          <td><code>ws</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>Workspace root dir</p></td>
+        </tr>
+        <tr>
+          <td><code>pp</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>packagespath separated by os.pathsep</p></td>
+        </tr>
+        <tr>
+          <td><code>Helper</code></td>
+          <td>
+                <code>HelperFunctions</code>
+          </td>
+          <td><p>object containing registered helper functions</p></td>
+        </tr>
+        <tr>
+          <td><code>pm</code></td>
+          <td>
+                <code>PluginManager</code>
+          </td>
+          <td><p>The plugin manager</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.uefi_build.UefiBuilder.__init__" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">__init__</span>
+
+
+<a href="#edk2toolext.environment.uefi_build.UefiBuilder.__init__" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="fm">__init__</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Inits an empty UefiBuilder.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.uefi_build.UefiBuilder.AddPlatformCommandLineOptions" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">AddPlatformCommandLineOptions</span>
+
+
+<a href="#edk2toolext.environment.uefi_build.UefiBuilder.AddPlatformCommandLineOptions" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">AddPlatformCommandLineOptions</span><span class="p">(</span><span class="n">parserObj</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Adds command line options to the argparser.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>parserObj</code></td>
+          <td>
+                <code>argparser</code>
+          </td>
+          <td><p>argparser object</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.uefi_build.UefiBuilder.RetrievePlatformCommandLineOptions" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">RetrievePlatformCommandLineOptions</span>
+
+
+<a href="#edk2toolext.environment.uefi_build.UefiBuilder.RetrievePlatformCommandLineOptions" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">RetrievePlatformCommandLineOptions</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Retrieve command line options from the argparser.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>args</code></td>
+          <td>
+                <code>Namespace</code>
+          </td>
+          <td><p>namespace containing gathered args from argparser</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.uefi_build.UefiBuilder.Go" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">Go</span>
+
+
+<a href="#edk2toolext.environment.uefi_build.UefiBuilder.Go" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">Go</span><span class="p">(</span><span class="n">WorkSpace</span><span class="p">,</span> <span class="n">PackagesPath</span><span class="p">,</span> <span class="n">PInHelper</span><span class="p">,</span> <span class="n">PInManager</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Core executable that performs all build steps.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.uefi_build.UefiBuilder.CleanTree" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">CleanTree</span>
+
+
+<a href="#edk2toolext.environment.uefi_build.UefiBuilder.CleanTree" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">CleanTree</span><span class="p">(</span><span class="n">RemoveConfTemplateFilesToo</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Cleans the build directory.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>RemoveConfTemplateFilesToo</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td><p>deletes conf files used for building makefiles</p></td>
+          <td>
+                <code>False</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.uefi_build.UefiBuilder.Build" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">Build</span>
+
+
+<a href="#edk2toolext.environment.uefi_build.UefiBuilder.Build" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">Build</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Adds all arguments to the build command and runs it.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.uefi_build.UefiBuilder.PreBuild" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">PreBuild</span>
+
+
+<a href="#edk2toolext.environment.uefi_build.UefiBuilder.PreBuild" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">PreBuild</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Performs internal PreBuild steps.</p>
+<p>This includes calling the platform overridable <code>PlatformPreBuild()</code></p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.uefi_build.UefiBuilder.PostBuild" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">PostBuild</span>
+
+
+<a href="#edk2toolext.environment.uefi_build.UefiBuilder.PostBuild" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">PostBuild</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Performs internal PostBuild steps.</p>
+<p>This includes calling the platform overridable <code>PlatformPostBuild()</code>.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.uefi_build.UefiBuilder.SetEnv" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">SetEnv</span>
+
+
+<a href="#edk2toolext.environment.uefi_build.UefiBuilder.SetEnv" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">SetEnv</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Performs internal SetEnv steps.</p>
+<p>This includes platform overridable <code>SetPlatformEnv()</code> and `SetPlatformEnvAfterTarget().</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.uefi_build.UefiBuilder.FlashRomImage" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">FlashRomImage</span>
+
+
+<a href="#edk2toolext.environment.uefi_build.UefiBuilder.FlashRomImage" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">FlashRomImage</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Executes platform overridable <code>PlatformFlashImage()</code>.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.uefi_build.UefiBuilder.PlatformPreBuild" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">PlatformPreBuild</span>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+<a href="#edk2toolext.environment.uefi_build.UefiBuilder.PlatformPreBuild" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">PlatformPreBuild</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Perform Platform PreBuild Steps.</p>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>int</code>
+          </td>
+          <td><p>0 on success, 1 on failure</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.uefi_build.UefiBuilder.PlatformPostBuild" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">PlatformPostBuild</span>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+<a href="#edk2toolext.environment.uefi_build.UefiBuilder.PlatformPostBuild" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">PlatformPostBuild</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Perform Platform PostBuild Steps.</p>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>int</code>
+          </td>
+          <td><p>0 on success, 1 on failure</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.uefi_build.UefiBuilder.SetPlatformEnv" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">SetPlatformEnv</span>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+<a href="#edk2toolext.environment.uefi_build.UefiBuilder.SetPlatformEnv" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">SetPlatformEnv</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Set and read Platform Env variables.</p>
+<p>This is performed before platform files like the DSC and FDF have been parsed.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>If a platform file (DSC, FDF, etc) relies on a variable set in
+the <code>UefiBuilder</code>, it must be set here, before the platform files
+have been parsed and values have been set.</p>
+</div>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>int</code>
+          </td>
+          <td><p>0 on success, 1 on failure</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.uefi_build.UefiBuilder.SetPlatformEnvAfterTarget" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">SetPlatformEnvAfterTarget</span>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+<a href="#edk2toolext.environment.uefi_build.UefiBuilder.SetPlatformEnvAfterTarget" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">SetPlatformEnvAfterTarget</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Set and read Platform Env variables after platform files have been parsed.</p>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>int</code>
+          </td>
+          <td><p>0 on success, 1 on failure</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.uefi_build.UefiBuilder.PlatformBuildRom" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">PlatformBuildRom</span>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+<a href="#edk2toolext.environment.uefi_build.UefiBuilder.PlatformBuildRom" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">PlatformBuildRom</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Build the platform Rom.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Typically called by the platform in PlatformFlashImage. Not called
+automatically by the <code>UefiBuilder</code>.</p>
+</div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.uefi_build.UefiBuilder.PlatformFlashImage" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">PlatformFlashImage</span>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+<a href="#edk2toolext.environment.uefi_build.UefiBuilder.PlatformFlashImage" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">PlatformFlashImage</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Flashes the image to the system.</p>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>int</code>
+          </td>
+          <td><p>0 on success, 1 on failure</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.uefi_build.UefiBuilder.PlatformGatedBuildShouldHappen" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">PlatformGatedBuildShouldHappen</span>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+<a href="#edk2toolext.environment.uefi_build.UefiBuilder.PlatformGatedBuildShouldHappen" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">PlatformGatedBuildShouldHappen</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Specifies if a gated build should happen.</p>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>bool</code>
+          </td>
+          <td><p>True if gated build should happen, else False</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.uefi_build.UefiBuilder.ParseTargetFile" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">ParseTargetFile</span>
+
+
+<a href="#edk2toolext.environment.uefi_build.UefiBuilder.ParseTargetFile" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">ParseTargetFile</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Parses the target.txt file and adds values as env settings.</p>
+<p>"Sets them so they can be overriden.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.uefi_build.UefiBuilder.ParseToolsDefFile" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">ParseToolsDefFile</span>
+
+
+<a href="#edk2toolext.environment.uefi_build.UefiBuilder.ParseToolsDefFile" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">ParseToolsDefFile</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Parses the tools_def.txt file and adds values as env settings.</p>
+<p>"Sets them so they can be overriden.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.uefi_build.UefiBuilder.ParseDscFile" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">ParseDscFile</span>
+
+
+<a href="#edk2toolext.environment.uefi_build.UefiBuilder.ParseDscFile" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">ParseDscFile</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Parses the active platform DSC file.</p>
+<p>This will get lots of variable info to be used in the build. This
+makes it so we don't have to define things twice.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.uefi_build.UefiBuilder.ParseFdfFile" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">ParseFdfFile</span>
+
+
+<a href="#edk2toolext.environment.uefi_build.UefiBuilder.ParseFdfFile" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">ParseFdfFile</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Parses the active platform FDF file.</p>
+<p>This will get lots of variable info to be used in the build. This makes
+it so we don't have to define things twice the FDF file usually comes
+from the Active Platform DSC file so it needs to be parsed first.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.environment.uefi_build.UefiBuilder.SetBasicDefaults" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">SetBasicDefaults</span>
+
+
+<a href="#edk2toolext.environment.uefi_build.UefiBuilder.SetBasicDefaults" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">SetBasicDefaults</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Sets default values for numerous build control flow variables.</p>
+
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+
+
+  </div>
+
+  </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../shell_environment/" class="btn btn-neutral float-left" title="Shell environment"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../var_dict/" class="btn btn-neutral float-right" title="Var dict">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright (c) Microsoft.  All rights reserved</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tianocore/edk2-pytool-extensions" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../shell_environment/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../var_dict/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../../..';</script>
+    <script src="../../../js/theme_extra.js" defer></script>
+    <script src="../../../js/theme.js" defer></script>
+      <script src="https://unpkg.com/mermaid@8.7.0/dist/mermaid.min.js" defer></script>
+      <script src="../../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

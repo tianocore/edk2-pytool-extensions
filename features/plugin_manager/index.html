@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Plugins - Tianocore Edk2 Pytool Extensions (edk2toolext)</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Plugins";
+        var mkdocs_page_input_path = "features\\plugin_manager.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Tianocore Edk2 Pytool Extensions (edk2toolext)
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Our Philosophy</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Using Stuart</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/install/">Installation Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/build/">Build Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/ci/">Core CI Instructions</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Integrating Stuart</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../integrate/build/">Build with Stuart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../integrate/manage/">Core CI with Stuart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../integrate/porting/">Porting Example</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tools</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_capsule_tool/">Capsule Helper and Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_firmware_policy_tool/">Firmware Policy Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_image_validation_tool/">PE/COFF Image Validation Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_nuget_publishing_tool/">Nuget Publishing Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_omnicache_tool/">Omnicache Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_sig_db_tool/">Secure Boot Database Inspection Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_versioninfo_tool/">Version Info Tool</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Advanced Features</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../invocable/">Invocables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../creating_invocable/">Creating Invocables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../extdep/">Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../creating_extdep/">Creating Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Plugins</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#the-genesis">The Genesis</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#types-of-plugins">Types of plugins</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#how-it-works">How it works</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#writing-your-own">Writing your own</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#the-schema">The schema</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#the-python">The Python</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#using-a-plugin">Using a plugin</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#skipping-a-plugin">Skipping a plugin</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../creating_plugins/">Create a Plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../environment_variables/">Environment Variables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../sde/">Self Describing Environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../settings_manager/">Settings Manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../logging/">Logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../using_linux/">WSL</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API Reference</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/base_abstract_invocable/">Base abstract invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/edk2_git/">Edk2 git</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/edk2_invocable/">Edk2 invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/edk2_logging/">Edk2 logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/conf_mgmt/">Conf mgmt</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/environment_descriptor_files/">Environment descriptor files</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/external_dependency/">External dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/multiple_workspace/">Multiple workspace</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugin_manager/">Plugin manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/repo_resolver/">Repo resolver</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/self_describing_environment/">Self describing environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/shell_environment/">Shell environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/uefi_build/">Uefi build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/var_dict/">Var dict</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/version_aggregator/">Version aggregator</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/az_cli_universal_dependency/">Az cli universal dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/git_dependency/">Git dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/nuget_dependency/">Nuget dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/web_dependency/">Web dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/ci_build_plugin/">Ci build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/dsc_processor_plugin/">Dsc processor plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/uefi_build_plugin/">Uefi build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/uefi_helper_plugin/">Uefi helper plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_ci_build/">Edk2 ci build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_ci_setup/">Edk2 ci setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_multipkg_aware_invocable/">Edk2 multipkg aware invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_platform_build/">Edk2 platform build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_pr_eval/">Edk2 pr eval</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_setup/">Edk2 setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_update/">Edk2 update</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Tianocore Edk2 Pytool Extensions (edk2toolext)</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+          <li>Advanced Features &raquo;</li>
+      <li>Plugins</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tianocore/edk2-pytool-extensions/edit/master/docs/features/plugin_manager.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="plugin-manager">Plugin Manager<a class="headerlink" href="#plugin-manager" title="Permanent link">&para;</a></h1>
+<h2 id="the-genesis">The Genesis<a class="headerlink" href="#the-genesis" title="Permanent link">&para;</a></h2>
+<p>Plugins are similar to external dependencies, in that they are defined by a Json
+file and they are discovered by the SDE. If you wish to learn more about the
+SDE, please go read the document about the self describing environment. They are
+defined by the EnvironmentDescriptorFiles which also describe external
+dependencies and path descriptors.</p>
+<h2 id="types-of-plugins">Types of plugins<a class="headerlink" href="#types-of-plugins" title="Permanent link">&para;</a></h2>
+<p>Types of plugins are defined by the class they inherit from</p>
+<ul>
+<li>
+<p>UefiBuildPlugin</p>
+</li>
+<li>
+<p>Contains two methods, Pre and Post Build. These methods are called on Pre
+    and Post Build steps in UefiBuild (not CiBuild). There is no guarantee on
+    ordering between different plugins (Pre will always come before Post). Post
+    is will not run if there is a critical error in the build process.</p>
+</li>
+<li>
+<p>The idea here is to allow for custom, self-contained build functionality to
+    be added without required UEFI build changes or inline code modifications.</p>
+</li>
+<li>
+<p>DscProcessorPlugin (in-progress)</p>
+</li>
+<li>
+<p>This is a plugin type that can apply transformations to the active DSC that
+    will then be used to build the system.</p>
+</li>
+<li>
+<p>This is not production ready and <em>not enabled in</em> any builds currently.</p>
+</li>
+<li>
+<p>UefiHelperPlugin</p>
+</li>
+<li>
+<p>This is a helper plugin that publishes a function that can be used by other
+    parts of the system. An example of this would be the Capsule signing system.</p>
+</li>
+<li>
+<p>This really is less about plugin design and more about keeping the UEFI
+    build and platform builder python files minimal and getting the desired code
+    reuse.</p>
+</li>
+<li>
+<p>CiBuildPlugin</p>
+</li>
+<li>
+<p>A plugin that runs during the main stage of CiBuild. The build step is
+    actually a plugin so as ordering is not guaranteed so you don't have any
+    assurance that the build is successful or that the build has started</p>
+</li>
+</ul>
+<h2 id="how-it-works">How it works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h2>
+<p>You might be asking yourself how does the sausage get made. In the name of
+sating curiosity, here it is. The SDE discovers the plugin .json environment
+descriptors in the file system tree. Once they're discovered, they're passed to
+the Plugin Manager which loads each of them and puts them into the appropriate
+structure. Once they're in there, they are requested by UefiBuild or CiBuild and
+dispatched. Helper functions are requested from the plugin_manager and then
+executed.</p>
+<h2 id="writing-your-own">Writing your own<a class="headerlink" href="#writing-your-own" title="Permanent link">&para;</a></h2>
+<p>See <a href="/features/creating_plugins">Creating a Plugin</a></p>
+<p>For IUefiBuildPlugin type the plugin will simply be called during the pre and
+post build steps after the platform builder object runs its step. The
+UefiBuilder object will be passed during the call and therefore the environment
+dictionary is available within the plugin. These plugins should be authored to
+be independent and the platform build or UEFI build should not have any
+dependency on the plugin. The plugin can depend on variables within the
+environment dictionary but should be otherwise independent / isolated code.</p>
+<p>For IUefiHelperPlugin type the plugin will simply register functions with the
+helper object so that other parts of the platform build can use the functions.
+It is acceptable for platform build to know/need the helper functions but it is
+not acceptable for UEFI build super class to depend upon it. I expect most of
+these plugins will be at a layer lower than the UDK as this is really to isolate
+business unit logic while still allowing code reuse. Look at the HelperFunctions
+object to see how a plugin registers its functions.</p>
+<p>For ICiBuildPlugin type the plugin will be allowed to verify it's configuration
+and be called by the CiBuild system. It will have the current state of the build
+and access to the environment. CiBuild checkpoints the environment prior to
+calling out to each plugin, so the environment can be dirtied by the plugin.</p>
+<p>As an example of a Ci Build Plugin, we will look at one of the plugins we use,
+Character Encoding Check CiBuildPlugin. This runs as part of the CI build.</p>
+<h3 id="the-schema">The schema<a class="headerlink" href="#the-schema" title="Permanent link">&para;</a></h3>
+<p>From EDK2/.pytool/Plugin/CharEncodingCheck
+<a href="https://github.com/tianocore/edk2/blob/master/.pytool/Plugin/CharEncodingCheck/CharEncodingCheck_plug_in.yaml">https://github.com/tianocore/edk2/blob/master/.pytool/Plugin/CharEncodingCheck/CharEncodingCheck_plug_in.yaml</a></p>
+<div class="highlight"><pre><span></span><code><span class="p p-Indicator">{</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;scope&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;cibuild&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;name&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;Char</span><span class="nv"> </span><span class="s">Encoding</span><span class="nv"> </span><span class="s">Check</span><span class="nv"> </span><span class="s">Test&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;module&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;CharEncodingCheck&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">}</span><span class="w"></span>
+</code></pre></div>
+<ul>
+<li>Scope: See the SDE doc about scopes</li>
+<li>Name: This is the name of the plugin and will be part of the path where the
+  nuget is unpacked</li>
+<li>Module: the python file to load</li>
+</ul>
+<h3 id="the-python">The Python<a class="headerlink" href="#the-python" title="Permanent link">&para;</a></h3>
+<p>File is from: ci\plugin\CharEncodingCheck\CharEncodingCheck.py</p>
+<p>It's important that the filename matches the Module name in the yaml file.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">edk2toolext.plugins.CiBuildPlugin</span> <span class="kn">import</span> <span class="n">ICiBuildPlugin</span>
+
+
+<span class="k">class</span> <span class="nc">CharEncodingCheck</span><span class="p">(</span><span class="n">ICiBuildPlugin</span><span class="p">):</span>
+   <span class="k">def</span> <span class="nf">GetTestName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">packagename</span><span class="p">,</span> <span class="n">environment</span><span class="p">):</span>
+      <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;CiBuild CharEncodingCheck &quot;</span> <span class="o">+</span> <span class="n">packagename</span><span class="p">,</span> <span class="s2">&quot;CiBuild.CharEncodingCheck.&quot;</span> <span class="o">+</span> <span class="n">packagename</span><span class="p">)</span>
+
+    <span class="c1">#   - package is the edk2 path to package.  This means workspace/package path relative.</span>
+    <span class="c1">#   - edk2path object configured with workspace and packages path</span>
+    <span class="c1">#   - any additional command line args</span>
+    <span class="c1">#   - RepositoryConfig Object (dict) for the build</span>
+    <span class="c1">#   - PkgConfig Object (dict) for the pkg</span>
+    <span class="c1">#   - EnvConfig Object</span>
+    <span class="c1">#   - Plugin Manager Instance</span>
+    <span class="c1">#   - Plugin Helper Obj Instance</span>
+    <span class="c1">#   - test-case Object used for tracking test results</span>
+    <span class="c1">#   - output_stream the StringIO output stream from this plugin</span>
+
+    <span class="k">def</span> <span class="nf">RunBuildPlugin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">packagename</span><span class="p">,</span> <span class="n">Edk2pathObj</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">repoconfig</span><span class="p">,</span> <span class="n">pkgconfig</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">PLM</span><span class="p">,</span> <span class="n">PLMHelper</span><span class="p">,</span> <span class="n">tc</span><span class="p">,</span> <span class="n">output_stream</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+      <span class="n">overall_status</span> <span class="o">=</span> <span class="mi">0</span>
+      <span class="n">files_tested</span> <span class="o">=</span> <span class="mi">0</span>
+      <span class="k">if</span> <span class="n">overall_status</span> <span class="ow">is</span> <span class="ow">not</span> <span class="mi">0</span><span class="p">:</span>
+          <span class="n">tc</span><span class="o">.</span><span class="n">SetFailed</span><span class="p">(</span><span class="s2">&quot;CharEncoding </span><span class="si">{0}</span><span class="s2"> Failed.  Errors </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">packagename</span><span class="p">,</span> <span class="n">overall_status</span><span class="p">),</span> <span class="s2">&quot;CHAR_ENCODING_CHECK_FAILED&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="n">tc</span><span class="o">.</span><span class="n">SetSuccess</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">overall_status</span>
+</code></pre></div>
+<p>Some things to notice are the class that this is inheriting from:
+ICiBuildPlugin.</p>
+<p>There is also this idea of the tc, which is the test unit class. You can set
+this particular CiBuild step as failed, skipped, or successful. Logging standard
+out or error out gets placed in the JUnit report that is later picked up by the
+CI system.</p>
+<h2 id="using-a-plugin">Using a plugin<a class="headerlink" href="#using-a-plugin" title="Permanent link">&para;</a></h2>
+<p>Using plugins is straightforward but it exact usage depends on what type of
+plugin you use. For the IUefiBuildPlugin (pre/post build) and ICiBuildPlugin
+type there is nothing the UEFI build must do besides make sure the plugin is in
+your workspace and scoped to an active scope. For Helper plugins basically the
+UEFI builder Helper member will contain the registered functions as methods on
+the object. Therefore calling any function is as simple as using
+self.Helper.[your func name here]. It is by design that the parameters and
+calling contract are not defined. It is expected that the caller and plugin know
+about each other and are really just using the plugin system to make inclusion
+and code sharing easy.</p>
+<h2 id="skipping-a-plugin">Skipping a plugin<a class="headerlink" href="#skipping-a-plugin" title="Permanent link">&para;</a></h2>
+<p>If you want to <strong>skip</strong> a plugin, set it in the environment before the
+environment is initialized. For example, it can be a part of your
+SettingsManager:</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Settings</span><span class="p">(</span><span class="n">CiBuildSettingsManager</span><span class="p">,</span> <span class="n">CiSetupSettingsManager</span><span class="p">,</span> <span class="n">UpdateSettingsManager</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">plugin_skip_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;DependencyCheck&quot;</span><span class="p">,</span> <span class="s2">&quot;CompilerPlugin&quot;</span><span class="p">]</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">shell_environment</span><span class="o">.</span><span class="n">GetBuildVars</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">plugin</span> <span class="ow">in</span> <span class="n">plugin_skip_list</span><span class="p">:</span>
+            <span class="c1"># KEY: Plugin name in all caps</span>
+            <span class="c1"># VALUE: &quot;skip&quot;</span>
+            <span class="n">env</span><span class="o">.</span><span class="n">SetValue</span><span class="p">(</span><span class="n">plugin</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="s2">&quot;skip&quot;</span><span class="p">,</span> <span class="s2">&quot;set from settings file&quot;</span><span class="p">)</span>
+</code></pre></div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../creating_extdep/" class="btn btn-neutral float-left" title="Creating Ext Deps"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../creating_plugins/" class="btn btn-neutral float-right" title="Create a Plugin">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright (c) Microsoft.  All rights reserved</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tianocore/edk2-pytool-extensions" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../creating_extdep/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../creating_plugins/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme_extra.js" defer></script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="https://unpkg.com/mermaid@8.7.0/dist/mermaid.min.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

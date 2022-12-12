@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Self Describing Environment - Tianocore Edk2 Pytool Extensions (edk2toolext)</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Self Describing Environment";
+        var mkdocs_page_input_path = "features\\sde.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Tianocore Edk2 Pytool Extensions (edk2toolext)
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Our Philosophy</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Using Stuart</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/install/">Installation Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/build/">Build Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/ci/">Core CI Instructions</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Integrating Stuart</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../integrate/build/">Build with Stuart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../integrate/manage/">Core CI with Stuart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../integrate/porting/">Porting Example</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tools</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_capsule_tool/">Capsule Helper and Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_firmware_policy_tool/">Firmware Policy Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_image_validation_tool/">PE/COFF Image Validation Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_nuget_publishing_tool/">Nuget Publishing Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_omnicache_tool/">Omnicache Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_sig_db_tool/">Secure Boot Database Inspection Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_versioninfo_tool/">Version Info Tool</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Advanced Features</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../invocable/">Invocables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../creating_invocable/">Creating Invocables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../extdep/">Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../creating_extdep/">Creating Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../plugin_manager/">Plugins</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../creating_plugins/">Create a Plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../environment_variables/">Environment Variables</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Self Describing Environment</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#the-genesis">The Genesis</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#what-is-it">What is it</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#path_env-descriptors">path_env Descriptors</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#the-belly-of-the-beast">The Belly of the Beast</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#self_describing_environmentpy">self_describing_environment.py</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#environmentdescriptorfilespy">EnvironmentDescriptorFiles.py</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#externaldependenciespy">ExternalDependencies.py</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#taming-the-sde">Taming the SDE</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#understanding-scope">Understanding Scope</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#setting-up-for-platform-builds">Setting Up for Platform Builds</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#updating">Updating</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#setting-up-for-ci-build">Setting Up for CI Build</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#building">Building</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../settings_manager/">Settings Manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../logging/">Logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../using_linux/">WSL</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API Reference</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/base_abstract_invocable/">Base abstract invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/edk2_git/">Edk2 git</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/edk2_invocable/">Edk2 invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/edk2_logging/">Edk2 logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/conf_mgmt/">Conf mgmt</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/environment_descriptor_files/">Environment descriptor files</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/external_dependency/">External dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/multiple_workspace/">Multiple workspace</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugin_manager/">Plugin manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/repo_resolver/">Repo resolver</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/self_describing_environment/">Self describing environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/shell_environment/">Shell environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/uefi_build/">Uefi build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/var_dict/">Var dict</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/version_aggregator/">Version aggregator</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/az_cli_universal_dependency/">Az cli universal dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/git_dependency/">Git dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/nuget_dependency/">Nuget dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/web_dependency/">Web dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/ci_build_plugin/">Ci build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/dsc_processor_plugin/">Dsc processor plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/uefi_build_plugin/">Uefi build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/uefi_helper_plugin/">Uefi helper plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_ci_build/">Edk2 ci build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_ci_setup/">Edk2 ci setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_multipkg_aware_invocable/">Edk2 multipkg aware invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_platform_build/">Edk2 platform build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_pr_eval/">Edk2 pr eval</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_setup/">Edk2 setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_update/">Edk2 update</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Tianocore Edk2 Pytool Extensions (edk2toolext)</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+          <li>Advanced Features &raquo;</li>
+      <li>Self Describing Environment</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tianocore/edk2-pytool-extensions/edit/master/docs/features/sde.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="the-self-describing-environment-and-you">The Self Describing Environment and You<a class="headerlink" href="#the-self-describing-environment-and-you" title="Permanent link">&para;</a></h1>
+<h2 id="the-genesis">The Genesis<a class="headerlink" href="#the-genesis" title="Permanent link">&para;</a></h2>
+<p>Previous to stuart, a simple wrapper around the EDK2 build system was developed.
+As it grew, the centralized systems that have been in place to this point have gotten more and more brittle.
+Previously, the paths to critical files and build tools have been hard-coded into the primary build scripts (such as
+PlatformBuild.py). If code was to be added or moved, all build scripts for all projects had to be updated to find
+the new code and consume it.</p>
+<p>Furthermore, the old build system required that all binaries, executables, artifacts, and other miscellaneous files
+be carried in the source tree somewhere. Since moving to Git, this cost has become increasingly burdensome to the
+point where some of the larger repositories are almost unwieldy.</p>
+<p>The new Self Describing Environment system, along with the new Plugin behavior, aims to remedy some of these problems,
+while preserving flexibility and agility for further project growth.</p>
+<h2 id="what-is-it">What is it<a class="headerlink" href="#what-is-it" title="Permanent link">&para;</a></h2>
+<p>The Self-Describing Environment is assembled by a combination of scripts and descriptor files. The scripts locate the
+descriptor files and configure the environment in a number of different ways (eg. PATH, PYTHONPATH, Shell Variables,
+Build Variables, external dependencies, etc.). Currently, there are two kinds of descriptor files that can be found in
+the Core UEFI tree: Path Environment descriptors (path_env) and External Dependency descriptors (ext_dep). Both of these
+files are simple JSON files containing fields that are used to configure the SDE. They have some overlapping features,
+but are used for very different purposes.</p>
+<p>Many of these features have their own documentation, and you are encouraged to go check them out.</p>
+<h2 id="path_env-descriptors">path_env Descriptors<a class="headerlink" href="#path_env-descriptors" title="Permanent link">&para;</a></h2>
+<p>The path_env descriptor is used, primarily, to update the path. This way the build system can locate required tools and
+scripts. It can also update build vars that can be referenced from the Settings Manager or Uefi Builder to locate
+things like binary artifacts that will be included in certain build steps (eg. OPROM binaries).</p>
+<p>The path_env descriptor works by taking the path containing the descriptor and applying it to the environment as
+specified by the fields of the descriptor. For example, if there were a path_env file located at
+"\MyBuild\SubDir\Tools\my_sample_path_env.json" and the descriptor flags included "set_path", "\MyBuild\SubDir\Tools"
+would be added to the environment path. path_env descriptors are located by the environment configuration scripts by
+searching the Workspace for files ending in "*_path_env.json". It does not matter what the first part of the file is
+called, so long as the end is correct. By convention, the first part of the file name should be descriptive enough to
+differentiate a given descriptor from another descriptor, should it show up in a "find in files" list or something.</p>
+<p>The following path_env fields are required:</p>
+<ul>
+<li>
+<p>scope</p>
+</li>
+<li>
+<p>Identifies which build environments this descriptor contributes to, and what level of precedence it should take
+    within that environment.</p>
+</li>
+<li>
+<p>flags</p>
+</li>
+<li>
+<p>We'll see that flags are common to both path_env and ext_dep descriptors, but they are required for path_env (and
+    only optional for ext_dep). This is because it doesn't make any sense to create a path_env descriptor without
+    specifying what part of the environment should be updated.</p>
+</li>
+</ul>
+<p>Currently supported flags are:</p>
+<ul>
+<li>
+<p>host_specific</p>
+</li>
+<li>
+<p>Allows a nuget package to specify that the contents of the package are organized by host OS or architecture. The SDE
+    will determine what folder is relevant for the host OS and product being built and add that to the path.</p>
+</li>
+<li>
+<p>set_path</p>
+</li>
+<li>
+<p>Adds the NuGet unpacked folder to the front of PATH</p>
+</li>
+<li>
+<p>set_pypath</p>
+</li>
+<li>
+<p>Adds the NuGet unpacked folder to the front of PYTHONPATH. Also adds it to sys.path.</p>
+</li>
+<li>
+<p>set_build_var</p>
+</li>
+<li>
+<p>Sets a build variable with the key being the name of the ext_dep and the value being the path of the nuget unpacked folder</p>
+</li>
+<li>If you include this attribute you must include a var_name</li>
+<li>
+<p>(a var that exists internally to the build system that is retrieved with with env.GetValue())</p>
+</li>
+<li>
+<p>set_shell_var</p>
+</li>
+<li>
+<p>Sets a shell variable with the key being the name of the ext_dep and the value being the path of the nuget unpacked folder</p>
+</li>
+<li>If you include this attribute you must include a var_name</li>
+<li>
+<p>(a var that exists in the command-line environment via "set" or "os.environ" or "env")</p>
+</li>
+<li>
+<p>include_separator</p>
+</li>
+<li>
+<p>Includes a path separated at the end of the path we set in variables</p>
+</li>
+</ul>
+<p>The following path_env fields are optional or conditional:</p>
+<ul>
+<li>
+<p>var_name</p>
+</li>
+<li>
+<p>If either the "set_shell_var" or "set_build_var" are in the flags, this field will be required. It defines the name
+    of the var being set.</p>
+</li>
+<li>
+<p>id</p>
+</li>
+<li>
+<p>Part of the Override System, this field defines the name that this file will be referred to as by any override_id fields.
+  It is an error for there to be multiple files with the same id in the same set of scopes.
+  The SDE will throw an exception in this case.
+  You are welcome to have the same id if they're on separate scopes that won't overlap.</p>
+</li>
+<li>
+<p>override_id</p>
+</li>
+<li>
+<p>This file will override any descriptor files.
+  Override can apply to any type of descriptor (a path env can override an ext_dep for example).
+  If two descriptors override the same file, this is considered an error and the SDE will throw an exception.</p>
+</li>
+</ul>
+<h2 id="the-belly-of-the-beast">The Belly of the Beast<a class="headerlink" href="#the-belly-of-the-beast" title="Permanent link">&para;</a></h2>
+<h3 id="self_describing_environmentpy">self_describing_environment.py<a class="headerlink" href="#self_describing_environmentpy" title="Permanent link">&para;</a></h3>
+<p>This is the proverbial "heart of the beast". It contains most of the business logic for locating, compiling, sorting,
+filtering, and assembling the SDE files and the environment itself. There are class methods and helper functions to do
+things like:</p>
+<ul>
+<li>Locate all the relevant files in the workspace.</li>
+<li>Sort the files lexically and by scope.</li>
+<li>Filter the files based on overrides.</li>
+<li>Assemble the environment (eg. PATH, PYTHONPATH, vars, etc.).</li>
+<li>Validate all dependencies.</li>
+<li>Update all dependencies.</li>
+</ul>
+<p>Many of these routines will leverage logic specific to individual sub-modules (Python, not Git), but the collective
+logic is located here.</p>
+<h3 id="environmentdescriptorfilespy">EnvironmentDescriptorFiles.py<a class="headerlink" href="#environmentdescriptorfilespy" title="Permanent link">&para;</a></h3>
+<p>This module contains business logic and validation code for dealing with the descriptor files as JSON objects. It
+contains code (and error checking) for loading the files, reading their contents into a standard internal
+representation, and running a limited set of sanitization and validation functions to identify any mistakes as early
+as possible and provide as much information as possible. For convenience, this module also contains the class code for
+PathEnv descriptor objects, but that's because the class code is so small felt silly to create another file.</p>
+<h3 id="externaldependenciespy">ExternalDependencies.py<a class="headerlink" href="#externaldependenciespy" title="Permanent link">&para;</a></h3>
+<p>This module contains code for managing external dependencies. ExternalDependency objects are created with the data from
+ext_dep descriptors and are subclassed according to the "type" field in the descriptor. Currently, the only valid
+subclass is "nuget". These objects contain the code for fetching, validating, updating, and cleaning dependency objects
+and metadata. When referenced from the SDE itself, they can also update paths and other build/shell vars in the build
+environment.</p>
+<h2 id="taming-the-sde">Taming the SDE<a class="headerlink" href="#taming-the-sde" title="Permanent link">&para;</a></h2>
+<h3 id="understanding-scope">Understanding Scope<a class="headerlink" href="#understanding-scope" title="Permanent link">&para;</a></h3>
+<p>A critical concept in the SDE system is that of "scope". Each project can define its own scope, and scope is integral to
+the distributed and shared nature of the SDE. Project scopes are linearly hierarchical and can have an arbitrary number
+of entries. Only descriptors matching one or more of the scope entries will be included in the SDE during
+initialization. Furthermore, higher scopes will take precedence when setting paths and assigning values to vars. An
+example project scope might be: <code>("my_platform", "tablet_family", "silicon_reference")</code></p>
+<p>In this example, "my_platform" is the highest priority in the scope. Any descriptor files found in the entire workspace
+that have this scope will not only be included in the SDE, they will take precedence over any of the lesser scopes.
+"tablet_family" and "silicon_reference" scopes will also be used, in that order. Additionally, all projects inherit the
+"global" scope, but it takes the lowest precedence.</p>
+<h3 id="setting-up-for-platform-builds">Setting Up for Platform Builds<a class="headerlink" href="#setting-up-for-platform-builds" title="Permanent link">&para;</a></h3>
+<p>Since the SDE knows how to fetch its own dependencies, and since all these dependencies are described by the code tree
+itself, stuart can now perform the minimal steps to enable building any given platform, including:</p>
+<ul>
+<li>Synchronizing all required submodules.</li>
+<li>Downloading all source (and only the source actually used by the platform).</li>
+<li>Configuring all paths.</li>
+<li>Downloading all binaries.</li>
+</ul>
+<p>NOTE:</p>
+<ul>
+<li><code>stuart_setup</code> should only be required once per build machine, per platform being built. It is not necessary to run
+   it regularly. Only when setting up a new personal workstation or starting to work with a platform that you haven't
+   used yet.</li>
+<li>The <code>stuart_setup</code> feature does not actually build the platform.</li>
+<li>The <code>stuart_setup</code> feature will NOT change branches in any submodule that already exists locally, or that has local
+  changes. This is to prevent accidental loss of work. If you would like the script to try making changes even in
+  these cases, use the "--FORCE" argument.</li>
+<li>The <code>stuart_setup</code> feature does not yet install dev singing certs. Those steps must still be performed manually.</li>
+</ul>
+<h3 id="updating">Updating<a class="headerlink" href="#updating" title="Permanent link">&para;</a></h3>
+<p>Prior to any build, the SDE will attempt to validate the external dependencies that currently exist on the local
+machine against the versions that are specified in the code. If the code is updated (perhaps by a pull request to
+the branch you're working on), it is possible that the dependencies will have to be refreshed. If this is the case,
+you will see a message prompting you to do so when you run <code>stuart_build</code> to build your platform. To perform this
+update, simply run the <code>stuart_update</code>. Any dependencies that match their current versions will be skipped and only
+out-of-date dependencies will be refreshed.</p>
+<h3 id="setting-up-for-ci-build">Setting Up for CI Build<a class="headerlink" href="#setting-up-for-ci-build" title="Permanent link">&para;</a></h3>
+<p>Stuart CI Build works on a similar mechanism to <code>stuart_build</code> and expects to be have things setup and updated.
+Git Modules are monitored and handled via the repo_resolver framework, which has more logic to it, and doesn't
+handle submodules. <code>stuart_ci_setup</code> handles python defined git modules to clone into the code tree.</p>
+<h3 id="building">Building<a class="headerlink" href="#building" title="Permanent link">&para;</a></h3>
+<p>Building can be done with <code>stuart_build</code> or <code>stuart_ci_build</code>.
+Note that the current state of the SDE is always printed in the DEBUG level of the build log.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../environment_variables/" class="btn btn-neutral float-left" title="Environment Variables"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../settings_manager/" class="btn btn-neutral float-right" title="Settings Manager">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright (c) Microsoft.  All rights reserved</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tianocore/edk2-pytool-extensions" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../environment_variables/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../settings_manager/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme_extra.js" defer></script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="https://unpkg.com/mermaid@8.7.0/dist/mermaid.min.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

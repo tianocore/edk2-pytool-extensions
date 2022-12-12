@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Nuget Publishing Tool - Tianocore Edk2 Pytool Extensions (edk2toolext)</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Nuget Publishing Tool";
+        var mkdocs_page_input_path = "tools\\using_nuget_publishing_tool.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Tianocore Edk2 Pytool Extensions (edk2toolext)
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Our Philosophy</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Using Stuart</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/install/">Installation Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/build/">Build Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/ci/">Core CI Instructions</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Integrating Stuart</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../integrate/build/">Build with Stuart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../integrate/manage/">Core CI with Stuart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../integrate/porting/">Porting Example</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tools</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../using_capsule_tool/">Capsule Helper and Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../using_firmware_policy_tool/">Firmware Policy Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../using_image_validation_tool/">PE/COFF Image Validation Tool</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Nuget Publishing Tool</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#optional-host_specific-folders">OPTIONAL: host_specific folders</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#operations">Operations</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#tags">Tags</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#authentication">Authentication</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pushing-to-an-authenticated-stream">Pushing to an Authenticated Stream</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#example-creating-new-config-file-for-first-use">Example: Creating new config file for first use</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#example-publishing-new-version-of-tool">Example: Publishing new version of tool</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../using_omnicache_tool/">Omnicache Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../using_sig_db_tool/">Secure Boot Database Inspection Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../using_versioninfo_tool/">Version Info Tool</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Advanced Features</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/invocable/">Invocables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/creating_invocable/">Creating Invocables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/extdep/">Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/creating_extdep/">Creating Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/plugin_manager/">Plugins</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/creating_plugins/">Create a Plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/environment_variables/">Environment Variables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/sde/">Self Describing Environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/settings_manager/">Settings Manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/logging/">Logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/using_linux/">WSL</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API Reference</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/base_abstract_invocable/">Base abstract invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/edk2_git/">Edk2 git</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/edk2_invocable/">Edk2 invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/edk2_logging/">Edk2 logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/conf_mgmt/">Conf mgmt</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/environment_descriptor_files/">Environment descriptor files</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/external_dependency/">External dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/multiple_workspace/">Multiple workspace</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugin_manager/">Plugin manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/repo_resolver/">Repo resolver</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/self_describing_environment/">Self describing environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/shell_environment/">Shell environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/uefi_build/">Uefi build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/var_dict/">Var dict</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/version_aggregator/">Version aggregator</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/az_cli_universal_dependency/">Az cli universal dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/git_dependency/">Git dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/nuget_dependency/">Nuget dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/web_dependency/">Web dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/ci_build_plugin/">Ci build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/dsc_processor_plugin/">Dsc processor plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/uefi_build_plugin/">Uefi build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/uefi_helper_plugin/">Uefi helper plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_ci_build/">Edk2 ci build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_ci_setup/">Edk2 ci setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_multipkg_aware_invocable/">Edk2 multipkg aware invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_platform_build/">Edk2 platform build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_pr_eval/">Edk2 pr eval</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_setup/">Edk2 setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_update/">Edk2 update</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Tianocore Edk2 Pytool Extensions (edk2toolext)</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+          <li>Tools &raquo;</li>
+      <li>Nuget Publishing Tool</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tianocore/edk2-pytool-extensions/edit/master/docs/tools/using_nuget_publishing_tool.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="nuget-publishing-tool">Nuget Publishing Tool<a class="headerlink" href="#nuget-publishing-tool" title="Permanent link">&para;</a></h1>
+<p>Tool to help create and publish nuget packages for Project Mu resources</p>
+<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
+<p>See NugetPublishing -h</p>
+<h2 id="optional-host_specific-folders">OPTIONAL: host_specific folders<a class="headerlink" href="#optional-host_specific-folders" title="Permanent link">&para;</a></h2>
+<p>The possible different setups for the host are: OS: Linux, Windows, Java
+Architecture: x86 or ARM Highest Order Bit: 32 or 64</p>
+<p>Before the path to the NuGet package contents is published, the Python
+environment can look inside at several sub-folders and decide which one to use
+based on the Host OS, highest order bit available, and the architecture of the
+processor. To do so, add "host_specific" to your flags like so:</p>
+<div class="highlight"><pre><span></span><code>&quot;flags&quot;: [&quot;host_specific&quot;],
+</code></pre></div>
+<p>If this flag is present, the environment will make a list possible sub-folders
+that would be acceptable for the host machine. For this example, a 64 bit
+Windows machine with an x86 processor was used:</p>
+<ol>
+<li>Windows-x86-64</li>
+<li>Windows-x86</li>
+<li>Windows-64</li>
+<li>x86-64</li>
+<li>Windows</li>
+<li>x86</li>
+<li>64</li>
+</ol>
+<p>The environment will look for these folders, following this order, and select
+the first one it finds. If none are found, the flag will be ignored.</p>
+<h2 id="operations">Operations<a class="headerlink" href="#operations" title="Permanent link">&para;</a></h2>
+<p>Nuget Publish supports four operations:</p>
+<ul>
+<li>New: creates a new configuration file</li>
+<li>Pack: creates a packed nuspec using a configuration file</li>
+<li>Push: pushes the packed nuspec to NuGet.org</li>
+<li>PackAndPush: packs and then pushes</li>
+</ul>
+<p>You can call one of these functions by calling:</p>
+<div class="highlight"><pre><span></span><code>nuget-publish -Operation New
+</code></pre></div>
+<p>You can get more information by adding -h to the operation you want to know
+about.</p>
+<div class="highlight"><pre><span></span><code>nuget-publish -Operation Push -h
+</code></pre></div>
+<h2 id="tags">Tags<a class="headerlink" href="#tags" title="Permanent link">&para;</a></h2>
+<p>For Pack as well as PackAndPush, you can add tags to the nuspec package that is
+created. This can be done through the <code>--t</code> or the <code>-tag</code> option on Pack or
+PackAndPush.</p>
+<p>This looks like:</p>
+<div class="highlight"><pre><span></span><code>nuget-publish -Operation Pack ... -t TAG1 -t TAG2,TAG3
+</code></pre></div>
+<p>You can also add the tags into your config.json file via the attribute
+<code>tag_string</code>. It should be a space separate list of words.</p>
+<h2 id="authentication">Authentication<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h2>
+<p>For publishing most service providers require authentication.  The <strong>--ApiKey</strong>
+parameter allows the caller to supply a unique key for authorization.  There are
+numerous ways to authenticate. For example</p>
+<ul>
+<li>Azure Dev Ops:</li>
+<li>VSTS credential manager.  In an interactive session a dialog will popup for
+    the user to login</li>
+<li>Tokens can also be used as the API key.  Go to your account page to generate
+    a token that can push packages</li>
+<li>NuGet.org</li>
+<li>Must use an API key.  Go to your account page and generate a key.</li>
+</ul>
+<h2 id="pushing-to-an-authenticated-stream">Pushing to an Authenticated Stream<a class="headerlink" href="#pushing-to-an-authenticated-stream" title="Permanent link">&para;</a></h2>
+<p>If you have a specific credential provider executable needed to push to your
+stream, you'll need to follow the instructions
+<a href="https://docs.microsoft.com/en-us/nuget/reference/extensibility/nuget-exe-credential-providers">here</a>
+to make the executable available to find. You can add it to
+%LocalAppData%\NuGet\CredentialProvider or you can add an environmental variable
+NUGET_CREDENTIALPROVIDERS_PATH with the location of your provider. If you have
+multiple, they can be semicolon separated.</p>
+<h2 id="example-creating-new-config-file-for-first-use">Example: Creating new config file for first use<a class="headerlink" href="#example-creating-new-config-file-for-first-use" title="Permanent link">&para;</a></h2>
+<p>This will create the config files and place them in the current directory:</p>
+<div class="highlight"><pre><span></span><code>NugetPublishing --Operation New --Name iasl --Author ProjectMu --ConfigFileFolderPath . --Description &quot;Description of item.&quot; --FeedUrl https://api.nuget.org/v3/index.json --ProjectUrl http://aka.ms/projectmu --LicenseType BSD2
+</code></pre></div>
+<p>For help run: <code>NugetPublishing --Operation New --help</code></p>
+<h2 id="example-publishing-new-version-of-tool">Example: Publishing new version of tool<a class="headerlink" href="#example-publishing-new-version-of-tool" title="Permanent link">&para;</a></h2>
+<p>Using an existing config file publish a new iasl.exe.  See the example file
+<strong>iasl.config.json</strong></p>
+<ol>
+<li>Download version from acpica.org</li>
+<li>Unzip</li>
+<li>Make a new folder (for my example I will call it "new")</li>
+<li>Copy the assets to publish into this new folder (in this case just iasl.exe)</li>
+<li>Run the iasl.exe -v command to see the version.</li>
+<li>Open cmd prompt in the NugetPublishing dir</li>
+<li>Pack and push (here is my example command. )</li>
+</ol>
+<div class="highlight"><pre><span></span><code>NugetPublishing --Operation PackAndPush --ConfigFilePath iasl.config.json --Version 20180209.0.0 --InputFolderPath &quot;C:\temp\iasl-win-20180209\new&quot;  --ApiKey &lt;your key here&gt;
+</code></pre></div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../using_image_validation_tool/" class="btn btn-neutral float-left" title="PE/COFF Image Validation Tool"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../using_omnicache_tool/" class="btn btn-neutral float-right" title="Omnicache Tool">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright (c) Microsoft.  All rights reserved</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tianocore/edk2-pytool-extensions" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../using_image_validation_tool/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../using_omnicache_tool/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme_extra.js" defer></script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="https://unpkg.com/mermaid@8.7.0/dist/mermaid.min.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

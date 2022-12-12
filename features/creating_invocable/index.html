@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Creating Invocables - Tianocore Edk2 Pytool Extensions (edk2toolext)</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Creating Invocables";
+        var mkdocs_page_input_path = "features\\creating_invocable.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Tianocore Edk2 Pytool Extensions (edk2toolext)
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Our Philosophy</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Using Stuart</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/install/">Installation Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/build/">Build Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/ci/">Core CI Instructions</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Integrating Stuart</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../integrate/build/">Build with Stuart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../integrate/manage/">Core CI with Stuart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../integrate/porting/">Porting Example</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tools</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_capsule_tool/">Capsule Helper and Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_firmware_policy_tool/">Firmware Policy Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_image_validation_tool/">PE/COFF Image Validation Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_nuget_publishing_tool/">Nuget Publishing Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_omnicache_tool/">Omnicache Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_sig_db_tool/">Secure Boot Database Inspection Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_versioninfo_tool/">Version Info Tool</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Advanced Features</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../invocable/">Invocables</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Creating Invocables</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#the-problem-statement">The problem statement</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#the-settings-class">The settings class</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#the-invocable">The invocable</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#settings-file">Settings File</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#conclusion">Conclusion</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#driverbuilderpy">DriverBuilder.py</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#sharednetworkingsettings">SharedNetworkingSettings</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../extdep/">Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../creating_extdep/">Creating Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../plugin_manager/">Plugins</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../creating_plugins/">Create a Plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../environment_variables/">Environment Variables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../sde/">Self Describing Environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../settings_manager/">Settings Manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../logging/">Logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../using_linux/">WSL</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API Reference</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/base_abstract_invocable/">Base abstract invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/edk2_git/">Edk2 git</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/edk2_invocable/">Edk2 invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/edk2_logging/">Edk2 logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/conf_mgmt/">Conf mgmt</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/environment_descriptor_files/">Environment descriptor files</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/external_dependency/">External dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/multiple_workspace/">Multiple workspace</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugin_manager/">Plugin manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/repo_resolver/">Repo resolver</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/self_describing_environment/">Self describing environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/shell_environment/">Shell environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/uefi_build/">Uefi build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/var_dict/">Var dict</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/version_aggregator/">Version aggregator</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/az_cli_universal_dependency/">Az cli universal dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/git_dependency/">Git dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/nuget_dependency/">Nuget dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/web_dependency/">Web dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/ci_build_plugin/">Ci build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/dsc_processor_plugin/">Dsc processor plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/uefi_build_plugin/">Uefi build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/uefi_helper_plugin/">Uefi helper plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_ci_build/">Edk2 ci build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_ci_setup/">Edk2 ci setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_multipkg_aware_invocable/">Edk2 multipkg aware invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_platform_build/">Edk2 platform build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_pr_eval/">Edk2 pr eval</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_setup/">Edk2 setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_update/">Edk2 update</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Tianocore Edk2 Pytool Extensions (edk2toolext)</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+          <li>Advanced Features &raquo;</li>
+      <li>Creating Invocables</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tianocore/edk2-pytool-extensions/edit/master/docs/features/creating_invocable.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="creating-an-invocable">Creating An Invocable<a class="headerlink" href="#creating-an-invocable" title="Permanent link">&para;</a></h1>
+<p>Whether you spell it invocable or invocable, the idea of an Invocable is central to Stuart.
+If you're unfamiliar with what it is, refer to the "Using" document in the root docs folder or feature_invocable in the
+features folder.
+In a nutshell, an invocable is a small python script that gets the build environment setup for it.
+It gets a settings file (that the invocable defines the interface for) that provides information about what we are
+being invoked on.</p>
+<p>This guide references Project Mu, which is an open source fork of EDK2 that leverages edk2-pytools.</p>
+<p>This guide is written in the style of a tutorial. This is based on the real example of an invocable
+<a href="https://github.com/microsoft/mu_basecore">here</a>.</p>
+<h2 id="the-problem-statement">The problem statement<a class="headerlink" href="#the-problem-statement" title="Permanent link">&para;</a></h2>
+<p>One feature that Project Mu offers is that of a binary-packaged Crypto and Networking, known as SharedCrypto and
+SharedNetworking respectively.
+This allows your platform to skip the expensive step of compiling OpenSSL or other crypto libraries and instead use a
+known-good crypto library that is built from a known good source.
+For more information on SharedNetworking and SharedCrypto, go check it out
+<a href="https://microsoft.github.io/mu/dyn/mu_plus/SharedCryptoPkg/feature_sharedcrypto/">here</a> and
+<a href="https://microsoft.github.io/mu/dyn/mu_basecore/NetworkPkg/SharedNetworking/SharedNetworking/">here</a>.</p>
+<p>Now, how are Shared Binaries built?
+Check out the code on <a href="https://github.com/microsoft/mu_basecore">github</a> under
+NetworkPkg/SharedNetworking/DriverBuilder.py (it may move, this is where it was at time of writing), which is the
+invocable that powers the shared binaries.</p>
+<p>SharedNetworking in particular is a tricky problem because we want to build every architecture into an FV and package
+it into a NugetFeed.</p>
+<p>In a nutshell here's the flow we want:</p>
+<ol>
+<li>Acquire the dependencies we need (Crypto, OpenSSL, etc)</li>
+<li>Pull in any tooling that we require (mu_tools, nasm)</li>
+<li>Configure the environment for building with our tool chain</li>
+<li>Go through all the architectures we want to support and build them individually</li>
+<li>If all previous steps were successful, package it into a nuget package</li>
+<li>If given an API key, then publish to nuget</li>
+</ol>
+<p>Now a typical approach to this might be scripting through a batch script to invoke build.py, or invoking a stuart_build.
+This is a fine approach, particularly for a one off solution.
+But what if we change how nuget publishing is done?
+We need to update the batch script for both Crypto and Networking.
+Or perhaps we've thought of that and made a common script that our handy batch script invokes with the right parameters.
+We hope you can see that as time goes on, the situation spirals out of control as more parameters and scripts are
+added, fewer people will know how to work this or want to touch it.
+Eventually a bright talented engineer with a little more time than experience will declare that they will attempt to
+refactor this process.</p>
+<p>In a nutshell that is the problem that the invocable framework in general is trying to solve.
+Steps 1-3 are done for you. Steps 4-6+ should be trivial to implement in a setting agnostic way.</p>
+<p>So let's start.</p>
+<h2 id="the-settings-class">The settings class<a class="headerlink" href="#the-settings-class" title="Permanent link">&para;</a></h2>
+<p>Each invocable has a definition for a settings class.
+We would recommend looking through
+<a href="https://github.com/tianocore/edk2-pytool-extensions/tree/master/edk2toolext/invocables">a few of the invocables</a>
+inside of Stuart as a reference.
+You may choose to subclass another settings file, such as MultiPkgAwareSettingsInterface but in this case, we won't.</p>
+<p>So let's start with some imports that we'll need along the way.
+We'll create a new file called DriverBuilder.py</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">edk2toolext.environment</span> <span class="kn">import</span> <span class="n">plugin_manager</span>
+<span class="kn">from</span> <span class="nn">edk2toolext.environment.plugintypes.uefi_helper_plugin</span> <span class="kn">import</span> <span class="n">HelperFunctions</span>
+<span class="kn">from</span> <span class="nn">edk2toolext.edk2_invocable</span> <span class="kn">import</span> <span class="n">Edk2Invocable</span>
+<span class="kn">from</span> <span class="nn">edk2toolext.environment</span> <span class="kn">import</span> <span class="n">self_describing_environment</span>
+<span class="kn">from</span> <span class="nn">edk2toolext.environment</span> <span class="kn">import</span> <span class="n">shell_environment</span>
+<span class="kn">from</span> <span class="nn">edk2toolext.environment.uefi_build</span> <span class="kn">import</span> <span class="n">UefiBuilder</span>
+<span class="kn">from</span> <span class="nn">edk2toolext</span> <span class="kn">import</span> <span class="n">edk2_logging</span>
+</code></pre></div>
+<p>One final import is needed that will seem a little strange.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">DriverBuilder</span>
+</code></pre></div>
+<p>Stuart expects your invocable to be running in the python namespace that it is defined in.
+If you run your builder directly from the command-line, it will be running in __main__, which can cause problems.</p>
+<p><strong>In a nutshell, you'll need to import the name of your file.</strong></p>
+<p>We'll see where this is used at the end.</p>
+<p>Now the settings class!</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">BinaryBuildSettingsManager</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39; Platform settings will be accessed through this implementation. &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">GetActiveScopes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; return tuple containing scopes that should be active for this process &#39;&#39;&#39;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">GetWorkspaceRoot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; get WorkspacePath &#39;&#39;&#39;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+     <span class="k">def</span> <span class="nf">GetName</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Get the name of the repo, platform, or product being build by CI &#39;&#39;&#39;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">AddCommandLineOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parserObj</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Implement in subclass to add command line options to the argparser &#39;&#39;&#39;</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">RetrieveCommandLineOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;  Implement in subclass to retrieve command line options from the argparser &#39;&#39;&#39;</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">GetPackagesPath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Return a list of workspace relative paths that should be mapped as edk2 PackagesPath &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+</code></pre></div>
+<p>We've implemented a few methods that are needed to get the SDE off the ground.</p>
+<ul>
+<li><em>GetActiveScopes</em> is needed to init the SDE. This causes different plugins to load or not</li>
+<li><em>GetWorkspaceRoot</em> gets the folder that is the root of your workspace</li>
+<li><em>GetPackagePaths</em> gets the folder locations that you will resolve EDK2 paths against</li>
+<li><em>GetName</em> is the thing we are building, it will be used to name certain files like logs</li>
+<li><em>AddCommandLineOptions</em> gives our settings the chance to set items in the parser object</li>
+<li><em>RetrieveCommandLineOptions</em> gives us the chance to read the arguments from the command-line</li>
+</ul>
+<p>Now that we have our base methods, let's add one more to control the configurations we are going to build.</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">BinaryBuildSettingsManager</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39; Platform settings will be accessed through this implementation. &#39;&#39;&#39;</span>
+
+    <span class="o">....</span>
+
+    <span class="k">def</span> <span class="nf">GetConfigurations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Gets the next configuration of this run</span>
+<span class="sd">        This is a generator pattern - use yield</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</code></pre></div>
+<ul>
+<li><em>GetConfigurations</em> is our way to get the configurations we want to build. We'll use a generator/iterator pattern
+here that we'll see later.</li>
+</ul>
+<p>We also need some methods to have callbacks into various stages of the process so that we can do nuget commands and
+prepare the nuget package.</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">BinaryBuildSettingsManager</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39; Platform settings will be accessed through this implementation. &#39;&#39;&#39;</span>
+
+    <span class="o">....</span>
+
+     <span class="k">def</span> <span class="nf">PreFirstBuildHook</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Called before the first build &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">PostFinalBuildHook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ret</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Called after the final build with the summed return code &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">PostBuildHook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ret</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Called after each build with the return code &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">PreBuildHook</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Called before each build &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="mi">0</span>
+</code></pre></div>
+<p>These hooks are pretty self evident, but they'll be called at various point in the process.
+Now with our current file, we can define a settings file that implements the settings class.
+That doesn't really net us much.</p>
+<h2 id="the-invocable">The invocable<a class="headerlink" href="#the-invocable" title="Permanent link">&para;</a></h2>
+<p>The invocable is actually the simplest part of this</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Edk2BinaryBuild</span><span class="p">(</span><span class="n">Edk2Invocable</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">GetLoggingLevel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loggerType</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Get the logging level for a given type</span>
+<span class="sd">        base == lowest logging level supported</span>
+<span class="sd">        con  == Screen logging</span>
+<span class="sd">        txt  == plain text file logging</span>
+<span class="sd">        md   == markdown file logging</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">loggerType</span> <span class="o">==</span> <span class="s2">&quot;con&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">Verbose</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span>
+        <span class="k">return</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span>
+
+    <span class="k">def</span> <span class="nf">AddCommandLineOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">RetrieveCommandLineOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;  Retrieve command line options from the argparser &#39;&#39;&#39;</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">GetSettingsClass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">BinaryBuildSettingsManager</span>
+
+    <span class="k">def</span> <span class="nf">GetLoggingFileName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loggerType</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;BINARY_BUILDLOG&quot;</span>
+
+    <span class="k">def</span> <span class="nf">Go</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">0</span>
+</code></pre></div>
+<ul>
+<li><em>GetLoggingLevel</em> we can get the logging level that we care about for the type of log we are creating</li>
+<li><em>AddCommandLineOption</em> similar to previous settings manager class</li>
+<li><em>RetrieveCommandLineOptions</em> similar to above</li>
+<li><em>GetSettingsClass</em> the class that we want to look for</li>
+<li><em>GetLoggingFileName</em> the name of the file we want to create for txt and markdown files.</li>
+<li><em>Go</em> is the business logic of the invocable.</li>
+</ul>
+<p>Now let's implement an actual method to handle main and being called from the command-line or a pip link.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">Edk2BinaryBuild</span><span class="p">()</span><span class="o">.</span><span class="n">Invoke</span><span class="p">()</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">DriverBuilder</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>  <span class="c1"># otherwise we&#39;re in __main__ context</span>
+</code></pre></div>
+<p>As you can see, we call ourselves via import rather than just directly calling main.
+This is a quirk/design flaw that might be revisited in the future, but in the meantime, this is a workaround.</p>
+<p>Now that we have a way to invoke this and execute our go, we can call if from the command-line.</p>
+<p>If we were to run this right now, we would see this as output (assuming you created an empty settings class).</p>
+<div class="highlight"><pre><span></span><code><span class="go">SECTION - Init SDE</span>
+<span class="go">SECTION - Loading Plugins</span>
+<span class="go">SECTION - Start Invocable Tool</span>
+<span class="go">SECTION - Summary</span>
+<span class="go">PROGRESS - Success</span>
+</code></pre></div>
+<p>We can see that we're initializing the SDE, loading plugins and helpers, and starting the invocable. All for virtually free!</p>
+<p>Now let's start implementing the meat of the invocation.</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Edk2BinaryBuild</span><span class="p">(</span><span class="n">Edk2Invocable</span><span class="p">):</span>
+
+  <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">Go</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">shell_environment</span><span class="o">.</span><span class="n">GetBuildVars</span><span class="p">()</span>
+        <span class="c1"># set our environment with specific variables that we care about that EDK2 needs</span>
+        <span class="n">env</span><span class="o">.</span><span class="n">SetValue</span><span class="p">(</span><span class="s2">&quot;PRODUCT_NAME&quot;</span><span class="p">,</span>
+                     <span class="bp">self</span><span class="o">.</span><span class="n">PlatformSettings</span><span class="o">.</span><span class="n">GetName</span><span class="p">(),</span> <span class="s2">&quot;Platform Hard-coded&quot;</span><span class="p">)</span>
+        <span class="n">env</span><span class="o">.</span><span class="n">SetValue</span><span class="p">(</span><span class="s2">&quot;BLD_*_BUILDID_STRING&quot;</span><span class="p">,</span> <span class="s2">&quot;201905&quot;</span><span class="p">,</span> <span class="s2">&quot;Current Version&quot;</span><span class="p">)</span>
+        <span class="n">env</span><span class="o">.</span><span class="n">SetValue</span><span class="p">(</span><span class="s2">&quot;BUILDREPORTING&quot;</span><span class="p">,</span> <span class="s2">&quot;TRUE&quot;</span><span class="p">,</span> <span class="s2">&quot;Platform Hard-coded&quot;</span><span class="p">)</span>
+        <span class="c1"># make sure we always do a build report</span>
+        <span class="n">env</span><span class="o">.</span><span class="n">SetValue</span><span class="p">(</span><span class="s2">&quot;BUILDREPORT_TYPES&quot;</span><span class="p">,</span>
+                     <span class="s1">&#39;PCD DEPEX LIBRARY BUILD_FLAGS&#39;</span><span class="p">,</span> <span class="s2">&quot;Platform Hard-coded&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Run pre build hook</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PlatformSettings</span><span class="o">.</span><span class="n">PreFirstBuildHook</span><span class="p">()</span>
+        <span class="c1"># get workspace and package paths for</span>
+        <span class="n">ws</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetWorkspaceRoot</span><span class="p">()</span>
+        <span class="n">pp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PlatformSettings</span><span class="o">.</span><span class="n">GetPackagesPath</span><span class="p">()</span>
+        <span class="c1"># run each configuration</span>
+        <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">PlatformSettings</span><span class="o">.</span><span class="n">GetConfigurations</span><span class="p">():</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PlatformSettings</span><span class="o">.</span><span class="n">PreBuildHook</span><span class="p">()</span>  <span class="c1"># run pre build hook</span>
+            <span class="k">if</span> <span class="n">ret</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Failed prebuild hook&quot;</span><span class="p">)</span>
+            <span class="n">edk2_logging</span><span class="o">.</span><span class="n">log_progress</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--Running next configuration--&quot;</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>  <span class="c1"># log our configuration out to the log</span>
+            <span class="n">shell_environment</span><span class="o">.</span><span class="n">CheckpointBuildVars</span><span class="p">()</span>  <span class="c1"># checkpoint our config</span>
+            <span class="n">env</span> <span class="o">=</span> <span class="n">shell_environment</span><span class="o">.</span><span class="n">GetBuildVars</span><span class="p">()</span> <span class="c1">#  get our checkpointed variables</span>
+            <span class="c1"># go through the item in the current configuration and apply to environment</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+                <span class="n">env</span><span class="o">.</span><span class="n">SetValue</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="s2">&quot;provided by configuration&quot;</span><span class="p">)</span>
+            <span class="c1"># make sure to set this after in case the config did</span>
+            <span class="n">env</span><span class="o">.</span><span class="n">SetValue</span><span class="p">(</span><span class="s2">&quot;TOOL_CHAIN_TAG&quot;</span><span class="p">,</span> <span class="s2">&quot;VS2017&quot;</span><span class="p">,</span>
+                         <span class="s2">&quot;provided by driver_builder&quot;</span><span class="p">)</span>
+            <span class="n">platformBuilder</span> <span class="o">=</span> <span class="n">UefiBuilder</span><span class="p">()</span>  <span class="c1"># create our builder</span>
+            <span class="c1"># run our builder and add to ret</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">platformBuilder</span><span class="o">.</span><span class="n">Go</span><span class="p">(</span><span class="n">ws</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">pathsep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pp</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">helper</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">plugin_manager</span><span class="p">)</span>
+            <span class="c1"># call our post build hook</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PlatformSettings</span><span class="o">.</span><span class="n">PostBuildHook</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
+            <span class="c1"># if we have a non zero return code, throw an error and call our final build hook</span>
+            <span class="k">if</span> <span class="n">ret</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+              <span class="bp">self</span><span class="o">.</span><span class="n">PlatformSettings</span><span class="o">.</span><span class="n">PostFinalBuildHook</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>  <span class="c1"># make sure to call our post final hook</span>
+              <span class="k">return</span> <span class="n">ret</span>
+            <span class="n">shell_environment</span><span class="o">.</span><span class="n">RevertBuildVars</span><span class="p">()</span>  <span class="c1"># revert our shell environment back to what it was</span>
+        <span class="c1"># make sure to do our final build hook</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PlatformSettings</span><span class="o">.</span><span class="n">PostFinalBuildHook</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ret</span>
+</code></pre></div>
+<p>The comments in the code are there to help you understand it.
+The basic process is:</p>
+<ol>
+<li>Setup the environment with your product strings and configuration for EDK2</li>
+<li>Call prebuild hook</li>
+<li>Go through each of our configuration</li>
+<li>Checkpoint the environment</li>
+<li>Call prebuild hook</li>
+<li>Call UefiBuild</li>
+<li>Call PostBuild</li>
+<li>Revert checkpoint of environment</li>
+</ol>
+<h2 id="settings-file">Settings File<a class="headerlink" href="#settings-file" title="Permanent link">&para;</a></h2>
+<p>Now here's the settings file for the invocable.
+In this example, you would have two settings file for SharedNetworking and SharedCrypto, but the one invocable.
+Here's what we will be importing:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">edk2toolext.invocables.edk2_ci_setup</span> <span class="kn">import</span> <span class="n">CiSetupSettingsManager</span>
+<span class="kn">from</span> <span class="nn">edk2toolext.invocables.edk2_update</span> <span class="kn">import</span> <span class="n">UpdateSettingsManager</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">DriverBuilder</span> <span class="kn">import</span> <span class="n">BinaryBuildSettingsManager</span>
+<span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+    <span class="k">class</span> <span class="nc">BinaryBuildSettingsManager</span><span class="p">:</span>
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;You shouldn&#39;t be including this&quot;</span><span class="p">)</span>
+    <span class="k">pass</span>
+<span class="kn">from</span> <span class="nn">edk2toollib.utility_functions</span> <span class="kn">import</span> <span class="n">GetHostInfo</span>
+</code></pre></div>
+<p>One of the key features of settings class is that it can implement multiple settings managers, or you can have multiple
+classes in the file that implement that particular SettingsManager class.
+The invocable finds the first class in the file that implements that particular settings class that we care about.
+Now that we have our imports, we will create a SettingsManager class that implements CiSetupSettingsManager,
+UpdateSettingsManager, and BinaryBuildSettingsManager.</p>
+<div class="highlight"><pre><span></span><code><span class="c1">#</span>
+<span class="c1"># ==========================================================================</span>
+<span class="c1"># PLATFORM BUILD ENVIRONMENT CONFIGURATION</span>
+<span class="c1">#</span>
+
+<span class="k">class</span> <span class="nc">SettingsManager</span><span class="p">(</span><span class="n">UpdateSettingsManager</span><span class="p">,</span> <span class="n">CiSetupSettingsManager</span><span class="p">,</span> <span class="n">BinaryBuildSettingsManager</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">SCRIPT_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+
+        <span class="n">WORKSPACE_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">SCRIPT_PATH</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">OUTPUT_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">WORKSPACE_PATH</span><span class="p">,</span> <span class="s2">&quot;Build&quot;</span><span class="p">,</span> <span class="s2">&quot;.NugetOutput&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ws</span> <span class="o">=</span> <span class="n">WORKSPACE_PATH</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">GetActiveScopes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; return tuple containing scopes that should be active for this process &#39;&#39;&#39;</span>
+        <span class="n">scopes</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;corebuild&quot;</span><span class="p">,</span> <span class="s2">&quot;sharednetworking_build&quot;</span><span class="p">,</span> <span class="p">)</span>
+        <span class="k">return</span> <span class="n">scopes</span>
+</code></pre></div>
+<p>We have implemented GetActiveScopes and the init function. Let's implement the hooks.</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">SettingsManager</span><span class="p">(</span><span class="n">UpdateSettingsManager</span><span class="p">,</span> <span class="n">CiSetupSettingsManager</span><span class="p">,</span> <span class="n">BinaryBuildSettingsManager</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">PreFirstBuildHook</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">output_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">OUTPUT_DIR</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_dir</span><span class="p">):</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Deleting </span><span class="si">{</span><span class="n">output_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">nuget_version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_GetNextVersion</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nuget_version</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">PostBuildHook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ret</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">ret</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_CollectNuget</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">ret</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Error occurred in post build hook&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="k">def</span> <span class="nf">PostFinalBuildHook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ret</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">ret</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;There was failure along the way aborting NUGET publish&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_PublishNuget</span><span class="p">()</span>
+</code></pre></div>
+<p>Some of the functions such as _CollectNuget have been redacted for brevity.
+On PostBuild we collect the files into the nuget package.
+On PreBuild we figure out the next version of our nuget package and delete what we've previously collected.
+On the final build, we publish the nuget file.</p>
+<p>Now we will implement a few more pieces needed</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">SettingsManager</span><span class="p">(</span><span class="n">UpdateSettingsManager</span><span class="p">,</span> <span class="n">CiSetupSettingsManager</span><span class="p">,</span> <span class="n">BinaryBuildSettingsManager</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+     <span class="k">def</span> <span class="nf">GetConfigurations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">TARGETS</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetTargetsSupported</span><span class="p">()</span>
+        <span class="n">ARCHS</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetArchitecturesSupported</span><span class="p">()</span>
+        <span class="c1"># combine options together</span>
+        <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">TARGETS</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">arch</span> <span class="ow">in</span> <span class="n">ARCHS</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">arch</span> <span class="o">=</span> <span class="n">arch</span>
+                <span class="k">yield</span><span class="p">({</span><span class="s2">&quot;TARGET&quot;</span><span class="p">:</span> <span class="n">target</span><span class="p">,</span> <span class="s2">&quot;TARGET_ARCH&quot;</span><span class="p">:</span> <span class="n">arch</span><span class="p">,</span> <span class="s2">&quot;ACTIVE_PLATFORM&quot;</span><span class="p">:</span> <span class="s2">&quot;NetworkPkg/SharedNetworking/SharedNetworkPkg.dsc&quot;</span><span class="p">})</span>
+</code></pre></div>
+<p>We use a generator to yield the settings we want each configuration to be.
+We iterate through these in the invocable and apply them to the environment.
+Since you own the invocable, you can modify this as you see fit, which makes this very modular.</p>
+<p>Let's add in functions for the other SettingsManagers.</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">SettingsManager</span><span class="p">(</span><span class="n">UpdateSettingsManager</span><span class="p">,</span> <span class="n">CiSetupSettingsManager</span><span class="p">,</span> <span class="n">BinaryBuildSettingsManager</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">GetWorkspaceRoot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; get WorkspacePath &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ws</span>
+
+    <span class="k">def</span> <span class="nf">GetPackagesPath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Return a list of workspace relative paths that should be mapped as edk2 PackagesPath &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pp</span>
+
+    <span class="k">def</span> <span class="nf">GetRequiredSubmodules</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; return iterable containing RequiredSubmodule objects.</span>
+<span class="sd">        If no RequiredSubmodules return an empty iterable</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rr</span>
+
+    <span class="k">def</span> <span class="nf">GetName</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;SharedNetworking&quot;</span>
+
+    <span class="k">def</span> <span class="nf">GetPackagesSupported</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;NetworkPkg&quot;</span>
+
+    <span class="k">def</span> <span class="nf">GetArchitecturesSupported</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;IA32&quot;</span><span class="p">,</span> <span class="s2">&quot;AARCH64&quot;</span><span class="p">,</span> <span class="s2">&quot;X64&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">GetTargetsSupported</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span> <span class="s2">&quot;RELEASE&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">GetDependencies</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[]</span>
+</code></pre></div>
+<p>The methods implemented here are a mix of our own settings class and other invocables such as stuart_update or
+stuart_setup. Hopefully they're straightforward and easy to follow.</p>
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>That brings us to the end of the tutorial, you should have a working invocable and a settings file (well with
+some methods missing). Here they are for easy copy and pasting:</p>
+<h3 id="driverbuilderpy">DriverBuilder.py<a class="headerlink" href="#driverbuilderpy" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># @file Edk2BinaryBuild.py</span>
+<span class="c1"># This module contains code that supports building of binary files</span>
+<span class="c1"># This is the main entry for the build and test process of binary builds</span>
+<span class="c1">##</span>
+<span class="c1"># Copyright (c) Microsoft Corporation</span>
+<span class="c1">#</span>
+<span class="c1"># SPDX-License-Identifier: BSD-2-Clause-Patent</span>
+<span class="c1">##</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">edk2toolext.environment</span> <span class="kn">import</span> <span class="n">plugin_manager</span>
+<span class="kn">from</span> <span class="nn">edk2toolext.environment.plugintypes.uefi_helper_plugin</span> <span class="kn">import</span> <span class="n">HelperFunctions</span>
+<span class="kn">from</span> <span class="nn">edk2toolext.edk2_invocable</span> <span class="kn">import</span> <span class="n">Edk2Invocable</span>
+<span class="kn">from</span> <span class="nn">edk2toolext.environment</span> <span class="kn">import</span> <span class="n">self_describing_environment</span>
+<span class="kn">from</span> <span class="nn">edk2toolext.environment</span> <span class="kn">import</span> <span class="n">shell_environment</span>
+<span class="kn">from</span> <span class="nn">edk2toolext.environment.uefi_build</span> <span class="kn">import</span> <span class="n">UefiBuilder</span>
+<span class="kn">from</span> <span class="nn">edk2toolext</span> <span class="kn">import</span> <span class="n">edk2_logging</span>
+<span class="kn">import</span> <span class="nn">DriverBuilder</span>  <span class="c1"># this is a little weird</span>
+
+
+<span class="k">class</span> <span class="nc">BinaryBuildSettingsManager</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39; Platform settings will be accessed through this implementation. &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">GetActiveScopes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; return tuple containing scopes that should be active for this process &#39;&#39;&#39;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">GetWorkspaceRoot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; get WorkspacePath &#39;&#39;&#39;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">GetPackagesPath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">GetConfigurations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Gets the next configuration of this run</span>
+<span class="sd">        This is a generator pattern - use yield</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">PreFirstBuildHook</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Called before the first build &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">PostFinalBuildHook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ret</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Called after the final build with the summed return code &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">PostBuildHook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ret</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Called after each build with the return code &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">PreBuildHook</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Called before each build &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">GetName</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Get the name of the repo, platform, or product being build by CI &#39;&#39;&#39;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">AddCommandLineOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parserObj</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Implement in subclass to add command line options to the argparser &#39;&#39;&#39;</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">RetrieveCommandLineOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;  Implement in subclass to retrieve command line options from the argparser &#39;&#39;&#39;</span>
+        <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">Edk2BinaryBuild</span><span class="p">(</span><span class="n">Edk2Invocable</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">GetLoggingLevel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loggerType</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Get the logging level for a given type</span>
+<span class="sd">        base == lowest logging level supported</span>
+<span class="sd">        con  == Screen logging</span>
+<span class="sd">        txt  == plain text file logging</span>
+<span class="sd">        md   == markdown file logging</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">loggerType</span> <span class="o">==</span> <span class="s2">&quot;con&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">Verbose</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span>
+        <span class="k">return</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span>
+
+    <span class="k">def</span> <span class="nf">AddCommandLineOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">RetrieveCommandLineOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;  Retrieve command line options from the argparser &#39;&#39;&#39;</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">GetSettingsClass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">BinaryBuildSettingsManager</span>
+
+    <span class="k">def</span> <span class="nf">GetLoggingFileName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loggerType</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;BINARY_BUILDLOG&quot;</span>
+
+    <span class="k">def</span> <span class="nf">Go</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">shell_environment</span><span class="o">.</span><span class="n">GetBuildVars</span><span class="p">()</span>
+        <span class="c1"># set our environment with specific variables that we care about that EDK2 needs</span>
+        <span class="n">env</span><span class="o">.</span><span class="n">SetValue</span><span class="p">(</span><span class="s2">&quot;PRODUCT_NAME&quot;</span><span class="p">,</span>
+                     <span class="bp">self</span><span class="o">.</span><span class="n">PlatformSettings</span><span class="o">.</span><span class="n">GetName</span><span class="p">(),</span> <span class="s2">&quot;Platform Hardcoded&quot;</span><span class="p">)</span>
+        <span class="n">env</span><span class="o">.</span><span class="n">SetValue</span><span class="p">(</span><span class="s2">&quot;BLD_*_BUILDID_STRING&quot;</span><span class="p">,</span> <span class="s2">&quot;201905&quot;</span><span class="p">,</span> <span class="s2">&quot;Current Version&quot;</span><span class="p">)</span>
+        <span class="n">env</span><span class="o">.</span><span class="n">SetValue</span><span class="p">(</span><span class="s2">&quot;BUILDREPORTING&quot;</span><span class="p">,</span> <span class="s2">&quot;TRUE&quot;</span><span class="p">,</span> <span class="s2">&quot;Platform Hardcoded&quot;</span><span class="p">)</span>
+        <span class="c1"># make sure we always do a build report</span>
+        <span class="n">env</span><span class="o">.</span><span class="n">SetValue</span><span class="p">(</span><span class="s2">&quot;BUILDREPORT_TYPES&quot;</span><span class="p">,</span>
+                     <span class="s1">&#39;PCD DEPEX LIBRARY BUILD_FLAGS&#39;</span><span class="p">,</span> <span class="s2">&quot;Platform Hardcoded&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Run pre build hook</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PlatformSettings</span><span class="o">.</span><span class="n">PreFirstBuildHook</span><span class="p">()</span>
+        <span class="c1"># get workspace and package paths for</span>
+        <span class="n">ws</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetWorkspaceRoot</span><span class="p">()</span>
+        <span class="n">pp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PlatformSettings</span><span class="o">.</span><span class="n">GetPackagesPath</span><span class="p">()</span>
+        <span class="c1"># run each configuration</span>
+        <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">PlatformSettings</span><span class="o">.</span><span class="n">GetConfigurations</span><span class="p">():</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PlatformSettings</span><span class="o">.</span><span class="n">PreBuildHook</span><span class="p">()</span>  <span class="c1"># run pre build hook</span>
+            <span class="k">if</span> <span class="n">ret</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Failed prebuild hook&quot;</span><span class="p">)</span>
+            <span class="n">edk2_logging</span><span class="o">.</span><span class="n">log_progress</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--Running next configuration--&quot;</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>  <span class="c1"># log our configuration out to the log</span>
+            <span class="n">shell_environment</span><span class="o">.</span><span class="n">CheckpointBuildVars</span><span class="p">()</span>  <span class="c1"># checkpoint our config</span>
+            <span class="n">env</span> <span class="o">=</span> <span class="n">shell_environment</span><span class="o">.</span><span class="n">GetBuildVars</span><span class="p">()</span> <span class="c1">#  get our checkpointed variables</span>
+            <span class="c1"># go through the item in the current configuration and apply to environment</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+                <span class="n">env</span><span class="o">.</span><span class="n">SetValue</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="s2">&quot;provided by configuration&quot;</span><span class="p">)</span>
+            <span class="c1"># make sure to set this after in case the config did</span>
+            <span class="n">env</span><span class="o">.</span><span class="n">SetValue</span><span class="p">(</span><span class="s2">&quot;TOOL_CHAIN_TAG&quot;</span><span class="p">,</span> <span class="s2">&quot;VS2017&quot;</span><span class="p">,</span>
+                         <span class="s2">&quot;provided by driver_builder&quot;</span><span class="p">)</span>
+            <span class="n">platformBuilder</span> <span class="o">=</span> <span class="n">UefiBuilder</span><span class="p">()</span>  <span class="c1"># create our builder</span>
+            <span class="c1"># run our builder and add to ret</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">platformBuilder</span><span class="o">.</span><span class="n">Go</span><span class="p">(</span><span class="n">ws</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">pathsep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pp</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">helper</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">plugin_manager</span><span class="p">)</span>
+            <span class="c1"># call our post build hook</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PlatformSettings</span><span class="o">.</span><span class="n">PostBuildHook</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
+            <span class="c1"># if we have a non zero return code, throw an error and call our final build hook</span>
+            <span class="k">if</span> <span class="n">ret</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+              <span class="bp">self</span><span class="o">.</span><span class="n">PlatformSettings</span><span class="o">.</span><span class="n">PostFinalBuildHook</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>  <span class="c1"># make sure to call our post final hook</span>
+              <span class="k">return</span> <span class="n">ret</span>
+            <span class="n">shell_environment</span><span class="o">.</span><span class="n">RevertBuildVars</span><span class="p">()</span>  <span class="c1"># revert our shell environment back to what it was</span>
+        <span class="c1"># make sure to do our final build hook</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PlatformSettings</span><span class="o">.</span><span class="n">PostFinalBuildHook</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ret</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">Edk2BinaryBuild</span><span class="p">()</span><span class="o">.</span><span class="n">Invoke</span><span class="p">()</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">DriverBuilder</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>  <span class="c1"># otherwise we&#39;re in __main__ context</span>
+</code></pre></div>
+<h3 id="sharednetworkingsettings">SharedNetworkingSettings<a class="headerlink" href="#sharednetworkingsettings" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">##</span>
+<span class="c1"># Script to Build Shared Crypto Driver</span>
+<span class="c1"># Copyright Microsoft Corporation, 2019</span>
+<span class="c1">#</span>
+<span class="c1"># This is to build the SharedNetworking binaries for NuGet publishing</span>
+<span class="c1">##</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">edk2toolext.environment.uefi_build</span> <span class="kn">import</span> <span class="n">UefiBuilder</span>
+<span class="kn">from</span> <span class="nn">edk2toolext.invocables.edk2_ci_setup</span> <span class="kn">import</span> <span class="n">CiSetupSettingsManager</span>
+<span class="kn">from</span> <span class="nn">edk2toolext.invocables.edk2_update</span> <span class="kn">import</span> <span class="n">UpdateSettingsManager</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">DriverBuilder_temp</span> <span class="kn">import</span> <span class="n">BinaryBuildSettingsManager</span>
+<span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+    <span class="k">class</span> <span class="nc">BinaryBuildSettingsManager</span><span class="p">:</span>
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;You shouldn&#39;t be including this&quot;</span><span class="p">)</span>
+    <span class="k">pass</span>
+<span class="kn">from</span> <span class="nn">edk2toollib.utility_functions</span> <span class="kn">import</span> <span class="n">GetHostInfo</span>
+
+<span class="c1">#</span>
+<span class="c1"># ==========================================================================</span>
+<span class="c1"># PLATFORM BUILD ENVIRONMENT CONFIGURATION</span>
+<span class="c1">#</span>
+
+<span class="k">class</span> <span class="nc">SettingsManager</span><span class="p">(</span><span class="n">UpdateSettingsManager</span><span class="p">,</span> <span class="n">CiSetupSettingsManager</span><span class="p">,</span> <span class="n">BinaryBuildSettingsManager</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">SCRIPT_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+
+        <span class="n">WORKSPACE_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">SCRIPT_PATH</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">OUTPUT_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">WORKSPACE_PATH</span><span class="p">,</span> <span class="s2">&quot;Build&quot;</span><span class="p">,</span> <span class="s2">&quot;.NugetOutput&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ws</span> <span class="o">=</span> <span class="n">WORKSPACE_PATH</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pp</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Common/MU_TIANO&#39;</span><span class="p">,</span> <span class="s2">&quot;Silicon/Arm/MU_TIANO&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sp</span> <span class="o">=</span> <span class="n">SCRIPT_PATH</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nuget_version</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">GetActiveScopes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; return tuple containing scopes that should be active for this process &#39;&#39;&#39;</span>
+        <span class="n">scopes</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;corebuild&quot;</span><span class="p">,</span> <span class="s2">&quot;sharednetworking_build&quot;</span><span class="p">,</span> <span class="p">)</span>
+        <span class="k">return</span> <span class="n">scopes</span>
+
+    <span class="k">def</span> <span class="nf">PreFirstBuildHook</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">output_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">OUTPUT_DIR</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_dir</span><span class="p">):</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Deleting </span><span class="si">{</span><span class="n">output_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">nuget_version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_GetNextVersion</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nuget_version</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">PostBuildHook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ret</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">ret</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_CollectNuget</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">ret</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Error occurred in post build hook&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="k">def</span> <span class="nf">PostFinalBuildHook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ret</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">ret</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;There was failure along the way aborting NUGET publish&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_PublishNuget</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">GetWorkspaceRoot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; get WorkspacePath &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ws</span>
+
+    <span class="k">def</span> <span class="nf">GetPackagesPath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Return a list of workspace relative paths that should be mapped as edk2 PackagesPath &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">pathsep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pp</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">GetName</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;SharedNetworking&quot;</span>
+
+    <span class="k">def</span> <span class="nf">GetPackagesSupported</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;NetworkPkg&quot;</span>
+
+    <span class="k">def</span> <span class="nf">GetArchitecturesSupported</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;IA32&quot;</span><span class="p">,</span> <span class="s2">&quot;AARCH64&quot;</span><span class="p">,</span> <span class="s2">&quot;X64&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">GetTargetsSupported</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span> <span class="s2">&quot;RELEASE&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">GetConfigurations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">TARGETS</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetTargetsSupported</span><span class="p">()</span>
+        <span class="n">ARCHS</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetArchitecturesSupported</span><span class="p">()</span>
+        <span class="c1"># combine options together</span>
+        <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">TARGETS</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">arch</span> <span class="ow">in</span> <span class="n">ARCHS</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">arch</span> <span class="o">=</span> <span class="n">arch</span>
+                <span class="k">yield</span><span class="p">({</span><span class="s2">&quot;TARGET&quot;</span><span class="p">:</span> <span class="n">target</span><span class="p">,</span> <span class="s2">&quot;TARGET_ARCH&quot;</span><span class="p">:</span> <span class="n">arch</span><span class="p">,</span> <span class="s2">&quot;ACTIVE_PLATFORM&quot;</span><span class="p">:</span> <span class="s2">&quot;NetworkPkg/SharedNetworking/SharedNetworkPkg.dsc&quot;</span><span class="p">})</span>
+
+    <span class="k">def</span> <span class="nf">GetDependencies</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">AddCommandLineOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parserObj</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Add command line options to the argparser &#39;&#39;&#39;</span>
+        <span class="n">parserObj</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-d&#39;</span><span class="p">,</span> <span class="s1">&#39;--dump_version&#39;</span><span class="p">,</span> <span class="s1">&#39;--dump-version&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;dump_version&#39;</span><span class="p">,</span>
+                               <span class="nb">type</span><span class="o">=</span><span class="nb">bool</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Should I dump nuget information?&#39;</span><span class="p">)</span>
+        <span class="n">parserObj</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-nv&quot;</span><span class="p">,</span> <span class="s2">&quot;--nuget_version&quot;</span><span class="p">,</span> <span class="s2">&quot;--nuget-version&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;nug_ver&quot;</span><span class="p">,</span>
+                               <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Nuget Version for package&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">RetrieveCommandLineOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;  Retrieve command line options from the argparser &#39;&#39;&#39;</span>
+        <span class="n">shell_environment</span><span class="o">.</span><span class="n">GetBuildVars</span><span class="p">()</span><span class="o">.</span><span class="n">SetValue</span><span class="p">(</span>
+            <span class="s2">&quot;TOOL_CHAIN_TAG&quot;</span><span class="p">,</span> <span class="s2">&quot;VS2017&quot;</span><span class="p">,</span> <span class="s2">&quot;Set default&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nuget_version</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">nug_ver</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">should_dump_version</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">dump_version</span>
+</code></pre></div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../invocable/" class="btn btn-neutral float-left" title="Invocables"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../extdep/" class="btn btn-neutral float-right" title="Ext Deps">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright (c) Microsoft.  All rights reserved</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tianocore/edk2-pytool-extensions" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../invocable/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../extdep/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme_extra.js" defer></script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="https://unpkg.com/mermaid@8.7.0/dist/mermaid.min.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Edk2 invocable - Tianocore Edk2 Pytool Extensions (edk2toolext)</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Edk2 invocable";
+        var mkdocs_page_input_path = "api\\edk2_invocable.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Tianocore Edk2 Pytool Extensions (edk2toolext)
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Our Philosophy</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Using Stuart</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/install/">Installation Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/build/">Build Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/ci/">Core CI Instructions</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Integrating Stuart</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../integrate/build/">Build with Stuart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../integrate/manage/">Core CI with Stuart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../integrate/porting/">Porting Example</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tools</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_capsule_tool/">Capsule Helper and Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_firmware_policy_tool/">Firmware Policy Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_image_validation_tool/">PE/COFF Image Validation Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_nuget_publishing_tool/">Nuget Publishing Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_omnicache_tool/">Omnicache Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_sig_db_tool/">Secure Boot Database Inspection Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_versioninfo_tool/">Version Info Tool</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Advanced Features</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/invocable/">Invocables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/creating_invocable/">Creating Invocables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/extdep/">Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/creating_extdep/">Creating Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/plugin_manager/">Plugins</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/creating_plugins/">Create a Plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/environment_variables/">Environment Variables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/sde/">Self Describing Environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/settings_manager/">Settings Manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/logging/">Logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/using_linux/">WSL</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API Reference</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../base_abstract_invocable/">Base abstract invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../edk2_git/">Edk2 git</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Edk2 invocable</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface">Edk2InvocableSettingsInterface</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface.GetWorkspaceRoot">GetWorkspaceRoot()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface.GetPackagesPath">GetPackagesPath()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface.GetActiveScopes">GetActiveScopes()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface.GetLoggingLevel">GetLoggingLevel()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface.AddCommandLineOptions">AddCommandLineOptions()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface.RetrieveCommandLineOptions">RetrieveCommandLineOptions()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface.GetSkippedDirectories">GetSkippedDirectories()</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#edk2toolext.edk2_invocable.Edk2Invocable">Edk2Invocable</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.edk2_invocable.Edk2Invocable.collect_python_pip_info">collect_python_pip_info()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.edk2_invocable.Edk2Invocable.GetWorkspaceRoot">GetWorkspaceRoot()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.edk2_invocable.Edk2Invocable.GetPackagesPath">GetPackagesPath()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.edk2_invocable.Edk2Invocable.GetActiveScopes">GetActiveScopes()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.edk2_invocable.Edk2Invocable.GetLoggingLevel">GetLoggingLevel()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.edk2_invocable.Edk2Invocable.AddCommandLineOptions">AddCommandLineOptions()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.edk2_invocable.Edk2Invocable.RetrieveCommandLineOptions">RetrieveCommandLineOptions()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.edk2_invocable.Edk2Invocable.GetSkippedDirectories">GetSkippedDirectories()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.edk2_invocable.Edk2Invocable.GetSettingsClass">GetSettingsClass()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.edk2_invocable.Edk2Invocable.GetLoggingFolderRelativeToRoot">GetLoggingFolderRelativeToRoot()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.edk2_invocable.Edk2Invocable.ParseCommandLineOptions">ParseCommandLineOptions()</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../edk2_logging/">Edk2 logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../environment/conf_mgmt/">Conf mgmt</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../environment/environment_descriptor_files/">Environment descriptor files</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../environment/external_dependency/">External dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../environment/multiple_workspace/">Multiple workspace</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../environment/plugin_manager/">Plugin manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../environment/repo_resolver/">Repo resolver</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../environment/self_describing_environment/">Self describing environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../environment/shell_environment/">Shell environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../environment/uefi_build/">Uefi build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../environment/var_dict/">Var dict</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../environment/version_aggregator/">Version aggregator</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../environment/extdeptypes/az_cli_universal_dependency/">Az cli universal dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../environment/extdeptypes/git_dependency/">Git dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../environment/extdeptypes/nuget_dependency/">Nuget dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../environment/extdeptypes/web_dependency/">Web dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../environment/plugintypes/ci_build_plugin/">Ci build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../environment/plugintypes/dsc_processor_plugin/">Dsc processor plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../environment/plugintypes/uefi_build_plugin/">Uefi build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../environment/plugintypes/uefi_helper_plugin/">Uefi helper plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../invocables/edk2_ci_build/">Edk2 ci build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../invocables/edk2_ci_setup/">Edk2 ci setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../invocables/edk2_multipkg_aware_invocable/">Edk2 multipkg aware invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../invocables/edk2_platform_build/">Edk2 platform build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../invocables/edk2_pr_eval/">Edk2 pr eval</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../invocables/edk2_setup/">Edk2 setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../invocables/edk2_update/">Edk2 update</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Tianocore Edk2 Pytool Extensions (edk2toolext)</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+          <li>API Reference &raquo;</li>
+      <li>Edk2 invocable</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tianocore/edk2-pytool-extensions/edit/master/docs/..\edk2toolext\edk2_invocable.py" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<h2 id="edk2toolext.edk2_invocable" class="doc doc-heading">
+          <span class="doc doc-object-name doc-module-name">edk2_invocable</span>
+
+
+<a href="#edk2toolext.edk2_invocable" class="headerlink" title="Permanent link">&para;</a></h2>
+
+  <div class="doc doc-contents first">
+  
+      <p>Edk2 Invocable Interface to be overriden in a subclass.</p>
+<p>Provides two main classes, the Edk2InvocableSettingsInterface and the
+Edk2Invocable, which should be used as subclasses to create invocables that
+perform tasks associated with the EDK2 build system. Any Edk2Invocable subclass
+should be platform agnostic and work for any platform. Platform specific data
+is provided via the Edk2InvocableSettingsInterface.</p>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface" class="doc doc-heading">
+        <span class="doc doc-object-name doc-class-name">Edk2InvocableSettingsInterface</span>
+
+
+<a href="#edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+
+  
+      <p>Settings APIs to support an Edk2Invocable.</p>
+<p>This is an interface definition only to show which functions are
+required to be implemented and can be implemented in a settings
+manager.</p>
+<div class="admonition example">
+<p class="admonition-title">Example of Overriding Edk2InvocableSettingsInterface</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">edk2toolext.edk2_invocable</span> <span class="kn">import</span> <span class="n">Edk2InvocableSettingsInterface</span>
+
+<span class="k">class</span> <span class="nc">NewInvocableSettingsManager</span><span class="p">(</span><span class="n">Edk2InvocableSettingsInterface</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">GetWorkspaceRoot</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">GetPackagesPath</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;C:/src/MU_BASECORE&quot;</span><span class="p">,</span> <span class="s2">&quot;Common/MU&quot;</span><span class="p">]</span>
+    <span class="k">def</span> <span class="nf">GetActiveScopes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;edk2-build&quot;</span><span class="p">,</span> <span class="s2">&quot;pipbuild-win&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">GetLoggingLevel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loggerType</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">loggerType</span> <span class="o">==</span> <span class="s1">&#39;txt&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span>
+    <span class="k">def</span> <span class="nf">AddCommandLineOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parserObj</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">parserObj</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-a&#39;</span><span class="p">,</span> <span class="s2">&quot;--arch&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;build_arch&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;IA32,X64&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">RetrieveCommandLineOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">arch</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">build_arch</span>
+    <span class="k">def</span> <span class="nf">GetSkippedDirectories</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;Downloads/Extra&quot;</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This interface should not be subclassed directly unless you are creating a new invocable
+Other invocables subclass from this interface, so you have the ability to
+call the functions in this class as a part of those invocable settings managers.</p>
+</div>
+
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface.GetWorkspaceRoot" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">GetWorkspaceRoot</span>
+
+
+<a href="#edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface.GetWorkspaceRoot" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">GetWorkspaceRoot</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Return the workspace root for initializing the SDE.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Required Override in a subclass</p>
+</div>
+<p>The absolute path to the root of the workspace</p>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>path to workspace root</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface.GetPackagesPath" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">GetPackagesPath</span>
+
+
+<a href="#edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface.GetPackagesPath" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">GetPackagesPath</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">]</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Provides an iterable of paths should should be mapped as edk2 PackagePaths.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Optional Override in a subclass</p>
+</div>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><span title="typing.Iterable">Iterable</span>[os.<span title="os.PathLike">PathLike</span>]</code>
+          </td>
+          <td><p>paths</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface.GetActiveScopes" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">GetActiveScopes</span>
+
+
+<a href="#edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface.GetActiveScopes" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">GetActiveScopes</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Provides scopes that should be active for this process.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Optional Override in a subclass</p>
+</div>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><span title="typing.Tuple">Tuple</span>[str]</code>
+          </td>
+          <td><p>scopes</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface.GetLoggingLevel" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">GetLoggingLevel</span>
+
+
+<a href="#edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface.GetLoggingLevel" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">GetLoggingLevel</span><span class="p">(</span><span class="n">loggerType</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Get the logging level depending on logger type.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Optional Override in a subclass</p>
+</div>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>Logging.<span title="Logging.Level">Level</span></code>
+          </td>
+          <td><p>The logging level</p></td>
+        </tr>
+    </tbody>
+  </table>
+      <div class="admonition note">
+<p class="admonition-title">loggerType possible values</p>
+<p>"base": lowest logging level supported</p>
+<p>"con": logs to screen</p>
+<p>"txt": logs to plain text file</p>
+<p>"md": logs to markdown file</p>
+</div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface.AddCommandLineOptions" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">AddCommandLineOptions</span>
+
+
+<a href="#edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface.AddCommandLineOptions" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">AddCommandLineOptions</span><span class="p">(</span><span class="n">parserObj</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Add command line options to the argparser.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Optional override in a subclass</p>
+</div>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>parserObj</code></td>
+          <td>
+                <code>object</code>
+          </td>
+          <td><p>Argparser object.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface.RetrieveCommandLineOptions" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">RetrieveCommandLineOptions</span>
+
+
+<a href="#edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface.RetrieveCommandLineOptions" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">RetrieveCommandLineOptions</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Retrieve Command line options from the argparser.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Optional override in a subclass</p>
+</div>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>args</code></td>
+          <td>
+                <code>object</code>
+          </td>
+          <td><p>argparser args namespace containing command line options</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface.GetSkippedDirectories" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">GetSkippedDirectories</span>
+
+
+<a href="#edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface.GetSkippedDirectories" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">GetSkippedDirectories</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Returns a tuple containing workspace-relative directories to be skipped.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Optional override in a subclass</p>
+</div>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><span title="typing.Tuple">Tuple</span>[str]</code>
+          </td>
+          <td><p>directories to be skipped.</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="edk2toolext.edk2_invocable.Edk2Invocable" class="doc doc-heading">
+        <span class="doc doc-object-name doc-class-name">Edk2Invocable</span>
+
+
+<a href="#edk2toolext.edk2_invocable.Edk2Invocable" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+
+  
+      <p>Base class for Edk2 based invocables.</p>
+<p>Edk2 means it has common features like workspace, packagespath,
+scopes, and other name value pairs</p>
+
+  <p><strong>Attributes:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>PlatformSettings</code></td>
+          <td>
+                <code><a class="autorefs autorefs-internal" title="edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface" href="#edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface">Edk2InvocableSettingsInterface</a></code>
+          </td>
+          <td><p>A settings class</p></td>
+        </tr>
+        <tr>
+          <td><code>PlatformModule</code></td>
+          <td>
+                <code>object</code>
+          </td>
+          <td><p>The platform module</p></td>
+        </tr>
+        <tr>
+          <td><code>Verbose</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td><p>CLI Argument to determine whether or not to have verbose</p></td>
+        </tr>
+    </tbody>
+  </table>
+      <div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Checkout BaseAbstractInvocable Attributes to find any additional attributes that might exist.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This Invocable should only be subclassed if creating a new invocable</p>
+</div>
+
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.edk2_invocable.Edk2Invocable.collect_python_pip_info" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">collect_python_pip_info</span>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+<a href="#edk2toolext.edk2_invocable.Edk2Invocable.collect_python_pip_info" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">collect_python_pip_info</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Class method to collect all pip packages names and versions.</p>
+<p>Reports them to the global version_aggregator as well as print them to the screen.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.edk2_invocable.Edk2Invocable.GetWorkspaceRoot" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">GetWorkspaceRoot</span>
+
+
+<a href="#edk2toolext.edk2_invocable.Edk2Invocable.GetWorkspaceRoot" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">GetWorkspaceRoot</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Returns the absolute path to the workspace root.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Workspace Root is platform specific and thus provided by the PlatformSettings</p>
+</div>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>os.<span title="os.PathLike">PathLike</span></code>
+          </td>
+          <td><p>absolute path to workspace root</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.edk2_invocable.Edk2Invocable.GetPackagesPath" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">GetPackagesPath</span>
+
+
+<a href="#edk2toolext.edk2_invocable.Edk2Invocable.GetPackagesPath" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">GetPackagesPath</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">]</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Returns an iterable of packages path.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>PackagesPath is platform specific and thus provided by the PlatformSettings</p>
+</div>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><span title="typing.Iterable">Iterable</span>[os.<span title="os.PathLike">PathLike</span>]</code>
+          </td>
+          <td><p>Packages path</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.edk2_invocable.Edk2Invocable.GetActiveScopes" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">GetActiveScopes</span>
+
+
+<a href="#edk2toolext.edk2_invocable.Edk2Invocable.GetActiveScopes" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">GetActiveScopes</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Returns an iterable of Active scopes.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Scopes are platform specific and thus provided by the PlatformSettings</p>
+</div>
+<p>This function adds an os specific scope in addition to scopes provided by SettingsManager</p>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><span title="typing.Tuple">Tuple</span>[str]</code>
+          </td>
+          <td><p>active scopes</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.edk2_invocable.Edk2Invocable.GetLoggingLevel" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">GetLoggingLevel</span>
+
+
+<a href="#edk2toolext.edk2_invocable.Edk2Invocable.GetLoggingLevel" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">GetLoggingLevel</span><span class="p">(</span><span class="n">loggerType</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Get the logging level for a given logger type.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Logging Level is platform specific and thus provided by the PlatformSettings</p>
+</div>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>logging.<span title="logging.Level">Level</span></code>
+          </td>
+          <td><p>logging level</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.edk2_invocable.Edk2Invocable.AddCommandLineOptions" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">AddCommandLineOptions</span>
+
+
+<a href="#edk2toolext.edk2_invocable.Edk2Invocable.AddCommandLineOptions" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">AddCommandLineOptions</span><span class="p">(</span><span class="n">parserObj</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Add command line options to the argparser.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Optional Override to add functionality</p>
+</div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.edk2_invocable.Edk2Invocable.RetrieveCommandLineOptions" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">RetrieveCommandLineOptions</span>
+
+
+<a href="#edk2toolext.edk2_invocable.Edk2Invocable.RetrieveCommandLineOptions" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">RetrieveCommandLineOptions</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Retrieve command line options from the argparser.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Optional Override to add functionality</p>
+</div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.edk2_invocable.Edk2Invocable.GetSkippedDirectories" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">GetSkippedDirectories</span>
+
+
+<a href="#edk2toolext.edk2_invocable.Edk2Invocable.GetSkippedDirectories" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">GetSkippedDirectories</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Returns a Tuple containing workspace-relative directories that should be skipped.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Override in a subclass to add invocable specific directories to skip</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Skipped Directories are platform specific and thus provided by the PlatformSettings</p>
+</div>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><span title="typing.Tuple">Tuple</span>[str]</code>
+          </td>
+          <td><p>skipped directories as relative paths</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.edk2_invocable.Edk2Invocable.GetSettingsClass" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">GetSettingsClass</span>
+
+
+<a href="#edk2toolext.edk2_invocable.Edk2Invocable.GetSettingsClass" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">GetSettingsClass</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>The required settings manager for the invocable.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Required override to define Edk2InvocableSettingsInterface subclass specific to the invocable</p>
+</div>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><a class="autorefs autorefs-internal" title="edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface" href="#edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface">Edk2InvocableSettingsInterface</a></code>
+          </td>
+          <td><p>Subclass of Edk2InvocableSettingsInterface</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.edk2_invocable.Edk2Invocable.GetLoggingFolderRelativeToRoot" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">GetLoggingFolderRelativeToRoot</span>
+
+
+<a href="#edk2toolext.edk2_invocable.Edk2Invocable.GetLoggingFolderRelativeToRoot" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">GetLoggingFolderRelativeToRoot</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Directory containing all logging files.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.edk2_invocable.Edk2Invocable.ParseCommandLineOptions" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">ParseCommandLineOptions</span>
+
+
+<a href="#edk2toolext.edk2_invocable.Edk2Invocable.ParseCommandLineOptions" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">ParseCommandLineOptions</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Parses command line options.</p>
+<p>Sets up argparser specifically to get PlatformSettingsManager instance.
+Then sets up second argparser and passes it to child class and to PlatformSettingsManager.
+Finally, parses all known args and then reads the unknown args in to build vars.</p>
+
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+
+
+  </div>
+
+  </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../edk2_git/" class="btn btn-neutral float-left" title="Edk2 git"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../edk2_logging/" class="btn btn-neutral float-right" title="Edk2 logging">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright (c) Microsoft.  All rights reserved</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tianocore/edk2-pytool-extensions" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../edk2_git/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../edk2_logging/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme_extra.js" defer></script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="https://unpkg.com/mermaid@8.7.0/dist/mermaid.min.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="edk2toolext package documentation" />
+      <link rel="shortcut icon" href="img/favicon.ico" />
+    <title>Tianocore Edk2 Pytool Extensions (edk2toolext)</title>
+    <link rel="stylesheet" href="css/theme.css" />
+    <link rel="stylesheet" href="css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Our Philosophy";
+        var mkdocs_page_input_path = "index.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="." class="icon icon-home"> Tianocore Edk2 Pytool Extensions (edk2toolext)
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href=".">Our Philosophy</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#what-does-stuart-manage-for-us">What does Stuart Manage for us</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#the-environment">The Environment</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#settings-manager">Settings Manager</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#scopes">Scopes</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#plugins">Plugins</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#external-dependencies">External Dependencies</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#environment-variables">Environment Variables</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#what-can-i-ask-stuart-to-do">What can I ask Stuart to do</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#stuart_setup">stuart_setup</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#stuart_update">stuart_update</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#stuart_build">stuart_build</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#stuart_ci_setup">stuart_ci_setup</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#stuart_ci_build">stuart_ci_build</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#living-with-stuart">Living with Stuart</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#gitignore">.gitignore</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Using Stuart</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="using/install/">Installation Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="using/build/">Build Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="using/ci/">Core CI Instructions</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Integrating Stuart</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="integrate/build/">Build with Stuart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="integrate/manage/">Core CI with Stuart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="integrate/porting/">Porting Example</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tools</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="tools/using_capsule_tool/">Capsule Helper and Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="tools/using_firmware_policy_tool/">Firmware Policy Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="tools/using_image_validation_tool/">PE/COFF Image Validation Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="tools/using_nuget_publishing_tool/">Nuget Publishing Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="tools/using_omnicache_tool/">Omnicache Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="tools/using_sig_db_tool/">Secure Boot Database Inspection Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="tools/using_versioninfo_tool/">Version Info Tool</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Advanced Features</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="features/invocable/">Invocables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="features/creating_invocable/">Creating Invocables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="features/extdep/">Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="features/creating_extdep/">Creating Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="features/plugin_manager/">Plugins</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="features/creating_plugins/">Create a Plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="features/environment_variables/">Environment Variables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="features/sde/">Self Describing Environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="features/settings_manager/">Settings Manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="features/logging/">Logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="features/using_linux/">WSL</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API Reference</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="api/base_abstract_invocable/">Base abstract invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="api/edk2_git/">Edk2 git</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="api/edk2_invocable/">Edk2 invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="api/edk2_logging/">Edk2 logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="api/environment/conf_mgmt/">Conf mgmt</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="api/environment/environment_descriptor_files/">Environment descriptor files</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="api/environment/external_dependency/">External dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="api/environment/multiple_workspace/">Multiple workspace</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="api/environment/plugin_manager/">Plugin manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="api/environment/repo_resolver/">Repo resolver</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="api/environment/self_describing_environment/">Self describing environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="api/environment/shell_environment/">Shell environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="api/environment/uefi_build/">Uefi build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="api/environment/var_dict/">Var dict</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="api/environment/version_aggregator/">Version aggregator</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="api/environment/extdeptypes/az_cli_universal_dependency/">Az cli universal dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="api/environment/extdeptypes/git_dependency/">Git dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="api/environment/extdeptypes/nuget_dependency/">Nuget dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="api/environment/extdeptypes/web_dependency/">Web dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="api/environment/plugintypes/ci_build_plugin/">Ci build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="api/environment/plugintypes/dsc_processor_plugin/">Dsc processor plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="api/environment/plugintypes/uefi_build_plugin/">Uefi build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="api/environment/plugintypes/uefi_helper_plugin/">Uefi helper plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="api/invocables/edk2_ci_build/">Edk2 ci build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="api/invocables/edk2_ci_setup/">Edk2 ci setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="api/invocables/edk2_multipkg_aware_invocable/">Edk2 multipkg aware invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="api/invocables/edk2_platform_build/">Edk2 platform build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="api/invocables/edk2_pr_eval/">Edk2 pr eval</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="api/invocables/edk2_setup/">Edk2 setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="api/invocables/edk2_update/">Edk2 update</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href=".">Tianocore Edk2 Pytool Extensions (edk2toolext)</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+      <li>Our Philosophy</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tianocore/edk2-pytool-extensions/edit/master/docs/index.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="our-philosophy">Our Philosophy<a class="headerlink" href="#our-philosophy" title="Permanent link">&para;</a></h1>
+<p>Edk2 Pytool Extensions (edk2toolext) is a Tianocore maintained project
+consisting of command line and other python tools and extensions to simplify
+and automate the process of building and maintaining an Edk2 based UEFI
+Firmware code tree.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If stuart is already integrated into your platform and you're looking for a
+tutorial on how to install and use stuart, please see
+<a href="/using/install">Installation</a>, <a href="/using/build">Building</a>, and
+<a href="/using/ci">Core CI</a> Instructions.</p>
+</div>
+<p>As UEFI developers, we found the process of building firmware to be extremely
+rigid and hard to customize without the use of disjointed scripts that would
+only work under extremely specific circumstances. Due to this, we sought to
+develop a build system to manage our environment and it's dependencies in a
+easily configurable, yet extremely reliable and fashion - even across operating
+systems.</p>
+<p>As we developed this system, we found ourselves referring to it as
+'the environment' because it is just a complex series of system states... But
+it's more fun to imagine that your code and enviornment is being managed by a
+helpful pet. This is how Stuart came to be; he is a mouse that lives inside
+your computer. He takes care of your code and even manages your environment for
+you. Executing commands such as building a platform is as simple as asking
+Stuart to do it for you. You can ask him to do many things... see some of them
+<a href="#what-can-i-ask-stuart-to-do">here!</a>.</p>
+<h2 id="what-does-stuart-manage-for-us">What does Stuart Manage for us<a class="headerlink" href="#what-does-stuart-manage-for-us" title="Permanent link">&para;</a></h2>
+<p>Stuart is responsible for many things, so lets take a look at them, and see how
+you can use it to simplify your building experience!</p>
+<h3 id="the-environment">The Environment<a class="headerlink" href="#the-environment" title="Permanent link">&para;</a></h3>
+<p>Stuart uses a self describing environment to read and understand workspaces.
+The Environment is a collection of path, pypath, build vars, and plugin
+configurations needed for a build to execute successfully.</p>
+<h3 id="settings-manager">Settings Manager<a class="headerlink" href="#settings-manager" title="Permanent link">&para;</a></h3>
+<p>Stuart's invocables are very smart but they don't know everything. The paradigm
+we've come up with is to have each invocable provide an abstract Settings
+Manager class with a 'get' function for each piece of information required
+invocation. Invoking an edk2 invocable requires that an instance of this class
+be passed in. This way, the invocable script gets all the information it needs
+without needing to carry the overhead of command line parsing and loading the
+class.</p>
+<p><a href="features/settings_manager">Settings Manager documentation</a></p>
+<h3 id="scopes">Scopes<a class="headerlink" href="#scopes" title="Permanent link">&para;</a></h3>
+<p>Stuart allows many different workflows in the same tree, but needs a way to
+organize the environment in a way that identifies which component are used by
+which workflows. Stuart manages this via scopes! Each component can have only
+one scope, and a workflow designates a combination of scopes, known as
+<strong>ActiveScopes</strong> to specify which components to use in a workflow.</p>
+<h3 id="plugins">Plugins<a class="headerlink" href="#plugins" title="Permanent link">&para;</a></h3>
+<p>Stuart manages many plugins that are executed in specific workflows according
+to their scope. There are three different types of plugins that exist and can
+be implemented.</p>
+<ol>
+<li><code>UefiBuildPlugin</code> - Used for platform builds, this interface has two hooks: pre-build and post-build.</li>
+<li><code>CiBuildPlugin</code> - Our CI process is to run all
+   CiBuildPlugins for each package. Each plugin is essentially a test that will
+   be executed on the given code tree.</li>
+<li><code>UefiHelperPlugin</code> - Registers one or
+   more functions that can called by any part of the build system.</li>
+</ol>
+<p><a href="features/plugin_manager">Plugin Manager Documentation</a></p>
+<h3 id="external-dependencies">External Dependencies<a class="headerlink" href="#external-dependencies" title="Permanent link">&para;</a></h3>
+<p>External dependencies (ext_deps) are a great way to manage tools and resources
+for a codebase. You provide a <code>_ext_dep.json</code> file that indicates the source,
+type (git, web download, NuGet, etc.), scope, and version. Stuart will manage
+the rest! When you call stuart_update, Stuart will collect, download, and store
+the ext_deps pertaining to your scope. Stuart will make sure these ext_deps are
+available to the rest of the environment.</p>
+<p><a href="features/extdep">External Dependency Documentation</a></p>
+<h3 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h3>
+<p>Different then your operating system environment variables, Stuart will also
+manage variables defined across your FDF, DSC, DEC, ext_deps, build scripts
+and ensures a variable defined in one is available to all others. This means
+if a variable is set in the build script, it can then be used in your FDF, DSC,
+etc (and vise versa).</p>
+<p><a href="features/environment_variables">Environment Variable Documentation</a></p>
+<h2 id="what-can-i-ask-stuart-to-do">What can I ask Stuart to do<a class="headerlink" href="#what-can-i-ask-stuart-to-do" title="Permanent link">&para;</a></h2>
+<p>I'm glad you asked! Stuart has a variety of invocable tasks that he hopes will
+be helpful for a wide variety workflows.</p>
+<h3 id="stuart_setup">stuart_setup<a class="headerlink" href="#stuart_setup" title="Permanent link">&para;</a></h3>
+<p>Sets up the git repo based on the gitsubmodule file in your repo. It checks to make
+sure the required repos as provided by settings manager are present.</p>
+<h3 id="stuart_update">stuart_update<a class="headerlink" href="#stuart_update" title="Permanent link">&para;</a></h3>
+<p>Reads ext_dep files in the environment and downloads the appropriate files for the
+active scopes currently defined. These scopes come from the settings manager.</p>
+<h3 id="stuart_build">stuart_build<a class="headerlink" href="#stuart_build" title="Permanent link">&para;</a></h3>
+<p>Builds a platform. Requires an instance of <code>UefiBuilder</code> to be provided in
+addition to the settings manager.</p>
+<h3 id="stuart_ci_setup">stuart_ci_setup<a class="headerlink" href="#stuart_ci_setup" title="Permanent link">&para;</a></h3>
+<p>Intended for CI environment setup. Given a list of required repos from the
+settings manager, clone each of them in the workspace.</p>
+<h3 id="stuart_ci_build">stuart_ci_build<a class="headerlink" href="#stuart_ci_build" title="Permanent link">&para;</a></h3>
+<p>Given a list of packages, runs all plugins (for active scope) on each package.
+This includes compiler plugin, which builds each package for the required
+targets. Stuart will checkpoint the original environment and restore that
+checkpoint between each test.</p>
+<h2 id="living-with-stuart">Living with Stuart<a class="headerlink" href="#living-with-stuart" title="Permanent link">&para;</a></h2>
+<h3 id="gitignore">.gitignore<a class="headerlink" href="#gitignore" title="Permanent link">&para;</a></h3>
+<p>We have a couple <code>.gitignore</code> items that are important for keeping git from
+getting its hands on Stuart!</p>
+<div class="highlight"><pre><span></span><code>*.pyc
+*_LOG.*
+*_extdep/
+</code></pre></div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="using/install/" class="btn btn-neutral float-right" title="Installation Instructions">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright (c) Microsoft.  All rights reserved</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tianocore/edk2-pytool-extensions" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+    
+      <span><a href="using/install/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '.';</script>
+    <script src="js/theme_extra.js" defer></script>
+    <script src="js/theme.js" defer></script>
+      <script src="https://unpkg.com/mermaid@8.7.0/dist/mermaid.min.js" defer></script>
+      <script src="search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>
+
+<!--
+MkDocs version : 1.4.0
+Build Date UTC : 2022-12-12 21:30:13.613120+00:00
+-->

@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Porting Example - Tianocore Edk2 Pytool Extensions (edk2toolext)</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Porting Example";
+        var mkdocs_page_input_path = "integrate\\porting.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Tianocore Edk2 Pytool Extensions (edk2toolext)
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Our Philosophy</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Using Stuart</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/install/">Installation Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/build/">Build Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/ci/">Core CI Instructions</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Integrating Stuart</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../build/">Build with Stuart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../manage/">Core CI with Stuart</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Porting Example</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting Started</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#the-settings-file">The settings file</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#setup">Setup</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#update">Update</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#build">Build</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#setting-up-uefibuild">Setting up UefiBuild</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#notes">Notes</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#project-mu">Project Mu</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#future-work">Future Work</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tools</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_capsule_tool/">Capsule Helper and Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_firmware_policy_tool/">Firmware Policy Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_image_validation_tool/">PE/COFF Image Validation Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_nuget_publishing_tool/">Nuget Publishing Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_omnicache_tool/">Omnicache Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_sig_db_tool/">Secure Boot Database Inspection Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_versioninfo_tool/">Version Info Tool</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Advanced Features</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/invocable/">Invocables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/creating_invocable/">Creating Invocables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/extdep/">Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/creating_extdep/">Creating Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/plugin_manager/">Plugins</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/creating_plugins/">Create a Plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/environment_variables/">Environment Variables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/sde/">Self Describing Environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/settings_manager/">Settings Manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/logging/">Logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/using_linux/">WSL</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API Reference</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/base_abstract_invocable/">Base abstract invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/edk2_git/">Edk2 git</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/edk2_invocable/">Edk2 invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/edk2_logging/">Edk2 logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/conf_mgmt/">Conf mgmt</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/environment_descriptor_files/">Environment descriptor files</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/external_dependency/">External dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/multiple_workspace/">Multiple workspace</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugin_manager/">Plugin manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/repo_resolver/">Repo resolver</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/self_describing_environment/">Self describing environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/shell_environment/">Shell environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/uefi_build/">Uefi build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/var_dict/">Var dict</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/version_aggregator/">Version aggregator</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/az_cli_universal_dependency/">Az cli universal dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/git_dependency/">Git dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/nuget_dependency/">Nuget dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/web_dependency/">Web dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/ci_build_plugin/">Ci build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/dsc_processor_plugin/">Dsc processor plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/uefi_build_plugin/">Uefi build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/uefi_helper_plugin/">Uefi helper plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_ci_build/">Edk2 ci build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_ci_setup/">Edk2 ci setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_multipkg_aware_invocable/">Edk2 multipkg aware invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_platform_build/">Edk2 platform build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_pr_eval/">Edk2 pr eval</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_setup/">Edk2 setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_update/">Edk2 update</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Tianocore Edk2 Pytool Extensions (edk2toolext)</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+          <li>Integrating Stuart &raquo;</li>
+      <li>Porting Example</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tianocore/edk2-pytool-extensions/edit/master/docs/integrate/porting.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="porting-a-platform-to-edk2-pytools">Porting a platform to EDK2 PyTools<a class="headerlink" href="#porting-a-platform-to-edk2-pytools" title="Permanent link">&para;</a></h1>
+<p>You've probably seen the great promises that EDK2 Pytools gives and wondered how
+to get started on a platform you already have. There are many places you could
+be coming from but you likely have some sort of automated work flow that calls
+edk2's build at some point. In this guide, two paths will be discussed and one
+will be shown.</p>
+<p>In this guide, we will building a platform from EDK2-Platforms, the humble
+Raspberry Pi 3. This is because you likely have one lying around somewhere or
+can buy it online for fairly cheap. It is also a simpler platform compared to
+many intel based ones while still being large enough to show the benefits of
+Stuart.</p>
+<p>This process is documented in the repo (TODO).</p>
+<p>This guide shows one way to structure your platform code but there are many
+different approaches out there. Stuart is flexible and versatile enough to be
+able to be adapted to many workflows. You are encouraged to experiment and see
+what works best for you and your team.</p>
+<p>Since the Raspberry Pi project in EDK2-Platforms uses GCC, we will also be using
+WSLv2 (Windows Subsystem for Linux). If you're on a linux machine, you should be
+able to follow this tutorial.</p>
+<p>For information on how to use WSL, refer to the guide using_wsl.md</p>
+<h2 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h2>
+<p>First we will start by creating our workspace.</p>
+<div class="highlight"><pre><span></span><code>mkdir rpi
+<span class="nb">cd</span> rpi
+git init
+</code></pre></div>
+<p>We'll add a <code>.gitignore</code> to keep things sensible.</p>
+<div class="highlight"><pre><span></span><code>*.pyc
+*.bak
+/Build
+/Conf
+/.vs
+/.vscode
+*_extdep/
+</code></pre></div>
+<p>Next we'll add our <code>pip_requirements.txt</code> file to keep our pip modules in sync
+with our project. You can optionally setup a virtual environment to keep
+different versions of pip modules, but that is left up to the reader.</p>
+<div class="highlight"><pre><span></span><code>edk2-pytool-library
+edk2-pytool-extensions
+</code></pre></div>
+<p>You're welcome to snap to a particular version by adding <code>==0.12.2</code> or whatever
+version you want to keep after the pip name.</p>
+<p>Next you'll need to install the pip modules. If you see that the pip isn't
+installed, check out our guide to setting up WSL (or any linux distribution).</p>
+<p>Once your pip is setup, install the requirements by executing this:</p>
+<div class="highlight"><pre><span></span><code>pip3 install -r pip_requirements.txt
+</code></pre></div>
+<p>Make sure you're using python 3 as opposed to python 2.</p>
+<h2 id="submodules">Submodules<a class="headerlink" href="#submodules" title="Permanent link">&para;</a></h2>
+<p>One of the best ways to keep track of other git projects is through submodules.
+We'll add submodules for the edk2 projects we want to use.</p>
+<p>Another option would be use the Microsoft Project Mu fork of EDK2. The parts
+that it contains are:</p>
+<ul>
+<li>BASECORE: this contains the base packages like MdeModulePkg and MdePkg</li>
+<li>MU_PLUS: this has the extra stuff that Mu provides like DFCI, GraphicsPkg, and
+  SharedCrypto.</li>
+<li>TIANO_PLUS: this has things like ShellPkg and FmpDevicePkg.</li>
+<li>OEM_SAMPLE: this contains things that an OEM might find useful like a
+  FrontPage application and a Boot menu.</li>
+</ul>
+<p>At the end of this document, we will detail what all is required to move over to
+Project Mu. It brings some powerful things but also requires us to add some
+pieces to support the new functionality.</p>
+<p>In the meantime we'll use EDK2 as it is likely what people are familiar with.</p>
+<div class="highlight"><pre><span></span><code>git submodule add https://github.com/tianocore/edk2.git edk2
+git submodule add https://github.com/tianocore/edk2-platforms.git platforms
+git submodule add https://github.com/tianocore/edk2-non-osi.git non-osi
+</code></pre></div>
+<p>To be clear, <strong>don't use EDK2 and MU_BASECORE in the same tree</strong>. They overlap
+since MU_BASECORE has EDK2 as an upstream.</p>
+<p>We'll want to make sure we have the same commit so for each of the submodules,
+we'll checkout a specific commit hash.</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span> ~/rpi
+<span class="nb">cd</span> edk2
+git checkout edk2-stable201911
+<span class="nb">cd</span> ..
+<span class="nb">cd</span> platforms
+git checkout 0e6e3fc4af678d5241b4e8f8c14c126212ff2522
+<span class="nb">cd</span> ..
+<span class="nb">cd</span> non-osi
+git checkout d580026dbbe87c081dce26b1872df83fa79cd740
+</code></pre></div>
+<p>At this point, we're almost ready. Our tree should look like this:</p>
+<div class="highlight"><pre><span></span><code>rpi
+|   .gitignore
+|   .gitmodules
+|   pip_requirements.txt
+|
+|---edk2
+|   |...
+|
+|---platform
+|   |
+|   |---Drivers
+|   |---Platform
+|   |---Silicon
+|
+|---non-osi
+|   |---Emulator
+|   |---Platform
+|   |---Silicon
+|
+</code></pre></div>
+<p>You can see the files at the commit here (TODO)</p>
+<h2 id="the-settings-file">The settings file<a class="headerlink" href="#the-settings-file" title="Permanent link">&para;</a></h2>
+<p>The guide is written for pytool-extensions v0.12 and some things may have
+changed since this was written. Please refer to the release notes to see what
+has changed.</p>
+<p>Stuart needs a settings file to configure itself. It helps define where the
+workspace root is and what sort of things we need to initialize.  Since we are
+using the build in invocables, we'll need to implement three settings managers:
+UpdateSettingsManager, SetupSettingsManager, BuildSettingsManager.</p>
+<p>If you're unfamiliar with what an invocable or a settings file is, please refer
+to our documentation.</p>
+<p>Let's add a file: <code>RpiPlatformBuild.py</code>. This will be a settings manager for
+stuart</p>
+<div class="highlight"><pre><span></span><code><span class="c1">##</span>
+<span class="c1">## Script to Build Raspberry Pi 3/4 firmware</span>
+<span class="c1">##</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">edk2toolext.environment.uefi_build</span> <span class="kn">import</span> <span class="n">UefiBuilder</span>
+<span class="kn">from</span> <span class="nn">edk2toolext.invocables.edk2_platform_build</span> <span class="kn">import</span> <span class="n">BuildSettingsManager</span>
+<span class="kn">from</span> <span class="nn">edk2toolext.invocables.edk2_setup</span> <span class="kn">import</span> <span class="n">SetupSettingsManager</span>
+<span class="kn">from</span> <span class="nn">edk2toolext.invocables.edk2_update</span> <span class="kn">import</span> <span class="n">UpdateSettingsManager</span>
+<span class="kn">from</span> <span class="nn">edk2toollib.utility_functions</span> <span class="kn">import</span> <span class="n">GetHostInfo</span>
+<span class="kn">from</span> <span class="nn">edk2toolext.invocables.edk2_setup</span> <span class="kn">import</span> <span class="n">RequiredSubmodule</span>
+
+<span class="c1">#</span>
+<span class="c1">#==========================================================================</span>
+<span class="c1"># PLATFORM BUILD ENVIRONMENT CONFIGURATION</span>
+<span class="c1">#</span>
+<span class="k">class</span> <span class="nc">RpiSettingsManager</span><span class="p">(</span><span class="n">UpdateSettingsManager</span><span class="p">,</span> <span class="n">SetupSettingsManager</span><span class="p">,</span> <span class="n">BuildSettingsManager</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">SCRIPT_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ws</span> <span class="o">=</span> <span class="n">SCRIPT_PATH</span>
+
+    <span class="k">def</span> <span class="nf">GetWorkspaceRoot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; get WorkspacePath &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ws</span>
+</code></pre></div>
+<p>For more information on settings managers, please refer to the documentation.
+Right now we are importing the needed classes from the pytools as well as
+defining a class which will provide the settings to stuart.</p>
+<p>The three invocables that we have implemented settings for are <code>stuart_build</code>,
+<code>stuart_update</code>, and <code>stuart_setup</code>. If you were to call one of these, you'd get
+an error on a non-implemented method.</p>
+<p>Since our settings provider it is still missing a lot of functionality. While it
+can now set up our workspace path, which should resolve to your root <code>rpi</code>
+folder, there's still different methods of each settings manager that we haven't
+implemented yet.</p>
+<p><code>GetWorkspaceRoot</code> returns a path to the root of your workspace. In this case,
+<code>rpi</code> is the folder in question, which where our PlatformBuild.py is.</p>
+<h3 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">&para;</a></h3>
+<p>Let's focus on getting setup working. Let's add Scopes and RequiredSubmodules.</p>
+<div class="highlight"><pre><span></span><code><span class="o">...</span>
+
+<span class="k">class</span> <span class="nc">RpiSettingsManager</span><span class="p">(</span><span class="n">UpdateSettingsManager</span><span class="p">,</span> <span class="n">SetupSettingsManager</span><span class="p">,</span> <span class="n">BuildSettingsManager</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">SCRIPT_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ws</span> <span class="o">=</span> <span class="n">SCRIPT_PATH</span>
+
+    <span class="k">def</span> <span class="nf">GetWorkspaceRoot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; get WorkspacePath &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ws</span>
+
+    <span class="k">def</span> <span class="nf">GetActiveScopes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; get scope &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;raspberrypi&#39;</span><span class="p">,</span> <span class="s1">&#39;gcc_aarch64_linux&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">GetPackagesSupported</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; return iterable of edk2 packages supported by this build.</span>
+<span class="sd">        These should be edk2 workspace relative paths &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;RaspberryPi/RPi3&quot;</span><span class="p">,</span> <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">GetRequiredSubmodules</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; return iterable containing RequiredSubmodule objects.</span>
+<span class="sd">        If no RequiredSubmodules return an empty iterable</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">RequiredSubmodule</span><span class="p">(</span><span class="s2">&quot;MU_BASECORE&quot;</span><span class="p">),</span>
+            <span class="n">RequiredSubmodule</span><span class="p">(</span><span class="s2">&quot;Common/MU_OEM&quot;</span><span class="p">),</span>
+            <span class="n">RequiredSubmodule</span><span class="p">(</span><span class="s2">&quot;Common/MU&quot;</span><span class="p">),</span>
+            <span class="n">RequiredSubmodule</span><span class="p">(</span><span class="s2">&quot;Common/TIANO&quot;</span><span class="p">),</span>
+            <span class="n">RequiredSubmodule</span><span class="p">(</span><span class="s2">&quot;Silicon/ARM/MU_TIANO&quot;</span><span class="p">),</span>
+        <span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">GetArchitecturesSupported</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; return iterable of edk2 architectures supported by this build &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;AARCH64&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">GetTargetsSupported</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; return iterable of edk2 target tags supported by this build &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span> <span class="s2">&quot;RELEASE&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p><code>GetScopes</code> allows us to get the "scopes" for this platform. For more
+information, refer to the feature_sde document. But in short, it allows us to
+pick which external dependencies and environmental descriptors apply to this
+project. We picked raspberrypi for this project somewhat arbitrarily. But in the
+future perhaps we would have a nuget feed with a driver efi inside, that has the
+scope raspberrypi.</p>
+<p><code>GetRequiredSubmodules</code> allows us to specific which submodules we care about. If
+we were building certain platforms, we might not care about certain submodules
+and wouldn't need to bother cloning them. In this case, we want them all so we
+return an iterable with all of them.</p>
+<p><code>GetPackagesSupported</code> allows us to specify which packages this settings file
+supports building. You could use the same settings file to build multiple
+platforms or select between different platforms.</p>
+<p>Now if we call setup, we should see something like this:</p>
+<div class="highlight"><pre><span></span><code>~/rpi$ stuart_setup -c RpiPlatformBuild.py
+SECTION - Init SDE
+SECTION - Loading Plugins
+SECTION - Start Invocable Tool
+PROGRESS - ## Syncing Git repositories: edk2 non-osi platforms...
+PROGRESS - Done.
+
+PROGRESS - ## Checking Git repository: edk2...
+
+PROGRESS - ## Checking Git repository: non-osi...
+
+PROGRESS - ## Checking Git repository: platforms...
+
+PROGRESS - Done.
+
+SECTION - Summary
+PROGRESS - Success
+</code></pre></div>
+<p>You'll also notice that there's a new folder in your tree: <code>Build</code>. In the setup
+phase, we don't have an output folder from the DSC yet, so we put logs into that
+folder. Inside you'll notice is a SETUPLOG. It just contains verbose information
+about this process. For example, you'll see that it cloned the submodules in
+EDK2 CryptoPkg.</p>
+<p>Since we've already setup our submodules, there isn't much to do other than
+verify the system is in good shape.</p>
+<p>Now let's move onto Update.</p>
+<h3 id="update">Update<a class="headerlink" href="#update" title="Permanent link">&para;</a></h3>
+<p>Since we defined the scopes, our settings file is already configured. We can run
+the update and it will work just fine.</p>
+<div class="highlight"><pre><span></span><code>~/rpi$ stuart_update -c RpiPlatformBuild.py
+SECTION - Init SDE
+SECTION - Loading Plugins
+SECTION - Start Invocable Tool
+SECTION - Initial update of environment
+SECTION -       Updated/Verified 1 dependencies
+SECTION - Second pass update of environment
+SECTION -       Updated/Verified 1 dependencies
+SECTION - Summary
+PROGRESS - Success
+</code></pre></div>
+<p>Stuart has something called the Self-Describing Environment or SDE. This allows
+Stuart to infer the external dependencies, path configurations, and
+environmental variables from the code tree itself. This ends up being an
+incredibly powerful tool. For more information, please refer to our guide on
+using the SDE.</p>
+<p>Update verifies and updates what is in the SDE. This grabs nuget packages and
+any other dependencies. EDK2 has a few external dependencies, such as GCC for
+ARM/AARCH64, IASL, and NASM. If you were to build without doing an update, the
+SDE would stop you and report that some external dependencies weren't satisfied.
+It would prompt you to do an update.</p>
+<p>Optionally, we'll be adding the Basetools that are precompiled through a release
+pipeline. However, this is an optional step and if you wish, you can use
+basetools that you've already compiled yourself. Normally, this would go inside
+the submodules or in the basetools folder itself. However in this case, we'll
+create a new folder called <code>dependencies</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span> ~/rpi
+mkdir dependencies
+<span class="nb">cd</span> dependencies
+touch basetoolsbin_ext_dep.yaml
+</code></pre></div>
+<p>Inside the file goes:</p>
+<div class="highlight"><pre><span></span><code><span class="c1">##</span><span class="w"></span>
+<span class="c1"># Download the compiled basetools from nuget.org</span><span class="w"></span>
+<span class="c1"># - Nuget package contains different binaries based on the host os</span><span class="w"></span>
+<span class="c1"># Set this downloaded folder on path</span><span class="w"></span>
+<span class="c1"># Set a Shell variable to this path</span><span class="w"></span>
+<span class="c1">#</span><span class="w"></span>
+<span class="c1"># Copyright (c) 2019, Microsoft Corporation</span><span class="w"></span>
+<span class="c1"># SPDX-License-Identifier: BSD-2-Clause-Patent</span><span class="w"></span>
+<span class="c1">##</span><span class="w"></span>
+<span class="p p-Indicator">{</span><span class="w"></span>
+<span class="w">  </span><span class="s">&quot;scope&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;global&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">  </span><span class="s">&quot;type&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;nuget&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">  </span><span class="s">&quot;name&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;Mu-Basetools&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">  </span><span class="s">&quot;source&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;https://api.nuget.org/v3/index.json&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">  </span><span class="s">&quot;version&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;2019.11.0&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">  </span><span class="s">&quot;flags&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;set_shell_var&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;set_path&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;host_specific&quot;</span><span class="p p-Indicator">],</span><span class="w"></span>
+<span class="w">  </span><span class="s">&quot;var_name&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;EDK_TOOLS_BIN&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="p p-Indicator">}</span><span class="w"></span>
+</code></pre></div>
+<p>Now we can re-run update and see the new external dependency get pulled down.</p>
+<div class="highlight"><pre><span></span><code>~/rpi$ stuart_update -c RpiPlatformBuild.py
+SECTION - Init SDE
+SECTION - Loading Plugins
+SECTION - Start Invocable Tool
+SECTION - Initial update of environment
+SECTION -       Updated/Verified <span class="m">2</span> dependencies
+SECTION - Second pass update of environment
+SECTION -       Updated/Verified <span class="m">2</span> dependencies
+SECTION - Summary
+PROGRESS - Success
+</code></pre></div>
+<h3 id="build">Build<a class="headerlink" href="#build" title="Permanent link">&para;</a></h3>
+<p>If you were to try a platform build, it would fail saying <code>RuntimeError:
+UefiBuild Not Found</code>. Stuart provides a helper class that scaffolds out the
+build step. There's a few ways to implement the UefiBuilder. It can be a
+separate class in your <code>PlatformBuild.py</code>, it can be the same class as your
+SettingsManager, or it can be a separate file all together. For the sake of
+simplicity, we're going to have it as a separate class in the same file.</p>
+<div class="highlight"><pre><span></span><code><span class="o">...</span>
+
+<span class="k">class</span> <span class="nc">SettingsManager</span><span class="p">(</span><span class="n">UpdateSettingsManager</span><span class="p">,</span> <span class="n">SetupSettingsManager</span><span class="p">,</span> <span class="n">BuildSettingsManager</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+      <span class="o">....</span>
+
+<span class="c1">#--------------------------------------------------------------------------------------------------------</span>
+<span class="c1"># Subclass the UEFI builder and add platform specific functionality.</span>
+<span class="c1">#</span>
+<span class="k">class</span> <span class="nc">PlatformBuilder</span><span class="p">(</span><span class="n">UefiBuilder</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">SetPlatformEnv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">SetValue</span><span class="p">(</span><span class="s2">&quot;ACTIVE_PLATFORM&quot;</span><span class="p">,</span> <span class="s2">&quot;Platform/RaspberryPi/RPi3/RPi3.dsc&quot;</span><span class="p">,</span> <span class="s2">&quot;Platform Hardcoded&quot;</span><span class="p">)</span>
+      <span class="k">return</span> <span class="mi">0</span>
+</code></pre></div>
+<p>If we were to run it right now, we would fail because we need to implement one
+more function in our settings provider: GetPackagesPath. This is needed to
+provide the paths to the EDK2 system. We need to provide absolute paths, so we
+join each path to our workspace root.</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">SettingsManager</span><span class="p">(</span><span class="n">UpdateSettingsManager</span><span class="p">,</span> <span class="n">SetupSettingsManager</span><span class="p">,</span> <span class="n">BuildSettingsManager</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+      <span class="o">....</span>
+      <span class="k">def</span> <span class="nf">GetTargetsSupported</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="o">....</span>
+
+    <span class="k">def</span> <span class="nf">GetPackagesPath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; get module packages path &#39;&#39;&#39;</span>
+        <span class="n">pp</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;edk2&#39;</span><span class="p">,</span> <span class="s2">&quot;non-osi&quot;</span><span class="p">,</span> <span class="s1">&#39;platforms&#39;</span><span class="p">]</span>
+        <span class="n">ws</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetWorkspaceRoot</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ws</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">pp</span><span class="p">]</span>
+</code></pre></div>
+<p>Now when we run it, we'll see that we get an error from our UefiBuild itself.
+(Replace your toolchain tag with whatever toolchain you are using.)</p>
+<div class="highlight"><pre><span></span><code>~/rpi$ stuart_build -c  Platform/RaspberryPi/RPi3/PlatformBuild.py TOOL_CHAIN_TAG=******
+SECTION - Init SDE
+SECTION - Loading Plugins
+SECTION - Start Invocable Tool
+SECTION - Loading Plugins
+SECTION - Kicking off build
+PROGRESS - Start time: 2019-12-02 14:37:17.515761
+PROGRESS - Setting up the Environment
+PROGRESS - Running Pre Build
+PROGRESS - Running Build DEBUG
+ERROR - Compiler #2000 from :   Invalid parameter
+CRITICAL - Build failed
+PROGRESS - End time: 2019-12-02 14:37:18.313707  Total time Elapsed: 0:00:00
+SECTION - Summary
+PROGRESS - Error
+</code></pre></div>
+<p>It is failing because we haven't defined the architecture we are building and
+many other things.</p>
+<p>Now you might be asking yourself, wait, how are we already compiling? What about
+the basetools, the CONF folder, the build tools and environmental variables?
+Don't I need to set these up? Nope. Stuart does it for you. You can see in your
+Build folder there should be a <code>BUILDLOG.txt</code>, <code>SETUPLOG.txt</code>, and
+<code>UPDATELOG.txt</code>. The goal there is to make sure you can reliably figure out what
+is going on when things do go wrong. For more information on them, go read about
+them here: (TODO) The goal of Stuart is to be as magical as possible while still
+being transparent and understandable as possible.</p>
+<div class="highlight"><pre><span></span><code>INFO - Log Started: Saturday, November 02, 2019 09:22PM
+SECTION - Init SDE
+DEBUG - Loading workspace: C:/git/rpi
+DEBUG -   Including scopes: raspberrypi, global-win, global
+DEBUG - Adding descriptor &#39;C:/git/rpi/MU_BASECORE/BaseTools/BinWrappers/WindowsLike/win_build_tools_path_env.json&#39; to the environment with scope &#39;global-win&#39;.
+DEBUG - Adding descriptor &#39;C:/git/rpi/MU_BASECORE/edk2_core_path_env.json&#39; to the environment with scope &#39;global&#39;.
+DEBUG - Adding descriptor &#39;C:/git/rpi/MU_BASECORE/BaseTools/basetools_calling_path_env.json&#39; to the environment with scope &#39;global&#39;.
+DEBUG - Adding descriptor &#39;C:/git/rpi/MU_BASECORE/BaseTools/basetools_path_env.json&#39; to the environment with scope &#39;global&#39;.
+DEBUG - Adding descriptor &#39;C:/git/rpi/MU_BASECORE/BaseTools/Scripts/basetools_scripts_bin_path_env.json&#39; to the environment with scope &#39;global&#39;.
+DEBUG - Adding descriptor &#39;C:/git/rpi/MU_BASECORE/BaseTools/Source/Python/basetool_tiano_python_path_env.json&#39; to the environment with scope &#39;global&#39;.
+DEBUG - Adding descriptor &#39;C:/git/rpi/Common/MU/SharedCryptoPkg/Package/SharedCrypto_ext_dep.json&#39; to the environment with scope &#39;global&#39;.
+DEBUG - Adding descriptor &#39;C:/git/rpi/MU_BASECORE/BaseTools/Bin/basetools_ext_dep.json&#39; to the environment with scope &#39;global&#39;.
+DEBUG - Adding descriptor &#39;C:/git/rpi/MU_BASECORE/BaseTools/Bin/nasm_ext_dep.json&#39; to the environment with scope &#39;global&#39;.
+DEBUG - Adding descriptor &#39;C:/git/rpi/MU_BASECORE/NetworkPkg/SharedNetworking/SharedNetworking_ext_dep.json&#39; to the environment with scope &#39;global&#39;.
+DEBUG - Adding descriptor &#39;C:/git/rpi/MU_BASECORE/BaseTools/Plugin/WindowsResourceCompiler/WinRcPath_plug_in.json&#39; to the environment with scope &#39;global-win&#39;.
+DEBUG - Adding descriptor &#39;C:/git/rpi/MU_BASECORE/BaseTools/Plugin/WindowsVsToolChain/WindowsVsToolChain_plug_in.yaml&#39; to the environment with scope &#39;global-win&#39;.
+DEBUG - Adding descriptor &#39;C:/git/rpi/MU_BASECORE/BaseTools/Plugin/BuildToolsReport/BuildToolsReportGenerator_plug_in.json&#39; to the environment with scope &#39;global&#39;.
+DEBUG - Adding descriptor &#39;C:/git/rpi/MU_BASECORE/BaseTools/Plugin/Edk2ToolHelper/Edk2ToolHelper_plug_in.json&#39; to the environment with scope &#39;global&#39;.
+DEBUG - Adding descriptor &#39;C:/git/rpi/MU_BASECORE/BaseTools/Plugin/FdSizeReport/FdSizeReportGenerator_plug_in.json&#39; to the environment with scope &#39;global&#39;.
+DEBUG - Adding descriptor &#39;C:/git/rpi/MU_BASECORE/BaseTools/Plugin/FlattenPdbs/FlattenPdbs_plug_in.json&#39; to the environment with scope &#39;global&#39;.
+DEBUG - Adding descriptor &#39;C:/git/rpi/MU_BASECORE/BaseTools/Plugin/OverrideValidation/OverrideValidation_plug_in.json&#39; to the environment with scope &#39;global&#39;.
+DEBUG - Adding descriptor &#39;C:/git/rpi/MU_BASECORE/BaseTools/Plugin/WindowsCapsuleSupportHelper/WindowsCapsuleSupportHelper_plug_in.json&#39; to the environment with scope &#39;global&#39;.
+DEBUG - Verify &#39;mu_nasm&#39; returning &#39;True&#39;.
+INFO - C:/git/rpi/MU_BASECORE/BaseTools/Bin/mu_nasm_extdep/Windows-x86-64 was found!
+DEBUG - Verify &#39;Mu-Basetools&#39; returning &#39;True&#39;.
+INFO - C:/git/rpi/MU_BASECORE/BaseTools/Bin/Mu-Basetools_extdep/Windows-x86 was found!
+DEBUG - Verify &#39;Mu-SharedNetworking&#39; returning &#39;True&#39;.
+DEBUG - Verify &#39;mu_nasm&#39; returning &#39;True&#39;.
+DEBUG - Verify &#39;Mu-SharedCrypto&#39; returning &#39;True&#39;.
+SECTION - Loading Plugins
+DEBUG - Loading Plugin from C:/git/rpi/MU_BASECORE/BaseTools/Plugin/WindowsResourceCompiler/WinRcPath.py
+DEBUG - Loading Plugin from C:/git/rpi/MU_BASECORE/BaseTools/Plugin/WindowsVsToolChain/WindowsVsToolChain.py
+DEBUG - Loading Plugin from C:/git/rpi/MU_BASECORE/BaseTools/Plugin/BuildToolsReport/BuildToolsReportGenerator.py
+DEBUG - Loading Plugin from C:/git/rpi/MU_BASECORE/BaseTools/Plugin/Edk2ToolHelper/Edk2ToolHelper.py
+DEBUG - Loading Plugin from C:/git/rpi/MU_BASECORE/BaseTools/Plugin/FdSizeReport/FdSizeReportGenerator.py
+DEBUG - Loading Plugin from C:/git/rpi/MU_BASECORE/BaseTools/Plugin/FlattenPdbs/FlattenPdbs.py
+DEBUG - Loading Plugin from C:/git/rpi/MU_BASECORE/BaseTools/Plugin/OverrideValidation/OverrideValidation.py
+DEBUG - Loading Plugin from C:/git/rpi/MU_BASECORE/BaseTools/Plugin/WindowsCapsuleSupportHelper/WindowsCapsuleSupportHelper.py
+DEBUG - Helper Plugin Register: Edk2Tool Helper Functions
+DEBUG - Helper Plugin Register: Windows Capsule Support Helper Functions
+</code></pre></div>
+<p>You can see it is adding all the descriptors, which includes environment,
+external dependencies, and plugins. We load the basetools, the nasm tools,
+report generators, and other tools. We also check our external dependencies and
+verify they match the version we expect.</p>
+<p>The code is commited as commit at this point as (TODO).</p>
+<h2 id="setting-up-uefibuild">Setting up UefiBuild<a class="headerlink" href="#setting-up-uefibuild" title="Permanent link">&para;</a></h2>
+<p>Let's start by setting our DSC and product name</p>
+<div class="highlight"><pre><span></span><code><span class="o">...</span>
+<span class="c1">#--------------------------------------------------------------------------------------------------------</span>
+<span class="c1"># Subclass the UEFI builder and add platform specific functionality.</span>
+<span class="c1">#</span>
+<span class="k">class</span> <span class="nc">PlatformBuilder</span><span class="p">(</span><span class="n">UefiBuilder</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">SetPlatformEnv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">SetValue</span><span class="p">(</span><span class="s2">&quot;ACTIVE_PLATFORM&quot;</span><span class="p">,</span> <span class="s2">&quot;Platform/RaspberryPi/RPi3/RPi3.dsc&quot;</span><span class="p">,</span> <span class="s2">&quot;Platform Hardcoded&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">SetValue</span><span class="p">(</span><span class="s2">&quot;PRODUCT_NAME&quot;</span><span class="p">,</span> <span class="s2">&quot;RaspberryPi&quot;</span><span class="p">,</span> <span class="s2">&quot;Platform Hardcoded&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">SetValue</span><span class="p">(</span><span class="s2">&quot;TARGET_ARCH&quot;</span><span class="p">,</span> <span class="s2">&quot;AARCH64&quot;</span><span class="p">,</span> <span class="s2">&quot;Platform Hardcoded&quot;</span><span class="p">)</span>
+        <span class="n">os</span> <span class="o">=</span> <span class="n">GetHostInfo</span><span class="p">()</span><span class="o">.</span><span class="n">os</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;windows&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">SetValue</span><span class="p">(</span><span class="s2">&quot;TOOL_CHAIN_TAG&quot;</span><span class="p">,</span> <span class="s2">&quot;VS2017&quot;</span><span class="p">,</span> <span class="s2">&quot;Platform Hardcoded&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">SetValue</span><span class="p">(</span><span class="s2">&quot;TOOL_CHAIN_TAG&quot;</span><span class="p">,</span> <span class="s2">&quot;GCC5&quot;</span><span class="p">,</span> <span class="s2">&quot;Platform Hardcoded&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="mi">0</span>
+</code></pre></div>
+<p>At this point, when we run a build, we get this:</p>
+<div class="highlight"><pre><span></span><code>~/rpi$ stuart_update -c RpiPlatformBuild.py TOOL_CHAIN_TAG=GCC5
+SECTION - Init SDE
+SECTION - Loading Plugins
+SECTION - Start Invocable Tool
+SECTION - Initial update of environment
+SECTION -       Updated/Verified 2 dependencies
+SECTION - Second pass update of environment
+SECTION -       Updated/Verified 2 dependencies
+SECTION - Summary
+PROGRESS - Success
+~/rpi$ stuart_build -c RpiPlatformBuild.py TOOL_CHAIN_TAG=GCC5
+SECTION - Init SDE
+SECTION - Loading Plugins
+SECTION - Start Invocable Tool
+SECTION - Loading Plugins
+SECTION - Kicking off build
+PROGRESS - Start time: 2019-12-02 14:51:54.604488
+PROGRESS - Setting up the Environment
+PROGRESS - Running Pre Build
+PROGRESS - Running Build DEBUG
+PROGRESS - Running Post Build
+PROGRESS - End time: 2019-12-02 14:52:51.642897  Total time Elapsed: 0:00:57
+SECTION - Log file is located at: ~/rpi/Build/BUILDLOG.txt
+SECTION - Summary
+PROGRESS - Success
+</code></pre></div>
+<p>Fantastic!</p>
+<p>If you want, you can call it a day and load your new ROM on an SD card and boot
+your UEFI powered Raspberry Pi.</p>
+<p>However, there are a few things we'd like to tweak.</p>
+<p>Right now, the DeviceTree image is a binary file checked into the non-osi git
+repo. A better approach might be using the image directly. Ideally, it would be
+from a Nuget feed or other auditable release pipeline.</p>
+<p>First we'll create a new file</p>
+<div class="highlight"><pre><span></span><code>mkdir Platform/RaspberryPi/DeviceTree
+</code></pre></div>
+<p>Then we'll create two files. The first is the
+<code>dependencies/rpi-3-bp_ext_dep.yaml</code></p>
+<div class="highlight"><pre><span></span><code>touch dependencies/rpi-3-bp_ext_dep.yaml
+</code></pre></div>
+<p>Paste this in:</p>
+<div class="highlight"><pre><span></span><code><span class="c1">##</span><span class="w"></span>
+<span class="c1"># Download the Rpi 3b+ device tree from github</span><span class="w"></span>
+<span class="c1">#</span><span class="w"></span>
+<span class="c1"># Copyright (c) 2019, Microsoft Corporation</span><span class="w"></span>
+<span class="c1"># SPDX-License-Identifier: BSD-2-Clause-Patent</span><span class="w"></span>
+<span class="c1">##</span><span class="w"></span>
+<span class="p p-Indicator">{</span><span class="w"></span>
+<span class="w">  </span><span class="s">&quot;scope&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;raspberrypi&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">  </span><span class="s">&quot;type&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;web&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">  </span><span class="s">&quot;name&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;bcm2710_rpi_3b_plus_devicetree&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">  </span><span class="s">&quot;source&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;https://github.com/raspberrypi/firmware/raw/a16470ad47c0ad66d5c98d98e08e49cd148c8fc0/boot/bcm2710-rpi-3-b-plus.dtb&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">  </span><span class="s">&quot;version&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;a16470ad47c0ad66d5c98d98e08e49cd148c8fc0&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">  </span><span class="s">&quot;internal_path&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;bcm2710-rpi-3-b-plus.dtb&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">  </span><span class="s">&quot;sha256&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;253a2e8765aaec5bce6b2ab4e4dbd16107897cc24bb3e248ab5206c09a42cf04&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">  </span><span class="s">&quot;flags&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;set_build_var&quot;</span><span class="p p-Indicator">],</span><span class="w"></span>
+<span class="w">  </span><span class="s">&quot;var_name&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;BLD_*_BCM2710_3BP_DT&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="p p-Indicator">}</span><span class="w"></span>
+</code></pre></div>
+<p>The second is at <code>dependencies/rpi-3-b_ext_dep.yaml</code></p>
+<div class="highlight"><pre><span></span><code>touch dependencies/rpi-3-b_ext_dep.yaml
+</code></pre></div>
+<p>Paste this in:</p>
+<div class="highlight"><pre><span></span><code><span class="c1">##</span><span class="w"></span>
+<span class="c1"># Download the Rpi 3b device tree from github</span><span class="w"></span>
+<span class="c1">#</span><span class="w"></span>
+<span class="c1"># Copyright (c) 2019, Microsoft Corporation</span><span class="w"></span>
+<span class="c1"># SPDX-License-Identifier: BSD-2-Clause-Patent</span><span class="w"></span>
+<span class="c1">##</span><span class="w"></span>
+<span class="p p-Indicator">{</span><span class="w"></span>
+<span class="w">  </span><span class="s">&quot;scope&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;raspberrypi&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">  </span><span class="s">&quot;type&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;web&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">  </span><span class="s">&quot;name&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;bcm2710_rpi_3b_devicetree&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">  </span><span class="s">&quot;source&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;https://github.com/raspberrypi/firmware/raw/a16470ad47c0ad66d5c98d98e08e49cd148c8fc0/boot/bcm2710-rpi-3-b.dtb&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">  </span><span class="s">&quot;version&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;a16470ad47c0ad66d5c98d98e08e49cd148c8fc0&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">  </span><span class="s">&quot;internal_path&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;./bcm2710-rpi-3-b.dtb&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">  </span><span class="s">&quot;sha256&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;18ce263a6e1ce4ba7aee759885cb665d61611d2f17cee5b7e91215f7b97d2952&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">  </span><span class="s">&quot;flags&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;set_build_var&quot;</span><span class="p p-Indicator">],</span><span class="w"></span>
+<span class="w">  </span><span class="s">&quot;var_name&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;BLD_*_BCM2710_3B_DT&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="p p-Indicator">}</span><span class="w"></span>
+</code></pre></div>
+<p>These are two external dependencies that will download the device trees from
+GitHub. It includes the SHA256 of the file so it can verify the file downloaded.
+Feel free to jump ahead to a newer commit hash, just be aware that you'll need
+to update the SHA256 (stuart will warn you and show you the new hash).</p>
+<p>Let's run an update to fetch our new dependencies.</p>
+<div class="highlight"><pre><span></span><code>~/rpi$ stuart_update -c RpiPlatformBuild.py
+</code></pre></div>
+<p>You'll see some ouput and you'll notice two new folders in the tree.
+<code>bcm2710_rpi_3b_devicetree_extdep</code> and <code>bcm2710_rpi_3b_plus_devicetree_extdep</code>.
+Inside is the files that we want.</p>
+<p>Because the we told to SDE to save where the file was populated into an
+environmental variable, we'll use that in our FDF.</p>
+<p>This means that</p>
+<div class="highlight"><pre><span></span><code>  # Device Tree support (used by FdtDxe)
+  # GUIDs should match gRaspberryPi#####FdtGuids from the .dec
+  #
+  FILE FREEFORM = DF5DA223-1D27-47C3-8D1B-9A41B55A18BC {
+    SECTION RAW = Platform/RaspberryPi/$(PLATFORM_NAME)/DeviceTree/bcm2710-rpi-3-b.dtb
+  }
+  FILE FREEFORM = 3D523012-73FE-40E5-892E-1A4DF60F3C0C {
+    SECTION RAW = Platform/RaspberryPi/$(PLATFORM_NAME)/DeviceTree/bcm2710-rpi-3-b-plus.dtb
+  }
+</code></pre></div>
+<p>becomes</p>
+<div class="highlight"><pre><span></span><code>  # MU_CHANGE START
+  # Device Tree support (used by FdtDxe)
+  # GUIDs should match gRaspberryPi#####FdtGuids from the .dec
+  #
+  FILE FREEFORM = DF5DA223-1D27-47C3-8D1B-9A41B55A18BC {
+    SECTION RAW = $(BCM2710_3B_DT)/bcm2710-rpi-3-b.dtb
+  }
+  FILE FREEFORM = 3D523012-73FE-40E5-892E-1A4DF60F3C0C {
+    SECTION RAW = $(BCM2710_3BP_DT)/bcm2710-rpi-3-b-plus.dtb
+  }
+  # MU_CHANGE END
+</code></pre></div>
+<p>We can now build it and it will stay in sync with the upstream device tree. We
+could apply this technique to the ATF (Arm Trusted Firmware). Since it comes
+from the same place.</p>
+<h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
+<p>As of time of writing, VS2017 doesn't support the ASM files used in this
+project. So you'll need to use GCC. Using WSL is the recommended course for
+windows, but MacOS and Linux machines can follow the guide here.</p>
+<h2 id="project-mu">Project Mu<a class="headerlink" href="#project-mu" title="Permanent link">&para;</a></h2>
+<p>Using Project Mu is fairly easy. Instead of adding edk2, you would add these
+repos instead.</p>
+<p>You can add these all by running this command:</p>
+<div class="highlight"><pre><span></span><code>git submodule add https://github.com/Microsoft/mu_basecore.git MU_BASECORE
+git submodule add https://github.com/Microsoft/mu_plus.git Common/MU
+git submodule add https://github.com/Microsoft/mu_tiano_plus.git Common/TIANO
+git submodule add https://github.com/Microsoft/mu_oem_sample.git Common/MU_OEM
+git submodule add https://github.com/microsoft/mu_silicon_arm_tiano.git Silicon/ARM/MU_TIANO
+git submodule add https://github.com/tianocore/edk2-platforms.git platforms
+git submodule add https://github.com/tianocore/edk2-non-osi.git non-osi
+</code></pre></div>
+<p>Refer to the documentation in the various repos for the informations on how to
+enable features such as DFCI, SharedCrypto, etc.</p>
+<h2 id="future-work">Future Work<a class="headerlink" href="#future-work" title="Permanent link">&para;</a></h2>
+<p>Many of the capabilities and features of Stuart aren't detailed or explored
+here. One area not discussed in detail or shown is external dependencies. In the
+future, it would be beneficial to move the ARM Trusted Firmware (ATF) binary
+blob into an external dependency. This means you can have a separate build
+pipeline for that which packages it up into a nuget or github release, which
+your platform consumes. It addition to not having to carry a binary in your
+build tree, it makes the version of the binary trivial to track.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../manage/" class="btn btn-neutral float-left" title="Core CI with Stuart"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../tools/using_capsule_tool/" class="btn btn-neutral float-right" title="Capsule Helper and Tool">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright (c) Microsoft.  All rights reserved</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tianocore/edk2-pytool-extensions" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../manage/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../tools/using_capsule_tool/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme_extra.js" defer></script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="https://unpkg.com/mermaid@8.7.0/dist/mermaid.min.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

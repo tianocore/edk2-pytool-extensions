@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Omnicache Tool - Tianocore Edk2 Pytool Extensions (edk2toolext)</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Omnicache Tool";
+        var mkdocs_page_input_path = "tools\\using_omnicache_tool.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Tianocore Edk2 Pytool Extensions (edk2toolext)
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Our Philosophy</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Using Stuart</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/install/">Installation Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/build/">Build Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/ci/">Core CI Instructions</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Integrating Stuart</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../integrate/build/">Build with Stuart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../integrate/manage/">Core CI with Stuart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../integrate/porting/">Porting Example</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tools</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../using_capsule_tool/">Capsule Helper and Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../using_firmware_policy_tool/">Firmware Policy Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../using_image_validation_tool/">PE/COFF Image Validation Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../using_nuget_publishing_tool/">Nuget Publishing Tool</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Omnicache Tool</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#creating-your-omnicache">Creating your Omnicache</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#adding-config-entries">Adding Config Entries</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#example-of-adding-config-entry">Example of adding config entry</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example-config">Example Config</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#keeping-your-omnicache-current">Keeping your Omnicache Current</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#windows-scheduled-task">Windows Scheduled Task</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#using-omnicache-for-stuart_setup">Using Omnicache for stuart_setup</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#using-omnicache-for-git-clone">Using Omnicache for git clone</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#warnings">Warnings</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#a-second-tutorial-of-omnicache">A second tutorial of Omnicache</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#the-omnicache-or-how-i-learned-to-stop-worrying-and-love-the-all-repo">The Omnicache or how I learned to stop worrying and love the all repo</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#the-genesis">The Genesis</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#creating-a-new-omnicache">Creating a new omnicache</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#feeding-i-mean-adding-to-the-omnicache">Feeding- I mean, Adding to the omnicache</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#updating-the-omnicache">Updating the omnicache</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#know-whats-in-the-cache">Know what's in the cache</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#assimilation-into-the-omnicache">Assimilation into the Omnicache</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#fighting-back-against-the-omnicache">Fighting back against the Omnicache</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#using-the-omnicache">Using the Omnicache</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../using_sig_db_tool/">Secure Boot Database Inspection Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../using_versioninfo_tool/">Version Info Tool</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Advanced Features</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/invocable/">Invocables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/creating_invocable/">Creating Invocables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/extdep/">Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/creating_extdep/">Creating Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/plugin_manager/">Plugins</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/creating_plugins/">Create a Plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/environment_variables/">Environment Variables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/sde/">Self Describing Environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/settings_manager/">Settings Manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/logging/">Logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../features/using_linux/">WSL</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API Reference</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/base_abstract_invocable/">Base abstract invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/edk2_git/">Edk2 git</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/edk2_invocable/">Edk2 invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/edk2_logging/">Edk2 logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/conf_mgmt/">Conf mgmt</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/environment_descriptor_files/">Environment descriptor files</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/external_dependency/">External dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/multiple_workspace/">Multiple workspace</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugin_manager/">Plugin manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/repo_resolver/">Repo resolver</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/self_describing_environment/">Self describing environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/shell_environment/">Shell environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/uefi_build/">Uefi build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/var_dict/">Var dict</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/version_aggregator/">Version aggregator</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/az_cli_universal_dependency/">Az cli universal dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/git_dependency/">Git dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/nuget_dependency/">Nuget dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/web_dependency/">Web dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/ci_build_plugin/">Ci build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/dsc_processor_plugin/">Dsc processor plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/uefi_build_plugin/">Uefi build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/uefi_helper_plugin/">Uefi helper plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_ci_build/">Edk2 ci build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_ci_setup/">Edk2 ci setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_multipkg_aware_invocable/">Edk2 multipkg aware invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_platform_build/">Edk2 platform build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_pr_eval/">Edk2 pr eval</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_setup/">Edk2 setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_update/">Edk2 update</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Tianocore Edk2 Pytool Extensions (edk2toolext)</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+          <li>Tools &raquo;</li>
+      <li>Omnicache Tool</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tianocore/edk2-pytool-extensions/edit/master/docs/tools/using_omnicache_tool.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="omnicache-tool">Omnicache Tool<a class="headerlink" href="#omnicache-tool" title="Permanent link">&para;</a></h1>
+<p>Omnicache, the tool, is a command line tool that helps setup and update an
+Omnicache.</p>
+<p>An Omnicache is just a bare repo with lots of remotes fetched so that, if
+configured, Stuart tools will use it as a reference when updating or cloning a
+repo. This saves a lot of network bandwidth, disk space, and time if you develop
+with many workspaces on a single PC and can also be used to speed up CI.</p>
+<h2 id="creating-your-omnicache">Creating your Omnicache<a class="headerlink" href="#creating-your-omnicache" title="Permanent link">&para;</a></h2>
+<p>You can setup your Omnicache many ways. You can add config entries from numerous
+files or thru command line. Try <code>Omnicache -h</code> for help. Here are the steps for
+a simple empty installation.</p>
+<ol>
+<li>Make sure you have installed edk2toolext using Pip</li>
+<li>Open cmd prompt</li>
+<li>
+<p>Create one</p>
+<div class="highlight"><pre><span></span><code>omnicache --init &lt;path&gt;
+</code></pre></div>
+</li>
+<li>
+<p>At the end of the creation it will suggest setting the <strong>OMNICACHE_PATH</strong>
+   environment variable. For best results do this.</p>
+</li>
+</ol>
+<h2 id="adding-config-entries">Adding Config Entries<a class="headerlink" href="#adding-config-entries" title="Permanent link">&para;</a></h2>
+<p>Config entries can be added when first creating the cache as well as any time by
+using the tool. Config entries can be added 1-by-1 from the command line or
+thru a config file.</p>
+<h3 id="example-of-adding-config-entry">Example of adding config entry<a class="headerlink" href="#example-of-adding-config-entry" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>omnicache -a tianocore_edk2 https://github.com/tianocore/edk2.git --init %OMNICACHE_PATH%
+omnicache -a openssl https://github.com/openssl/openssl.git True --init %OMNICACHE_PATH%
+</code></pre></div>
+<h3 id="example-config">Example Config<a class="headerlink" href="#example-config" title="Permanent link">&para;</a></h3>
+<p>Copy the below sample and save it as <strong>abc.yml</strong></p>
+<div class="highlight"><pre><span></span><code>remotes:
+- name: openssl
+  url: https://github.com/openssl/openssl.git
+  tag: true
+- name: tianocore_edk2
+  url: https://github.com/tianocore/edk2.git
+</code></pre></div>
+<p>Then run omnicache command to add the new entries.</p>
+<div class="highlight"><pre><span></span><code>omnicache -c abc.yml --init %OMNICACHE_PATH%
+</code></pre></div>
+<h2 id="keeping-your-omnicache-current">Keeping your Omnicache Current<a class="headerlink" href="#keeping-your-omnicache-current" title="Permanent link">&para;</a></h2>
+<p>The Omnicache doesn't have to always be current. If it gets stale it will still
+help but there will be more "cache misses". Since the Omnicache is just a git
+repo it can easily be updated by running git commands and since it is a bare
+repo it is trouble free to update. The Omnicache tool attempts to make this even
+easier.</p>
+<h3 id="windows-scheduled-task">Windows Scheduled Task<a class="headerlink" href="#windows-scheduled-task" title="Permanent link">&para;</a></h3>
+<p>If you want to use a scheduled task here is one way to do it on Windows.</p>
+<ol>
+<li>Set the <strong>OMNICACHE_PATH</strong> environment variable to your path</li>
+<li>
+<p>Create an <strong>omnicache_update.bat</strong> file in your omnicache directory that
+   contains</p>
+<div class="highlight"><pre><span></span><code>omnicache --init --fetch <span class="nv">%OMNICACHE_PATH%</span>
+</code></pre></div>
+</li>
+<li>
+<p>Create a temporary XML file on your desktop with the contents below named
+   <strong>"O_U.xml"</strong></p>
+<div class="highlight"><pre><span></span><code><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-16&quot;?&gt;</span>
+<span class="nt">&lt;Task</span> <span class="na">version=</span><span class="s">&quot;1.4&quot;</span> <span class="na">xmlns=</span><span class="s">&quot;http://schemas.microsoft.com/windows/2004/02/mit/task&quot;</span><span class="nt">&gt;</span>
+<span class="nt">&lt;Triggers&gt;</span>
+  <span class="nt">&lt;CalendarTrigger&gt;</span>
+    <span class="nt">&lt;StartBoundary&gt;</span>2019-01-04T8:00:00<span class="nt">&lt;/StartBoundary&gt;</span>
+    <span class="nt">&lt;ExecutionTimeLimit&gt;</span>PT2H<span class="nt">&lt;/ExecutionTimeLimit&gt;</span>
+    <span class="nt">&lt;Enabled&gt;</span>true<span class="nt">&lt;/Enabled&gt;</span>
+    <span class="nt">&lt;ScheduleByDay&gt;</span>
+      <span class="nt">&lt;DaysInterval&gt;</span>1<span class="nt">&lt;/DaysInterval&gt;</span>
+    <span class="nt">&lt;/ScheduleByDay&gt;</span>
+  <span class="nt">&lt;/CalendarTrigger&gt;</span>
+<span class="nt">&lt;/Triggers&gt;</span>
+<span class="nt">&lt;Settings&gt;</span>
+  <span class="nt">&lt;MultipleInstancesPolicy&gt;</span>IgnoreNew<span class="nt">&lt;/MultipleInstancesPolicy&gt;</span>
+  <span class="nt">&lt;DisallowStartIfOnBatteries&gt;</span>false<span class="nt">&lt;/DisallowStartIfOnBatteries&gt;</span>
+  <span class="nt">&lt;StopIfGoingOnBatteries&gt;</span>false<span class="nt">&lt;/StopIfGoingOnBatteries&gt;</span>
+  <span class="nt">&lt;AllowHardTerminate&gt;</span>true<span class="nt">&lt;/AllowHardTerminate&gt;</span>
+  <span class="nt">&lt;StartWhenAvailable&gt;</span>false<span class="nt">&lt;/StartWhenAvailable&gt;</span>
+  <span class="nt">&lt;RunOnlyIfNetworkAvailable&gt;</span>false<span class="nt">&lt;/RunOnlyIfNetworkAvailable&gt;</span>
+  <span class="nt">&lt;IdleSettings&gt;</span>
+    <span class="nt">&lt;StopOnIdleEnd&gt;</span>true<span class="nt">&lt;/StopOnIdleEnd&gt;</span>
+    <span class="nt">&lt;RestartOnIdle&gt;</span>false<span class="nt">&lt;/RestartOnIdle&gt;</span>
+  <span class="nt">&lt;/IdleSettings&gt;</span>
+  <span class="nt">&lt;AllowStartOnDemand&gt;</span>true<span class="nt">&lt;/AllowStartOnDemand&gt;</span>
+  <span class="nt">&lt;Enabled&gt;</span>true<span class="nt">&lt;/Enabled&gt;</span>
+  <span class="nt">&lt;Hidden&gt;</span>false<span class="nt">&lt;/Hidden&gt;</span>
+  <span class="nt">&lt;RunOnlyIfIdle&gt;</span>false<span class="nt">&lt;/RunOnlyIfIdle&gt;</span>
+  <span class="nt">&lt;DisallowStartOnRemoteAppSession&gt;</span>false<span class="nt">&lt;/DisallowStartOnRemoteAppSession&gt;</span>
+  <span class="nt">&lt;UseUnifiedSchedulingEngine&gt;</span>true<span class="nt">&lt;/UseUnifiedSchedulingEngine&gt;</span>
+  <span class="nt">&lt;WakeToRun&gt;</span>false<span class="nt">&lt;/WakeToRun&gt;</span>
+  <span class="nt">&lt;ExecutionTimeLimit&gt;</span>PT72H<span class="nt">&lt;/ExecutionTimeLimit&gt;</span>
+  <span class="nt">&lt;Priority&gt;</span>7<span class="nt">&lt;/Priority&gt;</span>
+<span class="nt">&lt;/Settings&gt;</span>
+<span class="nt">&lt;Actions</span> <span class="na">Context=</span><span class="s">&quot;Author&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;Exec&gt;</span>
+    <span class="nt">&lt;Command&gt;</span>cmd.exe<span class="nt">&lt;/Command&gt;</span>
+    <span class="nt">&lt;Arguments&gt;</span>/c omnicache_update.bat<span class="nt">&lt;/Arguments&gt;</span>
+    <span class="nt">&lt;WorkingDirectory&gt;</span>%OMNICACHE_PATH%<span class="nt">&lt;/WorkingDirectory&gt;</span>
+  <span class="nt">&lt;/Exec&gt;</span>
+<span class="nt">&lt;/Actions&gt;</span>
+<span class="nt">&lt;/Task&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Open Cmd prompt and use SCHTASKS to create a task.</p>
+</li>
+</ol>
+<div class="highlight"><pre><span></span><code>SCHTASKS /Create /XML &quot;O_U.xml&quot; /TN &quot;Omnicache Updater&quot;
+</code></pre></div>
+<h2 id="using-omnicache-for-stuart_setup">Using Omnicache for stuart_setup<a class="headerlink" href="#using-omnicache-for-stuart_setup" title="Permanent link">&para;</a></h2>
+<p>Set the environment variable <strong>OMNICACHE_PATH</strong> for automatic usage. To provide
+a path manually:</p>
+<div class="highlight"><pre><span></span><code>stuart_setup --omnicache &lt;path&gt;
+stuart_ci_setup --omnicache &lt;path&gt;
+</code></pre></div>
+<h2 id="using-omnicache-for-git-clone">Using Omnicache for git clone<a class="headerlink" href="#using-omnicache-for-git-clone" title="Permanent link">&para;</a></h2>
+<p>Current best practice is to setup a bashrc alias if using git for windows in
+gitbash.</p>
+<div class="highlight"><pre><span></span><code><span class="nb">alias</span> <span class="nv">gcl</span><span class="o">=</span><span class="err">&#39;</span>git clone --reference <span class="si">${</span><span class="nv">OMNICACHE_PATH</span><span class="si">}</span>’
+</code></pre></div>
+<p>Then every git clone you want to do you can call <code>gcl &lt;url&gt; &lt;folder&gt;</code> instead of
+<code>git clone &lt;url&gt; &lt;folder&gt;</code></p>
+<h2 id="warnings">Warnings<a class="headerlink" href="#warnings" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p>Removing the omnicache from your PC can cause problems in your repos. Read up
+  on --reference in git for methods to resolve this before deleting the
+  omnicache.</p>
+</li>
+<li>
+<p>Bug in <code>git submodule update --recursive --reference &lt;path&gt;</code> . This doesn't
+  work as git appends the recursive submodule path to the reference path.
+  Contacting git maintainers for clarity.</p>
+</li>
+<li>
+<p>Tags: tags are not namespaced by remote therefore conflicts could occur.
+  Suggestion is to not pull tags unless required. Stack exchange has a few other
+  ideas but nothing implemented yet.</p>
+</li>
+<li>
+<p>Older versions of the omnicache tool used <code>-u true</code> to update. Newer versions
+  just require <code>-u</code> or <code>--fetch</code>.</p>
+</li>
+<li>
+<p>Since <code>-a</code> is a variable length argument list it is best to always add the
+  <code>--init</code> parameter as the last parameter before the cache_dir positional
+  argument. This way python argparse knows positional args from the <code>-a</code>
+  optional args.</p>
+</li>
+</ul>
+<hr />
+<h2 id="a-second-tutorial-of-omnicache">A second tutorial of Omnicache<a class="headerlink" href="#a-second-tutorial-of-omnicache" title="Permanent link">&para;</a></h2>
+<hr />
+<h2 id="the-omnicache-or-how-i-learned-to-stop-worrying-and-love-the-all-repo">The Omnicache or how I learned to stop worrying and love the all repo<a class="headerlink" href="#the-omnicache-or-how-i-learned-to-stop-worrying-and-love-the-all-repo" title="Permanent link">&para;</a></h2>
+<h2 id="the-genesis">The Genesis<a class="headerlink" href="#the-genesis" title="Permanent link">&para;</a></h2>
+<p>Many repositories in the tree have common roots and share a very similar
+codebase. In order to speed up clone times for our CI builds as well as for
+personal use, we realized you can clone a repo using a reference repository.</p>
+<div class="highlight"><pre><span></span><code>git clone <span class="o">{{</span>URL<span class="o">}}</span> --reference ../some-directory
+</code></pre></div>
+<p>Another feature that came to light is that you can use git to create an
+omni-repository. You can have all the objects stored into one place and git will
+query this repo for any objects it wishes to fetch and if they aren't found, it
+will then request them from upstream.</p>
+<p>We created some helper functions to wrap around this. It can be called by
+omnicache.</p>
+<h2 id="creating-a-new-omnicache">Creating a new omnicache<a class="headerlink" href="#creating-a-new-omnicache" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>omnicache --init ../omnicache
+</code></pre></div>
+<p>You can optionally use</p>
+<div class="highlight"><pre><span></span><code>omnicache --new ../omnicache
+</code></pre></div>
+<p>The difference between the two is that new will fail if something exists there,
+init does not.</p>
+<h2 id="feeding-i-mean-adding-to-the-omnicache">Feeding- I mean, Adding to the omnicache<a class="headerlink" href="#feeding-i-mean-adding-to-the-omnicache" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>omnicache -a &lt;name&gt; &lt;url&gt; &lt;Sync tags optional <span class="nv">default</span><span class="o">=</span>False&gt; ../omnicache
+omnicache --add &lt;name&gt; &lt;url&gt; &lt;Sync tags optional <span class="nv">default</span><span class="o">=</span>False&gt; ../omnicache
+</code></pre></div>
+<p>(Either of these will work)</p>
+<h2 id="updating-the-omnicache">Updating the omnicache<a class="headerlink" href="#updating-the-omnicache" title="Permanent link">&para;</a></h2>
+<p>Now that you're a proud owner of an omnicache, you need to take care to update
+it semi-regularly.</p>
+<div class="highlight"><pre><span></span><code>omnicache --update ../omnicache
+omnicache -u ../omnicache
+</code></pre></div>
+<p>(Either of these will work)</p>
+<h2 id="know-whats-in-the-cache">Know what's in the cache<a class="headerlink" href="#know-whats-in-the-cache" title="Permanent link">&para;</a></h2>
+<p>You can find out what is in your cache by listing it's contents.</p>
+<div class="highlight"><pre><span></span><code>omnicache --list ../omnicache
+</code></pre></div>
+<h2 id="assimilation-into-the-omnicache">Assimilation into the Omnicache<a class="headerlink" href="#assimilation-into-the-omnicache" title="Permanent link">&para;</a></h2>
+<p>Sometimes you have a folder where all the repos are already cloned (either as
+submodules or separate folders). You can scan them all into the omnicache by
+using the scan feature.</p>
+<div class="highlight"><pre><span></span><code>omnicache --scan ../folder ../omnicache
+</code></pre></div>
+<p>This will add unique repos/submodules that it finds in the top level folders in
+../folder. Unique is determined by URL.</p>
+<h2 id="fighting-back-against-the-omnicache">Fighting back against the Omnicache<a class="headerlink" href="#fighting-back-against-the-omnicache" title="Permanent link">&para;</a></h2>
+<p>If your omnicache has grown a touch too powerful, you can take control back in
+your life by removing items from the cache.</p>
+<div class="highlight"><pre><span></span><code>omnicache --remove <span class="o">{{</span>name_of_repo<span class="o">}}</span> ../omnicache
+omnicache -r <span class="o">{{</span>name_of_repo<span class="o">}}</span> ../omnicache
+</code></pre></div>
+<h2 id="using-the-omnicache">Using the Omnicache<a class="headerlink" href="#using-the-omnicache" title="Permanent link">&para;</a></h2>
+<p>Many of the tools are equipped to handle the omnicache and details on how to use
+them can be found in their respective documentations or help menus.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../using_nuget_publishing_tool/" class="btn btn-neutral float-left" title="Nuget Publishing Tool"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../using_sig_db_tool/" class="btn btn-neutral float-right" title="Secure Boot Database Inspection Tool">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright (c) Microsoft.  All rights reserved</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tianocore/edk2-pytool-extensions" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../using_nuget_publishing_tool/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../using_sig_db_tool/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme_extra.js" defer></script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="https://unpkg.com/mermaid@8.7.0/dist/mermaid.min.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

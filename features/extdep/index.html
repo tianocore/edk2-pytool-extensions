@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Ext Deps - Tianocore Edk2 Pytool Extensions (edk2toolext)</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Ext Deps";
+        var mkdocs_page_input_path = "features\\extdep.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Tianocore Edk2 Pytool Extensions (edk2toolext)
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Our Philosophy</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Using Stuart</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/install/">Installation Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/build/">Build Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../using/ci/">Core CI Instructions</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Integrating Stuart</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../integrate/build/">Build with Stuart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../integrate/manage/">Core CI with Stuart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../integrate/porting/">Porting Example</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tools</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_capsule_tool/">Capsule Helper and Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_firmware_policy_tool/">Firmware Policy Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_image_validation_tool/">PE/COFF Image Validation Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_nuget_publishing_tool/">Nuget Publishing Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_omnicache_tool/">Omnicache Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_sig_db_tool/">Secure Boot Database Inspection Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tools/using_versioninfo_tool/">Version Info Tool</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Advanced Features</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../invocable/">Invocables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../creating_invocable/">Creating Invocables</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Ext Deps</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#why">Why</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#git-bloat">Git Bloat</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#conditional-inclusion-scopes">Conditional Inclusion (scopes)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#reproducibility-and-tracking">Reproducibility and Tracking</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#examples-of-usage">Examples of Usage</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#supported-types">Supported Types</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#nuget-dependency">NuGet Dependency</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#web-dependency">Web Dependency</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#git-dependency">Git Dependency</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#azure-universal-packages-dependency-az-universal">Azure Universal Packages Dependency (az-universal)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#developer-note">Developer Note</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#local-caching">Local Caching</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#a-note-on-nuget-on-linux">A note on NuGet on Linux</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#how-external-dependencies-work">How external dependencies work</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#how-to-createuse-an-ext_dep">How to create/use an ext_dep</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#the-base-schema">The base schema</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#required">Required</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#optional">Optional</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#nuget-type-schema-differences">Nuget Type Schema differences</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#web-type-schema-differences">Web Type Schema differences</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#internal_path-required">internal_path (required)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#compression_type-optional">compression_type (optional)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#sha256-optional">sha256 (optional)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#git-type-schema-differences">Git Type Schema Differences</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#experimental-option-url_creds_var">Experimental Option: url_creds_var</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#azure-universal-packages-type-schema-differences">Azure Universal Packages Type Schema Differences</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#feed">feed</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#project-optional">project (optional)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#name">name</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#file-filter-optional">file-filter (optional)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pat_var-optional-but-suggested">pat_var (optional but suggested)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#the-flags">The Flags</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../creating_extdep/">Creating Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../plugin_manager/">Plugins</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../creating_plugins/">Create a Plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../environment_variables/">Environment Variables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../sde/">Self Describing Environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../settings_manager/">Settings Manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../logging/">Logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../using_linux/">WSL</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API Reference</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/base_abstract_invocable/">Base abstract invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/edk2_git/">Edk2 git</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/edk2_invocable/">Edk2 invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/edk2_logging/">Edk2 logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/conf_mgmt/">Conf mgmt</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/environment_descriptor_files/">Environment descriptor files</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/external_dependency/">External dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/multiple_workspace/">Multiple workspace</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugin_manager/">Plugin manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/repo_resolver/">Repo resolver</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/self_describing_environment/">Self describing environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/shell_environment/">Shell environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/uefi_build/">Uefi build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/var_dict/">Var dict</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/version_aggregator/">Version aggregator</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/az_cli_universal_dependency/">Az cli universal dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/git_dependency/">Git dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/nuget_dependency/">Nuget dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/extdeptypes/web_dependency/">Web dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/ci_build_plugin/">Ci build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/dsc_processor_plugin/">Dsc processor plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/uefi_build_plugin/">Uefi build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/environment/plugintypes/uefi_helper_plugin/">Uefi helper plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_ci_build/">Edk2 ci build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_ci_setup/">Edk2 ci setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_multipkg_aware_invocable/">Edk2 multipkg aware invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_platform_build/">Edk2 platform build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_pr_eval/">Edk2 pr eval</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_setup/">Edk2 setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api/invocables/edk2_update/">Edk2 update</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Tianocore Edk2 Pytool Extensions (edk2toolext)</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+          <li>Advanced Features &raquo;</li>
+      <li>Ext Deps</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tianocore/edk2-pytool-extensions/edit/master/docs/features/extdep.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="external-dependencies">External Dependencies<a class="headerlink" href="#external-dependencies" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>External dependencies are a way within the build environment to describe
+external dependencies and have Stuart fetch them when doing the
+<code>stuart_update</code> operation. Stuart will also verify the ext_dep state when doing a
+build to ensure the environment is in the required state prior to building.</p>
+<p>Ext_deps have solved three major issues.</p>
+<ol>
+<li>Binaries causing bloat of git repositories</li>
+<li>Conditional inclusion of a dependency (only for certain usages)</li>
+<li>Reproducibility and tracking of dependencies</li>
+</ol>
+<h2 id="why">Why<a class="headerlink" href="#why" title="Permanent link">&para;</a></h2>
+<h3 id="git-bloat">Git Bloat<a class="headerlink" href="#git-bloat" title="Permanent link">&para;</a></h3>
+<p>Best practices advise against checking in binaries to git repositories as the
+overall size of git repos will balloon quickly causing slow clones and slow
+operations. Building firmware often requires custom tools, firmware blobs, or
+other binaries and it is critical these are maintained and versioned with the
+repository. Package management tools can solve the hosting of these binaries but
+edk2 has no built in tool to track them, extract them, etc. Ext_deps provide
+that mechanism.</p>
+<h3 id="conditional-inclusion-scopes">Conditional Inclusion (scopes)<a class="headerlink" href="#conditional-inclusion-scopes" title="Permanent link">&para;</a></h3>
+<p>Ext_deps leverage the environment scope concept so that a repository can carry
+ext_deps that are only used in some conditions. Scopes are a string that an
+invocable tool uses to indicate what ext_deps should be used. These scopes are
+loosely based on functionality.</p>
+<h3 id="reproducibility-and-tracking">Reproducibility and Tracking<a class="headerlink" href="#reproducibility-and-tracking" title="Permanent link">&para;</a></h3>
+<p>Ext_deps are common infrastructure so that all external dependencies can be
+handled consistently. Versions are added to the version report so that for any
+given operation (like build) a complete list of what was used is available. This
+makes tracking versions consistent and "free". Ext_deps when fetched will update
+their state. If the repository is updated to include a new ext_dep version the
+tool will be told the environment state is not valid and can then enforce that
+the user updates their environment.</p>
+<h2 id="examples-of-usage">Examples of Usage<a class="headerlink" href="#examples-of-usage" title="Permanent link">&para;</a></h2>
+<p>Here are a few examples where ext_deps have been found useful:</p>
+<ul>
+<li>An ext_dep describing a test repository that is only needed when running unit
+  tests. By leveraging scopes this ext_dep is only fetched when the unittest
+  scope is active.</li>
+<li>Similar to the unit test dependency, support for CI builds often require
+  unique dependencies. When doing a CI build of a core repository it might have
+  critical dependencies that need to be fetched but when the core repository is
+  included within a platform repository as a dependency, then the core would
+  defer to the platform as to how to include the dependency.</li>
+<li>An ext_dep describing the compiler toolchain. This ext_dep is only needed when
+  a builder is using that toolchain for that target type.</li>
+<li>An ext_dep describing some platform binary. This is only needed when building
+  that given platform and since git is not optimized to handle binaries this
+  saves a lot of unnecessary bloat in the repository.</li>
+</ul>
+<h2 id="supported-types">Supported Types<a class="headerlink" href="#supported-types" title="Permanent link">&para;</a></h2>
+<h3 id="nuget-dependency">NuGet Dependency<a class="headerlink" href="#nuget-dependency" title="Permanent link">&para;</a></h3>
+<p>Nuget dependency is used to fetch files from a nuget feed. This feed can be
+either unauthenticated or authenticated. Support is done by using the nuget
+command line tool. When the ext_dep type is set to <strong><em>nuget</em></strong> the descriptor
+will be interpreted as a nuget dependency. Nuget has a few nice features such as
+caching, authentication, versioning, and is platform and language agnostic.
+This package has a version of the NuGet.exe binary or a user can configure their
+environment to use a defined version by setting <code>NUGET_PATH</code> to the folder containing
+the NuGet.exe that should be used.</p>
+<h3 id="web-dependency">Web Dependency<a class="headerlink" href="#web-dependency" title="Permanent link">&para;</a></h3>
+<p>Web dependency is used to describe a dependency on an asset that can be
+downloaded via a URL and a web request. It will download whatever is located at
+the source URL and can support single files, compressed files, and folders. When
+the ext_dep type is set to <strong><em>web</em></strong> the ext_dep will be interpreted as a web
+dependency.</p>
+<h3 id="git-dependency">Git Dependency<a class="headerlink" href="#git-dependency" title="Permanent link">&para;</a></h3>
+<p>Git dependency is used to describe a dependency on a git repository. This
+repository will be cloned to the ext_dep location and the version will be
+checked out. For this ext_dep descriptor the type is <strong><em>git</em></strong>. A git dependency
+should be treated as read-only because the verify and clean phase will do
+destructive operations where local changes would be destroyed.</p>
+<h3 id="azure-universal-packages-dependency-az-universal">Azure Universal Packages Dependency (az-universal)<a class="headerlink" href="#azure-universal-packages-dependency-az-universal" title="Permanent link">&para;</a></h3>
+<p>Azure Universal packages are yet another package management solution. These
+packages are supported by Azure DevOps server and use the cross platform
+Azure CLI tool to retrieve the content. To use this ext_dep type the development
+environment must have the Azure CLI tool available and the devops extension.  Since
+anonymous feeds are not supported your environment must already be authenticated or
+you must define a system environment variable that will hold a DevOps PAT with package
+read authorization.  </p>
+<p>More information:</p>
+<ul>
+<li>Azure Command-Line Interface: <a href="https://docs.microsoft.com/en-us/cli/azure/">https://docs.microsoft.com/en-us/cli/azure/</a></li>
+<li>Azure DevOps Extension: <a href="https://github.com/Azure/azure-devops-cli-extension">https://github.com/Azure/azure-devops-cli-extension</a></li>
+<li>Universal Packages Information: <a href="https://docs.microsoft.com/en-us/azure/devops/artifacts/quickstarts/universal-packages?view=azure-devops">https://docs.microsoft.com/en-us/azure/devops/artifacts/quickstarts/universal-packages?view=azure-devops</a></li>
+</ul>
+<h3 id="developer-note">Developer Note<a class="headerlink" href="#developer-note" title="Permanent link">&para;</a></h3>
+<p>To create a new Dependency type it requires a new subclass of the
+<code>ExternalDependency</code> class. The subclass needs to have a type field and then
+factory method in <code>ExternalDependency.py</code> needs to be updated to create new
+instances of the new type.</p>
+<h2 id="local-caching">Local Caching<a class="headerlink" href="#local-caching" title="Permanent link">&para;</a></h2>
+<p>In some cases (e.g. a CI server), it is necessary to set up and tear down multiple
+repos and/or branches, and this can severely impact the network time to fetch all
+new dependencies. While Nuget has it's own caching system, this does not scale to the
+other dependency types.</p>
+<p>To address this, Stuart provides the <code>STUART_EXTDEP_CACHE_PATH</code> environment variable.
+If this variable is set, and points to a valid directory on the local filesystem, it
+will be populated with a copy of any extdep that is fetched by Stuart during the process
+of a build. This cache will be checked prior to invoking any type-specific extdep
+fetch operation. If the extdep already exists in the cache, it will be copied from the
+local cache into its final destination.</p>
+<p>This cache will keep unique entries for versions and sources. In other words, multiple
+versions of the same extdep from the same source will be cached independently, but the
+same version from multiple sources will <em>also</em> be cached independently. This is to prevent
+possible cache corruption when consuming external code that may have a name collision.</p>
+<h2 id="a-note-on-nuget-on-linux">A note on NuGet on Linux<a class="headerlink" href="#a-note-on-nuget-on-linux" title="Permanent link">&para;</a></h2>
+<p>If you're using Linux (whether through WSL or natively), you'll need to add the
+proper sources to your relevant package manager for mono. As of time of writing,
+the Ubuntu mono packages are out of date.</p>
+<p>You can follow the instructions here:
+<a href="https://www.mono-project.com/download/stable/#download-lin">https://www.mono-project.com/download/stable/#download-lin</a></p>
+<p>Here are the instructions (as of time of writing):</p>
+<div class="highlight"><pre><span></span><code>sudo apt install gnupg ca-certificates
+sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+<span class="nb">echo</span> <span class="s2">&quot;deb https://download.mono-project.com/repo/ubuntu stable-bionic main&quot;</span> <span class="p">|</span> sudo tee /etc/apt/sources.list.d/mono-official-stable.list
+sudo apt update
+
+sudo apt upgrade <span class="o">(</span><span class="k">if</span> mono is already installed<span class="o">)</span>
+- or -
+sudo apt install mono-devel
+</code></pre></div>
+<p>If you're running a different kind of package manager, or on a system without a
+package manager, visit the link above for instructions on your platform. If
+you're on a system that NuGet natively supports (currently only Windows) you
+won't need to install Mono.</p>
+<h2 id="how-external-dependencies-work">How external dependencies work<a class="headerlink" href="#how-external-dependencies-work" title="Permanent link">&para;</a></h2>
+<p>Ext_deps are found by the SDE (self-describing environment). If you have any
+questions about that, go review the document for that. Once the ext_dep is found
+it can be interacted with depending on use case/tool. Objects created with the
+data from ext_dep descriptors and are subclassed according to the "type" field
+in the descriptor.</p>
+<p>These objects contain the code for fetching, validating, updating, and cleaning
+dependency objects and metadata. When referenced from the SDE itself, they can
+also update paths and other build/shell vars in the build environment.</p>
+<h2 id="how-to-createuse-an-ext_dep">How to create/use an ext_dep<a class="headerlink" href="#how-to-createuse-an-ext_dep" title="Permanent link">&para;</a></h2>
+<p>An ext_dep is defined by a json file that ends in_ext_dep.json It must follow
+the schema outlined below. It will be unpacked in a new folder in the same
+directory as the .json file in a folder named {name}_extdep.</p>
+<p>We strongly recommend adding any folder that ends in _extdep to your
+repositories .gitignore. It would look like this:</p>
+<div class="highlight"><pre><span></span><code>*_extdep/
+</code></pre></div>
+<p>Ext_Dep Example json file</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"></span>
+<span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cibuild&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;nuget&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;iasl&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="nt">&quot;source&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://api.nuget.org/v3/index.json&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;20190215.0.0&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="nt">&quot;flags&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;set_path&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;host_specific&quot;</span><span class="p">]</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<p>If you wish to create a new ext_dep type other then those mentioned in
+<a href="#supported-types">Supported Types</a>, See <a href="features/creating_extdep">Creating an Extdep Type</a></p>
+<h2 id="the-base-schema">The base schema<a class="headerlink" href="#the-base-schema" title="Permanent link">&para;</a></h2>
+<h3 id="required">Required<a class="headerlink" href="#required" title="Permanent link">&para;</a></h3>
+<p>scope: (required) (string) - name of scope when this ext_dep should be evaluated</p>
+<ul>
+<li>type: (required) (string from list of known types) - See above for types</li>
+<li>name: This is the name of the ext_dep and will be part of the path where the
+  ext_dep is unpacked</li>
+<li>source: see per type</li>
+<li>version: see per type</li>
+<li>flags: Optional conditions that can be applied. Can be empty list</li>
+</ul>
+<h3 id="optional">Optional<a class="headerlink" href="#optional" title="Permanent link">&para;</a></h3>
+<ul>
+<li>id: (string) - Identifier allowing override feature - Must be unique</li>
+<li>override_id: (string) - Identifier of the ext_dep this should replace (allows
+  for changing an ext_dep in another source by id)</li>
+<li>var_name: TODO</li>
+<li>error_msg: an optional message that will disabled to the user if this ext_dep
+  fails to fetch</li>
+</ul>
+<h2 id="nuget-type-schema-differences">Nuget Type Schema differences<a class="headerlink" href="#nuget-type-schema-differences" title="Permanent link">&para;</a></h2>
+<ul>
+<li>source: This should be the nuget feed URL</li>
+<li>version: nuget version. Generally xx.yy.zz</li>
+</ul>
+<p>For this type there are zero additional ext_dep fields.</p>
+<h2 id="web-type-schema-differences">Web Type Schema differences<a class="headerlink" href="#web-type-schema-differences" title="Permanent link">&para;</a></h2>
+<ul>
+<li>source: url to download</li>
+<li>version: only used for folder naming</li>
+</ul>
+<p>For this type there are three additional ext_dep fields:</p>
+<h3 id="internal_path-required">internal_path (required)<a class="headerlink" href="#internal_path-required" title="Permanent link">&para;</a></h3>
+<p>This describes the internal structure of whatever we are downloading.</p>
+<p>If you are just downloading a file, include the name you would like the file
+  to be.</p>
+<p>If you are downloading a directory, indicate so with a / before the path. The
+  folder the path points to will have it's contents copied into the final
+  name_ext_dep folder.</p>
+<h3 id="compression_type-optional">compression_type (optional)<a class="headerlink" href="#compression_type-optional" title="Permanent link">&para;</a></h3>
+<p>Including this field is indicating that the file being downloaded is compressed
+and that you would like the contents of internal_path to be extracted. If you
+have a compressed file and would not like it to be decompressed, omit this
+field.</p>
+<p>Currently tar and zip files are supported. If the file is not compressed, omit
+this field.</p>
+<h3 id="sha256-optional">sha256 (optional)<a class="headerlink" href="#sha256-optional" title="Permanent link">&para;</a></h3>
+<p>If desired, you can provide the hash of your file. This hash will be checked
+against what is being downloaded to ensure it is valid. It is strongly
+recommended to use this to ensure the contents are as expected.</p>
+<h2 id="git-type-schema-differences">Git Type Schema Differences<a class="headerlink" href="#git-type-schema-differences" title="Permanent link">&para;</a></h2>
+<ul>
+<li>source: url of git repo</li>
+<li>version: commit hash to checkout</li>
+</ul>
+<h3 id="experimental-option-url_creds_var">Experimental Option: url_creds_var<a class="headerlink" href="#experimental-option-url_creds_var" title="Permanent link">&para;</a></h3>
+<p>If this field is found in the descriptor file when initializing this extdep, the
+string value listed will be checked against the environment's shell_vars. If a
+matching var is found, this string in the shell_var will be prepended to the URL
+host for the source URL.</p>
+<p>NOTE: This is intended for server builds and may be subject to change as we
+figure out how it fits into build flows. Also note that any credentials passed
+may end up in build logs and other server-side artifacts. Use with caution!</p>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;global&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;git&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ExampleRepo&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;source&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://example.com/path/to/repo.git&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;7fd1a60b01f91b314f59955a4e4d4e80d8edf11d&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;url_creds_var&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;my_url_creds&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;flags&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># Populate shell var.</span>
+<span class="n">env</span><span class="o">.</span><span class="n">set_shell_var</span><span class="p">(</span><span class="s1">&#39;my_url_creds&#39;</span><span class="p">,</span> <span class="s1">&#39;my_user:my_pass&#39;</span><span class="p">)</span>
+
+<span class="c1"># URL cloned by the GitDependency object will look like...</span>
+<span class="n">final_url</span> <span class="o">=</span> <span class="s1">&#39;http://my_user:my_pass@example.com/path/to/repo.git&#39;</span>
+</code></pre></div>
+<h2 id="azure-universal-packages-type-schema-differences">Azure Universal Packages Type Schema Differences<a class="headerlink" href="#azure-universal-packages-type-schema-differences" title="Permanent link">&para;</a></h2>
+<ul>
+<li>source: url of dev ops organization (example: <a href="https://dev.azure.com/tianocore">https://dev.azure.com/tianocore</a>)</li>
+<li>version: semantic version (Major.Minor.Patch)</li>
+</ul>
+<p>For this type there are three additional ext_dep fields:</p>
+<h3 id="feed">feed<a class="headerlink" href="#feed" title="Permanent link">&para;</a></h3>
+<p>Name of the Azure DevOps feed</p>
+<h3 id="project-optional">project (optional)<a class="headerlink" href="#project-optional" title="Permanent link">&para;</a></h3>
+<p>Name of the project for project scoped feeds.  If not defined it will be treated as
+an organizational scoped feed.</p>
+<h3 id="name">name<a class="headerlink" href="#name" title="Permanent link">&para;</a></h3>
+<p>Name of the artifact</p>
+<h3 id="file-filter-optional">file-filter (optional)<a class="headerlink" href="#file-filter-optional" title="Permanent link">&para;</a></h3>
+<p>Filter for folders and files to download.  Azure Universal packages supports only partial
+downloads.  See <a href="https://docs.microsoft.com/en-us/azure/devops/artifacts/quickstarts/universal-packages?view=azure-devops#download-specific-files">https://docs.microsoft.com/en-us/azure/devops/artifacts/quickstarts/universal-packages?view=azure-devops#download-specific-files</a>
+for more details.</p>
+<h3 id="pat_var-optional-but-suggested">pat_var (optional but suggested)<a class="headerlink" href="#pat_var-optional-but-suggested" title="Permanent link">&para;</a></h3>
+<p>OS shell variable that contains a personal access token (PAT) for this ext_dep.
+Universal packages do not support anonymous access therefore the developer needs to authenticate
+using <code>az login</code> or define a PAT.  The PAT needs to have <strong>Packaging - Read</strong> access.</p>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;global&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;az-universal&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;hello-world-file&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;source&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://dev.azure.com/tianocore&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;project&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;edk2-pytool-extensions&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;feed&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ext_dep_unit_test_feed&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;pat_var&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;PAT_FOR_UNIVERSAL_ORG_TIANOCORE&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;flags&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<h2 id="the-flags">The Flags<a class="headerlink" href="#the-flags" title="Permanent link">&para;</a></h2>
+<p>There are specific flags that do different things. Flags are defined by the SDE
+and cannot be modified without updating the pip module. More information on the
+flags can be found in the SDE documentation.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../creating_invocable/" class="btn btn-neutral float-left" title="Creating Invocables"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../creating_extdep/" class="btn btn-neutral float-right" title="Creating Ext Deps">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright (c) Microsoft.  All rights reserved</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tianocore/edk2-pytool-extensions" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../creating_invocable/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../creating_extdep/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme_extra.js" defer></script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="https://unpkg.com/mermaid@8.7.0/dist/mermaid.min.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

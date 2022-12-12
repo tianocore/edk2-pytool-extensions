@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Edk2 pr eval - Tianocore Edk2 Pytool Extensions (edk2toolext)</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Edk2 pr eval";
+        var mkdocs_page_input_path = "api\\invocables\\edk2_pr_eval.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Tianocore Edk2 Pytool Extensions (edk2toolext)
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Our Philosophy</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Using Stuart</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../using/install/">Installation Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../using/build/">Build Instructions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../using/ci/">Core CI Instructions</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Integrating Stuart</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../integrate/build/">Build with Stuart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../integrate/manage/">Core CI with Stuart</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../integrate/porting/">Porting Example</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tools</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../tools/using_capsule_tool/">Capsule Helper and Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../tools/using_firmware_policy_tool/">Firmware Policy Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../tools/using_image_validation_tool/">PE/COFF Image Validation Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../tools/using_nuget_publishing_tool/">Nuget Publishing Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../tools/using_omnicache_tool/">Omnicache Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../tools/using_sig_db_tool/">Secure Boot Database Inspection Tool</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../tools/using_versioninfo_tool/">Version Info Tool</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Advanced Features</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/invocable/">Invocables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/creating_invocable/">Creating Invocables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/extdep/">Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/creating_extdep/">Creating Ext Deps</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/plugin_manager/">Plugins</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/creating_plugins/">Create a Plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/environment_variables/">Environment Variables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/sde/">Self Describing Environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/settings_manager/">Settings Manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/logging/">Logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../features/using_linux/">WSL</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API Reference</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../../base_abstract_invocable/">Base abstract invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../edk2_git/">Edk2 git</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../edk2_invocable/">Edk2 invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../edk2_logging/">Edk2 logging</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../environment/conf_mgmt/">Conf mgmt</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../environment/environment_descriptor_files/">Environment descriptor files</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../environment/external_dependency/">External dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../environment/multiple_workspace/">Multiple workspace</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../environment/plugin_manager/">Plugin manager</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../environment/repo_resolver/">Repo resolver</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../environment/self_describing_environment/">Self describing environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../environment/shell_environment/">Shell environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../environment/uefi_build/">Uefi build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../environment/var_dict/">Var dict</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../environment/version_aggregator/">Version aggregator</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../environment/extdeptypes/az_cli_universal_dependency/">Az cli universal dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../environment/extdeptypes/git_dependency/">Git dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../environment/extdeptypes/nuget_dependency/">Nuget dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../environment/extdeptypes/web_dependency/">Web dependency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../environment/plugintypes/ci_build_plugin/">Ci build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../environment/plugintypes/dsc_processor_plugin/">Dsc processor plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../environment/plugintypes/uefi_build_plugin/">Uefi build plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../environment/plugintypes/uefi_helper_plugin/">Uefi helper plugin</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../edk2_ci_build/">Edk2 ci build</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../edk2_ci_setup/">Edk2 ci setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../edk2_multipkg_aware_invocable/">Edk2 multipkg aware invocable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../edk2_platform_build/">Edk2 platform build</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Edk2 pr eval</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#edk2toolext.invocables.edk2_pr_eval.PrEvalSettingsManager">PrEvalSettingsManager</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.invocables.edk2_pr_eval.PrEvalSettingsManager.FilterPackagesToTest">FilterPackagesToTest()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.invocables.edk2_pr_eval.PrEvalSettingsManager.GetPlatformDscAndConfig">GetPlatformDscAndConfig()</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#edk2toolext.invocables.edk2_pr_eval.Edk2PrEval">Edk2PrEval</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.invocables.edk2_pr_eval.Edk2PrEval.AddCommandLineOptions">AddCommandLineOptions()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.invocables.edk2_pr_eval.Edk2PrEval.RetrieveCommandLineOptions">RetrieveCommandLineOptions()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.invocables.edk2_pr_eval.Edk2PrEval.GetVerifyCheckRequired">GetVerifyCheckRequired()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.invocables.edk2_pr_eval.Edk2PrEval.GetSettingsClass">GetSettingsClass()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.invocables.edk2_pr_eval.Edk2PrEval.GetLoggingFileName">GetLoggingFileName()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.invocables.edk2_pr_eval.Edk2PrEval.Go">Go()</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#edk2toolext.invocables.edk2_pr_eval.Edk2PrEval.get_packages_to_build">get_packages_to_build()</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#edk2toolext.invocables.edk2_pr_eval.main">main()</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../edk2_setup/">Edk2 setup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../edk2_update/">Edk2 update</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Tianocore Edk2 Pytool Extensions (edk2toolext)</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+          <li>API Reference &raquo;</li>
+      <li>Edk2 pr eval</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tianocore/edk2-pytool-extensions/edit/master/docs/..\edk2toolext\invocables\edk2_pr_eval.py" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<h2 id="edk2toolext.invocables.edk2_pr_eval" class="doc doc-heading">
+          <span class="doc doc-object-name doc-module-name">edk2_pr_eval</span>
+
+
+<a href="#edk2toolext.invocables.edk2_pr_eval" class="headerlink" title="Permanent link">&para;</a></h2>
+
+  <div class="doc doc-contents first">
+  
+      <p>Invocable that checks the diff between a branch and head.</p>
+<p>Identifies any packages that needs to be build.</p>
+<p>Contains a PrEvalSettingsManager that must be subclassed in a build settings
+file. This provides platform specific information to Edk2PrEval invocable
+while allowing the invocable itself to remain platform agnostic.</p>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="edk2toolext.invocables.edk2_pr_eval.PrEvalSettingsManager" class="doc doc-heading">
+        <span class="doc doc-object-name doc-class-name">PrEvalSettingsManager</span>
+
+
+<a href="#edk2toolext.invocables.edk2_pr_eval.PrEvalSettingsManager" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+
+  
+      <p>Platform specific Settings for Edk2PrEval.</p>
+<p>provide information necessary for <code>stuart_pr_eval.exe</code> or
+<code>edk2_pr_eval.py</code> to successfully execute.</p>
+<div class="admonition example">
+<p class="admonition-title">Example of Overriding PrEvalSettingsManager</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">edk2toolext.invocables.edk2_pr_eval</span> <span class="kn">import</span> <span class="n">PrEvalSettingsManager</span>
+<span class="k">class</span> <span class="nc">PrEvalManager</span><span class="p">(</span><span class="n">PrEvalSettingsManager</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">FilterPackagesToTest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">changedFilesList</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">potentialPackagesList</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="n">filtered_packages</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">changedFilesList</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">potentialPackagesList</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">package</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">potentialPackagesList</span><span class="p">):</span>
+                    <span class="n">filtered_packages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">package</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">filtered_packages</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">GetPlatformDscAndConfig</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+</code></pre></div>
+</div>
+
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.invocables.edk2_pr_eval.PrEvalSettingsManager.FilterPackagesToTest" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">FilterPackagesToTest</span>
+
+
+<a href="#edk2toolext.invocables.edk2_pr_eval.PrEvalSettingsManager.FilterPackagesToTest" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">FilterPackagesToTest</span><span class="p">(</span>
+    <span class="n">changedFilesList</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">potentialPackagesList</span><span class="p">:</span> <span class="nb">list</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Filter potential packages to test based on changed files.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Optional Override in a subclass</p>
+</div>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>changedFilesList</code></td>
+          <td>
+                <code>list</code>
+          </td>
+          <td><p>files changed in this PR</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>potentialPackagesList</code></td>
+          <td>
+                <code>list</code>
+          </td>
+          <td><p>packages from <code>GetPackagesSupported()</code> or from command line
+option -p, --pkg, --pkg-dir from <code>Edk2MultiPkgAwareInvocable</code></p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>list</code>
+          </td>
+          <td><p>filtered packages to test</p></td>
+        </tr>
+    </tbody>
+  </table>
+      <div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Default implementation does zero filtering</p>
+</div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.invocables.edk2_pr_eval.PrEvalSettingsManager.GetPlatformDscAndConfig" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">GetPlatformDscAndConfig</span>
+
+
+<a href="#edk2toolext.invocables.edk2_pr_eval.PrEvalSettingsManager.GetPlatformDscAndConfig" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">GetPlatformDscAndConfig</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">tuple</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Provide a platform dsc and config.</p>
+<p>If a platform desires to provide its DSC then Policy 4 will evaluate if
+any of the changes will be built in the dsc.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Optional Override in a subclass</p>
+</div>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>tuple</code>
+          </td>
+          <td><p>(workspace relative path to dsc file, input dictionary of dsc key value pairs)</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="edk2toolext.invocables.edk2_pr_eval.Edk2PrEval" class="doc doc-heading">
+        <span class="doc doc-object-name doc-class-name">Edk2PrEval</span>
+
+
+<a href="#edk2toolext.invocables.edk2_pr_eval.Edk2PrEval" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+  <div class="doc doc-contents ">
+
+  
+      <p>Invocable to determine what packages should be tested.</p>
+<p>Evaluate the changes and determine what packages of the supplied packages should
+be tested based on impact from the changes</p>
+
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.invocables.edk2_pr_eval.Edk2PrEval.AddCommandLineOptions" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">AddCommandLineOptions</span>
+
+
+<a href="#edk2toolext.invocables.edk2_pr_eval.Edk2PrEval.AddCommandLineOptions" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">AddCommandLineOptions</span><span class="p">(</span><span class="n">parserObj</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Adds command line options to the argparser.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.invocables.edk2_pr_eval.Edk2PrEval.RetrieveCommandLineOptions" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">RetrieveCommandLineOptions</span>
+
+
+<a href="#edk2toolext.invocables.edk2_pr_eval.Edk2PrEval.RetrieveCommandLineOptions" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">RetrieveCommandLineOptions</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Retrieve command line options from the argparser.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.invocables.edk2_pr_eval.Edk2PrEval.GetVerifyCheckRequired" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">GetVerifyCheckRequired</span>
+
+
+<a href="#edk2toolext.invocables.edk2_pr_eval.Edk2PrEval.GetVerifyCheckRequired" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">GetVerifyCheckRequired</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Will not call self_describing_environment.VerifyEnvironment because it might not be set up yet.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.invocables.edk2_pr_eval.Edk2PrEval.GetSettingsClass" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">GetSettingsClass</span>
+
+
+<a href="#edk2toolext.invocables.edk2_pr_eval.Edk2PrEval.GetSettingsClass" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">GetSettingsClass</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Returns the PrEvalSettingsManager class.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>PrEvalSettingsManager must be subclassed in your platform settings file.</p>
+</div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.invocables.edk2_pr_eval.Edk2PrEval.GetLoggingFileName" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">GetLoggingFileName</span>
+
+
+<a href="#edk2toolext.invocables.edk2_pr_eval.Edk2PrEval.GetLoggingFileName" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">GetLoggingFileName</span><span class="p">(</span><span class="n">loggerType</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Returns the filename (PREVALLOG) of where the logs for the Edk2CiBuild invocable are stored in.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.invocables.edk2_pr_eval.Edk2PrEval.Go" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">Go</span>
+
+
+<a href="#edk2toolext.invocables.edk2_pr_eval.Edk2PrEval.Go" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">Go</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Executes the core functionality of the Edk2CiBuild invocable.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="edk2toolext.invocables.edk2_pr_eval.Edk2PrEval.get_packages_to_build" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">get_packages_to_build</span>
+
+
+<a href="#edk2toolext.invocables.edk2_pr_eval.Edk2PrEval.get_packages_to_build" class="headerlink" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">get_packages_to_build</span><span class="p">(</span><span class="n">possible_packages</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Returns a dictionary of packages to build.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>possible_packages</code></td>
+          <td>
+                <code>list</code>
+          </td>
+          <td><p>list of possible packages</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>dict</code>
+          </td>
+          <td><p>filtered packages to build</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="edk2toolext.invocables.edk2_pr_eval.main" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">main</span>
+
+
+<a href="#edk2toolext.invocables.edk2_pr_eval.main" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">main</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Entry point to invoke Edk2PrEval.</p>
+
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../edk2_platform_build/" class="btn btn-neutral float-left" title="Edk2 platform build"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../edk2_setup/" class="btn btn-neutral float-right" title="Edk2 setup">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright (c) Microsoft.  All rights reserved</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tianocore/edk2-pytool-extensions" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../edk2_platform_build/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../edk2_setup/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../../..';</script>
+    <script src="../../../js/theme_extra.js" defer></script>
+    <script src="../../../js/theme.js" defer></script>
+      <script src="https://unpkg.com/mermaid@8.7.0/dist/mermaid.min.js" defer></script>
+      <script src="../../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>
