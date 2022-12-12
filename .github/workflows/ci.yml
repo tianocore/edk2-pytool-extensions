@@ -13,7 +13,8 @@ on:
     branches: [ "master" ]
 
 jobs:
-  job1:
+  set-python:
+    name: Set Python Versions
     env:
       python-version: "['3.11', '3.10', '3.9']"
     runs-on: ubuntu-latest
@@ -22,7 +23,7 @@ jobs:
     steps:
       - name: Set Python
         id: set
-        run: echo "::set-output name=python-version::$env.python-version"
+        run: echo "python-version=$env.python-version" >> $GITHUB_OUPUT
 
   unit-test:
     name: Unit Tests
@@ -34,7 +35,7 @@ jobs:
       matrix:
         # Reminder! When updating this python version, also update the python
         # Version around line 64.
-        python-version: ${{ fromJson(needs.job1.outputs.python-version) }}
+        python-version: ${{ fromJson(needs.set-python.outputs.python-version) }}
         os: [ubuntu-latest, windows-latest]
 
     steps:
@@ -76,6 +77,7 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
+      python-version: ${{ fromJson(needs.job1.outputs.python-version)[0] }}
       node-version: "19"
       package-src: "edk2toolext"
     
@@ -85,7 +87,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
-          python-version: ${{ fromJson(needs.job1.outputs.python-version)[0] }}
+          python-version: ${{ env.node-version }}
       
       - name: Set up Node ${{ env.node-version}}
         uses: actions/setup-node@v3
