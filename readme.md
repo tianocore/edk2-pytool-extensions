@@ -34,7 +34,7 @@ This is a supplemental package and is not required to be used for edk2 builds.
 
 The code coverage and CI badges represent unit test status and the code
 coverage of those unit tests. We require 100% unit test success
-(Hence the pass / fail), and 70% code coverage.
+(Hence the pass / fail) and that code coverage percentage does not lower.
 
 | Host Type           | Toolchain   | Project    | Integration Tests |
 | :------------------ | :---------  | :--------- | :---------------- |

@@ -20,6 +20,8 @@ jobs:
     
     strategy:
       matrix:
+        # Reminder! When updating this python version, also update the python
+        # Version around line 64.
         python-version: ["3.9", "3.10", "3.11"]
         os: [ubuntu-latest, windows-latest]
 
