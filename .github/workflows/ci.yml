@@ -15,11 +15,15 @@ on:
 jobs:
   set-python:
     name: Set Python Versions
+    
     runs-on: ubuntu-latest
-    outputs:
-      VERSIONS: ${{ steps.set-python.outputs.VERSIONS}}
+    
     env:
       versions: "['3.11', '3.10', '3.9']" # Keep in descending order
+
+    outputs:
+      VERSIONS: ${{ steps.set-python.outputs.VERSIONS}}
+    
     steps:
       - name: Set Python Versions
         id: set-python
