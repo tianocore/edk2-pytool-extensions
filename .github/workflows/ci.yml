@@ -15,15 +15,11 @@ on:
 jobs:
   set-python:
     name: Set Python Versions
-    env:
-      python: "['3.11', '3.10', '3.9']"
     runs-on: ubuntu-latest
-    outputs:
-      python: ${{ steps.set.outputs.python }}
     steps:
-      - name: Set Python
-        id: set
-        run: echo "python=$env.python" >> $GITHUB_OUPUT
+      - name: Set Python Versions
+        id: set-python
+        run: echo "VERSIONS=['3.11', '3.10', '3.9']" >> $GITHUB_OUTPUT
 
   unit-test:
     name: Unit Tests
@@ -35,7 +31,7 @@ jobs:
       matrix:
         # Reminder! When updating this python version, also update the python
         # Version around line 64.
-        python-version: ${{ fromJson(needs.set-python.outputs.python-version) }}
+        python-version: ${{ fromJson(needs.set-python.outputs.VERSIONS) }}
         os: [ubuntu-latest, windows-latest]
 
     steps:
@@ -77,7 +73,7 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
-      python-version: ${{ fromJson(needs.job1.outputs.python-version)[0] }}
+      python-version: ${{ fromJson(needs.set-python.outputs.VERSIONS)[0] }}
       node-version: "19"
       package-src: "edk2toolext"
     
