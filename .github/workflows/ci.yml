@@ -27,7 +27,7 @@ jobs:
 
   unit-test:
     name: Unit Tests
-    needs: job1
+    needs: set-python
 
     runs-on: ${{ matrix.os }}
   
@@ -72,7 +72,7 @@ jobs:
   
   ci:
     name: CI Tests
-    needs: job1
+    needs: set-python
 
     runs-on: ubuntu-latest
     
