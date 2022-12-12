@@ -82,6 +82,12 @@ out all the different parts.
       * <https://www.npmjs.com/package/markdownlint>
       * <https://www.npmjs.com/package/markdownlint-cli>
 
+8. To support documentation generation, install docs requirements
+
+    ```cmd
+    pip install --upgrade -r docs/user/requirements.txt
+    ```
+
 ## Testing
 
 1. Run a Basic Syntax/Lint Check (using flake8) and resolve any issues
@@ -139,6 +145,13 @@ out all the different parts.
 
     ```cmd
     markdownlint "**/*.md"
+    ```
+
+8. Run mkdocs build
+   * Fix warnings and errors
+
+    ```cmd
+    mkdocs build --strict
     ```
 
 ## Conventions Shortlist

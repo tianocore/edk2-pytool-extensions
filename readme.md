@@ -160,8 +160,8 @@ contributing to the edk2-pytool-extensions repository.
 [_codecov]: https://codecov.io/gh/tianocore/edk2-pytool-extensions
 [pypi]: https://img.shields.io/pypi/v/edk2_pytool_extensions.svg
 [_pypi]: https://pypi.org/project/edk2-pytool-extensions/
-[ci]: https://github.com/tianocore/edk2-pytool-extensions/actions/workflows/prgate.yml/badge.svg?branch=master&event=push
-[_ci]: https://github.com/tianocore/edk2-pytool-extensions/actions/workflows/prgate.yml
+[ci]: https://github.com/tianocore/edk2-pytool-extensions/actions/workflows/ci.yml/badge.svg?branch=master&event=push
+[_ci]: https://github.com/tianocore/edk2-pytool-extensions/actions/workflows/ci.yml
 
 [_it]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_build?definitionId=52&_a=summary&repositoryFilter=2&branchFilter=14
 [ewt1]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Integration%20Tests?branchName=master&configuration=Edk2_Windows_Python39
