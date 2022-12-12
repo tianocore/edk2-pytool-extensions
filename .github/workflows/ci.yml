@@ -125,7 +125,7 @@ jobs:
       
       - name: Run mkdocs build
         if: success() || failure()
-      - run: mkdocs build --strict
+        run: mkdocs build --strict
       
       - name: Run basic dev tests
         if: success() || failure()
