@@ -4,6 +4,7 @@
 # more extensive and custom behavior.
 ##
 # Copyright (c) Microsoft Corporation
+# Copyright (c) 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
@@ -321,7 +322,7 @@ class UefiBuilder(object):
             edk2_build_params = params
         logging.debug(f"Edk2 build parameters are {edk2_build_params}")
 
-        ret = RunCmd(edk2_build_cmd, edk2_build_params)
+        ret = RunCmd(edk2_build_cmd, edk2_build_params, close_fds=False)
         # WORKAROUND - Undo the workaround.
         env.restore_checkpoint(pre_build_env_chk)
 
