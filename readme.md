@@ -169,7 +169,6 @@ contributing to the edk2-pytool-extensions repository.
 [ci]: https://github.com/tianocore/edk2-pytool-extensions/actions/workflows/ci.yml/badge.svg?branch=master&event=push
 [_ci]: https://github.com/tianocore/edk2-pytool-extensions/actions/workflows/ci.yml
 
-
 [_it]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_build?definitionId=52&_a=summary&repositoryFilter=2&branchFilter=14
 [ewt1]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Integration%20Tests?branchName=master&configuration=Edk2_Windows_Python39
 [ewt2]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Integration%20Tests?branchName=master&configuration=Edk2_Windows_Python310
