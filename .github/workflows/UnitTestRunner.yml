@@ -1,0 +1,55 @@
+# This workflow Runs Unit Tests using the specified python version(s) on
+# windows-latest and ubuntu-latest
+#
+# Copyright (c) Microsoft Corporation.
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+
+on:
+  workflow_call:
+    inputs:
+      python-versions:
+        description: 'Python Versions to use for Unit Tests. A Matrix is created from this'
+        required: true
+        type: string
+
+jobs:
+  run:
+    name: Run
+
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        python-version: ${{ fromJson(inputs.python-versions) }}
+        os: [ubuntu-latest, windows-latest]
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+    
+    - name: Install pip Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install --upgrade -r requirements.txt
+        pip install -e .
+    
+    - name: Run Unit Tests
+      run: coverage run --include=edk2toolext\* -m pytest --junitxml=test.junit.xml --html=pytest_report.html --self-contained-html
+
+    - name: Upload coverage to codecov
+      uses: codecov/codecov-action@v2
+      with:
+        verbose: false
+    
+    - uses: actions/upload-artifact@v3
+      with:
+        name: Artifacts-${{matrix.os}}-${{matrix.python-version}}
+        path: |
+          pytest_report.html
+          test.junit.xml
+      if: failure()
