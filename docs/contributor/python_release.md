@@ -21,6 +21,18 @@ exceptions, if the newest minor version is 3.11, then overall, we will
 support 3.9, 3.10, and 3.11. Therefore you should update the line to
 `python_requires = ">=3.9.0"`.
 
+Additionally, we must update the classifiers section to show the three
+supported python versions:
+
+```cmd
+classifiers=[
+        ...
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11"
+    ]
+```
+
 ### integration_test/azure-pipelines/windows-robot-integration-test.yml
 
 Since we support the last three minor versions of python, we want to ensure
