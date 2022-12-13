@@ -57,6 +57,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     use_scm_version=True,
     setup_requires=['setuptools_scm'],
+    python_requires=">=3.9.0",
     cmdclass={
         'sdist': PostSdistCommand,
         'install': PostInstallCommand,
@@ -92,6 +93,9 @@ setuptools.setup(
         "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
         "Development Status :: 4 - Beta",
-        "Intended Audience :: Developers"
+        "Intended Audience :: Developers",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11"
     ]
 )
