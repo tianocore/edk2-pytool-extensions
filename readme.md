@@ -3,6 +3,7 @@
 [![pypi]][_pypi]
 [![codecov]][_codecov]
 [![ci]][_ci]
+[![docs]][_docs]
 
 This is a Tianocore maintained project consisting of command line and other
 python tools and extensions for building and maintaining an Edk2 based UEFI
@@ -141,11 +142,14 @@ details.
 
 ## Documentation
 
-Documentation is located in the ```docs/``` folder and is split into two
+[![docs]][_docs]
+
+Documentation for the most recent release of edk2-pytool-extensions is hosted on
+[tianocore.org/edk2-pytool-extensions](https://www.tianocore.org/edk2-pytool-extensions/)]).
+Raw documentation is located in the ```docs/``` folder and is split into two
 separate categories. The first is located at ```docs/user/``` and is
 documentation and API references for those that are using this package in their
-own project. Users can generate a local copy of the
-[ReadTheDocs](https://readthedocs.org/) documentation by executing the
+own project. Users can generate a local copy of the documentation by executing the
 following command from the root of the project:
 
 ```cmd
@@ -162,6 +166,8 @@ contributing to the edk2-pytool-extensions repository.
 [_pypi]: https://pypi.org/project/edk2-pytool-extensions/
 [ci]: https://github.com/tianocore/edk2-pytool-extensions/actions/workflows/prgate.yml/badge.svg?branch=master&event=push
 [_ci]: https://github.com/tianocore/edk2-pytool-extensions/actions/workflows/prgate.yml
+[docs]: https://img.shields.io/website?label=docs&url=https%3A%2F%2Fwww.tianocore.org%2Fedk2-pytool-extensions%2F
+[_docs]: https://www.tianocore.org/edk2-pytool-extensions/
 
 [_it]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_build?definitionId=52&_a=summary&repositoryFilter=2&branchFilter=14
 [ewt1]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Integration%20Tests?branchName=master&configuration=Edk2_Windows_Python39
