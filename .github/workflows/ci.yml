@@ -123,6 +123,10 @@ jobs:
         if: success() || failure()
         run: pydocstyle ${{ env.package-src }}
       
+      - name: Run mkdocs build
+        if: success() || failure()
+        run: mkdocs build --strict
+      
       - name: Run basic dev tests
         if: success() || failure()
         run: python BasicDevTests.py
