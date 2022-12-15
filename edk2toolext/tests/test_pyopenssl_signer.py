@@ -9,6 +9,7 @@ import unittest
 from edk2toolext.capsule import pyopenssl_signer
 import os
 
+
 class Test_pyopenssl_signer(unittest.TestCase):
 
     def test_empty(self):
