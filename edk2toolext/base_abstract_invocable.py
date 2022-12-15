@@ -100,8 +100,6 @@ class BaseAbstractInvocable(object):
             "con": logs to screen
 
             "txt": logs to plain text file
-
-            "md": logs to markdown file
         """
         raise NotImplementedError()
 
@@ -154,8 +152,6 @@ class BaseAbstractInvocable(object):
             "con": logs to screen
 
             "txt": logs to plain text file
-
-            "md": logs to markdown file
         """
         raise NotImplementedError()
 
@@ -191,12 +187,6 @@ class BaseAbstractInvocable(object):
                                                                 self.GetLoggingFileName("txt"),
                                                                 txtlogfile)
             self.log_filename = logfile
-
-        md_log_file = self.GetLoggingLevel("md")
-        if (md_log_file is not None):
-            edk2_logging.setup_markdown_logger(log_directory,
-                                               self.GetLoggingFileName("md"),
-                                               md_log_file)
 
         logging.info("Log Started: " + datetime.strftime(datetime.now(), "%A, %B %d, %Y %I:%M%p"))
 

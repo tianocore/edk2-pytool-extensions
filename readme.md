@@ -71,7 +71,7 @@ Examples:
 
 * CI build support with plugin
 * Binary dependency resolution (nuget, urls, git repos)
-* Loggers (markdown, file, memory, and colored console)
+* Loggers (file, memory, and colored console)
 * Plugins (pre/post build, function injection)
 * Wrapper around edk2 build
 * VarDict and ShellEnvrionment to manage key/value pairs consistently across
