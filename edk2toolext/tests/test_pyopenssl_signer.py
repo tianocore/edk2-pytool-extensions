@@ -7,8 +7,7 @@
 ##
 import unittest
 from edk2toolext.capsule import pyopenssl_signer
-from OpenSSL import crypto
-
+import os
 
 class Test_pyopenssl_signer(unittest.TestCase):
 
@@ -16,9 +15,24 @@ class Test_pyopenssl_signer(unittest.TestCase):
         with self.assertRaises((KeyError, ValueError)):
             pyopenssl_signer.sign(None, {}, {})
 
-    def test_proper_options(self):
+    def test_proper_options_good_key(self):
         # we're going to assume that we're
-        with self.assertRaises(crypto.Error):
+        signer = {
+            'key_file_format': 'pkcs12',
+            'key_file': os.path.join(os.path.dirname(__file__), "testdata", "test_cert.pfx")
+        }
+        signature = {
+            'type': 'bare',
+            'encoding': 'binary',
+            'hash_alg': 'sha256',
+
+        }
+        data = "Data for testing signer".encode()
+        pyopenssl_signer.sign(data, signature, signer)
+
+    def test_proper_options_bad_key(self):
+        # we're going to assume that we're
+        with self.assertRaises(ValueError):
             signer = {
                 'key_file_format': 'pkcs12',
                 'key_data': "hello there"
