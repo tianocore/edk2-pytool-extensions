@@ -331,10 +331,13 @@ class Edk2Invocable(BaseAbstractInvocable):
         epilog = dedent('''\
             positional arguments:
               <key>=<value>              - Set an env variable for the pre/post build process
+              <key>                      - Set a non-valued env variable for the pre/post build process
               BLD_*_<key>=<value>        - Set a build flag for all build types
                                            (key=value will get passed to build process)
+              BLD_*_<key>                - Set a non-valued build flag for all build types to TRUE
               BLD_<TARGET>_<key>=<value> - Set a build flag for build type of <target>
                                            (key=value will get passed to build process for given build type)
+              BLD_<TARGET>_<key>         - Set a non-valued build flag for a build type of <target>
             ''')
 
         parserObj = argparse.ArgumentParser(epilog=epilog, formatter_class=argparse.RawDescriptionHelpFormatter,)
@@ -422,10 +425,14 @@ class Edk2Invocable(BaseAbstractInvocable):
         BuildConfig = os.path.abspath(args.build_config)
 
         for argument in unknown_args:
-            if argument.count("=") != 1:
-                raise RuntimeError(f"Unknown variable passed in via CLI: {argument}")
-            tokens = argument.strip().split("=")
-            env.SetValue(tokens[0].strip().upper(), tokens[1].strip(), "From CmdLine")
+            if argument.count("=") == 1:
+                tokens = argument.strip().split("=")
+                env.SetValue(tokens[0].strip().upper(), tokens[1].strip(), "From CmdLine")
+                continue
+            elif argument.count("=") == 0:
+                env.SetValue(argument.strip().upper(), "TRUE", "From CmdLine")
+                continue
+            raise RuntimeError(f"Unknown variable passed in via CLI: {argument}")
 
         unknown_args.clear()  # remove the arguments we've already consumed
 
