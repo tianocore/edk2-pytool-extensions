@@ -19,14 +19,15 @@ from io import StringIO
 from edk2toolext.environment.extdeptypes.nuget_dependency import NugetDependency
 from edk2toollib.utility_functions import RunCmd
 
-OPEN_SOURCE_INITIATIVE_URL = "https://opensource.org/licenses/"
-LICENSE_TYPE_SUPPORTED = {
-    "BSD2": OPEN_SOURCE_INITIATIVE_URL + "BSD-2-Clause",
-    "BSD3": OPEN_SOURCE_INITIATIVE_URL + "BSD-3-Clause",
-    "APACHE2": OPEN_SOURCE_INITIATIVE_URL + "Apache-2.0",
-    "MSPL": OPEN_SOURCE_INITIATIVE_URL + "MS-PL",  # Microsoft Public License
-    "MIT": OPEN_SOURCE_INITIATIVE_URL + "MIT",
-    "BSDpP": OPEN_SOURCE_INITIATIVE_URL + "BSDplusPatent",  # BSD + Patent
+# Use associated SPDX license Identifier
+# https://learn.microsoft.com/en-us/nuget/reference/nuspec#license
+LICENSE_IDENTIFIER_SUPPORTED = {
+    "BSD2": "BSD-2-Clause",
+    "BSD3": "BSD-3-Clause",
+    "APACHE2": "Apache-2.0",
+    "MSPL": "MS-PL",  # Microsoft Public License
+    "MIT": "MIT",
+    "BSD2pP": "BSD-2-Clause-Patent",  # BSD2 + Patent
 }
 
 
@@ -115,7 +116,7 @@ class NugetSupport(object):
     def SetBasicData(self, authors, license, project, description, server, copyright):
         """Set basic data in the config data."""
         self.ConfigData["author_string"] = authors
-        self.ConfigData["license_url"] = license
+        self.ConfigData["license"] = license
         self.ConfigData["project_url"] = project
         self.ConfigData["description_string"] = description
         self.ConfigData["server_url"] = server
@@ -329,10 +330,10 @@ def GatherArguments():
         parser.add_argument('--Author', dest="Author", help="<Required> Author string for publishing", required=True)
         parser.add_argument("--ProjectUrl", dest="Project", help="<Required> Project Url", required=True)
         g = parser.add_mutually_exclusive_group(required=True)
-        g.add_argument('--CustomLicenseUrl', dest="LicenseUrl",
-                       help="<Optional> http url for custom license file.  Can use LicenseType for standard licenses")
-        g.add_argument('--LicenseType', dest="LicenseType",
-                       choices=LICENSE_TYPE_SUPPORTED.keys(), help="Standard Licenses")
+        g.add_argument('--CustomLicensePath', dest="LicensePath",
+                       help="<Optional> Relative path to custom license. Must be located in content to pack.  Can use LicenseIdentifier for standard licenses")
+        g.add_argument('--LicenseIdentifier', dest="LicenseIdentifier",
+                       choices=LICENSE_IDENTIFIER_SUPPORTED.keys(), help="Standard Licenses")
         parser.add_argument('--Description', dest="Description",
                             help="<Required> Description of package.", required=True)
         parser.add_argument("--FeedUrl", dest="FeedUrl",
@@ -410,11 +411,13 @@ def main():
 
         nu = NugetSupport(Name=args.Name)
 
-        # license
-        license_url = args.LicenseUrl
-        if (args.LicenseType is not None):
-            license_url = LICENSE_TYPE_SUPPORTED[args.LicenseType]
-        nu.SetBasicData(args.Author, license_url, args.Project, args.Description, args.FeedUrl, args.Copyright)
+        # Support Standard License or Custom License
+        if args.LicensePath is not None:
+            license = args.LicensePath
+        else:
+            license = LICENSE_IDENTIFIER_SUPPORTED[args.LicenseIdentifier]
+
+        nu.SetBasicData(args.Author, license, args.Project, args.Description, args.FeedUrl, args.Copyright)
         nu.LogObject()
         ret = nu.ToConfigFile(ConfigFilePath)
         return ret
