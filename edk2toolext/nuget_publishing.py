@@ -45,7 +45,7 @@ class NugetSupport(object):
         <authors></authors>
 
         <!-- Optional elements -->
-        <licenseUrl></licenseUrl>
+        <license></license>
         <releaseNotes></releaseNotes>
         <projectUrl></projectUrl>
         <copyright></copyright>
@@ -129,6 +129,29 @@ class NugetSupport(object):
 
         self.ConfigChanged = True
 
+    def UpdateLicensePath(self, licensepath):
+        """Update license in the config data.
+
+        Update license in the config data with an absolute path to a license
+        to pack.
+        """
+        self.ConfigData["license"] = licensepath
+
+    def IsValidLicense(self):
+        """Returns whether the License is valid."""
+        license = self.ConfigData["license"]
+
+        if license in LICENSE_IDENTIFIER_SUPPORTED.values():
+            return True
+
+        if not os.path.isabs(license) or not os.path.isfile(license):
+            return False
+
+        if os.path.basename(license).lower() not in ["license.txt", "license.md"]:
+            return False
+
+        return True
+
     def UpdateCopyright(self, copyright):
         """Update copyright in the config data."""
         self.ConfigData["copyright_string"] = copyright
@@ -184,11 +207,11 @@ class NugetSupport(object):
 
     def _MakeNuspecXml(self, ContentDir, ReleaseNotesText=None):
         package = etree.fromstring(NugetSupport.NUSPEC_TEMPLATE_XML)
+        package.attrib["xmlns"] = "http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd"
         meta = package.find("./metadata")
         meta.find("id").text = self.Name
         meta.find("version").text = self.NewVersion
         meta.find("authors").text = self.ConfigData["author_string"]
-        meta.find("licenseUrl").text = self.ConfigData["license_url"]
         meta.find("projectUrl").text = self.ConfigData["project_url"]
         meta.find("description").text = self.ConfigData["description_string"]
         meta.find("copyright").text = self.ConfigData["copyright_string"]
@@ -198,6 +221,18 @@ class NugetSupport(object):
         f = files.find("file")
         f.set("target", self.Name)
         f.set("src", ContentDir + "\\**\\*")
+
+        # Add appropriate attribute to the license element depending on if the
+        # license is custom or not. If the license is custom, add a new file
+        # element pointing at the license
+        if os.path.isfile(self.ConfigData["license"]):
+            meta.find("license").text = os.path.basename(self.ConfigData["license"])
+            meta.find("license").attrib["type"] = "file"
+            f = etree.Element("file", attrib={"src": self.ConfigData["license"], "target": ""})
+            files.append(f)
+        else:
+            meta.find("license").text = self.ConfigData["license"]
+            meta.find("license").attrib["type"] = "expression"
 
         if (ReleaseNotesText is not None):
             logging.debug("Make Nuspec Xml - ReleaseNotesText is not none.")
@@ -330,8 +365,9 @@ def GatherArguments():
         parser.add_argument('--Author', dest="Author", help="<Required> Author string for publishing", required=True)
         parser.add_argument("--ProjectUrl", dest="Project", help="<Required> Project Url", required=True)
         g = parser.add_mutually_exclusive_group(required=True)
-        g.add_argument('--CustomLicensePath', dest="LicensePath",
-                       help="<Optional> Relative path to custom license. Must be located in content to pack.  Can use LicenseIdentifier for standard licenses")
+        g.add_argument('--CustomLicense', dest="LicenseIdentifier", action="store_true",
+                       help="<Optional> Specify that a file will be provided as the License during the pack command. \
+                            Can use License Identifier for standard licenses")
         g.add_argument('--LicenseIdentifier', dest="LicenseIdentifier",
                        choices=LICENSE_IDENTIFIER_SUPPORTED.keys(), help="Standard Licenses")
         parser.add_argument('--Description', dest="Description",
@@ -356,6 +392,9 @@ def GatherArguments():
         parser.add_argument('--ApiKey', dest="ApiKey",
                             help="<Optional>Api key to use. Default is 'VSTS' which will invoke interactive login",
                             default="VSTS")
+        parser.add_argument('--CustomLicensePath', dest="CustomLicensePath", default=None,
+                            help="<Optional> If CustomLicense set in `new` phase, provide absolute path of License \
+                            File to pack. Does not override existing valid license.")
 
     elif (args.op.lower() == "push"):
         parser.add_argument("--ConfigFilePath", dest="ConfigFilePath",
@@ -412,8 +451,9 @@ def main():
         nu = NugetSupport(Name=args.Name)
 
         # Support Standard License or Custom License
-        if args.LicensePath is not None:
-            license = args.LicensePath
+        # Custom License path provided during pack operation
+        if args.LicenseIdentifier is True:
+            license = "Use --CustomLicensePath in Pack command to set this"
         else:
             license = LICENSE_IDENTIFIER_SUPPORTED[args.LicenseIdentifier]
 
@@ -443,6 +483,16 @@ def main():
         os.mkdir(TempOutDir)
 
         nu = NugetSupport(ConfigFile=args.ConfigFilePath)
+
+        if not nu.IsValidLicense() and args.CustomLicensePath is not None:
+            nu.UpdateLicensePath(args.CustomLicensePath)
+
+        if not nu.IsValidLicense():
+            logging.critical("Invalid License")
+            logging.critical("    Verify custom license file name is license.txt or license.md")
+            logging.critical("    Verify custom license file path is in absolute format and valid")
+            raise Exception("Invalid License. Verify valid name and that path is absolute and valid")
+
         if (args.Copyright is not None):
             nu.UpdateCopyright(args.Copyright)
         if (len(args.Tags) > 0):
