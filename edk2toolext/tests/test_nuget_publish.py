@@ -8,6 +8,7 @@
 ##
 import unittest
 from edk2toolext import nuget_publishing
+from edk2toollib.utility_functions import RemoveTree
 import sys
 import tempfile
 import os
@@ -27,10 +28,10 @@ class test_nuget_publish(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        for filename in glob.glob("*.nupkg"):
-            os.remove(filename)
-        for filename in glob.glob("_TEMP_*"):
-            os.remove(filename)
+        for path in glob.glob("*.nupkg"):
+            os.remove(path)
+        for path in glob.glob("_TEMP_*"):
+            RemoveTree(path)
 
     @classmethod
     def write_to_file(cls, path, contents, close=True):
