@@ -79,3 +79,41 @@ class TestEdk2Setup(unittest.TestCase):
         except SystemExit as e:
             self.assertEqual(e.code, 0, "We should have a non zero error code")
             pass
+
+    def test_parse_command_line_options_pass(self):
+        builder = Edk2PlatformSetup()
+        settings_file = os.path.join(self.minimalTree, "settings.py")
+        sys.argv = ["stuart_setup",
+                    "-c", settings_file,
+                    "BLD_*_VAR",
+                    "VAR",
+                    "BLD_DEBUG_VAR2",
+                    "BLD_RELEASE_VAR2",
+                    "TEST_VAR=TEST",
+                    "BLD_*_TEST_VAR2=TEST"]
+
+        try:
+            builder.Invoke()
+        except SystemExit as e:
+            self.assertEqual(e.code, 0)
+
+        env = shell_environment.GetBuildVars()
+        self.assertEqual(env.GetValue("BLD_*_VAR"), "TRUE")
+        self.assertEqual(env.GetValue("VAR"), "TRUE")
+        self.assertEqual(env.GetValue("BLD_DEBUG_VAR2"), "TRUE")
+        self.assertEqual(env.GetValue("BLD_RELEASE_VAR2"), "TRUE")
+        self.assertEqual(env.GetValue("TEST_VAR"), "TEST")
+        self.assertEqual(env.GetValue("BLD_*_TEST_VAR2"), "TEST")
+
+    def test_parse_command_line_options_fail(self):
+
+        for arg in ["BLD_*_VAR=5=10", "BLD_DEBUG_VAR2=5=5", "BLD_RELEASE_VAR3=5=5", "VAR=10=10"]:
+            builder = Edk2PlatformSetup()
+            settings_file = os.path.join(self.minimalTree, "settings.py")
+            sys.argv = ["stuart_setup",
+                        "-c", settings_file,
+                        arg]
+            try:
+                builder.Invoke()
+            except RuntimeError as e:
+                self.assertTrue(str(e).startswith(f"Unknown variable passed in via CLI: {arg}"))
