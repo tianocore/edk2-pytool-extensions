@@ -139,6 +139,10 @@ two methods to set environment variables, ensuring they are available everywhere
 Simply override these two functions in your subclass of the `UefiBuilder` and set environment variables until your heart
 is content!
 
+!!! Note
+    Not all variables are passed through stuart to the actual build command. Only variables with the prefix `BLD_*_`,
+    `BLD_DEBUG_` and `BLD_RELEASE_` are considered build values and consumed by the build command.
+
 #### Example
 
 As mentioned above, lets walk through a simple example of build customization with Edk2-Pytools. In this scenario, we

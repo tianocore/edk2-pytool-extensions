@@ -13,11 +13,12 @@ and then acts upon those files.
 """
 import os
 import logging
-import pathlib
+import pygit2
 from edk2toolext.environment import shell_environment
 from edk2toolext.environment import environment_descriptor_files as EDF
 from edk2toolext.environment import external_dependency
 from multiprocessing import dummy
+from pathlib import Path
 import time
 
 
@@ -44,7 +45,19 @@ class self_describing_environment(object):
         self.scopes = scopes
 
         # Allow certain directories to be skipped
-        self.skipped_dirs = tuple(map(pathlib.Path, (os.path.join(self.workspace, d) for d in skipped_dirs)))
+        self.skipped_dirs = tuple(map(Path, (os.path.join(self.workspace, d) for d in skipped_dirs)))
+
+        # Respect git worktrees
+        repo_path = pygit2.discover_repository(self.workspace)
+        if repo_path:
+            repo = pygit2.Repository(repo_path)
+            worktrees = repo.list_worktrees()
+            for worktree in worktrees:
+                worktree_path = Path(repo.lookup_worktree(worktree).path)
+                if (worktree_path.is_dir()
+                        and Path(self.workspace) != worktree_path
+                        and worktree_path not in skipped_dirs):
+                    self.skipped_dirs += (worktree_path,)
 
         # Validate that all scopes are unique.
         if len(self.scopes) != len(set(self.scopes)):
@@ -67,8 +80,8 @@ class self_describing_environment(object):
             dirs[:] = [d
                        for d
                        in dirs
-                       if pathlib.Path(root, d) not in self.skipped_dirs
-                       and pathlib.Path(root, d).name != '.git']
+                       if Path(root, d) not in self.skipped_dirs
+                       and Path(root, d).name != '.git']
 
             # Check for any files that match the extensions we're looking for.
             for file in files:

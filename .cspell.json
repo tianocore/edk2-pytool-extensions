@@ -129,6 +129,7 @@
         "rtags",
         "Pdbs",
         "uncrustify",
-        "mkdocs"
+        "mkdocs",
+        "pygit"
     ]
 }

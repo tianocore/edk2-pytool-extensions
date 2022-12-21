@@ -123,8 +123,6 @@ class Edk2InvocableSettingsInterface():
             "con": logs to screen
 
             "txt": logs to plain text file
-
-            "md": logs to markdown file
         """
         return None
 
