@@ -334,7 +334,7 @@ class Edk2Invocable(BaseAbstractInvocable):
               <key>                      - Set a non-valued env variable for the pre/post build process
               BLD_*_<key>=<value>        - Set a build flag for all build types
                                            (key=value will get passed to build process)
-              BLD_*_<key>                - Set a non-valued build flag for all build types to TRUE
+              BLD_*_<key>                - Set a non-valued build flag for all build types
               BLD_<TARGET>_<key>=<value> - Set a build flag for build type of <target>
                                            (key=value will get passed to build process for given build type)
               BLD_<TARGET>_<key>         - Set a non-valued build flag for a build type of <target>
