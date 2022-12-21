@@ -20,10 +20,6 @@ try:
 except ImportError:
     ansi_handler = None
 try:
-    from edk2toollib.log import markdown_handler
-except ImportError:
-    markdown_handler = None
-try:
     from edk2toollib.log import string_handler
 except ImportError:
     string_handler = None
@@ -119,38 +115,6 @@ def setup_txt_logger(directory, filename="log", logging_level=logging.INFO,
     filelogger.addFilter(get_edk2_filter(isVerbose))
 
     return logfile_path, filelogger
-
-
-# creates the markdown logger
-def setup_markdown_logger(directory, filename="log", logging_level=logging.INFO,
-                          formatter=None, logging_namespace='', isVerbose=False):
-    """Configures a markdown logger."""
-    logger = logging.getLogger(logging_namespace)
-    log_formatter = formatter
-    if log_formatter is None:
-        log_formatter = logging.Formatter("%(levelname)s - %(message)s")
-
-    if not os.path.isdir(directory):
-        os.makedirs(directory)
-
-    # add markdown handler
-    markdown_filename = filename + ".md"
-    markdown_path = os.path.join(directory, markdown_filename)
-    if markdown_handler:
-        markdownHandler = markdown_handler.MarkdownFileHandler(markdown_path, mode="w+")
-    else:
-        markdownHandler = logging.FileHandler(markdown_path, mode="w+")
-    markdownHandler.setFormatter(log_formatter)
-
-    if logging_level <= logging.DEBUG:
-        logging_level = logging.INFO  # we don't show debugging output in markdown since it gets too full
-
-    markdownHandler.addFilter(get_edk2_filter(isVerbose))
-
-    markdownHandler.setLevel(logging_level)
-    logger.addHandler(markdownHandler)
-
-    return markdown_path, markdownHandler
 
 
 # sets up a colored console logger
