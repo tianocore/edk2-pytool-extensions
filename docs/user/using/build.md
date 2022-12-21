@@ -63,4 +63,26 @@ stuart_build -c path/to/SettingsFile.py
 
 ## FAQ
 
-N/A
+### Can I pass build values through stuart to the build command?
+
+Yes! Build values can be set and passed to the build command via the command
+line or from within your platform build file
+[Read More](/integrate/build#setting-getting-environment-variables).
+You define a build value via `BLD_*_<Value>` for all builds,
+`BLD_DEBUG_<Value>` for debug builds, and `BLD_RELEASE_<Value>` for release
+builds.
+
+From the command line:
+
+```cmd
+\> stuart_build -c Platform/QemuQ35Pkg/PlatformBuild.py BLD_*_SHIP_MODE=FALSE
+```
+
+From within the Platform build file:
+
+``` python
+def SetPlatformEnv(self):
+    ...
+    self.env.SetValue("BLD_*_SHIP_MODE", "FALSE", "Default")
+    ...
+```

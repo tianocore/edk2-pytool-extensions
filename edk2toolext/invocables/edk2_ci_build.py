@@ -155,9 +155,7 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
             packagebuildlog_path = os.path.join(log_directory, pkgToRunOn)
             _, txt_handle = edk2_logging.setup_txt_logger(
                 packagebuildlog_path, f"BUILDLOG_{pkgToRunOn}", logging_level=logging.DEBUG, isVerbose=True)
-            _, md_handle = edk2_logging.setup_markdown_logger(
-                packagebuildlog_path, f"BUILDLOG_{pkgToRunOn}", logging_level=logging.DEBUG, isVerbose=True)
-            loghandle = [txt_handle, md_handle]
+            loghandle = [txt_handle]
             shell_environment.CheckpointBuildVars()
             env = shell_environment.GetBuildVars()
 

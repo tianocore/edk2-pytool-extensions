@@ -27,14 +27,6 @@ class Test_edk2_logging(unittest.TestCase):
         self.assertIsNot(txt_logger, None, "We created a txt logger")
         edk2_logging.stop_logging(txt_logger)
 
-    def test_can_create_md_logger(self):
-        test_dir = tempfile.mkdtemp()
-        location, txt_logger = edk2_logging.setup_markdown_logger(test_dir, "test_md")
-        logging.info("Testing")
-        self.assertTrue(os.path.isfile(location), "We should have created a file")
-        self.assertIsNot(txt_logger, None, "We created a txt logger")
-        edk2_logging.stop_logging(txt_logger)
-
     def test_none_to_close(self):
         edk2_logging.stop_logging(None)
 

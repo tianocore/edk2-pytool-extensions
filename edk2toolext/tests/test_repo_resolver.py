@@ -30,6 +30,13 @@ commit_dependency = {
     "Path": "test_repo",
     "Commit": "b1e35a5d2bf05fb7f58f5b641a702c70d6b32a98"
 }
+
+short_commit_dependency = {
+    "Url": "https://github.com/microsoft/mu",
+    "Path": "test_repo",
+    "Commit": "b1e35a5"
+}
+
 commit_later_dependency = {
     "Url": "https://github.com/microsoft/mu",
     "Path": "test_repo",
@@ -176,6 +183,18 @@ class test_repo_resolver(unittest.TestCase):
 
         self.assertEqual(details['Url'], commit_dependency['Url'])
         self.assertEqual(details['Commit'], commit_dependency['Commit'])
+
+    # check to make sure we support short commits
+    def test_clone_short_commit_repo(self):
+        repo_resolver.resolve(test_dir, short_commit_dependency)
+        folder_path = os.path.join(test_dir, short_commit_dependency["Path"])
+        details = repo_resolver.get_details(folder_path)
+
+        self.assertEqual(details['Url'], short_commit_dependency['Url'])
+        self.assertEqual(details['Commit'][:7], short_commit_dependency['Commit'])
+
+        # Resolve again, making sure we don't fail if repo already exists.
+        repo_resolver.resolve(test_dir, short_commit_dependency)
 
     # check to make sure we can clone a commit correctly
     def test_fail_update(self):

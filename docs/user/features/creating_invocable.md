@@ -193,7 +193,6 @@ class Edk2BinaryBuild(Edk2Invocable):
         base == lowest logging level supported
         con  == Screen logging
         txt  == plain text file logging
-        md   == markdown file logging
         '''
         if(loggerType == "con") and not self.Verbose:
             return logging.WARNING
@@ -555,7 +554,6 @@ class Edk2BinaryBuild(Edk2Invocable):
         base == lowest logging level supported
         con  == Screen logging
         txt  == plain text file logging
-        md   == markdown file logging
         '''
         if(loggerType == "con") and not self.Verbose:
             return logging.WARNING
