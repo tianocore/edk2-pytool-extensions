@@ -104,7 +104,7 @@ class GitDependency(ExternalDependency):
                 self.logger.warning("Git Dependency: dirty")
                 result = False
 
-            if (r.head.commit != self.version):
+            if (r.head.commit != self.version and r.head.commit[:7] != self.version):
                 self.logger.info(f"Git Dependency: head is {r.head.commit} and version is {self.version}")
                 result = False
 
