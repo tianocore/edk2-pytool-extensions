@@ -102,7 +102,6 @@ class Test_pyopenssl_signer(unittest.TestCase):
             pyopenssl_signer.sign(None, {}, {})
 
     def test_proper_options_good_key(self):
-        # we're going to assume that we're
         signer = {
             'key_file_format': 'pkcs12',
             'key_data': TEST_CERT
