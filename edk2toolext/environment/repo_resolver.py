@@ -262,7 +262,7 @@ def checkout(abs_file_system_path, dep, repo, update_ok=False, ignore_dep_state_
                 repo.checkout(commit=commit)
             repo.submodule("update", "--init", "--recursive")
         else:
-            if repo.head.commit == commit:
+            if repo.head.commit == commit or repo.head.commit[:7] == commit:
                 logger.debug(
                     "Dependency {0} state ok without update".format(dep["Path"]))
                 return

@@ -21,6 +21,7 @@ test_dir = None
 uptodate_version = "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
 behind_one_version = "762941318ee16e59dabbacb1b4049eec22f0d303"
 invalid_version = "762941318ee16e59d123456789049eec22f0d303"
+short_version = "7fd1a60"
 
 hw_json_template = '''
 {
@@ -89,6 +90,16 @@ class TestGitDependency(unittest.TestCase):
         ext_dep.fetch()
         self.assertTrue(ext_dep.verify())
         self.assertEqual(ext_dep.version, uptodate_version)
+
+    def test_fetch_verify_short_commit_hash(self):
+        ext_dep_file_path = os.path.join(test_dir, "hw_ext_dep.json")
+        with open(ext_dep_file_path, "w+") as ext_dep_file:
+            ext_dep_file.write(hw_json_template % short_version)
+        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep = GitDependency(ext_dep_descriptor)
+        ext_dep.fetch()
+        self.assertTrue(ext_dep.verify())
+        self.assertEqual(ext_dep.version, short_version)
 
     def test_fetch_verify_good_repo_at_not_top_of_tree(self):
         ext_dep_file_path = os.path.join(test_dir, "hw_ext_dep.json")

@@ -7,6 +7,7 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 import os
+import pygit2
 import unittest
 import tempfile
 from edk2toolext.environment import self_describing_environment
@@ -113,6 +114,57 @@ class Testself_describing_environment(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             self_describing_environment.BootstrapEnvironment(self.workspace, scopes)
             self.fail()
+
+    def test_git_worktree(self):
+        """Check that the SDE will recognize a git worktree.
+
+        Specifically verifies duplicate external dependencies in the git
+        worktree are ignored that are discovered during SDE initialization.
+        """
+        # The workspace should not contain a git repo yet
+        repo_path = pygit2.discover_repository(self.workspace)
+        self.assertIsNone(repo_path)
+
+        # Init a git repo in the workspace
+        pygit2.init_repository(self.workspace, initial_head='master')
+        repo_path = pygit2.discover_repository(self.workspace)
+        self.assertIsNotNone(repo_path)
+
+        repo = pygit2.Repository(self.workspace)
+
+        # Create a UEFI tree
+        repo_tree = uefi_tree(self.workspace, create_platform=True)
+        self.assertIsNotNone(repo_tree)
+
+        # Add ext deps to the tree
+        repo_tree.create_ext_dep("nuget", "NuGet.CommandLine", "5.2.0")
+        repo_tree.create_ext_dep("nuget", "NuGet.LibraryModel", "5.6.0")
+
+        # Commit the UEFI tree to the master branch
+        self.assertNotIn('master', repo.branches)
+        index = repo.index
+        index.add_all()
+        index.write()
+        author = pygit2.Signature('SDE Unit Test', 'uefibot@microsoft.com')
+        message = "Add initial platform UEFI worktree"
+        tree = index.write_tree()
+        parents = []
+        repo.create_commit('HEAD', author, author, message, tree, parents)
+        self.assertIn('master', repo.branches)
+
+        # Create the worktree branch
+        worktree_branch = repo.branches.local.create('worktree_branch', commit=repo[repo.head.target])
+        self.assertIn('worktree_branch', repo.branches)
+
+        # Create a worktree on the worktree branch in the git repo
+        self.assertFalse(repo.list_worktrees())
+        repo.add_worktree('test_workspace', os.path.join(self.workspace, '.trees'), worktree_branch)
+        worktrees = repo.list_worktrees()
+        self.assertIn('test_workspace', worktrees)
+
+        # Because this is a subtree, the duplicate ext_deps should be ignored
+        # that are present in the worktree
+        self_describing_environment.BootstrapEnvironment(self.workspace, ('global',))
 
 
 if __name__ == '__main__':
