@@ -265,7 +265,9 @@ recommended to use this to ensure the contents are as expected.
 ## Git Type Schema Differences
 
 - source: url of git repo
-- version: commit hash to checkout (short or long)
+- version: commit hash to checkout (short\* or long)
+
+\* Short is considered the first 7 digits of a commit hash
 
 ### Experimental Option: url_creds_var
 
