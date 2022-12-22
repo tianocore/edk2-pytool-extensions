@@ -70,9 +70,16 @@ def sign(data: bytes, signature_options: dict, signer_options: dict) -> bytes:
 
     if type(signer_options['key_data']) is not bytes:
         signer_options['key_data'] = signer_options['key_data'].encode()
+
+    password = None
+    if 'password' in signer_options:
+        password = signer_options['password']
+        if type(password) is not bytes:
+            password = password.encode()
+
     # TODO: Figure out OIDs.
     # TODO: Figure out EKU.
 
-    pkcs12 = load_pkcs12(signer_options['key_data'], None)
+    pkcs12 = load_pkcs12(signer_options['key_data'], password)
     pkey = crypto.PKey.from_cryptography_key(pkcs12.key)
     return crypto.sign(pkey, data, signature_options['hash_alg'])
