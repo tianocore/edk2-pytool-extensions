@@ -8,7 +8,25 @@
 import unittest
 from edk2toolext.capsule import pyopenssl_signer
 
-# Fake cert used to test the ability to parse pfx and pull out necessary information.
+# TEST_CERT is a cert used to test the ability to parse pfx and pull out necessary information.
+# To generate a new test cert follow these steps:
+# 1. Generate the Cert (.pfx) file
+
+# 2. Serialize the Cert
+#   Run the following Python commands to read the cert and print the bytes:
+#   ```
+#   with open(path/to/file, 'rb') as file:
+#        print(file.read())
+#   ```
+#   You will see console output in the form b'0\x..\x..\x..\'
+
+# 3. Break the serialized cert up to fit across multiple lines
+#   To do this, simply start a new line immediately before a " \ " symbol
+#   On the new line you just started, add " b' " to the start.
+#   On the previous line, add " '\ " to the end.
+#   As an example, take the value b'0\x82\tA\x02\x01\x030\x82', which would transform into
+#   var = b'0\x82\tA\x02'\
+#         b'x01\x030\x82'
 # spell-checker:disable
 TEST_CERT = b'0\x82\tA\x02\x01\x030\x82\t\x07\x06\t*\x86H\x86\xf7\r\x01\x07\x01\xa0\x82\x08\xf8'\
             b'\x04\x82\x08\xf40\x82\x08\xf00\x82\x03\xa7\x06\t*\x86H\x86\xf7\r\x01\x07\x06\xa0\x82'\
