@@ -43,7 +43,7 @@ with open("path/to/cert.pfx", 'rb') as file:
             print("\\")
 ```
 From there, you can copy the console printed serialized cert and use it in your
-python file as seen below this pydocstring.
+python file as seen below this docstring.
 """
 
 # spell-checker:disable
