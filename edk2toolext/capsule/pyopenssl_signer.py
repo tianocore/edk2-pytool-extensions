@@ -16,6 +16,7 @@ dictionaries that are used by capsule_tool and capsule_helper.
 import logging
 import warnings
 
+from cryptography.hazmat.primitives.serialization.pkcs12 import load_pkcs12
 from OpenSSL import crypto
 
 
@@ -67,8 +68,18 @@ def sign(data: bytes, signature_options: dict, signer_options: dict) -> bytes:
         with open(signer_options['key_file'], 'rb') as key_file:
             signer_options['key_data'] = key_file.read()
 
+    if type(signer_options['key_data']) is not bytes:
+        signer_options['key_data'] = signer_options['key_data'].encode()
+
+    password = None
+    if 'key_file_password' in signer_options:
+        password = signer_options['key_file_password']
+        if type(password) is not bytes:
+            password = password.encode()
+
     # TODO: Figure out OIDs.
     # TODO: Figure out EKU.
 
-    pkcs12 = crypto.load_pkcs12(signer_options['key_data'])
-    return crypto.sign(pkcs12.get_privatekey(), data, signature_options['hash_alg'])
+    pkcs12 = load_pkcs12(signer_options['key_data'], password)
+    pkey = crypto.PKey.from_cryptography_key(pkcs12.key)
+    return crypto.sign(pkey, data, signature_options['hash_alg'])
