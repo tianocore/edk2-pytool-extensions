@@ -72,8 +72,8 @@ def sign(data: bytes, signature_options: dict, signer_options: dict) -> bytes:
         signer_options['key_data'] = signer_options['key_data'].encode()
 
     password = None
-    if 'password' in signer_options:
-        password = signer_options['password']
+    if 'key_file_password' in signer_options:
+        password = signer_options['key_file_password']
         if type(password) is not bytes:
             password = password.encode()
 
