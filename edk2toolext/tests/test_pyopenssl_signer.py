@@ -10,7 +10,7 @@ from base64 import b64decode
 from edk2toolext.capsule import pyopenssl_signer
 
 r"""
-TEST_CERT is a cert used to test the ability to parse pfx and pull out necessary information.
+TESTCERT is a cert used to test the ability to parse pfx and pull out necessary information.
 To generate a new test cert follow these steps:
 
 1. Generate the Cert (.pfx) file
@@ -49,7 +49,7 @@ python file as seen below this docstring.
 """
 
 # spell-checker:disable
-# TEST_CERT1 has no password
+# TESTCERT1 has no password
 TESTCERT1 = b'MIIJQQIBAzCCCQcGCSqGSIb3DQEHAaCCCPgEggj0MIII8D\
 CCA6cGCSqGSIb3DQEHBqCCA5gwggOUAgEAMIIDjQYJKoZIhvcNAQcBMBwGCi\
 qGSIb3DQEMAQYwDgQIlimkkLBfTQ8CAggAgIIDYAGQRMWf8SbXd6nZPL2o11\
@@ -104,7 +104,7 @@ qKXmc5OHIJoRkbrbFi4+2BeevncDADGrhl3heGWSmRlbOPxrryNrDPw7cbMS\
 UwIwYJKoZIhvcNAQkVMRYEFILT9pNixD3s66GdK3I48b/dr23DMDEwITAJBg\
 UrDgMCGgUABBTdiDC3a0y1gAbO1eZqveI3Zd0BrwQIFO8dSTjGLhMCAggA'
 
-# TEST_CERT2 has a password
+# TESTCERT2 has a password
 TESTCERT2 = b'MIIKaQIBAzCCCiUGCSqGSIb3DQEHAaCCChYEggoSMIIKDj\
 CCBg8GCSqGSIb3DQEHAaCCBgAEggX8MIIF+DCCBfQGCyqGSIb3DQEMCgECoI\
 IE/jCCBPowHAYKKoZIhvcNAQwBAzAOBAh8sw/XNGIGZwICB9AEggTYeUQ8gJ\
