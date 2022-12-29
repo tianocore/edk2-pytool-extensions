@@ -114,7 +114,8 @@ def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=F
                 raise Exception("The URL of the git Repo {2} in the folder {0} does not match {1}".format(
                     git_path, dependency["Url"], repo.remotes.origin.url))
     # if we've gotten here, we should just checkout as normal
-    repo = checkout(git_path, dependency, repo, update_ok, ignore, force)
+    checkout(git_path, dependency, repo, update_ok, ignore, force)
+    repo.pull()
     return repo
 
 ##
