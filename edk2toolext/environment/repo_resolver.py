@@ -115,9 +115,6 @@ def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=F
                     git_path, dependency["Url"], repo.remotes.origin.url))
     # if we've gotten here, we should just checkout as normal
     checkout(git_path, dependency, repo, update_ok, ignore, force)
-    if not repo.pull():
-        logger.critical("Failed to update branch to latest in the git Repo {0}".format(git_path))
-        raise Exception("Failed to update branch to latest in the git Repo {0}".format(git_path))
     return repo
 
 ##
@@ -236,7 +233,7 @@ def clone_repo(abs_file_system_path, DepObj):
 
 
 def checkout(abs_file_system_path, dep, repo, update_ok=False, ignore_dep_state_mismatch=False, force=False):
-    """Checks out a commit or branch.
+    """Checks out a commit or branch, ensuring the branch is at top of tree.
 
     Args:
         abs_file_system_path (PathLike): The path to the repo
@@ -289,6 +286,7 @@ def checkout(abs_file_system_path, dep, repo, update_ok=False, ignore_dep_state_
                 logger.info("We failed to checkout this branch, we'll try to fetch")
                 repo.fetch(branch=branch)
                 repo.checkout(branch=branch)
+            repo.pull()  # Pull to be top of tree
             repo.submodule("update", "--init", "--recursive")
         else:
             if repo.active_branch == dep["Branch"]:
