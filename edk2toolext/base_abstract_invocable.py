@@ -213,7 +213,8 @@ class BaseAbstractInvocable(object):
         # Make sure the environment verifies IF it is required for this invocation
         if self.GetVerifyCheckRequired() and not self_describing_environment.VerifyEnvironment(
                 self.GetWorkspaceRoot(), self.GetActiveScopes(), self.GetSkippedDirectories()):
-            raise RuntimeError("SDE is not current.  Please update your env before running this tool.")
+            raise RuntimeError("SDE is not current. External Dependencies are out of date. "
+                               "Consider running stuart_update to possibly resolve this issue.")
 
         # Load plugins
         logging.log(edk2_logging.SECTION, "Loading Plugins")
