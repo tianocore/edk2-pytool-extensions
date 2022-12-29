@@ -15,6 +15,10 @@ import os
 import logging
 from io import StringIO
 from edk2toollib.utility_functions import RunCmd
+import pygit2 as git
+from pathlib import Path
+from typing import Union  # Backwards compat for 3.9
+from edk2toollib.utility_functions import RemoveTree
 
 
 class ObjectDict(object):
@@ -43,139 +47,170 @@ class ObjectDict(object):
 
 
 class Repo(object):
-    """A class representing a git repo."""
-    def __init__(self, path=None):
+    """A class representing a git repo.
+
+    Public attributes are determined at run time by using pygit2 to parse the
+    git object and reference database.
+
+    !!! warning
+        This class holds a reference to the git repository database making it
+        difficult to delete the repo while this class is instantiated. To
+        delete the repository, one can call the `free()` method and delete it
+        manually; the `delete()` method to delete the repository; or
+        deallocate the class, freeing the reference to the git repository
+        database.
+
+    Attributes:
+        path (Path): path to the repo
+        exists (bool): If the path is valid
+        initialized (bool): If there is a git repo at the path
+        bare (bool): If the repo is bare
+        dirty (bool): If there are changes in the repo
+        active_branch (str): Name of the active branch
+        head (str): The head commit this repo is at
+        remotes (obj): All remotes associated with the repo
+        worktrees (list[ObjectDict]): A list of worktrees (attr path, name)
+        url (str): The url of the origin remote associated with the repo
+        submodules (list[str]): list of submodule paths
+
+    """
+    def __init__(self, path: Union[str, Path, None] = None):
         """Inits an empty Repo object."""
-        self._path = path  # the path that the repo is pointed at
-        self.active_branch = None  # the active branch or none if detached
-        self.bare = True  # if the repo is bare
-        self.exists = False  # if the .git folder exists
-        self.remotes = ObjectDict()
-        self.initalized = False  # if there is a git repo at the directory
-        self.url = None  # the origin remote
-        self.dirty = False  # if there are changes
-        self.head = None  # the head commit that this repo is at
-        self.submodules = None  # List of submodule paths
-        self._update_from_git()
         self._logger = logging.getLogger("git.repo")
+        self._repo = None
+        self.path = path  # Refer to @path.setter
 
-    # Updates the .git file
-    def _update_from_git(self):
+    def __del__(self):
+        """Release the handle to the git database (.git).
 
-        if os.path.isdir(self._path):
-            try:
-                self.exists = True
-                self.active_branch = self._get_branch()
-                self.remotes = self._get_remotes()
-                self.head = self._get_head()
-                self.dirty = self._get_dirty()
-                self.url = self._get_url()
-                self.bare = self._get_bare()
-                self.initalized = self._get_initalized()
-                self.submodules = self._get_submodule_list()
-            except Exception as e:
-                self._logger.error("GIT ERROR for {0}".format(self._path))
-                self._logger.error(e)
-                raise e
+        It is necessary to call free now to ensure git files are not locked
+        and can be deleted if necessary. (Cleaning up, etc.)
+        """
+        self.free()
 
-    def _get_submodule_list(self):
-        submodule_list = []
-        return_buffer = StringIO()
-        params = "config --file .gitmodules --get-regexp path"
-        RunCmd("git", params, workingdir=self._path, outstream=return_buffer)
-        p1 = return_buffer.getvalue().strip()
-        return_buffer.close()
-        if (len(p1) > 0):
-            submodule_list = p1.split("\n")
-            for i in range(0, len(submodule_list)):
-                submodule_list[i] = submodule_list[i].split(' ')[1]
-        return submodule_list
+    @property
+    def exists(self):
+        """Property describing if the path associated with the repo is valid."""
+        return os.path.isdir(self._path)
 
-    def _get_remotes(self):
-        return_buffer = StringIO()
-        params = "remote"
-        new_remotes = ObjectDict()
-        RunCmd("git", params, workingdir=self._path, outstream=return_buffer)
-        p1 = return_buffer.getvalue().strip()
-        return_buffer.close()
-        remote_list = p1.split("\n")
-        for remote in remote_list:
-            url = ObjectDict()
-            url.set("url", self._get_url(remote))
-            setattr(new_remotes, remote, url)
+    @property
+    def initialized(self):
+        """Property describing if a repo is initialized at the associated path."""
+        return os.path.isdir(os.path.join(self._path, ".git"))
 
-        return new_remotes
-
-    def _get_url(self, remote="origin"):
-        return_buffer = StringIO()
-        params = "config --get remote.{0}.url".format(remote)
-        RunCmd("git", params, workingdir=self._path, outstream=return_buffer)
-
-        p1 = return_buffer.getvalue().strip()
-        return_buffer.close()
-        return p1
-
-    def _get_dirty(self):
-        return_buffer = StringIO()
-        params = "status --short"
-
-        RunCmd("git", params, workingdir=self._path, outstream=return_buffer)
-
-        p1 = return_buffer.getvalue().strip()
-        return_buffer.close()
-
-        if len(p1) > 0:
+    @property
+    def bare(self):
+        """Property describing if the repo is bare."""
+        if not self._repo:
             return True
+        return self._repo.is_bare
 
-        return_buffer = StringIO()
-        params = "log --branches --not --remotes --decorate --oneline"
+    @property
+    def dirty(self):
+        """Property describing if the repo is dirty."""
+        if not self._repo:
+            return False
+        return len(self._repo.status()) != 0
 
-        RunCmd("git", params, workingdir=self._path, outstream=return_buffer)
+    @property
+    def active_branch(self):
+        """Property describing the active branch name."""
+        if not self._repo:
+            return None
+        return self._repo.head.shorthand
 
-        p1 = return_buffer.getvalue().strip()
-        return_buffer.close()
-
-        if len(p1) > 0:
-            return True
-
-        return False
-
-    def _get_branch(self):
-        return_buffer = StringIO()
-        params = "rev-parse --abbrev-ref HEAD"
-        RunCmd("git", params, workingdir=self._path, outstream=return_buffer)
-
-        p1 = return_buffer.getvalue().strip()
-        return_buffer.close()
-        return p1
-
-    def _get_head(self):
-        return_buffer = StringIO()
-        params = "rev-parse HEAD"
-        RunCmd("git", params, workingdir=self._path, outstream=return_buffer)
-
-        p1 = return_buffer.getvalue().strip()
-        return_buffer.close()
+    @property
+    def head(self):
+        """Property describing the head commit."""
+        if not self._repo:
+            return None
 
         head = ObjectDict()
-        head.set("commit", p1)
-
+        commit_obj = self._repo.revparse("HEAD").from_object
+        head.set('commit', str(commit_obj.id))
+        head.set('short_commit', str(commit_obj.short_id))
         return head
 
-    def _get_bare(self):
-        return_buffer = StringIO()
-        params = "rev-parse --is-bare-repository"
-        RunCmd("git", params, workingdir=self._path, outstream=return_buffer)
+    @property
+    def url(self):
+        """Property describing the origin remote url."""
+        if not self._repo:
+            return None
 
-        p1 = return_buffer.getvalue().strip()
-        return_buffer.close()
-        if p1.lower() == "true":
-            return True
+        return self.remotes.origin.url
+
+    @property
+    def remotes(self):
+        """Property describing all remotes."""
+        if not self._repo:
+            return ObjectDict()
+
+        remotes = ObjectDict()
+        for remote in self._repo.remotes:
+            url = ObjectDict()
+            url.set("url", remote.url)
+            setattr(remotes, remote.name, url)
+        return remotes
+
+    @property
+    def worktrees(self):
+        """Property describing a list of worktrees."""
+        if not self._repo:
+            return []
+
+        worktrees = []
+
+        for worktree in self._repo.list_worktrees():
+            worktree = self._repo.lookup_worktree(worktree)
+
+            worktree_dict = ObjectDict()
+            worktree_dict.set("name", worktree.name)
+            worktree_dict.set("path", Path(worktree.path))
+
+            worktrees.append(worktree_dict)
+
+        return worktrees
+
+    @property
+    def submodules(self):
+        """Property describing a list of all submodules."""
+        if not self._repo:
+            return None
+
+        return self._repo.listall_submodules()
+
+    @property
+    def path(self):
+        """Property describing the path to the repo."""
+        return self._path
+
+    @path.setter
+    def path(self, path: Union[str, Path, None]):
+        """Sets the repo path and inits the repo if applicable."""
+        if not path:
+            self._path = None
+        elif type(path) == str:
+            self._path = Path(path)
+        elif issubclass(type(path), Path):
+            self._path = path
         else:
-            return False
+            raise TypeError(f'`path` parameter of unexpected type {type(path)}.')
 
-    def _get_initalized(self):
-        return os.path.isdir(os.path.join(self._path, ".git"))
+        if self.path:
+            try:
+                self._repo = git.Repository(self._path)
+            except Exception:
+                pass
+
+    def free(self):
+        """Releases the handle on the git repository database.
+
+        Call this method if you plan on manually manipulating files in the
+        git repository as this class may keep a reference to some files,
+        stopping one from manipulating (moving, editing, deleting) the file.
+        """
+        if self._repo:
+            self._repo.free()
 
     def submodule(self, command, *args):
         """Performs a git command on a submodule."""
@@ -188,6 +223,7 @@ class Repo(object):
         ret = RunCmd("git", params, workingdir=self._path,
                      outstream=return_buffer)
 
+        return_buffer.seek(0)
         p1 = return_buffer.getvalue().strip()
         if ret != 0:
             self._logger.error(p1)
@@ -208,6 +244,7 @@ class Repo(object):
         ret = RunCmd("git", params, workingdir=self._path,
                      outstream=return_buffer)
 
+        return_buffer.seek(0)
         p1 = return_buffer.getvalue().strip()
         if ret != 0:
             self._logger.error(p1)
@@ -224,6 +261,7 @@ class Repo(object):
         ret = RunCmd("git", params, workingdir=self._path,
                      outstream=return_buffer)
 
+        return_buffer.seek(0)
         p1 = return_buffer.getvalue().strip()
         if ret != 0:
             self._logger.error(p1)
@@ -241,12 +279,22 @@ class Repo(object):
         ret = RunCmd("git", params, workingdir=self._path,
                      outstream=return_buffer)
 
+        return_buffer.seek(0)
         p1 = return_buffer.getvalue().strip()
         if ret != 0:
             self._logger.debug(p1)
             return False
 
         return True
+
+    def delete(self):
+        """Delete contents of the repository."""
+        if not self.path:
+            return
+
+        self.free()
+        RemoveTree(self.path)
+        self._repo = None
 
     @classmethod
     def clone_from(self, url, to_path, branch=None, shallow=False, reference=None, **kwargs):
@@ -278,7 +326,7 @@ class Repo(object):
         ret = RunCmd(cmd, param_string)
 
         if ret != 0:
-            logging.error("ERROR CLONING ")
+            _logger.error("ERROR CLONING ")
             return None
 
         # if we have a reference path we must init the submodules
@@ -289,3 +337,8 @@ class Repo(object):
             RunCmd(cmd, param_string)
 
         return Repo(to_path)
+
+    @classmethod
+    def discover_repository(self, path):
+        """Looks for a git repository and returns it's path."""
+        return git.discover_repository(path)

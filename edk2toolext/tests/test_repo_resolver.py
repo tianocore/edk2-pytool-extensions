@@ -64,7 +64,7 @@ def prep_workspace():
         test_dir = tempfile.mkdtemp()
         logging.debug("temp dir is: %s" % test_dir)
     else:
-        repo_resolver.clear_folder(test_dir)
+        repo_resolver.clear_contents(test_dir)
         test_dir = tempfile.mkdtemp()
 
 
@@ -74,7 +74,7 @@ def clean_workspace():
         return
 
     if os.path.isdir(test_dir):
-        repo_resolver.clear_folder(test_dir)
+        repo_resolver.clear_contents(test_dir)
         test_dir = None
 
 

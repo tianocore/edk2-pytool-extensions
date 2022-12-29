@@ -10,7 +10,8 @@ import os
 import logging
 from edk2toolext import edk2_logging
 from edk2toolext.edk2_git import Repo
-from edk2toollib.utility_functions import RemoveTree
+from typing import Union
+from pathlib import Path
 
 # this follows a documented flow chart
 
@@ -43,9 +44,9 @@ def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=F
     ##
     if not os.path.isdir(git_path):
         logging.info(f"Cloning at {git_path}")
-        _, r = clone_repo(git_path, dependency)
-        checkout(git_path, dependency, r, True, False)
-        return r
+        _, repo = clone_repo(git_path, dependency)
+        checkout(repo, dependency, True, False)
+        return repo
 
     folder_empty = len(os.listdir(git_path)) == 0
     if folder_empty:  # if the folder is empty, we can clone into it
@@ -54,13 +55,12 @@ def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=F
         return r
 
     repo = Repo(git_path)
-    if not repo.initalized:  # if there isn't a .git folder in there
+    if not repo.initialized:  # if there isn't a .git folder in there
         if force:
-            clear_folder(git_path)
-            logger.warning(
-                "Folder {0} is not a git repo and is being overwritten!".format(git_path))
-            _, r = clone_repo(git_path, dependency)
-            checkout(git_path, dependency, repo, True, False)
+            clear_contents(repo)
+            logger.warning(f'Folder {git_path} is not a git repo and is being overwritten!')
+            _, repo = clone_repo(repo, dependency)
+            checkout(repo, dependency, True, False)
             return repo
         else:
             if (ignore):
@@ -76,11 +76,11 @@ def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=F
 
     if repo.dirty:
         if force:
-            clear_folder(git_path)
+            clear_contents(repo)
             logger.warning(
                 "Folder {0} is a git repo but is dirty and is being overwritten as requested!".format(git_path))
-            _, r = clone_repo(git_path, dependency)
-            checkout(git_path, dependency, repo, True, False)
+            _, repo = clone_repo(repo, dependency)
+            checkout(repo, dependency, True, False)
             return repo
         else:
             if (ignore):
@@ -96,12 +96,13 @@ def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=F
 
     if repo.remotes.origin.url != dependency["Url"]:
         if force:
-            clear_folder(git_path)
+            clear_contents(repo)
             logger.warning(
                 "Folder {0} is a git repo but it is at a different repo and is "
                 "being overwritten as requested!".format(git_path))
-            clone_repo(git_path, dependency)
-            checkout(git_path, dependency, repo, True, False)
+            _, repo = clone_repo(repo, dependency)
+            checkout(repo, dependency, True, False)
+            return repo
         else:
             if ignore:
                 logger.warning(
@@ -114,7 +115,7 @@ def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=F
                 raise Exception("The URL of the git Repo {2} in the folder {0} does not match {1}".format(
                     git_path, dependency["Url"], repo.remotes.origin.url))
     # if we've gotten here, we should just checkout as normal
-    checkout(git_path, dependency, repo, update_ok, ignore, force)
+    checkout(repo, dependency, update_ok, ignore, force)
     return repo
 
 ##
@@ -163,47 +164,53 @@ def resolve_all(workspace_path, dependencies, force=False, ignore=False, update_
     return repos
 
 
-def get_details(abs_file_system_path):
+def get_details(repo: Union[Repo, Path]):
     """Gets the Url, Branch, and Commit of a particular repo.
 
     Args:
-        abs_file_system_path (PathLike): repo directory
+        repo (Repo, Path): Repo objet or absolute path to location
 
     Returns:
         (Dict): Url, Branch, Commit
     """
-    repo = Repo(abs_file_system_path)
+    if type(repo) is not Repo:
+        repo = Repo(repo)
+
     url = repo.remotes.origin.url
     active_branch = repo.active_branch
     head = repo.head.commit
     return {"Url": url, "Branch": active_branch, "Commit": head}
 
 
-def clear_folder(abs_file_system_path):
-    """Cleans the folder.
+def clear_contents(repo: Union[Repo, Path] = None):
+    """Cleans the contents.
 
     Args:
-        abs_file_system_path (PathLike): Directory to delete.
+        repo (Repo, Path): Repo objet or absolute path to location
     """
+    if type(repo) is not Repo:
+        repo = Repo(repo)
+
     logger = logging.getLogger("git")
-    logger.warning("WARNING: Deleting contents of folder {0} to make way for Git repo".format(
-        abs_file_system_path))
-    RemoveTree(abs_file_system_path)
+    logger.warning(f'WARNING: Deleting contents of folder {repo} to make way for Git repo')
+    repo.delete()
 
 
-def clone_repo(abs_file_system_path, DepObj):
+def clone_repo(repo: Union[Repo, Path], DepObj):
     """Clones the repo in the folder using the dependency object.
 
     Args:
-        abs_file_system_path (PathLike): destination to clone
+        repo (Repo, Path): Repo objet or absolute path to location
         DepObj (Dict): dict containing Commit, Full, Branch, etc
 
     Returns:
         (Tuple[PathLike, bool]): (destination, result)
     """
+    if type(repo) is not Repo:
+        repo = Repo(repo)
     logger = logging.getLogger("git")
     logger.log(edk2_logging.get_progress_level(), "Cloning repo: {0}".format(DepObj["Url"]))
-    dest = abs_file_system_path
+    dest = str(repo.path)
     if not os.path.isdir(dest):
         os.makedirs(dest, exist_ok=True)
     shallow = False
@@ -219,26 +226,23 @@ def clone_repo(abs_file_system_path, DepObj):
     reference = None
     if "ReferencePath" in DepObj and os.path.exists(DepObj["ReferencePath"]):
         reference = os.path.abspath(DepObj["ReferencePath"])
-    result = Repo.clone_from(DepObj["Url"], dest, branch=branch, shallow=shallow, reference=reference)
+    repo = Repo.clone_from(DepObj["Url"], dest, branch=branch, shallow=shallow, reference=reference)
 
-    if result is None:
+    if repo is None:
         if "ReferencePath" in DepObj:
             # attempt a retry without the reference
             logger.warning("Reattempting to clone without a reference. {0}".format(DepObj["Url"]))
-            result = Repo.clone_from(DepObj["Url"], dest, branch=branch, shallow=shallow)
-            if result is None:
-                return (dest, None)
+            repo = Repo.clone_from(DepObj["Url"], dest, branch=branch, shallow=shallow)
 
-    return (dest, result)
+    return (dest, repo)
 
 
-def checkout(abs_file_system_path, dep, repo, update_ok=False, ignore_dep_state_mismatch=False, force=False):
+def checkout(repo: Union[Repo, Path], dep, update_ok=False, ignore_dep_state_mismatch=False, force=False):
     """Checks out a commit or branch.
 
     Args:
-        abs_file_system_path (PathLike): The path to the repo
+        repo (Repo, Path): Repo objet or absolute path to location
         dep (Dict): A dictionary containing a either a Commit or Branch, and also a Path
-        repo (Repo): A valid repo object
         update_ok (bool): If it is OK to update the commit or branch
         ignore_dep_state_mismatch (bool): Whether a mismatch will result in an exception or not.
         force (bool): If it is OK to update the commit or branch
@@ -250,8 +254,8 @@ def checkout(abs_file_system_path, dep, repo, update_ok=False, ignore_dep_state_
         Either abs_file_system_path or repo is necessary. Not both.
     """
     logger = logging.getLogger("git")
-    if repo is None:
-        repo = Repo(abs_file_system_path)
+    if type(repo) is not Repo:
+        repo = Repo(repo)
     if "Commit" in dep:
         commit = dep["Commit"]
         if update_ok or force:

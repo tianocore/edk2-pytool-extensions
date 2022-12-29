@@ -77,7 +77,7 @@ class GitDependency(ExternalDependency):
 
         if os.path.isdir(self._local_repo_root_path):
             # Clean up git dependency specific stuff
-            repo_resolver.clear_folder(self.contents_dir)
+            repo_resolver.clear_contents(self.contents_dir)
 
         # Let super class clean up common dependency stuff
         super().clean()
@@ -97,14 +97,14 @@ class GitDependency(ExternalDependency):
         if result:
             # valid repo folder
             r = Repo(self._local_repo_root_path)
-            if (not r.initalized):
+            if (not r.initialized):
                 self.logger.info("Git Dependency: Not Initialized")
                 result = False
             elif (r.dirty):
                 self.logger.warning("Git Dependency: dirty")
                 result = False
 
-            if (r.head.commit != self.version and r.head.commit[:7] != self.version):
+            elif (r.head.commit != self.version and r.head.short_commit != self.version):
                 self.logger.info(f"Git Dependency: head is {r.head.commit} and version is {self.version}")
                 result = False
 
