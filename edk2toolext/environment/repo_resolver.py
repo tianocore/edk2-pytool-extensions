@@ -115,7 +115,9 @@ def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=F
                     git_path, dependency["Url"], repo.remotes.origin.url))
     # if we've gotten here, we should just checkout as normal
     checkout(git_path, dependency, repo, update_ok, ignore, force)
-    repo.pull()
+    if not repo.pull():
+        logger.critical("Failed to update branch to latest in the git Repo {0}".format(git_path))
+        raise Exception("Failed to update branch to latest in the git Repo {0}".format(git_path))
     return repo
 
 ##
