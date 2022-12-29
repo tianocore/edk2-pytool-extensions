@@ -233,7 +233,7 @@ def clone_repo(abs_file_system_path, DepObj):
 
 
 def checkout(abs_file_system_path, dep, repo, update_ok=False, ignore_dep_state_mismatch=False, force=False):
-    """Checks out a commit or branch, ensuring the branch is at top of tree.
+    """Checks out a commit or branch.
 
     Args:
         abs_file_system_path (PathLike): The path to the repo
