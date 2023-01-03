@@ -2,7 +2,7 @@ pytest == 7.2.0
 pytest-html == 3.2.0
 pytest-cov == 4.0.0
 flake8 == 6.0.0
-pydocstyle == 6.1.1
+pydocstyle == 6.2.1
 coverage == 7.0.0
 pyopenssl == 22.1.0
 pefile == 2022.5.30
