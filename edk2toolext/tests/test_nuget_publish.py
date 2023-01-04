@@ -16,15 +16,19 @@ import glob
 
 
 class test_nuget_publish(unittest.TestCase):
+    base_dir = None
+
     def setUp(self):
-        pass
+        self.temp = tempfile.mkdtemp()
+        os.chdir(self.temp)
 
     def tearDown(self):
-        pass
+        os.chdir(self.base_dir)
+        RemoveTree(self.temp)
 
     @classmethod
     def setUpClass(cls):
-        pass
+        test_nuget_publish.base_dir = os.getcwd()
 
     @classmethod
     def tearDownClass(cls):
