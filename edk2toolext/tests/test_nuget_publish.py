@@ -8,25 +8,34 @@
 ##
 import unittest
 from edk2toolext import nuget_publishing
+from edk2toollib.utility_functions import RemoveTree
 import sys
 import tempfile
 import os
+import glob
 
 
 class test_nuget_publish(unittest.TestCase):
+    base_dir = None
+
     def setUp(self):
-        pass
+        self.temp = tempfile.mkdtemp()
+        os.chdir(self.temp)
 
     def tearDown(self):
-        pass
+        os.chdir(self.base_dir)
+        RemoveTree(self.temp)
 
     @classmethod
     def setUpClass(cls):
-        pass
+        test_nuget_publish.base_dir = os.getcwd()
 
     @classmethod
     def tearDownClass(cls):
-        pass
+        for path in glob.glob("*.nupkg"):
+            os.remove(path)
+        for path in glob.glob("_TEMP_*"):
+            RemoveTree(path)
 
     @classmethod
     def write_to_file(cls, path, contents, close=True):
@@ -93,17 +102,17 @@ class test_nuget_publish(unittest.TestCase):
 
     def test_push(self):
         nuget = nuget_publishing.NugetSupport("test")
-        nuget.SetBasicData("EDK2", "https://BSD2", "https://project_url", "descr", "https://server", "copyright")
+        nuget.SetBasicData("EDK2", "BSD-2-Clause", "https://project_url", "descr", "https://server", "copyright")
         tempfolder_out = tempfile.mkdtemp()
         spec = os.path.join(tempfolder_out, "test.nuspec")
         test_nuget_publish.write_to_file(spec, ["This is a legit nuget file lol", ])
         ret = nuget.Push(spec, "")
         self.assertEqual(ret, 1)
 
-    def test_pack(self):
+    def test_pack_license_espression_invalid(self):
         nuget = nuget_publishing.NugetSupport("test")
         version = "1.1.1"
-        nuget.SetBasicData("EDK2", "https://BSD2", "https://project_url", "description", "server", "copyright")
+        nuget.SetBasicData("EDK2", "BSD-2-Clause", "https://project_url", "description", "server", "copyright")
         tempfolder_in = tempfile.mkdtemp()
         tempfolder_out = tempfile.mkdtemp()
         outfile = os.path.join(tempfolder_in, "readme.txt")
@@ -121,7 +130,7 @@ class test_nuget_publish(unittest.TestCase):
         nuget.CleanUp()
         self.assertFalse(os.path.exists(spec))
 
-    def test_main_new(self):
+    def test_main_new_and_pack_LicenseIdentifier(self):
         args = sys.argv
         tempfolder = tempfile.mkdtemp()
         sys.argv = ["",
@@ -139,10 +148,136 @@ class test_nuget_publish(unittest.TestCase):
                     " https://github.com",
                     "--ConfigFileFolderPath",
                     tempfolder,
-                    "--LicenseType",
+                    "--LicenseIdentifier",
                     "BSD2"]
+
         ret = nuget_publishing.main()
         self.assertEqual(ret, 0)
+
+        sys.argv = ["",
+                    "--Operation",
+                    "Pack",
+                    "--ConfigFilePath",
+                    os.path.join(tempfolder, "Test.config.yaml"),
+                    "--Version",
+                    "1.0.0",
+                    "--InputFolderPath",
+                    tempfolder]
+
+        ret = nuget_publishing.main()
+        self.assertEqual(ret, 0)
+        sys.argv = args
+
+    def test_main_new_and_pack_CustomLicense_valid(self):
+        args = sys.argv
+        tempfolder = tempfile.mkdtemp()
+        open(os.path.join(tempfolder, 'license.txt'), 'w')
+        sys.argv = ["",
+                    "--Operation",
+                    "New",
+                    "--Name",
+                    "Test",
+                    "--Author",
+                    "test",
+                    "--ProjectUrl",
+                    "https://github.com",
+                    "--Description",
+                    "test",
+                    "--FeedUrl",
+                    " https://github.com",
+                    "--ConfigFileFolderPath",
+                    tempfolder,
+                    "--CustomLicense"]
+        ret = nuget_publishing.main()
+        self.assertEqual(ret, 0)
+
+        sys.argv = ["",
+                    "--Operation",
+                    "Pack",
+                    "--ConfigFilePath",
+                    os.path.join(tempfolder, "Test.config.yaml"),
+                    "--Version",
+                    "1.0.0",
+                    "--InputFolderPath",
+                    tempfolder,
+                    "--CustomLicensePath",
+                    os.path.join(tempfolder, 'license.txt')]
+
+        ret = nuget_publishing.main()
+        self.assertEqual(ret, 0)
+        sys.argv = args
+
+    def test_main_new_and_pack_CustomLicense_invalid_path(self):
+        args = sys.argv
+        tempfolder = tempfile.mkdtemp()
+        sys.argv = ["",
+                    "--Operation",
+                    "New",
+                    "--Name",
+                    "Test",
+                    "--Author",
+                    "test",
+                    "--ProjectUrl",
+                    "https://github.com",
+                    "--Description",
+                    "test",
+                    "--FeedUrl",
+                    " https://github.com",
+                    "--ConfigFileFolderPath",
+                    tempfolder,
+                    "--CustomLicense"]
+        ret = nuget_publishing.main()
+        self.assertEqual(ret, 0)
+        sys.argv = ["",
+                    "--Operation",
+                    "Pack",
+                    "--ConfigFilePath",
+                    os.path.join(tempfolder, "Test.config.yaml"),
+                    "--Version",
+                    "1.0.0",
+                    "--InputFolderPath",
+                    tempfolder,
+                    "--CustomLicensePath",
+                    "/bad/path/license.txt"]
+
+        self.assertRaises(Exception, nuget_publishing.main)
+        sys.argv = args
+
+    def test_main_new_and_pack_CustomLicense_invalid_license_name(self):
+        args = sys.argv
+        tempfolder = tempfile.mkdtemp()
+        open(os.path.join(tempfolder, 'license2.txt'), 'w')
+        sys.argv = ["",
+                    "--Operation",
+                    "New",
+                    "--Name",
+                    "Test",
+                    "--Author",
+                    "test",
+                    "--ProjectUrl",
+                    "https://github.com",
+                    "--Description",
+                    "test",
+                    "--FeedUrl",
+                    " https://github.com",
+                    "--ConfigFileFolderPath",
+                    tempfolder,
+                    "--CustomLicense"]
+        ret = nuget_publishing.main()
+        self.assertEqual(ret, 0)
+        sys.argv = ["",
+                    "--Operation",
+                    "Pack",
+                    "--ConfigFilePath",
+                    os.path.join(tempfolder, "Test.config.yaml"),
+                    "--Version",
+                    "1.0.0",
+                    "--InputFolderPath",
+                    tempfolder,
+                    "--CustomLicensePath",
+                    os.path.join(tempfolder, 'license2.txt')]
+
+        self.assertRaises(Exception, nuget_publishing.main)
         sys.argv = args
 
     # TODO: finish unit test
