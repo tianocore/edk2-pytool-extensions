@@ -27,6 +27,7 @@ from edk2toollib.uefi.edk2.parsers.fdf_parser import FdfParser
 from edk2toollib.utility_functions import RunCmd, RemoveTree
 from edk2toolext import edk2_logging
 from edk2toolext.environment.plugintypes.uefi_build_plugin import IUefiBuildPlugin
+from edk2toolext.environment.plugintypes.uefi_single_module_build_plugin import IUefiSingleModuleBuildPlugin
 import datetime
 
 
@@ -36,11 +37,18 @@ class UefiBuilder(object):
     The following steps are completed by the `UefiBuilder` and is overridable
     by the platform:
 
+    Platform build:
     1. `PlatformPreBuild()`
-    2. `UefiBuildPlugins` that implement `do_pre_build()`
+    2. `IUefiBuildPlugins` that implement `do_pre_build()`
     3. `Build()` (should not be overridden)
-    4. `UefiBuildPlugins` that implement `do_post_build()`
+    4. `IUefiBuildPlugins` that implement `do_post_build()`
     5. `PlatformFlashImage()`
+
+    Single Module Build:
+    1. `PlatformPreBuild()`
+    2. `IUefiSingleModuleBuildPlugins` that implement `do_pre_build()`
+    3. `Build()` (should not be overridden)
+    4. `IUefiSingleModuleBuildPlugins` that implement `do_post_build()`
 
     Attributes:
         SkipPreBuild (bool): Skip Pre Build or not
@@ -68,6 +76,7 @@ class UefiBuilder(object):
         self.Clean = False
         self.UpdateConf = False
         self.OutputConfig = None
+        self.SingleModuleBuild = False
 
     def AddPlatformCommandLineOptions(self, parserObj):
         """Adds command line options to the argparser.
@@ -296,7 +305,7 @@ class UefiBuilder(object):
         if (mod is not None and len(mod.strip()) > 0):
             params += " -m " + mod
             edk2_logging.log_progress("Single Module Build: " + mod)
-            self.SkipPostBuild = True
+            self.SingleModuleBuild = True
             self.FlashImage = False
 
         # attach the generic build vars
@@ -351,9 +360,15 @@ class UefiBuilder(object):
             logging.critical("PlatformPreBuild failed %d" % ret)
             return ret
         #
-        # run all loaded UefiBuild Plugins
+        # run all loaded UefiBuild or UefiSingleModuleBuild Plugins depending
+        # On if it is a platform build or single module build
         #
-        for Descriptor in self.pm.GetPluginsOfClass(IUefiBuildPlugin):
+        if self.SingleModuleBuild:
+            cls = IUefiSingleModuleBuildPlugin
+        else:
+            cls = IUefiBuildPlugin
+
+        for Descriptor in self.pm.GetPluginsOfClass(cls):
             rc = Descriptor.Obj.do_pre_build(self)
             if (rc != 0):
                 if (rc is None):
@@ -384,10 +399,14 @@ class UefiBuilder(object):
             logging.critical("PlatformPostBuild failed %d" % ret)
             return ret
 
+        # run all loaded UefiBuild or UefiSingleModuleBuild Plugins depending
+        # On if it is a platform build or single module build
         #
-        # run all loaded UefiBuild Plugins
-        #
-        for Descriptor in self.pm.GetPluginsOfClass(IUefiBuildPlugin):
+        if self.SingleModuleBuild:
+            cls = IUefiSingleModuleBuildPlugin
+        else:
+            cls = IUefiBuildPlugin
+        for Descriptor in self.pm.GetPluginsOfClass(cls):
             rc = Descriptor.Obj.do_post_build(self)
             if (rc != 0):
                 if (rc is None):

@@ -65,10 +65,12 @@ to their scope. There are three different types of plugins that exist and can
 be implemented.
 
 1. `UefiBuildPlugin` - Used for platform builds, this interface has two hooks: pre-build and post-build.
-2. `CiBuildPlugin` - Our CI process is to run all
+2. `UefiSingleModuleBuildPlugin` - Used for single module builds, this interface
+   has two hooks: pre-build and post-build.
+3. `CiBuildPlugin` - Our CI process is to run all
    CiBuildPlugins for each package. Each plugin is essentially a test that will
    be executed on the given code tree.
-3. `UefiHelperPlugin` - Registers one or
+4. `UefiHelperPlugin` - Registers one or
    more functions that can called by any part of the build system.
 
 [Plugin Manager Documentation](features/plugin_manager)
