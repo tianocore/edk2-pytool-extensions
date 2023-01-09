@@ -12,12 +12,23 @@ dependencies and path descriptors.
 
 Types of plugins are defined by the class they inherit from
 
-- UefiBuildPlugin
+- IUefiBuildPlugin
 
+  - Only executed on a platform build.
   - Contains two methods, Pre and Post Build. These methods are called on Pre
     and Post Build steps in UefiBuild (not CiBuild). There is no guarantee on
     ordering between different plugins (Pre will always come before Post). Post
-    is will not run if there is a critical error in the build process.
+    is not run if there is a critical error in the build process.
+  - The idea here is to allow for custom, self-contained build functionality to
+    be added without required UEFI build changes or inline code modifications.
+
+- IUefiSingleModuleBuildPlugin
+
+  - Only executed on a single module build.
+  - Contains two methods, Pre and Post Build. These methods are called on Pre
+    and Post Build steps in UefiBuild (not CiBuild). There is no guarantee on
+    ordering between different plugins (Pre will always come before Post). Post
+    is not run if there is a critical error in the build process.
   - The idea here is to allow for custom, self-contained build functionality to
     be added without required UEFI build changes or inline code modifications.
 
@@ -55,12 +66,16 @@ executed.
 
 See [Creating a Plugin](/features/creating_plugins)
 
-For IUefiBuildPlugin type the plugin will simply be called during the pre and
-post build steps after the platform builder object runs its step. The
-UefiBuilder object will be passed during the call and therefore the environment
-dictionary is available within the plugin. These plugins should be authored to
-be independent and the platform build or UEFI build should not have any
-dependency on the plugin. The plugin can depend on variables within the
+For IUefiBuildPlugin and IUefiSingleModuleBuildPlugin type, the plugin will
+simply be called during the pre and post build steps after the platform builder
+object runs its step (For platform and single module builds respectively). If a
+plugin should run for both a single module build and a platform build, then the
+plugin should inherit from both classes.
+
+The UefiBuilder object will be passed during the call and therefore the
+environment dictionary is available within the plugin. These plugins should be
+authored to be independent and the platform build or UEFI build should not have
+any dependency on the plugin. The plugin can depend on variables within the
 environment dictionary but should be otherwise independent / isolated code.
 
 For IUefiHelperPlugin type the plugin will simply register functions with the
