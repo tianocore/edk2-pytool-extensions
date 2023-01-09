@@ -68,6 +68,7 @@ class UefiBuilder(object):
         self.Clean = False
         self.UpdateConf = False
         self.OutputConfig = None
+        self.BuildModule = None
 
     def AddPlatformCommandLineOptions(self, parserObj):
         """Adds command line options to the argparser.
@@ -97,6 +98,9 @@ class UefiBuilder(object):
         parserObj.add_argument("--OUTPUTCONFIG", "--outputconfig", "--OutputConfig",
                                dest='OutputConfig', required=False, type=str,
                                help='Provide shell variables in a file')
+        parserObj.add_argument("--BUILDMODULE", "--buildmodule", "--BuildModule",
+                               dest="BuildModule", required=False, type=str,
+                               help='Path to module inf if performing a single module build.')
 
     def RetrievePlatformCommandLineOptions(self, args):
         """Retrieve command line options from the argparser.
@@ -105,6 +109,7 @@ class UefiBuilder(object):
             args (Namespace): namespace containing gathered args from argparser
         """
         self.OutputConfig = os.path.abspath(args.OutputConfig) if args.OutputConfig else None
+        self.BuildModule = os.path.abspath(args.BuildModule) if args.BuildModule else None
 
         self.SkipBuild = args.SKIPBUILD
         self.SkipPreBuild = args.SKIPPREBUILD
@@ -292,11 +297,9 @@ class UefiBuilder(object):
                 params += " -Y " + t
 
         # add special processing to handle building a single module
-        mod = self.env.GetValue("BUILDMODULE")
-        if (mod is not None and len(mod.strip()) > 0):
-            params += " -m " + mod
-            edk2_logging.log_progress("Single Module Build: " + mod)
-            self.SkipPostBuild = True
+        if self.BuildModule is not None:
+            params += " -m " + self.BuildModule
+            edk2_logging.log_progress("Single Module Build: " + self.BuildModule)
             self.FlashImage = False
 
         # attach the generic build vars
@@ -353,7 +356,18 @@ class UefiBuilder(object):
         #
         # run all loaded UefiBuild Plugins
         #
-        for Descriptor in self.pm.GetPluginsOfClass(IUefiBuildPlugin):
+        if self.BuildModule is not None:
+            build_type = "inf"
+            logging.info('Single module build detected. Running inf pre_build plugins')
+        else:
+            build_type = "dsc"
+            logging.info("Running dsc post_build plugins.")
+
+        # Filter plugins based on the build type (inf or dsc)
+        plugins = self.pm.GetPluginsOfClass(IUefiBuildPlugin)
+        filtered_plugins = [plugin for plugin in plugins if plugin.Obj.runs_on(build_type)]
+
+        for Descriptor in filtered_plugins:
             rc = Descriptor.Obj.do_pre_build(self)
             if (rc != 0):
                 if (rc is None):
@@ -378,16 +392,29 @@ class UefiBuilder(object):
         #
         # Run the platform post-build steps.
         #
-        ret = self.PlatformPostBuild()
-
-        if (ret != 0):
-            logging.critical("PlatformPostBuild failed %d" % ret)
-            return ret
+        if self.BuildModule is not None:
+            logging.info("Single module build detected. Skipping PlatformPostBuild().")
+        else:
+            ret = self.PlatformPostBuild()
+            if (ret != 0):
+                logging.critical("PlatformPostBuild failed %d" % ret)
+                return ret
 
         #
         # run all loaded UefiBuild Plugins
         #
-        for Descriptor in self.pm.GetPluginsOfClass(IUefiBuildPlugin):
+        if self.BuildModule is not None:
+            build_type = "inf"
+            logging.info("Single module build detected. Running inf post_build plugins")
+        else:
+            build_type = "dsc"
+            logging.info("Running dsc post_build plugins")
+
+        # Filter plugins based on the build type (inf or dsc)
+        plugins = self.pm.GetPluginsOfClass(IUefiBuildPlugin)
+        filtered_plugins = [plugin for plugin in plugins if plugin.Obj.runs_on(build_type)]
+
+        for Descriptor in filtered_plugins:
             rc = Descriptor.Obj.do_post_build(self)
             if (rc != 0):
                 if (rc is None):
