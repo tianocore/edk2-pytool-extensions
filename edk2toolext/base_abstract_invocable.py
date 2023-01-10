@@ -42,7 +42,7 @@ class BaseAbstractInvocable(object):
         raise NotImplementedError()
 
     def GetWorkspaceRoot(self):
-        """Return the workspace root for initializing the SDE.
+        """Return the workspace root for initializing the Self Describing Environment.
 
         !!! tip
             Required Override in a subclass
@@ -202,7 +202,7 @@ class BaseAbstractInvocable(object):
         self.ConfigureLogging()
         self.InputParametersConfiguredCallback()
 
-        logging.log(edk2_logging.SECTION, "Init SDE")
+        logging.log(edk2_logging.SECTION, "Init Self Describing Environment")
 
         #
         # Next, get the environment set up.
@@ -213,7 +213,8 @@ class BaseAbstractInvocable(object):
         # Make sure the environment verifies IF it is required for this invocation
         if self.GetVerifyCheckRequired() and not self_describing_environment.VerifyEnvironment(
                 self.GetWorkspaceRoot(), self.GetActiveScopes(), self.GetSkippedDirectories()):
-            raise RuntimeError("SDE is not current.  Please update your env before running this tool.")
+            raise RuntimeError("External Dependencies in the environment are out of date. "
+                               "Consider running stuart_update to possibly resolve this issue.")
 
         # Load plugins
         logging.log(edk2_logging.SECTION, "Loading Plugins")
