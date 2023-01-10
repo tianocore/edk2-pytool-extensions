@@ -22,6 +22,8 @@ import logging
 import inspect
 import pkg_resources
 import argparse
+from random import choice
+from string import ascii_letters
 from typing import Iterable, Tuple
 from textwrap import dedent
 from edk2toolext.environment import shell_environment
@@ -430,7 +432,9 @@ class Edk2Invocable(BaseAbstractInvocable):
                 env.SetValue(tokens[0].strip().upper(), tokens[1].strip(), "From CmdLine")
                 continue
             elif argument.count("=") == 0:
-                env.SetValue(argument.strip().upper(), "TRUE", "From CmdLine")
+                env.SetValue(argument.strip().upper(),
+                             ''.join(choice(ascii_letters) for _ in range(20)),
+                             "Non Valued Variable Set From CmdLine")
                 continue
             raise RuntimeError(f"Unknown variable passed in via CLI: {argument}")
 

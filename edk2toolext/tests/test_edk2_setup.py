@@ -98,10 +98,10 @@ class TestEdk2Setup(unittest.TestCase):
             self.assertEqual(e.code, 0)
 
         env = shell_environment.GetBuildVars()
-        self.assertEqual(env.GetValue("BLD_*_VAR"), "TRUE")
-        self.assertEqual(env.GetValue("VAR"), "TRUE")
-        self.assertEqual(env.GetValue("BLD_DEBUG_VAR2"), "TRUE")
-        self.assertEqual(env.GetValue("BLD_RELEASE_VAR2"), "TRUE")
+        self.assertIsNotNone(env.GetValue("BLD_*_VAR"))
+        self.assertIsNotNone(env.GetValue("VAR"))
+        self.assertIsNotNone(env.GetValue("BLD_DEBUG_VAR2"))
+        self.assertIsNotNone(env.GetValue("BLD_RELEASE_VAR2"))
         self.assertEqual(env.GetValue("TEST_VAR"), "TEST")
         self.assertEqual(env.GetValue("BLD_*_TEST_VAR2"), "TEST")
 
