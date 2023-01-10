@@ -56,7 +56,7 @@ class NugetDependency(ExternalDependency):
         """
         file_name = "NuGet.exe"
         cmd = []
-        if GetHostInfo().os == "Linux":
+        if GetHostInfo().os != "Windows":
             cmd += ["mono"]
 
         nuget_path = os.getenv(cls.NUGET_ENV_VAR_NAME)
