@@ -3,29 +3,32 @@
 # Copyright (c) Microsoft Corporation.
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 
-name: Doc Deployment
+name: Documentation
 
 on:
   release:
     types: [published]
 
 jobs:
-  build:
-    name: Build and Upload Site Artifact
-    
-    runs-on: ubuntu-latest
 
-    env:
-      python-version: "3.11"
+  variables:
+    name: Variables
+    uses: ./.github/workflows/VariableProducer.yml
+  
+  build:
+    name: Build
+    needs: variables
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
       
-      - name: Set up Python ${{ env.python-version }}
+      - name: Set up Python ${{ fromJson(needs.variables.outputs.python-versions)[0] }}
         uses: actions/setup-python@v3
         with:
-          python-version: ${{ env.python-version }}
+          python-version: ${{ fromJson(needs.variables.outputs.python-versions)[0] }}
+          cache: 'pip'
       
       - name: Install dependencies
         run: |
@@ -43,9 +46,9 @@ jobs:
           path: "site/"
           
   deploy:
-    name: Deploy Site Artifact
+    name: Deploy
 
-    needs: build
+    needs: [variables, build]
 
     permissions:
       pages: write

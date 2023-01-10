@@ -1,0 +1,36 @@
+# This workflow runs unit tests against the specified python versions on both
+# ubuntu and windows. Additionally, it performs CI against the codebase.
+#
+# Copyright (c) Microsoft Corporation.
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+
+name: CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  
+  variables:
+    name: Variables
+    uses: ./.github/workflows/VariableProducer.yml
+  
+  ci:
+    needs: variables
+    name: CI
+    uses: ./.github/workflows/CIRunner.yml
+    with:
+      python-version: ${{ fromJson(needs.variables.outputs.python-versions)[0] }}
+      node-version: ${{ fromJson(needs.variables.outputs.node-versions)[0] }}
+      package-src: edk2toolext
+  
+  unit-test:
+    needs: [variables,ci]
+    name: Unit Test
+    uses: ./.github/workflows/UnitTestRunner.yml
+    with:
+      python-versions: ${{ needs.variables.outputs.python-versions }}
+  
