@@ -125,9 +125,13 @@ It's easy set and get environment variables in the FDF, DSC, Settings file, and 
 
 | **Type**      | **Set**                  | **Get**                         |
 |---------------|--------------------------|---------------------------------|
-| Command Line  | VAR=Value                | N/A                             |
+| Command Line  | VAR [= Value]            | N/A                             |
 | FDF/DSC       | DEFINE VAR = Value       | $(VAR)                          |
 | Settings File | env.SetValue(Var, Value) | env.GetValue(Var, DefaultValue) |
+
+To support parity with Edk2's build command line option -D/--define, variables passed via the command line are not
+required to have a value associated with them. Variables defined this way are considered non-valued variable defines
+and should be checked for existence rather then value (i.e. `if env.GetValue(var):` or `if not env.GetValue(var)`).
 
 While you can set and get variables anywhere in the `UefiBuilder` portion of the settings file, we provide the following
 two methods to set environment variables, ensuring they are available everywhere that you are allowed to customize:
@@ -155,16 +159,16 @@ value of profile during `SetPlatformEnv()` and make our build customizations fro
 
 def __init__(self):
     self.profiles = {
-        "DEV" : {"TARGET" : "DEBUG", "EDK_SHELL": "TRUE"},
-        "SELFHOST" : {"TARGET" : "RELEASE", "EDK_SHELL": "TRUE"},
-        "RELEASE" : {"TARGET" : "RELEASE", "EDK_SHELL": "FALSE"}
+        "DEV" : {"TARGET" : "DEBUG", "EDK_SHELL": ""},
+        "SELFHOST" : {"TARGET" : "RELEASE", "EDK_SHELL": ""},
+        "RELEASE" : {"TARGET" : "RELEASE"}
     }
 ...
 
 def SetPlatformEnv(self):
-    profile = self.env.GetValue("PROFILE", "DEV") # Default DEV
-    if profile in self.profiles:
-        for key, value in profile.items():
+    build_profile = self.env.GetValue("PROFILE", "DEV") # Default DEV
+    if build_profile in self.profiles:
+        for key, value in self.profile[build_profile].items():
             self.env.SetValue(key, value, "PROFILE VALUE")
 ...
 ```
@@ -173,7 +177,7 @@ The environment variables are set, whats next? The target is automatically picke
 needs to be done is to add the logic of including the Edk shell or not. This can be done in the platform fdf as seen below:
 
 ``` shell
-!if $(EDK_SHELL= TRUE)
+!if $(EDK_SHELL)
 FILE APPLICATION = PCD(gPcBdsPkgTokenSpaceGuid.PcdShellFile) {
   SECTION PE32 = <SomePath>/Shell.efi
   SECTION UI = "EdkShell"

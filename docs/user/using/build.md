@@ -68,14 +68,18 @@ stuart_build -c path/to/SettingsFile.py
 Yes! Build values can be set and passed to the build command via the command
 line or from within your platform build file
 [Read More](/integrate/build#setting-getting-environment-variables).
-You define a build value via `BLD_*_<Value>` for all builds,
-`BLD_DEBUG_<Value>` for debug builds, and `BLD_RELEASE_<Value>` for release
+You define a build value via `BLD_*_<VAR>=<VALUE>` for all builds,
+`BLD_DEBUG_<VAR>=VALUE` for debug builds, and `BLD_RELEASE_<VAR>=VALUE` for release
 builds.
+
+Non-valued build defines are also supported! Simply follow the above nomenclature
+without providing a value i.e. `VLD_*_<VAR>`
 
 From the command line:
 
 ```cmd
-\> stuart_build -c Platform/QemuQ35Pkg/PlatformBuild.py BLD_*_SHIP_MODE=FALSE
+\> stuart_build -c Platforms/QemuQ35Pkg/PlatformBuild.py BLD_*_SHIP_MODE=FALSE
+\> stuart_build -c Platforms/QemuQ35Pkg/PlatformBuild.py BLD_*_E1000_ENABLE
 ```
 
 From within the Platform build file:
@@ -84,5 +88,6 @@ From within the Platform build file:
 def SetPlatformEnv(self):
     ...
     self.env.SetValue("BLD_*_SHIP_MODE", "FALSE", "Default")
+    self.env.SetValue("BLD_*_E1000", "", "Default")
     ...
 ```
