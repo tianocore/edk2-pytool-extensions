@@ -323,13 +323,15 @@ class ShellEnvironment(metaclass=Singleton):
 
         Args:
             var_name (str): variable to set the value for
-            var_data (obj): data to set
+            var_data (obj | None): data to set or None to delete the var
 
         WARNING: Unlike `set_shell_var`, this only sets the variable in the
         `VarDict`
         """
-        self.logger.debug(
-            "Updating BUILD VAR element '%s': '%s'." % (var_name, var_data))
+        if not var_data:
+            self.logger.debug(f"Removing BUILD VAR element {var_name}")
+        else:
+            self.logger.debug(f"Updating BUILD VAR element '{var_name}': '{var_data}'.")
         self.active_buildvars.SetValue(var_name, var_data, '', overridable=True)
 
     def get_shell_var(self, var_name):
@@ -348,7 +350,7 @@ class ShellEnvironment(metaclass=Singleton):
 
         Args:
             var_name (str): variable to set the value for
-            var_data (obj): data to set
+            var_data (obj | None): data to set or None to delete the var
 
         The variable is set both in the `VarDict` and in the OS
         """
@@ -357,9 +359,12 @@ class ShellEnvironment(metaclass=Singleton):
             self.set_path(var_data)
         elif var_name.upper() == 'PYTHONPATH':
             self.set_pypath(var_data)
+        elif var_data is None:
+            self.logger.debug(f"Removing SHELL VAR element {var_name}")
+            self.active_environ.pop(var_name, None)
+            os.environ.pop(var_name, None)
         else:
-            self.logger.debug(
-                "Updating SHELL VAR element '%s': '%s'." % (var_name, var_data))
+            self.logger.debug(f"Updating SHELL VAR element '{var_name}': '{var_data}'.")
             self.active_environ[var_name] = var_data
             os.environ[var_name] = var_data
 

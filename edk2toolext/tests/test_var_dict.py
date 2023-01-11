@@ -201,6 +201,23 @@ class TestVarDict(unittest.TestCase):
         v.SetValue("test2", "value1", "test 1 comment overrideable", True)
         v.PrintAll()
 
+    def test_var_dict_delete_entry(self):
+        v = var_dict.VarDict()
+        # Delete non existing entry
+        self.assertTrue(v.DeleteEntry("EMPTY"))
+
+        # Delete non overridable (Fails)
+        entry = "test_entry"
+        value = "test_value"
+        v.SetValue(entry, value, "")
+        self.assertFalse(v.DeleteEntry(entry))
+        self.assertEqual(v.GetValue(entry), value)
+
+        # Delete overridable
+        v.AllowOverride(entry)
+        self.assertTrue(v.DeleteEntry(entry))
+        self.assertIsNone(v.GetValue(entry))
+
 
 if __name__ == '__main__':
     unittest.main()

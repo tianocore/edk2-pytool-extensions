@@ -30,7 +30,7 @@ class EnvEntry(object):
         """Inits an entry with the specified values."""
         self.Value = value
         self.Comment = comment
-        self.Overrideable = overridable
+        self.Overridable = overridable
 
     def PrintEntry(self, f=None):
         """Prints the value.
@@ -40,7 +40,7 @@ class EnvEntry(object):
         """
         print("Value: %s" % self.Value, file=f)
         print("Comment: %s" % self.Comment, file=f)
-        if (self.Overrideable):
+        if (self.Overridable):
             print("Value overridable", file=f)
         print("**********************", file=f)
     #
@@ -59,22 +59,22 @@ class EnvEntry(object):
             Even if you set a value as overridable=False, another entity can
             call `AllowOverride()` and change the value anyway.
         """
-        if (value == self.Value) and (overridable == self.Overrideable):
+        if (value == self.Value) and (overridable == self.Overridable):
             return True
 
-        if (not self.Overrideable):
-            logging.debug("Can't set value [%s] as it isn't overrideable. Previous comment %s" % (
+        if (not self.Overridable):
+            logging.debug("Can't set value [%s] as it isn't overridable. Previous comment %s" % (
                 value, self.Comment))
             return False
 
         self.Value = value
         self.Comment = comment
-        self.Overrideable = overridable
+        self.Overridable = overridable
         return True
 
     def AllowOverride(self):
         """Allows the value to be overwritten in the future."""
-        self.Overrideable = True
+        self.Overridable = True
         return True
 
     def GetValue(self):
@@ -94,6 +94,32 @@ class VarDict(object):
         """Returns an entry in the Dstore Dict."""
         return self.Dstore.get(key.upper())
 
+    def DeleteEntry(self, k):
+        """Deletes an entry from the Dstore Dict if it's overridable.
+
+        Args:
+            k (str): The key to delete
+
+        Returns:
+            (bool): If the variable was successfully deleted or not
+        """
+        key = k.upper()
+        en = self.GetEntry(key)
+
+        # key doesn't exist so it's already deleted
+        if not en:
+            return True
+
+        # Delete the key
+        if en.Overridable:
+            self.Dstore.pop(key)
+            return True
+
+        # Can't delete variable because it's not overridable
+        self.Logger.debug(f"Can't delete entry {key} as it isn't overridable. "
+                          f"Previous comment: {en.Comment}")
+        return False
+
     def __copy__(self):
         """Copies data into a new VarDict."""
         new_copy = VarDict()
@@ -104,7 +130,7 @@ class VarDict(object):
             entry = self.GetEntry(key)
             value = entry.Value
             comment = entry.Comment
-            override = entry.Overrideable
+            override = entry.Overridable
             new_copy.SetValue(key, value, comment, override)
         return new_copy
 
@@ -138,22 +164,29 @@ class VarDict(object):
     def SetValue(self, k, v, comment, overridable=False):
         """Sets an environment variable to be used throughout the build.
 
+        Additionally able to delete the environment variable if the value is None.
+
         Args:
             k (str): The key to store the value under
-            v (varied): The value to store
+            v (obj | None): The value to store or None to delete
             comment (str): A comment to show where / how the variable was stored.
                 Useful for debugging
             overridable (bool): Specifies if the variable is allowed to be override
                 elsewhere in the build
 
         Returns:
-            (bool): If the variable was successfully stored or not
+            (bool): If the variable was successfully [stored|deleted] or not
         """
         key = k.upper()
         en = self.GetEntry(key)
         value = str(v)
-        self.Logger.debug("Trying to set key %s to value %s" % (k, v))
-        if (en is None):
+
+        if not v:
+            self.Logger.debug(f"Trying to delete key {k}")
+            return self.DeleteEntry(key)
+
+        self.Logger.debug(f"Trying to set key {k} to value {v}")
+        if not en:
             # new entry
             en = EnvEntry(value, comment, overridable)
             self.Dstore[key] = en

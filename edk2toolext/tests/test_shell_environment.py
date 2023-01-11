@@ -47,6 +47,17 @@ class TestBasicEnvironmentManipulation(unittest.TestCase):
         shell_env.set_shell_var('SE-TEST-VAR-2', new_value)
         self.assertEqual(shell_env.get_shell_var('SE-TEST-VAR-2'), new_value)
 
+    def test_can_set_get_and_delete_os_vars(self):
+        shell_env = SE.ShellEnvironment()
+        var_name = 'SE-TEST-VAR-SHELL-DELETE'
+        var_data = 'Dummy'
+        # Make sure it doesn't exist beforehand.
+        self.assertIs(shell_env.get_shell_var(var_name), None, "test var should not exist before creation")
+        shell_env.set_shell_var(var_name, var_data)
+        self.assertEqual(shell_env.get_shell_var(var_name), var_data, "Get var data should match set var data")
+        shell_env.set_shell_var(var_name, None)
+        self.assertIsNone(shell_env.get_shell_var(var_name), "test var should not exist after deletion")
+
     def test_set_path_string(self):
         shell_env = SE.ShellEnvironment()
 
@@ -224,7 +235,7 @@ class TestBasicEnvironmentManipulation(unittest.TestCase):
         shell_env.remove_pypath_element(new_mid_elem)
         self.assertNotIn(new_mid_elem, shell_env.active_pypath)
 
-    def test_can_set_and_get_build_vars(self):
+    def test_can_set_get_and_delete_build_vars(self):
         shell_env = SE.ShellEnvironment()
 
         var_name = 'SE-TEST-VAR-3'
@@ -233,6 +244,8 @@ class TestBasicEnvironmentManipulation(unittest.TestCase):
         self.assertIs(shell_env.get_build_var(var_name), None, "test var should not exist before creation")
         shell_env.set_build_var(var_name, var_data)
         self.assertEqual(shell_env.get_build_var(var_name), var_data, "get var data should match set var data")
+        shell_env.set_build_var(var_name, None)
+        self.assertIsNone(shell_env.get_build_var(var_name), "test var should not exist after deletion")
 
     def test_set_build_vars_should_default_overrideable(self):
         shell_env = SE.ShellEnvironment()
@@ -247,8 +260,19 @@ class TestBasicEnvironmentManipulation(unittest.TestCase):
 
         self.assertEqual(shell_env.get_build_var(var_name), var_data2)
 
+    def test_can_delete_nonexisting_vars(self):
+        shell_env = SE.ShellEnvironment()
+
+        var_name = "DOES-NOT-EXIST"
+        # Make sure does not assert if deleteing a variable that does not exist
+        shell_env.set_build_var(var_name, None)
+        self.assertIsNone(shell_env.get_build_var(var_name))
+
+        shell_env.set_shell_var(var_name, None)
+        self.assertIsNone(shell_env.get_shell_var(var_name))
 
 class TestShellEnvironmenCheckpoints(unittest.TestCase):
+
 
     def setUp(self):
         # Grab the singleton and restore the initial checkpoint.
