@@ -271,8 +271,8 @@ class TestBasicEnvironmentManipulation(unittest.TestCase):
         shell_env.set_shell_var(var_name, None)
         self.assertIsNone(shell_env.get_shell_var(var_name))
 
-class TestShellEnvironmenCheckpoints(unittest.TestCase):
 
+class TestShellEnvironmenCheckpoints(unittest.TestCase):
 
     def setUp(self):
         # Grab the singleton and restore the initial checkpoint.
