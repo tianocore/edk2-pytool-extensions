@@ -18,7 +18,7 @@ updates:
     directory: "/integration_test/"
     schedule:
       interval: "daily"
-  - package-ecosystem: "pip" # See documentation for possible values
-    directory: "/docs/user/" # Location of package manifests
+  - package-ecosystem: "pip"
+    directory: "/docs/user/"
     schedule:
       interval: "daily"
