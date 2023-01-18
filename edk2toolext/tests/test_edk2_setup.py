@@ -118,7 +118,7 @@ class TestEdk2Setup(unittest.TestCase):
             except RuntimeError as e:
                 self.assertTrue(str(e).startswith(f"Unknown variable passed in via CLI: {arg}"))
 
-    def test_conf_file(self):
+    def test_conf_file_pass(self):
         builder = Edk2PlatformSetup()
         settings_file = os.path.join(self.minimalTree, "settings.py")
         with open(os.path.join(self.minimalTree, 'BuildConfig.conf'), 'x') as f:
@@ -145,3 +145,19 @@ class TestEdk2Setup(unittest.TestCase):
         self.assertIsNotNone(env.GetValue("BLD_RELEASE_VAR2"))
         self.assertEqual(env.GetValue("TEST_VAR"), "TEST")
         self.assertEqual(env.GetValue("BLD_*_TEST_VAR2"), "TEST")
+
+    def test_conf_file_fail(self):
+        builder = Edk2PlatformSetup()
+        settings_file = os.path.join(self.minimalTree, "settings.py")
+        arg = "BLD_*_VAR=5=5"
+        with open(os.path.join(self.minimalTree, 'BuildConfig.conf'), 'x') as f:
+            f.writelines([
+                arg,
+            ])
+
+        sys.argv = ["stuart_setup", "-c", settings_file]
+
+        try:
+            builder.Invoke()
+        except RuntimeError as e:
+            self.assertTrue(str(e).startswith(f"Unknown variable passed in via BuildConfig: {arg}"))
