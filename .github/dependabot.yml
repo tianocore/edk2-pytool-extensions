@@ -15,7 +15,7 @@ updates:
     schedule:
       interval: "daily"
   - package-ecosystem: "pip"
-    directory: "/integration_test"
+    directory: "/integration_test/"
     schedule:
       interval: "daily"
   - package-ecosystem: "pip" # See documentation for possible values
