@@ -88,6 +88,6 @@ From within the Platform build file:
 def SetPlatformEnv(self):
     ...
     self.env.SetValue("BLD_*_SHIP_MODE", "FALSE", "Default")
-    self.env.SetValue("BLD_*_E1000", "", "Default")
+    self.env.SetValue("BLD_*_E1000", None, "Default")
     ...
 ```
