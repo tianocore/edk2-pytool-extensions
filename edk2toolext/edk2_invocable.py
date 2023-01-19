@@ -22,6 +22,8 @@ import logging
 import inspect
 import pkg_resources
 import argparse
+from random import choice
+from string import ascii_letters
 from typing import Iterable, Tuple
 from textwrap import dedent
 from edk2toolext.environment import shell_environment
@@ -331,10 +333,13 @@ class Edk2Invocable(BaseAbstractInvocable):
         epilog = dedent('''\
             positional arguments:
               <key>=<value>              - Set an env variable for the pre/post build process
+              <key>                      - Set a non-valued env variable for the pre/post build process
               BLD_*_<key>=<value>        - Set a build flag for all build types
                                            (key=value will get passed to build process)
+              BLD_*_<key>                - Set a non-valued build flag for all build types
               BLD_<TARGET>_<key>=<value> - Set a build flag for build type of <target>
                                            (key=value will get passed to build process for given build type)
+              BLD_<TARGET>_<key>         - Set a non-valued build flag for a build type of <target>
             ''')
 
         parserObj = argparse.ArgumentParser(epilog=epilog, formatter_class=argparse.RawDescriptionHelpFormatter,)
@@ -414,18 +419,29 @@ class Edk2Invocable(BaseAbstractInvocable):
         self.PlatformSettings.RetrieveCommandLineOptions(args)
 
         #
-        # Look through unknown_args and BuildConfig for strings that are x=y,
-        # set env.SetValue(x, y),
-        # then remove this item from the list.
+        # Look through unknown_args and BuildConfig for strings that are:
+        # 1. x=y, -> set env.SetValue(x, y),
+        # 2. x, -> set env.SetValue(x, random_string)
+        # then remove these items from the list.
         #
+        # Non valued build variables (#2) set the value to a random string
+        # as the expectation is that any developer using this functionality
+        # check for the existence of the build variable rather then the value
+        # of the variable. This is to have parity between edk2's build -D
+        # flag and stuart.
         env = shell_environment.GetBuildVars()
         BuildConfig = os.path.abspath(args.build_config)
 
         for argument in unknown_args:
-            if argument.count("=") != 1:
+            if argument.count("=") == 1:
+                tokens = argument.strip().split("=")
+                env.SetValue(tokens[0].strip().upper(), tokens[1].strip(), "From CmdLine")
+            elif argument.count("=") == 0:
+                env.SetValue(argument.strip().upper(),
+                             ''.join(choice(ascii_letters) for _ in range(20)),
+                             "Non valued variable set From cmdLine")
+            else:
                 raise RuntimeError(f"Unknown variable passed in via CLI: {argument}")
-            tokens = argument.strip().split("=")
-            env.SetValue(tokens[0].strip().upper(), tokens[1].strip(), "From CmdLine")
 
         unknown_args.clear()  # remove the arguments we've already consumed
 
@@ -438,7 +454,12 @@ class Edk2Invocable(BaseAbstractInvocable):
                     unknown_args.append(stripped_line)
 
         for argument in unknown_args:
-            if argument.count("=") != 1:
+            if argument.count("=") == 1:
+                tokens = argument.strip().split("=")
+                env.SetValue(tokens[0].strip().upper(), tokens[1].strip(), "From BuildConf")
+            elif argument.count("=") == 0:
+                env.SetValue(argument.strip().upper(),
+                             ''.join(choice(ascii_letters) for _ in range(20)),
+                             "Non valued variable set from BuildConfig")
+            else:
                 raise RuntimeError(f"Unknown variable passed in via BuildConfig: {argument}")
-            tokens = argument.strip().split("=")
-            env.SetValue(tokens[0].strip().upper(), tokens[1].strip(), "From BuildConf")

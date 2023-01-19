@@ -15,6 +15,8 @@ sharing for the build process, pre-build, and post-build.
 """
 
 import logging
+from random import choice
+from string import ascii_letters
 
 
 class EnvEntry(object):
@@ -140,7 +142,8 @@ class VarDict(object):
 
         Args:
             k (str): The key to store the value under
-            v (varied): The value to store
+            v (varied | None): The value to store as a string, or None to store
+                a non valued build variable
             comment (str): A comment to show where / how the variable was stored.
                 Useful for debugging
             overridable (bool): Specifies if the variable is allowed to be override
@@ -151,7 +154,10 @@ class VarDict(object):
         """
         key = k.upper()
         en = self.GetEntry(key)
-        value = str(v)
+        if not v:
+            value = ''.join(choice(ascii_letters) for _ in range(20))
+        else:
+            value = str(v)
         self.Logger.debug("Trying to set key %s to value %s" % (k, v))
         if (en is None):
             # new entry
