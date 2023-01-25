@@ -74,6 +74,25 @@ class Edk2PlatformBuild(Edk2Invocable):
         """Retrieve command line options from the argparser."""
         self.PlatformBuilder.RetrievePlatformCommandLineOptions(args)
 
+    def AddParserEpilog(self):
+        """Adds additional information to the end of the argument parser."""
+        epilog = super().AddParserEpilog()
+        custom_epilog = ""
+
+        variables = self.PlatformBuilder.DeclareCriticalPlatformEnv()
+        if any(variables):
+            variables.sort(key=lambda v: v.name)
+
+            max_name_len = max(len(var.name) for var in variables)
+            max_desc_len = max(len(var.description) for var in variables)
+
+            custom_epilog += "CLI Env Variables:"
+            for v in variables:
+                custom_epilog += f"\n  {v.name:<{max_name_len}} - {v.description:<{max_desc_len}}  [{v.default}]"
+            custom_epilog += '\n\n'
+
+        return custom_epilog + epilog
+
     def GetSettingsClass(self):
         """Returns the BuildSettingsManager class.
 

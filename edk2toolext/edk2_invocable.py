@@ -319,6 +319,21 @@ class Edk2Invocable(BaseAbstractInvocable):
         """Directory containing all logging files."""
         return "Build"
 
+    def AddParserEpilog(self):
+        """Adds additional information to the end of the argument parser."""
+        epilog = dedent('''\
+            CLI Env Guide:
+              <key>=<value>              - Set an env variable for the pre/post build process
+              <key>                      - Set a non-valued env variable for the pre/post build process
+              BLD_*_<key>=<value>        - Set a build flag for all build types
+                                           (key=value will get passed to build process)
+              BLD_*_<key>                - Set a non-valued build flag for all build types
+              BLD_<TARGET>_<key>=<value> - Set a build flag for build type of <target>
+                                           (key=value will get passed to build process for given build type)
+              BLD_<TARGET>_<key>         - Set a non-valued build flag for a build type of <target>
+            ''')
+        return epilog
+
     def ParseCommandLineOptions(self):
         """Parses command line options.
 
@@ -329,20 +344,7 @@ class Edk2Invocable(BaseAbstractInvocable):
         # first argparser will only get settings manager and help will be disabled
         settingsParserObj = argparse.ArgumentParser(add_help=False)
         # instantiate the second argparser that will get passed around
-
-        epilog = dedent('''\
-            positional arguments:
-              <key>=<value>              - Set an env variable for the pre/post build process
-              <key>                      - Set a non-valued env variable for the pre/post build process
-              BLD_*_<key>=<value>        - Set a build flag for all build types
-                                           (key=value will get passed to build process)
-              BLD_*_<key>                - Set a non-valued build flag for all build types
-              BLD_<TARGET>_<key>=<value> - Set a build flag for build type of <target>
-                                           (key=value will get passed to build process for given build type)
-              BLD_<TARGET>_<key>         - Set a non-valued build flag for a build type of <target>
-            ''')
-
-        parserObj = argparse.ArgumentParser(epilog=epilog, formatter_class=argparse.RawDescriptionHelpFormatter,)
+        parserObj = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,)
 
         settingsParserObj.add_argument('-c', '--platform_module', dest='platform_module',
                                        default="PlatformBuild.py", type=str,
@@ -406,6 +408,9 @@ class Edk2Invocable(BaseAbstractInvocable):
                                help='Provide shell variables in a file')
         parserObj.add_argument('--verbose', '--VERBOSE', '-v', dest="verbose", action='store_true', default=False,
                                help='verbose')
+
+        # set the epilog to display with --help, -h
+        parserObj.epilog = self.AddParserEpilog()
 
         # setup sys.argv and argparse round 2
         sys.argv = [sys.argv[0]] + unknown_args

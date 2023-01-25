@@ -30,6 +30,15 @@ from edk2toolext.environment.plugintypes.uefi_build_plugin import IUefiBuildPlug
 import datetime
 
 
+class PlatformEnv():
+    """Container representing a Platform Environment Variable."""
+    def __init__(self, name, description, default):
+        """Inits a Platform Environment Variable."""
+        self.name = name
+        self.description = description
+        self.default = default
+
+
 class UefiBuilder(object):
     """Object responsible for the full build process.
 
@@ -124,6 +133,14 @@ class UefiBuilder(object):
             self.SkipPreBuild = True
             self.SkipPostBuild = True
             self.FlashImage = False
+
+    def DeclareCriticalPlatformEnv(self) -> list[PlatformEnv]:
+        """Returns a list of Env Variables that customize the build.
+
+        Variables set here are printed to the terminal when executing
+        stuart_build -c <Platform> --help.
+        """
+        return []
 
     def Go(self, WorkSpace, PackagesPath, PInHelper, PInManager):
         """Core executable that performs all build steps."""
