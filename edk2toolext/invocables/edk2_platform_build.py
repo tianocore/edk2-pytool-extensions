@@ -86,7 +86,6 @@ class Edk2PlatformBuild(Edk2Invocable):
 
         variables = self.PlatformBuilder.SetPlatformDefaultEnv()
         if any(variables):
-            variables.sort(key=lambda v: v.name)
             max_name_len = max(len(var.name) for var in variables)
             max_desc_len = min(max(len(var.description) for var in variables), 55)
 
