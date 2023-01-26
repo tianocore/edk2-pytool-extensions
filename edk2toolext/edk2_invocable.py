@@ -319,8 +319,12 @@ class Edk2Invocable(BaseAbstractInvocable):
         """Directory containing all logging files."""
         return "Build"
 
-    def AddParserEpilog(self):
-        """Adds additional information to the end of the argument parser."""
+    def AddParserEpilog(self) -> str:
+        """Adds an epilog to the end of the argument parser when displaying help information.
+
+        Returns:
+            (str): The string to be added to the end of the argument parser.
+        """
         epilog = dedent('''\
             CLI Env Guide:
               <key>=<value>              - Set an env variable for the pre/post build process
@@ -343,8 +347,6 @@ class Edk2Invocable(BaseAbstractInvocable):
         """
         # first argparser will only get settings manager and help will be disabled
         settingsParserObj = argparse.ArgumentParser(add_help=False)
-        # instantiate the second argparser that will get passed around
-        parserObj = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,)
 
         settingsParserObj.add_argument('-c', '--platform_module', dest='platform_module',
                                        default="PlatformBuild.py", type=str,
@@ -394,7 +396,9 @@ class Edk2Invocable(BaseAbstractInvocable):
             print(e)
             sys.exit(2)
 
-        # now to get the big arg parser going...
+        # instantiate the second argparser that will get passed around
+        parserObj = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,)
+
         # first pass it to the subclass
         self.AddCommandLineOptions(parserObj)
 

@@ -16,6 +16,7 @@ itself to remain platform agnostic.
 import os
 import sys
 import logging
+from textwrap import wrap
 from edk2toolext import edk2_logging
 from edk2toolext.environment import plugin_manager
 from edk2toolext.environment.plugintypes.uefi_helper_plugin import HelperFunctions
@@ -74,21 +75,31 @@ class Edk2PlatformBuild(Edk2Invocable):
         """Retrieve command line options from the argparser."""
         self.PlatformBuilder.RetrievePlatformCommandLineOptions(args)
 
-    def AddParserEpilog(self):
-        """Adds additional information to the end of the argument parser."""
+    def AddParserEpilog(self) -> str:
+        """Adds an epilog to the end of the argument parser when displaying help information.
+
+        Returns:
+            (str): The string to be added to the end of the argument parser.
+        """
         epilog = super().AddParserEpilog()
         custom_epilog = ""
 
-        variables = self.PlatformBuilder.DeclareCriticalPlatformEnv()
+        variables = self.PlatformBuilder.SetPlatformDefaultEnv()
         if any(variables):
             variables.sort(key=lambda v: v.name)
-
             max_name_len = max(len(var.name) for var in variables)
-            max_desc_len = max(len(var.description) for var in variables)
+            max_desc_len = min(max(len(var.description) for var in variables), 55)
 
             custom_epilog += "CLI Env Variables:"
             for v in variables:
-                custom_epilog += f"\n  {v.name:<{max_name_len}} - {v.description:<{max_desc_len}}  [{v.default}]"
+                # Setup wrap and print first portion of description
+                desc = wrap(v.description, max_desc_len,
+                            drop_whitespace=True, break_on_hyphens=True, break_long_words=True)
+                custom_epilog += f"\n  {v.name:<{max_name_len}} - {desc[0]:<{max_desc_len}}  [{v.default}]"
+
+                # If the line actually wrapped, we can print the rest of the lines here
+                for d in desc[1:]:
+                    custom_epilog += f"\n  {'':<{max_name_len}}   {d:{max_desc_len}}"
             custom_epilog += '\n\n'
 
         return custom_epilog + epilog
