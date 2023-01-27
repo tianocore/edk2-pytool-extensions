@@ -68,11 +68,26 @@ class Edk2PlatformBuild(Edk2Invocable):
             except (TypeError):
                 raise RuntimeError(f"UefiBuild not found in module:\n{dir(self.PlatformModule)}")
 
+        parserObj.add_argument('-n', '--no-verify', '--NO-VERIFY',
+                               dest="verify", default=True, action='store_false',
+                               help='Skip verifying external dependencies before build.')
         self.PlatformBuilder.AddPlatformCommandLineOptions(parserObj)
 
     def RetrieveCommandLineOptions(self, args):
         """Retrieve command line options from the argparser."""
+        self.verify = args.verify
         self.PlatformBuilder.RetrievePlatformCommandLineOptions(args)
+
+    def GetVerifyCheckRequired(self) -> bool:
+        """Will call self_describing_environment.VerifyEnvironment if this returns True.
+
+        !!! hint
+            Optional override in a subclass
+
+        Returns:
+            (bool): whether verify check is required or not
+        """
+        return self.verify
 
     def GetSettingsClass(self):
         """Returns the BuildSettingsManager class.
