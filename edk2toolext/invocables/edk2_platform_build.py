@@ -88,7 +88,7 @@ class Edk2PlatformBuild(Edk2Invocable):
             (bool): whether verify check is required or not
         """
         if not self.verify:
-            logging.warning("Skipping Environment Verification.")
+            logging.warning("Skipping Environment Verification. Unexpected results may occur.")
         return self.verify
 
     def GetSettingsClass(self):
