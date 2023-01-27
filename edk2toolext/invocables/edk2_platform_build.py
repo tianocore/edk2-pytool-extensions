@@ -68,7 +68,7 @@ class Edk2PlatformBuild(Edk2Invocable):
             except (TypeError):
                 raise RuntimeError(f"UefiBuild not found in module:\n{dir(self.PlatformModule)}")
 
-        parserObj.add_argument('-n', '--no-verify', '--NO-VERIFY',
+        parserObj.add_argument('-nv', '-NV', '--noverify', '--NOVERIFY', '--NoVerify',
                                dest="verify", default=True, action='store_false',
                                help='Skip verifying external dependencies before build.')
         self.PlatformBuilder.AddPlatformCommandLineOptions(parserObj)
