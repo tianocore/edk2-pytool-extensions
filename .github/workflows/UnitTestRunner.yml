@@ -42,7 +42,7 @@ jobs:
       run: coverage run --include=edk2toolext\* -m pytest --junitxml=test.junit.xml --html=pytest_report.html --self-contained-html
 
     - name: Upload coverage to codecov
-      uses: codecov/codecov-action@v2
+      uses: codecov/codecov-action@v3
       with:
         verbose: false
     
