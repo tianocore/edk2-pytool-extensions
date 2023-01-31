@@ -116,7 +116,8 @@ class NugetSupport(object):
     def SetBasicData(self, authors, license, project, description, server, copyright):
         """Set basic data in the config data."""
         self.ConfigData["author_string"] = authors
-        self.ConfigData["license"] = license
+        if license:
+            self.ConfigData["license"] = license
         self.ConfigData["project_url"] = project
         self.ConfigData["description_string"] = description
         self.ConfigData["server_url"] = server
@@ -139,6 +140,9 @@ class NugetSupport(object):
 
     def IsValidLicense(self):
         """Returns whether the License is valid."""
+        if "license" not in self.ConfigData:
+            return False
+
         license = self.ConfigData["license"]
 
         if license in LICENSE_IDENTIFIER_SUPPORTED.values():
@@ -453,7 +457,10 @@ def main():
         # Support Standard License or Custom License
         # Custom License path provided during pack operation
         if args.LicenseIdentifier is True:
-            license = "Use --CustomLicensePath in Pack command to set this"
+            logging.critical("Provide either a `license` entry in the NuGet config file or "
+                             "use the `--CustomLicensePath` parameter in the Pack command to "
+                             "set the license file path.")
+            license = None
         else:
             license = LICENSE_IDENTIFIER_SUPPORTED[args.LicenseIdentifier]
 
