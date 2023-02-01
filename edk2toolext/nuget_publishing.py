@@ -368,12 +368,8 @@ def GatherArguments():
                             required=True)
         parser.add_argument('--Author', dest="Author", help="<Required> Author string for publishing", required=True)
         parser.add_argument("--ProjectUrl", dest="Project", help="<Required> Project Url", required=True)
-        g = parser.add_mutually_exclusive_group(required=True)
-        g.add_argument('--CustomLicense', dest="LicenseIdentifier", action="store_true",
-                       help="<Optional> Specify that a file will be provided as the License during the pack command. \
-                            Can use License Identifier for standard licenses")
-        g.add_argument('--LicenseIdentifier', dest="LicenseIdentifier",
-                       choices=LICENSE_IDENTIFIER_SUPPORTED.keys(), help="Standard Licenses")
+        parser.add_argument('--LicenseIdentifier', dest="LicenseIdentifier", default=None,
+                            choices=LICENSE_IDENTIFIER_SUPPORTED.keys(), help="Standard Licenses")
         parser.add_argument('--Description', dest="Description",
                             help="<Required> Description of package.", required=True)
         parser.add_argument("--FeedUrl", dest="FeedUrl",
@@ -454,12 +450,9 @@ def main():
 
         nu = NugetSupport(Name=args.Name)
 
-        # Support Standard License or Custom License
-        # Custom License path provided during pack operation
-        if args.LicenseIdentifier is True:
-            logging.critical("Provide either a `license` entry in the NuGet config file or "
-                             "use the `--CustomLicensePath` parameter in the Pack command to "
-                             "set the license file path.")
+        # Provide Standard License Identifier in New Command
+        # Or provide Custom License Path in Pack Command.
+        if args.LicenseIdentifier is None:
             license = None
         else:
             license = LICENSE_IDENTIFIER_SUPPORTED[args.LicenseIdentifier]
@@ -491,14 +484,19 @@ def main():
 
         nu = NugetSupport(ConfigFile=args.ConfigFilePath)
 
-        if not nu.IsValidLicense() and args.CustomLicensePath is not None:
+        if not nu.IsValidLicense():
+            # Invalid License and not setting it with a custom License
+            if args.CustomLicensePath is None:
+                logging.critical("Standard License not found in config file and custom license not provided.")
+                logging.critical("Provide a custom license path with --CustomLicensePath.")
+                raise Exception("Invalid License.")
             nu.UpdateLicensePath(args.CustomLicensePath)
 
         if not nu.IsValidLicense():
-            logging.critical("Invalid License")
+            logging.critical("Invalid Custom License")
             logging.critical("    Verify custom license file name is license.txt or license.md")
             logging.critical("    Verify custom license file path is in absolute format and valid")
-            raise Exception("Invalid License. Verify valid name and that path is absolute and valid")
+            raise Exception("Invalid License.")
 
         if (args.Copyright is not None):
             nu.UpdateCopyright(args.Copyright)
