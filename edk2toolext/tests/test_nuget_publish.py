@@ -186,8 +186,7 @@ class test_nuget_publish(unittest.TestCase):
                     "--FeedUrl",
                     " https://github.com",
                     "--ConfigFileFolderPath",
-                    tempfolder,
-                    "--CustomLicense"]
+                    tempfolder]
         ret = nuget_publishing.main()
         self.assertEqual(ret, 0)
 
@@ -224,8 +223,7 @@ class test_nuget_publish(unittest.TestCase):
                     "--FeedUrl",
                     " https://github.com",
                     "--ConfigFileFolderPath",
-                    tempfolder,
-                    "--CustomLicense"]
+                    tempfolder]
         ret = nuget_publishing.main()
         self.assertEqual(ret, 0)
         sys.argv = ["",
@@ -261,8 +259,7 @@ class test_nuget_publish(unittest.TestCase):
                     "--FeedUrl",
                     " https://github.com",
                     "--ConfigFileFolderPath",
-                    tempfolder,
-                    "--CustomLicense"]
+                    tempfolder]
         ret = nuget_publishing.main()
         self.assertEqual(ret, 0)
         sys.argv = ["",
