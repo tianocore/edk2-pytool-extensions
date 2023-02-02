@@ -112,17 +112,10 @@ out all the different parts.
     BasicDevTests.py
     ```
 
-4. Run pytest with coverage data collected
+4. Run Coverage with pytest test execution
 
     ``` cmd
-    coverage run --include=edk2toolext\* -m pytest --junitxml=test.junit.xml --html=pytest_report.html --self-contained-html
-    ```
-
-    One of the two command will generate a CLI report or an html viewable report:
-
-    ``` cmd
-    coverage report
-    coverage html
+    coverage run -m pytest
     ```
 
     INFO: If you only want to test a single file you can supply that path at the
@@ -131,9 +124,14 @@ out all the different parts.
     Coverage is uploaded to `codecov.io`. For more information, review
     `coverage.md` in the docs folder.
 
-5. Look at the reports
-    * pytest_report.html
-    * cov_html/index.html
+5. Generate and review the html report
+
+    You can one run or the other.
+
+    ``` cmd
+    coverage report
+    coverage html
+    ```
 
 6. Run the spell checker
 
