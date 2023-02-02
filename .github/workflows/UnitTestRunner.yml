@@ -27,7 +27,7 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
         cache: 'pip'
@@ -39,10 +39,13 @@ jobs:
         pip install -e .
     
     - name: Run Unit Tests
-      run: coverage run --include=edk2toolext\* -m pytest --junitxml=test.junit.xml --html=pytest_report.html --self-contained-html
+      run: coverage run -m pytest
+
+    - name: Format Coverage results
+      run: coverage xml
 
     - name: Upload coverage to codecov
-      uses: codecov/codecov-action@v2
+      uses: codecov/codecov-action@v3
       with:
         verbose: false
     
