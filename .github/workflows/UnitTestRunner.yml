@@ -39,7 +39,10 @@ jobs:
         pip install -e .
     
     - name: Run Unit Tests
-      run: coverage run --include=edk2toolext\* -m pytest --junitxml=test.junit.xml --html=pytest_report.html --self-contained-html
+      run: coverage run -m pytest
+
+    - name: Format Coverage results
+      run: coverage xml
 
     - name: Upload coverage to codecov
       uses: codecov/codecov-action@v3
