@@ -303,7 +303,7 @@ class NugetSupport(object):
         ret = RunCmd(cmd[0], " ".join(cmd[1:]))
 
         if (ret != 0):
-            logging.error("Failed on nuget commend.  RC = 0x%x" % ret)
+            logging.error("Failed on nuget command.  RC = 0x%x" % ret)
             return ret
 
         self.NuPackageFile = os.path.join(OutputDirectory, self._GetNuPkgFileName(self.NewVersion))
@@ -339,7 +339,7 @@ class NugetSupport(object):
                 logging.critical("API key is invalid. Please use --ApiKey to provide a valid key.")
 
             # Generic error.
-            logging.error("Failed on nuget commend.  RC = 0x%x" % ret)
+            logging.error("Failed on nuget command.  RC = 0x%x" % ret)
 
         return ret
 
