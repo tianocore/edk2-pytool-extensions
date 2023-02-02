@@ -197,6 +197,8 @@ class test_nuget_publish(unittest.TestCase):
                     os.path.join(tempfolder, "Test.config.yaml"),
                     "--Version",
                     "1.0.0",
+                    "--Copyright",
+                    "2023",
                     "--InputFolderPath",
                     tempfolder,
                     "--CustomLicensePath",
@@ -204,6 +206,39 @@ class test_nuget_publish(unittest.TestCase):
 
         ret = nuget_publishing.main()
         self.assertEqual(ret, 0)
+        sys.argv = args
+
+    def test_main_new_and_pack_no_CustomLicense(self):
+        args = sys.argv
+        tempfolder = tempfile.mkdtemp()
+        sys.argv = ["",
+                    "--Operation",
+                    "New",
+                    "--Name",
+                    "Test",
+                    "--Author",
+                    "test",
+                    "--ProjectUrl",
+                    "https://github.com",
+                    "--Description",
+                    "test",
+                    "--FeedUrl",
+                    " https://github.com",
+                    "--ConfigFileFolderPath",
+                    tempfolder]
+        ret = nuget_publishing.main()
+        self.assertEqual(ret, 0)
+        sys.argv = ["",
+                    "--Operation",
+                    "Pack",
+                    "--ConfigFilePath",
+                    os.path.join(tempfolder, "Test.config.yaml"),
+                    "--Version",
+                    "1.0.0",
+                    "--InputFolderPath",
+                    tempfolder]
+
+        self.assertRaises(Exception, nuget_publishing.main)
         sys.argv = args
 
     def test_main_new_and_pack_CustomLicense_invalid_path(self):
