@@ -312,6 +312,418 @@ class test_nuget_publish(unittest.TestCase):
         self.assertRaises(Exception, nuget_publishing.main)
         sys.argv = args
 
+    def test_main_new_RepositoryType_and_pack(self):
+        args = sys.argv
+        tempfolder = tempfile.mkdtemp()
+        sys.argv = ["",
+                    "--Operation",
+                    "New",
+                    "--Name",
+                    "Test",
+                    "--Author",
+                    "test",
+                    "--ProjectUrl",
+                    "https://github.com",
+                    "--Description",
+                    "test",
+                    "--FeedUrl",
+                    " https://github.com",
+                    "--ConfigFileFolderPath",
+                    tempfolder,
+                    "--LicenseIdentifier",
+                    "BSD2",
+                    "--RepositoryType",
+                    "git"]
+
+        ret = nuget_publishing.main()
+        self.assertEqual(ret, 0)
+
+        sys.argv = ["",
+                    "--Operation",
+                    "Pack",
+                    "--ConfigFilePath",
+                    os.path.join(tempfolder, "Test.config.yaml"),
+                    "--Version",
+                    "1.0.0",
+                    "--InputFolderPath",
+                    tempfolder]
+
+        ret = nuget_publishing.main()
+        self.assertEqual(ret, 0)
+        sys.argv = args
+
+    def test_main_new_RepositoryUrl_and_pack(self):
+        args = sys.argv
+        tempfolder = tempfile.mkdtemp()
+        sys.argv = ["",
+                    "--Operation",
+                    "New",
+                    "--Name",
+                    "Test",
+                    "--Author",
+                    "test",
+                    "--ProjectUrl",
+                    "https://github.com",
+                    "--Description",
+                    "test",
+                    "--FeedUrl",
+                    " https://github.com",
+                    "--ConfigFileFolderPath",
+                    tempfolder,
+                    "--LicenseIdentifier",
+                    "BSD2",
+                    "--RepositoryUrl",
+                    "https://github.com/microsoft/mu_basecore"]
+
+        ret = nuget_publishing.main()
+        self.assertEqual(ret, 0)
+
+        sys.argv = ["",
+                    "--Operation",
+                    "Pack",
+                    "--ConfigFilePath",
+                    os.path.join(tempfolder, "Test.config.yaml"),
+                    "--Version",
+                    "1.0.0",
+                    "--InputFolderPath",
+                    tempfolder]
+
+        ret = nuget_publishing.main()
+        self.assertEqual(ret, 0)
+        sys.argv = args
+
+    def test_main_new_RepositoryBranch_and_pack(self):
+        args = sys.argv
+        tempfolder = tempfile.mkdtemp()
+        sys.argv = ["",
+                    "--Operation",
+                    "New",
+                    "--Name",
+                    "Test",
+                    "--Author",
+                    "test",
+                    "--ProjectUrl",
+                    "https://github.com",
+                    "--Description",
+                    "test",
+                    "--FeedUrl",
+                    " https://github.com",
+                    "--ConfigFileFolderPath",
+                    tempfolder,
+                    "--LicenseIdentifier",
+                    "BSD2",
+                    "--RepositoryBranch",
+                    "main"]
+
+        ret = nuget_publishing.main()
+        self.assertEqual(ret, 0)
+
+        sys.argv = ["",
+                    "--Operation",
+                    "Pack",
+                    "--ConfigFilePath",
+                    os.path.join(tempfolder, "Test.config.yaml"),
+                    "--Version",
+                    "1.0.0",
+                    "--InputFolderPath",
+                    tempfolder]
+
+        ret = nuget_publishing.main()
+        self.assertEqual(ret, 0)
+        sys.argv = args
+
+    def test_main_new_RepositoryCommit_and_pack(self):
+        args = sys.argv
+        tempfolder = tempfile.mkdtemp()
+        sys.argv = ["",
+                    "--Operation",
+                    "New",
+                    "--Name",
+                    "Test",
+                    "--Author",
+                    "test",
+                    "--ProjectUrl",
+                    "https://github.com",
+                    "--Description",
+                    "test",
+                    "--FeedUrl",
+                    " https://github.com",
+                    "--ConfigFileFolderPath",
+                    tempfolder,
+                    "--LicenseIdentifier",
+                    "BSD2",
+                    "--RepositoryCommit",
+                    "cd845afd5c3c838a9f7af7dad238452ae9a17146"]
+
+        ret = nuget_publishing.main()
+        self.assertEqual(ret, 0)
+
+        sys.argv = ["",
+                    "--Operation",
+                    "Pack",
+                    "--ConfigFilePath",
+                    os.path.join(tempfolder, "Test.config.yaml"),
+                    "--Version",
+                    "1.0.0",
+                    "--InputFolderPath",
+                    tempfolder]
+
+        ret = nuget_publishing.main()
+        self.assertEqual(ret, 0)
+        sys.argv = args
+
+    def test_main_new_RepositoryAll_and_pack(self):
+        args = sys.argv
+        tempfolder = tempfile.mkdtemp()
+        sys.argv = ["",
+                    "--Operation",
+                    "New",
+                    "--Name",
+                    "Test",
+                    "--Author",
+                    "test",
+                    "--ProjectUrl",
+                    "https://github.com",
+                    "--Description",
+                    "test",
+                    "--FeedUrl",
+                    " https://github.com",
+                    "--ConfigFileFolderPath",
+                    tempfolder,
+                    "--LicenseIdentifier",
+                    "BSD2",
+                    "--RepositoryType",
+                    "git",
+                    "--RepositoryUrl",
+                    "https://github.com/microsoft/mu_plus",
+                    "--RepositoryBranch",
+                    "master",
+                    "--RepositoryCommit",
+                    "06df12360d561b2007e03503491510c36426d860"]
+
+        ret = nuget_publishing.main()
+        self.assertEqual(ret, 0)
+
+        sys.argv = ["",
+                    "--Operation",
+                    "Pack",
+                    "--ConfigFilePath",
+                    os.path.join(tempfolder, "Test.config.yaml"),
+                    "--Version",
+                    "1.0.0",
+                    "--InputFolderPath",
+                    tempfolder]
+
+        ret = nuget_publishing.main()
+        self.assertEqual(ret, 0)
+        sys.argv = args
+
+    def test_main_new_and_pack_RepositoryType(self):
+        args = sys.argv
+        tempfolder = tempfile.mkdtemp()
+        sys.argv = ["",
+                    "--Operation",
+                    "New",
+                    "--Name",
+                    "Test",
+                    "--Author",
+                    "test",
+                    "--ProjectUrl",
+                    "https://github.com",
+                    "--Description",
+                    "test",
+                    "--FeedUrl",
+                    " https://github.com",
+                    "--ConfigFileFolderPath",
+                    tempfolder,
+                    "--LicenseIdentifier",
+                    "BSD2"]
+
+        ret = nuget_publishing.main()
+        self.assertEqual(ret, 0)
+
+        sys.argv = ["",
+                    "--Operation",
+                    "Pack",
+                    "--ConfigFilePath",
+                    os.path.join(tempfolder, "Test.config.yaml"),
+                    "--Version",
+                    "1.0.0",
+                    "--InputFolderPath",
+                    tempfolder,
+                    "--RepositoryType",
+                    "git"]
+
+        ret = nuget_publishing.main()
+        self.assertEqual(ret, 0)
+        sys.argv = args
+
+    def test_main_new_and_pack_RepositoryUrl(self):
+        args = sys.argv
+        tempfolder = tempfile.mkdtemp()
+        sys.argv = ["",
+                    "--Operation",
+                    "New",
+                    "--Name",
+                    "Test",
+                    "--Author",
+                    "test",
+                    "--ProjectUrl",
+                    "https://github.com",
+                    "--Description",
+                    "test",
+                    "--FeedUrl",
+                    " https://github.com",
+                    "--ConfigFileFolderPath",
+                    tempfolder,
+                    "--LicenseIdentifier",
+                    "BSD2"]
+
+        ret = nuget_publishing.main()
+        self.assertEqual(ret, 0)
+
+        sys.argv = ["",
+                    "--Operation",
+                    "Pack",
+                    "--ConfigFilePath",
+                    os.path.join(tempfolder, "Test.config.yaml"),
+                    "--Version",
+                    "1.0.0",
+                    "--InputFolderPath",
+                    tempfolder,
+                    "--RepositoryUrl",
+                    "https://github.com/microsoft/mu_basecore"]
+
+        ret = nuget_publishing.main()
+        self.assertEqual(ret, 0)
+        sys.argv = args
+
+    def test_main_new_and_pack_RepositoryBranch(self):
+        args = sys.argv
+        tempfolder = tempfile.mkdtemp()
+        sys.argv = ["",
+                    "--Operation",
+                    "New",
+                    "--Name",
+                    "Test",
+                    "--Author",
+                    "test",
+                    "--ProjectUrl",
+                    "https://github.com",
+                    "--Description",
+                    "test",
+                    "--FeedUrl",
+                    " https://github.com",
+                    "--ConfigFileFolderPath",
+                    tempfolder,
+                    "--LicenseIdentifier",
+                    "BSD2"]
+
+        ret = nuget_publishing.main()
+        self.assertEqual(ret, 0)
+
+        sys.argv = ["",
+                    "--Operation",
+                    "Pack",
+                    "--ConfigFilePath",
+                    os.path.join(tempfolder, "Test.config.yaml"),
+                    "--Version",
+                    "1.0.0",
+                    "--InputFolderPath",
+                    tempfolder,
+                    "--RepositoryBranch",
+                    "main"]
+
+        ret = nuget_publishing.main()
+        self.assertEqual(ret, 0)
+        sys.argv = args
+
+    def test_main_new_and_pack_RepositoryCommit(self):
+        args = sys.argv
+        tempfolder = tempfile.mkdtemp()
+        sys.argv = ["",
+                    "--Operation",
+                    "New",
+                    "--Name",
+                    "Test",
+                    "--Author",
+                    "test",
+                    "--ProjectUrl",
+                    "https://github.com",
+                    "--Description",
+                    "test",
+                    "--FeedUrl",
+                    " https://github.com",
+                    "--ConfigFileFolderPath",
+                    tempfolder,
+                    "--LicenseIdentifier",
+                    "BSD2"]
+
+        ret = nuget_publishing.main()
+        self.assertEqual(ret, 0)
+
+        sys.argv = ["",
+                    "--Operation",
+                    "Pack",
+                    "--ConfigFilePath",
+                    os.path.join(tempfolder, "Test.config.yaml"),
+                    "--Version",
+                    "1.0.0",
+                    "--InputFolderPath",
+                    tempfolder,
+                    "--RepositoryCommit",
+                    "cd845afd5c3c838a9f7af7dad238452ae9a17146"]
+
+        ret = nuget_publishing.main()
+        self.assertEqual(ret, 0)
+        sys.argv = args
+
+    def test_main_new_and_pack_RepositoryAll(self):
+        args = sys.argv
+        tempfolder = tempfile.mkdtemp()
+        sys.argv = ["",
+                    "--Operation",
+                    "New",
+                    "--Name",
+                    "Test",
+                    "--Author",
+                    "test",
+                    "--ProjectUrl",
+                    "https://github.com",
+                    "--Description",
+                    "test",
+                    "--FeedUrl",
+                    " https://github.com",
+                    "--ConfigFileFolderPath",
+                    tempfolder,
+                    "--LicenseIdentifier",
+                    "BSD2"]
+
+        ret = nuget_publishing.main()
+        self.assertEqual(ret, 0)
+
+        sys.argv = ["",
+                    "--Operation",
+                    "Pack",
+                    "--ConfigFilePath",
+                    os.path.join(tempfolder, "Test.config.yaml"),
+                    "--Version",
+                    "1.0.0",
+                    "--InputFolderPath",
+                    tempfolder,
+                    "--RepositoryType",
+                    "git",
+                    "--RepositoryUrl",
+                    "https://github.com/microsoft/mu_plus",
+                    "--RepositoryBranch",
+                    "master",
+                    "--RepositoryCommit",
+                    "06df12360d561b2007e03503491510c36426d860"]
+
+        ret = nuget_publishing.main()
+        self.assertEqual(ret, 0)
+        sys.argv = args
+
     # TODO: finish unit test
 
 

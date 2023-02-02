@@ -48,6 +48,7 @@ class NugetSupport(object):
         <license></license>
         <releaseNotes></releaseNotes>
         <projectUrl></projectUrl>
+        <repository />
         <copyright></copyright>
         <tags></tags>
     </metadata>
@@ -113,7 +114,9 @@ class NugetSupport(object):
         with open(self.Config, "r") as c:
             self.ConfigData = yaml.safe_load(c)
 
-    def SetBasicData(self, authors, license, project, description, server, copyright):
+    def SetBasicData(self, authors, license, project, description, server, copyright,
+                     repositoryType=None, repositoryUrl=None, repositoryBranch=None,
+                     repositoryCommit=None):
         """Set basic data in the config data."""
         self.ConfigData["author_string"] = authors
         if license:
@@ -121,7 +124,14 @@ class NugetSupport(object):
         self.ConfigData["project_url"] = project
         self.ConfigData["description_string"] = description
         self.ConfigData["server_url"] = server
-
+        if repositoryType:
+            self.ConfigData["repository_type"] = repositoryType
+        if repositoryUrl:
+            self.ConfigData["repository_url"] = repositoryUrl
+        if repositoryBranch:
+            self.ConfigData["repository_branch"] = repositoryBranch
+        if repositoryCommit:
+            self.ConfigData["repository_commit"] = repositoryCommit
         if not copyright:
             copyright = "Copyright %d" % datetime.date.today().year
         self.ConfigData["copyright_string"] = copyright
@@ -165,6 +175,21 @@ class NugetSupport(object):
         """Update tags in the config data."""
         self.ConfigData["tags_string"] = " ".join(tags)
         self.ConfigChanged = True
+
+    def UpdateRepositoryInfo(self, type=None, url=None, branch=None, commit=None):
+        """Update repository information."""
+        if type:
+            self.ConfigData["repository_type"] = type
+            self.ConfigChanged = True
+        if url:
+            self.ConfigData["repository_url"] = url
+            self.ConfigChanged = True
+        if branch:
+            self.ConfigData["repository_branch"] = branch
+            self.ConfigChanged = True
+        if commit:
+            self.ConfigData["repository_commit"] = commit
+            self.ConfigChanged = True
 
     def Print(self):
         """Print info about the Nuget Object."""
@@ -217,6 +242,17 @@ class NugetSupport(object):
         meta.find("version").text = self.NewVersion
         meta.find("authors").text = self.ConfigData["author_string"]
         meta.find("projectUrl").text = self.ConfigData["project_url"]
+        repository_item_present = bool([k for k in self.ConfigData.keys() if "repository" in k.lower()])
+        if repository_item_present:
+            r = meta.find("repository")
+            if "repository_type" in self.ConfigData:
+                r.set("type", self.ConfigData["repository_type"])
+            if "repository_url" in self.ConfigData:
+                r.set("url", self.ConfigData["repository_url"])
+            if "repository_branch" in self.ConfigData:
+                r.set("branch", self.ConfigData["repository_branch"])
+            if "repository_commit" in self.ConfigData:
+                r.set("commit", self.ConfigData["repository_commit"])
         meta.find("description").text = self.ConfigData["description_string"]
         meta.find("copyright").text = self.ConfigData["copyright_string"]
         if "tags_string" in self.ConfigData:
@@ -368,6 +404,10 @@ def GatherArguments():
                             required=True)
         parser.add_argument('--Author', dest="Author", help="<Required> Author string for publishing", required=True)
         parser.add_argument("--ProjectUrl", dest="Project", help="<Required> Project Url", required=True)
+        parser.add_argument("--RepositoryType", dest="RepositoryType", help="<Optional> Repository Type", required=False)
+        parser.add_argument("--RepositoryUrl", dest="RepositoryUrl", help="<Optional> Repository Url", required=False)
+        parser.add_argument("--RepositoryBranch", dest="RepositoryBranch", help="<Optional> Repository Branch", required=False)
+        parser.add_argument("--RepositoryCommit", dest="RepositoryCommit", help="<Optional> Repository Commit", required=False)
         parser.add_argument('--LicenseIdentifier', dest="LicenseIdentifier", default=None,
                             choices=LICENSE_IDENTIFIER_SUPPORTED.keys(), help="Standard Licenses")
         parser.add_argument('--Description', dest="Description",
@@ -395,6 +435,10 @@ def GatherArguments():
         parser.add_argument('--CustomLicensePath', dest="CustomLicensePath", default=None,
                             help="<Optional> If CustomLicense set in `new` phase, provide absolute path of License \
                             File to pack. Does not override existing valid license.")
+        parser.add_argument("--RepositoryType", dest="RepositoryType", help="<Optional> Repository Type", required=False)
+        parser.add_argument("--RepositoryUrl", dest="RepositoryUrl", help="<Optional> Change the repository Url", required=False)
+        parser.add_argument("--RepositoryBranch", dest="RepositoryBranch", help="<Optional> Change the repository branch", required=False)
+        parser.add_argument("--RepositoryCommit", dest="RepositoryCommit", help="<Optional> Change the repository commit", required=False)
 
     elif (args.op.lower() == "push"):
         parser.add_argument("--ConfigFilePath", dest="ConfigFilePath",
@@ -457,7 +501,17 @@ def main():
         else:
             license = LICENSE_IDENTIFIER_SUPPORTED[args.LicenseIdentifier]
 
-        nu.SetBasicData(args.Author, license, args.Project, args.Description, args.FeedUrl, args.Copyright)
+        nu.SetBasicData(
+            args.Author,
+            license,
+            args.Project,
+            args.Description,
+            args.FeedUrl,
+            args.Copyright,
+            args.RepositoryType,
+            args.RepositoryUrl,
+            args.RepositoryBranch,
+            args.RepositoryCommit)
         nu.LogObject()
         ret = nu.ToConfigFile(ConfigFilePath)
         return ret
@@ -500,6 +554,10 @@ def main():
 
         if (args.Copyright is not None):
             nu.UpdateCopyright(args.Copyright)
+
+        nu.UpdateRepositoryInfo(args.RepositoryType, args.RepositoryUrl,
+                                args.RepositoryBranch, args.RepositoryCommit)
+
         if (len(args.Tags) > 0):
             tagListSet = set()
             for item in args.Tags:  # Parse out the individual packages
