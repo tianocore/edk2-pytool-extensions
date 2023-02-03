@@ -404,10 +404,14 @@ def GatherArguments():
                             required=True)
         parser.add_argument('--Author', dest="Author", help="<Required> Author string for publishing", required=True)
         parser.add_argument("--ProjectUrl", dest="Project", help="<Required> Project Url", required=True)
-        parser.add_argument("--RepositoryType", dest="RepositoryType", help="<Optional> Repository Type", required=False)
-        parser.add_argument("--RepositoryUrl", dest="RepositoryUrl", help="<Optional> Repository Url", required=False)
-        parser.add_argument("--RepositoryBranch", dest="RepositoryBranch", help="<Optional> Repository Branch", required=False)
-        parser.add_argument("--RepositoryCommit", dest="RepositoryCommit", help="<Optional> Repository Commit", required=False)
+        parser.add_argument("--RepositoryType", dest="RepositoryType", help="<Optional> Repository Type",
+                            required=False)
+        parser.add_argument("--RepositoryUrl", dest="RepositoryUrl", help="<Optional> Repository Url",
+                            required=False)
+        parser.add_argument("--RepositoryBranch", dest="RepositoryBranch", help="<Optional> Repository Branch",
+                            required=False)
+        parser.add_argument("--RepositoryCommit", dest="RepositoryCommit", help="<Optional> Repository Commit",
+                            required=False)
         parser.add_argument('--LicenseIdentifier', dest="LicenseIdentifier", default=None,
                             choices=LICENSE_IDENTIFIER_SUPPORTED.keys(), help="Standard Licenses")
         parser.add_argument('--Description', dest="Description",
@@ -435,10 +439,14 @@ def GatherArguments():
         parser.add_argument('--CustomLicensePath', dest="CustomLicensePath", default=None,
                             help="<Optional> If CustomLicense set in `new` phase, provide absolute path of License \
                             File to pack. Does not override existing valid license.")
-        parser.add_argument("--RepositoryType", dest="RepositoryType", help="<Optional> Repository Type", required=False)
-        parser.add_argument("--RepositoryUrl", dest="RepositoryUrl", help="<Optional> Change the repository Url", required=False)
-        parser.add_argument("--RepositoryBranch", dest="RepositoryBranch", help="<Optional> Change the repository branch", required=False)
-        parser.add_argument("--RepositoryCommit", dest="RepositoryCommit", help="<Optional> Change the repository commit", required=False)
+        parser.add_argument("--RepositoryType", dest="RepositoryType", help="<Optional> Repository Type",
+                            required=False)
+        parser.add_argument("--RepositoryUrl", dest="RepositoryUrl", help="<Optional> Change the repository Url",
+                            required=False)
+        parser.add_argument("--RepositoryBranch", dest="RepositoryBranch",
+                            help="<Optional> Change the repository branch", required=False)
+        parser.add_argument("--RepositoryCommit", dest="RepositoryCommit",
+                            help="<Optional> Change the repository commit", required=False)
 
     elif (args.op.lower() == "push"):
         parser.add_argument("--ConfigFilePath", dest="ConfigFilePath",
