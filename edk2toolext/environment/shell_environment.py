@@ -319,15 +319,21 @@ class ShellEnvironment(metaclass=Singleton):
         return self.active_buildvars.GetValue(var_name)
 
     def set_build_var(self, var_name, var_data):
-        """Sets the build var.
+        """Sets the variable as internal build variable.
+
+        !!! note
+            Variables set in this manner are only accessable inside stuart, and are not an
+            os environment variable. Refer to set_shell_var to set an os environment variable.
 
         Args:
             var_name (str): variable to set the value for
             var_data (obj): data to set
 
-        WARNING: Unlike `set_shell_var`, this only sets the variable in the
-        `VarDict`
+        Raises:
+            (ValueError): var_data is none
         """
+        if var_data is None:
+            raise ValueError("Unexpected var_data: None")
         self.logger.debug(
             "Updating BUILD VAR element '%s': '%s'." % (var_name, var_data))
         self.active_buildvars.SetValue(var_name, var_data, '', overridable=True)
@@ -344,15 +350,18 @@ class ShellEnvironment(metaclass=Singleton):
         return self.active_environ.get(var_name, None)
 
     def set_shell_var(self, var_name, var_data):
-        """Sets the shell variable.
+        """Sets the variable as an OS environment variable.
 
         Args:
             var_name (str): variable to set the value for
             var_data (obj): data to set
 
-        The variable is set both in the `VarDict` and in the OS
+        Raises:
+            (ValueError): var_data is None
         """
         # Check for the "special" shell vars.
+        if var_data is None:
+            raise ValueError("Unexpected var_data: None")
         if var_name.upper() == 'PATH':
             self.set_path(var_data)
         elif var_name.upper() == 'PYTHONPATH':
