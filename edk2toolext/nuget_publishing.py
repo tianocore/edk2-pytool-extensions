@@ -48,6 +48,7 @@ class NugetSupport(object):
         <license></license>
         <releaseNotes></releaseNotes>
         <projectUrl></projectUrl>
+        <repository />
         <copyright></copyright>
         <tags></tags>
     </metadata>
@@ -113,14 +114,24 @@ class NugetSupport(object):
         with open(self.Config, "r") as c:
             self.ConfigData = yaml.safe_load(c)
 
-    def SetBasicData(self, authors, license, project, description, server, copyright):
+    def SetBasicData(self, authors, license, project, description, server, copyright,
+                     repositoryType=None, repositoryUrl=None, repositoryBranch=None,
+                     repositoryCommit=None):
         """Set basic data in the config data."""
         self.ConfigData["author_string"] = authors
-        self.ConfigData["license"] = license
+        if license:
+            self.ConfigData["license"] = license
         self.ConfigData["project_url"] = project
         self.ConfigData["description_string"] = description
         self.ConfigData["server_url"] = server
-
+        if repositoryType:
+            self.ConfigData["repository_type"] = repositoryType
+        if repositoryUrl:
+            self.ConfigData["repository_url"] = repositoryUrl
+        if repositoryBranch:
+            self.ConfigData["repository_branch"] = repositoryBranch
+        if repositoryCommit:
+            self.ConfigData["repository_commit"] = repositoryCommit
         if not copyright:
             copyright = "Copyright %d" % datetime.date.today().year
         self.ConfigData["copyright_string"] = copyright
@@ -139,6 +150,9 @@ class NugetSupport(object):
 
     def IsValidLicense(self):
         """Returns whether the License is valid."""
+        if "license" not in self.ConfigData:
+            return False
+
         license = self.ConfigData["license"]
 
         if license in LICENSE_IDENTIFIER_SUPPORTED.values():
@@ -161,6 +175,21 @@ class NugetSupport(object):
         """Update tags in the config data."""
         self.ConfigData["tags_string"] = " ".join(tags)
         self.ConfigChanged = True
+
+    def UpdateRepositoryInfo(self, type=None, url=None, branch=None, commit=None):
+        """Update repository information."""
+        if type:
+            self.ConfigData["repository_type"] = type
+            self.ConfigChanged = True
+        if url:
+            self.ConfigData["repository_url"] = url
+            self.ConfigChanged = True
+        if branch:
+            self.ConfigData["repository_branch"] = branch
+            self.ConfigChanged = True
+        if commit:
+            self.ConfigData["repository_commit"] = commit
+            self.ConfigChanged = True
 
     def Print(self):
         """Print info about the Nuget Object."""
@@ -213,6 +242,19 @@ class NugetSupport(object):
         meta.find("version").text = self.NewVersion
         meta.find("authors").text = self.ConfigData["author_string"]
         meta.find("projectUrl").text = self.ConfigData["project_url"]
+        repository_item_present = bool([k for k in self.ConfigData.keys() if "repository" in k.lower()])
+        r = meta.find("repository")
+        if repository_item_present:
+            if "repository_type" in self.ConfigData:
+                r.set("type", self.ConfigData["repository_type"])
+            if "repository_url" in self.ConfigData:
+                r.set("url", self.ConfigData["repository_url"])
+            if "repository_branch" in self.ConfigData:
+                r.set("branch", self.ConfigData["repository_branch"])
+            if "repository_commit" in self.ConfigData:
+                r.set("commit", self.ConfigData["repository_commit"])
+        else:
+            meta.remove(r)
         meta.find("description").text = self.ConfigData["description_string"]
         meta.find("copyright").text = self.ConfigData["copyright_string"]
         if "tags_string" in self.ConfigData:
@@ -299,7 +341,7 @@ class NugetSupport(object):
         ret = RunCmd(cmd[0], " ".join(cmd[1:]))
 
         if (ret != 0):
-            logging.error("Failed on nuget commend.  RC = 0x%x" % ret)
+            logging.error("Failed on nuget command.  RC = 0x%x" % ret)
             return ret
 
         self.NuPackageFile = os.path.join(OutputDirectory, self._GetNuPkgFileName(self.NewVersion))
@@ -335,7 +377,7 @@ class NugetSupport(object):
                 logging.critical("API key is invalid. Please use --ApiKey to provide a valid key.")
 
             # Generic error.
-            logging.error("Failed on nuget commend.  RC = 0x%x" % ret)
+            logging.error("Failed on nuget command.  RC = 0x%x" % ret)
 
         return ret
 
@@ -364,12 +406,18 @@ def GatherArguments():
                             required=True)
         parser.add_argument('--Author', dest="Author", help="<Required> Author string for publishing", required=True)
         parser.add_argument("--ProjectUrl", dest="Project", help="<Required> Project Url", required=True)
-        g = parser.add_mutually_exclusive_group(required=True)
-        g.add_argument('--CustomLicense', dest="LicenseIdentifier", action="store_true",
-                       help="<Optional> Specify that a file will be provided as the License during the pack command. \
-                            Can use License Identifier for standard licenses")
-        g.add_argument('--LicenseIdentifier', dest="LicenseIdentifier",
-                       choices=LICENSE_IDENTIFIER_SUPPORTED.keys(), help="Standard Licenses")
+        repo_group = parser.add_argument_group(title="Repository Parameters",
+                                               description="Optional Repository Parameters")
+        repo_group.add_argument("--RepositoryType", dest="RepositoryType", help="<Optional> Repository Type",
+                                required=False)
+        repo_group.add_argument("--RepositoryUrl", dest="RepositoryUrl", help="<Optional> Repository Url",
+                                required=False)
+        repo_group.add_argument("--RepositoryBranch", dest="RepositoryBranch", help="<Optional> Repository Branch",
+                                required=False)
+        repo_group.add_argument("--RepositoryCommit", dest="RepositoryCommit", help="<Optional> Repository Commit",
+                                required=False)
+        parser.add_argument('--LicenseIdentifier', dest="LicenseIdentifier", default=None,
+                            choices=LICENSE_IDENTIFIER_SUPPORTED.keys(), help="Standard Licenses")
         parser.add_argument('--Description', dest="Description",
                             help="<Required> Description of package.", required=True)
         parser.add_argument("--FeedUrl", dest="FeedUrl",
@@ -395,6 +443,16 @@ def GatherArguments():
         parser.add_argument('--CustomLicensePath', dest="CustomLicensePath", default=None,
                             help="<Optional> If CustomLicense set in `new` phase, provide absolute path of License \
                             File to pack. Does not override existing valid license.")
+        repo_group = parser.add_argument_group(title="Repository Parameters",
+                                               description="Optional Repository Parameters")
+        repo_group.add_argument("--RepositoryType", dest="RepositoryType", help="<Optional> Repository Type",
+                                required=False)
+        repo_group.add_argument("--RepositoryUrl", dest="RepositoryUrl", help="<Optional> Change the repository Url",
+                                required=False)
+        repo_group.add_argument("--RepositoryBranch", dest="RepositoryBranch",
+                                help="<Optional> Change the repository branch", required=False)
+        repo_group.add_argument("--RepositoryCommit", dest="RepositoryCommit",
+                                help="<Optional> Change the repository commit", required=False)
 
     elif (args.op.lower() == "push"):
         parser.add_argument("--ConfigFilePath", dest="ConfigFilePath",
@@ -450,14 +508,24 @@ def main():
 
         nu = NugetSupport(Name=args.Name)
 
-        # Support Standard License or Custom License
-        # Custom License path provided during pack operation
-        if args.LicenseIdentifier is True:
-            license = "Use --CustomLicensePath in Pack command to set this"
+        # Provide Standard License Identifier in New Command
+        # Or provide Custom License Path in Pack Command.
+        if args.LicenseIdentifier is None:
+            license = None
         else:
             license = LICENSE_IDENTIFIER_SUPPORTED[args.LicenseIdentifier]
 
-        nu.SetBasicData(args.Author, license, args.Project, args.Description, args.FeedUrl, args.Copyright)
+        nu.SetBasicData(
+            args.Author,
+            license,
+            args.Project,
+            args.Description,
+            args.FeedUrl,
+            args.Copyright,
+            args.RepositoryType,
+            args.RepositoryUrl,
+            args.RepositoryBranch,
+            args.RepositoryCommit)
         nu.LogObject()
         ret = nu.ToConfigFile(ConfigFilePath)
         return ret
@@ -484,17 +552,26 @@ def main():
 
         nu = NugetSupport(ConfigFile=args.ConfigFilePath)
 
-        if not nu.IsValidLicense() and args.CustomLicensePath is not None:
+        if not nu.IsValidLicense():
+            # Invalid License and not setting it with a custom License
+            if args.CustomLicensePath is None:
+                logging.critical("Standard License not found in config file and custom license not provided.")
+                logging.critical("Provide a custom license path with --CustomLicensePath.")
+                raise Exception("Invalid License.")
             nu.UpdateLicensePath(args.CustomLicensePath)
 
         if not nu.IsValidLicense():
-            logging.critical("Invalid License")
+            logging.critical("Invalid Custom License")
             logging.critical("    Verify custom license file name is license.txt or license.md")
             logging.critical("    Verify custom license file path is in absolute format and valid")
-            raise Exception("Invalid License. Verify valid name and that path is absolute and valid")
+            raise Exception("Invalid License.")
 
         if (args.Copyright is not None):
             nu.UpdateCopyright(args.Copyright)
+
+        nu.UpdateRepositoryInfo(args.RepositoryType, args.RepositoryUrl,
+                                args.RepositoryBranch, args.RepositoryCommit)
+
         if (len(args.Tags) > 0):
             tagListSet = set()
             for item in args.Tags:  # Parse out the individual packages

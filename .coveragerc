@@ -1,2 +1,3 @@
 [run]
+include = edk2toolext/*
 omit = edk2toolext/tests/*
