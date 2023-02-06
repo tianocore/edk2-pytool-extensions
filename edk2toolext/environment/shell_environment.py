@@ -321,6 +321,10 @@ class ShellEnvironment(metaclass=Singleton):
     def set_build_var(self, var_name, var_data):
         """Sets the variable as internal build variable.
 
+        Unlike set_shell_var, var_data can be `None`; this sets var_name as a non-valued
+        build variable (e.g. E1000_ENABLE). Additional information can be found at:
+        https://www.tianocore.org/edk2-pytool-extensions/integrate/build/#setting-getting-environment-variables.
+
         !!! note
             Variables set in this manner are only accessable inside stuart, and are not an
             os environment variable. Refer to set_shell_var to set an os environment variable.
@@ -328,12 +332,7 @@ class ShellEnvironment(metaclass=Singleton):
         Args:
             var_name (str): variable to set the value for
             var_data (obj): data to set
-
-        Raises:
-            (ValueError): var_data is none
         """
-        if var_data is None:
-            raise ValueError("Unexpected var_data: None")
         self.logger.debug(
             "Updating BUILD VAR element '%s': '%s'." % (var_name, var_data))
         self.active_buildvars.SetValue(var_name, var_data, '', overridable=True)
