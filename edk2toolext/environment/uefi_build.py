@@ -28,6 +28,7 @@ from edk2toollib.utility_functions import RunCmd, RemoveTree
 from edk2toolext import edk2_logging
 from edk2toolext.environment.plugintypes.uefi_build_plugin import IUefiBuildPlugin
 import datetime
+from pathlib import Path
 
 
 class UefiBuilder(object):
@@ -354,19 +355,23 @@ class UefiBuilder(object):
         # run all loaded UefiBuild Plugins
         #
         for Descriptor in self.pm.GetPluginsOfClass(IUefiBuildPlugin):
-            rc = Descriptor.Obj.do_pre_build(self)
-            if (rc != 0):
-                if (rc is None):
-                    logging.error(
-                        "Plugin Failed: %s returned NoneType" % Descriptor.Name)
-                    ret = -1
+            # Run platform build plugins on platform build or module plugins on module build
+            mod = self.env.GetValue("BUILDMODULE", None)
+            if (mod is not None and "inf" in Descriptor.Obj.runs_on_list()) or \
+               (mod is None and "dsc" in Descriptor.Obj.runs_on_list()):
+                rc = Descriptor.Obj.do_pre_build(self)
+                if (rc != 0):
+                    if (rc is None):
+                        logging.error(
+                            "Plugin Failed: %s returned NoneType" % Descriptor.Name)
+                        ret = -1
+                    else:
+                        logging.error("Plugin Failed: %s returned %d" %
+                                      (Descriptor.Name, rc))
+                        ret = rc
+                    break  # fail on plugin error
                 else:
-                    logging.error("Plugin Failed: %s returned %d" %
-                                  (Descriptor.Name, rc))
-                    ret = rc
-                break  # fail on plugin error
-            else:
-                logging.debug("Plugin Success: %s" % Descriptor.Name)
+                    logging.debug("Plugin Success: %s" % Descriptor.Name)
         return ret
 
     def PostBuild(self):
@@ -388,19 +393,24 @@ class UefiBuilder(object):
         # run all loaded UefiBuild Plugins
         #
         for Descriptor in self.pm.GetPluginsOfClass(IUefiBuildPlugin):
-            rc = Descriptor.Obj.do_post_build(self)
-            if (rc != 0):
-                if (rc is None):
-                    logging.error(
-                        "Plugin Failed: %s returned NoneType" % Descriptor.Name)
-                    ret = -1
+            # Run platform build plugins on platform build or module plugins on module build
+            mod = self.env.GetValue("BUILDMODULE", None)
+            if (mod is not None and "inf" in Descriptor.Obj.runs_on_list()) or \
+               (mod is None and "dsc" in Descriptor.Obj.runs_on_list()):
+                logging.error("WE ARE RUNNING A PLUGIN??")
+                rc = Descriptor.Obj.do_post_build(self)
+                if (rc != 0):
+                    if (rc is None):
+                        logging.error(
+                            "Plugin Failed: %s returned NoneType" % Descriptor.Name)
+                        ret = -1
+                    else:
+                        logging.error("Plugin Failed: %s returned %d" %
+                                      (Descriptor.Name, rc))
+                        ret = rc
+                    break  # fail on plugin error
                 else:
-                    logging.error("Plugin Failed: %s returned %d" %
-                                  (Descriptor.Name, rc))
-                    ret = rc
-                break  # fail on plugin error
-            else:
-                logging.debug("Plugin Success: %s" % Descriptor.Name)
+                    logging.debug("Plugin Success: %s" % Descriptor.Name)
 
         return ret
 

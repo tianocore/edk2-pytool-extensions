@@ -11,6 +11,14 @@
 class IUefiBuildPlugin(object):
     """Plugin that supports Pre and Post Build Steps."""
 
+    def runs_on_list(self):
+        """Returns a list of build types to execute the plugin for.
+
+        dsc == building a platform or platform equivalent (dsc)
+        inf == building a single module (inf)
+        """
+        return ["dsc"]
+
     def do_post_build(self, thebuilder):
         """Runs Post Build Plugin Operations.
 
