@@ -12,9 +12,9 @@ import urllib.request
 import logging
 
 # Update this when you want a new version of NuGet
-VERSION = "5.10.0"
+VERSION = "6.4.0"
 URL = "https://dist.nuget.org/win-x86-commandline/v{}/nuget.exe".format(VERSION)
-SHA256 = "852b71cc8c8c2d40d09ea49d321ff56fd2397b9d6ea9f96e532530307bbbafd3"
+SHA256 = "26730829b240581a3e6a4e276b9ace088930032df0c680d5591beccf6452374e"
 
 
 def DownloadNuget(unpack_folder: str = None) -> list:
