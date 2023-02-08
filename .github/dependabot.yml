@@ -13,12 +13,12 @@ updates:
   - package-ecosystem: "pip" # See documentation for possible values
     directory: "/" # Location of package manifests
     schedule:
-      interval: "daily"
+      interval: "weekly"
   - package-ecosystem: "pip"
     directory: "/integration_test/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
   - package-ecosystem: "pip"
     directory: "/docs/user/"
     schedule:
-      interval: "daily"
+      interval: "weekly"

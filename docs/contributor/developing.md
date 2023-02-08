@@ -114,9 +114,22 @@ out all the different parts.
 
 4. Run Coverage with pytest test execution
 
+    The below command will run tests in parallel and print
+    a short report to the terminal.
+
     ``` cmd
-    coverage run -m pytest
+    pytest
     ```
+
+    To turn off running tests in parallel, run the following
+    command:
+
+    ``` cmd
+    pytest -n no
+    ```
+
+    To generate a report other then to the terminal, add the
+    command line argument `--cov-report=<xml, html, etc>`
 
     INFO: If you only want to test a single file you can supply that path at the
     end and then only that module will be run.
