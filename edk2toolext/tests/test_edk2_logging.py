@@ -53,10 +53,10 @@ class Test_edk2_logging(unittest.TestCase):
                                     "<source_file>warning B2: warning 2 details\n"
                                     "<source_file>error C3: error 3 details\n"
                                     "<source_file>warning D4: warning 4 details\n")
-        expected_output = [(logging.ERROR, "Compiler #1 from <source_file>  error 1 details"),
-                           (logging.WARNING, "Compiler #2 from <source_file>  warning 2 details"),
-                           (logging.ERROR, "Compiler #3 from <source_file>  error 3 details"),
-                           (logging.WARNING, "Compiler #4 from <source_file>  warning 4 details")]
+        expected_output = [(logging.ERROR, "Compiler #1 from <source_file> error 1 details"),
+                           (logging.WARNING, "Compiler #2 from <source_file> warning 2 details"),
+                           (logging.ERROR, "Compiler #3 from <source_file> error 3 details"),
+                           (logging.WARNING, "Compiler #4 from <source_file> warning 4 details")]
         self.assertEqual(edk2_logging.scan_compiler_output(output_stream), expected_output)
 
         # Input with no issue (empty string)
@@ -77,17 +77,17 @@ class Test_edk2_logging(unittest.TestCase):
         # Input with only compiler warnings
         output_stream = io.StringIO("<source_file.c>warning C8: warning details...\n"
                                     "<source_file.h>warning D10: info about the issue\n")
-        expected_output = [(logging.WARNING, "Compiler #8 from <source_file.c>  warning details..."),
-                           (logging.WARNING, "Compiler #10 from <source_file.h>  info about the issue")]
+        expected_output = [(logging.WARNING, "Compiler #8 from <source_file.c> warning details..."),
+                           (logging.WARNING, "Compiler #10 from <source_file.h> info about the issue")]
         self.assertEqual(edk2_logging.scan_compiler_output(output_stream), expected_output)
 
         # Input with only compiler errors
         output_stream = io.StringIO("dir/file.c error T4: uninitialized variable c...\n"
                                     "dir1/dir2/file1.c error B2: duplicate symbol xyz.\n"
                                     "dir1/file_2.h error 5: header file problem")
-        expected_output = [(logging.ERROR, "Compiler #4 from dir/file.c   uninitialized variable c..."),
-                           (logging.ERROR, "Compiler #2 from dir1/dir2/file1.c   duplicate symbol xyz."),
-                           (logging.ERROR, "Compiler #5 from dir1/file_2.h   header file problem")]
+        expected_output = [(logging.ERROR, "Compiler #4 from dir/file.c uninitialized variable c..."),
+                           (logging.ERROR, "Compiler #2 from dir1/dir2/file1.c duplicate symbol xyz."),
+                           (logging.ERROR, "Compiler #5 from dir1/file_2.h header file problem")]
         self.assertEqual(edk2_logging.scan_compiler_output(output_stream), expected_output)
 
         # Input with near matches that should not match
@@ -104,11 +104,11 @@ class Test_edk2_logging(unittest.TestCase):
                                     "source.dsc error F3: error 3 details\n"
                                     "source.obj error LNK4: linker 4 details\n"
                                     "script.py error 5E: build 5 details\n")
-        expected_output = [(logging.ERROR, "Compiler #1 from source.c   error 1 details"),
-                           (logging.WARNING, "Compiler #2 from source.c   warning 2 details"),
-                           (logging.ERROR, "EDK2 #3 from source.dsc   error 3 details"),
-                           (logging.ERROR, "Linker #4 from source.obj   linker 4 details"),
-                           (logging.ERROR, "Build.py #5 from script.py   build 5 details")]
+        expected_output = [(logging.ERROR, "Compiler #1 from source.c error 1 details"),
+                           (logging.WARNING, "Compiler #2 from source.c warning 2 details"),
+                           (logging.ERROR, "EDK2 #3 from source.dsc error 3 details"),
+                           (logging.ERROR, "Linker #4 from source.obj linker 4 details"),
+                           (logging.ERROR, "Build.py #5 from script.py build 5 details")]
         self.assertEqual(edk2_logging.scan_compiler_output(output_stream), expected_output)
 
     def test_scan_compiler_output_vs_actual(self):
@@ -134,13 +134,12 @@ class Test_edk2_logging(unittest.TestCase):
                 d:\\a\\1\\s\\SetupDataPkg\\ConfApp\\ConfApp.inf [X64, VS2022, DEBUG]
             """)    # noqa: E501
 
-        expected_output = [(logging.ERROR, "Linker #2001 from UefiApplicationEntryPoint.lib(ApplicationEntryPoint.obj) :   unresolved external symbol __security_check_cookie"),  # noqa: E501
-                           (logging.ERROR, "Linker #2001 from ConfApp.lib(SetupConf.obj) :   unresolved external symbol __report_rangecheckfailure"),  # noqa: E501
-                           (logging.ERROR, "Linker #1120 from d:\\a\\1\\s\\Build\\SetupDataPkg\\DEBUG_VS2022\\X64\\SetupDataPkg\\ConfApp\\ConfApp\\DEBUG\\ConfApp.dll : fatal   2 unresolved externals"),  # noqa: E501
-                           (logging.ERROR, "Compiler #1077 from NMAKE : fatal   \'\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\VC\\Tools\\MSVC\\14.34.31933\\bin\\Hostx86\\x64\\link.exe\"\' : return code \'0x460\'"),  # noqa: E501
-                           (logging.ERROR, "Compiler #7000 from :   Failed to execute command"),  # noqa: E501
-                           (logging.ERROR, "EDK2 #002 from :   Failed to build module")  # noqa: E501
-                           ]
+        expected_output = [(logging.ERROR, "Linker #2001 from UefiApplicationEntryPoint.lib(ApplicationEntryPoint.obj) : unresolved external symbol __security_check_cookie"),  # noqa: E501
+                           (logging.ERROR, "Linker #2001 from ConfApp.lib(SetupConf.obj) : unresolved external symbol __report_rangecheckfailure"),  # noqa: E501
+                           (logging.ERROR, "Linker #1120 from d:\\a\\1\\s\\Build\\SetupDataPkg\\DEBUG_VS2022\\X64\\SetupDataPkg\\ConfApp\\ConfApp\\DEBUG\\ConfApp.dll : fatal 2 unresolved externals"),  # noqa: E501
+                           (logging.ERROR, "Compiler #1077 from NMAKE : fatal \'\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\VC\\Tools\\MSVC\\14.34.31933\\bin\\Hostx86\\x64\\link.exe\"\' : return code \'0x460\'"),  # noqa: E501
+                           (logging.ERROR, "Compiler #7000 from : Failed to execute command"),  # noqa: E501
+                           (logging.ERROR, "EDK2 #002 from : Failed to build module")]
         self.assertEqual(edk2_logging.scan_compiler_output(output_stream), expected_output)
 
     def test_scan_compiler_output_vs_linker_actual(self):
@@ -154,10 +153,9 @@ class Test_edk2_logging(unittest.TestCase):
             NMAKE : fatal error U1077: '"C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.34.31933/bin/Hostx86/x86/link.exe"' : return code '0x460'
             """)    # noqa: E501
 
-        expected_output = [(logging.ERROR, "Linker #2001 from SdMmcPciHcPei.lib(SdMmcPciHcPei.obj) :   unresolved external symbol _SafeUint8Add"),  # noqa: E501
-                           (logging.ERROR, "Linker #1120 from d:/a/1/s/Build/MdeModule/RELEASE_VS2022/IA32/MdeModulePkg/Bus/Pci/SdMmcPciHcPei/SdMmcPciHcPei/DEBUG/SdMmcPciHcPei.dll : fatal   1 unresolved externals"),  # noqa: E501
-                           (logging.ERROR, "Compiler #1077 from NMAKE : fatal   \'\"C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.34.31933/bin/Hostx86/x86/link.exe\"\' : return code \'0x460\'")  # noqa: E501
-                           ]
+        expected_output = [(logging.ERROR, "Linker #2001 from SdMmcPciHcPei.lib(SdMmcPciHcPei.obj) : unresolved external symbol _SafeUint8Add"),  # noqa: E501
+                           (logging.ERROR, "Linker #1120 from d:/a/1/s/Build/MdeModule/RELEASE_VS2022/IA32/MdeModulePkg/Bus/Pci/SdMmcPciHcPei/SdMmcPciHcPei/DEBUG/SdMmcPciHcPei.dll : fatal 1 unresolved externals"),  # noqa: E501
+                           (logging.ERROR, "Compiler #1077 from NMAKE : fatal \'\"C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.34.31933/bin/Hostx86/x86/link.exe\"\' : return code \'0x460\'")]  # noqa: E501
         self.assertEqual(edk2_logging.scan_compiler_output(output_stream), expected_output)
 
     def test_scan_compiler_output_gcc_mixed_actual(self):
@@ -186,8 +184,8 @@ class Test_edk2_logging(unittest.TestCase):
                 /__w/1/s/SetupDataPkg/Library/ConfigVariableListLib/ConfigVariableListLib.inf [AARCH64, GCC5, DEBUG]
         """)    # noqa: E501
 
-        expected_output = [(logging.ERROR, "Compiler #7000 from :   Failed to execute command"),
-                           (logging.ERROR, "EDK2 #002 from :   Failed to build module")]
+        expected_output = [(logging.ERROR, "Compiler #7000 from : Failed to execute command"),
+                           (logging.ERROR, "EDK2 #002 from : Failed to build module")]
         self.assertEqual(edk2_logging.scan_compiler_output(output_stream), expected_output)
 
 
