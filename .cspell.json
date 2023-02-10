@@ -9,7 +9,8 @@
     ],
     "allowCompoundWords": true,
     "ignorePaths": [
-        "*.exe"
+        "*.exe",
+        "edk2toolext/tests/**"
     ],
     "ignoreWords": [],
     "words": [
