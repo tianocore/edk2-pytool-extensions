@@ -201,8 +201,8 @@ def scan_compiler_output(output_stream):
     # seek to the start of the output stream
     def output_compiler_error(match, line, start_txt="Compiler"):
         start, end = match.span()
-        source = line[:start]
-        error = line[end:]
+        source = line[:start].strip()
+        error = line[end:].strip()
         num = match.group(1)
         return f"{start_txt} #{num} from {source} {error}"
     problems = []
