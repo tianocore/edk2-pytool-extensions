@@ -184,7 +184,8 @@ class Test_edk2_logging(unittest.TestCase):
                 /__w/1/s/SetupDataPkg/Library/ConfigVariableListLib/ConfigVariableListLib.inf [AARCH64, GCC5, DEBUG]
         """)    # noqa: E501
 
-        expected_output = [(logging.ERROR, "Compiler #7000 from : Failed to execute command"),
+        expected_output = [(logging.ERROR, "Compiler #error from /__w/1/s/SetupDataPkg/Library/ConfigVariableListLib/ConfigVariableListLib.c conflicting types for `ConvertVariableListToVariableEntry`; have `EFI_STATUS(const void *, UINTN *, CONFIG_VAR_LIST_ENTRY *)` {aka `long long unsigned int(const void *, long long unsigned int *, CONFIG_VAR_LIST_ENTRY *)`}"),  # noqa: E501
+                           (logging.ERROR, "Compiler #7000 from : Failed to execute command"),
                            (logging.ERROR, "EDK2 #002 from : Failed to build module")]
         self.assertEqual(edk2_logging.scan_compiler_output(output_stream), expected_output)
 
