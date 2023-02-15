@@ -297,7 +297,6 @@ class UefiBuilder(object):
         if (mod is not None and len(mod.strip()) > 0):
             params += " -m " + mod
             edk2_logging.log_progress("Single Module Build: " + mod)
-            self.SkipPostBuild = True
             self.FlashImage = False
 
         # attach the generic build vars
@@ -355,6 +354,9 @@ class UefiBuilder(object):
         # run all loaded UefiBuild Plugins
         #
         for Descriptor in self.pm.GetPluginsOfClass(IUefiBuildPlugin):
+            # Run the plugin only if it is supported for the build type.
+            if self._GetBuildType() not in Descriptor.Obj.runs_on_list(self):
+                continue
             rc = Descriptor.Obj.do_pre_build(self)
             if (rc != 0):
                 if (rc is None):
@@ -389,6 +391,9 @@ class UefiBuilder(object):
         # run all loaded UefiBuild Plugins
         #
         for Descriptor in self.pm.GetPluginsOfClass(IUefiBuildPlugin):
+            # Run the plugin only if it is supported for the build type.
+            if self._GetBuildType() not in Descriptor.Obj.runs_on_list(self):
+                continue
             rc = Descriptor.Obj.do_post_build(self)
             if (rc != 0):
                 if (rc is None):
@@ -719,3 +724,10 @@ class UefiBuilder(object):
         if (self.pp is not None):
             self.env.SetValue("PACKAGES_PATH", self.pp, "DEFAULT")
         return 0
+
+    def _GetBuildType(self):
+        """Returns inf or dsc depending on the value of BUILDMODULE."""
+        mod = self.env.GetValue("BUILDMODULE")
+        if (mod is not None and len(mod.strip()) > 0):
+            return "inf"
+        return "dsc"
