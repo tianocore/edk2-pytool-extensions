@@ -190,5 +190,55 @@ class Test_edk2_logging(unittest.TestCase):
         self.assertEqual(edk2_logging.scan_compiler_output(output_stream), expected_output)
 
 
-if __name__ == '__main__':
-    unittest.main()
+# caplog is a pytest fixture that captures log messages
+def test_catch_secrets_filter(caplog):
+    caplog.set_level(logging.DEBUG)
+    edk2_logging.setup_console_logging(logging.DEBUG)
+
+    end_list = [" ", ",", ";", ":", " "]
+    start_list = [" ", " ", " ", " ", ":"]
+
+    # Test secret github (valid) 1
+    fake_secret = "ghp_aeiou1"
+    for start, end in zip(start_list, end_list):
+        logging.debug(f"This is a secret{start}{fake_secret}{end}to be caught")
+
+    for (record, start, end) in zip(caplog.records, start_list, end_list):
+        assert record.msg == f"This is a secret{start}*******{end}to be caught"
+    caplog.clear()
+
+    # Test secret github (valid) 2
+    fake_secret = "gho_aeiou1"
+    for start, end in zip(start_list, end_list):
+        logging.debug(f"This is a secret{start}{fake_secret}{end}to be caught")
+
+    for (record, start, end) in zip(caplog.records, start_list, end_list):
+        assert record.msg == f"This is a secret{start}*******{end}to be caught"
+    caplog.clear()
+
+    # Test secret github (invalid) 1
+    fake_secret = "ghz_aeiou1"
+    for start, end in zip(start_list, end_list):
+        logging.debug(f"This is a secret{start}{fake_secret}{end}to be caught")
+
+    for (record, start, end) in zip(caplog.records, start_list, end_list):
+        assert record.msg == f"This is a secret{start}{fake_secret}{end}to be caught"
+    caplog.clear()
+
+    # Test secret nuget (valid) 1
+    fake_secret = "345def553aef545fffff42dqa56890493223dfasdfasdf"
+    for start, end in zip(start_list, end_list):
+        logging.debug(f"This is a secret{start}{fake_secret}{end}to be caught")
+
+    for (record, start, end) in zip(caplog.records, start_list, end_list):
+        assert record.msg == f"This is a secret{start}*******{end}to be caught"
+    caplog.clear()
+
+    # Test secret nuget (invalid) 1
+    fake_secret = "345def553aef545fffff42dqa56890493223dfasdfasd"
+    for start, end in zip(start_list, end_list):
+        logging.debug(f"This is a secret{start}{fake_secret}{end}to be caught")
+
+    for (record, start, end) in zip(caplog.records, start_list, end_list):
+        assert record.msg == f"This is a secret{start}{fake_secret}{end}to be caught"
+    caplog.clear()

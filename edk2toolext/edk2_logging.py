@@ -255,6 +255,13 @@ class Edk2LogFilter(logging.Filter):
         self._verbose = False
         self._currentSection = "root"
 
+        secrets_regex_strings = [
+            r"[A-Za-z0-9]{46}",  # Nuget API Key
+            r"gh[pousr]_[A-Za-z0-9_]+",  # Github PAT
+        ]
+
+        self.secrets_regex = re.compile(r"{}".format("|".join(secrets_regex_strings)), re.IGNORECASE)
+
     def setVerbose(self, isVerbose=True):
         """Sets the filter verbosity."""
         self._verbose = isVerbose
@@ -270,5 +277,5 @@ class Edk2LogFilter(logging.Filter):
         # check to make sure we haven't already filtered this record
         if record.name not in Edk2LogFilter._allowedLoggers and record.levelno < logging.WARNING and not self._verbose:
             return False
-
+        record.msg = self.secrets_regex.sub("*******", str(record.msg))
         return True
