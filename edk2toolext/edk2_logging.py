@@ -201,13 +201,17 @@ def scan_compiler_output(output_stream):
     # seek to the start of the output stream
     def output_compiler_error(match, line, start_txt="Compiler"):
         start, end = match.span()
-        source = line[:start]
-        error = line[end:]
+        source = line[:start].strip()
+        error = line[end:].strip()
         num = match.group(1)
         return f"{start_txt} #{num} from {source} {error}"
     problems = []
     output_stream.seek(0, 0)
     error_exp = re.compile(r"error [A-EG-Z]?(\d+):")
+    # Would prefer to do something like r"(?:\/[^\/: ]*)+\/?:\d+:\d+: (error):"
+    # but the script is currently setup on fixed formatting assumptions rather
+    # than offering per rule flexibility to parse tokens via regex
+    gcc_error_exp = re.compile(r":\d+:\d+: (error):")
     edk2_error_exp = re.compile(r"error F(\d+):")
     build_py_error_exp = re.compile(r"error (\d+)E:")
     linker_error_exp = re.compile(r"error LNK(\d+):")
@@ -215,6 +219,10 @@ def scan_compiler_output(output_stream):
     for raw_line in output_stream.readlines():
         line = raw_line.strip("\n").strip()
         match = error_exp.search(line)
+        if match is not None:
+            error = output_compiler_error(match, line, "Compiler")
+            problems.append((logging.ERROR, error))
+        match = gcc_error_exp.search(line)
         if match is not None:
             error = output_compiler_error(match, line, "Compiler")
             problems.append((logging.ERROR, error))

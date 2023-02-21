@@ -1,9 +1,9 @@
 black==23.1.0
 mkdocs==1.4.2
-mkdocs-material==9.0.11
+mkdocs-material==9.0.13
 mkdocstrings[python]==0.20.0
 mkdocstrings-python==0.8.3
-markdown-include==0.8.0
+markdown-include==0.8.1
 mkdocs-gen-files==0.4.0
 mkdocs-exclude==1.0.2
 mkdocs-awesome-pages-plugin==2.8.0

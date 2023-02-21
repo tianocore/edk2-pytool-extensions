@@ -80,9 +80,9 @@ setuptools.setup(
                             'validate_image_tool=edk2toolext.image_validation:main']
     },
     install_requires=[
-        'pyyaml>=5.3.1',
-        'edk2-pytool-library>=0.12.1',
-        'pefile>=2019.4.18',
+        'pyyaml>=6.0.0',
+        'edk2-pytool-library>=0.14.0',
+        'pefile>=2023.2.7',
         'semantic_version>=2.10.0',
         'pygit2>=1.11.1'
     ],
