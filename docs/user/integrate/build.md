@@ -134,14 +134,20 @@ required to have a value associated with them. Variables defined this way are co
 and should be checked for existence rather then value (i.e. `if env.GetValue(var):` or `if not env.GetValue(var)`).
 
 While you can set and get variables anywhere in the `UefiBuilder` portion of the settings file, we provide the following
-two methods to set environment variables, ensuring they are available everywhere that you are allowed to customize:
+three methods to set environment variables, ensuring they are available everywhere that you are allowed to customize:
 
 - [SetPlatformEnv](/api/environment/uefi_build/#edk2toolext.environment.uefi_build.UefiBuilder.SetPlatformEnv)
 
 - [SetPlatfromEnvAfterTarget](/api/environment/uefi_build/#edk2toolext.environment.uefi_build.UefiBuilder.SetPlatformEnvAfterTarget)
 
-Simply override these two functions in your subclass of the `UefiBuilder` and set environment variables until your heart
-is content!
+- [SetPlatformDefaultEnv](/api/environment/uefi_build/#edk2toolext.environment.uefi_build.UefiBuilder.SetPlatformDefaultEnv)
+
+!!! Warning
+    `SetPlatformDefaultEnv` is not like the others. Rather then setting the environment variables directly, it should
+    return a limited list of the most commonly overridden variables and their default values! The values returned are
+    printed to the terminal when using the `-h, --help` flags so that develops can easily find the common ways to
+    customize a platforms build. Additionally, if these variables have not been set anywhere else in the build, they
+    will be set to the default values.
 
 !!! Note
     Not all variables are passed through stuart to the actual build command. Only variables with the prefix `BLD_*_`,

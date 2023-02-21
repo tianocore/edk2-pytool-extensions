@@ -28,6 +28,7 @@ from edk2toollib.utility_functions import RunCmd, RemoveTree
 from edk2toolext import edk2_logging
 from edk2toolext.environment.plugintypes.uefi_build_plugin import IUefiBuildPlugin
 import datetime
+from collections import namedtuple
 
 
 class UefiBuilder(object):
@@ -489,6 +490,10 @@ class UefiBuilder(object):
         # set environment variables for the build process
         os.environ["EFI_SOURCE"] = self.ws
 
+        # set critical platform Env Defaults if not set anywhere else in the build.
+        for env_var in self.SetPlatformDefaultEnv():
+            self.env.SetValue(env_var.name, env_var.default, "Default Critical Platform Env Value.")
+
         return 0
 
     def FlashRomImage(self):
@@ -541,6 +546,24 @@ class UefiBuilder(object):
             (int): 0 on success, 1 on failure
         """
         return 0
+
+    @classmethod
+    def SetPlatformDefaultEnv(self) -> list[namedtuple]:
+        """Sets platform default environment variables by returning them as a list.
+
+        Variables returned from this method are printed to the command line when
+        calling stuart_build with -h, --help. Variables added here should be
+        reserved only those that are commonly overwritten in the command line for
+        developers.
+
+        Variables returned from this function are the last variables to be set,
+        ensuring that default values are only added if none have been provided by
+        other means.
+
+        Returns:
+            (list[namedtuple]): List of named tuples containing name, description, default
+        """
+        return []
 
     @classmethod
     def PlatformBuildRom(self):
