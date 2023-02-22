@@ -9,19 +9,19 @@
 import os
 import unittest
 import logging
-import shutil
-import stat
 import tempfile
 import copy
 from edk2toolext.environment import environment_descriptor_files as EDF
 from edk2toolext.environment.extdeptypes.git_dependency import GitDependency
 from edk2toolext.environment import shell_environment
+from edk2toolext.environment.repo_resolver import clear_folder
 
 test_dir = None
 uptodate_version = "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
 behind_one_version = "762941318ee16e59dabbacb1b4049eec22f0d303"
 invalid_version = "762941318ee16e59d123456789049eec22f0d303"
 short_version = "7fd1a60"
+short_upper_version = "7FD1A60"
 
 hw_json_template = '''
 {
@@ -52,16 +52,7 @@ def clean_workspace():
         return
 
     if os.path.isdir(test_dir):
-
-        # spell-checker:ignore dorw
-        def dorw(action, name, exc):
-            os.chmod(name, stat.S_IWRITE)
-            if (os.path.isdir(name)):
-                os.rmdir(name)
-            else:
-                os.remove(name)
-
-        shutil.rmtree(test_dir, onerror=dorw)
+        clear_folder(test_dir)
         test_dir = None
 
 
@@ -100,6 +91,16 @@ class TestGitDependency(unittest.TestCase):
         ext_dep.fetch()
         self.assertTrue(ext_dep.verify())
         self.assertEqual(ext_dep.version, short_version)
+
+    def test_fetch_verify_short_upper_commit_hash(self):
+        ext_dep_file_path = os.path.join(test_dir, "hw_ext_dep.json")
+        with open(ext_dep_file_path, "w+") as ext_dep_file:
+            ext_dep_file.write(hw_json_template % short_upper_version)
+        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep = GitDependency(ext_dep_descriptor)
+        ext_dep.fetch()
+        self.assertTrue(ext_dep.verify())
+        self.assertEqual(ext_dep.version, short_upper_version)
 
     def test_fetch_verify_good_repo_at_not_top_of_tree(self):
         ext_dep_file_path = os.path.join(test_dir, "hw_ext_dep.json")
