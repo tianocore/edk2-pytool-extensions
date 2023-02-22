@@ -13,7 +13,6 @@ import logging
 from urllib.parse import urlsplit, urlunsplit
 from edk2toolext.environment.external_dependency import ExternalDependency
 from edk2toolext.environment import repo_resolver
-from edk2toolext.edk2_git import Repo
 from edk2toolext.environment import shell_environment
 
 
@@ -65,8 +64,11 @@ class GitDependency(ExternalDependency):
 
     def fetch(self):
         """Fetches the dependency using internal state from the init."""
-        # def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=False):
-        repo_resolver.resolve(self._local_repo_root_path, self._repo_resolver_dep_obj, update_ok=True)
+        try:
+            repo_resolver.resolve(self._local_repo_root_path, self._repo_resolver_dep_obj, update_ok=True)
+        except repo_resolver.GitCommandError as e:
+            logging.debug(f'Cmd failed for git dependency: {self._local_repo_root_path}')
+            logging.debug(e)
 
         # Add a file to track the state of the dependency.
         self.update_state_file()
@@ -95,28 +97,27 @@ class GitDependency(ExternalDependency):
             return True
 
         result = True
+        details = repo_resolver.repo_details(self._local_repo_root_path)
 
-        if not os.path.isdir(self._local_repo_root_path):
-            self.logger.info("no dir for Git Dependency")
+        if not details['Path'].is_dir():
+            self.logger.info('Not a directory')
             result = False
 
-        if result and len(os.listdir(self._local_repo_root_path)) == 0:
-            self.logger.info("no files in Git Dependency")
+        elif not any(details['Path'].iterdir()):
+            self.logger.info('No files in directory')
             result = False
 
-        if result:
-            # valid repo folder
-            r = Repo(self._local_repo_root_path)
-            if (not r.initalized):
-                self.logger.info("Git Dependency: Not Initialized")
-                result = False
-            elif (r.dirty):
-                self.logger.warning("Git Dependency: dirty")
-                result = False
+        elif not details['Initialized']:
+            self.logger.info('Not Initialized')
+            result = False
 
-            if (r.head.commit != self.version and r.head.commit[:7] != self.version):
-                self.logger.info(f"Git Dependency: head is {r.head.commit} and version is {self.version}")
-                result = False
+        elif details['Dirty']:
+            self.logger.info('Dirty')
+            result = False
+
+        elif self.version.lower() not in [details['Head']['HexSha'], details['Head']['HexShaShort']]:
+            self.logger.info(f'Mismatched sha: [head: {details["Head"]["HexSha"]}], [expected: {self.version}]')
+            result = False
 
         self.logger.debug("Verify '%s' returning '%s'." % (self.name, result))
         return result

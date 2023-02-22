@@ -84,7 +84,7 @@ setuptools.setup(
         'edk2-pytool-library>=0.14.0',
         'pefile>=2023.2.7',
         'semantic_version>=2.10.0',
-        'pygit2>=1.11.1'
+        'GitPython>=3.1.30'
     ],
     extras_require={
         'openssl': ['pyopenssl']
