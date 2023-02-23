@@ -16,425 +16,393 @@ import pathlib
 import pytest
 
 
-branch_dependency = {
-    "Url": "https://github.com/microsoft/mu",
-    "Path": "test_repo",
-    "Branch": "master"
-}
-
-sub_branch_dependency = {
-    "Url": "https://github.com/microsoft/mu",
-    "Path": "test_repo",
-    "Branch": "gh-pages"
-}
-
-commit_dependency = {
-    "Url": "https://github.com/microsoft/mu",
-    "Path": "test_repo",
-    "Commit": "b1e35a5d2bf05fb7f58f5b641a702c70d6b32a98"
-}
-
-short_commit_dependency = {
-    "Url": "https://github.com/microsoft/mu",
-    "Path": "test_repo",
-    "Commit": "b1e35a5"
-}
-
-commit_later_dependency = {
-    "Url": "https://github.com/microsoft/mu",
-    "Path": "test_repo",
-    "Commit": "e28910950c52256eb620e35d111945cdf5d002d1"
-}
-
-microsoft_commit_dependency = {
-    "Url": "https://github.com/Microsoft/microsoft.github.io",
-    "Path": "test_repo",
-    "Commit": "e9153e69c82068b45609359f86554a93569d76f1"
-}
-microsoft_branch_dependency = {
-    "Url": "https://github.com/Microsoft/microsoft.github.io",
-    "Path": "test_repo",
-    "Commit": "e9153e69c82068b45609359f86554a93569d76f1"
-}
-
-test_dir = None
-
-
-def prep_workspace():
-    global test_dir
-    # if test temp dir doesn't exist
-    if test_dir is None or not os.path.isdir(test_dir):
-        test_dir = tempfile.mkdtemp()
-        logging.debug("temp dir is: %s" % test_dir)
-    else:
-        repo_resolver.clear_folder(test_dir)
-        test_dir = tempfile.mkdtemp()
-
-
-def clean_workspace():
-    global test_dir
-    if test_dir is None:
-        return
-
-    if os.path.isdir(test_dir):
-        repo_resolver.clear_folder(test_dir)
-        test_dir = None
-
-
-def get_first_file(folder):
-    folder_list = os.listdir(folder)
-    for file_path in folder_list:
-        path = os.path.join(folder, file_path)
-        if os.path.isfile(path):
-            return path
+def get_first_file(folder: pathlib.Path) -> pathlib.Path:
+    for file_path in folder.iterdir():
+        if file_path.is_file():
+            return file_path
     return None
 
 
-class test_repo_resolver(unittest.TestCase):
-    def setUp(self):
-        prep_workspace()
+def test_resolve_all(tmp_path, octocat_dep):
+    d1 = dict(octocat_dep)
+    d1["Commit"] = "a30c19e3f13765a3b48829788bc1cb8b4e95cee4"
+    d2 = dict(octocat_dep)
+    d2["Commit"] = "bb4cc8d3b2e14b3af5df699876dd4ff3acd00b7f"
+    d3 = dict(octocat_dep)
+    d3["Commit"] = "d0dd1f61b33d64e29d8bc1372a94ef6a2fee76a9"
 
-    @classmethod
-    def setUpClass(cls):
-        logger = logging.getLogger('')
-        logger.setLevel(logging.DEBUG)
-        logger.addHandler(logging.NullHandler())
-        unittest.installHandler()
-
-    @classmethod
-    def tearDown(cls):
-        clean_workspace()
-
-    # check to make sure that we can clone a branch correctly
-    def test_clone_branch_repo(self):
-        # create an empty directory- and set that as the workspace
-        repo_resolver.resolve(test_dir, branch_dependency)
-        folder_path = os.path.join(test_dir, branch_dependency["Path"])
-        details = repo_resolver.repo_details(folder_path)
-        self.assertEqual(details["Url"], branch_dependency['Url'])
-        self.assertEqual(details["Branch"], branch_dependency['Branch'])
-
-    def test_clone_branch_existing_folder(self):
-        # Resolve when folder exists but is empty
-        folder_path = os.path.join(test_dir, branch_dependency["Path"])
-        os.makedirs(folder_path)
-        repo_resolver.resolve(test_dir, branch_dependency)
-        details = repo_resolver.repo_details(folder_path)
-        self.assertEqual(details["Url"], branch_dependency['Url'])
-        self.assertEqual(details["Branch"], branch_dependency['Branch'])
-
-    # don't create a git repo, create the folder, add a file, try to clone in the folder, it should throw an exception
-    def test_wont_delete_files(self):
-        folder_path = os.path.join(test_dir, commit_dependency["Path"])
-        os.makedirs(folder_path)
-        file_path = os.path.join(folder_path, "test.txt")
-        file_path = os.path.join(
-            test_dir, branch_dependency["Path"], "test.txt")
-        out_file = open(file_path, "w+")
-        out_file.write("Make sure we don't delete this")
-        out_file.close()
-        self.assertTrue(os.path.isfile(file_path))
-        with self.assertRaises(Exception):
-            repo_resolver.resolve(test_dir, branch_dependency)
-            self.fail("We shouldn't make it here")
-        self.assertTrue(os.path.isfile(file_path))
-
-    # don't create a git repo, create the folder, add a file, try to clone in the folder, will force it to happen
-    def test_will_delete_files(self):
-        folder_path = os.path.join(test_dir, commit_dependency["Path"])
-        os.makedirs(folder_path)
-        file_path = os.path.join(folder_path, "test.txt")
-        out_file = open(file_path, "w+")
-        out_file.write("Make sure we don't delete this")
-        out_file.close()
-        self.assertTrue(os.path.exists(file_path))
-        try:
-            repo_resolver.resolve(test_dir, commit_dependency, force=True)
-        except:
-            self.fail("We shouldn't fail when we are forcing")
-        details = repo_resolver.repo_details(folder_path)
-        self.assertEqual(details["Url"], commit_dependency['Url'])
-
-    # don't create a git repo, create the folder, add a file, try to clone in the folder, will ignore it.
-    def test_will_ignore_files(self):
-        folder_path = os.path.join(test_dir, commit_dependency["Path"])
-        os.makedirs(folder_path)
-        file_path = os.path.join(folder_path, "test.txt")
-        out_file = open(file_path, "w+")
-        out_file.write("Make sure we don't delete this")
-        out_file.close()
-        self.assertTrue(os.path.exists(file_path))
-        repo_resolver.resolve(test_dir, commit_dependency, ignore=True)
-
-    def test_wont_delete_dirty_repo(self):
-        repo_resolver.resolve(test_dir, commit_dependency)
-
-        folder_path = os.path.join(test_dir, commit_dependency["Path"])
-        file_path = get_first_file(folder_path)
-        # make sure the file already exists
-        self.assertTrue(os.path.isfile(file_path))
-        out_file = open(file_path, "a+")
-        out_file.write("Make sure we don't delete this")
-        out_file.close()
-        self.assertTrue(os.path.exists(file_path))
-
-        with self.assertRaises(Exception):
-            repo_resolver.resolve(test_dir, commit_dependency, update_ok=True)
-
-        # Get passed this with ignore=true
-        repo_resolver.resolve(test_dir, commit_dependency, ignore=True)
-
-    def test_will_delete_dirty_repo(self):
-        repo_resolver.resolve(test_dir, commit_dependency)
-        folder_path = os.path.join(test_dir, commit_dependency["Path"])
-        file_path = get_first_file(folder_path)
-        # make sure the file already exists
-        self.assertTrue(os.path.isfile(file_path))
-        out_file = open(file_path, "a+")
-        out_file.write("Make sure we don't delete this")
-        out_file.close()
-        self.assertTrue(os.path.exists(file_path))
-
-        try:
-            repo_resolver.resolve(test_dir, commit_later_dependency, force=True)
-        except:
-            self.fail("We shouldn't fail when we are forcing")
-
-    # check to make sure we can clone a commit correctly
-    def test_clone_commit_repo(self):
-        # create an empty directory- and set that as the workspace
-        repo_resolver.resolve(test_dir, commit_dependency)
-        folder_path = os.path.join(test_dir, commit_dependency["Path"])
-        details = repo_resolver.repo_details(folder_path)
-
-        self.assertEqual(details["Url"], commit_dependency['Url'])
-        self.assertEqual(details["Head"]["HexSha"], commit_dependency['Commit'])
-
-    # check to make sure we support short commits
-    def test_clone_short_commit_repo(self):
-        repo_resolver.resolve(test_dir, short_commit_dependency)
-        folder_path = os.path.join(test_dir, short_commit_dependency["Path"])
-        details = repo_resolver.repo_details(folder_path)
-
-        self.assertEqual(details["Url"], short_commit_dependency['Url'])
-        self.assertEqual(details["Head"]["HexShaShort"], short_commit_dependency['Commit'])
-        # Resolve again, making sure we don't fail if repo already exists.
-        repo_resolver.resolve(test_dir, short_commit_dependency)
-
-    # check to make sure we can clone a commit correctly
-    def test_fail_update(self):
-        # create an empty directory- and set that as the workspace
-        repo_resolver.resolve(test_dir, commit_dependency)
-        folder_path = os.path.join(test_dir, commit_dependency["Path"])
-        details = repo_resolver.repo_details(folder_path)
-
-        self.assertEqual(details["Url"], commit_dependency['Url'])
-        self.assertEqual(details["Head"]["HexSha"], commit_dependency['Commit'])
-        # first we checkout
-        with self.assertRaises(Exception):
-            repo_resolver.resolve(test_dir, commit_later_dependency)
-
-        details = repo_resolver.repo_details(folder_path)
-        self.assertEqual(details["Url"], commit_dependency['Url'])
-        self.assertEqual(details["Head"]["HexSha"], commit_dependency['Commit'])
-
-    def test_does_update(self):
-        # create an empty directory- and set that as the workspace
-        logging.info(f"Resolving at {test_dir}")
-        repo_resolver.resolve(test_dir, commit_dependency)
-        folder_path = os.path.join(test_dir, commit_dependency["Path"])
-        logging.info(f"Getting details at {folder_path}")
-        details = repo_resolver.repo_details(folder_path)
-
-        self.assertEqual(details["Url"], commit_dependency['Url'])
-        self.assertEqual(details["Head"]["HexSha"], commit_dependency['Commit'])
-        # next we checkout and go to the later commit
-        try:
-            repo_resolver.resolve(
-                test_dir, commit_later_dependency, update_ok=True)
-        except:
-            self.fail("We are not supposed to throw an exception")
-        details = repo_resolver.repo_details(folder_path)
-        logging.info(f"Checking {folder_path} for current git commit")
-
-        self.assertEqual(details["Url"], commit_later_dependency['Url'])
-        self.assertEqual(details["Head"]["HexSha"], commit_later_dependency['Commit'])
-
-    def test_cant_switch_urls(self):
-        # create an empty directory- and set that as the workspace
-        repo_resolver.resolve(test_dir, branch_dependency)
-        folder_path = os.path.join(test_dir, branch_dependency["Path"])
-
-        details = repo_resolver.repo_details(folder_path)
-
-        self.assertEqual(details["Url"], branch_dependency['Url'])
-        # first we checkout
-        with self.assertRaises(Exception):
-            repo_resolver.resolve(test_dir, microsoft_branch_dependency)
-
-        details = repo_resolver.repo_details(folder_path)
-        self.assertEqual(details["Url"], branch_dependency['Url'])
-
-    def test_ignore(self):
-        # create an empty directory- and set that as the workspace
-        repo_resolver.resolve(test_dir, branch_dependency)
-        folder_path = os.path.join(test_dir, branch_dependency["Path"])
-
-        details = repo_resolver.repo_details(folder_path)
-
-        self.assertEqual(details["Url"], branch_dependency['Url'])
-        # first we checkout
-
-        repo_resolver.resolve(
-            test_dir, microsoft_branch_dependency, ignore=True)
-
-        details = repo_resolver.repo_details(folder_path)
-        self.assertEqual(details["Url"], branch_dependency['Url'])
-
-    def test_will_switch_urls(self):
-        # create an empty directory- and set that as the workspace
-        repo_resolver.resolve(test_dir, branch_dependency)
-
-        folder_path = os.path.join(test_dir, branch_dependency["Path"])
-
-        details = repo_resolver.repo_details(folder_path)
-
-        self.assertEqual(details["Url"], branch_dependency['Url'])
-        # first we checkout
-        try:
-            repo_resolver.resolve(
-                test_dir, microsoft_branch_dependency, force=True)
-        except:
-            self.fail("We shouldn't fail when we are forcing")
-
-        details = repo_resolver.repo_details(folder_path)
-        self.assertEqual(details["Url"], microsoft_branch_dependency['Url'])
-
-    def test_will_switch_branches(self):
-        repo_resolver.resolve(test_dir, branch_dependency)
-        folder_path = os.path.join(test_dir, branch_dependency["Path"])
-        repo_resolver.resolve(test_dir, sub_branch_dependency, force=True)
-        details = repo_resolver.repo_details(folder_path)
-        self.assertEqual(details["Url"], branch_dependency['Url'])
-        self.assertEqual(details["Branch"], sub_branch_dependency['Branch'])
-
-    def test_submodule(self):
-
-        class Submodule():
-            def __init__(self, path, recursive):
-                self.path = path
-                self.recursive = recursive
-
-        temp_folder = tempfile.mkdtemp()
-        submodule_path = "Common/MU_TIANO"
-        deps = {"Url": "https://github.com/microsoft/mu_tiano_platforms"}
-        repo_resolver.clone_repo(temp_folder, deps)
-
-        os.mkdir(os.path.join(temp_folder, "Build"))
-        tmp_file = os.path.join(temp_folder, "Build", "tempfile.txt")
-        with open(tmp_file, 'x') as f:
-            f.write("Temp edit")
-            self.assertTrue(os.path.isfile(tmp_file))
-
-            repo_resolver.clean(temp_folder, ignore_files=["Build/tempfile.txt"])
-            self.assertTrue(os.path.isfile(tmp_file))
-
-        repo_resolver.clean(temp_folder)
-        self.assertFalse(os.path.isfile(tmp_file))
-
-        repo_resolver.submodule_resolve(temp_folder, Submodule(submodule_path, True))
-
-        RemoveTree(temp_folder)
-
-
-def test_resolve_all(tmpdir: pathlib.Path):
-    deps = [
-        {
-            "Url": "https://github.com/octocat/Spoon-Knife",
-            "Path": "repo1",
-            "Commit": "a30c19e3f13765a3b48829788bc1cb8b4e95cee4"
-        },
-        {
-            "Url": "https://github.com/octocat/Spoon-Knife",
-            "Path": "repo2",
-            "Commit": "bb4cc8d3b2e14b3af5df699876dd4ff3acd00b7f"
-        },
-        {
-            "Url": "https://github.com/octocat/Spoon-Knife",
-            "Path": "repo3",
-            "Commit": "d0dd1f61b33d64e29d8bc1372a94ef6a2fee76a9"
-        },
-    ]
-
-    repos = repo_resolver.resolve_all(tmpdir, deps, force=True)
+    repos = repo_resolver.resolve_all(tmp_path, [d1, d2, d3], force=True)
 
     for repo in repos:
         assert len(list(pathlib.Path(repo).iterdir())) > 0
 
 
-def test_clone_from_with_reference(tmpdir: pathlib.Path):
-    # Clone the reference repo
-    ref_path = pathlib.Path(tmpdir / "ref")
-    dep = {"Url": "https://github.com/octocat/Spoon-Knife"}
-    repo_resolver.clone_repo(ref_path, dep)
-    assert len(list(ref_path.iterdir())) > 0
-
-    # Clone the repo from the reference
-    repo_path1 = pathlib.Path(tmpdir / "repo1")
-    dep = {"Url": "https://github.com/octocat/Spoon-Knife", "ReferencePath": ref_path}
-    repo_resolver.clone_repo(repo_path1, dep)
-    assert len(list(repo_path1.iterdir())) > 0
-
+def test_clone_from_with_bad_reference(tmp_path):
     # Clone the repo from a bad reference
-    repo_path2 = pathlib.Path(tmpdir / "repo2")
-    bad_repo_path = pathlib.Path(tmpdir / "bad_repo")
+    repo_path2 = tmp_path / "repo2"
+    bad_repo_path = tmp_path / "bad_repo"
     dep = {"Url": "https://github.com/octocat/Spoon-Knife", "ReferencePath": bad_repo_path}
     repo_resolver.clone_repo(repo_path2, dep)
     assert len(list(repo_path2.iterdir())) > 0
 
 
-def test_checkout_branch(tmpdir: pathlib.Path):
+def test_checkout_branch(tmp_path, octocat_dep):
     # Clone the repo
-    dep = {"Url": "https://github.com/octocat/Spoon-Knife", "Path": tmpdir, "Branch": "main"}
-    repo_resolver.clone_repo(tmpdir, dep)
-    details = repo_resolver.repo_details(tmpdir)
+    octocat_dep["Branch"] = "main"
+
+    repo_resolver.clone_repo(tmp_path, octocat_dep)
+    details = repo_resolver.repo_details(tmp_path)
     assert details["Branch"] == "main"
 
     # Checkout same branch
-    repo_resolver.checkout(tmpdir, dep)
-    details = repo_resolver.repo_details(tmpdir)
+    repo_resolver.checkout(tmp_path, octocat_dep)
+    details = repo_resolver.repo_details(tmp_path)
     assert details["Branch"] == "main"
 
     # Dep for the rest of the tests
-    dep = {"Url": "https://github.com/octocat/Spoon-Knife", "Path": tmpdir, "Branch": "test-branch"}
+    octocat_dep["Branch"] = "test-branch"
 
     # Checkout different branch with ignore_dep_state_mismatch
-    repo_resolver.checkout(tmpdir, dep, ignore_dep_state_mismatch=True)
-    details = repo_resolver.repo_details(tmpdir)
+    repo_resolver.checkout(tmp_path, octocat_dep, ignore_dep_state_mismatch=True)
+    details = repo_resolver.repo_details(tmp_path)
     assert details["Branch"] == "main"
 
     # Checkout different branch without force
     with pytest.raises(Exception):
-        repo_resolver.checkout(tmpdir, dep)
+        repo_resolver.checkout(tmp_path, octocat_dep)
 
     # Checkout different branch with force
-    repo_resolver.checkout(tmpdir, dep, force=True)
-    details = repo_resolver.repo_details(tmpdir)
+    repo_resolver.checkout(tmp_path, octocat_dep, force=True)
+    details = repo_resolver.repo_details(tmp_path)
     assert details["Branch"] == "test-branch"
 
 
-def test_checkout_bad_branch(tmpdir: pathlib.Path):
+def test_checkout_bad_branch(tmp_path, octocat_dep):
     # Clone the repo
-    dep = {"Url": "https://github.com/octocat/Spoon-Knife", "Path": tmpdir, "Branch": "main"}
-    repo_resolver.clone_repo(tmpdir, dep)
-    details = repo_resolver.repo_details(tmpdir)
+    octocat_dep["Branch"] = "main"
+
+    repo_resolver.clone_repo(tmp_path, octocat_dep)
+    details = repo_resolver.repo_details(tmp_path)
     assert details["Branch"] == "main"
 
     # Checkout bad branch without forcing
-    dep = {"Url": "https://github.com/octocat/Spoon-Knife", "Path": tmpdir, "Branch": "does not exist"}
+    octocat_dep["Branch"] = "does not exist"
+
     with pytest.raises(Exception):
-        repo_resolver.checkout(tmpdir, dep)
+        repo_resolver.checkout(tmp_path, octocat_dep)
 
     # Checkout bad branch with forcing
     with pytest.raises(repo_resolver.GitCommandError):
-        repo_resolver.checkout(tmpdir, dep, force=True)
+        repo_resolver.checkout(tmp_path, octocat_dep, force=True)
+
+
+def test_will_delete_dirty_repo(tmp_path, octocat_dep):
+    octocat_dep["Commit"] = "d0dd1f61b33d64e29d8bc1372a94ef6a2fee76a9"
+
+    repo_resolver.resolve(tmp_path, octocat_dep)
+    folder_path = tmp_path / octocat_dep["Path"]
+    file_path = get_first_file(folder_path)
+    # make sure the file already exists
+    assert file_path.is_file()
+
+    with open(file_path, "a+") as out_file:
+        out_file.write("Make sure we don't delete this")
+    assert file_path.exists()
+
+    octocat_dep["Commit"] = "bb4cc8d3b2e14b3af5df699876dd4ff3acd00b7f"
+
+    try:
+        repo_resolver.resolve(tmp_path, octocat_dep, force=True)
+    except:
+        pytest.fail("We shouldn't fail when we are forcing")
+
+
+def test_will_switch_branches(tmp_path, octocat_dep):
+    octocat_dep["Branch"] = "main"
+
+    repo_resolver.resolve(tmp_path, octocat_dep)
+    folder_path = tmp_path / octocat_dep["Path"]
+
+    octocat_dep["Branch"] = "test-branch"
+    repo_resolver.resolve(tmp_path, octocat_dep, force=True)
+
+    details = repo_resolver.repo_details(folder_path)
+    assert details["Url"] == octocat_dep["Url"]
+    assert details["Branch"] == octocat_dep["Branch"]
+
+
+# check to make sure that we can clone a branch correctly
+def test_clone_branch_repo(tmp_path, octocat_dep):
+    octocat_dep["Branch"] = "main"
+    
+    # create an empty directory- and set that as the workspace
+    repo_resolver.resolve(tmp_path, octocat_dep)
+    folder_path = tmp_path / octocat_dep["Path"]
+
+    details = repo_resolver.repo_details(folder_path)
+    assert details["Url"] == octocat_dep["Url"]
+    assert details["Branch"] == octocat_dep["Branch"]
+
+
+def test_clone_branch_existing_folder(tmp_path, octocat_dep):
+    # Resolve when folder exists but is empty
+    octocat_dep["Branch"] = "main"
+
+    folder_path = tmp_path / octocat_dep["Path"]
+    folder_path.mkdir(parents=True, exist_ok=True)
+
+    repo_resolver.resolve(tmp_path, octocat_dep)
+    details = repo_resolver.repo_details(folder_path)
+    assert details["Url"] == octocat_dep["Url"]
+    assert details["Branch"] == octocat_dep["Branch"]
+
+
+# don't create a git repo, create the folder, add a file, try to clone in the folder, it should throw an exception
+def test_wont_delete_files(tmp_path, octocat_dep):
+    octocat_dep["Branch"] = "main"
+    folder_path = tmp_path / octocat_dep["Path"]
+
+    folder_path.mkdir(parents=True, exist_ok=True)
+    file_path = folder_path / "test.txt"
+
+    with open(file_path, "w+") as out_file:
+        out_file.write("Make sure we don't delete this")
+
+    assert file_path.is_file()
+
+    with pytest.raises(Exception):
+        repo_resolver.resolve(tmp_path, octocat_dep)
+        pytest.fail("We shouldn't make it here")
+    assert file_path.is_file()
+
+
+# don't create a git repo, create the folder, add a file, try to clone in the folder, will force it to happen
+def test_will_delete_files(tmp_path, octocat_dep):
+    octocat_dep["Commit"] = "d0dd1f61b33d64e29d8bc1372a94ef6a2fee76a9"
+    folder_path = tmp_path / octocat_dep["Path"]
+    folder_path.mkdir(parents=True, exist_ok=True)
+    file_path = folder_path / "test.txt"
+    with open(file_path, "w+") as out_file:
+        out_file.write("Make sure we don't delete this")
+    assert file_path.exists()
+    try:
+        repo_resolver.resolve(tmp_path, octocat_dep, force=True)
+    except:
+        pytest.fail("We shouldn't fail when we are forcing")
+    details = repo_resolver.repo_details(folder_path)
+    assert details["Url"] == octocat_dep['Url']
+
+
+# don't create a git repo, create the folder, add a file, try to clone in the folder, will ignore it.
+def test_will_ignore_files(tmp_path, octocat_dep):
+    octocat_dep["Commit"] = "d0dd1f61b33d64e29d8bc1372a94ef6a2fee76a9"
+    folder_path = tmp_path / octocat_dep["Path"]
+    folder_path.mkdir(parents=True, exist_ok=True)
+    file_path = folder_path / "test.txt"
+    with open(file_path, "w+") as out_file:
+        out_file.write("Make sure we don't delete this")
+
+    assert file_path.exists()
+    repo_resolver.resolve(tmp_path, octocat_dep, ignore=True)
+
+
+def test_wont_delete_dirty_repo(tmp_path, octocat_dep):
+    octocat_dep["Commit"] = "d0dd1f61b33d64e29d8bc1372a94ef6a2fee76a9"
+    repo_resolver.resolve(tmp_path, octocat_dep)
+    folder_path = tmp_path / octocat_dep["Path"]
+
+    file_path = get_first_file(folder_path)
+    # make sure the file already exists
+    assert file_path.is_file()
+    with open(file_path, "a+") as out_file:
+        out_file.write("Make sure we don't delete this")
+
+    assert file_path.exists()
+
+    with pytest.raises(Exception):
+        repo_resolver.resolve(tmp_path, octocat_dep, update_ok=True)
+
+    # Get passed this with ignore=true
+    repo_resolver.resolve(tmp_path, octocat_dep, ignore=True)
+
+
+# check to make sure we can clone a commit correctly
+def test_clone_commit_repo(tmp_path, octocat_dep):
+    # create an empty directory- and set that as the workspace
+    octocat_dep["Commit"] = "d0dd1f61b33d64e29d8bc1372a94ef6a2fee76a9"
+    repo_resolver.resolve(tmp_path, octocat_dep)
+    folder_path = tmp_path / octocat_dep["Path"]
+    details = repo_resolver.repo_details(folder_path)
+
+    assert details["Url"] == octocat_dep['Url']
+    assert details["Head"]["HexSha"] == octocat_dep['Commit']
+
+
+# check to make sure we support short commits
+def test_clone_short_commit_repo(tmp_path, octocat_dep):
+    octocat_dep["Commit"] = "d0dd1f6"
+    repo_resolver.resolve(tmp_path, octocat_dep)
+    folder_path = tmp_path / octocat_dep["Path"]
+    details = repo_resolver.repo_details(folder_path)
+
+    assert details["Url"] == octocat_dep['Url']
+    assert details["Head"]["HexShaShort"] == octocat_dep['Commit']
+
+    # Resolve again, making sure we don't fail if repo already exists.
+    repo_resolver.resolve(tmp_path, octocat_dep)
+
+
+# check to make sure we can clone a commit correctly
+def test_fail_update(tmp_path, octocat_dep):
+    octocat_dep["Commit"] = "d0dd1f61b33d64e29d8bc1372a94ef6a2fee76a9"
+    # create an empty directory- and set that as the workspace
+    repo_resolver.resolve(tmp_path, octocat_dep)
+    folder_path = tmp_path / octocat_dep["Path"]
+    details = repo_resolver.repo_details(folder_path)
+
+    assert details["Url"] == octocat_dep['Url']
+    assert details["Head"]["HexSha"] == octocat_dep['Commit']
+
+    # first we checkout
+    dep = dict(octocat_dep)
+    dep["Commit"] = "bb4cc8d3b2e14b3af5df699876dd4ff3acd00b7f"
+    with pytest.raises(Exception):
+        repo_resolver.resolve(tmp_path, dep)
+
+    details = repo_resolver.repo_details(folder_path)
+    assert details["Url"] == octocat_dep['Url']
+    assert details["Head"]["HexSha"] == octocat_dep["Commit"]
+
+
+def test_does_update(tmp_path, octocat_dep):
+    # create an empty directory- and set that as the workspace
+    octocat_dep["Commit"] = "bb4cc8d3b2e14b3af5df699876dd4ff3acd00b7f"
+    repo_resolver.resolve(tmp_path, octocat_dep)
+    folder_path = tmp_path / octocat_dep["Path"]
+
+    details = repo_resolver.repo_details(folder_path)
+
+    assert details["Url"] == octocat_dep["Url"]
+    assert details["Head"]["HexSha"], octocat_dep["Commit"]
+
+    octocat_dep["Commit"] = "bb4cc8d3b2e14b3af5df699876dd4ff3acd00b7f"
+    # next we checkout and go to the later commit
+    try:
+        repo_resolver.resolve(tmp_path, octocat_dep, update_ok=True)
+    except:
+        pytest.fail("We are not supposed to throw an exception")
+
+    details = repo_resolver.repo_details(folder_path)
+
+    assert details["Url"] == octocat_dep["Url"]
+    assert details["Head"]["HexSha"], octocat_dep["Commit"]
+
+
+def test_cant_switch_urls(tmp_path, octocat_dep):
+    # create an empty directory- and set that as the workspace
+    octocat_dep["Branch"] = "main"
+    repo_resolver.resolve(tmp_path, octocat_dep)
+    folder_path = tmp_path / octocat_dep["Path"]
+
+    details = repo_resolver.repo_details(folder_path)
+
+    assert details["Url"] == octocat_dep["Url"]
+
+    # first we checkout
+    hello_world_dep = dict(octocat_dep)
+    hello_world_dep["Url"] = "https://github.com/octocat/Hello-World"
+    with pytest.raises(Exception):
+        repo_resolver.resolve(tmp_path, hello_world_dep)
+
+    details = repo_resolver.repo_details(folder_path)
+    assert details["Url"] == octocat_dep['Url']
+
+
+def test_ignore(tmp_path, octocat_dep):
+    # create an empty directory- and set that as the workspace
+    octocat_dep["Branch"] = "bb4cc8d3b2e14b3af5df699876dd4ff3acd00b7f"
+    repo_resolver.resolve(tmp_path, octocat_dep)
+    folder_path = tmp_path / octocat_dep["Path"]
+
+    details = repo_resolver.repo_details(folder_path)
+
+    assert details["Url"] == octocat_dep['Url']
+
+    # first we checkout
+    hello_world_dep = dict(octocat_dep)
+    hello_world_dep["Url"] = "https://github.com/octocat/Hello-World"
+    repo_resolver.resolve(tmp_path, hello_world_dep, ignore=True)
+
+    details = repo_resolver.repo_details(folder_path)
+    assert details["Url"] == octocat_dep['Url']
+
+
+def test_will_switch_urls(tmp_path, octocat_dep):
+    octocat_dep["Branch"] = "main"
+    # create an empty directory- and set that as the workspace
+    repo_resolver.resolve(tmp_path, octocat_dep)
+
+    folder_path = tmp_path / octocat_dep["Path"]
+
+    details = repo_resolver.repo_details(folder_path)
+
+    assert details["Url"] == octocat_dep['Url']
+
+    # first we checkout
+    hello_world_dep = dict(octocat_dep)
+    hello_world_dep["Url"] = "https://github.com/octocat/Hello-World"
+    hello_world_dep["Branch"] = "master"
+    try:
+        repo_resolver.resolve(tmp_path, hello_world_dep, force=True)
+    except:
+        pytest.fail("We shouldn't fail when we are forcing")
+
+    details = repo_resolver.repo_details(folder_path)
+    assert details["Url"] == hello_world_dep['Url']
+
+
+def test_submodule(tmp_path):
+
+    class Submodule():
+        def __init__(cls, path, recursive):
+            cls.path = path
+            cls.recursive = recursive
+
+    submodule_path = "Common/MU_TIANO"
+    deps = {"Url": "https://github.com/microsoft/mu_tiano_platforms"}
+    repo_resolver.clone_repo(tmp_path, deps)
+
+    build_folder = tmp_path / "Build"
+    build_folder.mkdir(parents=True, exist_ok=True)
+    tmp_file = build_folder / "tempfile.txt"
+    with open(tmp_file, 'x') as f:
+        f.write("Temp edit")
+        assert tmp_file.is_file()
+
+        repo_resolver.clean(tmp_path, ignore_files=["Build/tempfile.txt"])
+        assert tmp_file.is_file()
+
+    repo_resolver.clean(tmp_path)
+    assert tmp_file.is_file() is False
+
+    repo_resolver.submodule_resolve(tmp_path, Submodule(submodule_path, True))
+
+@pytest.fixture(scope="session")
+def octocat_ref(tmp_path_factory):
+    tmp_path = tmp_path_factory.mktemp("octocat")
+    dep = {
+        "Url": "https://github.com/octocat/Spoon-Knife",
+        "Path": tmp_path,
+        "Branch": "main",
+        "Full": True
+    }
+    repo_resolver.clone_repo(tmp_path, dep)
+    return tmp_path
+
+@pytest.fixture(scope="function")
+def octocat_dep(octocat_ref):
+    return {
+        "Url": "https://github.com/octocat/Spoon-Knife",
+        "Path": "test_repo",
+        "ReferencePath": octocat_ref
+    }
