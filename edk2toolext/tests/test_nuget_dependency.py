@@ -93,13 +93,14 @@ class TestNugetDependency(unittest.TestCase):
         self.assertEqual(ret, 0)  # make sure we have a zero return code
 
     def test_missing_nuget(self):
-
+        import pathlib
         if NugetDependency.NUGET_ENV_VAR_NAME in os.environ:
             del os.environ[NugetDependency.NUGET_ENV_VAR_NAME]
 
         # delete the package file
         original = NugetDependency.GetNugetCmd()[-1]  # get last item which will be exe path
-        os.remove(original)
+        os.chmod(original, 0o777)
+        pathlib.Path(original).unlink()
         path = NugetDependency.GetNugetCmd()
         self.assertIsNone(path)  # Should not be found
 
