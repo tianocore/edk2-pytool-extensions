@@ -6,14 +6,31 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
-import logging
-import os
-import unittest
 from edk2toolext.environment import repo_resolver
-from edk2toollib.utility_functions import RemoveTree
-import tempfile
 import pathlib
 import pytest
+
+
+@pytest.fixture(scope="session")
+def octocat_ref(tmp_path_factory):
+    tmp_path = tmp_path_factory.mktemp("octocat")
+    dep = {
+        "Url": "https://github.com/octocat/Spoon-Knife",
+        "Path": tmp_path,
+        "Branch": "main",
+        "Full": True
+    }
+    repo_resolver.clone_repo(tmp_path, dep)
+    return tmp_path
+
+
+@pytest.fixture(scope="function")
+def octocat_dep(octocat_ref):
+    return {
+        "Url": "https://github.com/octocat/Spoon-Knife",
+        "Path": "test_repo",
+        "ReferencePath": octocat_ref
+    }
 
 
 def get_first_file(folder: pathlib.Path) -> pathlib.Path:
@@ -131,8 +148,8 @@ def test_will_switch_branches(tmp_path, octocat_dep):
     assert details["Branch"] == octocat_dep["Branch"]
 
 
-# check to make sure that we can clone a branch correctly
 def test_clone_branch_repo(tmp_path, octocat_dep):
+    # check to make sure that we can clone a branch correctly
     octocat_dep["Branch"] = "main"
     
     # create an empty directory- and set that as the workspace
@@ -157,8 +174,8 @@ def test_clone_branch_existing_folder(tmp_path, octocat_dep):
     assert details["Branch"] == octocat_dep["Branch"]
 
 
-# don't create a git repo, create the folder, add a file, try to clone in the folder, it should throw an exception
 def test_wont_delete_files(tmp_path, octocat_dep):
+    # don't create a git repo, create the folder, add a file, try to clone in the folder, it should throw an exception
     octocat_dep["Branch"] = "main"
     folder_path = tmp_path / octocat_dep["Path"]
 
@@ -176,8 +193,8 @@ def test_wont_delete_files(tmp_path, octocat_dep):
     assert file_path.is_file()
 
 
-# don't create a git repo, create the folder, add a file, try to clone in the folder, will force it to happen
 def test_will_delete_files(tmp_path, octocat_dep):
+    # don't create a git repo, create the folder, add a file, try to clone in the folder, will force it to happen
     octocat_dep["Commit"] = "d0dd1f61b33d64e29d8bc1372a94ef6a2fee76a9"
     folder_path = tmp_path / octocat_dep["Path"]
     folder_path.mkdir(parents=True, exist_ok=True)
@@ -193,8 +210,8 @@ def test_will_delete_files(tmp_path, octocat_dep):
     assert details["Url"] == octocat_dep['Url']
 
 
-# don't create a git repo, create the folder, add a file, try to clone in the folder, will ignore it.
 def test_will_ignore_files(tmp_path, octocat_dep):
+    # don't create a git repo, create the folder, add a file, try to clone in the folder, will ignore it.
     octocat_dep["Commit"] = "d0dd1f61b33d64e29d8bc1372a94ef6a2fee76a9"
     folder_path = tmp_path / octocat_dep["Path"]
     folder_path.mkdir(parents=True, exist_ok=True)
@@ -226,8 +243,8 @@ def test_wont_delete_dirty_repo(tmp_path, octocat_dep):
     repo_resolver.resolve(tmp_path, octocat_dep, ignore=True)
 
 
-# check to make sure we can clone a commit correctly
 def test_clone_commit_repo(tmp_path, octocat_dep):
+    # check to make sure we can clone a commit correctly
     # create an empty directory- and set that as the workspace
     octocat_dep["Commit"] = "d0dd1f61b33d64e29d8bc1372a94ef6a2fee76a9"
     repo_resolver.resolve(tmp_path, octocat_dep)
@@ -238,8 +255,8 @@ def test_clone_commit_repo(tmp_path, octocat_dep):
     assert details["Head"]["HexSha"] == octocat_dep['Commit']
 
 
-# check to make sure we support short commits
 def test_clone_short_commit_repo(tmp_path, octocat_dep):
+    # check to make sure we support short commits
     octocat_dep["Commit"] = "d0dd1f6"
     repo_resolver.resolve(tmp_path, octocat_dep)
     folder_path = tmp_path / octocat_dep["Path"]
@@ -252,8 +269,8 @@ def test_clone_short_commit_repo(tmp_path, octocat_dep):
     repo_resolver.resolve(tmp_path, octocat_dep)
 
 
-# check to make sure we can clone a commit correctly
 def test_fail_update(tmp_path, octocat_dep):
+    # check to make sure we can clone a commit correctly
     octocat_dep["Commit"] = "d0dd1f61b33d64e29d8bc1372a94ef6a2fee76a9"
     # create an empty directory- and set that as the workspace
     repo_resolver.resolve(tmp_path, octocat_dep)
@@ -362,7 +379,6 @@ def test_will_switch_urls(tmp_path, octocat_dep):
 
 
 def test_submodule(tmp_path):
-
     class Submodule():
         def __init__(cls, path, recursive):
             cls.path = path
@@ -386,23 +402,3 @@ def test_submodule(tmp_path):
     assert tmp_file.is_file() is False
 
     repo_resolver.submodule_resolve(tmp_path, Submodule(submodule_path, True))
-
-@pytest.fixture(scope="session")
-def octocat_ref(tmp_path_factory):
-    tmp_path = tmp_path_factory.mktemp("octocat")
-    dep = {
-        "Url": "https://github.com/octocat/Spoon-Knife",
-        "Path": tmp_path,
-        "Branch": "main",
-        "Full": True
-    }
-    repo_resolver.clone_repo(tmp_path, dep)
-    return tmp_path
-
-@pytest.fixture(scope="function")
-def octocat_dep(octocat_ref):
-    return {
-        "Url": "https://github.com/octocat/Spoon-Knife",
-        "Path": "test_repo",
-        "ReferencePath": octocat_ref
-    }
