@@ -5,5 +5,5 @@ coverage == 7.1.0
 pyopenssl == 23.0.0
 pefile == 2023.2.7
 semantic_version == 2.10.0
-GitPython == 3.1.30
+GitPython == 3.1.31
 pyyaml == 6.0.0
