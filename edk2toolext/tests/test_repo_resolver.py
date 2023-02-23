@@ -151,7 +151,7 @@ def test_will_switch_branches(tmp_path, octocat_dep):
 def test_clone_branch_repo(tmp_path, octocat_dep):
     # check to make sure that we can clone a branch correctly
     octocat_dep["Branch"] = "main"
-    
+
     # create an empty directory- and set that as the workspace
     repo_resolver.resolve(tmp_path, octocat_dep)
     folder_path = tmp_path / octocat_dep["Path"]
