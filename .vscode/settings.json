@@ -1,7 +1,7 @@
 {
   "python.testing.pytestEnabled": true,
   "python.testing.pytestArgs": [
-    "edk2toolext/tests"
+    "${workspaceFolder}/edk2toolext/tests"
   ],
   "python.testing.unittestEnabled": false,
   "python.linting.flake8Enabled": true,
