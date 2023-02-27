@@ -7,9 +7,10 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 import unittest
+import pytest
 from edk2toolext.environment import uefi_build
-from edk2toolext.environment.plugintypes import uefi_helper_plugin
-from edk2toolext.environment.plugin_manager import PluginManager
+from edk2toolext.environment.plugintypes import uefi_helper_plugin, uefi_build_plugin
+from edk2toolext.environment.plugin_manager import PluginManager, PluginDescriptor
 from edk2toollib.utility_functions import GetHostInfo
 import argparse
 import tempfile
@@ -18,6 +19,36 @@ import stat
 from inspect import cleandoc
 from edk2toolext.environment import shell_environment
 
+# Raise exceptions in Plugins to show that they successfuly execute.
+class _AllPlugin(uefi_build_plugin.IUefiBuildPlugin):
+    def runs_on(self, thebuilder) -> str:
+        return "all"
+    
+    def do_pre_build(self, thebuilder):
+        raise Exception
+
+    def do_post_build(self, thebuilder):
+        raise Exception
+
+class _SingleModulePlugin(uefi_build_plugin.IUefiBuildPlugin):
+    def runs_on(self, thebuilder) -> str:
+        return "single-module"
+
+    def do_pre_build(self, thebuilder):
+        raise Exception
+
+    def do_post_build(self, thebuilder):    
+        raise Exception
+
+class _MultiModulePlugin(uefi_build_plugin.IUefiBuildPlugin):
+    def runs_on(self, thebuilder) -> str:
+        return "multi-module"
+
+    def do_pre_build(self, thebuilder):
+        raise Exception
+
+    def do_post_build(self, thebuilder):
+        raise Exception
 
 class TestUefiBuild(unittest.TestCase):
 
@@ -160,8 +191,84 @@ class TestUefiBuild(unittest.TestCase):
         # file written by the build wrapper file exists
         self.assertTrue(os.path.isfile(test_file_path))
 
+    
     # TODO finish unit test
 
 
-if __name__ == '__main__':
-    unittest.main()
+def test_build_plugins():
+    builder = uefi_build.UefiBuilder()
+    builder.env = shell_environment.GetBuildVars()
+    builder.pm = PluginManager()
+
+    ####################################
+    # Test Valid Plugin for "all" type #
+    ####################################
+    plugin = PluginDescriptor.__new__(PluginDescriptor)
+    plugin.Obj = _AllPlugin()
+
+    ####################################
+    # a. Run on multi-module build     #
+    ####################################
+    builder.env.SetValue("BUILDMODULE", "", "Set in Test", overridable=True)
+    builder.pm.Descriptors = [plugin]
+    with pytest.raises(Exception):
+        builder.PreBuild()
+    with pytest.raises(Exception):
+        builder.PostBuild()
+
+    ####################################
+    # b. Run on single-module build    #
+    ####################################
+    builder.env.SetValue("BUILDMODULE", "Path/To/Module", "Set in Test", overridable=True)
+    with pytest.raises(Exception):
+        builder.PreBuild()  # plugin should run, so we should assert
+    with pytest.raises(Exception):
+        builder.PostBuild()  # plugin should run, so we should assert
+
+    ##############################################
+    # Test Valid Plugin for "single-module" type #
+    ##############################################
+    plugin = PluginDescriptor.__new__(PluginDescriptor)
+    plugin.Obj = _SingleModulePlugin()
+
+    ##############################################
+    # a. Run on multi-mode build                 #
+    ##############################################
+    builder.env.SetValue("BUILDMODULE", "", "Set in Test", overridable=True)
+    builder.pm.Descriptors = [plugin]
+    builder.PreBuild()  # Plugin should not run, so we should not assert
+    builder.PostBuild()  # Plugin should not run, so we should not assert
+
+    ##############################################
+    # b. Run on single-module build              #
+    ##############################################
+    builder.env.SetValue("BUILDMODULE", "Path/To/Module", "Set in Test", overridable=True)
+    builder.pm.Descriptors = [plugin]
+    with pytest.raises(Exception):
+        builder.PreBuild()  # plugin should run, so we should assert
+    with pytest.raises(Exception):
+        builder.PostBuild()  # plugin should run, so we should assert
+
+    #############################################
+    # Test Valid Plugin for "multi-module" type #
+    #############################################
+    plugin = PluginDescriptor.__new__(PluginDescriptor)
+    plugin.Obj = _MultiModulePlugin()
+
+    #############################################
+    # a. Run on multi-mode build                #
+    #############################################
+    builder.env.SetValue("BUILDMODULE", "", "Set in Test", overridable=True)
+    builder.pm.Descriptors = [plugin]
+    with pytest.raises(Exception):
+        builder.PreBuild()  # plugin should run, so we should assert
+    with pytest.raises(Exception):
+        builder.PostBuild()  # plugin should run, so we should assert
+
+    #############################################
+    # b. Run on single-module build             #
+    #############################################
+    builder.env.SetValue("BUILDMODULE", "Path/To/Module", "Set in Test", overridable=True)
+    builder.pm.Descriptors = [plugin]
+    builder.PreBuild()  # Plugin should not run, so we should not assert
+    builder.PostBuild()  # Plugin should not run, so we should not assert

@@ -355,7 +355,8 @@ class UefiBuilder(object):
         #
         for Descriptor in self.pm.GetPluginsOfClass(IUefiBuildPlugin):
             # Run the plugin only if it is supported for the build type.
-            if self._GetBuildType() not in Descriptor.Obj.runs_on_list(self):
+            runs_on = Descriptor.Obj.runs_on(self)
+            if runs_on != "all" and runs_on != self._GetBuildType():
                 continue
             rc = Descriptor.Obj.do_pre_build(self)
             if (rc != 0):
@@ -392,7 +393,8 @@ class UefiBuilder(object):
         #
         for Descriptor in self.pm.GetPluginsOfClass(IUefiBuildPlugin):
             # Run the plugin only if it is supported for the build type.
-            if self._GetBuildType() not in Descriptor.Obj.runs_on_list(self):
+            runs_on = Descriptor.Obj.runs_on(self)
+            if runs_on != "all" and runs_on != self._GetBuildType():
                 continue
             rc = Descriptor.Obj.do_post_build(self)
             if (rc != 0):
@@ -726,8 +728,8 @@ class UefiBuilder(object):
         return 0
 
     def _GetBuildType(self):
-        """Returns inf or dsc depending on the value of BUILDMODULE."""
+        """Returns the type of build depending on the value of BUILDMODULE."""
         mod = self.env.GetValue("BUILDMODULE")
         if (mod is not None and len(mod.strip()) > 0):
-            return "inf"
-        return "dsc"
+            return "single-module"
+        return "multi-module"
