@@ -19,16 +19,18 @@ import stat
 from inspect import cleandoc
 from edk2toolext.environment import shell_environment
 
+
 # Raise exceptions in Plugins to show that they successfuly execute.
 class _AllPlugin(uefi_build_plugin.IUefiBuildPlugin):
     def runs_on(self, thebuilder) -> str:
         return "all"
-    
+
     def do_pre_build(self, thebuilder):
         raise Exception
 
     def do_post_build(self, thebuilder):
         raise Exception
+
 
 class _SingleModulePlugin(uefi_build_plugin.IUefiBuildPlugin):
     def runs_on(self, thebuilder) -> str:
@@ -37,8 +39,9 @@ class _SingleModulePlugin(uefi_build_plugin.IUefiBuildPlugin):
     def do_pre_build(self, thebuilder):
         raise Exception
 
-    def do_post_build(self, thebuilder):    
+    def do_post_build(self, thebuilder):
         raise Exception
+
 
 class _MultiModulePlugin(uefi_build_plugin.IUefiBuildPlugin):
     def runs_on(self, thebuilder) -> str:
@@ -49,6 +52,7 @@ class _MultiModulePlugin(uefi_build_plugin.IUefiBuildPlugin):
 
     def do_post_build(self, thebuilder):
         raise Exception
+
 
 class TestUefiBuild(unittest.TestCase):
 
@@ -190,8 +194,6 @@ class TestUefiBuild(unittest.TestCase):
         # Check that the build wrapper ran successfully by checking that the
         # file written by the build wrapper file exists
         self.assertTrue(os.path.isfile(test_file_path))
-
-    
     # TODO finish unit test
 
 
