@@ -93,7 +93,7 @@ class GitDependency(ExternalDependency):
         """
         state_data = self.get_state_file_data()
         if state_data and state_data['verify'] is False:
-            logging.warn(f'{self.name} is unverified. Unexpected results may occur.')
+            logging.warning(f'{self.name} is unverified. Unexpected results may occur.')
             return True
 
         result = True

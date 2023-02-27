@@ -207,7 +207,7 @@ class TestVarDict(unittest.TestCase):
         self.assertEqual(v.GetValue("var1"), "")
         v.SetValue("var2", None, "Test Comment")
         self.assertNotEqual(v.GetValue("var2"), None)
-        self.failIf(not v.GetValue("var2"), "Should return True")
+        self.assertTrue(v.GetValue("var2"), "Should return True")
 
 
 if __name__ == '__main__':
