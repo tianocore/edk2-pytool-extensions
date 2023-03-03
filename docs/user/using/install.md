@@ -38,6 +38,7 @@ If using WSL, review
     ```cmd
     sudo apt install python3, python3-pip, python3-venv
     ```
+
 1. Ensure git 2.36.0 or greater is installed
 
 1. Install Nuget and dependencies:

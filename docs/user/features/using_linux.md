@@ -68,9 +68,9 @@ This can be unique from your windows username and password.
 
 ## Setting up Git
 
-As of Ubuntu-22.04, the provided git version does not meet the requirements of edk2-pytool-extensions including the latest 
-version when performing a `apt update` / `apt install git`. The following steps will need to be completed to install git 
-to the required version:
+As of Ubuntu-22.04, the provided git version does not meet the requirements of edk2-pytool-extensions including the
+latest version when performing a `apt update` / `apt install git`. The following steps will need to be completed to
+install git to the required version:
 
 ```cmd
     sudo add-apt-repository ppa:git-core/ppa
