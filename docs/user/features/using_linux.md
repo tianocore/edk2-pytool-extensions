@@ -27,7 +27,7 @@ Enable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform
 
 You might need to reboot to fully enable the WSL subsystem.
 Once you are rebooted, we can setup our distro.
-We are using Ubuntu-18.04 LTS.
+We are using Ubuntu-22.04 LTS.
 We now need to set it to use WSLv2.
 You use either of these commands
 
@@ -39,7 +39,7 @@ This will set the default WSL environment as version 2.
 Or you can set a specific distro to be version 2.
 
 ``` powershell
-wsl --set-version Ubuntu-18.04 2
+wsl --set-version Ubuntu-22.04 2
 ```
 
 This will take a few minutes. As it converts the distro to WSLv2.
@@ -53,18 +53,30 @@ You should see something like this:
 
 ``` powershell
  NAME            STATE           VERSION
-* Ubuntu-18.04    Stopped         2
+* Ubuntu-22.04    Stopped         2
 ```
 
 ## Starting your WSL Environment
 
 Starting your new environment is easy.
-Open the Ubuntu-18.04 app in your start menu or type `wsl` into the command window (note that this will launch your
-default instance, which may not be Ubuntu-18.04 if you have multiple environments installed).
+Open the Ubuntu-22.04 app in your start menu or type `wsl` into the command window (note that this will launch your
+default instance, which may not be Ubuntu-22.04 if you have multiple environments installed).
 
 When you first start the environment, it will do initial first time setup that may take a few minutes.
 It will prompt you for a new username and password.
 This can be unique from your windows username and password.
+
+## Setting up Git
+
+As of Ubuntu-22.04, the provided git version does not meet the requirements of edk2-pytool-extensions including the latest 
+version when performing a `apt update` / `apt install git`. The following steps will need to be completed to install git 
+to the required version:
+
+```cmd
+    sudo add-apt-repository ppa:git-core/ppa
+    sudo apt update
+    sudo apt install git
+```
 
 ## Setting up NuGet/Mono
 
@@ -75,10 +87,11 @@ See more information in the using_extdep document [here](https://github.com/tian
 
 ## Setting up other tools
 
-You'll need python3, which on Ubuntu 3.5 comes default (as of time of writing).
-Pip comes separately, so that will be need to be installed.
+You'll need python3 (See your version of edk2-pytool-extensions for the exact version of python3),
+which on Ubuntu-22.04 python 3.10 comes default. Pip comes separatel'y, so that will be need to be
+installed.
 
-## Setting up VS Code (optional)
+## Setting up VS Code (optional, reccomended)
 
 Visual Studio code makes developing in WSL much easier.
 This guide here is pretty informative: <https://code.visualstudio.com/docs/remote/wsl>

@@ -42,15 +42,15 @@ coverage of those unit tests. We require 100% unit test success
 | Windows Server 2019 | Python 3.9  | Edk2       | [![ewt1]][_it]    |
 | Windows Server 2019 | Python 3.10 | Edk2       | [![ewt2]][_it]    |
 | Windows Server 2019 | Python 3.11 | Edk2       | [![ewt3]][_it]    |
-| Linux Ubuntu 18.04  | Python 3.9  | Edk2       | [![eut1]][_i359]  |
-| Linux Ubuntu 18.04  | Python 3.10 | Edk2       | [![eut2]][_it]    |
-| Linux Ubuntu 18.04  | Python 3.11 | Edk2       | [![eut3]][_it]    |
+| Linux Ubuntu 20.04  | Python 3.9  | Edk2       | [![eut1]][_i359]  |
+| Linux Ubuntu 20.04  | Python 3.10 | Edk2       | [![eut2]][_it]    |
+| Linux Ubuntu 20.04  | Python 3.11 | Edk2       | [![eut3]][_it]    |
 | Windows Server 2022 | Python 3.9  | Project Mu | [![mwt1]][_it]    |
 | Windows Server 2022 | Python 3.10 | Project Mu | [![mwt2]][_it]    |
 | Windows Server 2022 | Python 3.11 | Project Mu | [![mwt3]][_it]    |
-| Linux Ubuntu 20.04  | Python 3.9  | Project Mu | [![mut1]][_i359]  |
-| Linux Ubuntu 20.04  | Python 3.10 | Project Mu | [![mut2]][_it]    |
-| Linux Ubuntu 20.04  | Python 3.11 | Project Mu | [![mut3]][_it]    |
+| Linux Ubuntu 22.04  | Python 3.9  | Project Mu | [![mut1]][_i359]  |
+| Linux Ubuntu 22.04  | Python 3.10 | Project Mu | [![mut2]][_it]    |
+| Linux Ubuntu 22.04  | Python 3.11 | Project Mu | [![mut3]][_it]    |
 
 ### Current Release
 
