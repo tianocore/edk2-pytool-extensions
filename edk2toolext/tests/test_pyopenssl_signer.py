@@ -50,7 +50,7 @@ python file as seen below this docstring.
 
 # spell-checker:disable
 # TESTCERT1 has no password
-TESTCERT1 = b'MIIJQQIBAzCCCQcGCSqGSIb3DQEHAaCCCPgEggj0MIII8D\
+TESTCERT1 = b"MIIJQQIBAzCCCQcGCSqGSIb3DQEHAaCCCPgEggj0MIII8D\
 CCA6cGCSqGSIb3DQEHBqCCA5gwggOUAgEAMIIDjQYJKoZIhvcNAQcBMBwGCi\
 qGSIb3DQEMAQYwDgQIlimkkLBfTQ8CAggAgIIDYAGQRMWf8SbXd6nZPL2o11\
 LF1JrXLCCc+RwJCDnAJD8cNFUwq4JrOc4qJOYr6QZwD//3LfHeNLwfsi+3RC\
@@ -102,10 +102,10 @@ UezFsMna+YaA/F2o9WIj9KPB+rdNh/KcbIJhpA2DSbbTPejHAk1TYBWall3B\
 2CfsFEIMjtuid/ggz/pUYCb88PN3BPoQ7GO/jv6Vi6F4oCQz+Y0srbmIStNj\
 qKXmc5OHIJoRkbrbFi4+2BeevncDADGrhl3heGWSmRlbOPxrryNrDPw7cbMS\
 UwIwYJKoZIhvcNAQkVMRYEFILT9pNixD3s66GdK3I48b/dr23DMDEwITAJBg\
-UrDgMCGgUABBTdiDC3a0y1gAbO1eZqveI3Zd0BrwQIFO8dSTjGLhMCAggA'
+UrDgMCGgUABBTdiDC3a0y1gAbO1eZqveI3Zd0BrwQIFO8dSTjGLhMCAggA"
 
 # TESTCERT2 has a password
-TESTCERT2 = b'MIIKaQIBAzCCCiUGCSqGSIb3DQEHAaCCChYEggoSMIIKDj\
+TESTCERT2 = b"MIIKaQIBAzCCCiUGCSqGSIb3DQEHAaCCChYEggoSMIIKDj\
 CCBg8GCSqGSIb3DQEHAaCCBgAEggX8MIIF+DCCBfQGCyqGSIb3DQEMCgECoI\
 IE/jCCBPowHAYKKoZIhvcNAQwBAzAOBAh8sw/XNGIGZwICB9AEggTYeUQ8gJ\
 GII6HPDeBx4bGH2zkS1ybw4hToh8c9UMd3gwDviCobjkSCidTGZPwkvcfPT8\
@@ -164,41 +164,35 @@ b1XMtzJcLPOs1/stapsf2C70KgvJ+zgGxob7xvpGLyHecn8ZlVer7jNkzbxD\
 xUOq2KAMBksmMAg0Tyc44jDOHiinR7sARTUcNncqP5qJ3d7v7DsCCQsiFD1x\
 NEyQpgrD5WAhSaKiZxDvvkj/GNNVXpdiFr8RGa/IlD0+JdiZ3ujt45OduOhs\
 ySr03eOImlzjA7MB8wBwYFKw4DAhoEFKn9FVak9/MKt1kvn+GIpIdTy/+pBB\
-R7oStX6AVc66qjoj9/dgAPJTqLBwICB9A='
+R7oStX6AVc66qjoj9/dgAPJTqLBwICB9A="
 # spell-checker:enable
 
 
 class Test_pyopenssl_signer(unittest.TestCase):
-
     def test_empty(self):
         with self.assertRaises((KeyError, ValueError)):
             pyopenssl_signer.sign(None, {}, {})
 
     def test_proper_options_good_key_no_pass(self):
-        signer = {
-            'key_file_format': 'pkcs12',
-            'key_data': b64decode(TESTCERT1)
-        }
+        signer = {"key_file_format": "pkcs12", "key_data": b64decode(TESTCERT1)}
         signature = {
-            'type': 'bare',
-            'encoding': 'binary',
-            'hash_alg': 'sha256',
-
+            "type": "bare",
+            "encoding": "binary",
+            "hash_alg": "sha256",
         }
         data = "Data for testing signer".encode()
         pyopenssl_signer.sign(data, signature, signer)
 
     def test_proper_options_good_key_pass(self):
         signer = {
-            'key_file_format': 'pkcs12',
-            'key_data': b64decode(TESTCERT2),
-            'key_file_password': 'password'
+            "key_file_format": "pkcs12",
+            "key_data": b64decode(TESTCERT2),
+            "key_file_password": "password",
         }
         signature = {
-            'type': 'bare',
-            'encoding': 'binary',
-            'hash_alg': 'sha256',
-
+            "type": "bare",
+            "encoding": "binary",
+            "hash_alg": "sha256",
         }
         data = "Data for testing signer".encode()
         pyopenssl_signer.sign(data, signature, signer)
@@ -206,15 +200,11 @@ class Test_pyopenssl_signer(unittest.TestCase):
     def test_proper_options_bad_key(self):
         # we're going to assume that we're
         with self.assertRaises(ValueError):
-            signer = {
-                'key_file_format': 'pkcs12',
-                'key_data': "hello there"
-            }
+            signer = {"key_file_format": "pkcs12", "key_data": "hello there"}
             signature = {
-                'type': 'bare',
-                'encoding': 'binary',
-                'hash_alg': 'sha256',
-
+                "type": "bare",
+                "encoding": "binary",
+                "hash_alg": "sha256",
             }
             pyopenssl_signer.sign(None, signature, signer)
 
@@ -222,15 +212,12 @@ class Test_pyopenssl_signer(unittest.TestCase):
         # we're going to assume that we're
         with self.assertRaises(ValueError):
             signature = {
-                'type': 'bad_type',
+                "type": "bad_type",
             }
             pyopenssl_signer.sign(None, signature, {})
 
     def test_invalid_type_options(self):
         # we're going to assume that we're
         with self.assertRaises(ValueError):
-            signature = {
-                'type': 'bare',
-                'type_options': 'not allowed'
-            }
+            signature = {"type": "bare", "type_options": "not allowed"}
             pyopenssl_signer.sign(None, signature, {})

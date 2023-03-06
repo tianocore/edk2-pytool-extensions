@@ -19,7 +19,6 @@ from edk2toolext.environment import version_aggregator
 
 
 class TestEdk2CiBuild(unittest.TestCase):
-
     minimalTree = None
 
     def setUp(self):
@@ -49,11 +48,11 @@ class TestEdk2CiBuild(unittest.TestCase):
 
     @classmethod
     def restart_logging(cls):
-        '''
+        """
         We restart logging as logging is closed at the end of edk2 invocables.
         We also initialize it at the start.
         Reloading is the easiest way to get fresh state
-        '''
+        """
         logging.shutdown()
         reload(logging)
 
@@ -73,35 +72,42 @@ class TestEdk2CiBuild(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(self.minimalTree, "Build")))
 
     def test_merge_config(self):
-        descriptor = {'descriptor_file': 'C:\\MyRepo\\.pytool\\Plugin\\MyPlugin1\\MyPlugin1_plug_in.yaml',
-                      'module': 'MyPlugin1',
-                      'name': 'My Plugin 1',
-                      'scope': 'cibuild'}
+        descriptor = {
+            "descriptor_file": "C:\\MyRepo\\.pytool\\Plugin\\MyPlugin1\\MyPlugin1_plug_in.yaml",
+            "module": "MyPlugin1",
+            "name": "My Plugin 1",
+            "scope": "cibuild",
+        }
 
         global_config = {
             "MyPlugin1": {
-                "MySetting1": 'global value 1',
-                "MySetting2": 'global value 2',
+                "MySetting1": "global value 1",
+                "MySetting2": "global value 2",
             },
-            "MyPlugin2": {
-                "MySetting2": 'global value 2'
-            }
+            "MyPlugin2": {"MySetting2": "global value 2"},
         }
         package_config = {
             "MyPlugin1": {
-                "MySetting1": 'package value 1',
-                "MySetting3": 'package value 3'
+                "MySetting1": "package value 1",
+                "MySetting3": "package value 3",
             },
-            "MyPlugin3": {
-                "MySetting3": 'package value 3'
-            }
+            "MyPlugin3": {"MySetting3": "package value 3"},
         }
         merged_config = {
-            "MySetting1": 'package value 1',
-            "MySetting2": 'global value 2',
-            "MySetting3": 'package value 3'
+            "MySetting1": "package value 1",
+            "MySetting2": "global value 2",
+            "MySetting3": "package value 3",
         }
 
-        self.assertDictEqual(Edk2CiBuild.merge_config(global_config, {}, descriptor), global_config["MyPlugin1"])
-        self.assertDictEqual(Edk2CiBuild.merge_config({}, package_config, descriptor), package_config["MyPlugin1"])
-        self.assertDictEqual(Edk2CiBuild.merge_config(global_config, package_config, descriptor), merged_config)
+        self.assertDictEqual(
+            Edk2CiBuild.merge_config(global_config, {}, descriptor),
+            global_config["MyPlugin1"],
+        )
+        self.assertDictEqual(
+            Edk2CiBuild.merge_config({}, package_config, descriptor),
+            package_config["MyPlugin1"],
+        )
+        self.assertDictEqual(
+            Edk2CiBuild.merge_config(global_config, package_config, descriptor),
+            merged_config,
+        )

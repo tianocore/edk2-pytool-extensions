@@ -14,7 +14,6 @@ from edk2toolext.environment.plugintypes.ci_build_plugin import ICiBuildPlugin
 
 
 class TestICiBuildPlugin(unittest.TestCase):
-
     def __init__(self, *args, **kwargs):
         self.test_dir = None
         super().__init__(*args, **kwargs)
@@ -58,8 +57,12 @@ class TestICiBuildPlugin(unittest.TestCase):
         self.assertTrue("directory is not an absolute path" in str(context.exception))
 
         with self.assertRaises(ValueError) as context:
-            plugin.WalkDirectoryForExtension(["test"], os.path.join(self.test_dir, "junkdir", "junk"), "")
-        self.assertTrue("directory is not a valid directory path" in str(context.exception))
+            plugin.WalkDirectoryForExtension(
+                ["test"], os.path.join(self.test_dir, "junkdir", "junk"), ""
+            )
+        self.assertTrue(
+            "directory is not a valid directory path" in str(context.exception)
+        )
 
         with self.assertRaises(TypeError) as context:
             plugin.WalkDirectoryForExtension([".py"], self.test_dir, "")
@@ -104,13 +107,19 @@ class TestICiBuildPlugin(unittest.TestCase):
         with open(os.path.join(nestedfolder, "file2.py"), "w") as the_file:
             the_file.write("hello 2")
 
-        result = plugin.WalkDirectoryForExtension([".txt", ".py"], self.test_dir, ["junk"])
+        result = plugin.WalkDirectoryForExtension(
+            [".txt", ".py"], self.test_dir, ["junk"]
+        )
         self.assertEqual(len(result), 1)
 
-        result = plugin.WalkDirectoryForExtension([".txt", ".py"], self.test_dir, ["file2"])
+        result = plugin.WalkDirectoryForExtension(
+            [".txt", ".py"], self.test_dir, ["file2"]
+        )
         self.assertEqual(len(result), 1)
 
-        result = plugin.WalkDirectoryForExtension([".txt", ".py"], self.test_dir, ["junk", "file2"])
+        result = plugin.WalkDirectoryForExtension(
+            [".txt", ".py"], self.test_dir, ["junk", "file2"]
+        )
         self.assertEqual(len(result), 0)
 
     def test_valid_parameters_ignore_caseinsensitive_WalkDirectoryForExtension(self):
@@ -126,13 +135,19 @@ class TestICiBuildPlugin(unittest.TestCase):
             the_file.write("hello 2")
 
         # case insensitive
-        result = plugin.WalkDirectoryForExtension([".txt", ".py"], self.test_dir, ["JUNK"])
+        result = plugin.WalkDirectoryForExtension(
+            [".txt", ".py"], self.test_dir, ["JUNK"]
+        )
         self.assertEqual(len(result), 1)
 
         # case insensitive + partial match
-        result = plugin.WalkDirectoryForExtension([".txt", ".py"], self.test_dir, ["FILE"])
+        result = plugin.WalkDirectoryForExtension(
+            [".txt", ".py"], self.test_dir, ["FILE"]
+        )
         self.assertEqual(len(result), 1)
 
         # case insensitive + all match including extension
-        result = plugin.WalkDirectoryForExtension([".txt", ".py"], self.test_dir, ["FILE2.py"])
+        result = plugin.WalkDirectoryForExtension(
+            [".txt", ".py"], self.test_dir, ["FILE2.py"]
+        )
         self.assertEqual(len(result), 1)

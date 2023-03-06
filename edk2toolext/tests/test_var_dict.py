@@ -102,7 +102,9 @@ class TestVarDict(unittest.TestCase):
     def test_var_dict_build_value_when_type_para_used(self):
         v = var_dict.VarDict()
         v.SetValue("bld_debug_test1", "build_d_value1", "build debug test 1 comment")
-        v.SetValue("bld_release_test1", "build_r_value1", "build release test 1 comment")
+        v.SetValue(
+            "bld_release_test1", "build_r_value1", "build release test 1 comment"
+        )
         ## confirm with correct build type debug
         vv = v.GetBuildValue("TEST1", "DEBUG")
         self.assertEqual("build_d_value1", vv)
@@ -210,5 +212,5 @@ class TestVarDict(unittest.TestCase):
         self.assertTrue(v.GetValue("var2"), "Should return True")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

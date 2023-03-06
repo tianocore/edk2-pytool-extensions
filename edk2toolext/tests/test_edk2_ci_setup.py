@@ -19,7 +19,6 @@ from edk2toolext.environment import version_aggregator
 
 
 class TestEdk2CiSetup(unittest.TestCase):
-
     minimalTree = None
 
     def setUp(self):
@@ -40,11 +39,11 @@ class TestEdk2CiSetup(unittest.TestCase):
 
     @classmethod
     def restart_logging(cls):
-        '''
+        """
         We restart logging as logging is closed at the end of edk2 invocables.
         We also initialize it at the start.
         Reloading is the easiest way to get fresh state
-        '''
+        """
         logging.shutdown()
         reload(logging)
 
@@ -73,7 +72,14 @@ class TestEdk2CiSetup(unittest.TestCase):
     def test_ci_setup_bad_omnicache_path(self):
         builder = Edk2CiBuildSetup()
         settings_file = os.path.join(self.minimalTree, "settings.py")
-        sys.argv = ["stuart_ci_setup", "-c", settings_file, "-v", "--omnicache", "does_not_exist"]
+        sys.argv = [
+            "stuart_ci_setup",
+            "-c",
+            settings_file,
+            "-v",
+            "--omnicache",
+            "does_not_exist",
+        ]
         try:
             builder.Invoke()
         except SystemExit as e:

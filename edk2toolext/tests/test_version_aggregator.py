@@ -51,12 +51,16 @@ class TestVersionAggregator(unittest.TestCase):
         # we're good to report the same thing twice as long as it matches
         version1.ReportVersion("test", "test", version_aggregator.VersionTypes.TOOL)
         with self.assertRaises(ValueError):
-            version1.ReportVersion("test", "test2", version_aggregator.VersionTypes.INFO)
+            version1.ReportVersion(
+                "test", "test2", version_aggregator.VersionTypes.INFO
+            )
 
     def test_GetInformation(self):
         version1 = version_aggregator.version_aggregator()
         test_ver = ["I think", "I exist"]
-        version1.ReportVersion("I think", "therefore", version_aggregator.VersionTypes.INFO)
+        version1.ReportVersion(
+            "I think", "therefore", version_aggregator.VersionTypes.INFO
+        )
         version1.ReportVersion("I exist", "proof", version_aggregator.VersionTypes.INFO)
         test2_ver = list(version1.GetAggregatedVersionInformation().keys())
         self.assertListEqual(test_ver, test2_ver)
@@ -81,5 +85,5 @@ class TestVersionAggregator(unittest.TestCase):
         self.assertEqual(len(version1.GetAggregatedVersionInformation()), 0)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

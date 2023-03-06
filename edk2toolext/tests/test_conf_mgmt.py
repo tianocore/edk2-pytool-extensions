@@ -13,7 +13,7 @@ import shutil
 import logging
 from edk2toolext.environment import conf_mgmt
 
-test_file_text = '''#
+test_file_text = """#
 #  Copyright (c) 2006 - 2018, Intel Corporation. All rights reserved.<BR>
 #  Portions copyright (c) 2008 - 2009, Apple Inc. All rights reserved.<BR>
 #  Portions copyright (c) 2011 - 2014, ARM Ltd. All rights reserved.<BR>
@@ -39,7 +39,7 @@ IDENTIFIER = Default TOOL_CHAIN_CONF
 
 # common path macros
 DEFINE VS2008_BIN      = ENV(VS2008_PREFIX)
-'''
+"""
 
 
 class TestConfMgmt(unittest.TestCase):
@@ -64,7 +64,9 @@ class TestConfMgmt(unittest.TestCase):
             f.write(f"#!VERSION={version}")
             logging.debug(f"Made file {filepath} with version {version}")
 
-    def make_edk2_files_dir(self, rootfolderpath, target_ver, tools_def_ver, build_rules_ver, is_template):
+    def make_edk2_files_dir(
+        self, rootfolderpath, target_ver, tools_def_ver, build_rules_ver, is_template
+    ):
         file_names = ["target", "tools_def", "build_rule"]
         versions = [target_ver, tools_def_ver, build_rules_ver]
         if is_template:
@@ -114,8 +116,7 @@ class TestConfMgmt(unittest.TestCase):
         self.assertEqual(c, "0.0")
 
     def test_invalid_version(self):
-        invalid_versions = ["1.2.3.4", "1.2.3", "Hello.1", "1.jk", "",
-                            "Wow", "Unknown"]
+        invalid_versions = ["1.2.3.4", "1.2.3", "Hello.1", "1.jk", "", "Wow", "Unknown"]
 
         p = os.path.join(self.test_dir, "test.txt")
         for a in invalid_versions:
@@ -262,5 +263,5 @@ class TestConfMgmt(unittest.TestCase):
             conf_mgmt.ConfMgmt().populate_conf_dir(conf, False, [temp])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

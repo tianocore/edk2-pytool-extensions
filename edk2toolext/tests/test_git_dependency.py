@@ -23,7 +23,7 @@ invalid_version = "762941318ee16e59d123456789049eec22f0d303"
 short_version = "7fd1a60"
 short_upper_version = "7FD1A60"
 
-hw_json_template = '''
+hw_json_template = """
 {
   "scope": "global",
   "type": "git",
@@ -32,7 +32,7 @@ hw_json_template = '''
   "version": "%s",
   "flags": []
 }
-'''
+"""
 
 
 def prep_workspace():
@@ -62,7 +62,7 @@ class TestGitDependency(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        logger = logging.getLogger('')
+        logger = logging.getLogger("")
         logger.addHandler(logging.NullHandler())
         unittest.installHandler()
 
@@ -76,7 +76,9 @@ class TestGitDependency(unittest.TestCase):
         with open(ext_dep_file_path, "w+") as ext_dep_file:
             ext_dep_file.write(hw_json_template % uptodate_version)
 
-        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep_descriptor = EDF.ExternDepDescriptor(
+            ext_dep_file_path
+        ).descriptor_contents
         ext_dep = GitDependency(ext_dep_descriptor)
         ext_dep.fetch()
         self.assertTrue(ext_dep.verify())
@@ -86,7 +88,9 @@ class TestGitDependency(unittest.TestCase):
         ext_dep_file_path = os.path.join(test_dir, "hw_ext_dep.json")
         with open(ext_dep_file_path, "w+") as ext_dep_file:
             ext_dep_file.write(hw_json_template % short_version)
-        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep_descriptor = EDF.ExternDepDescriptor(
+            ext_dep_file_path
+        ).descriptor_contents
         ext_dep = GitDependency(ext_dep_descriptor)
         ext_dep.fetch()
         self.assertTrue(ext_dep.verify())
@@ -96,7 +100,9 @@ class TestGitDependency(unittest.TestCase):
         ext_dep_file_path = os.path.join(test_dir, "hw_ext_dep.json")
         with open(ext_dep_file_path, "w+") as ext_dep_file:
             ext_dep_file.write(hw_json_template % short_upper_version)
-        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep_descriptor = EDF.ExternDepDescriptor(
+            ext_dep_file_path
+        ).descriptor_contents
         ext_dep = GitDependency(ext_dep_descriptor)
         ext_dep.fetch()
         self.assertTrue(ext_dep.verify())
@@ -107,7 +113,9 @@ class TestGitDependency(unittest.TestCase):
         with open(ext_dep_file_path, "w+") as ext_dep_file:
             ext_dep_file.write(hw_json_template % behind_one_version)
 
-        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep_descriptor = EDF.ExternDepDescriptor(
+            ext_dep_file_path
+        ).descriptor_contents
         ext_dep = GitDependency(ext_dep_descriptor)
         ext_dep.fetch()
         self.assertTrue(ext_dep.verify())
@@ -118,7 +126,9 @@ class TestGitDependency(unittest.TestCase):
         with open(ext_dep_file_path, "w+") as ext_dep_file:
             ext_dep_file.write(hw_json_template % invalid_version)
 
-        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep_descriptor = EDF.ExternDepDescriptor(
+            ext_dep_file_path
+        ).descriptor_contents
         ext_dep = GitDependency(ext_dep_descriptor)
         ext_dep.fetch()
         self.assertEqual(ext_dep.version, invalid_version)
@@ -129,7 +139,9 @@ class TestGitDependency(unittest.TestCase):
         with open(ext_dep_file_path, "w+") as ext_dep_file:
             ext_dep_file.write(hw_json_template % invalid_version)
 
-        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep_descriptor = EDF.ExternDepDescriptor(
+            ext_dep_file_path
+        ).descriptor_contents
         ext_dep = GitDependency(ext_dep_descriptor)
         self.assertFalse(ext_dep.verify())
 
@@ -138,7 +150,9 @@ class TestGitDependency(unittest.TestCase):
         with open(ext_dep_file_path, "w+") as ext_dep_file:
             ext_dep_file.write(hw_json_template % invalid_version)
 
-        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep_descriptor = EDF.ExternDepDescriptor(
+            ext_dep_file_path
+        ).descriptor_contents
         ext_dep = GitDependency(ext_dep_descriptor)
         os.makedirs(ext_dep._local_repo_root_path, exist_ok=True)
         self.assertFalse(ext_dep.verify())
@@ -148,10 +162,14 @@ class TestGitDependency(unittest.TestCase):
         with open(ext_dep_file_path, "w+") as ext_dep_file:
             ext_dep_file.write(hw_json_template % invalid_version)
 
-        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep_descriptor = EDF.ExternDepDescriptor(
+            ext_dep_file_path
+        ).descriptor_contents
         ext_dep = GitDependency(ext_dep_descriptor)
         os.makedirs(ext_dep._local_repo_root_path, exist_ok=True)
-        with open(os.path.join(ext_dep._local_repo_root_path, "testfile.txt"), 'a') as my_file:
+        with open(
+            os.path.join(ext_dep._local_repo_root_path, "testfile.txt"), "a"
+        ) as my_file:
             my_file.write("Test code\n")
         self.assertFalse(ext_dep.verify())
 
@@ -160,11 +178,15 @@ class TestGitDependency(unittest.TestCase):
         with open(ext_dep_file_path, "w+") as ext_dep_file:
             ext_dep_file.write(hw_json_template % uptodate_version)
 
-        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep_descriptor = EDF.ExternDepDescriptor(
+            ext_dep_file_path
+        ).descriptor_contents
         ext_dep = GitDependency(ext_dep_descriptor)
         ext_dep.fetch()
         # now write a new file
-        with open(os.path.join(ext_dep._local_repo_root_path, "testfile.txt"), 'a') as my_file:
+        with open(
+            os.path.join(ext_dep._local_repo_root_path, "testfile.txt"), "a"
+        ) as my_file:
             my_file.write("Test code to make repo dirty\n")
         self.assertFalse(ext_dep.verify())
 
@@ -173,7 +195,9 @@ class TestGitDependency(unittest.TestCase):
         with open(ext_dep_file_path, "w+") as ext_dep_file:
             ext_dep_file.write(hw_json_template % uptodate_version)
 
-        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep_descriptor = EDF.ExternDepDescriptor(
+            ext_dep_file_path
+        ).descriptor_contents
         ext_dep = GitDependency(ext_dep_descriptor)
         ext_dep.fetch()
         self.assertTrue(ext_dep.verify())
@@ -183,7 +207,9 @@ class TestGitDependency(unittest.TestCase):
         with open(ext_dep_file_path, "w+") as ext_dep_file:
             ext_dep_file.write(hw_json_template % behind_one_version)
 
-        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep_descriptor = EDF.ExternDepDescriptor(
+            ext_dep_file_path
+        ).descriptor_contents
         ext_dep = GitDependency(ext_dep_descriptor)
         ext_dep.fetch()
         self.assertTrue(ext_dep.verify(), "Confirm valid ext_dep at one commit behind")
@@ -191,7 +217,9 @@ class TestGitDependency(unittest.TestCase):
         with open(ext_dep_file_path, "w+") as ext_dep_file:
             ext_dep_file.write(hw_json_template % uptodate_version)
 
-        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep_descriptor = EDF.ExternDepDescriptor(
+            ext_dep_file_path
+        ).descriptor_contents
         ext_dep = GitDependency(ext_dep_descriptor)
         self.assertFalse(ext_dep.verify(), "Confirm downlevel repo fails to verify")
         ext_dep.fetch()
@@ -204,9 +232,14 @@ class TestGitDependency(unittest.TestCase):
         with open(ext_dep_file_path, "w+") as ext_dep_file:
             ext_dep_file.write(hw_json_template % uptodate_version)
 
-        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep_descriptor = EDF.ExternDepDescriptor(
+            ext_dep_file_path
+        ).descriptor_contents
         ext_dep = GitDependency(ext_dep_descriptor)
-        self.assertFalse(os.path.isdir(ext_dep.contents_dir), "Confirm not ext dep directory before cleaning")
+        self.assertFalse(
+            os.path.isdir(ext_dep.contents_dir),
+            "Confirm not ext dep directory before cleaning",
+        )
         ext_dep.clean()
         self.assertFalse(os.path.isdir(ext_dep.contents_dir))
 
@@ -215,10 +248,14 @@ class TestGitDependency(unittest.TestCase):
         with open(ext_dep_file_path, "w+") as ext_dep_file:
             ext_dep_file.write(hw_json_template % invalid_version)
 
-        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep_descriptor = EDF.ExternDepDescriptor(
+            ext_dep_file_path
+        ).descriptor_contents
         ext_dep = GitDependency(ext_dep_descriptor)
         os.makedirs(ext_dep._local_repo_root_path, exist_ok=True)
-        with open(os.path.join(ext_dep._local_repo_root_path, "testfile.txt"), 'a') as my_file:
+        with open(
+            os.path.join(ext_dep._local_repo_root_path, "testfile.txt"), "a"
+        ) as my_file:
             my_file.write("Test code\n")
         ext_dep.clean()
         self.assertFalse(os.path.isdir(ext_dep.contents_dir))
@@ -228,12 +265,16 @@ class TestGitDependency(unittest.TestCase):
         with open(ext_dep_file_path, "w+") as ext_dep_file:
             ext_dep_file.write(hw_json_template % uptodate_version)
 
-        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep_descriptor = EDF.ExternDepDescriptor(
+            ext_dep_file_path
+        ).descriptor_contents
         ext_dep = GitDependency(ext_dep_descriptor)
         ext_dep.fetch()
         self.assertTrue(ext_dep.verify(), "Confirm repo is valid")
         # now write a new file
-        with open(os.path.join(ext_dep._local_repo_root_path, "testfile.txt"), 'a') as my_file:
+        with open(
+            os.path.join(ext_dep._local_repo_root_path, "testfile.txt"), "a"
+        ) as my_file:
             my_file.write("Test code to make repo dirty\n")
         self.assertFalse(ext_dep.verify(), "Confirm repo is dirty")
         ext_dep.clean()
@@ -244,7 +285,9 @@ class TestGitDependency(unittest.TestCase):
         with open(ext_dep_file_path, "w+") as ext_dep_file:
             ext_dep_file.write(hw_json_template % uptodate_version)
 
-        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep_descriptor = EDF.ExternDepDescriptor(
+            ext_dep_file_path
+        ).descriptor_contents
         ext_dep = GitDependency(ext_dep_descriptor)
         ext_dep.fetch()
         self.assertTrue(ext_dep.verify(), "Confirm repo is valid and clean")
@@ -260,7 +303,7 @@ class TestGitDependencyUrlPatching(unittest.TestCase):
         "name": "HelloWorld",
         "source": "https://github.com/octocat/Hello-World.git",
         "version": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d",
-        "flags": []
+        "flags": [],
     }
 
     def tearDown(self):
@@ -278,42 +321,44 @@ class TestGitDependencyUrlPatching(unittest.TestCase):
     def test_url_should_not_be_modified_without_env(self):
         my_test_descriptor = copy.copy(TestGitDependencyUrlPatching.TEST_DESCRIPTOR)
         # Add the indicator for patching.
-        my_test_descriptor['url_creds_var'] = 'test_creds_var'
+        my_test_descriptor["url_creds_var"] = "test_creds_var"
 
         # Initialize the GitDependency object.
         git_dep = GitDependency(my_test_descriptor)
 
         # Assert that the URL is identical.
-        self.assertEqual(git_dep.source, my_test_descriptor['source'])
+        self.assertEqual(git_dep.source, my_test_descriptor["source"])
 
     def test_url_should_not_be_modified_without_descriptor_field(self):
         my_test_descriptor = copy.copy(TestGitDependencyUrlPatching.TEST_DESCRIPTOR)
 
         env = shell_environment.GetEnvironment()
         # Add the var to the environment.
-        env.set_shell_var('test_creds_var', 'my_stuff')
+        env.set_shell_var("test_creds_var", "my_stuff")
 
         # Initialize the GitDependency object.
         git_dep = GitDependency(my_test_descriptor)
 
         # Assert that the URL is identical.
-        self.assertEqual(git_dep.source, my_test_descriptor['source'])
+        self.assertEqual(git_dep.source, my_test_descriptor["source"])
 
     def test_url_should_be_modified_if_creds_are_indicated_and_supplied(self):
         my_test_descriptor = copy.copy(TestGitDependencyUrlPatching.TEST_DESCRIPTOR)
         # Add the indicator for patching.
-        my_test_descriptor['url_creds_var'] = 'test_creds_var'
+        my_test_descriptor["url_creds_var"] = "test_creds_var"
 
         env = shell_environment.GetEnvironment()
         # Add the var to the environment.
-        env.set_shell_var('test_creds_var', 'my_stuff')
+        env.set_shell_var("test_creds_var", "my_stuff")
 
         # Initialize the GitDependency object.
         git_dep = GitDependency(my_test_descriptor)
 
         # Assert that the URL is identical.
-        self.assertEqual(git_dep.source, "https://my_stuff@github.com/octocat/Hello-World.git")
+        self.assertEqual(
+            git_dep.source, "https://my_stuff@github.com/octocat/Hello-World.git"
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

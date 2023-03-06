@@ -12,7 +12,6 @@ from edk2toolext.capsule import signtool_signer
 
 
 class Test_signtool_signer(unittest.TestCase):
-
     @unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
     def test_get_path(self):
         path = signtool_signer.get_signtool_path()
@@ -20,9 +19,7 @@ class Test_signtool_signer(unittest.TestCase):
 
     @unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
     def test_sign_with_bad_options(self):
-        signature = {
-            "type": "test"
-        }
+        signature = {"type": "test"}
         signer = {}
         with self.assertRaises(ValueError):
             signtool_signer.sign(None, signature, signer)
@@ -33,12 +30,9 @@ class Test_signtool_signer(unittest.TestCase):
             "type": "pkcs7",
             "type_options": ["embedded"],
             "encoding": "DER",
-            "hash_alg": "sha256"
+            "hash_alg": "sha256",
         }
-        signer = {
-            "key_file": "file.txt",
-            "key_file_format": "pkcs12"
-        }
+        signer = {"key_file": "file.txt", "key_file_format": "pkcs12"}
         with self.assertRaises(RuntimeError):
             signtool_signer.sign(b"data", signature, signer)
 
@@ -46,7 +40,7 @@ class Test_signtool_signer(unittest.TestCase):
     def test_sign_with_mutually_exclusive_options(self):
         signature = {
             "type": "pkcs7",
-            "type_options": ["embedded", "detachedSignedData"]
+            "type_options": ["embedded", "detachedSignedData"],
         }
         signer = {}
         with self.assertRaises(ValueError):
@@ -54,7 +48,7 @@ class Test_signtool_signer(unittest.TestCase):
 
         signature = {
             "type": "pkcs7",
-            "type_options": ["pkcs7DetachedSignedData", "detachedSignedData"]
+            "type_options": ["pkcs7DetachedSignedData", "detachedSignedData"],
         }
         signer = {}
         with self.assertRaises(ValueError):
@@ -62,7 +56,7 @@ class Test_signtool_signer(unittest.TestCase):
 
         signature = {
             "type": "pkcs7",
-            "type_options": ["pkcs7DetachedSignedData", "embedded"]
+            "type_options": ["pkcs7DetachedSignedData", "embedded"],
         }
         signer = {}
         with self.assertRaises(ValueError):
@@ -70,7 +64,11 @@ class Test_signtool_signer(unittest.TestCase):
 
         signature = {
             "type": "pkcs7",
-            "type_options": ["detachedSignedData", "pkcs7DetachedSignedData", "embedded"]
+            "type_options": [
+                "detachedSignedData",
+                "pkcs7DetachedSignedData",
+                "embedded",
+            ],
         }
         signer = {}
         with self.assertRaises(ValueError):

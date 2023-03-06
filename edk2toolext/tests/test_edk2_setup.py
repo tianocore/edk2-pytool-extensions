@@ -121,7 +121,7 @@ def tree(tmpdir):
 def write_build_file(tree, file):
     """Writes the requested build file to the base of the tree."""
     build_file = tree / "BuildFile.py"
-    with open(build_file, 'x') as f:
+    with open(build_file, "x") as f:
         f.write(file)
     return build_file
 
@@ -161,7 +161,7 @@ def test_setup_simple_repo(tree: pathlib.Path):
     # Dirty a submodule file and verify we skip without --FORCE #
     #############################################################
     min_build_file = write_build_file(tree, MIN_BUILD_FILE)
-    with open(mu_submodule / "License.txt", 'a') as f:
+    with open(mu_submodule / "License.txt", "a") as f:
         f.write("TEST")
 
     with git.Repo(mu_submodule) as repo:
@@ -196,7 +196,14 @@ def test_setup_bad_omnicache(caplog, tree: pathlib.Path):
     """Tests that edk2_setup catches a bad omnicache path."""
     caplog.at_level(logging.WARNING)  # Capture only warnings
     empty_build_file = write_build_file(tree, EMPTY_BUILD_FILE)
-    sys.argv = ["stuart_setup", "-c", str(empty_build_file), "-v", "--omnicache", "does_not_exist"]
+    sys.argv = [
+        "stuart_setup",
+        "-c",
+        str(empty_build_file),
+        "-v",
+        "--omnicache",
+        "does_not_exist",
+    ]
 
     try:
         edk2_setup.main()
@@ -242,13 +249,15 @@ def test_parse_command_line_options(tree: pathlib.Path):
     # Test valid command line options
     empty_build_file = write_build_file(tree, EMPTY_BUILD_FILE)
     sys.argv = [
-        "stuart_setup", "-c", str(empty_build_file),
+        "stuart_setup",
+        "-c",
+        str(empty_build_file),
         "BLD_*_VAR",
         "VAR",
         "BLD_DEBUG_VAR2",
         "BLD_RELEASE_VAR2",
         "TEST_VAR=TEST",
-        "BLD_*_TEST_VAR2=TEST"
+        "BLD_*_TEST_VAR2=TEST",
     ]
     try:
         edk2_setup.main()
@@ -264,12 +273,13 @@ def test_parse_command_line_options(tree: pathlib.Path):
     assert env.GetValue("BLD_*_TEST_VAR2") == "TEST"
 
     # Test invalid command line options
-    for arg in ["BLD_*_VAR=5=10", "BLD_DEBUG_VAR2=5=5", "BLD_RELEASE_VAR3=5=5", "VAR=10=10"]:
-        sys.argv = [
-            "stuart_setup",
-            "-c", str(empty_build_file),
-            arg
-        ]
+    for arg in [
+        "BLD_*_VAR=5=10",
+        "BLD_DEBUG_VAR2=5=5",
+        "BLD_RELEASE_VAR3=5=5",
+        "VAR=10=10",
+    ]:
+        sys.argv = ["stuart_setup", "-c", str(empty_build_file), arg]
         try:
             edk2_setup.main()
         except RuntimeError as e:
@@ -279,16 +289,18 @@ def test_parse_command_line_options(tree: pathlib.Path):
 def test_conf_file(tree: pathlib.Path):
     """Tests that the config file parser works correctly."""
     empty_build_file = write_build_file(tree, EMPTY_BUILD_FILE)
-    build_conf = tree / 'BuildConfig.conf'
-    with open(build_conf, 'x') as f:
-        f.writelines([
-            "BLD_*_VAR",
-            "\nVAR",
-            "\nBLD_DEBUG_VAR2",
-            "\nBLD_RELEASE_VAR2",
-            "\nTEST_VAR=TEST",
-            "\nBLD_*_TEST_VAR2=TEST"
-        ])
+    build_conf = tree / "BuildConfig.conf"
+    with open(build_conf, "x") as f:
+        f.writelines(
+            [
+                "BLD_*_VAR",
+                "\nVAR",
+                "\nBLD_DEBUG_VAR2",
+                "\nBLD_RELEASE_VAR2",
+                "\nTEST_VAR=TEST",
+                "\nBLD_*_TEST_VAR2=TEST",
+            ]
+        )
     sys.argv = ["stuart_setup", "-c", str(empty_build_file)]
 
     try:
@@ -305,16 +317,17 @@ def test_conf_file(tree: pathlib.Path):
     assert env.GetValue("BLD_*_TEST_VAR2") == "TEST"
 
     # Test invalid build config
-    for arg in ["BLD_*_VAR=5=10", "BLD_DEBUG_VAR2=5=5", "BLD_RELEASE_VAR3=5=5", "VAR=10=10"]:
+    for arg in [
+        "BLD_*_VAR=5=10",
+        "BLD_DEBUG_VAR2=5=5",
+        "BLD_RELEASE_VAR3=5=5",
+        "VAR=10=10",
+    ]:
         build_conf.unlink()
-        with open(build_conf, 'x') as f:
+        with open(build_conf, "x") as f:
             f.writelines([arg])
 
-        sys.argv = [
-            "stuart_setup",
-            "-c", str(empty_build_file),
-            arg
-        ]
+        sys.argv = ["stuart_setup", "-c", str(empty_build_file), arg]
         try:
             edk2_setup.main()
         except RuntimeError as e:
