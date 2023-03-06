@@ -26,7 +26,8 @@ class MultipleWorkspace(object):
         WORKSPACE (str): defined the current workspace
         PACKAGES_PATH (str): defined the other WORKSPACE
     """
-    WORKSPACE = ''
+
+    WORKSPACE = ""
     PACKAGES_PATH = None
 
     @classmethod
@@ -42,7 +43,7 @@ class MultipleWorkspace(object):
             (str): Converted path.
         """
         if str(os.path.normcase(Path)).startswith(Ws):
-            return os.path.join(Ws, Path[len(Ws) + 1:])
+            return os.path.join(Ws, Path[len(Ws) + 1 :])
         return Path
 
     @classmethod
@@ -56,8 +57,10 @@ class MultipleWorkspace(object):
         """
         cls.WORKSPACE = Ws
         if PackagesPath:
-            cls.PACKAGES_PATH = [cls.convertPackagePath(Ws, os.path.normpath(
-                Path.strip())) for Path in PackagesPath.split(os.pathsep)]
+            cls.PACKAGES_PATH = [
+                cls.convertPackagePath(Ws, os.path.normpath(Path.strip()))
+                for Path in PackagesPath.split(os.pathsep)
+            ]
         else:
             cls.PACKAGES_PATH = []
 
@@ -134,7 +137,7 @@ class MultipleWorkspace(object):
         Returns:
             (Str): Path string including the $(WORKSPACE)
         """
-        TAB_WORKSPACE = '$(WORKSPACE)'
+        TAB_WORKSPACE = "$(WORKSPACE)"
         if TAB_WORKSPACE in PathStr:
             PathList = PathStr.split()
             if PathList:
@@ -149,7 +152,7 @@ class MultipleWorkspace(object):
                                 if os.path.exists(Path):
                                     break
                         PathList[i] = str[0:MacroStartPos] + Path
-            PathStr = ' '.join(PathList)
+            PathStr = " ".join(PathList)
         return PathStr
 
     @classmethod

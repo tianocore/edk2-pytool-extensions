@@ -35,6 +35,7 @@ class AzureCliUniversalDependency(ExternalDependency):
     !!! tip
         The attributes are what must be described in the ext_dep yaml file!
     """
+
     TypeString = "az-universal"
 
     # https://docs.microsoft.com/en-us/azure/devops/cli/log-in-via-pat?view=azure-devops&tabs=windows
@@ -68,15 +69,17 @@ class AzureCliUniversalDependency(ExternalDependency):
                     break
 
         # Log the versions found
-        for (k, v) in found.items():
-            version_aggregator.GetVersionAggregator().ReportVersion(k, v, version_aggregator.VersionTypes.TOOL)
+        for k, v in found.items():
+            version_aggregator.GetVersionAggregator().ReportVersion(
+                k, v, version_aggregator.VersionTypes.TOOL
+            )
 
         # Check requirements
 
         # 1 - az cli tool missing will raise exception on call to az --version earlier in function
 
         # 2 - Check for azure-devops extension
-        if 'azure-devops' not in found.keys():
+        if "azure-devops" not in found.keys():
             logging.critical("Missing required Azure-cli extension azure-devops")
             raise EnvironmentError("Missing required Azure-cli extension azure-devops")
 
@@ -87,10 +90,10 @@ class AzureCliUniversalDependency(ExternalDependency):
         super().__init__(descriptor)
         self.global_cache_path = None
         self.organization = self.source
-        self.feed = descriptor.get('feed')
-        self.project = descriptor.get('project', None)
-        self.file_filter = descriptor.get('file-filter', None)
-        _pat_var = descriptor.get('pat_var', None)
+        self.feed = descriptor.get("feed")
+        self.project = descriptor.get("project", None)
+        self.file_filter = descriptor.get("file-filter", None)
+        _pat_var = descriptor.get("pat_var", None)
         self._pat = None
 
         if _pat_var is not None:
@@ -129,16 +132,24 @@ class AzureCliUniversalDependency(ExternalDependency):
             e[self.AZURE_CLI_DEVOPS_ENV_VAR] = self._pat
 
         results = StringIO()
-        RunCmd(cmd[0], " ".join(cmd[1:]), outstream=results, environ=e, raise_exception_on_nonzero=True)
+        RunCmd(
+            cmd[0],
+            " ".join(cmd[1:]),
+            outstream=results,
+            environ=e,
+            raise_exception_on_nonzero=True,
+        )
         # az tool returns json data that includes the downloaded version
         # lets check it to double confirm
         result_data = json.loads(results.getvalue())
         results.close()
-        downloaded_version = result_data['Version']
+        downloaded_version = result_data["Version"]
         if self.version != downloaded_version:
             self.version = downloaded_version  # set it so state file is accurate and will fail on verify
-            raise Exception("Download Universal Package version (%s) different than requested (%s)." %
-                            (downloaded_version, self.version))
+            raise Exception(
+                "Download Universal Package version (%s) different than requested (%s)."
+                % (downloaded_version, self.version)
+            )
 
     def fetch(self):
         """Fetches the dependency using internal state from the init."""

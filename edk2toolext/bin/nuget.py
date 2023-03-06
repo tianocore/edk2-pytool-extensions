@@ -38,7 +38,9 @@ def DownloadNuget(unpack_folder: str = None) -> list:
     if not os.path.isfile(out_file_name):
         try:
             # Download the file and save it locally under `temp_file_name`
-            with urllib.request.urlopen(URL) as response, open(out_file_name, 'wb') as out_file:
+            with urllib.request.urlopen(URL) as response, open(
+                out_file_name, "wb"
+            ) as out_file:
                 out_file.write(response.read())
         except urllib.error.HTTPError as e:
             logging.error("We ran into an issue when getting NuGet")
@@ -47,7 +49,10 @@ def DownloadNuget(unpack_folder: str = None) -> list:
     # do the hash to make sure the file is good
     with open(out_file_name, "rb") as file:
         import hashlib
+
         temp_file_sha256 = hashlib.sha256(file.read()).hexdigest()
     if temp_file_sha256.lower() != SHA256.lower():
         os.remove(out_file_name)
-        raise RuntimeError(f"Nuget.exe download - sha256 does not match\n\tdownloaded:\t{temp_file_sha256}\n\t")
+        raise RuntimeError(
+            f"Nuget.exe download - sha256 does not match\n\tdownloaded:\t{temp_file_sha256}\n\t"
+        )

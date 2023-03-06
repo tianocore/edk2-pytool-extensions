@@ -43,7 +43,9 @@ def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=F
     git_path = os.path.abspath(file_system_path)
 
     # check if we have a path in our dependency
-    if "Path" in dependency and not git_path.endswith(os.path.relpath(dependency["Path"])):
+    if "Path" in dependency and not git_path.endswith(
+        os.path.relpath(dependency["Path"])
+    ):
         # if we don't already the the path from the dependency at the end of the path we've been giving
         git_path = os.path.join(git_path, dependency["Path"])
     logger.info(f"Resolving at {git_path}")
@@ -79,21 +81,25 @@ def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=F
         if force:
             clear_folder(git_path)
             logger.warning(
-                f"Folder {git_path} is not a git repo and is being overwritten!")
+                f"Folder {git_path} is not a git repo and is being overwritten!"
+            )
             clone_repo(git_path, dependency)
             checkout(git_path, dependency, True, False)
             return
         else:
-            if (ignore):
+            if ignore:
                 logger.warning(
                     f"Folder {git_path} is not a git repo but Force parameter not used.  "
-                    "Ignore State Allowed.")
+                    "Ignore State Allowed."
+                )
                 return
             else:
                 logger.critical(
-                    f"Folder {git_path} is not a git repo and it is not empty.")
+                    f"Folder {git_path} is not a git repo and it is not empty."
+                )
                 raise Exception(
-                    f"Folder {git_path} is not a git repo and it is not empty")
+                    f"Folder {git_path} is not a git repo and it is not empty"
+                )
 
     ##########################################################################
     # 4. A git repo exists, but it is dirty. Only re-clone and checkout if   #
@@ -103,21 +109,21 @@ def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=F
         if force:
             clear_folder(git_path)
             logger.warning(
-                f"Folder {git_path} is a git repo but is dirty and is being overwritten as requested!")
+                f"Folder {git_path} is a git repo but is dirty and is being overwritten as requested!"
+            )
             clone_repo(git_path, dependency)
             checkout(git_path, dependency, True, False)
             return
         else:
-            if (ignore):
+            if ignore:
                 logger.warning(
                     f"Folder {git_path} is a git repo but is dirty and Force parameter not used.  "
-                    "Ignore State Allowed.")
+                    "Ignore State Allowed."
+                )
                 return
             else:
-                logger.critical(
-                    f"Folder {git_path} is a git repo and is dirty.")
-                raise Exception(
-                    f"Folder {git_path} is a git repo and is dirty.")
+                logger.critical(f"Folder {git_path} is a git repo and is dirty.")
+                raise Exception(f"Folder {git_path} is a git repo and is dirty.")
 
     ##########################################################################
     # 5. The origin of the repo does not match. Only re-clone from the       #
@@ -128,7 +134,8 @@ def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=F
             clear_folder(git_path)
             logger.warning(
                 f"Folder {git_path} is a git repo but it is at a different repo and is "
-                "being overwritten as requested!")
+                "being overwritten as requested!"
+            )
             clone_repo(git_path, dependency)
             checkout(git_path, dependency, True, False)
             return
@@ -136,13 +143,20 @@ def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=F
             if ignore:
                 logger.warning(
                     f"Folder {git_path} is a git repo pointed at a different remote.  "
-                    "Can't checkout or sync state")
+                    "Can't checkout or sync state"
+                )
                 return
             else:
-                logger.critical("The URL of the git Repo {2} in the folder {0} does not match {1}".format(
-                    git_path, dependency["Url"], repo_details(git_path).url))
-                raise Exception("The URL of the git Repo {2} in the folder {0} does not match {1}".format(
-                    git_path, dependency["Url"], repo_details(git_path).url))
+                logger.critical(
+                    "The URL of the git Repo {2} in the folder {0} does not match {1}".format(
+                        git_path, dependency["Url"], repo_details(git_path).url
+                    )
+                )
+                raise Exception(
+                    "The URL of the git Repo {2} in the folder {0} does not match {1}".format(
+                        git_path, dependency["Url"], repo_details(git_path).url
+                    )
+                )
 
     ##########################################################################
     # 6. The repo is normal, Perform a regular checkout.                     #
@@ -151,7 +165,14 @@ def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=F
     return
 
 
-def resolve_all(workspace_path, dependencies, force=False, ignore=False, update_ok=False, omnicache_dir=None):
+def resolve_all(
+    workspace_path,
+    dependencies,
+    force=False,
+    ignore=False,
+    update_ok=False,
+    omnicache_dir=None,
+):
     """Resolves all repos.
 
     Args:
@@ -175,8 +196,12 @@ def resolve_all(workspace_path, dependencies, force=False, ignore=False, update_
         logger.log(edk2_logging.PROGRESS, f"Syncing {dep_path}")
         if "ReferencePath" not in dependency and omnicache_dir:
             dependency["ReferencePath"] = omnicache_dir
-        if "ReferencePath" in dependency:  # make sure that the omnicache dir is relative to the working directory
-            dependency["ReferencePath"] = os.path.join(workspace_path, dependency["ReferencePath"])
+        if (
+            "ReferencePath" in dependency
+        ):  # make sure that the omnicache dir is relative to the working directory
+            dependency["ReferencePath"] = os.path.join(
+                workspace_path, dependency["ReferencePath"]
+            )
         git_path = os.path.join(workspace_path, dep_path)
         repos.append(git_path)
         resolve(git_path, dependency, force, ignore, update_ok)
@@ -186,8 +211,14 @@ def resolve_all(workspace_path, dependencies, force=False, ignore=False, update_
         git_path = os.path.join(workspace_path, dependency["Path"])
         details = repo_details(git_path)
         # print out details
-        logger.info("{3} = Git Details: Url: {0} Branch {1} Commit {2}".format(
-            details["Url"], details["Branch"], details["Head"]["HexSha"], dependency["Path"]))
+        logger.info(
+            "{3} = Git Details: Url: {0} Branch {1} Commit {2}".format(
+                details["Url"],
+                details["Branch"],
+                details["Head"]["HexSha"],
+                dependency["Path"],
+            )
+        )
 
     return repos
 
@@ -216,23 +247,30 @@ def repo_details(abs_file_system_path):
         "Branch": None,
         "Submodules": [],
         "Remotes": [],
-        "Worktrees": []
+        "Worktrees": [],
     }
 
     try:
         with Repo(abs_file_system_path) as repo:
             # Active Branch
-            details["Branch"] = 'HEAD' if repo.head.is_detached else repo.active_branch.name
+            details["Branch"] = (
+                "HEAD" if repo.head.is_detached else repo.active_branch.name
+            )
 
             # Worktrees
             worktree_list = []
             worktrees = repo.git.worktree("list", "--porcelain", "-z")
-            for worktree in filter(lambda worktree: worktree.startswith("worktree"), worktrees.split('\0')):
+            for worktree in filter(
+                lambda worktree: worktree.startswith("worktree"), worktrees.split("\0")
+            ):
                 worktree_list.append(Path(worktree.split(" ")[1]))
                 details["Worktrees"] = worktree_list
 
             # head information
-            details["Head"] = {"HexSha": str(repo.head.commit.hexsha), "HexShaShort": str(repo.head.commit.hexsha[:7])}
+            details["Head"] = {
+                "HexSha": str(repo.head.commit.hexsha),
+                "HexShaShort": str(repo.head.commit.hexsha[:7]),
+            }
             details["Valid"] = True
             details["Bare"] = repo.bare
             details["Dirty"] = repo.is_dirty(untracked_files=True)
@@ -249,8 +287,11 @@ def clear_folder(abs_file_system_path):
     Args:
         abs_file_system_path (PathLike): Directory to delete.
     """
-    logger.warning("WARNING: Deleting contents of folder {0} to make way for Git repo".format(
-        abs_file_system_path))
+    logger.warning(
+        "WARNING: Deleting contents of folder {0} to make way for Git repo".format(
+            abs_file_system_path
+        )
+    )
     rmtree(abs_file_system_path)
 
 
@@ -290,20 +331,26 @@ def clone_repo(abs_file_system_path, DepObj):
         params = []
         if branch:
             shallow = True
-            params.append('--branch')
+            params.append("--branch")
             params.append(branch)
-            params.append('--single-branch')
+            params.append("--single-branch")
         if shallow:
-            params.append('--depth=5')
+            params.append("--depth=5")
         if reference:
-            params.append('--reference')
-            params.append('reference')
+            params.append("--reference")
+            params.append("reference")
         else:
-            params.append("--recurse-submodules")  # if we don't have a reference we can just recurse the submodules
+            params.append(
+                "--recurse-submodules"
+            )  # if we don't have a reference we can just recurse the submodules
 
     # Run the command
     try:
-        repo = Repo.clone_from(DepObj["Url"], dest, multi_options=_build_params_list(branch, shallow, reference))
+        repo = Repo.clone_from(
+            DepObj["Url"],
+            dest,
+            multi_options=_build_params_list(branch, shallow, reference),
+        )
     except GitCommandError:
         repo = None
 
@@ -312,21 +359,31 @@ def clone_repo(abs_file_system_path, DepObj):
             return (dest, False)
 
         # attempt a retry without the reference
-        logger.warning("Reattempting to clone without a reference. {0}".format(DepObj["Url"]))
+        logger.warning(
+            "Reattempting to clone without a reference. {0}".format(DepObj["Url"])
+        )
 
         try:
-            repo = Repo.clone_from(DepObj["Url"], dest, multi_options=_build_params_list(branch, shallow))
+            repo = Repo.clone_from(
+                DepObj["Url"], dest, multi_options=_build_params_list(branch, shallow)
+            )
         except GitCommandError:
             return (dest, False)
 
     # Repo cloned, perform submodule update if necessary
     if reference:
-        repo.git.submodule('update', '--init', '--recursive', '--reference', reference)
+        repo.git.submodule("update", "--init", "--recursive", "--reference", reference)
     repo.close()
     return (dest, True)
 
 
-def checkout(abs_file_system_path, dep, update_ok=False, ignore_dep_state_mismatch=False, force=False):
+def checkout(
+    abs_file_system_path,
+    dep,
+    update_ok=False,
+    ignore_dep_state_mismatch=False,
+    force=False,
+):
     """Checks out a commit or branch.
 
     Args:
@@ -355,16 +412,18 @@ def checkout(abs_file_system_path, dep, update_ok=False, ignore_dep_state_mismat
             else:
                 head = details["Head"]
                 if commit in [head["HexSha"], head["HexShaShort"]]:
-                    logger.debug(
-                        f"Dependency {dep['Path']} state ok without update")
+                    logger.debug(f"Dependency {dep['Path']} state ok without update")
                 elif ignore_dep_state_mismatch:
                     logger.warning(
-                        f"Dependency {dep['Path']} is not in sync with requested commit.  Ignore state allowed")
+                        f"Dependency {dep['Path']} is not in sync with requested commit.  Ignore state allowed"
+                    )
                 else:
                     logger.critical(
-                        f"Dependency {dep['Path']} is not in sync with requested commit.  Fail.")
+                        f"Dependency {dep['Path']} is not in sync with requested commit.  Fail."
+                    )
                     raise Exception(
-                        f"Dependency {dep['Path']} is not in sync with requested commit.  Fail.")
+                        f"Dependency {dep['Path']} is not in sync with requested commit.  Fail."
+                    )
             return
 
         elif "Branch" in dep:
@@ -381,20 +440,23 @@ def checkout(abs_file_system_path, dep, update_ok=False, ignore_dep_state_mismat
                 repo.git.submodule("update", "--init", "--recursive")
             else:
                 if details["Branch"] == dep["Branch"]:
-                    logger.debug(
-                        f"Dependency {dep['Path']} state ok without update")
+                    logger.debug(f"Dependency {dep['Path']} state ok without update")
                 elif ignore_dep_state_mismatch:
                     logger.warning(
-                        f"Dependency {dep['Path']} is not in sync with requested branch.  Ignore state allowed")
+                        f"Dependency {dep['Path']} is not in sync with requested branch.  Ignore state allowed"
+                    )
                 else:
                     error = "Dependency {0} is not in sync with requested branch. Expected: {1}. Got {2} Fail.".format(
-                        dep["Path"], dep["Branch"], details["Branch"])
+                        dep["Path"], dep["Branch"], details["Branch"]
+                    )
                     logger.critical(error)
                     raise Exception(error)
             return
 
         else:
-            raise Exception("Branch or Commit must be specified for {0}".format(dep["Path"]))
+            raise Exception(
+                "Branch or Commit must be specified for {0}".format(dep["Path"])
+            )
 
 
 def clean(abs_file_system_path, ignore_files=[]):
@@ -434,19 +496,18 @@ def submodule_resolve(abs_file_system_path, submodule, omnicache_path=None):
         (NoSuchPathError): The path does not exist
     """
     with Repo(abs_file_system_path) as repo:
+        logger.debug(f"Syncing {submodule.path}")
+        repo.git.submodule("sync", "--", submodule.path)
 
-        logger.debug(f'Syncing {submodule.path}')
-        repo.git.submodule('sync', '--', submodule.path)
-
-        params = ['update', '--init']
+        params = ["update", "--init"]
         if submodule.recursive:
             params.append("--recursive")
         if omnicache_path:
-            params.append('--reference')
+            params.append("--reference")
             params.append(omnicache_path)
         params.append(submodule.path)
-        logger.debug(f'Updating {submodule.path}')
+        logger.debug(f"Updating {submodule.path}")
         repo.git.submodule(*params)
 
     with Repo(Path(abs_file_system_path, submodule.path)) as _:
-        logger.debug(f'{submodule.path} is valid and resolved.')
+        logger.debug(f"{submodule.path} is valid and resolved.")

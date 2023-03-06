@@ -24,6 +24,7 @@ class version_aggregator(object):
     Used to facilitate the collection of information regarding the tools,
     binaries, submodule configuration used in a build.
     """
+
     def __init__(self):
         """Inits an empty verion aggregator."""
         super(version_aggregator, self).__init__()
@@ -44,9 +45,12 @@ class version_aggregator(object):
             if old_version["version"] == value and old_version["path"] == path:
                 self._logger.info(f"version_aggregator: {key} re-registered at {path}")
             else:
-                error = "version_aggregator: {0} key registered with a different value\n\t" \
-                        "Old:{1}@{3}\n\tNew:{2}@{4}\n".format(
-                            key, old_version["version"], value, old_version["path"], path)
+                error = (
+                    "version_aggregator: {0} key registered with a different value\n\t"
+                    "Old:{1}@{3}\n\tNew:{2}@{4}\n".format(
+                        key, old_version["version"], value, old_version["path"], path
+                    )
+                )
                 self._logger.error(error)
                 raise ValueError(error)
             return
@@ -55,9 +59,11 @@ class version_aggregator(object):
             "name": key,
             "version": value,
             "type": versionType.name,
-            "path": path
+            "path": path,
         }
-        self._logger.debug("version_aggregator logging version: {0}".format(str(self._Versions[key])))
+        self._logger.debug(
+            "version_aggregator logging version: {0}".format(str(self._Versions[key]))
+        )
 
     def Print(self):
         """Prints out the current information from the version aggregator."""
@@ -86,6 +92,7 @@ class VersionTypes(Enum):
         INFO: miscellaneous information.
         PIP: a python pip package.
     """
+
     TOOL = 1
     COMMIT = 2
     BINARY = 3

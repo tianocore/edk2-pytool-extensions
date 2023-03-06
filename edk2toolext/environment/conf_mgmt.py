@@ -17,8 +17,9 @@ import time
 from edk2toolext.environment import version_aggregator
 
 
-class ConfMgmt():
+class ConfMgmt:
     """Handles Edk2 Conf Management."""
+
     def __init__(self):
         """Init an empty ConfMgmt object."""
         self.Logger = logging.getLogger("ConfMgmt")
@@ -28,7 +29,12 @@ class ConfMgmt():
         """Allow changing the warning time for out of date templates."""
         self.delay_time_in_seconds = time_in_seconds
 
-    def populate_conf_dir(self, conf_folder_path: str, override_conf: bool, conf_template_source_list: list) -> None:
+    def populate_conf_dir(
+        self,
+        conf_folder_path: str,
+        override_conf: bool,
+        conf_template_source_list: list,
+    ) -> None:
         """Compare the conf dir files to the template files.
 
         Copy files if they are not present in the conf dir or the override parameter is set.
@@ -51,7 +57,9 @@ class ConfMgmt():
         outfiles = [os.path.join(conf_folder_path, f) for f in files]
 
         # make template list based on files
-        templatefiles = [os.path.join("Conf", os.path.splitext(f)[0] + ".template") for f in files]
+        templatefiles = [
+            os.path.join("Conf", os.path.splitext(f)[0] + ".template") for f in files
+        ]
 
         # loop thru each Conf file needed
         for x in range(0, len(outfiles)):
@@ -64,19 +72,25 @@ class ConfMgmt():
                     template_file_path = p
                     break
 
-            if (template_file_path is None):
+            if template_file_path is None:
                 self.Logger.critical(
-                    "Failed to find Template file for %s" % outfiles[x])
+                    "Failed to find Template file for %s" % outfiles[x]
+                )
                 raise Exception("Template File Missing", outfiles[x])
             else:
                 self.Logger.debug(f"Conf file template: {template_file_path}")
 
             # have template now - now copy if needed
-            self._copy_conf_file_if_necessary(outfiles[x], template_file_path, override_conf)
+            self._copy_conf_file_if_necessary(
+                outfiles[x], template_file_path, override_conf
+            )
 
             # Log Version for reporting
-            version_aggregator.GetVersionAggregator().ReportVersion(outfiles[x], self._get_version(outfiles[x]),
-                                                                    version_aggregator.VersionTypes.INFO)
+            version_aggregator.GetVersionAggregator().ReportVersion(
+                outfiles[x],
+                self._get_version(outfiles[x]),
+                version_aggregator.VersionTypes.INFO,
+            )
 
     def _get_version(self, conf_file: str) -> str:
         """Parse the version from the conf_file.
@@ -89,7 +103,7 @@ class ConfMgmt():
         version = "0.0"
         with open(conf_file, "r") as f:
             for line in f.readlines():
-                if (line.startswith("#!VERSION=")):
+                if line.startswith("#!VERSION="):
                     try:
                         version = str(float(line.split("=")[1].split()[0].strip()))
                         break
@@ -119,9 +133,11 @@ class ConfMgmt():
         except Exception:
             logging.error("Failed to get version from file")
         finally:
-            return (conf < template)
+            return conf < template
 
-    def _copy_conf_file_if_necessary(self, conf_file: str, template_file: str, override_conf: bool) -> None:
+    def _copy_conf_file_if_necessary(
+        self, conf_file: str, template_file: str, override_conf: bool
+    ) -> None:
         """Copy template_file to conf_file if policy applies.
 
         Args:
@@ -131,19 +147,23 @@ class ConfMgmt():
         """
         if not os.path.isfile(conf_file):
             # file doesn't exist.  copy template
-            self.Logger.debug(f"{conf_file} file not found.  Creating from Template file {template_file}")
+            self.Logger.debug(
+                f"{conf_file} file not found.  Creating from Template file {template_file}"
+            )
             shutil.copy2(template_file, conf_file)
 
-        elif (override_conf):
+        elif override_conf:
             # caller requested override even for existing file
             self.Logger.debug(f"{conf_file} file replaced as requested")
             shutil.copy2(template_file, conf_file)
 
         else:
             # Both file exists.  Do a quick version check
-            if (self._is_older_version(conf_file, template_file)):
+            if self._is_older_version(conf_file, template_file):
                 # Conf dir file is older.  Warn user.
-                self.Logger.critical(f"{conf_file} file is out-of-date.  Please update your conf files!")
+                self.Logger.critical(
+                    f"{conf_file} file is out-of-date.  Please update your conf files!"
+                )
                 self.Logger.critical("Sleeping 30 seconds to encourage update....")
                 time.sleep(self.delay_time_in_seconds)
             else:

@@ -28,6 +28,7 @@ class BaseAbstractInvocable(object):
         plugin_manager (plugin_manager.PluginManager): the plugin manager
         helper (HelperFunctions): container for all helper functions
     """
+
     def __init__(self):
         """Init the Invocable."""
         self.log_filename = None
@@ -171,7 +172,7 @@ class BaseAbstractInvocable(object):
         !!! tip
             Optional override in a subclass if new behavior is needed
         """
-        logger = logging.getLogger('')
+        logger = logging.getLogger("")
         logger.setLevel(self.GetLoggingLevel("base"))
 
         # Adjust console mode depending on mode.
@@ -179,16 +180,20 @@ class BaseAbstractInvocable(object):
 
         edk2_logging.setup_console_logging(self.GetLoggingLevel("con"))
 
-        log_directory = os.path.join(self.GetWorkspaceRoot(), self.GetLoggingFolderRelativeToRoot())
+        log_directory = os.path.join(
+            self.GetWorkspaceRoot(), self.GetLoggingFolderRelativeToRoot()
+        )
 
         txtlogfile = self.GetLoggingLevel("txt")
-        if (txtlogfile is not None):
-            logfile, filelogger = edk2_logging.setup_txt_logger(log_directory,
-                                                                self.GetLoggingFileName("txt"),
-                                                                txtlogfile)
+        if txtlogfile is not None:
+            logfile, filelogger = edk2_logging.setup_txt_logger(
+                log_directory, self.GetLoggingFileName("txt"), txtlogfile
+            )
             self.log_filename = logfile
 
-        logging.info("Log Started: " + datetime.strftime(datetime.now(), "%A, %B %d, %Y %I:%M%p"))
+        logging.info(
+            "Log Started: " + datetime.strftime(datetime.now(), "%A, %B %d, %Y %I:%M%p")
+        )
 
         return
 
@@ -208,20 +213,32 @@ class BaseAbstractInvocable(object):
         # Next, get the environment set up.
         #
         (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(
-            self.GetWorkspaceRoot(), self.GetActiveScopes(), self.GetSkippedDirectories())
+            self.GetWorkspaceRoot(),
+            self.GetActiveScopes(),
+            self.GetSkippedDirectories(),
+        )
 
         # Make sure the environment verifies IF it is required for this invocation
-        if self.GetVerifyCheckRequired() and not self_describing_environment.VerifyEnvironment(
-                self.GetWorkspaceRoot(), self.GetActiveScopes(), self.GetSkippedDirectories()):
-            raise RuntimeError("External Dependencies in the environment are out of date. "
-                               "Consider running stuart_update to possibly resolve this issue.")
+        if (
+            self.GetVerifyCheckRequired()
+            and not self_describing_environment.VerifyEnvironment(
+                self.GetWorkspaceRoot(),
+                self.GetActiveScopes(),
+                self.GetSkippedDirectories(),
+            )
+        ):
+            raise RuntimeError(
+                "External Dependencies in the environment are out of date. "
+                "Consider running stuart_update to possibly resolve this issue."
+            )
 
         # Load plugins
         logging.log(edk2_logging.SECTION, "Loading Plugins")
 
         self.plugin_manager = plugin_manager.PluginManager()
         failedPlugins = self.plugin_manager.SetListOfEnvironmentDescriptors(
-            build_env.plugins)
+            build_env.plugins
+        )
         if failedPlugins:
             logging.critical("One or more plugins failed to load. Halting build.")
             for a in failedPlugins:
@@ -229,13 +246,13 @@ class BaseAbstractInvocable(object):
             raise Exception("One or more plugins failed to load.")
 
         self.helper = HelperFunctions()
-        if (self.helper.LoadFromPluginManager(self.plugin_manager) > 0):
+        if self.helper.LoadFromPluginManager(self.plugin_manager) > 0:
             raise Exception("One or more helper plugins failed to load.")
 
         logging.log(edk2_logging.SECTION, "Start Invocable Tool")
         retcode = self.Go()
         logging.log(edk2_logging.SECTION, "Summary")
-        if (retcode != 0):
+        if retcode != 0:
             logging.error("Error")
         else:
             edk2_logging.log_progress("Success")

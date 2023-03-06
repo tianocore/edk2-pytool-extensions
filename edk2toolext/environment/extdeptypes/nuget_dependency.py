@@ -29,6 +29,7 @@ class NugetDependency(ExternalDependency):
     !!! tip
         The attributes are what must be described in the ext_dep yaml file!
     """
+
     TypeString = "nuget"
 
     # Env variable name for path to folder containing NuGet.exe
@@ -69,7 +70,9 @@ class NugetDependency(ExternalDependency):
         nuget_path = os.path.join(nuget_path, file_name)
 
         if not os.path.isfile(nuget_path):
-            logging.error("We weren't able to find Nuget! Please reinstall your pip environment")
+            logging.error(
+                "We weren't able to find Nuget! Please reinstall your pip environment"
+            )
             return None
 
         # Make sure quoted string if it has spaces
@@ -91,8 +94,7 @@ class NugetDependency(ExternalDependency):
         """
         # 1. NuGetVersion requires the major segment to be defined
         if not version:
-            raise ValueError("String is empty. At least major version is "
-                             "required.")
+            raise ValueError("String is empty. At least major version is " "required.")
 
         # 2. NuGetVersion uses case insensitive string comparisons for
         #    pre-release components
@@ -109,8 +111,7 @@ class NugetDependency(ExternalDependency):
 
         # 4. A maximum of 4 version segments are allowed
         if len(int_parts) > 4:
-            raise ValueError(f"Maximum of 4 version segments allowed: "
-                             f"'{version}'!")
+            raise ValueError(f"Maximum of 4 version segments allowed: " f"'{version}'!")
 
         # 5. Allow a fourth version segment - "Revision" normally not
         #    allowed in Semantic versions but allowed in NuGet versions.
@@ -138,19 +139,22 @@ class NugetDependency(ExternalDependency):
             nuget_ver = semantic_version.Version.coerce(reformed_ver)
 
             # A ValueError will be raised if the version string is invalid
-            major, minor, patch, prerelease, build = \
-                semantic_version.Version.parse(str(nuget_ver))
+            major, minor, patch, prerelease, build = semantic_version.Version.parse(
+                str(nuget_ver)
+            )
         else:
             # A ValueError will be raised if the version string is invalid
             nuget_ver = semantic_version.Version(reformed_ver)
             major, minor, patch, prerelease, build = tuple(nuget_ver)
 
-        logging.info(f"NuGet version parts:\n"
-                     f"  Major Version: {major}\n"
-                     f"  Minor Version: {minor}\n"
-                     f"  Patch Version: {patch}\n"
-                     f"  Pre-Release Version {prerelease}\n"
-                     f"  Revision (Build) Version: {build}")
+        logging.info(
+            f"NuGet version parts:\n"
+            f"  Major Version: {major}\n"
+            f"  Minor Version: {minor}\n"
+            f"  Patch Version: {patch}\n"
+            f"  Pre-Release Version {prerelease}\n"
+            f"  Revision (Build) Version: {build}"
+        )
 
         return reformed_ver
 
@@ -165,7 +169,7 @@ class NugetDependency(ExternalDependency):
             cmd = NugetDependency.GetNugetCmd()
             cmd += ["locals", "global-packages", "-list"]
             return_buffer = StringIO()
-            if (RunCmd(cmd[0], " ".join(cmd[1:]), outstream=return_buffer) == 0):
+            if RunCmd(cmd[0], " ".join(cmd[1:]), outstream=return_buffer) == 0:
                 # Seek to the beginning of the output buffer and capture the output.
                 return_buffer.seek(0)
                 return_string = return_buffer.read()
@@ -187,24 +191,31 @@ class NugetDependency(ExternalDependency):
         try:
             nuget_version = NugetDependency.normalize_version(self.version)
         except ValueError:
-            logging.error(f"NuGet dependency {self.name} has an invalid "
-                          f"version string: {self.version}")
+            logging.error(
+                f"NuGet dependency {self.name} has an invalid "
+                f"version string: {self.version}"
+            )
 
         cache_search_path = os.path.join(
-            self.nuget_cache_path, package_name.lower(), nuget_version)
+            self.nuget_cache_path, package_name.lower(), nuget_version
+        )
         inner_cache_search_path = os.path.join(cache_search_path, package_name)
         if os.path.isdir(cache_search_path):
             # If we found a cache for this version, let's use it.
             if os.path.isdir(inner_cache_search_path):
                 logging.info(self.nuget_cache_path)
                 logging.info(
-                    "Local Cache found for Nuget package '%s'. Skipping fetch.", package_name)
+                    "Local Cache found for Nuget package '%s'. Skipping fetch.",
+                    package_name,
+                )
                 shutil.copytree(inner_cache_search_path, self.contents_dir)
                 result = True
             # If this cache doesn't match our heuristic, let's warn the user.
             else:
                 logging.warning(
-                    "Local Cache found for Nuget package '%s', but could not find contents. Malformed?", package_name)
+                    "Local Cache found for Nuget package '%s', but could not find contents. Malformed?",
+                    package_name,
+                )
 
         return result
 
@@ -234,7 +245,9 @@ class NugetDependency(ExternalDependency):
         found_cred_provider = False
         for out_line in output_stream:
             line = out_line.strip()
-            if line.startswith("CredentialProvider") or line.startswith("[CredentialProvider"):
+            if line.startswith("CredentialProvider") or line.startswith(
+                "[CredentialProvider"
+            ):
                 found_cred_provider = True
             if line.endswith("as a credential provider plugin."):
                 found_cred_provider = True
@@ -243,10 +256,14 @@ class NugetDependency(ExternalDependency):
         # this gives cred providers a chance to prompt for input since they don't use stdin
         if ret != 0:
             # If we're in non interactive and we have a credential provider
-            if non_interactive and found_cred_provider:  # we should be interactive next time
+            if (
+                non_interactive and found_cred_provider
+            ):  # we should be interactive next time
                 self._attempt_nuget_install(install_dir, False)
             else:
-                raise RuntimeError(f"[Nuget] We failed to install this version {self.version} of {package_name}")
+                raise RuntimeError(
+                    f"[Nuget] We failed to install this version {self.version} of {package_name}"
+                )
 
     def fetch(self):
         """Fetches the dependency using internal state from the init."""

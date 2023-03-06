@@ -14,7 +14,18 @@ from typing import List, Tuple
 
 class ICiBuildPlugin(object):
     """Plugin that supports adding tests or operations to the ci environment."""
-    def RunBuildPlugin(self, packagename, Edk2pathObj, pkgconfig, environment, PLM, PLMHelper, tc, output_stream):
+
+    def RunBuildPlugin(
+        self,
+        packagename,
+        Edk2pathObj,
+        pkgconfig,
+        environment,
+        PLM,
+        PLMHelper,
+        tc,
+        output_stream,
+    ):
         """External function of plugin.
 
         This function is used to perform the task of the CiBuild Plugin
@@ -63,8 +74,12 @@ class ICiBuildPlugin(object):
         """
         return ["NO-TARGET"]
 
-    def WalkDirectoryForExtension(self, extensionlist: List[str], directory: os.PathLike,
-                                  ignorelist: List[str] = None) -> List[os.PathLike]:
+    def WalkDirectoryForExtension(
+        self,
+        extensionlist: List[str],
+        directory: os.PathLike,
+        ignorelist: List[str] = None,
+    ) -> List[os.PathLike]:
         """Walks a file directory recursively for all items ending in certain extension.
 
         Args:
@@ -110,9 +125,9 @@ class ICiBuildPlugin(object):
                 for Extension in extensionlist_lower:
                     if File.lower().endswith(Extension):
                         ignoreIt = False
-                        if (ignorelist is not None):
+                        if ignorelist is not None:
                             for c in ignorelist_lower:
-                                if (File.lower().startswith(c)):
+                                if File.lower().startswith(c):
                                     ignoreIt = True
                                     break
                         if not ignoreIt:

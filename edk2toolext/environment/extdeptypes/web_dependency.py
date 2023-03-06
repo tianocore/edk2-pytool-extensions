@@ -46,9 +46,9 @@ class WebDependency(ExternalDependency):
     def __init__(self, descriptor):
         """Inits a web dependency based off the provided descriptor."""
         super().__init__(descriptor)
-        self.internal_path = os.path.normpath(descriptor['internal_path'])
-        self.compression_type = descriptor.get('compression_type', None)
-        self.sha256 = descriptor.get('sha256', None)
+        self.internal_path = os.path.normpath(descriptor["internal_path"])
+        self.compression_type = descriptor.get("compression_type", None)
+        self.sha256 = descriptor.get("sha256", None)
 
         # If the internal path starts with a / that means we are downloading a directory
         self.download_is_directory = self.internal_path.startswith(os.path.sep)
@@ -86,7 +86,7 @@ class WebDependency(ExternalDependency):
 
         if compression_type == "zip":
             logging.info(f"{compressed_file_path} is a zip file, trying to unpack it.")
-            _ref = zipfile.ZipFile(compressed_file_path, 'r')
+            _ref = zipfile.ZipFile(compressed_file_path, "r")
             files_in_volume = _ref.namelist()
 
         elif compression_type and "tar" in compression_type:
@@ -96,10 +96,14 @@ class WebDependency(ExternalDependency):
             files_in_volume = _ref.getnames()
 
         else:
-            raise RuntimeError(f"{compressed_file_path} was labeled as {compression_type}, which is not supported.")
+            raise RuntimeError(
+                f"{compressed_file_path} was labeled as {compression_type}, which is not supported."
+            )
 
         # Filter the files inside to only the ones that are inside the important folder
-        files_to_extract = [name for name in files_in_volume if linux_internal_path in name]
+        files_to_extract = [
+            name for name in files_in_volume if linux_internal_path in name
+        ]
 
         for file in files_to_extract:
             _ref.extract(member=file, path=destination)
@@ -117,29 +121,38 @@ class WebDependency(ExternalDependency):
 
         try:
             # Download the file and save it locally under `temp_file_path`
-            with urllib.request.urlopen(url) as response, open(temp_file_path, 'wb') as out_file:
+            with urllib.request.urlopen(url) as response, open(
+                temp_file_path, "wb"
+            ) as out_file:
                 out_file.write(response.read())
         except urllib.error.HTTPError as e:
-            logging.error(f"ran into an issue when resolving ext_dep {self.name} at {self.source}")
+            logging.error(
+                f"ran into an issue when resolving ext_dep {self.name} at {self.source}"
+            )
             raise e
 
         # check if file hash is as expected, if it was provided in the ext_dep.json
         if self.sha256:
             with open(temp_file_path, "rb") as file:
                 import hashlib
+
                 temp_file_sha256 = hashlib.sha256(file.read()).hexdigest()
 
             # compare sha256 hexdigests as lowercase to make case insensitive
             if temp_file_sha256.lower() != self.sha256.lower():
-                raise RuntimeError(f"{self.name} - sha256 does not match\n\tdownloaded:"
-                                   f"\t{temp_file_sha256}\n\tin json:\t{self.sha256}")
+                raise RuntimeError(
+                    f"{self.name} - sha256 does not match\n\tdownloaded:"
+                    f"\t{temp_file_sha256}\n\tin json:\t{self.sha256}"
+                )
 
         if os.path.isfile(temp_file_path) is False:
             raise RuntimeError(f"{self.name} did not download")
 
         # Next, we will look at what's inside it and pull out the parts we need.
         if self.compression_type:
-            WebDependency.unpack(temp_file_path, temp_folder, self.internal_path, self.compression_type)
+            WebDependency.unpack(
+                temp_file_path, temp_folder, self.internal_path, self.compression_type
+            )
 
         # internal_path points to the "important" part of the ext_dep we're unpacking
         complete_internal_path = os.path.join(temp_folder, self.internal_path)
@@ -147,10 +160,14 @@ class WebDependency(ExternalDependency):
         # # If we're unpacking a directory, we can copy the important parts into
         # # a directory named self.contents_dir
         if self.download_is_directory:
-            logging.info(f"Copying directory from {complete_internal_path} to {self.contents_dir}")
+            logging.info(
+                f"Copying directory from {complete_internal_path} to {self.contents_dir}"
+            )
             if os.path.isdir(complete_internal_path) is False:
                 # internal_path was not accurate, exit
-                raise RuntimeError(f"{self.name} was expecting {complete_internal_path} to exist after unpacking")
+                raise RuntimeError(
+                    f"{self.name} was expecting {complete_internal_path} to exist after unpacking"
+                )
 
             # Move the important folder out and rename it to contents_dir
             shutil.move(complete_internal_path, self.contents_dir)

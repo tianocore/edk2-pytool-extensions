@@ -19,8 +19,12 @@ import logging
 from io import StringIO
 from pathlib import Path
 from edk2toolext import edk2_logging
-from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable
-from edk2toolext.invocables.edk2_multipkg_aware_invocable import MultiPkgAwareSettingsInterface
+from edk2toolext.invocables.edk2_multipkg_aware_invocable import (
+    Edk2MultiPkgAwareInvocable,
+)
+from edk2toolext.invocables.edk2_multipkg_aware_invocable import (
+    MultiPkgAwareSettingsInterface,
+)
 from edk2toollib.uefi.edk2 import path_utilities
 from edk2toollib.uefi.edk2.parsers.dec_parser import DecParser
 from edk2toollib.uefi.edk2.parsers.dsc_parser import DscParser
@@ -52,7 +56,9 @@ class PrEvalSettingsManager(MultiPkgAwareSettingsInterface):
         ```
     """
 
-    def FilterPackagesToTest(self, changedFilesList: list, potentialPackagesList: list) -> list:
+    def FilterPackagesToTest(
+        self, changedFilesList: list, potentialPackagesList: list
+    ) -> list:
         """Filter potential packages to test based on changed files.
 
         !!! tip
@@ -96,18 +102,34 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
 
     def AddCommandLineOptions(self, parserObj):
         """Adds command line options to the argparser."""
-        parserObj.add_argument("--pr-target", dest='pr_target', type=str, default=None,
-                               help="PR Branch Target.  Allows build optimizations for pull request"
-                               " validation based on files changed. If a package doesn't need testing then it will"
-                               " be skipped. Example --pr-target origin/master", required=True)
-        parserObj.add_argument("--output-csv-format-string", dest='output_csv_format_string', type=str, default=None,
-                               help="Provide format string that will be output to stdout a full csv of packages"
-                               " to be tested.  Valid Tokens: {pkgcsv}"
-                               " Example --output-csv-format-string test={pkgcsv}")
-        parserObj.add_argument("--output-count-format-string", dest='output_count_format_string', type=str,
-                               default=None, help="Provide format string that will be output to stdout the count of"
-                               " packages to be tested.  Valid Tokens: {pkgcount}"
-                               " Example --output-count-format-string PackageCount={pkgcount}")
+        parserObj.add_argument(
+            "--pr-target",
+            dest="pr_target",
+            type=str,
+            default=None,
+            help="PR Branch Target.  Allows build optimizations for pull request"
+            " validation based on files changed. If a package doesn't need testing then it will"
+            " be skipped. Example --pr-target origin/master",
+            required=True,
+        )
+        parserObj.add_argument(
+            "--output-csv-format-string",
+            dest="output_csv_format_string",
+            type=str,
+            default=None,
+            help="Provide format string that will be output to stdout a full csv of packages"
+            " to be tested.  Valid Tokens: {pkgcsv}"
+            " Example --output-csv-format-string test={pkgcsv}",
+        )
+        parserObj.add_argument(
+            "--output-count-format-string",
+            dest="output_count_format_string",
+            type=str,
+            default=None,
+            help="Provide format string that will be output to stdout the count of"
+            " packages to be tested.  Valid Tokens: {pkgcount}"
+            " Example --output-count-format-string PackageCount={pkgcount}",
+        )
         super().AddCommandLineOptions(parserObj)
 
     def RetrieveCommandLineOptions(self, args):
@@ -141,7 +163,8 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         # A packages path is ok to drop for this because if it isn't populated it is assumed outside
         # the repository and thus will not trigger the build.
         self.edk2_path_obj = path_utilities.Edk2Path(
-            self.GetWorkspaceRoot(), self.GetPackagesPath(), error_on_invalid_pp=False)
+            self.GetWorkspaceRoot(), self.GetPackagesPath(), error_on_invalid_pp=False
+        )
         self.logger = logging.getLogger("edk2_pr_eval")
         actualPackagesDict = self.get_packages_to_build(self.requested_package_list)
 
@@ -192,16 +215,22 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         #
         for f in files:
             if not self.edk2_path_obj.GetContainingPackage(os.path.abspath(f)):
-                return dict.fromkeys(possible_packages,
-                                     "Policy 0 - Build all packages if "
-                                     "a file is modified outside a "
-                                     "package.")
+                return dict.fromkeys(
+                    possible_packages,
+                    "Policy 0 - Build all packages if "
+                    "a file is modified outside a "
+                    "package.",
+                )
 
-        remaining_packages = possible_packages.copy()  # start with all possible packages and remove each
+        remaining_packages = (
+            possible_packages.copy()
+        )  # start with all possible packages and remove each
         # package once it is determined to be build.  This optimization
         # avoids checking packages that already will be built.
 
-        packages_to_build = {}  # packages to build.  Key = pkg name, Value = 1st reason for build
+        packages_to_build = (
+            {}
+        )  # packages to build.  Key = pkg name, Value = 1st reason for build
 
         #
         # Policy 1 - CI Settings file defined
@@ -209,7 +238,9 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         after = self.PlatformSettings.FilterPackagesToTest(files, remaining_packages)
         for a in after:
             if a not in remaining_packages:
-                raise ValueError(f"PlatformSettings.FilterPackagesToTest returned package not allowed {a}")
+                raise ValueError(
+                    f"PlatformSettings.FilterPackagesToTest returned package not allowed {a}"
+                )
             packages_to_build[a] = "Policy 1 - PlatformSettings - Filter Packages"
             remaining_packages.remove(a)
 
@@ -225,11 +256,13 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
                 pkg = self.edk2_path_obj.GetContainingPackage(os.path.abspath(f))
 
             except Exception as e:
-                self.logger.warning(f"Failed to get package for file {f}.  Exception {e}")
+                self.logger.warning(
+                    f"Failed to get package for file {f}.  Exception {e}"
+                )
                 # Ignore a file in which we fail to get the package
                 continue
 
-            if (pkg not in packages_to_build.keys() and pkg in remaining_packages):
+            if pkg not in packages_to_build.keys() and pkg in remaining_packages:
                 packages_to_build[pkg] = "Policy 2 - Build any package that has changed"
                 remaining_packages.remove(pkg)
 
@@ -251,7 +284,9 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
                 pkg = self.edk2_path_obj.GetContainingPackage(os.path.abspath(f))
 
             except Exception as e:
-                self.logger.warning(f"Failed to get package for file {f}.  Exception {e}")
+                self.logger.warning(
+                    f"Failed to get package for file {f}.  Exception {e}"
+                )
                 # Ignore a file in which we fail to get the package
                 continue
 
@@ -265,7 +300,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         # NOTE: future enhancement could be to check actual file dependencies
         for a in public_package_changes:
             for p in remaining_packages[:]:  # slice so we can delete as we go
-                if (self._does_pkg_depend_on_package(p, a)):
+                if self._does_pkg_depend_on_package(p, a):
                     packages_to_build[p] = f"Policy 3 - Package depends on {a}"
                     remaining_packages.remove(p)  # remove from remaining packages
 
@@ -280,7 +315,9 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         PlatformDscInfo = self.PlatformSettings.GetPlatformDscAndConfig()
         if PlatformDscInfo is not None and len(remaining_packages) > 0:
             if len(remaining_packages) != 1:
-                raise Exception("Policy 4 can only be used by builds for a single package")
+                raise Exception(
+                    "Policy 4 can only be used by builds for a single package"
+                )
 
             # files are all the files changed edk2 workspace root relative path
             changed_modules = self._get_unique_module_infs_changed(files)
@@ -294,7 +331,9 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
             dsc.SetNoFailMode()
             dsc.SetInputVars(PlatformDscInfo[1])
             dsc.ParseFile(PlatformDscInfo[0])
-            allinfs = dsc.OtherMods + dsc.ThreeMods + dsc.SixMods + dsc.Libs  # get list of all INF files
+            allinfs = (
+                dsc.OtherMods + dsc.ThreeMods + dsc.SixMods + dsc.Libs
+            )  # get list of all INF files
             allinfs = [Path(i) for i in allinfs]
 
             #
@@ -304,7 +343,9 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
             for p in remaining_packages[:]:  # slice so we can delete as we go
                 for cm in changed_modules:
                     if cm in allinfs:  # is the changed module listed in the DSC file?
-                        packages_to_build[p] = f"Policy 4 - Package Dsc depends on {str(cm)}"
+                        packages_to_build[
+                            p
+                        ] = f"Policy 4 - Package Dsc depends on {str(cm)}"
                         remaining_packages.remove(p)  # remove from remaining packages
                         break
 
@@ -322,21 +363,32 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
             try:
                 infs = self.edk2_path_obj.GetContainingModules(os.path.abspath(f))
             except Exception as e:
-                self.logger.warning(f"Failed to get module for file {f}. Exception: {str(e)}")
+                self.logger.warning(
+                    f"Failed to get module for file {f}. Exception: {str(e)}"
+                )
                 # ignore errors.  These will occur if a module or last file in folder is deleted as part of the PR
                 continue
 
             if len(infs) > 0:  # if this file is part of any INFs
                 modules.extend(infs)
 
-        modules = [self.edk2_path_obj.GetEdk2RelativePathFromAbsolutePath(x) for x in set(modules)]
+        modules = [
+            self.edk2_path_obj.GetEdk2RelativePathFromAbsolutePath(x)
+            for x in set(modules)
+        ]
         logging.debug("Changed Modules: " + str(modules))
         return modules
 
-    def _does_pkg_depend_on_package(self, package_to_eval: str, support_package: str) -> bool:
+    def _does_pkg_depend_on_package(
+        self, package_to_eval: str, support_package: str
+    ) -> bool:
         """Return if any module in package_to_eval depends on public files defined in support_package."""
         # get filesystem path of package_to_eval
-        abs_pkg_path = self.edk2_path_obj.GetAbsolutePathOnThisSystemFromEdk2RelativePath(package_to_eval)
+        abs_pkg_path = (
+            self.edk2_path_obj.GetAbsolutePathOnThisSystemFromEdk2RelativePath(
+                package_to_eval
+            )
+        )
 
         # loop thru all inf files in the package
         inf_files = self._walk_dir_for_filetypes([".inf"], abs_pkg_path)
@@ -346,11 +398,14 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         for f in inf_files:
             ip = InfParser()
             ip.SetBaseAbsPath(self.edk2_path_obj.WorkspacePath).SetPackagePaths(
-                self.edk2_path_obj.PackagePathList).ParseFile(f)
+                self.edk2_path_obj.PackagePathList
+            ).ParseFile(f)
 
             for p in ip.PackagesUsed:
                 if p.startswith(support_package):
-                    self.logger.info(f"Module: {f} depends on package {support_package}")
+                    self.logger.info(
+                        f"Module: {f} depends on package {support_package}"
+                    )
                     return True
         # if never found return False
         return False
@@ -366,13 +421,13 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         cmd_params = f"diff --name-only HEAD..{base_branch}"
         rc = RunCmd("git", cmd_params, outstream=output)
 
-        if (rc == 0):
+        if rc == 0:
             self.logger.debug("git diff command returned successfully!")
         else:
             self.logger.critical("git diff returned error return value: %s" % str(rc))
             return (rc, [])
 
-        if (output.getvalue() is None):
+        if output.getvalue() is None:
             self.logger.info("No files listed in diff")
             return (0, [])
 
@@ -391,22 +446,32 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
                 if entry.lower().endswith(".dec"):
                     path = os.path.join(path_to_package, entry)
         except Exception:
-            self.logger.warning("Exception: Unable to find DEC for package:{0}".format(path_to_package))
+            self.logger.warning(
+                "Exception: Unable to find DEC for package:{0}".format(path_to_package)
+            )
             return None
 
         if path is None:
-            self.logger.warning("Unable to find DEC for package:{0}".format(path_to_package))
+            self.logger.warning(
+                "Unable to find DEC for package:{0}".format(path_to_package)
+            )
             return None
 
         wsr_dec_path = self.edk2_path_obj.GetEdk2RelativePathFromAbsolutePath(path)
 
         if path is None or wsr_dec_path == "" or not os.path.isfile(path):
-            self.logger.warning("Unable to convert path for DEC for package: {0}".format(path_to_package))
+            self.logger.warning(
+                "Unable to convert path for DEC for package: {0}".format(
+                    path_to_package
+                )
+            )
             return None
 
         # parse it
         dec = DecParser()
-        dec.SetBaseAbsPath(self.edk2_path_obj.WorkspacePath).SetPackagePaths(self.edk2_path_obj.PackagePathList)
+        dec.SetBaseAbsPath(self.edk2_path_obj.WorkspacePath).SetPackagePaths(
+            self.edk2_path_obj.PackagePathList
+        )
         dec.ParseFile(wsr_dec_path)
         return dec
 
@@ -422,21 +487,27 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         try:
             pkg = self.edk2_path_obj.GetContainingPackage(os.path.abspath(filepath))
         except Exception as e:
-            self.logger.warning(f"Failed to get package for {filepath}.  Exception: {str(e)}")
+            self.logger.warning(
+                f"Failed to get package for {filepath}.  Exception: {str(e)}"
+            )
             return False
 
         dec = None
-        if (pkg in self.parsed_dec_cache):
+        if pkg in self.parsed_dec_cache:
             dec = self.parsed_dec_cache[pkg]
         else:
-            abs_pkg_path = self.edk2_path_obj.GetAbsolutePathOnThisSystemFromEdk2RelativePath(pkg)
+            abs_pkg_path = (
+                self.edk2_path_obj.GetAbsolutePathOnThisSystemFromEdk2RelativePath(pkg)
+            )
             dec = self._parse_dec_for_package(abs_pkg_path)
             self.parsed_dec_cache[pkg] = dec
 
         if dec is None:
             return False
 
-        for includepath in dec.IncludePaths:  # if in the include path of a package then it is public
+        for (
+            includepath
+        ) in dec.IncludePaths:  # if in the include path of a package then it is public
             if (pkg + "/" + includepath + "/") in filepath:
                 return True
 
@@ -471,9 +542,9 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
                 for Extension in extensionlist_lower:
                     if File.lower().endswith(Extension):
                         ignoreIt = False
-                        if (ignorelist is not None):
+                        if ignorelist is not None:
                             for c in ignorelist_lower:
-                                if (File.lower().startswith(c)):
+                                if File.lower().startswith(c):
                                     ignoreIt = True
                                     break
                         if not ignoreIt:

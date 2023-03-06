@@ -178,14 +178,33 @@ class Edk2MultiPkgAwareInvocable(Edk2Invocable):
     def AddCommandLineOptions(self, parserObj):
         """Adds command line options to the argparser."""
         # This will parse the packages that we are going to update
-        parserObj.add_argument('-p', '--pkg', '--pkg-dir', dest='packageList', type=str,
-                               help='Optional - A package or folder you want to update (workspace relative).'
-                               'Can list multiple by doing -p <pkg1>,<pkg2> or -p <pkg3> -p <pkg4>',
-                               action="append", default=[])
-        parserObj.add_argument('-a', '--arch', dest="requested_arch", type=str, default=None,
-                               help="Optional - CSV of architecutres requested to update. Example: -a X64,AARCH64")
-        parserObj.add_argument('-t', '--target', dest='requested_target', type=str, default=None,
-                               help="Optional - CSV of targets requested to update.  Example: -t DEBUG,NOOPT")
+        parserObj.add_argument(
+            "-p",
+            "--pkg",
+            "--pkg-dir",
+            dest="packageList",
+            type=str,
+            help="Optional - A package or folder you want to update (workspace relative)."
+            "Can list multiple by doing -p <pkg1>,<pkg2> or -p <pkg3> -p <pkg4>",
+            action="append",
+            default=[],
+        )
+        parserObj.add_argument(
+            "-a",
+            "--arch",
+            dest="requested_arch",
+            type=str,
+            default=None,
+            help="Optional - CSV of architecutres requested to update. Example: -a X64,AARCH64",
+        )
+        parserObj.add_argument(
+            "-t",
+            "--target",
+            dest="requested_target",
+            type=str,
+            default=None,
+            help="Optional - CSV of targets requested to update.  Example: -t DEBUG,NOOPT",
+        )
 
     def RetrieveCommandLineOptions(self, args):
         """Retrieve command line options from the argparser ."""
@@ -210,14 +229,20 @@ class Edk2MultiPkgAwareInvocable(Edk2Invocable):
 
     def InputParametersConfiguredCallback(self):
         """Initializes the environment once input parameters are collected."""
-        if (len(self.requested_package_list) == 0):
-            self.requested_package_list = list(self.PlatformSettings.GetPackagesSupported())
+        if len(self.requested_package_list) == 0:
+            self.requested_package_list = list(
+                self.PlatformSettings.GetPackagesSupported()
+            )
         self.PlatformSettings.SetPackages(self.requested_package_list)
 
-        if (len(self.requested_architecture_list) == 0):
-            self.requested_architecture_list = list(self.PlatformSettings.GetArchitecturesSupported())
+        if len(self.requested_architecture_list) == 0:
+            self.requested_architecture_list = list(
+                self.PlatformSettings.GetArchitecturesSupported()
+            )
         self.PlatformSettings.SetArchitectures(self.requested_architecture_list)
 
-        if (len(self.requested_target_list) == 0):
-            self.requested_target_list = list(self.PlatformSettings.GetTargetsSupported())
+        if len(self.requested_target_list) == 0:
+            self.requested_target_list = list(
+                self.PlatformSettings.GetTargetsSupported()
+            )
         self.PlatformSettings.SetTargets(self.requested_target_list)

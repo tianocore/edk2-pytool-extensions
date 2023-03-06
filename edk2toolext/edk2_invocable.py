@@ -34,7 +34,7 @@ from edk2toollib.utility_functions import import_module_by_file_name
 from edk2toolext.base_abstract_invocable import BaseAbstractInvocable
 
 
-class Edk2InvocableSettingsInterface():
+class Edk2InvocableSettingsInterface:
     """Settings APIs to support an Edk2Invocable.
 
     This is an interface definition only to show which functions are
@@ -196,7 +196,9 @@ class Edk2Invocable(BaseAbstractInvocable):
         for package in pip_packages:
             version = pkg_resources.get_distribution(package).version
             logging.info("{0} version: {1}".format(package.project_name, version))
-            ver_agg.ReportVersion(package.project_name, version, version_aggregator.VersionTypes.PIP)
+            ver_agg.ReportVersion(
+                package.project_name, version, version_aggregator.VersionTypes.PIP
+            )
 
     def GetWorkspaceRoot(self) -> os.PathLike:
         """Returns the absolute path to the workspace root.
@@ -210,7 +212,9 @@ class Edk2Invocable(BaseAbstractInvocable):
         try:
             return self.PlatformSettings.GetWorkspaceRoot()
         except AttributeError:
-            raise RuntimeError("Can't call this before PlatformSettings has been set up!")
+            raise RuntimeError(
+                "Can't call this before PlatformSettings has been set up!"
+            )
 
     def GetPackagesPath(self) -> Iterable[os.PathLike]:
         """Returns an iterable of packages path.
@@ -222,9 +226,15 @@ class Edk2Invocable(BaseAbstractInvocable):
             Packages path
         """
         try:
-            return [x for x in self.PlatformSettings.GetPackagesPath() if x not in self.GetSkippedDirectories()]
+            return [
+                x
+                for x in self.PlatformSettings.GetPackagesPath()
+                if x not in self.GetSkippedDirectories()
+            ]
         except AttributeError:
-            raise RuntimeError("Can't call this before PlatformSettings has been set up!")
+            raise RuntimeError(
+                "Can't call this before PlatformSettings has been set up!"
+            )
 
     def GetActiveScopes(self) -> Tuple[str]:
         """Returns an iterable of Active scopes.
@@ -240,15 +250,17 @@ class Edk2Invocable(BaseAbstractInvocable):
         try:
             scopes = self.PlatformSettings.GetActiveScopes()
         except AttributeError:
-            raise RuntimeError("Can't call this before PlatformSettings has been set up!")
+            raise RuntimeError(
+                "Can't call this before PlatformSettings has been set up!"
+            )
 
         # Add any OS-specific scope.
         if GetHostInfo().os == "Windows":
-            scopes += ('global-win',)
+            scopes += ("global-win",)
         elif GetHostInfo().os == "Linux":
-            scopes += ('global-nix',)
+            scopes += ("global-nix",)
         # Add the global scope. To be deprecated.
-        scopes += ('global',)
+        scopes += ("global",)
         return scopes
 
     def GetLoggingLevel(self, loggerType):
@@ -302,7 +314,9 @@ class Edk2Invocable(BaseAbstractInvocable):
         try:
             return self.PlatformSettings.GetSkippedDirectories()
         except AttributeError:
-            raise RuntimeError("Can't call this before PlatformSettings has been set up!")
+            raise RuntimeError(
+                "Can't call this before PlatformSettings has been set up!"
+            )
 
     def GetSettingsClass(self):
         """The required settings manager for the invocable.
@@ -325,7 +339,8 @@ class Edk2Invocable(BaseAbstractInvocable):
         Returns:
             (str): The string to be added to the end of the argument parser.
         """
-        epilog = dedent('''\
+        epilog = dedent(
+            """\
             CLI Env Guide:
               <key>=<value>              - Set an env variable for the pre/post build process
               <key>                      - Set a non-valued env variable for the pre/post build process
@@ -335,7 +350,8 @@ class Edk2Invocable(BaseAbstractInvocable):
               BLD_<TARGET>_<key>=<value> - Set a build flag for build type of <target>
                                            (key=value will get passed to build process for given build type)
               BLD_<TARGET>_<key>         - Set a non-valued build flag for a build type of <target>
-            ''')
+            """
+        )
         return epilog
 
     def ParseCommandLineOptions(self):
@@ -348,18 +364,26 @@ class Edk2Invocable(BaseAbstractInvocable):
         # first argparser will only get settings manager and help will be disabled
         settingsParserObj = argparse.ArgumentParser(add_help=False)
 
-        settingsParserObj.add_argument('-c', '--platform_module', dest='platform_module',
-                                       default="PlatformBuild.py", type=str,
-                                       help='Provide the Platform Module relative to the current working directory.'
-                                            f'This should contain a {self.GetSettingsClass().__name__} instance.')
+        settingsParserObj.add_argument(
+            "-c",
+            "--platform_module",
+            dest="platform_module",
+            default="PlatformBuild.py",
+            type=str,
+            help="Provide the Platform Module relative to the current working directory."
+            f"This should contain a {self.GetSettingsClass().__name__} instance.",
+        )
 
         # get the settings manager from the provided file and load an instance
         settingsArg, unknown_args = settingsParserObj.parse_known_args()
         try:
-            self.PlatformModule = import_module_by_file_name(os.path.abspath(settingsArg.platform_module))
+            self.PlatformModule = import_module_by_file_name(
+                os.path.abspath(settingsArg.platform_module)
+            )
             self.PlatformSettings = locate_class_in_module(
-                self.PlatformModule, self.GetSettingsClass())()
-        except (TypeError):
+                self.PlatformModule, self.GetSettingsClass()
+            )()
+        except TypeError:
             # Gracefully exit if the file we loaded isn't the right type
             class_name = self.GetSettingsClass().__name__
             print(f"Unable to use {settingsArg.platform_module} as a {class_name}")
@@ -371,7 +395,11 @@ class Edk2Invocable(BaseAbstractInvocable):
                 Module = self.PlatformModule
                 module_contents = dir(Module)
                 # Filter through the Module, we're only looking for classes.
-                classList = [getattr(Module, obj) for obj in module_contents if inspect.isclass(getattr(Module, obj))]
+                classList = [
+                    getattr(Module, obj)
+                    for obj in module_contents
+                    if inspect.isclass(getattr(Module, obj))
+                ]
                 # Get the name of all the classes
                 classNameList = [obj.__name__ for obj in classList]
                 # TODO improve filter to no longer catch imports as well as declared classes
@@ -383,21 +411,25 @@ class Edk2Invocable(BaseAbstractInvocable):
             settingsParserObj.print_help()
             sys.exit(1)
 
-        except (FileNotFoundError):
+        except FileNotFoundError:
             # Gracefully exit if we can't find the file
             print(f"We weren't able to find {settingsArg.platform_module}")
             settingsParserObj.print_help()
             sys.exit(2)
 
         except Exception as e:
-            print(f"Error: We had trouble loading {settingsArg.platform_module}. Is the path correct?")
+            print(
+                f"Error: We had trouble loading {settingsArg.platform_module}. Is the path correct?"
+            )
             # Gracefully exit if setup doesn't go well.
             settingsParserObj.print_help()
             print(e)
             sys.exit(2)
 
         # instantiate the second argparser that will get passed around
-        parserObj = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,)
+        parserObj = argparse.ArgumentParser(
+            formatter_class=argparse.RawDescriptionHelpFormatter,
+        )
 
         # first pass it to the subclass
         self.AddCommandLineOptions(parserObj)
@@ -405,13 +437,27 @@ class Edk2Invocable(BaseAbstractInvocable):
         # next pass it to the settings manager
         self.PlatformSettings.AddCommandLineOptions(parserObj)
 
-        default_build_config_path = os.path.join(self.GetWorkspaceRoot(), "BuildConfig.conf")
+        default_build_config_path = os.path.join(
+            self.GetWorkspaceRoot(), "BuildConfig.conf"
+        )
 
         # add the common stuff that everyone will need
-        parserObj.add_argument('--build-config', dest='build_config', default=default_build_config_path, type=str,
-                               help='Provide shell variables in a file')
-        parserObj.add_argument('--verbose', '--VERBOSE', '-v', dest="verbose", action='store_true', default=False,
-                               help='verbose')
+        parserObj.add_argument(
+            "--build-config",
+            dest="build_config",
+            default=default_build_config_path,
+            type=str,
+            help="Provide shell variables in a file",
+        )
+        parserObj.add_argument(
+            "--verbose",
+            "--VERBOSE",
+            "-v",
+            dest="verbose",
+            action="store_true",
+            default=False,
+            help="verbose",
+        )
 
         # set the epilog to display with --help, -h
         parserObj.epilog = self.AddParserEpilog()
@@ -444,11 +490,15 @@ class Edk2Invocable(BaseAbstractInvocable):
         for argument in unknown_args:
             if argument.count("=") == 1:
                 tokens = argument.strip().split("=")
-                env.SetValue(tokens[0].strip().upper(), tokens[1].strip(), "From CmdLine")
+                env.SetValue(
+                    tokens[0].strip().upper(), tokens[1].strip(), "From CmdLine"
+                )
             elif argument.count("=") == 0:
-                env.SetValue(argument.strip().upper(),
-                             ''.join(choice(ascii_letters) for _ in range(20)),
-                             "Non valued variable set From cmdLine")
+                env.SetValue(
+                    argument.strip().upper(),
+                    "".join(choice(ascii_letters) for _ in range(20)),
+                    "Non valued variable set From cmdLine",
+                )
             else:
                 raise RuntimeError(f"Unknown variable passed in via CLI: {argument}")
 
@@ -465,10 +515,16 @@ class Edk2Invocable(BaseAbstractInvocable):
         for argument in unknown_args:
             if argument.count("=") == 1:
                 tokens = argument.strip().split("=")
-                env.SetValue(tokens[0].strip().upper(), tokens[1].strip(), "From BuildConf")
+                env.SetValue(
+                    tokens[0].strip().upper(), tokens[1].strip(), "From BuildConf"
+                )
             elif argument.count("=") == 0:
-                env.SetValue(argument.strip().upper(),
-                             ''.join(choice(ascii_letters) for _ in range(20)),
-                             "Non valued variable set from BuildConfig")
+                env.SetValue(
+                    argument.strip().upper(),
+                    "".join(choice(ascii_letters) for _ in range(20)),
+                    "Non valued variable set from BuildConfig",
+                )
             else:
-                raise RuntimeError(f"Unknown variable passed in via BuildConfig: {argument}")
+                raise RuntimeError(
+                    f"Unknown variable passed in via BuildConfig: {argument}"
+                )

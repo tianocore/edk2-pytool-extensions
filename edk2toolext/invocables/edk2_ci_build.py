@@ -21,8 +21,12 @@ import traceback
 from typing import Dict, Any
 from edk2toollib.uefi.edk2.path_utilities import Edk2Path
 from edk2toollib.log.junit_report_format import JunitTestReport
-from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable
-from edk2toolext.invocables.edk2_multipkg_aware_invocable import MultiPkgAwareSettingsInterface
+from edk2toolext.invocables.edk2_multipkg_aware_invocable import (
+    Edk2MultiPkgAwareInvocable,
+)
+from edk2toolext.invocables.edk2_multipkg_aware_invocable import (
+    MultiPkgAwareSettingsInterface,
+)
 from edk2toolext.environment import self_describing_environment
 from edk2toolext.environment.plugintypes.ci_build_plugin import ICiBuildPlugin
 from edk2toolext.environment import shell_environment
@@ -95,13 +99,17 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
 
     def Go(self):
         """Executes the core functionality of the Edk2CiBuild invocable."""
-        log_directory = os.path.join(self.GetWorkspaceRoot(), self.GetLoggingFolderRelativeToRoot())
+        log_directory = os.path.join(
+            self.GetWorkspaceRoot(), self.GetLoggingFolderRelativeToRoot()
+        )
 
         Edk2CiBuild.collect_python_pip_info()
 
         # make Edk2Path object to handle all path operations
         try:
-            edk2path = Edk2Path(self.GetWorkspaceRoot(), self.PlatformSettings.GetPackagesPath())
+            edk2path = Edk2Path(
+                self.GetWorkspaceRoot(), self.PlatformSettings.GetPackagesPath()
+            )
         except Exception as e:
             logging.error("Src Tree is invalid.  Did you Setup correctly?")
             raise e
@@ -112,7 +120,10 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
         # Bring up the common minimum environment.
         logging.log(edk2_logging.SECTION, "Getting Environment")
         (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(
-            self.GetWorkspaceRoot(), self.GetActiveScopes(), self.GetSkippedDirectories())
+            self.GetWorkspaceRoot(),
+            self.GetActiveScopes(),
+            self.GetSkippedDirectories(),
+        )
         env = shell_environment.GetBuildVars()
 
         # Bind our current execution environment into the shell vars.
@@ -130,7 +141,11 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
             pc = '"' + pc + '"'
         shell_env.set_shell_var("PYTHON_COMMAND", pc)
 
-        env.SetValue("TARGET_ARCH", " ".join(self.requested_architecture_list), "from edk2 ci build.py")
+        env.SetValue(
+            "TARGET_ARCH",
+            " ".join(self.requested_architecture_list),
+            "from edk2 ci build.py",
+        )
 
         # Generate consumable XML object- junit format
         JunitReport = JunitTestReport()
@@ -150,20 +165,27 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
             #
             logging.log(edk2_logging.SECTION, f"Building {pkgToRunOn} Package")
             logging.info(f"Running on Package: {pkgToRunOn}")
-            package_class_name = f"Edk2CiBuild.{self.PlatformSettings.GetName()}.{pkgToRunOn}"
+            package_class_name = (
+                f"Edk2CiBuild.{self.PlatformSettings.GetName()}.{pkgToRunOn}"
+            )
             ts = JunitReport.create_new_testsuite(pkgToRunOn, package_class_name)
             packagebuildlog_path = os.path.join(log_directory, pkgToRunOn)
             _, txt_handle = edk2_logging.setup_txt_logger(
-                packagebuildlog_path, f"BUILDLOG_{pkgToRunOn}", logging_level=logging.DEBUG, isVerbose=True)
+                packagebuildlog_path,
+                f"BUILDLOG_{pkgToRunOn}",
+                logging_level=logging.DEBUG,
+                isVerbose=True,
+            )
             loghandle = [txt_handle]
             shell_environment.CheckpointBuildVars()
             env = shell_environment.GetBuildVars()
 
             # load the package level .ci.yaml
             pkg_config_file = edk2path.GetAbsolutePathOnThisSystemFromEdk2RelativePath(
-                os.path.join(pkgToRunOn, pkgToRunOn + ".ci.yaml"))
-            if (pkg_config_file):
-                with open(pkg_config_file, 'r') as f:
+                os.path.join(pkgToRunOn, pkgToRunOn + ".ci.yaml")
+            )
+            if pkg_config_file:
+                with open(pkg_config_file, "r") as f:
                     pkg_config = yaml.safe_load(f)
             else:
                 logging.info(f"No Pkg Config file for {pkgToRunOn}")
@@ -173,37 +195,55 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
             if "Defines" in pkg_config:
                 for definition_key in pkg_config["Defines"]:
                     definition = pkg_config["Defines"][definition_key]
-                    env.SetValue(definition_key, definition, "Edk2CiBuild.py from PkgConfig yaml", False)
+                    env.SetValue(
+                        definition_key,
+                        definition,
+                        "Edk2CiBuild.py from PkgConfig yaml",
+                        False,
+                    )
 
             # For each plugin
             for Descriptor in pluginList:
                 # For each target
                 for target in self.requested_target_list:
-
-                    if (target not in Descriptor.Obj.RunsOnTargetList()):
+                    if target not in Descriptor.Obj.RunsOnTargetList():
                         continue
 
-                    edk2_logging.log_progress(f"--Running {pkgToRunOn}: {Descriptor.Name} {target} --")
+                    edk2_logging.log_progress(
+                        f"--Running {pkgToRunOn}: {Descriptor.Name} {target} --"
+                    )
                     total_num += 1
                     shell_environment.CheckpointBuildVars()
                     env = shell_environment.GetBuildVars()
 
-                    env.SetValue("TARGET", target, "Edk2CiBuild.py before RunBuildPlugin")
-                    (testcasename, testclassname) = Descriptor.Obj.GetTestName(package_class_name, env)
+                    env.SetValue(
+                        "TARGET", target, "Edk2CiBuild.py before RunBuildPlugin"
+                    )
+                    (testcasename, testclassname) = Descriptor.Obj.GetTestName(
+                        package_class_name, env
+                    )
                     tc = ts.create_new_testcase(testcasename, testclassname)
 
                     # create the stream for the build log
                     plugin_output_stream = edk2_logging.create_output_stream()
 
                     # merge the repo level and package level for this specific plugin
-                    pkg_plugin_configuration = Edk2CiBuild.merge_config(self.PlatformSettings.GetPluginSettings(),
-                                                                        pkg_config, Descriptor.descriptor)
+                    pkg_plugin_configuration = Edk2CiBuild.merge_config(
+                        self.PlatformSettings.GetPluginSettings(),
+                        pkg_config,
+                        Descriptor.descriptor,
+                    )
 
                     # Still need to see if the package decided this should be skipped
-                    if pkg_plugin_configuration is None or\
-                            "skip" in pkg_plugin_configuration and pkg_plugin_configuration["skip"]:
+                    if (
+                        pkg_plugin_configuration is None
+                        or "skip" in pkg_plugin_configuration
+                        and pkg_plugin_configuration["skip"]
+                    ):
                         tc.SetSkipped()
-                        edk2_logging.log_progress("--->Test Skipped by package! %s" % Descriptor.Name)
+                        edk2_logging.log_progress(
+                            "--->Test Skipped by package! %s" % Descriptor.Name
+                        )
 
                     else:
                         try:
@@ -217,30 +257,46 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
                             #   - Plugin Helper Obj Instance
                             #   - testcase Object used for outputing junit results
                             #   - output_stream the StringIO output stream from this plugin
-                            rc = Descriptor.Obj.RunBuildPlugin(pkgToRunOn, edk2path, pkg_plugin_configuration,
-                                                               env, self.plugin_manager, self.helper,
-                                                               tc, plugin_output_stream)
+                            rc = Descriptor.Obj.RunBuildPlugin(
+                                pkgToRunOn,
+                                edk2path,
+                                pkg_plugin_configuration,
+                                env,
+                                self.plugin_manager,
+                                self.helper,
+                                tc,
+                                plugin_output_stream,
+                            )
                         except Exception as exp:
                             exc_type, exc_value, exc_traceback = sys.exc_info()
                             logging.critical("EXCEPTION: {0}".format(exp))
-                            exceptionPrint = traceback.format_exception(type(exp), exp, exc_traceback)
+                            exceptionPrint = traceback.format_exception(
+                                type(exp), exp, exc_traceback
+                            )
                             logging.critical(" ".join(exceptionPrint))
-                            tc.SetError("Exception: {0}".format(
-                                exp), "UNEXPECTED EXCEPTION")
+                            tc.SetError(
+                                "Exception: {0}".format(exp), "UNEXPECTED EXCEPTION"
+                            )
                             rc = 1
 
-                        if (rc > 0):
+                        if rc > 0:
                             failure_num += 1
-                            if (rc is None):
+                            if rc is None:
                                 logging.error(
-                                    f"--->Test Failed: {Descriptor.Name} {target} returned NoneType")
+                                    f"--->Test Failed: {Descriptor.Name} {target} returned NoneType"
+                                )
                             else:
                                 logging.error(
-                                    f"--->Test Failed: {Descriptor.Name} {target} returned {rc}")
-                        elif (rc < 0):
-                            logging.warn(f"--->Test Skipped: in plugin! {Descriptor.Name} {target}")
+                                    f"--->Test Failed: {Descriptor.Name} {target} returned {rc}"
+                                )
+                        elif rc < 0:
+                            logging.warn(
+                                f"--->Test Skipped: in plugin! {Descriptor.Name} {target}"
+                            )
                         else:
-                            edk2_logging.log_progress(f"--->Test Success: {Descriptor.Name} {target}")
+                            edk2_logging.log_progress(
+                                f"--->Test Success: {Descriptor.Name} {target}"
+                            )
 
                     # revert to the checkpoint we created previously
                     shell_environment.RevertBuildVars()
@@ -249,16 +305,22 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
                 # finished target loop
             # Finished plugin loop
 
-            edk2_logging.stop_logging(loghandle)  # stop the logging for this particular buildfile
+            edk2_logging.stop_logging(
+                loghandle
+            )  # stop the logging for this particular buildfile
             shell_environment.RevertBuildVars()
         # Finished buildable file loop
 
-        JunitReport.Output(os.path.join(self.GetWorkspaceRoot(), "Build", "TestSuites.xml"))
+        JunitReport.Output(
+            os.path.join(self.GetWorkspaceRoot(), "Build", "TestSuites.xml")
+        )
 
         # Print Overall Success
-        if (failure_num != 0):
+        if failure_num != 0:
             logging.error("Overall Build Status: Error")
-            edk2_logging.log_progress(f"There were {failure_num} failures out of {total_num} attempts")
+            edk2_logging.log_progress(
+                f"There were {failure_num} failures out of {total_num} attempts"
+            )
         else:
             edk2_logging.log_progress("Overall Build Status: Success")
 

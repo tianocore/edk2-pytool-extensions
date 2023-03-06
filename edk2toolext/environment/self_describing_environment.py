@@ -32,6 +32,7 @@ class self_describing_environment(object):
     Scans the environment for files that describe the source and dependencies
     and then acts upon those files.
     """
+
     def __init__(self, workspace_path, scopes=(), skipped_dirs=()):
         """Inits an empty self describing environment."""
         logging.debug("--- self_describing_environment.__init__()")
@@ -45,15 +46,19 @@ class self_describing_environment(object):
         self.scopes = scopes
 
         # Allow certain directories to be skipped
-        self.skipped_dirs = tuple(map(Path, (os.path.join(self.workspace, d) for d in skipped_dirs)))
+        self.skipped_dirs = tuple(
+            map(Path, (os.path.join(self.workspace, d) for d in skipped_dirs))
+        )
 
         # Respect git worktrees
         details = repo_resolver.repo_details(self.workspace)
         if details["Valid"]:
             for worktree_path in details["Worktrees"]:
-                if (worktree_path.is_dir()
-                        and Path(self.workspace) != worktree_path
-                        and worktree_path not in skipped_dirs):
+                if (
+                    worktree_path.is_dir()
+                    and Path(self.workspace) != worktree_path
+                    and worktree_path not in skipped_dirs
+                ):
                     self.skipped_dirs += (worktree_path,)
 
         # Validate that all scopes are unique.
@@ -74,19 +79,21 @@ class self_describing_environment(object):
         matches = {}
         for root, dirs, files in os.walk(base_path, topdown=True):
             # Check to see whether any of these directories should be skipped..
-            dirs[:] = [d
-                       for d
-                       in dirs
-                       if Path(root, d) not in self.skipped_dirs
-                       and Path(root, d).name != '.git']
+            dirs[:] = [
+                d
+                for d in dirs
+                if Path(root, d) not in self.skipped_dirs
+                and Path(root, d).name != ".git"
+            ]
 
             # Check for any files that match the extensions we're looking for.
             for file in files:
                 for search_file in search_files:
-                    if file.lower().endswith(search_file + ".json") or file.lower().endswith(search_file + ".yaml"):
+                    if file.lower().endswith(
+                        search_file + ".json"
+                    ) or file.lower().endswith(search_file + ".yaml"):
                         if search_file in matches:
-                            matches[search_file].append(
-                                os.path.join(root, file))
+                            matches[search_file].append(os.path.join(root, file))
                         else:
                             matches[search_file] = [os.path.join(root, file)]
 
@@ -96,10 +103,12 @@ class self_describing_environment(object):
         """Loads the workspace."""
         logging.debug("--- self_describing_environment.load_workspace()")
         logging.debug("Loading workspace: %s" % self.workspace)
-        logging.debug("  Including scopes: %s" % ', '.join(self.scopes))
+        logging.debug("  Including scopes: %s" % ", ".join(self.scopes))
 
         # First, we need to get all of the files that describe our environment.
-        env_files = self._gather_env_files(('path_env', 'ext_dep', 'plug_in'), self.workspace)
+        env_files = self._gather_env_files(
+            ("path_env", "ext_dep", "plug_in"), self.workspace
+        )
 
         # Next, get a list of all our scopes
         all_scopes_lower = [x.lower() for x in self.scopes]
@@ -117,16 +126,30 @@ class self_describing_environment(object):
             return tuple(class_type(desc_file) for desc_file in env_files[key])
 
         # Collect all the descriptors of each type
-        all_descriptors.extend(_get_all_descriptors_of_type('path_env', EDF.PathEnvDescriptor))
-        all_descriptors.extend(_get_all_descriptors_of_type('ext_dep', EDF.ExternDepDescriptor))
-        all_descriptors.extend(_get_all_descriptors_of_type('plug_in', EDF.PluginDescriptor))
+        all_descriptors.extend(
+            _get_all_descriptors_of_type("path_env", EDF.PathEnvDescriptor)
+        )
+        all_descriptors.extend(
+            _get_all_descriptors_of_type("ext_dep", EDF.ExternDepDescriptor)
+        )
+        all_descriptors.extend(
+            _get_all_descriptors_of_type("plug_in", EDF.PluginDescriptor)
+        )
 
         # Get the properly scoped descriptors by checking if the scope is in the list of all the scopes
-        scoped_desc_gen = [x for x in all_descriptors if x.descriptor_contents['scope'].lower() in all_scopes_lower]
+        scoped_desc_gen = [
+            x
+            for x in all_descriptors
+            if x.descriptor_contents["scope"].lower() in all_scopes_lower
+        ]
         scoped_descriptors = list(scoped_desc_gen)
 
         # Check that each found item has a unique ID, that's an error if it isn't
-        allids_gen = [x.descriptor_contents['id'].lower() for x in scoped_descriptors if 'id' in x.descriptor_contents]
+        allids_gen = [
+            x.descriptor_contents["id"].lower()
+            for x in scoped_descriptors
+            if "id" in x.descriptor_contents
+        ]
         all_ids = list(allids_gen)
         all_unique_ids = set(all_ids)
         if len(all_ids) != len(all_unique_ids):
@@ -134,32 +157,46 @@ class self_describing_environment(object):
             all_unique_id_dict = {}
             for desc_id in all_ids:
                 dict_id_seen = desc_id not in all_unique_id_dict
-                all_unique_id_dict[desc_id] = 1 if dict_id_seen else all_unique_id_dict[desc_id] + 1
+                all_unique_id_dict[desc_id] = (
+                    1 if dict_id_seen else all_unique_id_dict[desc_id] + 1
+                )
             for desc_id in all_unique_id_dict:
                 if all_unique_id_dict[desc_id] == 1:
                     continue
                 # get the descriptors
                 desc_of_id = [
-                    x for x in scoped_descriptors
-                    if 'id' in x.descriptor_contents and x.descriptor_contents['id'].lower() == desc_id
+                    x
+                    for x in scoped_descriptors
+                    if "id" in x.descriptor_contents
+                    and x.descriptor_contents["id"].lower() == desc_id
                 ]
                 paths_of_desc_of_id = [x.file_path for x in desc_of_id]
                 invalid_desc_paths = f"{os.pathsep} ".join(paths_of_desc_of_id)
-                logging.error(f"Descriptors that have this id {desc_id}: {invalid_desc_paths}")
+                logging.error(
+                    f"Descriptors that have this id {desc_id}: {invalid_desc_paths}"
+                )
             raise RuntimeError("Multiple descriptor files share the same id")
 
         # Now check for overrides, first get a list of all the descriptors that have an override id tag
-        override_descriptors = [x for x in scoped_descriptors if "override_id" in x.descriptor_contents]
+        override_descriptors = [
+            x for x in scoped_descriptors if "override_id" in x.descriptor_contents
+        ]
         active_overrides = {}
         for desc in override_descriptors:
             override_id = desc.descriptor_contents["override_id"].lower()
             # we found this was already overriden, make sure to let the user know
             if override_id in active_overrides:
-                logging.warning("A descriptor file is trying to override a file that was previously overriden")
+                logging.warning(
+                    "A descriptor file is trying to override a file that was previously overriden"
+                )
                 logging.warning(f"File ID being overriden: {override_id}")
-                logging.warning(f"Previous override: {active_overrides[override_id].file_path}")
+                logging.warning(
+                    f"Previous override: {active_overrides[override_id].file_path}"
+                )
                 logging.warning(f"New override: {desc.file_path}")
-                raise RuntimeError(f"Multiple descriptor files share the same override_id: {override_id}")
+                raise RuntimeError(
+                    f"Multiple descriptor files share the same override_id: {override_id}"
+                )
             active_overrides[override_id] = desc
 
         # Now we filter the overriden id's out and debug to the user whether we are including them or not
@@ -167,24 +204,45 @@ class self_describing_environment(object):
         final_descriptors = []
         for desc in scoped_descriptors:
             desc_file = desc.file_path
-            if 'id' in desc.descriptor_contents:
-                desc_id = desc.descriptor_contents['id'].lower()
+            if "id" in desc.descriptor_contents:
+                desc_id = desc.descriptor_contents["id"].lower()
                 if desc_id in overriden_ids:
                     override = active_overrides[desc_id]
                     desc_name = f"{desc_file}:{desc_id}"
                     override_name = f"{override.file_path}"
-                    logging.debug(f"Skipping descriptor {desc_name} as it is being overridden by {override_name}.")
+                    logging.debug(
+                        f"Skipping descriptor {desc_name} as it is being overridden by {override_name}."
+                    )
                     continue
             # add them to the final list
-            desc_scope = desc.descriptor_contents['scope']
-            logging.debug(f"Adding descriptor {desc_file} to the environment with scope {desc_scope}")
+            desc_scope = desc.descriptor_contents["scope"]
+            logging.debug(
+                f"Adding descriptor {desc_file} to the environment with scope {desc_scope}"
+            )
             final_descriptors.append(desc)
 
         # Finally, sort them back in the right categories
-        self.paths = list([x.descriptor_contents for x in final_descriptors if isinstance(x, EDF.PathEnvDescriptor)])
+        self.paths = list(
+            [
+                x.descriptor_contents
+                for x in final_descriptors
+                if isinstance(x, EDF.PathEnvDescriptor)
+            ]
+        )
         self.extdeps = list(
-            [x.descriptor_contents for x in final_descriptors if isinstance(x, EDF.ExternDepDescriptor)])
-        self.plugins = list([x.descriptor_contents for x in final_descriptors if isinstance(x, EDF.PluginDescriptor)])
+            [
+                x.descriptor_contents
+                for x in final_descriptors
+                if isinstance(x, EDF.ExternDepDescriptor)
+            ]
+        )
+        self.plugins = list(
+            [
+                x.descriptor_contents
+                for x in final_descriptors
+                if isinstance(x, EDF.PluginDescriptor)
+            ]
+        )
 
         return self
 
@@ -214,16 +272,14 @@ class self_describing_environment(object):
         # Walk through each possible environment modification
         # and apply to the environment as required.
 
-        if 'set_path' in desc_object.flags:
+        if "set_path" in desc_object.flags:
             env_object.insert_path(desc_object.published_path)
-        if 'set_pypath' in desc_object.flags:
+        if "set_pypath" in desc_object.flags:
             env_object.insert_pypath(desc_object.published_path)
-        if 'set_build_var' in desc_object.flags:
-            env_object.set_build_var(
-                desc_object.var_name, desc_object.published_path)
-        if 'set_shell_var' in desc_object.flags:
-            env_object.set_shell_var(
-                desc_object.var_name, desc_object.published_path)
+        if "set_build_var" in desc_object.flags:
+            env_object.set_build_var(desc_object.var_name, desc_object.published_path)
+        if "set_shell_var" in desc_object.flags:
+            env_object.set_shell_var(desc_object.var_name, desc_object.published_path)
 
     def update_simple_paths(self, env_object):
         """Updates simple paths."""
@@ -254,9 +310,9 @@ class self_describing_environment(object):
                 if not extdep.verify():
                     # Get rid of extdep published path since it could get changed
                     # during the fetch routine.
-                    if 'set_path' in extdep.flags:
+                    if "set_path" in extdep.flags:
                         env_object.remove_path_element(extdep.published_path)
-                    if 'set_pypath' in extdep.flags:
+                    if "set_pypath" in extdep.flags:
                         env_object.remove_pypath_element(extdep.published_path)
                     extdep.clean()
                     extdep.fetch()
@@ -273,6 +329,7 @@ class self_describing_environment(object):
                 if extdep.error_msg is not None:
                     logging.warning(extdep.error_msg)
                 return False
+
         # prep the worker pool
         all_extdeps = self._get_extdeps(env_object)
         self_extdeps = [(self, x) for x in all_extdeps]
@@ -293,7 +350,7 @@ class self_describing_environment(object):
         old_count = num_extdeps
         # wait for the pool_handle (MapResult) to finish
         while pool_handle._number_left != 0:
-            while (old_count != pool_handle._number_left and old_count > 0):
+            while old_count != pool_handle._number_left and old_count > 0:
                 print(".", end="", flush=True)
                 old_count -= 1
             time.sleep(0.1)  # wait 100 ms
@@ -306,7 +363,9 @@ class self_describing_environment(object):
         if len(results) != num_extdeps or exception_count > 0:
             # We don't know where the error since we don't get a return result from it
             # so just tell users to check their logs
-            raise RuntimeError("We encountered an exception while updating ext-deps. Review your log")
+            raise RuntimeError(
+                "We encountered an exception while updating ext-deps. Review your log"
+            )
         return success_count, failure_count
 
     def clean_extdeps(self, env_object):
@@ -358,7 +417,8 @@ def BootstrapEnvironment(workspace, scopes=(), skipped_dirs=()):
         # Locate and load all environment description files.
         #
         build_env = self_describing_environment(
-            workspace, scopes, skipped_dirs).load_workspace()
+            workspace, scopes, skipped_dirs
+        ).load_workspace()
 
         #
         # ENVIRONMENT BOOTSTRAP STAGE 2

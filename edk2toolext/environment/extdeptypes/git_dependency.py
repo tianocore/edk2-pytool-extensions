@@ -27,6 +27,7 @@ class GitDependency(ExternalDependency):
     !!! tip
         The attributes are what must be described in the ext_dep yaml file!
     """
+
     TypeString = "git"
 
     def __init__(self, descriptor):
@@ -34,7 +35,7 @@ class GitDependency(ExternalDependency):
         super().__init__(descriptor)
 
         # Check to see whether this URL should be patched.
-        url_creds_var = descriptor.get('url_creds_var', None)
+        url_creds_var = descriptor.get("url_creds_var", None)
         if url_creds_var is not None:
             env = shell_environment.GetEnvironment()
             url_creds = env.get_shell_var(url_creds_var)
@@ -42,21 +43,29 @@ class GitDependency(ExternalDependency):
                 # Break things up.
                 source_parts = urlsplit(self.source)
                 # Modify the URL host with the creds.
-                new_parts = (source_parts.scheme,
-                             url_creds + '@' + source_parts.netloc,
-                             source_parts.path,
-                             source_parts.query,
-                             source_parts.fragment)
+                new_parts = (
+                    source_parts.scheme,
+                    url_creds + "@" + source_parts.netloc,
+                    source_parts.path,
+                    source_parts.query,
+                    source_parts.fragment,
+                )
                 # Put things back together.
                 self.source = urlunsplit(new_parts)
 
         self.repo_url = self.source
         self.commit = self.version
-        self._local_repo_root_path = os.path.join(os.path.abspath(self.contents_dir), self.name)
+        self._local_repo_root_path = os.path.join(
+            os.path.abspath(self.contents_dir), self.name
+        )
         self.logger = logging.getLogger("git-dependency")
 
         # valid_attributes = ["Path", "Url", "Branch", "Commit", "ReferencePath", "Full"]
-        self._repo_resolver_dep_obj = {"Path": self.name, "Url": self.repo_url, "Commit": self.commit}
+        self._repo_resolver_dep_obj = {
+            "Path": self.name,
+            "Url": self.repo_url,
+            "Commit": self.commit,
+        }
 
     def __str__(self):
         """Return a string representation."""
@@ -65,9 +74,13 @@ class GitDependency(ExternalDependency):
     def fetch(self):
         """Fetches the dependency using internal state from the init."""
         try:
-            repo_resolver.resolve(self._local_repo_root_path, self._repo_resolver_dep_obj, update_ok=True)
+            repo_resolver.resolve(
+                self._local_repo_root_path, self._repo_resolver_dep_obj, update_ok=True
+            )
         except repo_resolver.GitCommandError as e:
-            logging.debug(f'Cmd failed for git dependency: {self._local_repo_root_path}')
+            logging.debug(
+                f"Cmd failed for git dependency: {self._local_repo_root_path}"
+            )
             logging.debug(e)
 
         # Add a file to track the state of the dependency.
@@ -92,31 +105,36 @@ class GitDependency(ExternalDependency):
             it will always skip the verification process.
         """
         state_data = self.get_state_file_data()
-        if state_data and state_data['verify'] is False:
-            logging.warning(f'{self.name} is unverified. Unexpected results may occur.')
+        if state_data and state_data["verify"] is False:
+            logging.warning(f"{self.name} is unverified. Unexpected results may occur.")
             return True
 
         result = True
         details = repo_resolver.repo_details(self._local_repo_root_path)
 
-        if not details['Path'].is_dir():
-            self.logger.info('Not a directory')
+        if not details["Path"].is_dir():
+            self.logger.info("Not a directory")
             result = False
 
-        elif not any(details['Path'].iterdir()):
-            self.logger.info('No files in directory')
+        elif not any(details["Path"].iterdir()):
+            self.logger.info("No files in directory")
             result = False
 
-        elif not details['Initialized']:
-            self.logger.info('Not Initialized')
+        elif not details["Initialized"]:
+            self.logger.info("Not Initialized")
             result = False
 
-        elif details['Dirty']:
-            self.logger.info('Dirty')
+        elif details["Dirty"]:
+            self.logger.info("Dirty")
             result = False
 
-        elif self.version.lower() not in [details['Head']['HexSha'], details['Head']['HexShaShort']]:
-            self.logger.info(f'Mismatched sha: [head: {details["Head"]["HexSha"]}], [expected: {self.version}]')
+        elif self.version.lower() not in [
+            details["Head"]["HexSha"],
+            details["Head"]["HexShaShort"],
+        ]:
+            self.logger.info(
+                f'Mismatched sha: [head: {details["Head"]["HexSha"]}], [expected: {self.version}]'
+            )
             result = False
 
         self.logger.debug("Verify '%s' returning '%s'." % (self.name, result))

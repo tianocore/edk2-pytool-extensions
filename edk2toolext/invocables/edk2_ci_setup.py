@@ -15,8 +15,12 @@ while allowing the invocable itself to remain platform agnostic.
 import os
 import logging
 
-from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable
-from edk2toolext.invocables.edk2_multipkg_aware_invocable import MultiPkgAwareSettingsInterface
+from edk2toolext.invocables.edk2_multipkg_aware_invocable import (
+    Edk2MultiPkgAwareInvocable,
+)
+from edk2toolext.invocables.edk2_multipkg_aware_invocable import (
+    MultiPkgAwareSettingsInterface,
+)
 from edk2toolext.environment import repo_resolver
 
 
@@ -67,16 +71,39 @@ class Edk2CiBuildSetup(Edk2MultiPkgAwareInvocable):
 
     Edk2CiBuildSetup sets up the necessary environment for Edk2CiBuild by preparing all necessary submodules.
     """
+
     def AddCommandLineOptions(self, parser):
         """Adds command line arguments to Edk2CiBuild."""
-        parser.add_argument('-ignore', '--ignore-git', dest="git_ignore", action="store_true",
-                            help="Whether to ignore errors in the git cloning process", default=False)
-        parser.add_argument('--omnicache', '--reference', dest='omnicache_path',
-                            default=os.environ.get('OMNICACHE_PATH'))
-        parser.add_argument('-force', '--force-git', dest="git_force", action="store_true",
-                            help="Whether to force git repos to clone in the git cloning process", default=False)
-        parser.add_argument('-update-git', '--update-git', dest="git_update", action="store_true",
-                            help="Whether to update git repos as needed in the git cloning process", default=False)
+        parser.add_argument(
+            "-ignore",
+            "--ignore-git",
+            dest="git_ignore",
+            action="store_true",
+            help="Whether to ignore errors in the git cloning process",
+            default=False,
+        )
+        parser.add_argument(
+            "--omnicache",
+            "--reference",
+            dest="omnicache_path",
+            default=os.environ.get("OMNICACHE_PATH"),
+        )
+        parser.add_argument(
+            "-force",
+            "--force-git",
+            dest="git_force",
+            action="store_true",
+            help="Whether to force git repos to clone in the git cloning process",
+            default=False,
+        )
+        parser.add_argument(
+            "-update-git",
+            "--update-git",
+            dest="git_update",
+            action="store_true",
+            help="Whether to update git repos as needed in the git cloning process",
+            default=False,
+        )
         super().AddCommandLineOptions(parser)
 
     def RetrieveCommandLineOptions(self, args):
@@ -85,8 +112,12 @@ class Edk2CiBuildSetup(Edk2MultiPkgAwareInvocable):
         self.git_force = args.git_force
         self.git_update = args.git_update
         self.omnicache_path = args.omnicache_path
-        if (self.omnicache_path is not None) and (not os.path.exists(self.omnicache_path)):
-            logging.warning(f"Omnicache path set to invalid path: {args.omnicache_path}")
+        if (self.omnicache_path is not None) and (
+            not os.path.exists(self.omnicache_path)
+        ):
+            logging.warning(
+                f"Omnicache path set to invalid path: {args.omnicache_path}"
+            )
             self.omnicache_path = None
 
         super().RetrieveCommandLineOptions(args)
@@ -111,10 +142,14 @@ class Edk2CiBuildSetup(Edk2MultiPkgAwareInvocable):
         """Executes the core functionality of the Edk2CiSetup invocable."""
         setup_dependencies = self.PlatformSettings.GetDependencies()
         logging.debug(f"Dependencies list {setup_dependencies}")
-        repos = repo_resolver.resolve_all(self.GetWorkspaceRoot(),
-                                          setup_dependencies,
-                                          ignore=self.git_ignore, force=self.git_force,
-                                          update_ok=self.git_update, omnicache_dir=self.omnicache_path)
+        repos = repo_resolver.resolve_all(
+            self.GetWorkspaceRoot(),
+            setup_dependencies,
+            ignore=self.git_ignore,
+            force=self.git_force,
+            update_ok=self.git_update,
+            omnicache_dir=self.omnicache_path,
+        )
 
         logging.info(f"Repo resolver resolved {repos}")
 

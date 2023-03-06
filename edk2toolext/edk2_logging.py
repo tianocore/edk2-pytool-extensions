@@ -94,8 +94,14 @@ def setup_section_level():
 
 
 # creates the the plaintext logger
-def setup_txt_logger(directory, filename="log", logging_level=logging.INFO,
-                     formatter=None, logging_namespace='', isVerbose=False):
+def setup_txt_logger(
+    directory,
+    filename="log",
+    logging_level=logging.INFO,
+    formatter=None,
+    logging_namespace="",
+    isVerbose=False,
+):
     """Configures a text logger."""
     logger = logging.getLogger(logging_namespace)
     log_formatter = formatter
@@ -107,7 +113,7 @@ def setup_txt_logger(directory, filename="log", logging_level=logging.INFO,
 
     # Create file logger
     logfile_path = os.path.join(directory, filename + ".txt")
-    filelogger = file_handler.FileHandler(filename=(logfile_path), mode='w+')
+    filelogger = file_handler.FileHandler(filename=(logfile_path), mode="w+")
     filelogger.setLevel(logging_level)
     filelogger.setFormatter(log_formatter)
     logger.addHandler(filelogger)
@@ -118,8 +124,14 @@ def setup_txt_logger(directory, filename="log", logging_level=logging.INFO,
 
 
 # sets up a colored console logger
-def setup_console_logging(logging_level=logging.INFO, formatter=None, logging_namespace='',
-                          isVerbose=False, use_azure_colors=False, use_color=True):
+def setup_console_logging(
+    logging_level=logging.INFO,
+    formatter=None,
+    logging_namespace="",
+    isVerbose=False,
+    use_azure_colors=False,
+    use_color=True,
+):
     """Configures a console logger."""
     if formatter is None and isVerbose:
         formatter_msg = "%(name)s: %(levelname)s - %(message)s"
@@ -140,7 +152,9 @@ def setup_console_logging(logging_level=logging.INFO, formatter=None, logging_na
 
     # create the ansi logger if needed
     if use_azure_colors or use_color and ansi_handler:
-        formatter = ansi_handler.ColoredFormatter(formatter_msg, use_azure=use_azure_colors)
+        formatter = ansi_handler.ColoredFormatter(
+            formatter_msg, use_azure=use_azure_colors
+        )
         coloredHandler = ansi_handler.ColoredStreamHandler()
         coloredHandler.setLevel(logging_level)
         coloredHandler.addFilter(get_edk2_filter(isVerbose))
@@ -153,7 +167,7 @@ def setup_console_logging(logging_level=logging.INFO, formatter=None, logging_na
     return safeHandler
 
 
-def stop_logging(loghandle, logging_namespace=''):
+def stop_logging(loghandle, logging_namespace=""):
     """Stops logging on a log handle."""
     logger = logging.getLogger(logging_namespace)
     if loghandle is None:
@@ -168,7 +182,7 @@ def stop_logging(loghandle, logging_namespace=''):
         logger.removeHandler(loghandle)
 
 
-def create_output_stream(level=logging.INFO, logging_namespace=''):
+def create_output_stream(level=logging.INFO, logging_namespace=""):
     """Creates an output stream to log to."""
     # creates an output stream that is in memory
     if string_handler:
@@ -181,7 +195,7 @@ def create_output_stream(level=logging.INFO, logging_namespace=''):
     return handler
 
 
-def remove_output_stream(handler, logging_namespace=''):
+def remove_output_stream(handler, logging_namespace=""):
     """Removes an output stream to log to."""
     logger = logging.getLogger(logging_namespace)
     if isinstance(handler, list):
@@ -198,6 +212,7 @@ def scan_compiler_output(output_stream):
         (list[Tuple[logging.Type, str]]): list of tuples containing the type
             of issue (Error, warning) and the description.
     """
+
     # seek to the start of the output stream
     def output_compiler_error(match, line, start_txt="Compiler"):
         start, end = match.span()
@@ -205,6 +220,7 @@ def scan_compiler_output(output_stream):
         error = line[end:].strip()
         num = match.group(1)
         return f"{start_txt} #{num} from {source} {error}"
+
     problems = []
     output_stream.seek(0, 0)
     error_exp = re.compile(r"error [A-EG-Z]?(\d+):")
@@ -247,6 +263,7 @@ def scan_compiler_output(output_stream):
 
 class Edk2LogFilter(logging.Filter):
     """Subclass of logging.Filter."""
+
     _allowedLoggers = ["root"]
 
     def __init__(self):
@@ -260,7 +277,9 @@ class Edk2LogFilter(logging.Filter):
             r"gh[pousr]_[A-Za-z0-9_]+",  # Github PAT
         ]
 
-        self.secrets_regex = re.compile(r"{}".format("|".join(secrets_regex_strings)), re.IGNORECASE)
+        self.secrets_regex = re.compile(
+            r"{}".format("|".join(secrets_regex_strings)), re.IGNORECASE
+        )
 
     def setVerbose(self, isVerbose=True):
         """Sets the filter verbosity."""
@@ -275,7 +294,11 @@ class Edk2LogFilter(logging.Filter):
     def filter(self, record):
         """Adds a filter for a record if it doesn't already exist."""
         # check to make sure we haven't already filtered this record
-        if record.name not in Edk2LogFilter._allowedLoggers and record.levelno < logging.WARNING and not self._verbose:
+        if (
+            record.name not in Edk2LogFilter._allowedLoggers
+            and record.levelno < logging.WARNING
+            and not self._verbose
+        ):
             return False
         record.msg = self.secrets_regex.sub("*******", str(record.msg))
         return True

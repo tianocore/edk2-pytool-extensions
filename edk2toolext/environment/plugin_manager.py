@@ -23,6 +23,7 @@ class PluginDescriptor(object):
         Name (str): name attribute from descriptor
         Module (obj): module attribute from descriptor
     """
+
     def __init__(self, t):
         """Inits the Plugin descriptor with the Descriptor."""
         self.descriptor = t
@@ -41,6 +42,7 @@ class PluginManager(object):
     Attributes:
         Descriptors (List[PluginDescriptor]): list of plugin descriptors
     """
+
     def __init__(self):
         """Inits an empty plugin manager."""
         self.Descriptors = []
@@ -53,7 +55,7 @@ class PluginManager(object):
             return []
         for a in newlist:
             b = PluginDescriptor(a)
-            if (self._load(b) == 0):
+            if self._load(b) == 0:
                 val = env.GetValue(b.Module.upper())
                 if val and val == "skip":
                     logging.info(f"{b.Module} turned off by environment variable")
@@ -67,7 +69,7 @@ class PluginManager(object):
         """Return list of all plugins of a given class."""
         temp = []
         for a in self.Descriptors:
-            if (isinstance(a.Obj, classobj)):
+            if isinstance(a.Obj, classobj):
                 temp.append(a)
         return temp
 
@@ -84,15 +86,20 @@ class PluginManager(object):
         PluginDescriptor.Obj = None
 
         py_file_path = PluginDescriptor.descriptor["module"] + ".py"
-        py_module_path = os.path.join(os.path.dirname(os.path.abspath(
-            PluginDescriptor.descriptor["descriptor_file"])), py_file_path)
+        py_module_path = os.path.join(
+            os.path.dirname(
+                os.path.abspath(PluginDescriptor.descriptor["descriptor_file"])
+            ),
+            py_file_path,
+        )
         py_module_name = "UefiBuild_Plugin_" + PluginDescriptor.descriptor["module"]
 
         logging.debug("Loading Plugin from %s", py_module_path)
 
         try:
             spec = importlib.util.spec_from_file_location(
-                py_module_name, py_module_path)
+                py_module_name, py_module_path
+            )
             module = importlib.util.module_from_spec(spec)
             sys.modules[py_module_name] = module
 
@@ -103,8 +110,9 @@ class PluginManager(object):
             spec.loader.exec_module(module)
         except Exception:
             exc_info = sys.exc_info()
-            logging.error("Failed to import plugin: %s",
-                          py_module_path, exc_info=exc_info)
+            logging.error(
+                "Failed to import plugin: %s", py_module_path, exc_info=exc_info
+            )
             return -1
 
         # Instantiate the plugin
@@ -113,8 +121,9 @@ class PluginManager(object):
             PluginDescriptor.Obj = obj()
         except AttributeError:
             exc_info = sys.exc_info()
-            logging.error("Failed to instantiate plugin: %s",
-                          py_module_path, exc_info=exc_info)
+            logging.error(
+                "Failed to instantiate plugin: %s", py_module_path, exc_info=exc_info
+            )
             return -1
 
         return 0

@@ -31,6 +31,7 @@ class HelperFunctions(object):
     Attributes:
         RegisteredFunctions(dict): registered functions
     """
+
     def __init__(self):
         """Initializes instance."""
         self.RegisteredFunctions = {}
@@ -43,8 +44,7 @@ class HelperFunctions(object):
         logging.debug("Logging all Registered Helper Functions:")
         for name, file in self.RegisteredFunctions.items():
             logging.debug("  Function %s registered from file %s", name, file)
-        logging.debug("Finished logging %d functions",
-                      len(self.RegisteredFunctions))
+        logging.debug("Finished logging %d functions", len(self.RegisteredFunctions))
 
     def Register(self, name, function, filepath):
         """Registers a plugin.
@@ -60,9 +60,11 @@ class HelperFunctions(object):
         !!! tip
             ```os.path.abspath(__file__)```
         """
-        if (name in self.RegisteredFunctions.keys()):
-            raise Exception("Function %s already registered from plugin file %s.  Can't register again from %s" % (
-                name, self.RegisteredFunctions[name], filepath))
+        if name in self.RegisteredFunctions.keys():
+            raise Exception(
+                "Function %s already registered from plugin file %s.  Can't register again from %s"
+                % (name, self.RegisteredFunctions[name], filepath)
+            )
         setattr(self, name, function)
         self.RegisteredFunctions[name] = filepath
 
@@ -75,7 +77,7 @@ class HelperFunctions(object):
         Returns:
             (bool): if the function is registered or not.
         """
-        if (name in self.RegisteredFunctions.keys()):
+        if name in self.RegisteredFunctions.keys():
             return True
         else:
             return False
@@ -99,8 +101,7 @@ class HelperFunctions(object):
             try:
                 Descriptor.Obj.RegisterHelpers(self)
             except Exception as e:
-                logging.warning(
-                    "Unable to register {0}".format(Descriptor.Name))
+                logging.warning("Unable to register {0}".format(Descriptor.Name))
                 logging.info(e)
                 error += 1
         return error
