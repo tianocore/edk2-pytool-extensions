@@ -90,15 +90,17 @@ out all the different parts.
 
 ## Testing
 
-1. Run a Basic Syntax/Lint Check (using flake8) and resolve any issues
+1. Run a Basic Syntax/Lint Check (using black) and resolve any issues
 
     ``` cmd
-    flake8 .
+    black . --check --verbose --diff --color
     ```
 
-    INFO: Newer editors are very helpful in resolving source formatting errors
-    (whitespace, indentation, etc). In VSCode open the py file and use
-    ++alt+shift+f++ to auto format.
+    Note: black is an autoformatter by default,run `black .` to format all files
+    automatically.
+
+    Note: If Visual Studio Code is used, and the recommended extensions are installed
+    for the project, then black should autoformat the file on save.
 
 2. Run a Basic Python docstring Check (using pydocstring) and resolve any issues
 

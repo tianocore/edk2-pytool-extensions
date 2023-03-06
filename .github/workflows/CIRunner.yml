@@ -54,9 +54,9 @@ jobs:
         npm install -g markdownlint-cli@0.32.2
         npm install -g cspell@5.20.0
     
-    - name: Run flake8
+    - name: Run black Format Checker
       if: success() || failure()
-      run: flake8 ${{ inputs.package-src }}
+      run: black ${{ inputs.package-src }} --check --verbose --diff --color
     
     - name: Run markdownlint
       if: success() || failure()

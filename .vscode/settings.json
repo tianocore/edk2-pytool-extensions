@@ -4,7 +4,11 @@
     "${workspaceFolder}/edk2toolext/tests"
   ],
   "python.testing.unittestEnabled": false,
-  "python.linting.flake8Enabled": true,
+  "python.formatting.provider": "none",
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.formatOnSave": true
+  },
   "python.linting.enabled": true,
   "python.linting.pydocstyleEnabled": true,
 }
