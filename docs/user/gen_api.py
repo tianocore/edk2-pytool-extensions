@@ -19,10 +19,22 @@ def main():
     """Entry into script that is executed."""
     files = glob.glob("**/*.py", recursive=True, root_dir="edk2toolext")
 
-    excluded_files = ["__init__.py", "capsule_helper.py", "capsule_tool.py", "pyopenssl_signer.py",
-                      "signing_helper.py", "signtool_signer.py", "sig_db_tool.py",
-                      "firmware_policy_tool.py", "image_validation.py", "nuget_publishing.py",
-                      "omnicache.py", "nuget.py", "versioninfo_tool.py", "versioninfo_helper.py"]
+    excluded_files = [
+        "__init__.py",
+        "capsule_helper.py",
+        "capsule_tool.py",
+        "pyopenssl_signer.py",
+        "signing_helper.py",
+        "signtool_signer.py",
+        "sig_db_tool.py",
+        "firmware_policy_tool.py",
+        "image_validation.py",
+        "nuget_publishing.py",
+        "omnicache.py",
+        "nuget.py",
+        "versioninfo_tool.py",
+        "versioninfo_helper.py",
+    ]
 
     for file_path in files:
         edit_path = file_path
@@ -39,7 +51,7 @@ def main():
 
         filename = f"api{os.sep}{file_path}"
         with mkdocs_gen_files.open(filename, "w") as f:
-            ff = file_path.replace(os.sep, '.').replace('.md', '')
+            ff = file_path.replace(os.sep, ".").replace(".md", "")
             ff = f"edk2toolext.{ff}"
             print(f"::: {ff}", file=f)
             print("    handler: python", file=f)
@@ -53,7 +65,7 @@ def main():
             print("        show_source: False", file=f)
 
         # Point the "Edit on Github" button in the docs to point at the source code
-        edit_path = os.path.join('..', 'edk2toolext', edit_path)
+        edit_path = os.path.join("..", "edk2toolext", edit_path)
         mkdocs_gen_files.set_edit_path(filename, edit_path)
 
 

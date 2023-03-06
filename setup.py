@@ -19,7 +19,8 @@ with open("readme.md", "r") as fh:
 
 class PostSdistCommand(sdist):
     """Post-sdist."""
-    def run(self): # noqa
+
+    def run(self):  # noqa
         # we need to download nuget so throw the exception if we don't get it
         DownloadNuget()
         sdist.run(self)
@@ -27,7 +28,8 @@ class PostSdistCommand(sdist):
 
 class PostInstallCommand(install):
     """Post-install."""
-    def run(self): # noqa
+
+    def run(self):  # noqa
         try:
             DownloadNuget()
         except Exception:
@@ -37,7 +39,8 @@ class PostInstallCommand(install):
 
 class PostDevCommand(develop):
     """Post-develop."""
-    def run(self): # noqa
+
+    def run(self):  # noqa
         try:
             DownloadNuget()
         except Exception:
@@ -53,43 +56,43 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/tianocore/edk2-pytool-extensions",
-    license='BSD-2-Clause-Patent',
+    license="BSD-2-Clause-Patent",
     packages=setuptools.find_packages(),
     use_scm_version=True,
-    setup_requires=['setuptools_scm'],
+    setup_requires=["setuptools_scm"],
     python_requires=">=3.9.0",
     cmdclass={
-        'sdist': PostSdistCommand,
-        'install': PostInstallCommand,
-        'develop': PostDevCommand,
+        "sdist": PostSdistCommand,
+        "install": PostInstallCommand,
+        "develop": PostDevCommand,
     },
     include_package_data=True,
     entry_points={
-        'console_scripts': ['stuart_setup=edk2toolext.invocables.edk2_setup:main',
-                            'stuart_update=edk2toolext.invocables.edk2_update:main',
-                            'stuart_build=edk2toolext.invocables.edk2_platform_build:main',
-                            'stuart_ci_build=edk2toolext.invocables.edk2_ci_build:main',
-                            'stuart_ci_setup=edk2toolext.invocables.edk2_ci_setup:main',
-                            'stuart_pr_eval=edk2toolext.invocables.edk2_pr_eval:main',
-                            'omnicache=edk2toolext.omnicache:main',
-                            'nuget-publish=edk2toolext.nuget_publishing:go',
-                            'sig_db_tool=edk2toolext.uefi.sig_db_tool:main',
-                            'firmware_policy_tool=edk2toolext.windows.policy.firmware_policy_tool:main',
-                            'edk2_capsule_tool=edk2toolext.capsule.capsule_tool:main',
-                            'versioninfo_tool=edk2toolext.versioninfo.versioninfo_tool:main',
-                            'validate_image_tool=edk2toolext.image_validation:main']
+        "console_scripts": [
+            "stuart_setup=edk2toolext.invocables.edk2_setup:main",
+            "stuart_update=edk2toolext.invocables.edk2_update:main",
+            "stuart_build=edk2toolext.invocables.edk2_platform_build:main",
+            "stuart_ci_build=edk2toolext.invocables.edk2_ci_build:main",
+            "stuart_ci_setup=edk2toolext.invocables.edk2_ci_setup:main",
+            "stuart_pr_eval=edk2toolext.invocables.edk2_pr_eval:main",
+            "omnicache=edk2toolext.omnicache:main",
+            "nuget-publish=edk2toolext.nuget_publishing:go",
+            "sig_db_tool=edk2toolext.uefi.sig_db_tool:main",
+            "firmware_policy_tool=edk2toolext.windows.policy.firmware_policy_tool:main",
+            "edk2_capsule_tool=edk2toolext.capsule.capsule_tool:main",
+            "versioninfo_tool=edk2toolext.versioninfo.versioninfo_tool:main",
+            "validate_image_tool=edk2toolext.image_validation:main",
+        ]
     },
     install_requires=[
-        'pyyaml>=6.0.0',
-        'edk2-pytool-library>=0.14.0',
-        'pefile>=2023.2.7',
-        'semantic_version>=2.10.0',
-        'GitPython>=3.1.30',
-        'cryptography >= 39.0.1'
+        "pyyaml>=6.0.0",
+        "edk2-pytool-library>=0.14.0",
+        "pefile>=2023.2.7",
+        "semantic_version>=2.10.0",
+        "GitPython>=3.1.30",
+        "cryptography >= 39.0.1",
     ],
-    extras_require={
-        'openssl': ['pyopenssl']
-    },
+    extras_require={"openssl": ["pyopenssl"]},
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: BSD License",
@@ -98,6 +101,6 @@ setuptools.setup(
         "Intended Audience :: Developers",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11"
-    ]
+        "Programming Language :: Python :: 3.11",
+    ],
 )
