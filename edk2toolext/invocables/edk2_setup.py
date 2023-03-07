@@ -141,7 +141,7 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
                     edk2_logging.log_progress(f'## Cleaning Git Submodule: {required_submodule.path}')
                     submodule_clean(workspace_path, required_submodule)
                     edk2_logging.log_progress('## Done.\n')
-                except InvalidGitRepositoryError:
+                except (InvalidGitRepositoryError, ValueError):
                     logging.error(f"Error when trying to clean {submodule_path}")
                     logging.error(f"Invalid Git Repository at {submodule_path}")
                     return -1
