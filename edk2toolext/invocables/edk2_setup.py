@@ -15,7 +15,7 @@ import os
 import logging
 from typing import List
 from edk2toolext import edk2_logging
-from edk2toolext.environment.repo_resolver import submodule_resolve, clean, repo_details
+from edk2toolext.environment.repo_resolver import submodule_resolve, clean, submodule_clean, repo_details
 from edk2toolext.environment.repo_resolver import InvalidGitRepositoryError
 from edk2toolext.environment import version_aggregator
 from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable
@@ -139,7 +139,7 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
                 try:
                     submodule_path = os.path.join(workspace_path, required_submodule.path)
                     edk2_logging.log_progress(f'## Cleaning Git Submodule: {required_submodule.path}')
-                    clean(submodule_path)
+                    submodule_clean(workspace_path, required_submodule)
                     edk2_logging.log_progress('## Done.\n')
                 except InvalidGitRepositoryError:
                     logging.error(f"Error when trying to clean {submodule_path}")
