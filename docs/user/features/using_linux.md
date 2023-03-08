@@ -91,7 +91,7 @@ You'll need python3 (See your version of edk2-pytool-extensions for the exact ve
 which on Ubuntu-22.04 python 3.10 comes default. Pip comes separatel'y, so that will be need to be
 installed.
 
-## Setting up VS Code (optional, reccomended)
+## Setting up VS Code (optional, recommended)
 
 Visual Studio code makes developing in WSL much easier.
 This guide here is pretty informative: <https://code.visualstudio.com/docs/remote/wsl>
