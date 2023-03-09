@@ -424,7 +424,6 @@ def submodule_clean(abs_file_system_path, submodule):
     Args:
         abs_file_system_path (PathLike): repo directory
         submodule (obj): object containing path (relative) attribute
-        ignore_files (list, optional): list of files to ignore when performing a clean. Defaults to [].
 
     Raises:
         (GitCommandError): The command is invalid
