@@ -418,7 +418,7 @@ def clean(abs_file_system_path, ignore_files=[]):
         repo.git.clean(*params)
 
 
-def submodule_clean(abs_file_system_path, submodule, ignore_files=None):
+def submodule_clean(abs_file_system_path, submodule):
     """Resets and cleans a submodule of the repo.
 
     Args:
@@ -433,13 +433,13 @@ def submodule_clean(abs_file_system_path, submodule, ignore_files=None):
         (ValueError): submodule's path was invalid
     """
     with Repo(abs_file_system_path) as repo:
-        submodule = next(filter(lambda s: Path(s.path) == Path(submodule.path), repo.submodules), None)
+        s = next(filter(lambda s: Path(s.path) == Path(submodule.path), repo.submodules), None)
 
-        if submodule is None:
+        if s is None:
             raise ValueError(f"Submodule {submodule.path} does not exist")
 
-        if submodule.module_exists():
-            clean(os.path.join(abs_file_system_path, submodule.path), ignore_files or [])
+        if s.module_exists():
+            clean(os.path.join(abs_file_system_path, submodule.path))
 
 
 def submodule_resolve(abs_file_system_path, submodule, omnicache_path=None):
