@@ -347,9 +347,9 @@ def test_conf_file(tree: pathlib.Path):
 
 def test_backslash(tree: pathlib.Path):
     """Test setup with force flag before submodules are initialized."""
-    empty_build_file = write_build_file(tree, MIN_BUILD_FILE_BACKSLASH)
+    build_file = write_build_file(tree, MIN_BUILD_FILE_BACKSLASH)
     sys.argv = [
-        "stuart_setup", "-c", str(empty_build_file), "--FORCE",
+        "stuart_setup", "-c", str(build_file), "--FORCE",
     ]
     mu_submodule = tree / "Common" / "MU"
 

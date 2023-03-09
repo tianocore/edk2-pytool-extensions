@@ -432,9 +432,8 @@ def submodule_clean(abs_file_system_path, submodule, ignore_files=None):
         (NoSuchPathError): The path does not exist
         (ValueError): submodule's path was invalid
     """
-    submodule_path = Path(submodule.path).as_posix()
     with Repo(abs_file_system_path) as repo:
-        if repo.submodule(submodule_path).module_exists():
+        if repo.submodule(submodule.path).module_exists():
             clean(os.path.join(abs_file_system_path, submodule.path), ignore_files or [])
 
 
