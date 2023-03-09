@@ -110,7 +110,7 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
 
         # Return clear error if submodules are a windows format on a non-windows system
         # This will cause errors with git commands and produces ugly errors.
-        if GetHostInfo().os != "windows":
+        if GetHostInfo().os != "Windows":
             for submodule in required_submodules:
                 if submodule.path.find("\\") != -1:
                     logging.error("Windows Path format detected on a non-Windows system. This is not supported.")

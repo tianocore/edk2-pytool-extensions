@@ -433,7 +433,7 @@ def submodule_clean(abs_file_system_path, submodule, ignore_files=None):
         (ValueError): submodule's path was invalid
     """
     with Repo(abs_file_system_path) as repo:
-        submodule = next(filter(lambda s: s.path == submodule.path, repo.submodules), None)
+        submodule = next(filter(lambda s: Path(s.path) == Path(submodule.path), repo.submodules), None)
 
         if submodule is None:
             raise ValueError(f"Submodule {submodule.path} does not exist")

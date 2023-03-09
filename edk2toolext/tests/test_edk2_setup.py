@@ -346,7 +346,7 @@ def test_conf_file(tree: pathlib.Path):
 
 
 @pytest.mark.skipif(sys.platform.startswith("win"), reason="Linux only")
-def test_backslash_windows(tree: pathlib.Path, caplog):
+def test_backslash_linux(tree: pathlib.Path, caplog):
     """Test setup with force flag before submodules are initialized."""
     caplog.at_level(logging.ERROR)  # Capture only warnings
 
@@ -368,7 +368,7 @@ def test_backslash_windows(tree: pathlib.Path, caplog):
 
 
 @pytest.mark.skipif(not sys.platform.startswith("win"), reason="Windows only")
-def test_backslash_linux(tree: pathlib.Path):
+def test_backslash_windows(tree: pathlib.Path):
     build_file = write_build_file(tree, MIN_BUILD_FILE_BACKSLASH)
     sys.argv = [
         "stuart_setup", "-c", str(build_file), "--FORCE",
