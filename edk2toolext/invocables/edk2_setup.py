@@ -14,14 +14,13 @@ while allowing the invocable itself to remain platform agnostic.
 import os
 import logging
 from typing import List
-from pathlib import PureWindowsPath
 from edk2toolext import edk2_logging
 from edk2toolext.environment.repo_resolver import submodule_resolve, clean, submodule_clean, repo_details
 from edk2toolext.environment.repo_resolver import InvalidGitRepositoryError, GitCommandError
 from edk2toolext.environment import version_aggregator
 from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable
 from edk2toolext.invocables.edk2_multipkg_aware_invocable import MultiPkgAwareSettingsInterface
-from edk2toollib.utility_functions import version_compare
+from edk2toollib.utility_functions import version_compare, GetHostInfo
 
 
 class RequiredSubmodule():
@@ -109,10 +108,15 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
         """Executes the core functionality of the Edk2PlatformSetup invocable."""
         required_submodules = self.PlatformSettings.GetRequiredSubmodules()
 
-        # Convert Windows Paths to POSIX Paths as POSIX paths can be properly handled
-        # By Windows and Linux (But Windows Paths are only handled by Windows)
-        for submodule in required_submodules:
-            submodule.path = str(PureWindowsPath(submodule.path).as_posix())
+        # Return clear error if submodules are a windows format on a non-windows system
+        # This will cause errors with git commands and produces ugly errors.
+        if GetHostInfo().os != "windows":
+            for submodule in required_submodules:
+                if submodule.path.find("\\") != -1:
+                    logging.error("Windows Path format detected on a non-Windows system. This is not supported.")
+                    logging.error(f"    Path: {submodule.path}")
+                    logging.error("    Defined at: GetRequiredSubmodules()")
+                    return -1
 
         workspace_path = self.GetWorkspaceRoot()
 

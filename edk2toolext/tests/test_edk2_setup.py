@@ -345,8 +345,30 @@ def test_conf_file(tree: pathlib.Path):
             assert str(e).startswith(f"Unknown variable passed in via CLI: {arg}")
 
 
-def test_backslash(tree: pathlib.Path):
+@pytest.mark.skipif(sys.platform.startswith("win"), reason="Linux only")
+def test_backslash_windows(tree: pathlib.Path, caplog):
     """Test setup with force flag before submodules are initialized."""
+    caplog.at_level(logging.ERROR)  # Capture only warnings
+
+    build_file = write_build_file(tree, MIN_BUILD_FILE_BACKSLASH)
+    sys.argv = [
+        "stuart_setup", "-c", str(build_file), "--FORCE",
+    ]
+
+    try:
+        edk2_setup.main()
+    except SystemExit as e:
+        assert e.code == -1
+
+    for record in caplog.records:
+        if "Windows Path format" in record.msg:
+            break
+    else:
+        pytest.fail("Did not find an error about the Windows path format.")
+
+
+@pytest.mark.skipif(not sys.platform.startswith("win"), reason="Windows only")
+def test_backslash_linux(tree: pathlib.Path):
     build_file = write_build_file(tree, MIN_BUILD_FILE_BACKSLASH)
     sys.argv = [
         "stuart_setup", "-c", str(build_file), "--FORCE",
@@ -358,4 +380,4 @@ def test_backslash(tree: pathlib.Path):
         edk2_setup.main()
     except SystemExit as e:
         assert e.code == 0
-    assert len(list(mu_submodule.iterdir())) > 0  # The MU submodule should exist
+    assert len(list(mu_submodule.iterdir())) > 0  # The MU submodule should not exist
