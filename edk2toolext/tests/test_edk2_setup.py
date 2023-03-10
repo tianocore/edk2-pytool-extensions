@@ -38,6 +38,30 @@ class Settings(SetupSettingsManager):
         return []
 """
 
+MIN_BUILD_FILE_BACKSLASH = r"""
+from edk2toolext.invocables.edk2_setup import SetupSettingsManager, RequiredSubmodule
+import pathlib
+
+class Settings(SetupSettingsManager):
+    # MIN BUILD FILE with backslashes
+    def GetWorkspaceRoot(self) -> str:
+        return str(pathlib.Path(__file__).parent)
+
+    def GetRequiredSubmodules(self) -> list[RequiredSubmodule]:
+        return [
+            RequiredSubmodule('Common\\MU', True)
+        ]
+
+    def GetPackagesSupported(self) -> list[str]:
+        return []
+
+    def GetArchitecturesSupported(self) -> list[str]:
+        return []
+
+    def GetTargetsSupported(self) -> list[str]:
+        return []
+"""
+
 
 EMPTY_BUILD_FILE = r"""
 from edk2toolext.invocables.edk2_setup import SetupSettingsManager, RequiredSubmodule
@@ -319,3 +343,41 @@ def test_conf_file(tree: pathlib.Path):
             edk2_setup.main()
         except RuntimeError as e:
             assert str(e).startswith(f"Unknown variable passed in via CLI: {arg}")
+
+
+@pytest.mark.skipif(sys.platform.startswith("win"), reason="Linux only")
+def test_backslash_linux(tree: pathlib.Path, caplog):
+    """Test setup with force flag before submodules are initialized."""
+    caplog.at_level(logging.ERROR)  # Capture only warnings
+
+    build_file = write_build_file(tree, MIN_BUILD_FILE_BACKSLASH)
+    sys.argv = [
+        "stuart_setup", "-c", str(build_file), "--FORCE",
+    ]
+
+    try:
+        edk2_setup.main()
+    except SystemExit as e:
+        assert e.code == -1
+
+    for record in caplog.records:
+        if "Windows Path format" in record.msg:
+            break
+    else:
+        pytest.fail("Did not find an error about the Windows path format.")
+
+
+@pytest.mark.skipif(not sys.platform.startswith("win"), reason="Windows only")
+def test_backslash_windows(tree: pathlib.Path):
+    build_file = write_build_file(tree, MIN_BUILD_FILE_BACKSLASH)
+    sys.argv = [
+        "stuart_setup", "-c", str(build_file), "--FORCE",
+    ]
+    mu_submodule = tree / "Common" / "MU"
+
+    assert len(list(mu_submodule.iterdir())) == 0  # The MU submodule should not exist
+    try:
+        edk2_setup.main()
+    except SystemExit as e:
+        assert e.code == 0
+    assert len(list(mu_submodule.iterdir())) > 0  # The MU submodule should not exist
