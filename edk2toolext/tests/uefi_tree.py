@@ -160,10 +160,12 @@ from edk2toolext.invocables.edk2_ci_setup import Edk2CiBuildSetup
 from edk2toolext.invocables.edk2_ci_setup import CiSetupSettingsManager
 from edk2toolext.invocables.edk2_ci_build import CiBuildSettingsManager
 from edk2toolext.invocables.edk2_update import UpdateSettingsManager
+from edk2toolext.invocables.edk2_coverage import CoverageSettingsManager
 
 
 class TestSettingsManager(BuildSettingsManager, SetupSettingsManager, Edk2CiBuildSetup,
-                          CiSetupSettingsManager, CiBuildSettingsManager, UpdateSettingsManager):
+                          CiSetupSettingsManager, CiBuildSettingsManager, UpdateSettingsManager,
+                          CoverageSettingsManager):
 
     def GetActiveScopes(self):
         return []
@@ -200,6 +202,12 @@ class TestSettingsManager(BuildSettingsManager, SetupSettingsManager, Edk2CiBuil
 
     def GetSkippedDirectories(self):
         return ()
+
+    def GetCoverageExclusionList(self):
+        return []
+
+    def GetCoverageInclusionList(self):
+        return []
 
 class TestBuilder(UefiBuilder):
     def SetPlatformEnv(self):

@@ -71,6 +71,7 @@ setuptools.setup(
                             'stuart_ci_build=edk2toolext.invocables.edk2_ci_build:main',
                             'stuart_ci_setup=edk2toolext.invocables.edk2_ci_setup:main',
                             'stuart_pr_eval=edk2toolext.invocables.edk2_pr_eval:main',
+                            'stuart_coverage=edk2toolext.invocables.edk2_coverage:main',
                             'omnicache=edk2toolext.omnicache:main',
                             'nuget-publish=edk2toolext.nuget_publishing:go',
                             'sig_db_tool=edk2toolext.uefi.sig_db_tool:main',
