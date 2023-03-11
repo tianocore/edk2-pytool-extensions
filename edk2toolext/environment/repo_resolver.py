@@ -418,6 +418,29 @@ def clean(abs_file_system_path, ignore_files=[]):
         repo.git.clean(*params)
 
 
+def submodule_clean(abs_file_system_path, submodule):
+    """Resets and cleans a submodule of the repo.
+
+    Args:
+        abs_file_system_path (PathLike): repo directory
+        submodule (obj): object containing path (relative) attribute
+
+    Raises:
+        (GitCommandError): The command is invalid
+        (InvalidGitRepositoryError): The repo is in an invalid format
+        (NoSuchPathError): The path does not exist
+        (ValueError): submodule's path was invalid
+    """
+    with Repo(abs_file_system_path) as repo:
+        submodule_match = next(filter(lambda s: Path(s.path) == Path(submodule.path), repo.submodules), None)
+
+        if submodule_match is None:
+            raise ValueError(f"Submodule {submodule.path} does not exist")
+
+        if submodule_match.module_exists():
+            clean(os.path.join(abs_file_system_path, submodule.path))
+
+
 def submodule_resolve(abs_file_system_path, submodule, omnicache_path=None):
     """Resolves a submodule to the specified branch and commit in .gitmodules.
 

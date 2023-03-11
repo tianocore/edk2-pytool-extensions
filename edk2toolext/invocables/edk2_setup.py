@@ -15,12 +15,12 @@ import os
 import logging
 from typing import List
 from edk2toolext import edk2_logging
-from edk2toolext.environment.repo_resolver import submodule_resolve, clean, repo_details
-from edk2toolext.environment.repo_resolver import InvalidGitRepositoryError
+from edk2toolext.environment.repo_resolver import submodule_resolve, clean, submodule_clean, repo_details
+from edk2toolext.environment.repo_resolver import InvalidGitRepositoryError, GitCommandError
 from edk2toolext.environment import version_aggregator
 from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable
 from edk2toolext.invocables.edk2_multipkg_aware_invocable import MultiPkgAwareSettingsInterface
-from edk2toollib.utility_functions import version_compare
+from edk2toollib.utility_functions import version_compare, GetHostInfo
 
 
 class RequiredSubmodule():
@@ -107,6 +107,17 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
     def Go(self):
         """Executes the core functionality of the Edk2PlatformSetup invocable."""
         required_submodules = self.PlatformSettings.GetRequiredSubmodules()
+
+        # Return clear error if submodules are a windows format on a non-windows system
+        # This will cause errors with git commands and produces ugly errors.
+        if GetHostInfo().os != "Windows":
+            for submodule in required_submodules:
+                if submodule.path.find("\\") != -1:
+                    logging.error("Windows Path format detected on a non-Windows system. This is not supported.")
+                    logging.error(f"    Path: {submodule.path}")
+                    logging.error("    Defined at: GetRequiredSubmodules()")
+                    return -1
+
         workspace_path = self.GetWorkspaceRoot()
 
         details = repo_details(workspace_path)
@@ -139,11 +150,15 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
                 try:
                     submodule_path = os.path.join(workspace_path, required_submodule.path)
                     edk2_logging.log_progress(f'## Cleaning Git Submodule: {required_submodule.path}')
-                    clean(submodule_path)
+                    submodule_clean(workspace_path, required_submodule)
                     edk2_logging.log_progress('## Done.\n')
                 except InvalidGitRepositoryError:
                     logging.error(f"Error when trying to clean {submodule_path}")
                     logging.error(f"Invalid Git Repository at {submodule_path}")
+                    return -1
+                except ValueError as e:
+                    logging.error(f"Error when trying to clean {submodule_path}")
+                    logging.error(e)
                     return -1
 
         # Resolve all of the submodules to the specifed branch and commit. i.e. sync, then update
@@ -164,6 +179,10 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
             except InvalidGitRepositoryError:
                 logging.error(f"Error when trying to resolve {submodule.path}")
                 logging.error(f"Invalid Git Repository at {submodule.path}")
+                return -1
+            except GitCommandError as e:
+                logging.error(f"Error when trying to resolve {submodule.path}")
+                logging.error(e)
                 return -1
 
         return 0

@@ -19,6 +19,8 @@ stuart.
 1. Ensure the latest version of [Python3](https://www.python.org/downloads/) is
 installed on your system.
 
+1. Ensure git 2.36.0 or greater is installed
+
 1. Install edk2-pytool-extensions:
 
     ```cmd
@@ -28,7 +30,7 @@ installed on your system.
 ## Installing on Linux
 
 If using WSL, review
-[Getting Started with WSL](/features/using_linux/#getting-started-with-wsl).
+[Getting Started with WSL](/features/using_linux#getting-started-with-wsl).
 
 1. Ensure the latest version of
 [Python3](https://www.python.org/downloads/) is installed on your system.
@@ -37,10 +39,12 @@ If using WSL, review
     sudo apt install python3, python3-pip, python3-venv
     ```
 
+1. Ensure git 2.36.0 or greater is installed
+
 1. Install Nuget and dependencies:
 
     ```cmd
-    sudo apt-get install mono-complete, nuget
+    sudo apt-get install mono-complete, nuget, make
     ```
 
 1. Install edk2-pytool-extensions:
