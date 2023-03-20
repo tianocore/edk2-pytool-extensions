@@ -146,8 +146,8 @@ class WebDependency(ExternalDependency):
         # internal_path points to the "important" part of the ext_dep we're unpacking
         complete_internal_path = os.path.join(temp_folder, self.internal_path)
 
-        # # If we're unpacking a directory, we can copy the important parts into
-        # # a directory named self.contents_dir
+        # If we're unpacking a directory, we can copy the important parts into
+        # a directory named self.contents_dir
         if self.download_is_directory:
             logging.info(f"Copying directory from {complete_internal_path} to {self.contents_dir}")
             if os.path.isdir(complete_internal_path) is False:

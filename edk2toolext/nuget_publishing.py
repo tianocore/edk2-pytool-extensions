@@ -338,7 +338,6 @@ class NugetSupport(object):
         cmd += ["pack", nuspec]
         cmd += ["-OutputDirectory", '"' + OutputDirectory + '"']
         cmd += ["-Verbosity", "detailed"]
-        # cmd += ["-NonInteractive"]
         ret = RunCmd(cmd[0], " ".join(cmd[1:]))
 
         if (ret != 0):
@@ -362,7 +361,6 @@ class NugetSupport(object):
         cmd = NugetDependency.GetNugetCmd()
         cmd += ["push", nuPackage]
         cmd += ["-Verbosity", "detailed"]
-        # cmd += ["-NonInteractive"]
         cmd += ["-Source", self.ConfigData["server_url"]]
         cmd += ["-ApiKey", apikey]
         output_buffer = StringIO()

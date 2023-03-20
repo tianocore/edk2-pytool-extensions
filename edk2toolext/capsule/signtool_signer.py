@@ -172,10 +172,6 @@ def sign_in_place(sign_file_path, signature_options, signer_options):
     signtool_params = ["sign", "/a"]
     signtool_params += ["/fd", signature_options["hash_alg"]]
     signtool_params += ["/f", f"\"{signer_options['key_file']}\""]
-    # if 'oid' in signer_options:
-    #     signtool_params += ['/p7co', signer_options['oid']]
-    # if 'eku' in signer_options:
-    #     signtool_params += ['/u', signer_options['eku']]
     if "key_pass" in signer_options:
         signtool_params += ["/p", signer_options["key_pass"]]
     # Add basic options.

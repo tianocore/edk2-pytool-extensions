@@ -55,7 +55,7 @@ class GitDependency(ExternalDependency):
         self._local_repo_root_path = os.path.join(os.path.abspath(self.contents_dir), self.name)
         self.logger = logging.getLogger("git-dependency")
 
-        # valid_attributes = ["Path", "Url", "Branch", "Commit", "ReferencePath", "Full"]
+        # valid attributes are ["Path", "Url", "Branch", "Commit", "ReferencePath", "Full"]
         self._repo_resolver_dep_obj = {"Path": self.name, "Url": self.repo_url, "Commit": self.commit}
 
     def __str__(self):
