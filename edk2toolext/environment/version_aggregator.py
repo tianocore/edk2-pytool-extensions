@@ -55,7 +55,7 @@ class version_aggregator(object):
             "name": key,
             "version": value,
             "type": versionType.name,
-            "path": path
+            "path": path,
         }
         self._logger.debug("version_aggregator logging version: {0}".format(str(self._Versions[key])))
 

@@ -131,7 +131,7 @@ class uefi_tree:
             "name": name,
             "version": version,
             "source": source,
-            "flags": []
+            "flags": [],
         }
         if extra_data is not None:
             data.update(extra_data)

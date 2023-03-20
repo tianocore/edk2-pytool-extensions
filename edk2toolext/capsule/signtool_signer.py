@@ -28,7 +28,7 @@ from edk2toollib.windows import locate_tools
 
 GLOBAL_SIGNTOOL_PATH = None
 SUPPORTED_SIGNATURE_TYPE_OPTIONS = {
-    'pkcs7': {'detachedSignedData', 'embedded', 'pkcs7DetachedSignedData'}
+    'pkcs7': {'detachedSignedData', 'embedded', 'pkcs7DetachedSignedData'},
 }
 
 

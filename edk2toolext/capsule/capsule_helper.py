@@ -144,7 +144,7 @@ def build_capsule(capsule_data: bytes, capsule_options: dict, signer_module: obj
     # Sign the data and assign it to the cert data.
     signature_options = {
         'sign_alg': 'pkcs12',
-        'hash_alg': 'sha256'
+        'hash_alg': 'sha256',
     }
     # Set or override OID.
     signer_options['oid'] = PKCS7_SIGNED_DATA_OID
@@ -250,7 +250,7 @@ def create_inf_file(capsule_options: dict, save_path: str) -> str:
         datetime.date.today().strftime("%m/%d/%Y"),
         capsule_options['provider_name'],
         capsule_options['mfg_name'],
-        capsule_options['arch']
+        capsule_options['arch'],
     )
 
     inf_file.AddFirmware(
@@ -260,7 +260,7 @@ def create_inf_file(capsule_options: dict, save_path: str) -> str:
         capsule_options['fw_version'],
         get_capsule_file_name(capsule_options),
         Rollback=capsule_options['is_rollback'],
-        IntegrityFile=capsule_options.get('fw_integrity_file', None)
+        IntegrityFile=capsule_options.get('fw_integrity_file', None),
     )
 
     inf_file_path = os.path.join(save_path, f"{capsule_options['fw_name']}.inf")
@@ -297,7 +297,7 @@ def create_multinode_inf_file(capsule: Capsule, save_path: str) -> str:
         capsule.date.strftime("%m/%d/%Y"),
         capsule.provider_name,
         capsule.manufacturer_name,
-        capsule.arch
+        capsule.arch,
     )
 
     idx = 0
@@ -312,7 +312,7 @@ def create_multinode_inf_file(capsule: Capsule, save_path: str) -> str:
             str(payload.version),
             payload.payload_filename,
             Rollback=payload.rollback,
-            IntegrityFile=payload.integrity_filename
+            IntegrityFile=payload.integrity_filename,
         )
 
     inf_file_path = os.path.join(save_path, f"{capsule.name}.inf")
@@ -344,7 +344,7 @@ def create_cat_file(capsule_options: dict, save_path: str) -> str:
     # Create the CAT.
     catgenerator = cat_generator.CatGenerator(
         capsule_options['arch'],
-        capsule_options['os_string']
+        capsule_options['os_string'],
     )
     cat_file_path = os.path.join(save_path, f"{capsule_options['fw_name']}.cat")
     ret = catgenerator.MakeCat(cat_file_path)

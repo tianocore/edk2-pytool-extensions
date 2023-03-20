@@ -135,7 +135,7 @@ class ShellEnvironment(metaclass=Singleton):
             'environ': copy.copy(self.active_environ),
             'path': self.active_path,
             'pypath': self.active_pypath,
-            'buildvars': copy.copy(self.active_buildvars)
+            'buildvars': copy.copy(self.active_buildvars),
         })
 
         return new_index

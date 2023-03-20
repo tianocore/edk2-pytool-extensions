@@ -78,7 +78,7 @@ setuptools.setup(
                             'firmware_policy_tool=edk2toolext.windows.policy.firmware_policy_tool:main',
                             'edk2_capsule_tool=edk2toolext.capsule.capsule_tool:main',
                             'versioninfo_tool=edk2toolext.versioninfo.versioninfo_tool:main',
-                            'validate_image_tool=edk2toolext.image_validation:main']
+                            'validate_image_tool=edk2toolext.image_validation:main'],
     },
     install_requires=[
         'pyyaml>=6.0.0',
@@ -86,10 +86,10 @@ setuptools.setup(
         'pefile>=2023.2.7',
         'semantic_version>=2.10.0',
         'GitPython>=3.1.30',
-        'cryptography >= 39.0.1'
+        'cryptography >= 39.0.1',
     ],
     extras_require={
-        'openssl': ['pyopenssl']
+        'openssl': ['pyopenssl'],
     },
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -99,6 +99,6 @@ setuptools.setup(
         "Intended Audience :: Developers",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11"
-    ]
+        "Programming Language :: Python :: 3.11",
+    ],
 )

@@ -133,33 +133,33 @@ class TestManager(object):
                     "X64": "IMAGE_FILE_MACHINE_AMD64",
                     "IA32": "IMAGE_FILE_MACHINE_I386",
                     "AARCH64": "IMAGE_FILE_MACHINE_ARM64",
-                    "ARM": "IMAGE_FILE_MACHINE_ARM"
+                    "ARM": "IMAGE_FILE_MACHINE_ARM",
                 },
                 "IMAGE_FILE_MACHINE_AMD64": {
                     "DEFAULT": {
                         "DATA_CODE_SEPARATION": True,
                         "ALLOWED_SUBSYSTEMS": [
                             "IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER",
-                            "IMAGE_SUBSYSTEM_EFI_ROM"
+                            "IMAGE_SUBSYSTEM_EFI_ROM",
                         ],
                         "ALIGNMENT": [
                             {
                                 "COMPARISON": "==",
-                                "VALUE": 4096
-                            }
-                        ]
+                                "VALUE": 4096,
+                            },
+                        ],
                     },
                     "APP": {
                         "ALLOWED_SUBSYSTEMS": [
-                            "IMAGE_SUBSYSTEM_EFI_APPLICATION"
-                        ]
+                            "IMAGE_SUBSYSTEM_EFI_APPLICATION",
+                        ],
                     },
                     "DRIVER": {
                         "ALLOWED_SUBSYSTEMS": [
                             "IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER",
                             "IMAGE_SUBSYSTEM_EFI_RUNTIME_DRIVER"
-                            "IMAGE_SUBSYSTEM_EFI_ROM"
-                        ]
+                            "IMAGE_SUBSYSTEM_EFI_ROM",
+                        ],
                     },
                 },
                 "IMAGE_FILE_MACHINE_ARM": {
@@ -167,81 +167,81 @@ class TestManager(object):
                         "DATA_CODE_SEPARATION": True,
                         "ALLOWED_SUBSYSTEMS": [
                             "IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER",
-                            "IMAGE_SUBSYSTEM_EFI_ROM"
+                            "IMAGE_SUBSYSTEM_EFI_ROM",
                         ],
                         "ALIGNMENT": [
                             {
                                 "COMPARISON": "==",
-                                "VALUE": 4096
-                            }
-                        ]
+                                "VALUE": 4096,
+                            },
+                        ],
                     },
                     "APP": {
                         "ALLOWED_SUBSYSTEMS": [
-                            "IMAGE_SUBSYSTEM_EFI_APPLICATION"
+                            "IMAGE_SUBSYSTEM_EFI_APPLICATION",
                         ],
                     },
                     "DRIVER": {
                         "ALLOWED_SUBSYSTEMS": [
                             "IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER",
                             "IMAGE_SUBSYSTEM_EFI_RUNTIME_DRIVER",
-                            "IMAGE_SUBSYSTEM_EFI_ROM"
-                        ]}
+                            "IMAGE_SUBSYSTEM_EFI_ROM",
+                        ]},
                 },
                 "IMAGE_FILE_MACHINE_ARM64": {
                     "DEFAULT": {
                         "DATA_CODE_SEPARATION": True,
                         "ALLOWED_SUBSYSTEMS": [
                             "IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER",
-                            "IMAGE_SUBSYSTEM_EFI_ROM"
+                            "IMAGE_SUBSYSTEM_EFI_ROM",
                         ],
                         "ALIGNMENT": [
                             {
                                 "COMPARISON": "==",
-                                "VALUE": 4096
-                            }
-                        ]
+                                "VALUE": 4096,
+                            },
+                        ],
                     },
                     "APP": {
                         "ALLOWED_SUBSYSTEMS": [
-                            "IMAGE_SUBSYSTEM_EFI_APPLICATION"
-                        ]
+                            "IMAGE_SUBSYSTEM_EFI_APPLICATION",
+                        ],
                     },
                     "DRIVER": {
                         "ALLOWED_SUBSYSTEMS": [
                             "IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER",
                             "IMAGE_SUBSYSTEM_EFI_RUNTIME_DRIVER",
-                            "IMAGE_SUBSYSTEM_EFI_ROM"
-                        ]
-                    }
+                            "IMAGE_SUBSYSTEM_EFI_ROM",
+                        ],
+                    },
                 },
                 "IMAGE_FILE_MACHINE_I386": {
                     "DEFAULT": {
                         "DATA_CODE_SEPARATION": True,
                         "ALLOWED_SUBSYSTEMS": [
                             "IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER",
-                            "IMAGE_SUBSYSTEM_EFI_ROM"
+                            "IMAGE_SUBSYSTEM_EFI_ROM",
                         ],
                         "ALIGNMENT": [
                             {
                                 "COMPARISON": "==",
-                                "VALUE": 4096
-                            }
-                        ]
+                                "VALUE": 4096,
+                            },
+                        ],
                     },
                     "APP": {
                         "ALLOWED_SUBSYSTEMS": [
-                            "IMAGE_SUBSYSTEM_EFI_APPLICATION"
-                        ]
+                            "IMAGE_SUBSYSTEM_EFI_APPLICATION",
+                        ],
                     },
                     "DRIVER": {
                         "ALLOWED_SUBSYSTEMS": [
                             "IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER",
                             "IMAGE_SUBSYSTEM_EFI_RUNTIME_DRIVER"
-                            "IMAGE_SUBSYSTEM_EFI_ROM"
-                        ]
-                    }
-                }
+                            "IMAGE_SUBSYSTEM_EFI_ROM",
+                        ],
+                    },
+                },
             }
 
     def add_test(self, test):
@@ -293,11 +293,11 @@ class TestManager(object):
 
         target_info = {
             "MACHINE_TYPE": machine_type,
-            "PROFILE": profile
+            "PROFILE": profile,
         }
         test_config_data = {
             "TARGET_INFO": target_info,
-            "TARGET_REQUIREMENTS": target_requirements
+            "TARGET_REQUIREMENTS": target_requirements,
         }
 
         logging.debug(f'Executing tests with settings [{machine_type}][{profile}]')

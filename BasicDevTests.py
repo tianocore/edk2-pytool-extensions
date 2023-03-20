@@ -59,7 +59,7 @@ def TestNoSpaces(apath):
 
 def TestRequiredLicense(apath):
     """Test that the required license exists."""
-    licenses = ["SPDX-License-Identifier: BSD-2-Clause-Patent", ]
+    licenses = ["SPDX-License-Identifier: BSD-2-Clause-Patent" ]
     try:
         with open(apath, "rb") as f_obj:
             contents = f_obj.read().decode()

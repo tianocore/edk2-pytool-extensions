@@ -409,7 +409,7 @@ def Export(omnicache, exportPath):
 
 def get_cli_options():
     """Add CLI arguments to argparse for controlling the omnicache."""
-    parser = argparse.ArgumentParser(description='Tool to provide easy method create and manage the OMNICACHE', )
+    parser = argparse.ArgumentParser(description='Tool to provide easy method create and manage the OMNICACHE' )
     parser.add_argument(dest="cache_dir", help="path to an existing or desired OMNICACHE directory")
     parser.add_argument("--scan", dest="scan", default=None,
                         help="Scans the path provided for top-level folders with repos to add to the OMNICACHE")

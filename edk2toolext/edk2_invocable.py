@@ -396,7 +396,7 @@ class Edk2Invocable(BaseAbstractInvocable):
             sys.exit(2)
 
         # instantiate the second argparser that will get passed around
-        parserObj = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,)
+        parserObj = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter)
 
         # first pass it to the subclass
         self.AddCommandLineOptions(parserObj)

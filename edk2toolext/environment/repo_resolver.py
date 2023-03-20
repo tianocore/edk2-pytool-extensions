@@ -217,7 +217,7 @@ def repo_details(abs_file_system_path):
         "Branch": None,
         "Submodules": [],
         "Remotes": [],
-        "Worktrees": []
+        "Worktrees": [],
     }
 
     try:

@@ -3,6 +3,7 @@ select = [
     "F",  # pyflakes
     "D",  # pydocstyle
     "I",  # isort
+    "COM",  # flake8-commas
 ]
 
 line-length = 120

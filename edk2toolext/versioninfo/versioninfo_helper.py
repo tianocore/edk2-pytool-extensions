@@ -45,7 +45,7 @@ class PEStrings(object):
         0x00010004: "VOS_DOS_WINDOWS32",
         0x00040004: "VOS_NT_WINDOWS32",
         0x00020002: "VOS_OS216_PM16",
-        0x00030003: "VOS_OS232_PM32"
+        0x00030003: "VOS_OS232_PM32",
     }
 
     FILE_TYPE_STRINGS = {
@@ -55,7 +55,7 @@ class PEStrings(object):
         0x00000004: "VFT_FONT",
         0x00000007: "VFT_STATIC_LIB",
         0x00000000: "VFT_UNKNOWN",
-        0x00000005: "VFT_VXD"
+        0x00000005: "VFT_VXD",
     }
 
     FILE_SUBTYPE_NOFONT_STRINGS = {
@@ -70,14 +70,14 @@ class PEStrings(object):
         0x00000009: "VFT2_DRV_SOUND",
         0x00000007: "VFT2_DRV_SYSTEM",
         0x0000000C: "VFT2_DRV_VERSIONED_PRINTER",
-        0x00000000: "VFT2_UNKNOWN"
+        0x00000000: "VFT2_UNKNOWN",
     }
 
     FILE_SUBTYPE_FONT_STRINGS = {
         0x00000001: "VFT2_FONT_RASTER",
         0x00000003: "VFT2_FONT_TRUETYPE",
         0x00000002: "VFT2_FONT_VECTOR",
-        0x00000000: "VFT2_UNKNOWN"
+        0x00000000: "VFT2_UNKNOWN",
     }
 
     VALID_SIGNATURE = 0xfeef04bd
@@ -131,7 +131,7 @@ class PEStrings(object):
     VERSIONFILE_REQUIRED_FIELDS = {
         FILE_VERSION_STR,
         STRING_FILE_INFO_STR,
-        VAR_FILE_INFO_STR
+        VAR_FILE_INFO_STR,
     }
 
     VERSIONFILE_ALLOWED_FIELDS = {
@@ -148,7 +148,7 @@ class PEStrings(object):
         STRUC_VERSION_STR,
         FILE_DATE_STR,
         FILE_DATE_MS_STR,
-        FILE_DATE_LS_STR
+        FILE_DATE_LS_STR,
     }
 
     COMPANY_NAME_STR = "CompanyName"
@@ -173,7 +173,7 @@ class PEStrings(object):
         "PrivateBuild",
         "ProductName",
         "ProductVersion",
-        "SpecialBuild"
+        "SpecialBuild",
     }
 
     VALID_FILE_OS_VALUES = {
@@ -184,7 +184,7 @@ class PEStrings(object):
         "VOS__WINDOWS32",
         "VOS_DOS_WINDOWS16",
         "VOS_DOS_WINDOWS32",
-        "VOS_NT_WINDOWS32"
+        "VOS_NT_WINDOWS32",
     }
 
     VALID_FILE_TYPE_VALUES = {
@@ -194,7 +194,7 @@ class PEStrings(object):
         "VFT_FONT",
         "VFT_STATIC_LIB",
         "VFT_UNKNOWN",
-        "VFT_VXD"
+        "VFT_VXD",
     }
 
     VALID_SUBTYPE_VFT_DRV = {
@@ -209,14 +209,14 @@ class PEStrings(object):
         "VFT2_DRV_SYSTEM",
         "VFT2_DRV_INSTALLABLE",
         "VFT2_DRV_SOUND",
-        "VFT2_DRV_VERSIONED_PRINTER"
+        "VFT2_DRV_VERSIONED_PRINTER",
     }
 
     VALID_SUBTYPE_VFT_FONT = {
         "VFT2_UNKNOWN",
         "VFT2_FONT_RASTER",
         "VFT2_FONT_VECTOR",
-        "VFT2_FONT_TRUETYPE"
+        "VFT2_FONT_TRUETYPE",
     }
 
     VALID_LANG_ID = {
@@ -242,7 +242,7 @@ class PEStrings(object):
         0x0C0C, 0x100C,
         0x0816, 0x081A,
         0x0810, 0x0813,
-        0x0814
+        0x0814,
     }
 
     VALID_CHARSET_ID = {
@@ -251,7 +251,7 @@ class PEStrings(object):
         0x04B0, 0x04E2,
         0x04E3, 0x04E4,
         0x04E5, 0x04E6,
-        0x04E7, 0x04E8
+        0x04E7, 0x04E8,
     }
 
 
@@ -506,7 +506,7 @@ class VERSIONINFOGenerator(object):
     _minimal_required_fields = {
         PEStrings.FILE_VERSION_STR.upper(),
         PEStrings.COMPANY_NAME_STR.upper(),
-        PEStrings.ORIGINAL_FILENAME_STR.upper()
+        PEStrings.ORIGINAL_FILENAME_STR.upper(),
     }
 
     _version_dict = None

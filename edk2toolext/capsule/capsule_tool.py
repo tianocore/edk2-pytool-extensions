@@ -123,7 +123,7 @@ def main():
         args.capsule_payload.read(),
         final_options['capsule'],
         signer,
-        final_options['signer']
+        final_options['signer'],
     )
 
     # Save the capsule.
