@@ -39,7 +39,7 @@ class BaseAbstractInvocable(object):
         !!! tip
             Required Override in a subclass
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def GetWorkspaceRoot(self):
         """Return the workspace root for initializing the Self Describing Environment.
@@ -51,7 +51,7 @@ class BaseAbstractInvocable(object):
             (str): absolute path to workspace root
 
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def GetActiveScopes(self):
         """Return tuple containing scopes that should be active for this process.
@@ -65,7 +65,7 @@ class BaseAbstractInvocable(object):
         Returns:
             (Tuple): scopes
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def GetSkippedDirectories(self):
         """Return tuple containing workspace-relative directory paths that should be skipped for processing.
@@ -101,7 +101,7 @@ class BaseAbstractInvocable(object):
 
             "txt": logs to plain text file
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def GetLoggingFolderRelativeToRoot(self):
         """Return the path to a directory to hold all log files.
@@ -112,7 +112,7 @@ class BaseAbstractInvocable(object):
         Returns:
             (str): path to the directory
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def InputParametersConfiguredCallback(self):
         """A Callback once all input parameters are collected.
@@ -153,7 +153,7 @@ class BaseAbstractInvocable(object):
 
             "txt": logs to plain text file
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def Go(self):
         """Main function to run.
@@ -163,7 +163,7 @@ class BaseAbstractInvocable(object):
         !!! tip
             Required Override in a subclass
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def ConfigureLogging(self):
         """Sets up the logging.

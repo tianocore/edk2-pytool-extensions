@@ -60,7 +60,7 @@ class CiBuildSettingsManager(MultiPkgAwareSettingsInterface):
         Returns:
             (str): repo, platform, product
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def GetPluginSettings(self) -> Dict[str, Any]:
         """Provide a dictionary of global settings for individual plugins.

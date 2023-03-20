@@ -85,7 +85,7 @@ class Edk2InvocableSettingsInterface():
         Returns:
             (str): path to workspace root
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def GetPackagesPath(self) -> Iterable[os.PathLike]:
         """Provides an iterable of paths should should be mapped as edk2 PackagePaths.
@@ -312,7 +312,7 @@ class Edk2Invocable(BaseAbstractInvocable):
         Returns:
             (Edk2InvocableSettingsInterface): Subclass of Edk2InvocableSettingsInterface
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def GetLoggingFolderRelativeToRoot(self):
         """Directory containing all logging files."""

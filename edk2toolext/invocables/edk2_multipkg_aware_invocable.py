@@ -83,7 +83,7 @@ class MultiPkgAwareSettingsInterface(Edk2InvocableSettingsInterface):
         Note:
             packages should be relative to workspace or package path
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def GetArchitecturesSupported(self):
         """Returns an iterable of edk2 architectures supported by this build.
@@ -94,7 +94,7 @@ class MultiPkgAwareSettingsInterface(Edk2InvocableSettingsInterface):
         Returns:
             (Iterable): architectures (X64, I32, etc.)
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def GetTargetsSupported(self):
         """Returns an iterable of edk2 target tags supported by this build.
@@ -105,7 +105,7 @@ class MultiPkgAwareSettingsInterface(Edk2InvocableSettingsInterface):
         Returns:
             (Iterable): targets (DEBUG, RELEASE, etc)
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     # ####################################################################################### #
     #                     Verify and Save requested Config                                    #
