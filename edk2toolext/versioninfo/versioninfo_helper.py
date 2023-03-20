@@ -264,13 +264,13 @@ def validate_version_number(version_str: str) -> bool:
     Returns:
         (bool): if the version string is valid or not
     """
-    if version_str.count('.') != 3 and version_str.count(',') != 3:
+    if version_str.count(".") != 3 and version_str.count(",") != 3:
         logging.error("Invalid version string: " + version_str + ". Version must be in form "
-                      + "\"INTEGER.INTEGER.INTEGER.INTEGER\".")
+                      + '"INTEGER.INTEGER.INTEGER.INTEGER".')
         return False
 
     split = None
-    if version_str.count('.') == 3:
+    if version_str.count(".") == 3:
         split = version_str.split(".")
     else:
         split = version_str.split(",")
@@ -281,8 +281,8 @@ def validate_version_number(version_str: str) -> bool:
                 logging.error("Integer overflow in version string: " + version_str + ".")
                 return False
         except ValueError:
-            logging.error("Invalid version string: " + version_str + ". Version must be in form \""
-                          + " INTEGER.INTEGER.INTEGER.INTEGER\".")
+            logging.error("Invalid version string: " + version_str + '. Version must be in form "'
+                          + ' INTEGER.INTEGER.INTEGER.INTEGER".')
             return False
 
     return True
@@ -300,7 +300,7 @@ def version_str_to_int(version_str: str) -> Tuple[int, int]:
         (Tuple[int, int]): (32 MS bits, 32 LS bits)
     """
     split = None
-    if version_str.count('.') == 3:
+    if version_str.count(".") == 3:
         split = version_str.split(".")
     else:
         split = version_str.split(",")
@@ -616,8 +616,8 @@ class VERSIONINFOGenerator(object):
                 if len(langid_set) != 2:
                     logging.error("Translation field must contain 2 space delimited hexidecimal bytes.")
                     valid = False
-                elif (int(langid_set[0].replace('"', ''), 0) not in PEStrings.VALID_LANG_ID
-                      or int(langid_set[1].replace('"', ''), 0) not in PEStrings.VALID_CHARSET_ID):
+                elif (int(langid_set[0].replace('"', ""), 0) not in PEStrings.VALID_LANG_ID
+                      or int(langid_set[1].replace('"', ""), 0) not in PEStrings.VALID_CHARSET_ID):
                     logging.error("Invalid language code: "
                                   + self._version_dict[PEStrings.VAR_FILE_INFO_STR.upper()][PEStrings.TRANSLATION_STR] + ".") # noqa
                     valid = False
@@ -684,22 +684,22 @@ class VERSIONINFOGenerator(object):
         version = self._version_dict[PEStrings.FILE_VERSION_STR.upper()].split(".")
         if len(version) != 4:
             version = self._version_dict[PEStrings.FILE_VERSION_STR.upper()].split(",")
-        out_str += version[0] + ',' + version[1] + ',' + version[2] + ',' + version[3] + "\n"
+        out_str += version[0] + "," + version[1] + "," + version[2] + "," + version[3] + "\n"
 
         # StringFileInfo
         out_str += "\n" + PEStrings.BEGIN_STR + "\n\t" \
-                   + PEStrings.BLOCK_STR + " \"" + PEStrings.STRING_FILE_INFO_STR \
-                   + "\"\n\t" + PEStrings.BEGIN_STR + "\n" + "\t\t" \
-                   + PEStrings.BLOCK_STR + " \"" + PEStrings.DEFAULT_BLOCK_HEADER \
-                   + "\"\n\t\t" + PEStrings.BEGIN_STR + "\n" + "\t\t" + PEStrings.VALUE_STR \
+                   + PEStrings.BLOCK_STR + ' "' + PEStrings.STRING_FILE_INFO_STR \
+                   + '"\n\t' + PEStrings.BEGIN_STR + "\n" + "\t\t" \
+                   + PEStrings.BLOCK_STR + ' "' + PEStrings.DEFAULT_BLOCK_HEADER \
+                   + '"\n\t\t' + PEStrings.BEGIN_STR + "\n" + "\t\t" + PEStrings.VALUE_STR \
                    + ' "' + PEStrings.COMPANY_NAME_STR + '",\t"' \
-                   + self._version_dict[PEStrings.COMPANY_NAME_STR.upper()] + "\"\n" \
+                   + self._version_dict[PEStrings.COMPANY_NAME_STR.upper()] + '"\n' \
                    + "\t\t" + PEStrings.VALUE_STR + ' "' + PEStrings.ORIGINAL_FILENAME_STR + '",\t"' \
-                   + self._version_dict[PEStrings.ORIGINAL_FILENAME_STR.upper()] + "\"\n" \
+                   + self._version_dict[PEStrings.ORIGINAL_FILENAME_STR.upper()] + '"\n' \
                    + "\t\t" + PEStrings.END_STR + "\n\t" + PEStrings.END_STR + "\n\n"
 
         # VarFileInfo
-        out_str += "\t" + PEStrings.BLOCK_STR + " \"" + PEStrings.VAR_FILE_INFO_STR + '"\n\t' \
+        out_str += "\t" + PEStrings.BLOCK_STR + ' "' + PEStrings.VAR_FILE_INFO_STR + '"\n\t' \
                    + PEStrings.BEGIN_STR + "\n" + "\t\t" + PEStrings.VALUE_STR + ' "' \
                    + PEStrings.TRANSLATION_STR + '",\t' + PEStrings.DEFAULT_TRANSLATION + "\n" \
                    + "\t" + PEStrings.END_STR + "\n" + PEStrings.END_STR + "\n#endif"
@@ -764,31 +764,31 @@ class VERSIONINFOGenerator(object):
             if param == PEStrings.PRODUCT_VERSION_STR or param == PEStrings.FILE_VERSION_STR:
                 out_str += param.upper() + "\t"
                 version = self._version_dict[param].split(".")
-                out_str += version[0] + ',' + version[1] + ',' + version[2] + ',' + version[3] + "\n"
+                out_str += version[0] + "," + version[1] + "," + version[2] + "," + version[3] + "\n"
             else:
                 out_str += param.upper() + "\t" + str(self._version_dict[param]) + "\n"
 
         # StringFileInfo
         out_str += "\n" + PEStrings.BEGIN_STR + "\n\t"
-        out_str += PEStrings.BLOCK_STR + " \"" + PEStrings.STRING_FILE_INFO_STR + "\"\n\t" + PEStrings.BEGIN_STR + "\n"
+        out_str += PEStrings.BLOCK_STR + ' "' + PEStrings.STRING_FILE_INFO_STR + '"\n\t' + PEStrings.BEGIN_STR + "\n"
 
         language_code = ""
         for code in self._version_dict[PEStrings.VAR_FILE_INFO_STR.upper()][PEStrings.TRANSLATION_STR].split(" "):
             language_code += code.split("0x", 1)[1]
 
-        out_str += "\t\t" + PEStrings.BLOCK_STR + " \"" + language_code + "\"\n\t\t" + PEStrings.BEGIN_STR + "\n"
+        out_str += "\t\t" + PEStrings.BLOCK_STR + ' "' + language_code + '"\n\t\t' + PEStrings.BEGIN_STR + "\n"
         for field in self._version_dict[PEStrings.STRING_FILE_INFO_STR.upper()].keys():
-            out_str += "\t\t" + PEStrings.VALUE_STR + " \"" + field + "\",\t\"" \
-                       + self._version_dict[PEStrings.STRING_FILE_INFO_STR.upper()][field] + "\"\n"
+            out_str += "\t\t" + PEStrings.VALUE_STR + ' "' + field + '",\t"' \
+                       + self._version_dict[PEStrings.STRING_FILE_INFO_STR.upper()][field] + '"\n'
 
         out_str += "\t\t" + PEStrings.END_STR + "\n\t" + PEStrings.END_STR + "\n\n"
 
         # VarFileInfo
         out_str += "\t" + PEStrings.BLOCK_STR
-        out_str += " \"" + PEStrings.VAR_FILE_INFO_STR + "\"\n\t" + PEStrings.BEGIN_STR + "\n"
+        out_str += ' "' + PEStrings.VAR_FILE_INFO_STR + '"\n\t' + PEStrings.BEGIN_STR + "\n"
         language_tokens = self._version_dict[PEStrings.VAR_FILE_INFO_STR.upper()][PEStrings.TRANSLATION_STR].split(" ")
         for field in self._version_dict[PEStrings.VAR_FILE_INFO_STR.upper()].keys():
-            out_str += "\t\t" + PEStrings.VALUE_STR + " \"" + field + "\",\t" + language_tokens[0] + "," \
+            out_str += "\t\t" + PEStrings.VALUE_STR + ' "' + field + '",\t' + language_tokens[0] + "," \
                        + language_tokens[1] + "\n"
 
         out_str += "\t" + PEStrings.END_STR + "\n" + PEStrings.END_STR + "\n#endif"

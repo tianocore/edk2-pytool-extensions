@@ -54,10 +54,10 @@ def get_nx_compat_flag(pe):
     dllchar = pe.OPTIONAL_HEADER.DllCharacteristics
 
     if has_characteristic(dllchar, 256):  # 256 (8th bit) is the mask
-        logging.info('True')
+        logging.info("True")
         return 1
     else:
-        logging.info('False')
+        logging.info("False")
         return 0
 
 
@@ -85,10 +85,10 @@ def fill_missing_requirements(default, target):
 
 class Result:
     """Test results."""
-    PASS = '[PASS]'
-    WARN = '[WARNING]'
-    SKIP = '[SKIP]'
-    FAIL = '[FAIL]'
+    PASS = "[PASS]"
+    WARN = "[WARNING]"
+    SKIP = "[SKIP]"
+    FAIL = "[FAIL]"
 
 
 class TestInterface:
@@ -283,7 +283,7 @@ class TestManager(object):
         # Catch any invalid profiles
         machine_type = MACHINE_TYPE[pe.FILE_HEADER.Machine]
         if not self.config_data[machine_type].get(profile):
-            logging.error(f'Profile type {profile} is invalid. Exiting...')
+            logging.error(f"Profile type {profile} is invalid. Exiting...")
             return Result.FAIL
 
         # Fill any missing configurations for the specific module type with the default
@@ -300,18 +300,18 @@ class TestManager(object):
             "TARGET_REQUIREMENTS": target_requirements,
         }
 
-        logging.debug(f'Executing tests with settings [{machine_type}][{profile}]')
+        logging.debug(f"Executing tests with settings [{machine_type}][{profile}]")
         overall_result = Result.PASS
         for test in self.tests:
-            logging.debug(f'Starting test: [{test.name()}]')
+            logging.debug(f"Starting test: [{test.name()}]")
 
             result = test.execute(pe, test_config_data)
 
             # Overall Result can only go lower (Pass -> Warn -> Fail)
             if result == Result.PASS:
-                logging.debug(f'{result}')
+                logging.debug(f"{result}")
             elif result == Result.SKIP:
-                logging.debug(f'{result}: No Requirements for [{machine_type}][{profile}]')
+                logging.debug(f"{result}: No Requirements for [{machine_type}][{profile}]")
             elif overall_result == Result.PASS:
                 overall_result = result
             elif overall_result == Result.WARN and result == Result.FAIL:
@@ -346,7 +346,7 @@ class TestWriteExecuteFlags(TestInterface):
 
     def name(self):
         """Returns the name of the test."""
-        return 'Section data / code separation verification'
+        return "Section data / code separation verification"
 
     def execute(self, pe, config_data):
         """Executes the test on the pefile.
@@ -367,8 +367,8 @@ class TestWriteExecuteFlags(TestInterface):
             if (has_characteristic(section.Characteristics, SECTION_CHARACTERISTICS["IMAGE_SCN_MEM_EXECUTE"])
                and has_characteristic(section.Characteristics, SECTION_CHARACTERISTICS["IMAGE_SCN_MEM_WRITE"])):
 
-                logging.error(f'[{Result.FAIL}]: Section [{section.Name.decode().strip()}] \
-                              should not be both Write and Execute')
+                logging.error(f"[{Result.FAIL}]: Section [{section.Name.decode().strip()}] \
+                              should not be both Write and Execute")
                 return Result.FAIL
         return Result.PASS
 
@@ -396,7 +396,7 @@ class TestSectionAlignment(TestInterface):
 
     def name(self):
         """Returns the name of the test."""
-        return 'Section alignment verification'
+        return "Section alignment verification"
 
     def execute(self, pe, config_data):
         """Executes the test on the pefile.
@@ -475,7 +475,7 @@ class TestSubsystemValue(TestInterface):
 
     def name(self):
         """Returns the name of the test."""
-        return 'Subsystem type verification'
+        return "Subsystem type verification"
 
     def execute(self, pe, config_data):
         """Executes the test on the pefile.
@@ -500,19 +500,19 @@ class TestSubsystemValue(TestInterface):
             return Result.WARN
 
         if subsystem is None:
-            logging.warning(f'[{Result.WARN}]: Subsystem type is not present in the optional header.')
+            logging.warning(f"[{Result.WARN}]: Subsystem type is not present in the optional header.")
             return Result.WARN
 
         actual_subsystem = SUBSYSTEM_TYPE.get(subsystem)
 
         if actual_subsystem is None:
-            logging.error(f'[{Result.WARN}]: Invalid Subsystem present')
+            logging.error(f"[{Result.WARN}]: Invalid Subsystem present")
             return Result.FAIL
 
         if actual_subsystem in subsystems:
             return Result.PASS
         else:
-            logging.error(f'{Result.FAIL}: Submodule Type [{actual_subsystem}] not allowed.')
+            logging.error(f"{Result.FAIL}: Submodule Type [{actual_subsystem}] not allowed.")
             return Result.FAIL
 ###########################
 #        TESTS END        #
@@ -521,38 +521,38 @@ class TestSubsystemValue(TestInterface):
 
 def get_cli_args(args):
     """Adds CLI arguments for using the image validation tool."""
-    parser = argparse.ArgumentParser(description='A Image validation tool for memory mitigation')
+    parser = argparse.ArgumentParser(description="A Image validation tool for memory mitigation")
 
-    parser.add_argument('-i', '--file',
+    parser.add_argument("-i", "--file",
                         type=str,
                         required=True,
-                        help='path to the image that needs validated.')
-    parser.add_argument('-d', '--debug',
-                        action='store_true',
+                        help="path to the image that needs validated.")
+    parser.add_argument("-d", "--debug",
+                        action="store_true",
                         default=False)
 
-    parser.add_argument('-p', '--profile',
+    parser.add_argument("-p", "--profile",
                         type=str,
                         default=None,
-                        help='the profile config to be verified against. \
-                            Will use the default, if not provided')
+                        help="the profile config to be verified against. \
+                            Will use the default, if not provided")
 
     group = parser.add_mutually_exclusive_group()
 
-    group.add_argument('--set-nx-compat',
-                       action='store_true',
+    group.add_argument("--set-nx-compat",
+                       action="store_true",
                        default=False,
-                       help='sets the NX_COMPAT flag')
+                       help="sets the NX_COMPAT flag")
 
-    group.add_argument('--clear-nx-compat',
-                       action='store_true',
+    group.add_argument("--clear-nx-compat",
+                       action="store_true",
                        default=False,
-                       help='clears the NX_COMPAT flag')
+                       help="clears the NX_COMPAT flag")
 
-    group.add_argument('--get-nx-compat',
-                       action='store_true',
+    group.add_argument("--get-nx-compat",
+                       action="store_true",
                        default=False,
-                       help='returns the value of the NX_COMPAT flag')
+                       help="returns the value of the NX_COMPAT flag")
 
     return parser.parse_args(args)
 
@@ -560,7 +560,7 @@ def get_cli_args(args):
 def main():
     """Main entry point into the image validation tool."""
     # setup main console as logger
-    logger = logging.getLogger('')
+    logger = logging.getLogger("")
     logger.setLevel(logging.INFO)
     console = edk2_logging.setup_console_logging(False)
     logger.addHandler(console)
@@ -602,14 +602,14 @@ def main():
     else:
         result = test_manager.run_tests(pe, args.profile)
 
-    logging.info(f'Overall Result: {result}')
+    logging.info(f"Overall Result: {result}")
     if result == Result.SKIP:
-        logging.info('No Test requirements in the config file for this file.')
+        logging.info("No Test requirements in the config file for this file.")
     elif result == Result.PASS or result == Result.WARN:
         sys.exit(0)
     else:
         sys.exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

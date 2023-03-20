@@ -37,7 +37,7 @@ class NugetSupport(object):
     """Support object for Nuget Publishing tool to configure NuPkg information, pack and send."""
     # NOTE: This *should* have a namespace (http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd)
     #       but ElementTree is incredibly stupid with namespaces.
-    NUSPEC_TEMPLATE_XML = r'''<?xml version="1.0" encoding="utf-8"?>
+    NUSPEC_TEMPLATE_XML = r"""<?xml version="1.0" encoding="utf-8"?>
 <package>
     <metadata>
         <!-- Required elements-->
@@ -58,7 +58,7 @@ class NugetSupport(object):
     <files>
         <file src="" target="" />
     </files>
-</package>'''
+</package>"""
 
     RELEASE_NOTE_SHORT_STRING_MAX_LENGTH = 500
 
@@ -387,26 +387,26 @@ class NugetSupport(object):
 def GatherArguments():
     """Adds CLI arguments for controlling the nuget_publishing tool."""
     tempparser = argparse.ArgumentParser(
-        description='Nuget Helper Script for creating, packing, and pushing packages', add_help=False)
-    tempparser.add_argument('--Operation', dest="op", choices=["New", "Pack", "Push", "PackAndPush"], required=True)
+        description="Nuget Helper Script for creating, packing, and pushing packages", add_help=False)
+    tempparser.add_argument("--Operation", dest="op", choices=["New", "Pack", "Push", "PackAndPush"], required=True)
 
     # Get the operation the user wants to do
     (args, rest) = tempparser.parse_known_args()
 
     # now build up the real parser with required parameters
-    parser = argparse.ArgumentParser(description='Nuget Helper Script for creating, packing, and pushing packages')
+    parser = argparse.ArgumentParser(description="Nuget Helper Script for creating, packing, and pushing packages")
     parser.add_argument("--Dirty", dest="Dirty", action="store_true", help="Keep all temp files", default=False)
-    parser.add_argument('--Operation', dest="Operation", choices=["New", "Pack", "Push", "PackAndPush"], required=True)
+    parser.add_argument("--Operation", dest="Operation", choices=["New", "Pack", "Push", "PackAndPush"], required=True)
     parser.add_argument("--OutputLog", dest="OutputLog", help="Create an output log file")
 
     if (args.op.lower() == "new"):
         parser.add_argument("--ConfigFileFolderPath", dest="ConfigFileFolderPath",
                             help="<Required>Path to folder to save new config file to", required=True)
-        parser.add_argument('--Name',
-                            dest='Name',
-                            help='<Required> The unique id/name of the package.  This is a string naming the package',
+        parser.add_argument("--Name",
+                            dest="Name",
+                            help="<Required> The unique id/name of the package.  This is a string naming the package",
                             required=True)
-        parser.add_argument('--Author', dest="Author", help="<Required> Author string for publishing", required=True)
+        parser.add_argument("--Author", dest="Author", help="<Required> Author string for publishing", required=True)
         parser.add_argument("--ProjectUrl", dest="Project", help="<Required> Project Url", required=True)
         repo_group = parser.add_argument_group(title="Repository Parameters",
                                                description="Optional Repository Parameters")
@@ -418,31 +418,31 @@ def GatherArguments():
                                 required=False)
         repo_group.add_argument("--RepositoryCommit", dest="RepositoryCommit", help="<Optional> Repository Commit",
                                 required=False)
-        parser.add_argument('--LicenseIdentifier', dest="LicenseIdentifier", default=None,
+        parser.add_argument("--LicenseIdentifier", dest="LicenseIdentifier", default=None,
                             choices=LICENSE_IDENTIFIER_SUPPORTED.keys(), help="Standard Licenses")
-        parser.add_argument('--Description', dest="Description",
+        parser.add_argument("--Description", dest="Description",
                             help="<Required> Description of package.", required=True)
         parser.add_argument("--FeedUrl", dest="FeedUrl",
                             help="<Required>Feed Url of the nuget server feed", required=True)
-        parser.add_argument('--Copyright', dest="Copyright", help="Copyright string", required=False)
+        parser.add_argument("--Copyright", dest="Copyright", help="Copyright string", required=False)
 
     elif (args.op.lower() == "pack" or args.op.lower() == "packandpush"):
         parser.add_argument("--ConfigFilePath", dest="ConfigFilePath",
                             help="<Required>Path to config file", required=True)
-        parser.add_argument('--Version', dest="Version", help="<Required> Version to publish", required=True)
-        parser.add_argument('--ReleaseNotesText', dest="ReleaseNotes",
+        parser.add_argument("--Version", dest="Version", help="<Required> Version to publish", required=True)
+        parser.add_argument("--ReleaseNotesText", dest="ReleaseNotes",
                             help="<Optional>Release Notes String", required=False)
-        parser.add_argument('--InputFolderPath', dest="InputFolderPath",
+        parser.add_argument("--InputFolderPath", dest="InputFolderPath",
                             help="<Required>Relative/Absolute Path to folder containing content to pack.",
                             required=True)
-        parser.add_argument('--Copyright', dest="Copyright", help="<Optional>Change the Copyright string")
-        parser.add_argument('--t', "-tag", dest="Tags", type=str,
+        parser.add_argument("--Copyright", dest="Copyright", help="<Optional>Change the Copyright string")
+        parser.add_argument("--t", "-tag", dest="Tags", type=str,
                             help="<Optional>Add tags to the nuspec. Multiple are --t Tag1,Tag2 or --t Tag1 --t Tag2",
                             action="append", default=[])
-        parser.add_argument('--ApiKey', dest="ApiKey",
+        parser.add_argument("--ApiKey", dest="ApiKey",
                             help="<Optional>Api key to use. Default is 'VSTS' which will invoke interactive login",
                             default="VSTS")
-        parser.add_argument('--CustomLicensePath', dest="CustomLicensePath", default=None,
+        parser.add_argument("--CustomLicensePath", dest="CustomLicensePath", default=None,
                             help="<Optional> If CustomLicense set in `new` phase, provide absolute path of License \
                             File to pack. Does not override existing valid license.")
         repo_group = parser.add_argument_group(title="Repository Parameters",
@@ -460,13 +460,13 @@ def GatherArguments():
         parser.add_argument("--ConfigFilePath", dest="ConfigFilePath",
                             help="<Required>Path to config file",
                             required=True)
-        parser.add_argument('--PackageFile', dest="PackageFile", help="<Required>Path To Package File", required=True)
-        parser.add_argument('--ApiKey', dest="ApiKey",
+        parser.add_argument("--PackageFile", dest="PackageFile", help="<Required>Path To Package File", required=True)
+        parser.add_argument("--ApiKey", dest="ApiKey",
                             help="<Optional>Api key to use. Default is 'VSTS' which will invoke interactive login",
                             default="VSTS")
 
     if (args.op.lower() == "pack"):
-        parser.add_argument('--OutputFolderPath',
+        parser.add_argument("--OutputFolderPath",
                             dest="OutputFolderPath",
                             help="<Optional>Output folder where nupkg will be saved.  Default is cwd",
                             default=os.getcwd())
@@ -486,9 +486,9 @@ def main():
             return -2
 
         # setup file based logging
-        filelogger = logging.FileHandler(filename=args.OutputLog, mode='w')
+        filelogger = logging.FileHandler(filename=args.OutputLog, mode="w")
         filelogger.setLevel(logging.DEBUG)
-        logging.getLogger('').addHandler(filelogger)
+        logging.getLogger("").addHandler(filelogger)
 
     logging.info("Log Started: " + datetime.datetime.strftime(datetime.datetime.now(), "%A, %B %d, %Y %I:%M%p"))
 
@@ -584,12 +584,12 @@ def main():
                     tagListSet.add(individual_item.strip())
             tagList = list(tagListSet)
             nu.UpdateTags(tagList)
-        '''
+        """
         ret = nu.ToConfigFile()
         if (ret != 0):
             logging.error("Failed to save config file.  Return Code 0x%x" % ret)
             return ret
-        '''
+        """
 
         ret = nu.Pack(args.Version, TempOutDir, args.InputFolderPath, args.ReleaseNotes)
         if (ret != 0):
@@ -638,7 +638,7 @@ def main():
 def go():
     """Main entry into the nuget publishing tool."""
     # setup main console as logger
-    logger = logging.getLogger('')
+    logger = logging.getLogger("")
     logger.setLevel(logging.DEBUG)
     formatter = logging.Formatter("%(levelname)s - %(message)s")
     console = logging.StreamHandler()
@@ -658,5 +658,5 @@ def go():
     sys.exit(retcode)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     go()

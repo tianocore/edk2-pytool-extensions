@@ -70,9 +70,9 @@ class Edk2PlatformBuild(Edk2Invocable):
             except (TypeError):
                 raise RuntimeError(f"UefiBuild not found in module:\n{dir(self.PlatformModule)}")
 
-        parserObj.add_argument('-nv', '-NV', '--noverify', '--NOVERIFY', '--NoVerify',
-                               dest="verify", default=True, action='store_false',
-                               help='Skip verifying external dependencies before build.')
+        parserObj.add_argument("-nv", "-NV", "--noverify", "--NOVERIFY", "--NoVerify",
+                               dest="verify", default=True, action="store_false",
+                               help="Skip verifying external dependencies before build.")
         self.PlatformBuilder.AddPlatformCommandLineOptions(parserObj)
 
     def RetrieveCommandLineOptions(self, args):
@@ -104,7 +104,7 @@ class Edk2PlatformBuild(Edk2Invocable):
                 # If the line actually wrapped, we can print the rest of the lines here
                 for d in desc[1:]:
                     custom_epilog += f"\n  {'':<{max_name_len}}   {d:{max_desc_len}}"
-            custom_epilog += '\n\n'
+            custom_epilog += "\n\n"
 
         return custom_epilog + epilog
 

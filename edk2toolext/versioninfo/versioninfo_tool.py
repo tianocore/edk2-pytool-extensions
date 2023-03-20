@@ -52,17 +52,17 @@ def get_cli_options(args=None):
     an array in the first parameter
     """
     parser = argparse.ArgumentParser(description=TOOL_DESCRIPTION, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('input_file', type=str,
-                        help='a filesystem path to a json/PE file to load')
-    parser.add_argument('output_file', type=str,
+    parser.add_argument("input_file", type=str,
+                        help="a filesystem path to a json/PE file to load")
+    parser.add_argument("output_file", type=str,
                         help='a filesystem path to the output file. if file does not exist, entire directory path will be created. if file does exist, contents will be overwritten')  # noqa
 
     command_group = parser.add_mutually_exclusive_group()
-    command_group.add_argument('-e', '--encode', action='store_const', const='e', dest='mode',
-                               help='(default) outputs VERSIONINFO.rc of given json file')
-    command_group.add_argument('-d', '--dump', action='store_const', dest='mode', const='d',
-                               help='outputs json file of VERSIONINFO given PE file')
-    parser.set_defaults(mode='e')
+    command_group.add_argument("-e", "--encode", action="store_const", const="e", dest="mode",
+                               help="(default) outputs VERSIONINFO.rc of given json file")
+    command_group.add_argument("-d", "--dump", action="store_const", dest="mode", const="d",
+                               help="outputs json file of VERSIONINFO given PE file")
+    parser.set_defaults(mode="e")
     return parser.parse_args(args=args)
 
 
@@ -135,11 +135,11 @@ def main():
         logging.error("Could not find " + args.input_file)
         sys.exit(1)
 
-    if args.mode == 'd':
+    if args.mode == "d":
         # we need to dump
         if not decode_version_info_dump_json(args.input_file, args.output_file):
             sys.exit(1)
-    elif args.mode == 'e':
+    elif args.mode == "e":
         # we need to encode
         if not encode_version_info_dump_rc(args.input_file, args.output_file):
             sys.exit(1)
@@ -149,5 +149,5 @@ def main():
         sys.exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -71,13 +71,13 @@ class Edk2CiBuildSetup(Edk2MultiPkgAwareInvocable):
     """
     def AddCommandLineOptions(self, parser):
         """Adds command line arguments to Edk2CiBuild."""
-        parser.add_argument('-ignore', '--ignore-git', dest="git_ignore", action="store_true",
+        parser.add_argument("-ignore", "--ignore-git", dest="git_ignore", action="store_true",
                             help="Whether to ignore errors in the git cloning process", default=False)
-        parser.add_argument('--omnicache', '--reference', dest='omnicache_path',
-                            default=os.environ.get('OMNICACHE_PATH'))
-        parser.add_argument('-force', '--force-git', dest="git_force", action="store_true",
+        parser.add_argument("--omnicache", "--reference", dest="omnicache_path",
+                            default=os.environ.get("OMNICACHE_PATH"))
+        parser.add_argument("-force", "--force-git", dest="git_force", action="store_true",
                             help="Whether to force git repos to clone in the git cloning process", default=False)
-        parser.add_argument('-update-git', '--update-git', dest="git_update", action="store_true",
+        parser.add_argument("-update-git", "--update-git", dest="git_update", action="store_true",
                             help="Whether to update git repos as needed in the git cloning process", default=False)
         super().AddCommandLineOptions(parser)
 

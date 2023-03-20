@@ -77,7 +77,7 @@ class AzureCliUniversalDependency(ExternalDependency):
         # 1 - az cli tool missing will raise exception on call to az --version earlier in function
 
         # 2 - Check for azure-devops extension
-        if 'azure-devops' not in found.keys():
+        if "azure-devops" not in found.keys():
             logging.critical("Missing required Azure-cli extension azure-devops")
             raise EnvironmentError("Missing required Azure-cli extension azure-devops")
 
@@ -88,10 +88,10 @@ class AzureCliUniversalDependency(ExternalDependency):
         super().__init__(descriptor)
         self.global_cache_path = None
         self.organization = self.source
-        self.feed = descriptor.get('feed')
-        self.project = descriptor.get('project', None)
-        self.file_filter = descriptor.get('file-filter', None)
-        _pat_var = descriptor.get('pat_var', None)
+        self.feed = descriptor.get("feed")
+        self.project = descriptor.get("project", None)
+        self.file_filter = descriptor.get("file-filter", None)
+        _pat_var = descriptor.get("pat_var", None)
         self._pat = None
 
         if _pat_var is not None:
@@ -135,7 +135,7 @@ class AzureCliUniversalDependency(ExternalDependency):
         # lets check it to double confirm
         result_data = json.loads(results.getvalue())
         results.close()
-        downloaded_version = result_data['Version']
+        downloaded_version = result_data["Version"]
         if self.version != downloaded_version:
             self.version = downloaded_version  # set it so state file is accurate and will fail on verify
             raise Exception("Download Universal Package version (%s) different than requested (%s)." %

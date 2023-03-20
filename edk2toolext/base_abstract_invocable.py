@@ -171,7 +171,7 @@ class BaseAbstractInvocable(object):
         !!! tip
             Optional override in a subclass if new behavior is needed
         """
-        logger = logging.getLogger('')
+        logger = logging.getLogger("")
         logger.setLevel(self.GetLoggingLevel("base"))
 
         # Adjust console mode depending on mode.

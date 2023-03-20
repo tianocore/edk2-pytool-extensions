@@ -38,7 +38,7 @@ def DownloadNuget(unpack_folder: str = None) -> list:
     if not os.path.isfile(out_file_name):
         try:
             # Download the file and save it locally under `temp_file_name`
-            with urllib.request.urlopen(URL) as response, open(out_file_name, 'wb') as out_file:
+            with urllib.request.urlopen(URL) as response, open(out_file_name, "wb") as out_file:
                 out_file.write(response.read())
         except urllib.error.HTTPError as e:
             logging.error("We ran into an issue when getting NuGet")

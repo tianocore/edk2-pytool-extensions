@@ -41,7 +41,7 @@ def TestFilenameLowercase(apath):
 
 def PackageAndModuleValidCharacters(apath):
     """Check pep8 recommendations for package and module names."""
-    match = re.match('^[a-z0-9_/.]+$', apath.replace("\\", "/"))
+    match = re.match("^[a-z0-9_/.]+$", apath.replace("\\", "/"))
     if match is None:
         logging.critical(
             f"PackageAndModuleValidCharacters failure: package or module name {apath} has something invalid")

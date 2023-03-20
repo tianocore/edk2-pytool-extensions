@@ -78,27 +78,27 @@ class UefiBuilder(object):
             parserObj (argparser): argparser object
         """
         parserObj.add_argument("--SKIPBUILD", "--skipbuild", "--SkipBuild", dest="SKIPBUILD",
-                               action='store_true', default=False, help="Skip the build process")
+                               action="store_true", default=False, help="Skip the build process")
         parserObj.add_argument("--SKIPPREBUILD", "--skipprebuild", "--SkipPrebuild", dest="SKIPPREBUILD",
-                               action='store_true', default=False, help="Skip prebuild process")
+                               action="store_true", default=False, help="Skip prebuild process")
         parserObj.add_argument("--SKIPPOSTBUILD", "--skippostbuild", "--SkipPostBuild", dest="SKIPPOSTBUILD",
-                               action='store_true', default=False, help="Skip postbuild process")
+                               action="store_true", default=False, help="Skip postbuild process")
         parserObj.add_argument("--FLASHONLY", "--flashonly", "--FlashOnly", dest="FLASHONLY",
-                               action='store_true', default=False, help="Flash rom after build.")
+                               action="store_true", default=False, help="Flash rom after build.")
         parserObj.add_argument("--FLASHROM", "--flashrom", "--FlashRom", dest="FLASHROM",
-                               action='store_true', default=False, help="Flash rom.  Rom must be built previously.")
+                               action="store_true", default=False, help="Flash rom.  Rom must be built previously.")
         parserObj.add_argument("--UPDATECONF", "--updateconf", "--UpdateConf",
-                               dest="UPDATECONF", action='store_true', default=False,
+                               dest="UPDATECONF", action="store_true", default=False,
                                help="Update Conf. Builders Conf files will be replaced with latest template files")
         parserObj.add_argument("--CLEAN", "--clean", "--CLEAN", dest="CLEAN",
-                               action='store_true', default=False,
+                               action="store_true", default=False,
                                help="Clean. Remove all old build artifacts and intermediate files")
         parserObj.add_argument("--CLEANONLY", "--cleanonly", "--CleanOnly", dest="CLEANONLY",
-                               action='store_true', default=False,
+                               action="store_true", default=False,
                                help="Clean Only. Do clean operation and don't build just exit.")
         parserObj.add_argument("--OUTPUTCONFIG", "--outputconfig", "--OutputConfig",
-                               dest='OutputConfig', required=False, type=str,
-                               help='Provide shell variables in a file')
+                               dest="OutputConfig", required=False, type=str,
+                               help="Provide shell variables in a file")
 
     def RetrievePlatformCommandLineOptions(self, args):
         """Retrieve command line options from the argparser.
@@ -311,7 +311,7 @@ class UefiBuilder(object):
         # WORKAROUND - Pin the PYTHONHASHSEED so that TianoCore build tools
         #               have consistent ordering. Addresses incremental builds.
         pre_build_env_chk = env.checkpoint()
-        env.set_shell_var('PYTHONHASHSEED', '0')
+        env.set_shell_var("PYTHONHASHSEED", "0")
         env.log_environment()
 
         edk2_build_cmd = self.env.GetValue("EDK_BUILD_CMD")

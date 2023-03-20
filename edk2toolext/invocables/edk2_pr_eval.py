@@ -100,15 +100,15 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
 
     def AddCommandLineOptions(self, parserObj):
         """Adds command line options to the argparser."""
-        parserObj.add_argument("--pr-target", dest='pr_target', type=str, default=None,
+        parserObj.add_argument("--pr-target", dest="pr_target", type=str, default=None,
                                help="PR Branch Target.  Allows build optimizations for pull request"
                                " validation based on files changed. If a package doesn't need testing then it will"
                                " be skipped. Example --pr-target origin/master", required=True)
-        parserObj.add_argument("--output-csv-format-string", dest='output_csv_format_string', type=str, default=None,
+        parserObj.add_argument("--output-csv-format-string", dest="output_csv_format_string", type=str, default=None,
                                help="Provide format string that will be output to stdout a full csv of packages"
                                " to be tested.  Valid Tokens: {pkgcsv}"
                                " Example --output-csv-format-string test={pkgcsv}")
-        parserObj.add_argument("--output-count-format-string", dest='output_count_format_string', type=str,
+        parserObj.add_argument("--output-count-format-string", dest="output_count_format_string", type=str,
                                default=None, help="Provide format string that will be output to stdout the count of"
                                " packages to be tested.  Valid Tokens: {pkgcount}"
                                " Example --output-count-format-string PackageCount={pkgcount}")

@@ -48,9 +48,9 @@ class WebDependency(ExternalDependency):
     def __init__(self, descriptor):
         """Inits a web dependency based off the provided descriptor."""
         super().__init__(descriptor)
-        self.internal_path = os.path.normpath(descriptor['internal_path'])
-        self.compression_type = descriptor.get('compression_type', None)
-        self.sha256 = descriptor.get('sha256', None)
+        self.internal_path = os.path.normpath(descriptor["internal_path"])
+        self.compression_type = descriptor.get("compression_type", None)
+        self.sha256 = descriptor.get("sha256", None)
 
         # If the internal path starts with a / that means we are downloading a directory
         self.download_is_directory = self.internal_path.startswith(os.path.sep)
@@ -88,7 +88,7 @@ class WebDependency(ExternalDependency):
 
         if compression_type == "zip":
             logging.info(f"{compressed_file_path} is a zip file, trying to unpack it.")
-            _ref = zipfile.ZipFile(compressed_file_path, 'r')
+            _ref = zipfile.ZipFile(compressed_file_path, "r")
             files_in_volume = _ref.namelist()
 
         elif compression_type and "tar" in compression_type:
@@ -119,7 +119,7 @@ class WebDependency(ExternalDependency):
 
         try:
             # Download the file and save it locally under `temp_file_path`
-            with urllib.request.urlopen(url) as response, open(temp_file_path, 'wb') as out_file:
+            with urllib.request.urlopen(url) as response, open(temp_file_path, "wb") as out_file:
                 out_file.write(response.read())
         except urllib.error.HTTPError as e:
             logging.error(f"ran into an issue when resolving ext_dep {self.name} at {self.source}")

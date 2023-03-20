@@ -82,9 +82,9 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
 
     def AddCommandLineOptions(self, parserObj):
         """Adds command line options to the argparser."""
-        parserObj.add_argument('--force', '--FORCE', '--Force', dest="force", action='store_true', default=False)
-        parserObj.add_argument('--omnicache', '--OMNICACHE', '--Omnicache', dest='omnicache_path',
-                               default=os.environ.get('OMNICACHE_PATH'))
+        parserObj.add_argument("--force", "--FORCE", "--Force", dest="force", action="store_true", default=False)
+        parserObj.add_argument("--omnicache", "--OMNICACHE", "--Omnicache", dest="omnicache_path",
+                               default=os.environ.get("OMNICACHE_PATH"))
 
         super().AddCommandLineOptions(parserObj)
 
@@ -131,7 +131,7 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
         workspace_path = self.GetWorkspaceRoot()
 
         details = repo_details(workspace_path)
-        git_version = details['GitVersion']
+        git_version = details["GitVersion"]
 
         version_aggregator.GetVersionAggregator().ReportVersion("Git",
                                                                 git_version,
@@ -147,7 +147,7 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
         if self.force_it:
             try:
                 # Clean the workspace
-                edk2_logging.log_progress('## Cleaning the root repo')
+                edk2_logging.log_progress("## Cleaning the root repo")
                 clean(workspace_path, ignore_files=[f'Build/{self.GetLoggingFileName("txt")}.txt'])
                 edk2_logging.log_progress("Done.\n")
             except InvalidGitRepositoryError:
@@ -159,9 +159,9 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
             for required_submodule in required_submodules:
                 try:
                     submodule_path = os.path.join(workspace_path, required_submodule.path)
-                    edk2_logging.log_progress(f'## Cleaning Git Submodule: {required_submodule.path}')
+                    edk2_logging.log_progress(f"## Cleaning Git Submodule: {required_submodule.path}")
                     submodule_clean(workspace_path, required_submodule)
-                    edk2_logging.log_progress('## Done.\n')
+                    edk2_logging.log_progress("## Done.\n")
                 except InvalidGitRepositoryError:
                     logging.error(f"Error when trying to clean {submodule_path}")
                     logging.error(f"Invalid Git Repository at {submodule_path}")
@@ -173,19 +173,19 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
 
         # Resolve all of the submodules to the specifed branch and commit. i.e. sync, then update
         for submodule in required_submodules:
-            edk2_logging.log_progress(f'## Resolving Git Submodule: {submodule.path}')
+            edk2_logging.log_progress(f"## Resolving Git Submodule: {submodule.path}")
             submodule_details = repo_details(os.path.join(workspace_path, submodule.path))
 
             # Don't update a dirty submodule unless we are forcing.
-            if submodule_details['Dirty'] and not self.force_it:
-                logging.info('-- NOTE: Submodule currently exists and appears to have local changes!')
-                logging.info('-- Skipping fetch!')
+            if submodule_details["Dirty"] and not self.force_it:
+                logging.info("-- NOTE: Submodule currently exists and appears to have local changes!")
+                logging.info("-- Skipping fetch!")
                 logging.log(edk2_logging.get_progress_level(), "Done.\n")
                 continue
             try:
                 # Sync, then Update & Init the submodule
                 submodule_resolve(workspace_path, submodule, omnicache_path=self.omnicache_path)
-                edk2_logging.log_progress('## Done.\n')
+                edk2_logging.log_progress("## Done.\n")
             except InvalidGitRepositoryError:
                 logging.error(f"Error when trying to resolve {submodule.path}")
                 logging.error(f"Invalid Git Repository at {submodule.path}")

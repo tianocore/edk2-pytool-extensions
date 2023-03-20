@@ -155,7 +155,7 @@ class VarDict(object):
         key = k.upper()
         en = self.GetEntry(key)
         if v is None:
-            value = ''.join(choice(ascii_letters) for _ in range(20))
+            value = "".join(choice(ascii_letters) for _ in range(20))
         else:
             value = str(v)
         self.Logger.debug("Trying to set key %s to value %s" % (k, v))
@@ -308,7 +308,7 @@ class VarDict(object):
         """
         f = None
         if (fp is not None):
-            f = open(fp, 'a+')
+            f = open(fp, "a+")
         for key, value in self.Dstore.items():
             print("Key = %s" % key, file=f)
             value.PrintEntry(f)

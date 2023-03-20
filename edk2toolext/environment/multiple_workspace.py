@@ -26,7 +26,7 @@ class MultipleWorkspace(object):
         WORKSPACE (str): defined the current workspace
         PACKAGES_PATH (str): defined the other WORKSPACE
     """
-    WORKSPACE = ''
+    WORKSPACE = ""
     PACKAGES_PATH = None
 
     @classmethod
@@ -135,7 +135,7 @@ class MultipleWorkspace(object):
         Returns:
             (Str): Path string including the $(WORKSPACE)
         """
-        TAB_WORKSPACE = '$(WORKSPACE)'
+        TAB_WORKSPACE = "$(WORKSPACE)"
         if TAB_WORKSPACE in PathStr:
             PathList = PathStr.split()
             if PathList:
@@ -150,7 +150,7 @@ class MultipleWorkspace(object):
                                 if os.path.exists(Path):
                                     break
                         PathList[i] = str[0:MacroStartPos] + Path
-            PathStr = ' '.join(PathList)
+            PathStr = " ".join(PathList)
         return PathStr
 
     @classmethod

@@ -95,7 +95,7 @@ def setup_section_level():
 
 # creates the the plaintext logger
 def setup_txt_logger(directory, filename="log", logging_level=logging.INFO,
-                     formatter=None, logging_namespace='', isVerbose=False):
+                     formatter=None, logging_namespace="", isVerbose=False):
     """Configures a text logger."""
     logger = logging.getLogger(logging_namespace)
     log_formatter = formatter
@@ -107,7 +107,7 @@ def setup_txt_logger(directory, filename="log", logging_level=logging.INFO,
 
     # Create file logger
     logfile_path = os.path.join(directory, filename + ".txt")
-    filelogger = file_handler.FileHandler(filename=(logfile_path), mode='w+')
+    filelogger = file_handler.FileHandler(filename=(logfile_path), mode="w+")
     filelogger.setLevel(logging_level)
     filelogger.setFormatter(log_formatter)
     logger.addHandler(filelogger)
@@ -118,7 +118,7 @@ def setup_txt_logger(directory, filename="log", logging_level=logging.INFO,
 
 
 # sets up a colored console logger
-def setup_console_logging(logging_level=logging.INFO, formatter=None, logging_namespace='',
+def setup_console_logging(logging_level=logging.INFO, formatter=None, logging_namespace="",
                           isVerbose=False, use_azure_colors=False, use_color=True):
     """Configures a console logger."""
     if formatter is None and isVerbose:
@@ -153,7 +153,7 @@ def setup_console_logging(logging_level=logging.INFO, formatter=None, logging_na
     return safeHandler
 
 
-def stop_logging(loghandle, logging_namespace=''):
+def stop_logging(loghandle, logging_namespace=""):
     """Stops logging on a log handle."""
     logger = logging.getLogger(logging_namespace)
     if loghandle is None:
@@ -168,7 +168,7 @@ def stop_logging(loghandle, logging_namespace=''):
         logger.removeHandler(loghandle)
 
 
-def create_output_stream(level=logging.INFO, logging_namespace=''):
+def create_output_stream(level=logging.INFO, logging_namespace=""):
     """Creates an output stream to log to."""
     # creates an output stream that is in memory
     if string_handler:
@@ -181,7 +181,7 @@ def create_output_stream(level=logging.INFO, logging_namespace=''):
     return handler
 
 
-def remove_output_stream(handler, logging_namespace=''):
+def remove_output_stream(handler, logging_namespace=""):
     """Removes an output stream to log to."""
     logger = logging.getLogger(logging_namespace)
     if isinstance(handler, list):

@@ -409,7 +409,7 @@ def Export(omnicache, exportPath):
 
 def get_cli_options():
     """Add CLI arguments to argparse for controlling the omnicache."""
-    parser = argparse.ArgumentParser(description='Tool to provide easy method create and manage the OMNICACHE' )
+    parser = argparse.ArgumentParser(description="Tool to provide easy method create and manage the OMNICACHE" )
     parser.add_argument(dest="cache_dir", help="path to an existing or desired OMNICACHE directory")
     parser.add_argument("--scan", dest="scan", default=None,
                         help="Scans the path provided for top-level folders with repos to add to the OMNICACHE")
@@ -435,7 +435,7 @@ def get_cli_options():
                        help="Specify the number of parallel threads (jobs) for fetch operation.", default=0)
     parser.add_argument("-r", "--remove", dest="remove", nargs=1, action="append",
                         help="remove config entry from OMNICACHE <name>", default=[])
-    parser.add_argument('--version', action='version', version='%(prog)s ' + OMNICACHE_VERSION)
+    parser.add_argument("--version", action="version", version="%(prog)s " + OMNICACHE_VERSION)
     parser.add_argument("--debug", dest="debug", help="Output all debug messages to console",
                         action="store_true", default=False)
     args = parser.parse_args()
@@ -445,7 +445,7 @@ def get_cli_options():
 def main():
     """Main entry point to managing the omnicache."""
     # setup main console as logger
-    logger = logging.getLogger('')
+    logger = logging.getLogger("")
     logger.setLevel(logging.NOTSET)
     console = edk2_logging.setup_console_logging(False)
     logger.addHandler(console)
@@ -536,7 +536,7 @@ def main():
     return 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     retcode = main()
     logging.shutdown()
     sys.exit(retcode)

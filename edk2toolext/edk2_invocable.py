@@ -243,11 +243,11 @@ class Edk2Invocable(BaseAbstractInvocable):
 
         # Add any OS-specific scope.
         if GetHostInfo().os == "Windows":
-            scopes += ('global-win',)
+            scopes += ("global-win",)
         elif GetHostInfo().os == "Linux":
-            scopes += ('global-nix',)
+            scopes += ("global-nix",)
         # Add the global scope. To be deprecated.
-        scopes += ('global',)
+        scopes += ("global",)
         return scopes
 
     def GetLoggingLevel(self, loggerType):
@@ -324,7 +324,7 @@ class Edk2Invocable(BaseAbstractInvocable):
         Returns:
             (str): The string to be added to the end of the argument parser.
         """
-        epilog = dedent('''\
+        epilog = dedent("""\
             CLI Env Guide:
               <key>=<value>              - Set an env variable for the pre/post build process
               <key>                      - Set a non-valued env variable for the pre/post build process
@@ -334,7 +334,7 @@ class Edk2Invocable(BaseAbstractInvocable):
               BLD_<TARGET>_<key>=<value> - Set a build flag for build type of <target>
                                            (key=value will get passed to build process for given build type)
               BLD_<TARGET>_<key>         - Set a non-valued build flag for a build type of <target>
-            ''')
+            """)
         return epilog
 
     def ParseCommandLineOptions(self):
@@ -347,10 +347,10 @@ class Edk2Invocable(BaseAbstractInvocable):
         # first argparser will only get settings manager and help will be disabled
         settingsParserObj = argparse.ArgumentParser(add_help=False)
 
-        settingsParserObj.add_argument('-c', '--platform_module', dest='platform_module',
+        settingsParserObj.add_argument("-c", "--platform_module", dest="platform_module",
                                        default="PlatformBuild.py", type=str,
-                                       help='Provide the Platform Module relative to the current working directory.'
-                                            f'This should contain a {self.GetSettingsClass().__name__} instance.')
+                                       help="Provide the Platform Module relative to the current working directory."
+                                            f"This should contain a {self.GetSettingsClass().__name__} instance.")
 
         # get the settings manager from the provided file and load an instance
         settingsArg, unknown_args = settingsParserObj.parse_known_args()
@@ -407,10 +407,10 @@ class Edk2Invocable(BaseAbstractInvocable):
         default_build_config_path = os.path.join(self.GetWorkspaceRoot(), "BuildConfig.conf")
 
         # add the common stuff that everyone will need
-        parserObj.add_argument('--build-config', dest='build_config', default=default_build_config_path, type=str,
-                               help='Provide shell variables in a file')
-        parserObj.add_argument('--verbose', '--VERBOSE', '-v', dest="verbose", action='store_true', default=False,
-                               help='verbose')
+        parserObj.add_argument("--build-config", dest="build_config", default=default_build_config_path, type=str,
+                               help="Provide shell variables in a file")
+        parserObj.add_argument("--verbose", "--VERBOSE", "-v", dest="verbose", action="store_true", default=False,
+                               help="verbose")
 
         # set the epilog to display with --help, -h
         parserObj.epilog = self.AddParserEpilog()
@@ -446,7 +446,7 @@ class Edk2Invocable(BaseAbstractInvocable):
                 env.SetValue(tokens[0].strip().upper(), tokens[1].strip(), "From CmdLine")
             elif argument.count("=") == 0:
                 env.SetValue(argument.strip().upper(),
-                             ''.join(choice(ascii_letters) for _ in range(20)),
+                             "".join(choice(ascii_letters) for _ in range(20)),
                              "Non valued variable set From cmdLine")
             else:
                 raise RuntimeError(f"Unknown variable passed in via CLI: {argument}")
@@ -467,7 +467,7 @@ class Edk2Invocable(BaseAbstractInvocable):
                 env.SetValue(tokens[0].strip().upper(), tokens[1].strip(), "From BuildConf")
             elif argument.count("=") == 0:
                 env.SetValue(argument.strip().upper(),
-                             ''.join(choice(ascii_letters) for _ in range(20)),
+                             "".join(choice(ascii_letters) for _ in range(20)),
                              "Non valued variable set from BuildConfig")
             else:
                 raise RuntimeError(f"Unknown variable passed in via BuildConfig: {argument}")

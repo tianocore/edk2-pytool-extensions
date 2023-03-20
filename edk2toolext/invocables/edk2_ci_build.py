@@ -166,7 +166,7 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
             pkg_config_file = edk2path.GetAbsolutePathOnThisSystemFromEdk2RelativePath(
                 os.path.join(pkgToRunOn, pkgToRunOn + ".ci.yaml"))
             if (pkg_config_file):
-                with open(pkg_config_file, 'r') as f:
+                with open(pkg_config_file, "r") as f:
                     pkg_config = yaml.safe_load(f)
             else:
                 logging.info(f"No Pkg Config file for {pkgToRunOn}")

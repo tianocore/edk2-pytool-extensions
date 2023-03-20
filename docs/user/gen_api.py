@@ -41,7 +41,7 @@ def main():
 
         filename = f"api{os.sep}{file_path}"
         with mkdocs_gen_files.open(filename, "w") as f:
-            ff = file_path.replace(os.sep, '.').replace('.md', '')
+            ff = file_path.replace(os.sep, ".").replace(".md", "")
             ff = f"edk2toolext.{ff}"
             print(f"::: {ff}", file=f)
             print("    handler: python", file=f)
@@ -55,7 +55,7 @@ def main():
             print("        show_source: False", file=f)
 
         # Point the "Edit on Github" button in the docs to point at the source code
-        edit_path = os.path.join('..', 'edk2toolext', edit_path)
+        edit_path = os.path.join("..", "edk2toolext", edit_path)
         mkdocs_gen_files.set_edit_path(filename, edit_path)
 
 

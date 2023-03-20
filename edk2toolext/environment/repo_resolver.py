@@ -223,12 +223,12 @@ def repo_details(abs_file_system_path):
     try:
         with Repo(abs_file_system_path) as repo:
             # Active Branch
-            details["Branch"] = 'HEAD' if repo.head.is_detached else repo.active_branch.name
+            details["Branch"] = "HEAD" if repo.head.is_detached else repo.active_branch.name
 
             # Worktrees
             worktree_list = []
             worktrees = repo.git.worktree("list", "--porcelain", "-z")
-            for worktree in filter(lambda worktree: worktree.startswith("worktree"), worktrees.split('\0')):
+            for worktree in filter(lambda worktree: worktree.startswith("worktree"), worktrees.split("\0")):
                 worktree_list.append(Path(worktree.split(" ")[1]))
                 details["Worktrees"] = worktree_list
 
@@ -291,14 +291,14 @@ def clone_repo(abs_file_system_path, DepObj):
         params = []
         if branch:
             shallow = True
-            params.append('--branch')
+            params.append("--branch")
             params.append(branch)
-            params.append('--single-branch')
+            params.append("--single-branch")
         if shallow:
-            params.append('--depth=5')
+            params.append("--depth=5")
         if reference:
-            params.append('--reference')
-            params.append('reference')
+            params.append("--reference")
+            params.append("reference")
         else:
             params.append("--recurse-submodules")  # if we don't have a reference we can just recurse the submodules
 
@@ -322,7 +322,7 @@ def clone_repo(abs_file_system_path, DepObj):
 
     # Repo cloned, perform submodule update if necessary
     if reference:
-        repo.git.submodule('update', '--init', '--recursive', '--reference', reference)
+        repo.git.submodule("update", "--init", "--recursive", "--reference", reference)
     repo.close()
     return (dest, True)
 
@@ -459,18 +459,18 @@ def submodule_resolve(abs_file_system_path, submodule, omnicache_path=None):
     """
     with Repo(abs_file_system_path) as repo:
 
-        logger.debug(f'Syncing {submodule.path}')
-        repo.git.submodule('sync', '--', submodule.path)
+        logger.debug(f"Syncing {submodule.path}")
+        repo.git.submodule("sync", "--", submodule.path)
 
-        params = ['update', '--init']
+        params = ["update", "--init"]
         if submodule.recursive:
             params.append("--recursive")
         if omnicache_path:
-            params.append('--reference')
+            params.append("--reference")
             params.append(omnicache_path)
         params.append(submodule.path)
-        logger.debug(f'Updating {submodule.path}')
+        logger.debug(f"Updating {submodule.path}")
         repo.git.submodule(*params)
 
     with Repo(Path(abs_file_system_path, submodule.path)) as _:
-        logger.debug(f'{submodule.path} is valid and resolved.')
+        logger.debug(f"{submodule.path} is valid and resolved.")

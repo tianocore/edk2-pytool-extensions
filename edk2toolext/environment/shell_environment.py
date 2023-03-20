@@ -75,7 +75,7 @@ class ShellEnvironment(metaclass=Singleton):
             self.active_environ[key] = value
 
         # Record the PATH elements of the current environment.
-        path = self.active_environ.get('PATH', "")
+        path = self.active_environ.get("PATH", "")
 
         # Filter removes empty elements.
         # List creates an actual list rather than a generator.
@@ -132,10 +132,10 @@ class ShellEnvironment(metaclass=Singleton):
         """
         new_index = len(self.checkpoints)
         self.checkpoints.append({
-            'environ': copy.copy(self.active_environ),
-            'path': self.active_path,
-            'pypath': self.active_pypath,
-            'buildvars': copy.copy(self.active_buildvars),
+            "environ": copy.copy(self.active_environ),
+            "path": self.active_path,
+            "pypath": self.active_pypath,
+            "buildvars": copy.copy(self.active_buildvars),
         })
 
         return new_index
@@ -144,10 +144,10 @@ class ShellEnvironment(metaclass=Singleton):
         """Restore a specific checkpoint."""
         if index < len(self.checkpoints):
             check_point = self.checkpoints[index]
-            self.active_environ = copy.copy(check_point['environ'])
-            self.active_path = check_point['path']
-            self.active_pypath = check_point['pypath']
-            self.active_buildvars = copy.copy(check_point['buildvars'])
+            self.active_environ = copy.copy(check_point["environ"])
+            self.active_path = check_point["path"]
+            self.active_pypath = check_point["pypath"]
+            self.active_buildvars = copy.copy(check_point["buildvars"])
 
             self.export_environment()
 
@@ -336,7 +336,7 @@ class ShellEnvironment(metaclass=Singleton):
         """
         self.logger.debug(
             "Updating BUILD VAR element '%s': '%s'." % (var_name, var_data))
-        self.active_buildvars.SetValue(var_name, var_data, '', overridable=True)
+        self.active_buildvars.SetValue(var_name, var_data, "", overridable=True)
 
     def get_shell_var(self, var_name):
         """Gets the shell variable.
@@ -362,9 +362,9 @@ class ShellEnvironment(metaclass=Singleton):
         # Check for the "special" shell vars.
         if var_data is None:
             raise ValueError("Unexpected var_data: None")
-        if var_name.upper() == 'PATH':
+        if var_name.upper() == "PATH":
             self.set_path(var_data)
-        elif var_name.upper() == 'PYTHONPATH':
+        elif var_name.upper() == "PYTHONPATH":
             self.set_pypath(var_data)
         else:
             self.logger.debug(

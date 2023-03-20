@@ -178,13 +178,13 @@ class Edk2MultiPkgAwareInvocable(Edk2Invocable):
     def AddCommandLineOptions(self, parserObj):
         """Adds command line options to the argparser."""
         # This will parse the packages that we are going to update
-        parserObj.add_argument('-p', '--pkg', '--pkg-dir', dest='packageList', type=str,
-                               help='Optional - A package or folder you want to update (workspace relative).'
-                               'Can list multiple by doing -p <pkg1>,<pkg2> or -p <pkg3> -p <pkg4>',
+        parserObj.add_argument("-p", "--pkg", "--pkg-dir", dest="packageList", type=str,
+                               help="Optional - A package or folder you want to update (workspace relative)."
+                               "Can list multiple by doing -p <pkg1>,<pkg2> or -p <pkg3> -p <pkg4>",
                                action="append", default=[])
-        parserObj.add_argument('-a', '--arch', dest="requested_arch", type=str, default=None,
+        parserObj.add_argument("-a", "--arch", dest="requested_arch", type=str, default=None,
                                help="Optional - CSV of architecutres requested to update. Example: -a X64,AARCH64")
-        parserObj.add_argument('-t', '--target', dest='requested_target', type=str, default=None,
+        parserObj.add_argument("-t", "--target", dest="requested_target", type=str, default=None,
                                help="Optional - CSV of targets requested to update.  Example: -t DEBUG,NOOPT")
 
     def RetrieveCommandLineOptions(self, args):
