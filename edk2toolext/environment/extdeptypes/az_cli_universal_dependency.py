@@ -56,7 +56,7 @@ class AzureCliUniversalDependency(ExternalDependency):
         results.seek(0)
 
         to_find = ["azure-cli", "azure-devops"]  # find these keys in the version output
-        found = dict()
+        found = {}
 
         for line in results.readlines():
             if len(to_find) == 0:

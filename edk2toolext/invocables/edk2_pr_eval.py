@@ -166,7 +166,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         # This enabled CI pipelines
         #
         if self.output_csv_format_string is not None:
-            pkgcsv = ",".join([x for x in actualPackagesDict.keys()])
+            pkgcsv = ",".join(list(actualPackagesDict.keys()))
             print(self.output_csv_format_string.format(pkgcsv=pkgcsv))
 
         if self.output_count_format_string is not None:
@@ -461,15 +461,15 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
             raise ValueError("Invalid find directory to walk")
 
         if ignorelist is not None:
-            ignorelist_lower = list()
+            ignorelist_lower = []
             for item in ignorelist:
                 ignorelist_lower.append(item.lower())
 
-        extensionlist_lower = list()
+        extensionlist_lower = []
         for item in extensionlist:
             extensionlist_lower.append(item.lower())
 
-        returnlist = list()
+        returnlist = []
         for Root, Dirs, Files in os.walk(directory):
             for File in Files:
                 for Extension in extensionlist_lower:

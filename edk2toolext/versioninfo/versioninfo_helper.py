@@ -725,7 +725,7 @@ class VERSIONINFOGenerator(object):
             logging.error("Invalid input, aborted.")
             return False
 
-        self._version_dict = dict((key.upper(), val) for key, val in self._version_dict.items())
+        self._version_dict = {key.upper(): val for key, val in self._version_dict.items()}
 
         minimal = True
         for key in self._version_dict:

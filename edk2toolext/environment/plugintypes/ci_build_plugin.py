@@ -96,15 +96,15 @@ class ICiBuildPlugin(object):
                 logging.critical("Expected list but got " + str(type(ignorelist)))
                 raise TypeError("ignorelist must be a list")
 
-            ignorelist_lower = list()
+            ignorelist_lower = []
             for item in ignorelist:
                 ignorelist_lower.append(item.lower())
 
-        extensionlist_lower = list()
+        extensionlist_lower = []
         for item in extensionlist:
             extensionlist_lower.append(item.lower())
 
-        returnlist = list()
+        returnlist = []
         for Root, Dirs, Files in os.walk(directory):
             for File in Files:
                 for Extension in extensionlist_lower:

@@ -106,12 +106,12 @@ class self_describing_environment(object):
         # so they can be applied to the environment.
 
         # We need to convert them from files to descriptors
-        all_descriptors = list()
+        all_descriptors = []
 
         # helper function to get all the descriptors of a type and cast them
         def _get_all_descriptors_of_type(key, class_type):
             if key not in env_files:
-                return tuple()
+                return ()
             return tuple(class_type(desc_file) for desc_file in env_files[key])
 
         # Collect all the descriptors of each type
@@ -179,10 +179,9 @@ class self_describing_environment(object):
             final_descriptors.append(desc)
 
         # Finally, sort them back in the right categories
-        self.paths = list([x.descriptor_contents for x in final_descriptors if isinstance(x, EDF.PathEnvDescriptor)])
-        self.extdeps = list(
-            [x.descriptor_contents for x in final_descriptors if isinstance(x, EDF.ExternDepDescriptor)])
-        self.plugins = list([x.descriptor_contents for x in final_descriptors if isinstance(x, EDF.PluginDescriptor)])
+        self.paths = [x.descriptor_contents for x in final_descriptors if isinstance(x, EDF.PathEnvDescriptor)]
+        self.extdeps = [x.descriptor_contents for x in final_descriptors if isinstance(x, EDF.ExternDepDescriptor)]
+        self.plugins = [x.descriptor_contents for x in final_descriptors if isinstance(x, EDF.PluginDescriptor)]
 
         return self
 

@@ -70,7 +70,7 @@ class ShellEnvironment(metaclass=Singleton):
     def import_environment(self):
         """Loads the local environment with os environment."""
         # Create a complete copy of os.environ
-        self.active_environ = dict()
+        self.active_environ = {}
         for key, value in os.environ.items():
             self.active_environ[key] = value
 
@@ -409,7 +409,7 @@ def GetBuildVars():
 #
 # TODO: These are convenience methods that should be deprecated.
 #
-checkpoint_list = list()
+checkpoint_list = []
 
 
 def CheckpointBuildVars():

@@ -190,7 +190,7 @@ class Edk2Invocable(BaseAbstractInvocable):
         ver_agg = version_aggregator.GetVersionAggregator()
         ver_agg.ReportVersion("Python", cur_py, version_aggregator.VersionTypes.TOOL)
         # Get a list of all the packages currently installed in pip
-        pip_packages = [p for p in pkg_resources.working_set]
+        pip_packages = list(pkg_resources.working_set)
         # go through all installed pip versions
         for package in pip_packages:
             version = pkg_resources.get_distribution(package).version

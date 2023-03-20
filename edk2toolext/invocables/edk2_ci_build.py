@@ -170,7 +170,7 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
                     pkg_config = yaml.safe_load(f)
             else:
                 logging.info(f"No Pkg Config file for {pkgToRunOn}")
-                pkg_config = dict()
+                pkg_config = {}
 
             # get all the defines from the package configuration
             if "Defines" in pkg_config:
@@ -278,7 +278,7 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
             (dict): Dictionary of config settings
         """
         plugin_name = ""
-        config = dict()
+        config = {}
         if "module" in descriptor:
             plugin_name = descriptor["module"]
         if "config_name" in descriptor:

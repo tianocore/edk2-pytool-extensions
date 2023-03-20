@@ -4,6 +4,7 @@ select = [
     "D",  # pydocstyle
     "I",  # isort
     "COM",  # flake8-commas
+    "C4",  # flake8-comprehensions
 ]
 
 line-length = 120
