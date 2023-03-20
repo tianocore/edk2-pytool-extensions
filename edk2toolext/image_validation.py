@@ -312,9 +312,7 @@ class TestManager(object):
                 logging.debug(f"{result}")
             elif result == Result.SKIP:
                 logging.debug(f"{result}: No Requirements for [{machine_type}][{profile}]")
-            elif overall_result == Result.PASS:
-                overall_result = result
-            elif overall_result == Result.WARN and result == Result.FAIL:
+            elif overall_result == Result.PASS or (overall_result == Result.WARN and result == Result.WARN):
                 overall_result = result
 
         return overall_result
@@ -597,10 +595,7 @@ def main():
     test_manager.add_test(TestSubsystemValue())
 
     pe = PE(args.file)
-    if not args.profile:
-        result = test_manager.run_tests(pe)
-    else:
-        result = test_manager.run_tests(pe, args.profile)
+    result = test_manager.run_tests(pe) if not args.profile else test_manager.run_tests(pe, args.profile)
 
     logging.info(f"Overall Result: {result}")
     if result == Result.SKIP:

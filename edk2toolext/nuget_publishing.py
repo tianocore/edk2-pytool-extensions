@@ -244,7 +244,7 @@ class NugetSupport(object):
         meta.find("version").text = self.NewVersion
         meta.find("authors").text = self.ConfigData["author_string"]
         meta.find("projectUrl").text = self.ConfigData["project_url"]
-        repository_item_present = bool([k for k in self.ConfigData.keys() if "repository" in k.lower()])
+        repository_item_present = bool([k for k in self.ConfigData if "repository" in k.lower()])
         r = meta.find("repository")
         if repository_item_present:
             if "repository_type" in self.ConfigData:
@@ -330,9 +330,8 @@ class NugetSupport(object):
         xmlstring = self._MakeNuspecXml(cdir, RelNotesText)
         nuspec = os.path.join(OutputDirectory, self.Name + ".nuspec")
         self.TempFileToDelete.append(nuspec)
-        f = open(nuspec, "wb")
-        f.write(xmlstring)
-        f.close()
+        with open(nuspec, "wb") as f:
+            f.write(xmlstring)
 
         # run nuget
         cmd = NugetDependency.GetNugetCmd()
@@ -512,10 +511,7 @@ def main():
 
         # Provide Standard License Identifier in New Command
         # Or provide Custom License Path in Pack Command.
-        if args.LicenseIdentifier is None:
-            license = None
-        else:
-            license = LICENSE_IDENTIFIER_SUPPORTED[args.LicenseIdentifier]
+        license = None if args.LicenseIdentifier is None else LICENSE_IDENTIFIER_SUPPORTED[args.LicenseIdentifier]
 
         nu.SetBasicData(
             args.Author,

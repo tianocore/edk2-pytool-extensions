@@ -270,10 +270,7 @@ def validate_version_number(version_str: str) -> bool:
         return False
 
     split = None
-    if version_str.count(".") == 3:
-        split = version_str.split(".")
-    else:
-        split = version_str.split(",")
+    split = version_str.split(".") if version_str.count(".") == 3 else version_str.split(",")
 
     for substr in split:
         try:
@@ -300,10 +297,7 @@ def version_str_to_int(version_str: str) -> Tuple[int, int]:
         (Tuple[int, int]): (32 MS bits, 32 LS bits)
     """
     split = None
-    if version_str.count(".") == 3:
-        split = version_str.split(".")
-    else:
-        split = version_str.split(",")
+    split = version_str.split(".") if version_str.count(".") == 3 else version_str.split(",")
 
     ms = int(split[1]) + (int(split[0]) << 16)
     ls = int(split[3]) + (int(split[2]) << 16)
@@ -394,7 +388,7 @@ class PEObject(object):
         result = {}
         try:
             vs_fixedfileinfo_dict = self._pe.VS_FIXEDFILEINFO[0].dump_dict()
-            for key in vs_fixedfileinfo_dict.keys():
+            for key in vs_fixedfileinfo_dict:
                 # Skip sections that have dependencies
                 if key == PEStrings.PE_STRUCT_STR or \
                    key == PEStrings.FILE_SUBTYPE_PEFILE or \
@@ -406,22 +400,22 @@ class PEObject(object):
                 self._populate_entry(key, vs_fixedfileinfo_dict[key][PEStrings.PE_VALUE_STR], result)
 
             # Resolve dependent fields
-            if PEStrings.FILE_VERSION_MS_PEFILE in vs_fixedfileinfo_dict.keys() and \
-               PEStrings.FILE_VERSION_LS_PEFILE in vs_fixedfileinfo_dict.keys():
+            if PEStrings.FILE_VERSION_MS_PEFILE in vs_fixedfileinfo_dict and \
+               PEStrings.FILE_VERSION_LS_PEFILE in vs_fixedfileinfo_dict:
                 self._populate_entry(PEStrings.FILE_VERSION_LS_PEFILE,
                                      vs_fixedfileinfo_dict[PEStrings.FILE_VERSION_LS_PEFILE][PEStrings.PE_VALUE_STR], result) # noqa
 
-            if PEStrings.PRODUCT_VERSION_MS_PEFILE in vs_fixedfileinfo_dict.keys() and \
-               PEStrings.PRODUCT_VERSION_LS_PEFILE in vs_fixedfileinfo_dict.keys():
+            if PEStrings.PRODUCT_VERSION_MS_PEFILE in vs_fixedfileinfo_dict and \
+               PEStrings.PRODUCT_VERSION_LS_PEFILE in vs_fixedfileinfo_dict:
                 self._populate_entry(PEStrings.PRODUCT_VERSION_LS_PEFILE,
                                      vs_fixedfileinfo_dict[PEStrings.PRODUCT_VERSION_LS_PEFILE][PEStrings.PE_VALUE_STR], result) # noqa
 
-            if PEStrings.FILE_DATE_MS_PEFILE in vs_fixedfileinfo_dict.keys() and \
-               PEStrings.FILE_DATE_LS_PEFILE in vs_fixedfileinfo_dict.keys():
+            if PEStrings.FILE_DATE_MS_PEFILE in vs_fixedfileinfo_dict and \
+               PEStrings.FILE_DATE_LS_PEFILE in vs_fixedfileinfo_dict:
                 self._populate_entry(PEStrings.FILE_DATE_LS_PEFILE,
                                      vs_fixedfileinfo_dict[PEStrings.FILE_DATE_LS_PEFILE][PEStrings.PE_VALUE_STR], result) # noqa
 
-            if PEStrings.FILE_SUBTYPE_PEFILE in vs_fixedfileinfo_dict.keys():
+            if PEStrings.FILE_SUBTYPE_PEFILE in vs_fixedfileinfo_dict:
                 file_subtype = vs_fixedfileinfo_dict[PEStrings.FILE_SUBTYPE_PEFILE][PEStrings.PE_VALUE_STR]
                 if PEStrings.FILE_TYPE_STR in result and result[PEStrings.FILE_TYPE_STR] == PEStrings.VFT_FONT_STR:
                     if file_subtype in PEStrings.FILE_SUBTYPE_FONT_STRINGS:
@@ -429,7 +423,7 @@ class PEObject(object):
                     else:
                         result[PEStrings.FILE_SUBTYPE_PEFILE] = file_subtype
                 else:
-                    if file_subtype in PEStrings.FILE_SUBTYPE_NOFONT_STRINGS.keys():
+                    if file_subtype in PEStrings.FILE_SUBTYPE_NOFONT_STRINGS:
                         result[PEStrings.FILE_SUBTYPE_PEFILE] = PEStrings.FILE_SUBTYPE_NOFONT_STRINGS[file_subtype]
                     else:
                         result[PEStrings.FILE_SUBTYPE_PEFILE] = file_subtype
@@ -541,7 +535,7 @@ class VERSIONINFOGenerator(object):
         # First Pass: Check to see if all required fields are present
         required = {string.upper() for string in PEStrings.VERSIONFILE_REQUIRED_FIELDS}
         allowed = {string.upper() for string in PEStrings.VERSIONFILE_ALLOWED_FIELDS}
-        for key in self._version_dict.keys():
+        for key in self._version_dict:
             if key.upper() not in allowed:
                 logging.error("Invalid parameter: " + key + ".")
                 valid = False
@@ -629,7 +623,7 @@ class VERSIONINFOGenerator(object):
             logging.error("Missing required parameter in VarFileInfo: Translation.")
             valid = False
 
-        for field in self._version_dict[PEStrings.VAR_FILE_INFO_STR.upper()].keys():
+        for field in self._version_dict[PEStrings.VAR_FILE_INFO_STR.upper()]:
             if field != PEStrings.TRANSLATION_STR:
                 logging.error("Invalid VarFileInfo parameter: %s.", field)
                 valid = False
@@ -757,7 +751,7 @@ class VERSIONINFOGenerator(object):
 
         # Header fields
         out_str += "VS_VERSION_INFO\tVERSIONINFO\n"
-        for param in self._version_dict.keys():
+        for param in self._version_dict:
             if (param == PEStrings.STRING_FILE_INFO_STR.upper()
                or param == PEStrings.VAR_FILE_INFO_STR.upper()):
                 continue
@@ -777,7 +771,7 @@ class VERSIONINFOGenerator(object):
             language_code += code.split("0x", 1)[1]
 
         out_str += "\t\t" + PEStrings.BLOCK_STR + ' "' + language_code + '"\n\t\t' + PEStrings.BEGIN_STR + "\n"
-        for field in self._version_dict[PEStrings.STRING_FILE_INFO_STR.upper()].keys():
+        for field in self._version_dict[PEStrings.STRING_FILE_INFO_STR.upper()]:
             out_str += "\t\t" + PEStrings.VALUE_STR + ' "' + field + '",\t"' \
                        + self._version_dict[PEStrings.STRING_FILE_INFO_STR.upper()][field] + '"\n'
 
@@ -787,7 +781,7 @@ class VERSIONINFOGenerator(object):
         out_str += "\t" + PEStrings.BLOCK_STR
         out_str += ' "' + PEStrings.VAR_FILE_INFO_STR + '"\n\t' + PEStrings.BEGIN_STR + "\n"
         language_tokens = self._version_dict[PEStrings.VAR_FILE_INFO_STR.upper()][PEStrings.TRANSLATION_STR].split(" ")
-        for field in self._version_dict[PEStrings.VAR_FILE_INFO_STR.upper()].keys():
+        for field in self._version_dict[PEStrings.VAR_FILE_INFO_STR.upper()]:
             out_str += "\t\t" + PEStrings.VALUE_STR + ' "' + field + '",\t' + language_tokens[0] + "," \
                        + language_tokens[1] + "\n"
 

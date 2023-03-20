@@ -291,7 +291,7 @@ class Omnicache():
         logging.info("Retrieving all remote data")
         self._RefreshUrlLookupCache()
         remoteData = {}
-        for url in self.urlLookupCache.keys():
+        for url in self.urlLookupCache:
             remoteData[self.urlLookupCache[url]] = {"url": url}
 
         out = StringIO()
@@ -304,7 +304,7 @@ class Omnicache():
 
         for displayName in out.getvalue().splitlines():
             remoteName = displayName.split()[0].split(".")[1]
-            if (remoteName in remoteData.keys()):
+            if (remoteName in remoteData):
                 remoteData[remoteName].update({"displayname": displayName.split()[1]})
         return remoteData
 
@@ -395,10 +395,7 @@ def Export(omnicache, exportPath):
     content = []
     for (name, data) in omnicache.GetRemoteData().items():
         remoteToWrite = {"url": data["url"]}
-        if ("displayname" in data):
-            remoteToWrite["name"] = data["displayname"]
-        else:
-            remoteToWrite["name"] = name
+        remoteToWrite["name"] = data.get("displayname", name)
         content.append(remoteToWrite)
 
     with open(exportPath, "w") as ocf:

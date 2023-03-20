@@ -77,10 +77,7 @@ def update_options(file_options, capsule_options, signer_options):
     signer_options) and in lists of strings that look like
     '<option_name>=<option_value>'.
     """
-    if file_options is not None:
-        updated_options = copy.copy(file_options)
-    else:
-        updated_options = {"capsule": {}, "signer": {}}
+    updated_options = copy.copy(file_options) if file_options is not None else {"capsule": {}, "signer": {}}
 
     # Update all the capsule options.
     for option in capsule_options:

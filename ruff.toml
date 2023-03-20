@@ -8,6 +8,7 @@ select = [
     "INP",  # flake8-no-pep420
     "Q",  # flake8-quotes
     "RSE",  # flake8-raise
+    "SIM",  # flake8-simplify
 ]
 
 line-length = 120

@@ -155,7 +155,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         self.logger.log(edk2_logging.SECTION, "Output Results")
         self.logger.critical("Need to Build:")
         if len(actualPackagesDict.keys()) > 0:
-            max_pkg_width = max(len(t) for t in actualPackagesDict.keys())
+            max_pkg_width = max(len(t) for t in actualPackagesDict)
             for key, value in actualPackagesDict.items():
                 self.logger.critical(f"{key:{max_pkg_width}}  Reason: {value}")
         else:
@@ -440,11 +440,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         if dec is None:
             return False
 
-        for includepath in dec.IncludePaths:  # if in the include path of a package then it is public
-            if (pkg + "/" + includepath + "/") in filepath:
-                return True
-
-        return False
+        return any(pkg + "/" + includepath + "/" in filepath for includepath in dec.IncludePaths)
 
     def _walk_dir_for_filetypes(self, extensionlist, directory, ignorelist=None):
         """Walks a directory for all items ending in certain extension."""

@@ -171,10 +171,7 @@ def stop_logging(loghandle, logging_namespace=""):
 def create_output_stream(level=logging.INFO, logging_namespace=""):
     """Creates an output stream to log to."""
     # creates an output stream that is in memory
-    if string_handler:
-        handler = string_handler.StringStreamHandler()
-    else:
-        handler = logging.StreamHandler()
+    handler = string_handler.StringStreamHandler() if string_handler else logging.StreamHandler()
     logger = logging.getLogger(logging_namespace)
     handler.setLevel(level)
     logger.addHandler(handler)

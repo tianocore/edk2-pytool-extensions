@@ -60,7 +60,7 @@ class HelperFunctions(object):
         !!! tip
             ```os.path.abspath(__file__)```
         """
-        if (name in self.RegisteredFunctions.keys()):
+        if (name in self.RegisteredFunctions):
             raise Exception("Function %s already registered from plugin file %s.  Can't register again from %s" % (
                 name, self.RegisteredFunctions[name], filepath))
         setattr(self, name, function)
@@ -75,10 +75,7 @@ class HelperFunctions(object):
         Returns:
             (bool): if the function is registered or not.
         """
-        if (name in self.RegisteredFunctions.keys()):
-            return True
-        else:
-            return False
+        return name in self.RegisteredFunctions
 
     def LoadFromPluginManager(self, pm):
         """Load all IUefiHelperPlugins into the class.

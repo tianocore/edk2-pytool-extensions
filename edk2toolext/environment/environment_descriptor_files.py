@@ -12,6 +12,7 @@
 
 It can parse the files, validate them, and return objects representing their contents.
 """
+import contextlib
 import os
 
 import yaml
@@ -64,11 +65,9 @@ class DescriptorFile(object):
         self.file_path = file_path
         self.descriptor_contents = None
 
-        with open(file_path, "r") as file:
-            try:
-                self.descriptor_contents = yaml.safe_load(file)
-            except Exception:
-                pass  # We'll pick up this error when looking at the data.
+        with open(file_path, "r") as file, contextlib.suppress(Exception):
+            # We'll pick up this error when looking at the data.
+            self.descriptor_contents = yaml.safe_load(file)
 
         #
         # Make sure that we loaded the file successfully.
@@ -89,10 +88,9 @@ class DescriptorFile(object):
         if "flags" in self.descriptor_contents:
             # If a flag requires a name, make sure a name is provided.
             for name_required in ("set_shell_var", "set_build_var"):
-                if name_required in self.descriptor_contents["flags"]:
-                    if "var_name" not in self.descriptor_contents:
-                        raise ValueError(
-                            "File '%s' has a flag requesting a var, but does not provide 'var_name'!" % self.file_path)
+                if name_required in self.descriptor_contents["flags"] and "var_name" not in self.descriptor_contents:
+                    raise ValueError(
+                        "File '%s' has a flag requesting a var, but does not provide 'var_name'!" % self.file_path)
 
         # clean up each string item for more reliable processing
         for (k, v) in self.descriptor_contents.items():

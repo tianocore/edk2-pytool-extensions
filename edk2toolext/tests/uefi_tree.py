@@ -74,12 +74,10 @@ class uefi_tree:
         uefi_tree.write_to_file(tools_path, "hello there")
 
     @staticmethod
-    def write_to_file(path, contents, close=True):
+    def write_to_file(path, contents):
         """Writes contents to a file."""
-        f = open(path, "w")
-        f.writelines(contents)
-        if close:
-            f.close()
+        with open(path, "w") as f:
+            f.writelines(contents)
 
     def get_settings_provider_path(self):
         """Gets the settings provider in the workspace."""
@@ -105,10 +103,7 @@ class uefi_tree:
         if extra_data is not None:
             data.update(extra_data)
         text = json.dumps(data)
-        if id is not None:
-            file_name = f"{id}_path_env.json"
-        else:
-            file_name = "None%s_path_env.json" % str(random.randint(1, 100000))
+        file_name = f"{id}_path_env.json" if id is not None else "None%s_path_env.json" % str(random.randint(1, 100000))
         output_dir = os.path.join(self.workspace, dir_path)
         os.makedirs(output_dir, exist_ok=True)
         output_path = os.path.join(output_dir, file_name)

@@ -105,9 +105,8 @@ def sign(data: bytes, signature_options: dict, signer_options: dict) -> bytes:
     in_file_path = os.path.join(temp_folder, "data_to_sign.bin")
 
     # Create the input file for Signtool.
-    in_file = open(in_file_path, "wb")
-    in_file.write(data)
-    in_file.close()
+    with open(in_file_path, "wb") as in_file:
+        in_file.write(data)
 
     # Start building the parameters for the call.
     signtool_params = ["sign"]
@@ -138,9 +137,8 @@ def sign(data: bytes, signature_options: dict, signer_options: dict) -> bytes:
 
     # Load the data from the output file and return it.
     out_file_path = os.path.join(temp_folder, "data_to_sign.bin.p7")
-    out_file = open(out_file_path, "rb")
-    out_data = out_file.read()
-    out_file.close()
+    with open(out_file_path, "rb") as out_file:
+        out_data = out_file.read()
 
     return out_data
 

@@ -7,6 +7,8 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 """Setup info for edk2-pytool-extensions pip module."""
+import contextlib
+
 import setuptools
 from setuptools.command.develop import develop
 from setuptools.command.install import install
@@ -29,20 +31,16 @@ class PostSdistCommand(sdist):
 class PostInstallCommand(install):
     """Post-install."""
     def run(self): # noqa
-        try:
+        with contextlib.suppress(Exception):
             DownloadNuget()
-        except Exception:
-            pass
         install.run(self)
 
 
 class PostDevCommand(develop):
     """Post-develop."""
     def run(self): # noqa
-        try:
+        with contextlib.suppress(Exception):
             DownloadNuget()
-        except Exception:
-            pass
         develop.run(self)
 
 
