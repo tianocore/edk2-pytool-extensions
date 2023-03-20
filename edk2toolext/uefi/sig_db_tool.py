@@ -1,3 +1,4 @@
+# noqa: INP001
 # @file
 #
 # Command-line tool for inspecting UEFI Secure Boot databases

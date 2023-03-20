@@ -1,3 +1,4 @@
+# noqa: INP001
 # @file gen_api.py
 #
 ##

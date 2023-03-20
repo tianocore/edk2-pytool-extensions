@@ -5,6 +5,7 @@ select = [
     "I",  # isort
     "COM",  # flake8-commas
     "C4",  # flake8-comprehensions
+    "INP",  # flake8-no-pep420
 ]
 
 line-length = 120

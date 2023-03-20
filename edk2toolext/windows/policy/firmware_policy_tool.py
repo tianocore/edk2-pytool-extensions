@@ -1,3 +1,4 @@
+# noqa: INP001
 # @file
 # Basic command-line interface for creating
 # and decoding Windows Firmware Policy blobs
