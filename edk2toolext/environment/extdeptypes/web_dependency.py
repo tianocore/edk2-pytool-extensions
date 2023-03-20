@@ -8,16 +8,18 @@
 ##
 """An ExternalDependency subclass able to download from a url."""
 
-import os
 import logging
+import os
 import shutil
 import tarfile
-import zipfile
 import tempfile
 import urllib.error
 import urllib.request
-from edk2toolext.environment.external_dependency import ExternalDependency
+import zipfile
+
 from edk2toollib.utility_functions import RemoveTree
+
+from edk2toolext.environment.external_dependency import ExternalDependency
 
 
 class WebDependency(ExternalDependency):

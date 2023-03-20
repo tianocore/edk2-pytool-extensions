@@ -7,8 +7,8 @@
 ##
 """Plugin that supports adding tests or operations to the ci environment."""
 
-import os
 import logging
+import os
 from typing import List, Tuple
 
 

@@ -5,10 +5,11 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 
 """Used for creating a minimal uefi tree for testing."""
-import os
-import tempfile
 import json
+import os
 import random
+import tempfile
+
 import git
 
 

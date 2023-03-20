@@ -16,22 +16,21 @@ perform tasks associated with the EDK2 build system. Any Edk2Invocable subclass
 should be platform agnostic and work for any platform. Platform specific data
 is provided via the Edk2InvocableSettingsInterface.
 """
+import argparse
+import inspect
+import logging
 import os
 import sys
-import logging
-import inspect
-import pkg_resources
-import argparse
 from random import choice
 from string import ascii_letters
-from typing import Iterable, Tuple
 from textwrap import dedent
-from edk2toolext.environment import shell_environment
-from edk2toollib.utility_functions import GetHostInfo
-from edk2toolext.environment import version_aggregator
-from edk2toollib.utility_functions import locate_class_in_module
-from edk2toollib.utility_functions import import_module_by_file_name
+from typing import Iterable, Tuple
+
+import pkg_resources
+from edk2toollib.utility_functions import GetHostInfo, import_module_by_file_name, locate_class_in_module
+
 from edk2toolext.base_abstract_invocable import BaseAbstractInvocable
+from edk2toolext.environment import shell_environment, version_aggregator
 
 
 class Edk2InvocableSettingsInterface():

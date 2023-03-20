@@ -16,12 +16,13 @@ edk2_setup.py, and git_dependency.py use this module to perform git operations.
 """
 import os
 from logging import getLogger
-from edk2toolext import edk2_logging
-from git import Repo, GitCommandError, InvalidGitRepositoryError, NoSuchPathError
-from git.cmd import Git
-from git.util import rmtree
 from pathlib import Path
 
+from git import GitCommandError, InvalidGitRepositoryError, NoSuchPathError, Repo
+from git.cmd import Git
+from git.util import rmtree
+
+from edk2toolext import edk2_logging
 
 logger = getLogger(__name__)
 

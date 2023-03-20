@@ -7,16 +7,17 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 """An ExternalDependency subclass able to download from NuGet."""
-import os
 import logging
-import semantic_version
+import os
 import shutil
 from io import StringIO
-from edk2toolext.environment.external_dependency import ExternalDependency
-from edk2toollib.utility_functions import RunCmd, RemoveTree
-from edk2toollib.utility_functions import GetHostInfo
-import pkg_resources
 from typing import List
+
+import pkg_resources
+import semantic_version
+from edk2toollib.utility_functions import GetHostInfo, RemoveTree, RunCmd
+
+from edk2toolext.environment.external_dependency import ExternalDependency
 
 
 class NugetDependency(ExternalDependency):

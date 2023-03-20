@@ -17,6 +17,7 @@ It can dump the database as-is, or a sorted & deduplicated canonical form, or ju
 """
 
 import argparse
+
 from edk2toollib.uefi.authenticated_variables_structure_support import EfiSignatureDatabase
 
 

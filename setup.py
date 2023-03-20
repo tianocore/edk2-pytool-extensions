@@ -8,9 +8,10 @@
 ##
 """Setup info for edk2-pytool-extensions pip module."""
 import setuptools
-from setuptools.command.sdist import sdist
-from setuptools.command.install import install
 from setuptools.command.develop import develop
+from setuptools.command.install import install
+from setuptools.command.sdist import sdist
+
 from edk2toolext.bin.nuget import DownloadNuget
 
 with open("readme.md", "r") as fh:

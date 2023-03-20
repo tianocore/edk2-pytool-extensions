@@ -10,10 +10,11 @@
 
 This management includes PATH, PYTHONPATH and ENV Variables.
 """
-import os
-import sys
 import copy
 import logging
+import os
+import sys
+
 from edk2toolext.environment import var_dict
 
 LOGGING_GROUP = "EnvDict"

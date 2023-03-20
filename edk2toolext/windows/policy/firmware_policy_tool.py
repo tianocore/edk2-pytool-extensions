@@ -8,8 +8,9 @@
 ##
 """A basic command-line interface for creating and decoding windows firmware policy blobs."""
 
-from edk2toollib.windows.policy.firmware_policy import FirmwarePolicy
 import argparse
+
+from edk2toollib.windows.policy.firmware_policy import FirmwarePolicy
 
 
 def PrintPolicy(filename: str) -> None:

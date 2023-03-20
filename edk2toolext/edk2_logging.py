@@ -12,8 +12,8 @@ Splits logs into a master log and per package log.
 """
 import logging
 import os
-import shutil
 import re
+import shutil
 
 try:
     from edk2toollib.log import ansi_handler

@@ -6,10 +6,10 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 """This module contains code that knows how to download nuget."""
+import logging
 import os
 import urllib.error
 import urllib.request
-import logging
 
 # Update this when you want a new version of NuGet
 VERSION = "6.4.0"

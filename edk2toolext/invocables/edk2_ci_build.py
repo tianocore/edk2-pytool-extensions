@@ -13,20 +13,23 @@ Contains a CIBuildSettingsManager that must be subclassed in a build settings
 file. This provides platform specific information to Edk2CiBuild invocable
 while allowing the invocable itself to remain platform agnostic.
 """
+import logging
 import os
 import sys
-import logging
-import yaml
 import traceback
-from typing import Dict, Any
-from edk2toollib.uefi.edk2.path_utilities import Edk2Path
+from typing import Any, Dict
+
+import yaml
 from edk2toollib.log.junit_report_format import JunitTestReport
-from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable
-from edk2toolext.invocables.edk2_multipkg_aware_invocable import MultiPkgAwareSettingsInterface
-from edk2toolext.environment import self_describing_environment
-from edk2toolext.environment.plugintypes.ci_build_plugin import ICiBuildPlugin
-from edk2toolext.environment import shell_environment
+from edk2toollib.uefi.edk2.path_utilities import Edk2Path
+
 from edk2toolext import edk2_logging
+from edk2toolext.environment import self_describing_environment, shell_environment
+from edk2toolext.environment.plugintypes.ci_build_plugin import ICiBuildPlugin
+from edk2toolext.invocables.edk2_multipkg_aware_invocable import (
+    Edk2MultiPkgAwareInvocable,
+    MultiPkgAwareSettingsInterface,
+)
 
 
 class CiBuildSettingsManager(MultiPkgAwareSettingsInterface):

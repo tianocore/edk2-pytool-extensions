@@ -14,20 +14,18 @@ This module contains helper functions for building EDK2 FMP UEFI capsules from
 binary payloads, along with the functions to standardize the creation of the Windows
 driver installation files
 """
-import uuid
+import datetime
 import os
 import struct
-import datetime
-
+import uuid
+from dataclasses import dataclass, field
 from typing import List
-from dataclasses import dataclass
-from dataclasses import field
 
-from edk2toollib.windows.capsule import inf_generator2, cat_generator
-from edk2toollib.uefi.uefi_capsule_header import UefiCapsuleHeaderClass
-from edk2toollib.uefi.fmp_capsule_header import FmpCapsuleHeaderClass, FmpCapsuleImageHeaderClass
-from edk2toollib.uefi.fmp_auth_header import FmpAuthHeaderClass
 from edk2toollib.uefi.edk2.fmp_payload_header import FmpPayloadHeaderClass
+from edk2toollib.uefi.fmp_auth_header import FmpAuthHeaderClass
+from edk2toollib.uefi.fmp_capsule_header import FmpCapsuleHeaderClass, FmpCapsuleImageHeaderClass
+from edk2toollib.uefi.uefi_capsule_header import UefiCapsuleHeaderClass
+from edk2toollib.windows.capsule import cat_generator, inf_generator2
 
 # https://docs.microsoft.com/en-us/dotnet/api/system.security.cryptography.pkcs.contentinfo.-ctor?view=netframework-4.8
 PKCS7_SIGNED_DATA_OID = '1.2.840.113549.1.7.2'

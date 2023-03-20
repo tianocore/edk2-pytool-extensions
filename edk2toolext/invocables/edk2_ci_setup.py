@@ -12,12 +12,14 @@ Contains a CISetupSettingsManager that must be subclassed in a build settings
 file. This provides platform specific information to Edk2CiSetup invocable
 while allowing the invocable itself to remain platform agnostic.
 """
-import os
 import logging
+import os
 
-from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable
-from edk2toolext.invocables.edk2_multipkg_aware_invocable import MultiPkgAwareSettingsInterface
 from edk2toolext.environment import repo_resolver
+from edk2toolext.invocables.edk2_multipkg_aware_invocable import (
+    Edk2MultiPkgAwareInvocable,
+    MultiPkgAwareSettingsInterface,
+)
 
 
 class CiSetupSettingsManager(MultiPkgAwareSettingsInterface):

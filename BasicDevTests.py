@@ -12,10 +12,10 @@
 """Check that python code in the package aligns with pep8 and file encoding."""
 
 import glob
-import os
-import sys
 import logging
+import os
 import re
+import sys
 
 
 def TestEncodingOk(apath, encodingValue):

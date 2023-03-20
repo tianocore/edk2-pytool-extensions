@@ -2,6 +2,7 @@ select = [
     "E", "W", # pycodestyle
     "F",  # pyflakes
     "D",  # pydocstyle
+    "I",  # isort
 ]
 
 line-length = 120
