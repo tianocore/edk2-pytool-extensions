@@ -19,6 +19,7 @@ import re
 
 
 def TestEncodingOk(apath, encodingValue):
+    """Check that the file is encoded in the expected encoding."""
     try:
         with open(apath, "rb") as f_obj:
             f_obj.read().decode(encodingValue)
@@ -30,6 +31,7 @@ def TestEncodingOk(apath, encodingValue):
 
 
 def TestFilenameLowercase(apath):
+    """Check that the filename is lowercase."""
     if apath != apath.lower():
         logging.critical(f"Lowercase failure: file {apath} not lower case path")
         logging.error(f"\n\tLOWERCASE: {apath.lower()}\n\tINPUTPATH: {apath}")
@@ -48,6 +50,7 @@ def PackageAndModuleValidCharacters(apath):
 
 
 def TestNoSpaces(apath):
+    """Tests that there are no spaces in the absolute path of a file."""
     if " " in apath:
         logging.critical(f"NoSpaces failure: file {apath} has spaces in path")
         return False
@@ -55,6 +58,7 @@ def TestNoSpaces(apath):
 
 
 def TestRequiredLicense(apath):
+    """Test that the required license exists."""
     licenses = ["SPDX-License-Identifier: BSD-2-Clause-Patent", ]
     try:
         with open(apath, "rb") as f_obj:

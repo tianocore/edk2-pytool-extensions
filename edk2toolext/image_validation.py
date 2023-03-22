@@ -270,7 +270,7 @@ class TestManager(object):
 
         Args:
             pe (pefile): The parsed pe
-            target_info (dict):  MACHINE_TYPE and PROFILE information. If
+            profile (dict):  MACHINE_TYPE and PROFILE information. If
                 MachineType is not present, it will be pulled from the parsed
                 pe, however the user must provide the ModuleType
 
@@ -416,7 +416,7 @@ class TestSectionAlignment(TestInterface):
 
         try:
             alignment = pe.OPTIONAL_HEADER.SectionAlignment
-        except:
+        except Exception:
             logging.warning("Section Alignment is not present")
             return Result.WARN
 
@@ -494,7 +494,7 @@ class TestSubsystemValue(TestInterface):
 
         try:
             subsystem = pe.OPTIONAL_HEADER.Subsystem
-        except:
+        except Exception:
             logging.warn("Section Alignment is not present")
             return Result.WARN
 

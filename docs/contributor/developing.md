@@ -90,15 +90,16 @@ out all the different parts.
 
 ## Testing
 
-1. Run a Basic Syntax/Lint Check (using flake8) and resolve any issues
+1. Run a Basic Syntax/Lint Check (using ruff) and resolve any issues
 
     ``` cmd
-    flake8 .
+    ruff check .
     ```
 
     INFO: Newer editors are very helpful in resolving source formatting errors
-    (whitespace, indentation, etc). In VSCode open the py file and use
-    ++alt+shift+f++ to auto format.
+    (whitespace, indentation, etc). In VSCode, as long as you have installed
+    the suggested extensions, files should be auto-formatted on save. Otherwise,
+    one can run `ruff check --fix .`.
 
 2. Run a Basic Python docstring Check (using pydocstring) and resolve any issues
 

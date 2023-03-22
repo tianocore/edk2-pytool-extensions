@@ -1,0 +1,20 @@
+select = [
+    "E", "W", # pycodestyle
+    "F",  # pyflakes
+    "D",  # pydocstyle
+]
+
+line-length = 120
+
+exclude = [
+    "integration_test",
+    "test_*",
+    ".pytest_cache",
+    ".eggs",
+    ".egg_info",
+    "build",
+    "venv"
+]
+
+[pydocstyle]
+convention = "google"
