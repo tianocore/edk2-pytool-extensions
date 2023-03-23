@@ -313,8 +313,12 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         #
         for f in filter(lambda f: Path(f).suffix == ".inf", files):
             for p in remaining_packages[:]:
-                dsc = next(Path(self.edk2_path_obj.GetAbsolutePathOnThisSystemFromEdk2RelativePath(p)).glob('*.dsc'))
-                
+                try: # Next() will throw a StopIteration error if there was no match to the glob pattern.
+                    dsc = next(Path(self.edk2_path_obj.GetAbsolutePathOnThisSystemFromEdk2RelativePath(p)).glob(f'{p}.dsc'))
+                except StopIteration:
+                    self.logger.warning(f"Failed to find DSC file for package {p}")
+                    break
+   
                 dsc_parser = DscParser()
                 dsc_parser.SetBaseAbsPath(self.edk2_path_obj.WorkspacePath)
                 dsc_parser.SetPackagePaths(self.edk2_path_obj.PackagePathList)
