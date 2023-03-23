@@ -318,7 +318,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
                 if not dsc.exists():
                     self.logger.warning(f"Failed to find DSC file for package {p}")
                     break
-   
+
                 dsc_parser = DscParser()
                 dsc_parser.SetBaseAbsPath(self.edk2_path_obj.WorkspacePath)
                 dsc_parser.SetPackagePaths(self.edk2_path_obj.PackagePathList)
