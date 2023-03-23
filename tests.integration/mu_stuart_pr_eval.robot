@@ -220,9 +220,9 @@ Test Stuart PR using ProjectMu for all policies when a PR contains a deleted fol
     Stage changed file  ${file_to_modify}  ${ws_root}
     Commit changes  "Changes"  ${ws_root}
 
-    # Platform CI test DSC dependency on implementation file # Policy 4
+    # PcAtChipsetPkg uses BasePrintLib/BasePrintLib.inf, Policy 5 requires it be built
     ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  PcAtChipsetPkg  ${default_branch}  ${EMPTY}  ${ws_root}
-    Should Be Empty    ${pkgs}
+    Confirm same contents  ${pkgs}  PcAtChipsetPkg
 
     [Teardown]  Delete branch  ${branch_name}  ${default_branch}  ${ws_root}
 
