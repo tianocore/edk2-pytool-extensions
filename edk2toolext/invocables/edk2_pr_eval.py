@@ -322,6 +322,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
                 
                 if f in dsc_parser.Libs:
                     packages_to_build[p] = f"Policy 5 - Package depends on Library {f}"
+                    remaining_packages.remove(p)
 
         # All done now return result
 
