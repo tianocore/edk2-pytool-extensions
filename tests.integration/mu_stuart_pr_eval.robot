@@ -73,11 +73,11 @@ Test Stuart PR using ProjectMu for Policy 1 special files in PrEvalSettingsManag
 
     [Teardown]  Delete branch  ${branch_name}  ${default_branch}  ${ws_root}
 
-Test Stuart PR using ProjectMu for Policy 2 in package change of private inf file
+Test Stuart PR using ProjectMu for Policy 2 in package change of private file
     [Tags]           PrEval  ProjectMu
 
     ${branch_name}=      Set Variable    PR_Rand_${{random.randint(0, 10000)}}
-    ${file_to_modify}=   Set Variable    MdePkg${/}Library${/}BaseLib${/}BaseLib.inf
+    ${file_to_modify}=   Set Variable    MdePkg${/}Library${/}BaseLib${/}Cpu.c
 
     Reset git repo to default branch  ${ws_root}  ${default_branch}
     Make new branch  ${branch_name}  ${ws_root}
@@ -159,6 +159,31 @@ Test Stuart PR using ProjectMu for Policy 3 for package dependency on change of 
     # Core CI test  package dependency # Policy 3
     ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdePkg,MdeModulePkg,PcAtChipsetPkg  ${default_branch}  ${EMPTY}  ${ws_root}
     Confirm same contents  ${pkgs}  PcAtChipsetPkg
+
+    [Teardown]  Delete branch  ${branch_name}  ${default_branch}  ${ws_root}
+
+Test Stuart PR using ProjectMu for Policy 5 library inf changed
+    [Tags]           PrEval  ProjectMu
+
+    ${branch_name}=      Set Variable    PR_Rand_${{random.randint(0, 10000)}}
+    ${file_to_modify}=   Set Variable    MdePkg${/}Library${/}BaseLib${/}BaseLib.inf
+
+    Reset git repo to default branch  ${ws_root}  ${default_branch}
+    Make new branch  ${branch_name}  ${ws_root}
+
+    Append To File  ${ws_root}${/}${file_to_modify}
+    ...  Hello World!! Making a change for fun.
+
+    Stage changed file  ${file_to_modify}  ${ws_root}
+    Commit changes  "Changes"  ${ws_root}
+
+    # Core CI test same package  # policy 2
+    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdePkg  ${default_branch}  ${EMPTY}  ${ws_root}
+    Confirm same contents  ${pkgs}  MdePkg
+
+    # Core CI test another package and make sure a it doesn't need to build
+    ${pkgs}=  Stuart pr evaluation  ${core_ci_file}  MdeModulePkg  ${default_branch}  ${EMPTY}  ${ws_root}
+    Confirm same contents  ${pkgs}  MdeModulePkg
 
     [Teardown]  Delete branch  ${branch_name}  ${default_branch}  ${ws_root}
 

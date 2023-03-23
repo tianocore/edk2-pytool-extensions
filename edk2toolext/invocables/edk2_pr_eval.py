@@ -308,6 +308,21 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
                         remaining_packages.remove(p)  # remove from remaining packages
                         break
 
+        #
+        # Policy 5: If a file changed is a Library INF file, then build all packages that depend on that Library
+        #
+        for f in filter(lambda f: Path(f).suffix == ".inf", files):
+            for p in remaining_packages[:]:
+                dsc = next(Path(self.edk2_path_obj.GetAbsolutePathOnThisSystemFromEdk2RelativePath(p)).glob('*.dsc'))
+                
+                dsc_parser = DscParser()
+                dsc_parser.SetBaseAbsPath(self.edk2_path_obj.WorkspacePath)
+                dsc_parser.SetPackagePaths(self.edk2_path_obj.PackagePathList)
+                dsc_parser.ParseFile(dsc)
+                
+                if f in dsc_parser.Libs:
+                    packages_to_build[p] = f"Policy 5 - Package depends on Library {f}"
+
         # All done now return result
 
         return packages_to_build
