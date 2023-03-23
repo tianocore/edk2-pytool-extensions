@@ -323,7 +323,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
                 dsc_parser.SetBaseAbsPath(self.edk2_path_obj.WorkspacePath)
                 dsc_parser.SetPackagePaths(self.edk2_path_obj.PackagePathList)
                 dsc_parser.ParseFile(dsc)
-                
+
                 if f in dsc_parser.Libs:
                     packages_to_build[p] = f"Policy 5 - Package depends on Library {f}"
                     remaining_packages.remove(p)
