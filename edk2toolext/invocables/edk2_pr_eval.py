@@ -508,10 +508,9 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         pkg_path = Path(self.edk2_path_obj.GetAbsolutePathOnThisSystemFromEdk2RelativePath(pkg_name))
         ci_file = pkg_path.joinpath(f'{pkg_name}.ci.yaml')
 
-
         if not ci_file.exists():
             return None
-        
+
         with open(ci_file, 'r') as f:
             data = yaml.safe_load(f)
             try:
