@@ -14,6 +14,7 @@ Contains a PrEvalSettingsManager that must be subclassed in a build settings
 file. This provides platform specific information to Edk2PrEval invocable
 while allowing the invocable itself to remain platform agnostic.
 """
+import yaml
 import os
 import logging
 from io import StringIO
@@ -310,14 +311,15 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
 
         #
         # Policy 5: If a file changed is a Library INF file, then build all packages that depend on that Library
+        # Only supported on packages with a ci.dsc file which contains a Compiler Plugin dsc path
         #
         for f in filter(lambda f: Path(f).suffix == ".inf", files):
             for p in remaining_packages[:]:
-                dsc = Path(self.edk2_path_obj.GetAbsolutePathOnThisSystemFromEdk2RelativePath(p)) / f'{p}.dsc'
-
-                if not dsc.exists():
-                    self.logger.warning(f"Failed to find DSC file for package {p}")
-                    break
+                dsc = self._get_pkg_dsc_path(p)
+                if dsc is None:
+                    logging.debug(f"Policy 5 - Package {p} skipped due to missing ci.dsc file or missing Compiler "
+                                  "Plugin DSC path.")
+                    continue
 
                 dsc_parser = DscParser()
                 dsc_parser.SetBaseAbsPath(self.edk2_path_obj.WorkspacePath)
@@ -501,6 +503,21 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
                             returnlist.append(os.path.join(Root, File))
 
         return returnlist
+
+    def _get_pkg_dsc_path(self, pkg_name: str) -> str:
+        pkg_path = Path(self.edk2_path_obj.GetAbsolutePathOnThisSystemFromEdk2RelativePath(pkg_name))
+        ci_file = pkg_path.joinpath(f'{pkg_name}.ci.yaml')
+
+
+        if not ci_file.exists():
+            return None
+        
+        with open(ci_file, 'r') as f:
+            data = yaml.safe_load(f)
+            try:
+                return str(pkg_path / data["CompilerPlugin"]["DscPath"])
+            except KeyError:
+                return None
 
 
 def main():
