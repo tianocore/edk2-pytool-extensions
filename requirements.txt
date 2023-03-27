@@ -2,7 +2,7 @@ pytest == 7.2.2
 flake8 == 6.0.0
 pydocstyle == 6.3.0
 coverage == 7.2.2
-pyopenssl == 23.0.0
+pyopenssl == 23.1.0
 pefile == 2023.2.7
 semantic_version == 2.10.0
 GitPython == 3.1.31
