@@ -313,10 +313,10 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         # Policy 5: If a file changed is a Library INF file, then build all packages that depend on that Library
         # Only supported on packages with a ci.dsc file which contains a Compiler Plugin dsc path
         #
-        for f in filter(lambda f: Path(f).is_file() and Path(f).suffix == ".inf", files):
+        for f in filter(lambda f: Path(f).suffix == ".inf", files):
             for p in remaining_packages[:]:
                 dsc = self._get_pkg_dsc_path(p)
-                if dsc is None:
+                if not dsc:
                     logging.debug(f"Policy 5 - Package {p} skipped due to missing ci.dsc file or missing Compiler "
                                   "Plugin DSC path.")
                     continue
