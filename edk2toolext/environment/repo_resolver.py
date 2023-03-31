@@ -25,8 +25,7 @@ from pathlib import Path
 
 
 logger = logging.getLogger(__name__)
-MIN_GIT_VERSION = "2.11.0"
-
+MIN_GIT_VERSION = "2.36.0"
 
 def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=False):
     """Resolves a particular repo.
@@ -208,6 +207,7 @@ def repo_details(abs_file_system_path):
     """
     git_version = ".".join(map(str, Git().version_info))
     if version_compare(git_version, MIN_GIT_VERSION) < 0:
+        logging.error("FAILED!\n")
         e = f"Upgrade Git! Current version is {git_version}. Minimum is {MIN_GIT_VERSION}"
         logging.error(e)
         raise RuntimeError(e)
