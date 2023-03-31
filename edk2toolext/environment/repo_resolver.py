@@ -27,6 +27,7 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 MIN_GIT_VERSION = "2.36.0"
 
+
 def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=False):
     """Resolves a particular repo.
 

@@ -20,7 +20,7 @@ from edk2toolext.environment.repo_resolver import InvalidGitRepositoryError, Git
 from edk2toolext.environment import version_aggregator
 from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable
 from edk2toolext.invocables.edk2_multipkg_aware_invocable import MultiPkgAwareSettingsInterface
-from edk2toollib.utility_functions import version_compare, GetHostInfo
+from edk2toollib.utility_functions import GetHostInfo
 
 
 class RequiredSubmodule():
