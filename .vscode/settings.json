@@ -1,14 +1,10 @@
 {
-  "python.testing.unittestArgs": [
-    "-v",
-    "-s",
-    "${workspaceRoot}/edk2toolext/tests",
-    "-p",
-    "test_*.py"
+  "python.testing.pytestEnabled": true,
+  "python.testing.pytestArgs": [
+    "${workspaceFolder}/edk2toolext/tests"
   ],
-  "python.testing.pytestEnabled": false,
-  "python.testing.unittestEnabled": true,
+  "python.testing.unittestEnabled": false,
   "python.linting.flake8Enabled": true,
   "python.linting.enabled": true,
-  "python.linting.pydocstyleEnabled": true
+  "python.linting.pydocstyleEnabled": true,
 }

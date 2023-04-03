@@ -41,6 +41,9 @@ class TestBasicEnvironmentManipulation(unittest.TestCase):
         shell_env.set_shell_var('SE-TEST-VAR-1', new_value)
         self.assertEqual(os.environ['SE-TEST-VAR-1'], new_value)
 
+        with self.assertRaises(ValueError):
+            shell_env.set_shell_var('SE-TEST-VAR-FAIL', None)
+
     def test_can_get_os_vars(self):
         shell_env = SE.ShellEnvironment()
         new_value = 'Dummy2'

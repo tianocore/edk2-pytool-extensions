@@ -154,7 +154,7 @@ class VarDict(object):
         """
         key = k.upper()
         en = self.GetEntry(key)
-        if not v:
+        if v is None:
             value = ''.join(choice(ascii_letters) for _ in range(20))
         else:
             value = str(v)

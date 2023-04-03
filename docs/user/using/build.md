@@ -31,6 +31,12 @@ typically located in the same directory as the platform's DSC file, however
 **refer to your platform's build instructions for the exact name and location
 of this file.**
 
+!!! tip
+    Common to most command line tools, you can use `-h, --help` on any of
+    the commands to find any options. Using it with stuart_build can be
+    particularly useful as it will provide you with common env variable
+    overrides to customize the build: `stuart_build -c <filepath> --help`
+
 Curious about what each command does? Check out the below sections.
 
 ## stuart_setup
@@ -59,6 +65,13 @@ additional build flags needed to build.**
 
 ```cmd
 stuart_build -c path/to/SettingsFile.py
+```
+
+As mentioned previously, using the `-h, --help` flag can be particularly useful
+as it will provide you with common env variable overrides to customize the build.
+
+```cmd
+stuart_build -c path/to/SettingsFile.py --help
 ```
 
 ## FAQ

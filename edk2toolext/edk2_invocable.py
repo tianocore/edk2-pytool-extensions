@@ -319,19 +319,14 @@ class Edk2Invocable(BaseAbstractInvocable):
         """Directory containing all logging files."""
         return "Build"
 
-    def ParseCommandLineOptions(self):
-        """Parses command line options.
+    def AddParserEpilog(self) -> str:
+        """Adds an epilog to the end of the argument parser when displaying help information.
 
-        Sets up argparser specifically to get PlatformSettingsManager instance.
-        Then sets up second argparser and passes it to child class and to PlatformSettingsManager.
-        Finally, parses all known args and then reads the unknown args in to build vars.
+        Returns:
+            (str): The string to be added to the end of the argument parser.
         """
-        # first argparser will only get settings manager and help will be disabled
-        settingsParserObj = argparse.ArgumentParser(add_help=False)
-        # instantiate the second argparser that will get passed around
-
         epilog = dedent('''\
-            positional arguments:
+            CLI Env Guide:
               <key>=<value>              - Set an env variable for the pre/post build process
               <key>                      - Set a non-valued env variable for the pre/post build process
               BLD_*_<key>=<value>        - Set a build flag for all build types
@@ -341,8 +336,17 @@ class Edk2Invocable(BaseAbstractInvocable):
                                            (key=value will get passed to build process for given build type)
               BLD_<TARGET>_<key>         - Set a non-valued build flag for a build type of <target>
             ''')
+        return epilog
 
-        parserObj = argparse.ArgumentParser(epilog=epilog, formatter_class=argparse.RawDescriptionHelpFormatter,)
+    def ParseCommandLineOptions(self):
+        """Parses command line options.
+
+        Sets up argparser specifically to get PlatformSettingsManager instance.
+        Then sets up second argparser and passes it to child class and to PlatformSettingsManager.
+        Finally, parses all known args and then reads the unknown args in to build vars.
+        """
+        # first argparser will only get settings manager and help will be disabled
+        settingsParserObj = argparse.ArgumentParser(add_help=False)
 
         settingsParserObj.add_argument('-c', '--platform_module', dest='platform_module',
                                        default="PlatformBuild.py", type=str,
@@ -392,7 +396,9 @@ class Edk2Invocable(BaseAbstractInvocable):
             print(e)
             sys.exit(2)
 
-        # now to get the big arg parser going...
+        # instantiate the second argparser that will get passed around
+        parserObj = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,)
+
         # first pass it to the subclass
         self.AddCommandLineOptions(parserObj)
 
@@ -406,6 +412,9 @@ class Edk2Invocable(BaseAbstractInvocable):
                                help='Provide shell variables in a file')
         parserObj.add_argument('--verbose', '--VERBOSE', '-v', dest="verbose", action='store_true', default=False,
                                help='verbose')
+
+        # set the epilog to display with --help, -h
+        parserObj.epilog = self.AddParserEpilog()
 
         # setup sys.argv and argparse round 2
         sys.argv = [sys.argv[0]] + unknown_args

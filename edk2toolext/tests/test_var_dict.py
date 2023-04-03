@@ -201,6 +201,14 @@ class TestVarDict(unittest.TestCase):
         v.SetValue("test2", "value1", "test 1 comment overrideable", True)
         v.PrintAll()
 
+    def test_var_dict_non_valued_var(self):
+        v = var_dict.VarDict()
+        v.SetValue("var1", "", "Test Comment")
+        self.assertEqual(v.GetValue("var1"), "")
+        v.SetValue("var2", None, "Test Comment")
+        self.assertNotEqual(v.GetValue("var2"), None)
+        self.assertTrue(v.GetValue("var2"), "Should return True")
+
 
 if __name__ == '__main__':
     unittest.main()

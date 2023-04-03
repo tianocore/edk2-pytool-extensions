@@ -6,11 +6,12 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
-import os
-import pygit2
+import pathlib
 import unittest
 import tempfile
+import git
 import yaml
+import os
 from edk2toolext.environment import self_describing_environment
 from edk2toolext.tests.uefi_tree import uefi_tree
 from edk2toolext.environment import version_aggregator
@@ -19,7 +20,7 @@ from edk2toolext.environment import version_aggregator
 class Testself_describing_environment(unittest.TestCase):
 
     def setUp(self):
-        self.workspace = os.path.abspath(tempfile.mkdtemp())
+        self.workspace = pathlib.Path(tempfile.mkdtemp()).resolve()
         # we need to make sure to tear down the version aggregator and the SDE
         self_describing_environment.DestroyEnvironment()
         version_aggregator.ResetVersionAggregator()
@@ -117,54 +118,23 @@ class Testself_describing_environment(unittest.TestCase):
             self.fail()
 
     def test_git_worktree(self):
-        """Check that the SDE will recognize a git worktree.
+        repo = git.Repo.init(self.workspace)
+        repo.create_remote("origin", "https://github.com/username/repo.git")
 
-        Specifically verifies duplicate external dependencies in the git
-        worktree are ignored that are discovered during SDE initialization.
-        """
-        # The workspace should not contain a git repo yet
-        repo_path = pygit2.discover_repository(self.workspace)
-        self.assertIsNone(repo_path)
-
-        # Init a git repo in the workspace
-        pygit2.init_repository(self.workspace, initial_head='master')
-        repo_path = pygit2.discover_repository(self.workspace)
-        self.assertIsNotNone(repo_path)
-
-        repo = pygit2.Repository(self.workspace)
-
-        # Create a UEFI tree
         repo_tree = uefi_tree(self.workspace, create_platform=True)
         self.assertIsNotNone(repo_tree)
 
-        # Add ext deps to the tree
-        repo_tree.create_ext_dep("nuget", "NuGet.CommandLine", "5.2.0")
-        repo_tree.create_ext_dep("nuget", "NuGet.LibraryModel", "5.6.0")
+        files = []
+        files.append(repo_tree.create_ext_dep("nuget", "NuGet.CommandLine", "5.2.0"))
+        files.append(repo_tree.create_ext_dep("nuget", "NuGet.LibraryModel", "5.6.0"))
 
-        # Commit the UEFI tree to the master branch
-        self.assertNotIn('master', repo.branches)
-        index = repo.index
-        index.add_all()
-        index.write()
-        author = pygit2.Signature('SDE Unit Test', 'uefibot@microsoft.com')
-        message = "Add initial platform UEFI worktree"
-        tree = index.write_tree()
-        parents = []
-        repo.create_commit('HEAD', author, author, message, tree, parents)
-        self.assertIn('master', repo.branches)
+        repo.index.add(files)
+        self.assertEqual(len(repo.branches), 0)
+        actor = git.Actor("John Doe", "john.doe@example.com")
+        repo.index.commit("A Commit", author=actor, committer=actor)
+        self.assertEqual(len(repo.branches), 1)
 
-        # Create the worktree branch
-        worktree_branch = repo.branches.local.create('worktree_branch', commit=repo[repo.head.target])
-        self.assertIn('worktree_branch', repo.branches)
-
-        # Create a worktree on the worktree branch in the git repo
-        self.assertFalse(repo.list_worktrees())
-        repo.add_worktree('test_workspace', os.path.join(self.workspace, '.trees'), worktree_branch)
-        worktrees = repo.list_worktrees()
-        self.assertIn('test_workspace', worktrees)
-
-        # Because this is a subtree, the duplicate ext_deps should be ignored
-        # that are present in the worktree
+        repo.git.worktree("add", "my_worktree")
         self_describing_environment.BootstrapEnvironment(self.workspace, ('global',))
 
     def test_no_verify_extdep(self):

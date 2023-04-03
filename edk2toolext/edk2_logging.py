@@ -201,13 +201,17 @@ def scan_compiler_output(output_stream):
     # seek to the start of the output stream
     def output_compiler_error(match, line, start_txt="Compiler"):
         start, end = match.span()
-        source = line[:start]
-        error = line[end:]
+        source = line[:start].strip()
+        error = line[end:].strip()
         num = match.group(1)
         return f"{start_txt} #{num} from {source} {error}"
     problems = []
     output_stream.seek(0, 0)
     error_exp = re.compile(r"error [A-EG-Z]?(\d+):")
+    # Would prefer to do something like r"(?:\/[^\/: ]*)+\/?:\d+:\d+: (error):"
+    # but the script is currently setup on fixed formatting assumptions rather
+    # than offering per rule flexibility to parse tokens via regex
+    gcc_error_exp = re.compile(r":\d+:\d+: (error):")
     edk2_error_exp = re.compile(r"error F(\d+):")
     build_py_error_exp = re.compile(r"error (\d+)E:")
     linker_error_exp = re.compile(r"error LNK(\d+):")
@@ -215,6 +219,10 @@ def scan_compiler_output(output_stream):
     for raw_line in output_stream.readlines():
         line = raw_line.strip("\n").strip()
         match = error_exp.search(line)
+        if match is not None:
+            error = output_compiler_error(match, line, "Compiler")
+            problems.append((logging.ERROR, error))
+        match = gcc_error_exp.search(line)
         if match is not None:
             error = output_compiler_error(match, line, "Compiler")
             problems.append((logging.ERROR, error))
@@ -247,6 +255,13 @@ class Edk2LogFilter(logging.Filter):
         self._verbose = False
         self._currentSection = "root"
 
+        secrets_regex_strings = [
+            r"[A-Za-z0-9]{46}",  # Nuget API Key
+            r"gh[pousr]_[A-Za-z0-9_]+",  # Github PAT
+        ]
+
+        self.secrets_regex = re.compile(r"{}".format("|".join(secrets_regex_strings)), re.IGNORECASE)
+
     def setVerbose(self, isVerbose=True):
         """Sets the filter verbosity."""
         self._verbose = isVerbose
@@ -262,5 +277,5 @@ class Edk2LogFilter(logging.Filter):
         # check to make sure we haven't already filtered this record
         if record.name not in Edk2LogFilter._allowedLoggers and record.levelno < logging.WARNING and not self._verbose:
             return False
-
+        record.msg = self.secrets_regex.sub("*******", str(record.msg))
         return True

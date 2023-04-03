@@ -9,6 +9,7 @@ import os
 import tempfile
 import json
 import random
+import git
 
 
 class uefi_tree:
@@ -25,13 +26,15 @@ class uefi_tree:
         create_platform (bool): create the tree or use an existing
     """
 
-    def __init__(self, workspace=None, create_platform=True):
+    def __init__(self, workspace=None, create_platform=True, with_repo=False):
         """Inits uefi_tree."""
         if workspace is None:
             workspace = os.path.abspath(tempfile.mkdtemp())
         self.workspace = workspace
         if (create_platform):
             self._create_tree()
+        if with_repo:
+            self._create_repo()
 
     @staticmethod
     def _get_src_folder():
@@ -44,6 +47,15 @@ class uefi_tree:
     def get_workspace(self):
         """Returns the workspace path."""
         return self.workspace
+
+    def _create_repo(self):
+        repo = git.Repo.init(self.workspace)
+        repo.create_remote('origin', 'https://github.com/username/repo.git')
+        repo.git.config('--global', 'user.email', '"johndoe@example.com"')
+        repo.git.config('--global', 'user.name', '"John Doe"')
+        repo.git.checkout('-b', "master")
+        repo.git.add('.')
+        repo.git.commit('-m', '"Initial commit"')
 
     def _create_tree(self):
         """Creates a settings.py, test.dsc, Conf folder (with build_rule, target, and tools_def)."""
@@ -130,6 +142,7 @@ class uefi_tree:
         os.makedirs(output_dir, exist_ok=True)
         output_path = os.path.join(output_dir, file_name)
         uefi_tree.write_to_file(output_path, text)
+        return output_path
 
     _settings_file_text = '''
 # @file settings.py
