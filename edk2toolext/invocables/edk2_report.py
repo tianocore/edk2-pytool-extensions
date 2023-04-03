@@ -321,11 +321,17 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
     def get_parsers(self) -> list:
         "Returns a list of un-instantiated DbDocument subclass parsers."
         # TODO: Parse plugins to grab any additional parsing that should be done.
-        return [CParser(), IParser()]
+        return [
+            CParser(),
+            IParser(),
+        ]
     
     def get_reports(self) -> list:
         """Returns a list of report generators."""
-        return [LicenseReport(), LibraryInfReport()]
+        return [
+            LicenseReport(),
+            LibraryInfReport(),
+        ]
 
     def GetSettingsClass(self):
         return CiBuildSettingsManager
@@ -334,7 +340,7 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
         return "Build"
     
     def GetLoggingFileName(self, loggerType):
-        return "PARSE"
+        return "REPORT"
 
     def GetActiveScopes(self):
         return ()

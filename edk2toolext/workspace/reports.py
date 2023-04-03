@@ -8,11 +8,12 @@
 Each file preforms this task by using the database created by the parsers.
 """
 
-from tinydb.table import Table
+from tinydb.table import Document
 from collections import namedtuple
 from edk2toolext.workspace.parsers import Utilities
 from tinydb import Query, TinyDB
 from edk2toolext.environment.var_dict import VarDict
+from tabulate import tabulate
 
 class Report:
     """An interface for a report."""
@@ -38,6 +39,9 @@ class Report:
     def generate_report(self, db: TinyDB, env: VarDict) -> None:
         """Generate a report."""
         raise NotImplementedError
+    
+    def to_stdout(self, documents: list[Document], tablefmt = "simple"):
+        print(tabulate(documents, headers="keys", tablefmt=tablefmt))
 
 class LicenseReport(Report):
     """A report that lists all of the licenses in the workspace."""
@@ -107,6 +111,24 @@ class LibraryInfReport(Report):
         lib_type = env.GetValue("LIBRARY", "")
 
         result = table.search( (Query().library_class.matches(lib_type)))
-        Utilities.table_print( result )
+        self.to_stdout(result)
 
-        print(f"\n{len(result)} Libraries found.")
+class Utilities:
+
+    @classmethod
+    def to_cli_table(cls, documents: list[Document]) -> str:
+        columns = list(documents[0].keys())
+        widths = [max(len(str(row[col])) for row in documents) for col in columns]
+
+        for i, col in enumerate(columns):
+            print(col.ljust(widths[i]), end=' ')
+        print()
+
+        for width in widths:
+            print('-' * width, end=' ')
+        print()
+
+        for row in documents:
+            for i,col in enumerate(columns):
+                print(str(row[col]).ljust(widths[i]), end=' ')
+            print()
