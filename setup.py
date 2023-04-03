@@ -77,7 +77,8 @@ setuptools.setup(
                             'firmware_policy_tool=edk2toolext.windows.policy.firmware_policy_tool:main',
                             'edk2_capsule_tool=edk2toolext.capsule.capsule_tool:main',
                             'versioninfo_tool=edk2toolext.versioninfo.versioninfo_tool:main',
-                            'validate_image_tool=edk2toolext.image_validation:main']
+                            'validate_image_tool=edk2toolext.image_validation:main',
+                            'stuart_report=edk2toolext.invocables.edk2_report:main']
     },
     install_requires=[
         'pyyaml>=6.0.0',
