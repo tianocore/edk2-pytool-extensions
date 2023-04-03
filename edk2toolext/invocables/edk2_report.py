@@ -1,6 +1,7 @@
 import re
 import logging
 import time
+from textwrap import wrap
 from typing import Union
 from tinydb import TinyDB, Query, where
 from tinydb.operations import add
@@ -317,12 +318,12 @@ class Dsc:
 
 class Edk2Report(Edk2MultiPkgAwareInvocable):
 
-    def register_parsers(self) -> list:
+    def get_parsers(self) -> list:
         "Returns a list of un-instantiated DbDocument subclass parsers."
         # TODO: Parse plugins to grab any additional parsing that should be done.
         return [CParser(), IParser()]
     
-    def register_reports(self) -> list:
+    def get_reports(self) -> list:
         """Returns a list of report generators."""
         return [LicenseReport(), LibraryInfReport()]
 
@@ -337,13 +338,44 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
 
     def GetActiveScopes(self):
         return ()
+    
+    def AddParserEpilog(self):
+        """Adds an epilog to the end of the argument parser when displaying help information.
+
+        Returns:
+            (str): The string to be added to the end of the argument parser.
+        """
+        custom_epilog = ""
+
+        variables = []
+        for report in self.get_reports():
+            variables.extend(report.report_cli_args())
+
+        max_name_len = max(len(var.name) for var in variables)
+        max_desc_len = min(max(len(var.description) for var in variables), 55)
+        
+        custom_epilog += "Report CLI Variables:\n\n"
+        for report in self.get_reports():
+            custom_epilog += f"Report: [{report.report_name()}]"
+            for r in report.report_cli_args():
+                # Setup wrap and print first portion of description
+                desc = wrap(r.description, max_desc_len,
+                            drop_whitespace=True, break_on_hyphens=True, break_long_words=True)
+                custom_epilog += f"\n  {r.name:<{max_name_len}} - {desc[0]:<{max_desc_len}}"
+                
+                # If the line actually wrapped, we can print the rest of the lines here
+                for d in desc[1:]:
+                    custom_epilog += f"\n  {'':<{max_name_len}}   {d:{max_desc_len}}"
+            custom_epilog += '\n\n'
+
+        return custom_epilog
 
     def Go(self):
         ws = Path(self.GetWorkspaceRoot())
         env = shell_environment.GetBuildVars()
         pathobj = Edk2Path(self.GetWorkspaceRoot(), self.GetPackagesPath())
-        parsers = self.register_parsers()
-        reports = self.register_reports()
+        parsers = self.get_parsers()
+        reports = self.get_reports()
         db_path = env.GetValue("DB_PATH", None)
         report = env.GetValue("REPORT", None)
         

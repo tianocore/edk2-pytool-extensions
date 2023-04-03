@@ -9,6 +9,7 @@ Each file preforms this task by using the database created by the parsers.
 """
 
 from tinydb.table import Table
+from collections import namedtuple
 from edk2toolext.workspace.parsers import Utilities
 from tinydb import Query, TinyDB
 from edk2toolext.environment.var_dict import VarDict
@@ -26,8 +27,13 @@ class Report:
         raise NotImplementedError
     
     def report_cli_args(self):
-        """Return a list of command line arguments for this report"""
-        return ["INCLUDE", "EXCLUDE"]
+        """Return a list of command line arguments for this report.
+        
+        Return a named tuple containing name, description.
+        
+        namedtuple("Arg", ["name", "description"]])
+        """
+        return []
 
     def generate_report(self, db: TinyDB, env: VarDict) -> None:
         """Generate a report."""
@@ -44,7 +50,16 @@ class LicenseReport(Report):
         It should not contain any spaces.
         """
         return "no-license"
+
+    def report_cli_args(self):
+        """Return a list of command line arguments for this report."""
+        Arg = namedtuple("Arg", ["name", "description"])
         
+        return [
+            Arg("INCLUDE", "A comma separated list strings to include in the search"),
+            Arg("EXCLUDE", "A comma separated list strings to exclude in the search")
+        ]
+      
     def generate_report(self, db: TinyDB, env: VarDict) -> None:
         """Generate a report."""
         table = db.table("source")
@@ -78,8 +93,12 @@ class LibraryInfReport(Report):
         return "list-library"
 
     def report_cli_args(self):
-        """Return a list of command line arguments for this report"""
-        return ["LIBRARY"]  
+        """Return a list of command line arguments for this report."""
+        Arg = namedtuple("Arg", ["name", "description"])
+        
+        return [
+            Arg("LIBRARY", "The library class to search for")
+        ]
 
     def generate_report(self, db: TinyDB, env: VarDict) -> None:
         """Generate a report."""
