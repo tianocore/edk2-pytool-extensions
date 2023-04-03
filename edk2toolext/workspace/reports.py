@@ -10,7 +10,6 @@ Each file preforms this task by using the database created by the parsers.
 
 from tinydb.table import Document
 from collections import namedtuple
-from edk2toolext.workspace.parsers import Utilities
 from tinydb import Query, TinyDB
 from edk2toolext.environment.var_dict import VarDict
 from tabulate import tabulate
@@ -42,6 +41,14 @@ class Report:
     
     def to_stdout(self, documents: list[Document], tablefmt = "simple"):
         print(tabulate(documents, headers="keys", tablefmt=tablefmt))
+    
+    def columns(self, column_list: list[str], documents: list[Document], ):
+        """Given a list of Documents, return it with only the specified columns."""
+        filtered_list = []
+        for document in documents:
+            filtered_dict = {k: v for k, v in document.items() if k in column_list}
+            filtered_list.append(Document(filtered_dict, document.doc_id))
+        return filtered_list
 
 class LicenseReport(Report):
     """A report that lists all of the licenses in the workspace."""
@@ -110,8 +117,9 @@ class LibraryInfReport(Report):
 
         lib_type = env.GetValue("LIBRARY", "")
 
-        result = table.search( (Query().library_class.matches(lib_type)))
-        self.to_stdout(result)
+        result = table.search((Query().LIBRARY_CLASS != "") & (Query().LIBRARY_CLASS.matches(lib_type)))
+        r = self.columns(["LIBRARY_CLASS", "PATH"], result)
+        self.to_stdout(r)
 
 class Utilities:
 

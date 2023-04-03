@@ -15,6 +15,7 @@ import time
 
 from edk2toollib.uefi.edk2.path_utilities import Edk2Path
 from edk2toollib.uefi.edk2.parsers.inf_parser import InfParser
+from edk2toollib.uefi.edk2.parsers.dsc_parser import DscParser
 from edk2toolext.environment.var_dict import VarDict
 
 from tinydb.table import Table
@@ -85,7 +86,17 @@ class CParser(WorkspaceParser):
         }
 
 class IParser(WorkspaceParser):
-    """An interface for a INF parser."""
+    """An interface for a INF parser.
+    
+    |
+    | GUID | LIBRARY_CLASS | PATH | LIBRARIES_USED |
+    |
+    
+    
+    """
+    def get_tables(self) -> list[str]:
+        return ["inf"]
+
     def parse_workspace(self, tables: dict[str, Table], package: str, pathobj: Edk2Path, env: VarDict) -> None:
         ws = Path(pathobj.WorkspacePath)
         inf_table = tables["inf"]
@@ -98,39 +109,59 @@ class IParser(WorkspaceParser):
             inf_parser.ParseFile(filename)
             count += 1
             
-            data = {
-                "guid": inf_parser.Dict.get("GUID", ""),
-                "path": inf_parser.Path.relative_to(ws).as_posix(),
-            }
-            if inf_parser.LibraryClass:
-                data["library_class"] = inf_parser.LibraryClass
-            inf_entries.append(data)
-        logging.debug(f"{self.__class__.__name__}: Parsed {count} .h files took {round(time.time() - start, 2)} seconds.")
+            data = {}
+            data["GUID"] = inf_parser.Dict.get("FILE_GUID", "")
+            data["LIBRARY_CLASS"] = inf_parser.LibraryClass
+            data["PATH"] = inf_parser.Path.relative_to(ws).as_posix()
+            data["PHASES"] = inf_parser.SupportedPhases
+            data["SOURCES_USED"] = inf_parser.Sources
+            data["BINARIES_USED"] = inf_parser.Binaries
+            data["LIBRARIES_USED"] = inf_parser.LibrariesUsed
+            data["PROTOCOLS_USED"] = inf_parser.ProtocolsUsed
+            data["GUIDS_USED"] = inf_parser.GuidsUsed
+            data["PPIS_USED"] = inf_parser.PpisUsed
+            data["PCDS_USED"] = inf_parser.PcdsUsed
 
+            inf_entries.append(data)
+
+        logging.debug(f"{self.__class__.__name__}: Parsed {count} .h files took {round(time.time() - start, 2)} seconds.")
         with transaction(inf_table) as tr:
             tr.insert_multiple(inf_entries)
         logging.debug(f"{self.__class__.__name__}: Adding files to database took {round(time.time() - start, 2)} seconds.")
 
+
+class DParser(WorkspaceParser):
+    """An interface for a DSC parser."""
+
     def get_tables(self) -> list[str]:
-        return ["inf"]
+        return ["dsc"]
+    
+    def parse_workspace(self, tables: dict[str, Table], package: str, pathobj: Edk2Path, env: VarDict) -> None:
+        ws = Path(pathobj.WorkspacePath)
+        dsc_table = tables["dsc"]
+        dsc_entries = []
+
+        start = time.time()
+        count = 0
+        for filename in ws.glob("**/*.dsc"):
+            dsc_parser = DscParser().SetEdk2Path(pathobj)
+            dsc_parser.ParseFile(filename)
+            count += 1
+
+            data = {}
+            data["PATH"] = filename.relative_to(ws).as_posix()
+            data["COMPONENTS"] = dsc_parser.GetMods() + dsc_parser.OtherMods
+            data["LIBRARIES"] = dsc_parser.GetLibs()
+            
+            import pprint
+            pprint.pprint(data)
+            #pprint.pprint(dsc_parser.GetMods())
+            #pprint.pprint(dsc_parser.OtherMods)
+
+            #print(dsc_parser.GetMods())
+
+            exit()
 
 
-class Utilities:
 
-    @classmethod
-    def table_print(self, table):
-        columns = list(table[0].keys())
-        widths = [max(len(str(row[col])) for row in table) for col in columns]
 
-        for i, col in enumerate(columns):
-            print(col.ljust(widths[i]), end=' ')
-        print()
-
-        for width in widths:
-            print('-' * width, end=' ')
-        print()
-
-        for row in table:
-            for i,col in enumerate(columns):
-                print(str(row[col]).ljust(widths[i]), end=' ')
-            print()

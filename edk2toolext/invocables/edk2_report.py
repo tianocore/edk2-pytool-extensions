@@ -18,7 +18,7 @@ from edk2toolext.environment import shell_environment
 from edk2toolext.environment.var_dict import VarDict
 from edk2toollib.uefi.edk2.path_utilities import Edk2Path
 
-from edk2toolext.workspace.parsers import CParser, IParser
+from edk2toolext.workspace.parsers import CParser, IParser, DParser
 from edk2toolext.workspace.reports import LicenseReport, LibraryInfReport
 
 
@@ -322,8 +322,9 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
         "Returns a list of un-instantiated DbDocument subclass parsers."
         # TODO: Parse plugins to grab any additional parsing that should be done.
         return [
-            CParser(),
-            IParser(),
+            # CParser(),
+            # IParser(),
+            DParser(),
         ]
     
     def get_reports(self) -> list:
@@ -404,7 +405,7 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
         for parser in parsers:
             tables = {}
             for table in parser.get_tables():
-                tables[table] = db.table(table)
+                tables[table] = db.table(table, cache_size=None)
             
             logging.log(edk2_logging.SECTION, f"Starting parser: [{parser.__class__.__name__}]")
             start = time.time()
