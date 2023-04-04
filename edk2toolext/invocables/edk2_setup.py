@@ -20,7 +20,7 @@ from edk2toolext.environment.repo_resolver import InvalidGitRepositoryError, Git
 from edk2toolext.environment import version_aggregator
 from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable
 from edk2toolext.invocables.edk2_multipkg_aware_invocable import MultiPkgAwareSettingsInterface
-from edk2toollib.utility_functions import version_compare, GetHostInfo
+from edk2toollib.utility_functions import GetHostInfo
 
 
 class RequiredSubmodule():
@@ -126,12 +126,6 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
         version_aggregator.GetVersionAggregator().ReportVersion("Git",
                                                                 git_version,
                                                                 version_aggregator.VersionTypes.TOOL)
-        min_git = "2.36.0"
-        # This code is highly specific to the return value of "git version"...
-        if version_compare(min_git, git_version) > 0:
-            logging.error("FAILED!\n")
-            logging.error("Please upgrade Git! Current version is %s. Minimum is %s." % (git_version, min_git))
-            return -1
 
         # Pre-setup cleaning if "--force" is specified.
         if self.force_it:

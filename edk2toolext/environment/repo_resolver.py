@@ -15,15 +15,17 @@ The intent is to keep all git functionality consolidated in this module. Current
 edk2_setup.py, and git_dependency.py use this module to perform git operations.
 """
 import os
-from logging import getLogger
+import logging
 from edk2toolext import edk2_logging
+from edk2toollib.utility_functions import version_compare
 from git import Repo, GitCommandError, InvalidGitRepositoryError, NoSuchPathError
 from git.cmd import Git
 from git.util import rmtree
 from pathlib import Path
 
 
-logger = getLogger(__name__)
+logger = logging.getLogger(__name__)
+MIN_GIT_VERSION = "2.36.0"
 
 
 def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=False):
@@ -204,10 +206,16 @@ def repo_details(abs_file_system_path):
     Returns:
         (obj): Object with data members listed above
     """
+    git_version = ".".join(map(str, Git().version_info))
+    if version_compare(git_version, MIN_GIT_VERSION) < 0:
+        e = f"Upgrade Git! Current version is {git_version}. Minimum is {MIN_GIT_VERSION}"
+        logging.error(e)
+        raise RuntimeError(e)
+
     details = {
         "Path": Path(abs_file_system_path),
         "Valid": False,
-        "GitVersion": ".".join(map(str, Git().version_info)),
+        "GitVersion": git_version,
         "Initialized": False,
         "Bare": False,
         "Dirty": False,
