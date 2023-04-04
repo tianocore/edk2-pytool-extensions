@@ -246,7 +246,6 @@ def repo_details(abs_file_system_path):
             details["Dirty"] = repo.is_dirty(untracked_files=True)
             details["Initialized"] = True
             details["Url"] = repo.remotes.origin.url if "origin" in repo.remotes else repo.remotes[0].url
-
     except (InvalidGitRepositoryError, NoSuchPathError):
         pass
     return details
