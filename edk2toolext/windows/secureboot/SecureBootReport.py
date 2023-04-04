@@ -1,9 +1,20 @@
+# @file
+#
+# Command-line tool for inspecting UEFI Secure Boot databases
+# Requires "pip install edk2-pytool-extensions"
+#
+# Copyright (c) Microsoft Corporation
+#
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+##
 import argparse
 import logging
 import sys
 import ctypes
 import os
 import json
+import xlsxwriter
+import openpyxl
 
 # Some of these libraries are windows only, so we need to import them conditionally
 if sys.platform == "win32":
@@ -66,10 +77,6 @@ def write_xlsx_file(report, output_file):
 
     :return: None
     """
-    try:
-        import xlsxwriter
-    except ImportError:
-        raise ImportError("You must install xlsxwriter to use this function")
 
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
@@ -135,12 +142,6 @@ def write_xlsx_file(report, output_file):
 def convert_uefi_org_revocation_file_to_dict(file):
     """Converts the excel file to json."""
 
-    try:
-        import openpyxl
-    except ImportError:
-        logger.error("Please install openpyxl to use this feature")
-        sys.exit(1)
-
     data = {}
 
     wb = openpyxl.load_workbook(file)
@@ -202,6 +203,106 @@ def convert_uefi_org_file(args):
 
     logger.info("Wrote report to %s", args.output)
 
+
+def generate_dbx_report(dbx_fs, revocations):
+    """Generates a report of the dbx.
+
+    Args:
+        dbx_fs (filestream): The dbx file system
+        revocations (dict): The revocation list
+
+    Returns:
+        dict: The report
+    """
+
+    report = {
+        "identified": {
+            "dict": {},
+            "total": 0,
+            "note": "Represents all the hashes found in a systems dbx that match a provided revocation",
+        },
+        "missing_protections": {
+            "dict": {},
+            "total": 0,
+            "note": "The remaining hashes in the provided revocation list that were not found in the system dbx",
+        },
+        "not_found": {
+            "list": [],
+            "total": 0,
+            "note": "The hashes that were found in the dbx that are not in the provided revocation list",
+        },
+    }
+
+    dbx = EfiSignatureDatabase(dbx_fs)
+    for Esl in dbx.EslList:
+        for signature in Esl.SignatureData_List:
+            formatted_signature = ""
+            for byte in signature.SignatureData:
+                formatted_signature += f"{byte:02X}"
+
+            # Is this in our revocation list?
+            if formatted_signature in revocations:
+                report["identified"]["dict"][formatted_signature] = revocations[
+                    formatted_signature
+                ]
+                report["identified"]["dict"][formatted_signature]["count"] = 1
+
+                # if we have identified the revocation, remove it from the list
+                del revocations[formatted_signature]
+            # have we already seen this signature?
+            elif formatted_signature in report["identified"]["dict"]:
+                report["identified"]["dict"][formatted_signature]["count"] += 1
+            # otherwise, we have a signature that is not in our revocation list
+            else:
+                report["not_found"]["list"].append(formatted_signature)
+
+    # Anything left in the revocation list is missing from the dbx
+    for revocation in revocations:
+        report["missing_protections"]["dict"][revocation] = revocations[revocation]
+
+    # Add totals
+    report["identified"]["total"] = len(report["identified"]["dict"])
+    report["not_found"]["total"] = len(report["not_found"]["list"])
+    report["missing_protections"]["total"] = len(
+        report["missing_protections"]["dict"]
+    )
+
+    # Check for flat hashes
+    for supposed_authenticode_hash in report["not_found"]["list"]:
+        for supposed_flat_hash in revocations:
+            if "flat_hash_sha256" not in revocations[supposed_flat_hash]:
+                break
+
+            if supposed_authenticode_hash == revocations[supposed_flat_hash]["flat_hash_sha256"]:
+                logger.warning(
+                    "This hash appears to be a flat sha256 hash: %s", supposed_authenticode_hash
+                )
+
+    return report
+
+
+def filter_revocation_list_by_arch(revocations, filter_by_arch=None):
+    """
+    Filters the revocation list by architecture
+
+    Args:
+        revocations (dict): The revocation list
+        filter_by_arch (str): The architecture to filter by
+
+    Returns:
+        dict: The filtered revocation list
+    """
+
+    # Filter the revocations by arch if requested
+    if filter_by_arch:
+        filter_revocations = {}
+        for revocation in revocations:
+            if "arch" in revocations[revocation]:
+                if revocations[revocation]["arch"] == filter_by_arch:
+                    filter_revocations[revocation] = revocations[revocation]
+        revocations = filter_revocations
+
+    return revocations
 
 ###################################################################################################
 # Classes
@@ -318,81 +419,14 @@ def parse_dbx(args):
         0 on success
     """
 
-    with open(args.revocations_file, "r") as rev_fs:
+    report = {}
+    with open(args.revocations_file, "r", encoding="utf-8") as rev_fs:
         revocations = json.loads(rev_fs.read())
 
-        report = {
-            "identified": {
-                "dict": {},
-                "total": 0,
-                "note": "Represents all the hashes found in a systems dbx that match a provided revocation",
-            },
-            "missing_protections": {
-                "dict": {},
-                "total": 0,
-                "note": "The remaining hashes in the provided revocation list that were not found in the system dbx",
-            },
-            "not_found": {
-                "list": [],
-                "total": 0,
-                "note": "The hashes that were found in the dbx that are not in the provided revocation list",
-            },
-        }
-
-        # Filter the revocations by arch if requested
-        if args.filter_by_arch:
-            filter_revocations = {}
-            for revocation in revocations:
-                if "arch" in revocations[revocation]:
-                    if revocations[revocation]["arch"] == args.filter_by_arch:
-                        filter_revocations[revocation] = revocations[revocation]
-            revocations = filter_revocations
-
         with open(args.dbx_file, "rb") as dbx_fs:
-            dbx = EfiSignatureDatabase(dbx_fs)
-            for Esl in dbx.EslList:
-                for signature in Esl.SignatureData_List:
-                    formatted_signature = ""
-                    for byte in signature.SignatureData:
-                        formatted_signature += f"{byte:02X}"
 
-                    # Is this in our revocation list?
-                    if formatted_signature in revocations:
-                        report["identified"]["dict"][formatted_signature] = revocations[
-                            formatted_signature
-                        ]
-                        report["identified"]["dict"][formatted_signature]["count"] = 1
-
-                        # if we have identified the revocation, remove it from the list
-                        del revocations[formatted_signature]
-                    # have we already seen this signature?
-                    elif formatted_signature in report["identified"]["dict"]:
-                        report["identified"]["dict"][formatted_signature]["count"] += 1
-                    # otherwise, we have a signature that is not in our revocation list
-                    else:
-                        report["not_found"]["list"].append(formatted_signature)
-
-        # Anything left in the revocation list is missing from the dbx
-        for revocation in revocations:
-            report["missing_protections"]["dict"][revocation] = revocations[revocation]
-
-        # Add totals
-        report["identified"]["total"] = len(report["identified"]["dict"])
-        report["not_found"]["total"] = len(report["not_found"]["list"])
-        report["missing_protections"]["total"] = len(
-            report["missing_protections"]["dict"]
-        )
-
-        # Check for flat hashes
-        for supposed_authenticode_hash in report["not_found"]["list"]:
-            for supposed_flat_hash in revocations:
-                if "flat_hash_sha256" not in revocations[supposed_flat_hash]:
-                    break
-
-                if supposed_authenticode_hash == revocations[supposed_flat_hash]["flat_hash_sha256"]:
-                    logger.warning(
-                        "This hash appears to be a flat sha256 hash: %s", supposed_authenticode_hash
-                    )
+            revocations = filter_revocation_list_by_arch(revocations, args.filter_by_arch)
+            report = generate_dbx_report(dbx_fs, revocations)
 
     if args.format == "json":
         write_json_file(report, args.output + ".json")
