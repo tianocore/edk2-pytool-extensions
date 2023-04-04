@@ -26,7 +26,7 @@ from tinyrecord import transaction
 class WorkspaceParser:
     """An interface for a workspace parser."""
 
-    def parse_workspace(self, tables: dict[str, Table], package: str, pathobj: Edk2Path, env: VarDict) -> None:
+    def parse_workspace(self, tables: dict[str, Table], pathobj: Edk2Path, env: VarDict) -> None:
         """Parse the workspace and update the database."""
         raise NotImplementedError
     
@@ -35,8 +35,14 @@ class WorkspaceParser:
         raise NotImplementedError
     
 class CParser(WorkspaceParser):
-    """An interface for a C code parser."""
-    def parse_workspace(self, tables: dict[str, Table], package: list[str], pathobj: Edk2Path, env: VarDict) -> None:
+    """A Workspace parser that parses all c and h files in the workspace and generates a table with the following schema:
+    
+    table_name: "source"
+    |-------------------------------------------------------------------------|
+    | PATH | LICENSE | TOTAL_LINES | CODE_LINES | COMMENT_LINES | BLANK_LINES |
+    |-------------------------------------------------------------------------|
+    """
+    def parse_workspace(self, tables: dict[str, Table], pathobj: Edk2Path, env: VarDict) -> None:
         """Parse the workspace and update the database."""
 
         ws = Path(pathobj.WorkspacePath)
@@ -77,27 +83,26 @@ class CParser(WorkspaceParser):
                     break
         
         return {
-            "path": filename.relative_to(ws).as_posix(),
-            "license": license,
-            "total_lines": 0,
-            "code_lines": 0,
-            "comment_lines": 0,
-            "blank_lines": 0,
+            "PATH": filename.relative_to(ws).as_posix(),
+            "LICENSE": license,
+            "TOTAL_LINES": 0,
+            "CODE_LINES": 0,
+            "COMMENT_LINES": 0,
+            "BLANK_LINES": 0,
         }
 
 class IParser(WorkspaceParser):
-    """An interface for a INF parser.
+    """A Workspace parser that parses all INF files in the workspace and generates a table with the following schema:
     
-    |
-    | GUID | LIBRARY_CLASS | PATH | LIBRARIES_USED |
-    |
-    
-    
+    table_name: "inf"
+    |----------------------------------------------------------------------------------------------------------------------------|
+    | GUID | LIBRARY_CLASS | PATH | PHASES | SOURCES_USED | LIBRARIES_USED | PROTOCOLS_USED | GUIDS_USED | PPIS_USED | PCDS_USED |
+    |----------------------------------------------------------------------------------------------------------------------------|
     """
     def get_tables(self) -> list[str]:
         return ["inf"]
 
-    def parse_workspace(self, tables: dict[str, Table], package: str, pathobj: Edk2Path, env: VarDict) -> None:
+    def parse_workspace(self, tables: dict[str, Table], pathobj: Edk2Path, env: VarDict) -> None:
         ws = Path(pathobj.WorkspacePath)
         inf_table = tables["inf"]
         inf_entries = []
@@ -124,19 +129,25 @@ class IParser(WorkspaceParser):
 
             inf_entries.append(data)
 
-        logging.debug(f"{self.__class__.__name__}: Parsed {count} .h files took {round(time.time() - start, 2)} seconds.")
+        logging.debug(f"{self.__class__.__name__}: Parsed {count} .inf files took {round(time.time() - start, 2)} seconds.")
         with transaction(inf_table) as tr:
             tr.insert_multiple(inf_entries)
         logging.debug(f"{self.__class__.__name__}: Adding files to database took {round(time.time() - start, 2)} seconds.")
 
 
 class DParser(WorkspaceParser):
-    """An interface for a DSC parser."""
+    """A Workspace parser that parses all dsc files in the workspace and generates a table with the following schema:
+    
+    table_name: "dsc"
+    |-------------------------------|
+    | PATH | COMPONENTS | LIBRARIES |
+    |-------------------------------|
+    """
 
     def get_tables(self) -> list[str]:
         return ["dsc"]
     
-    def parse_workspace(self, tables: dict[str, Table], package: str, pathobj: Edk2Path, env: VarDict) -> None:
+    def parse_workspace(self, tables: dict[str, Table], pathobj: Edk2Path, env: VarDict) -> None:
         ws = Path(pathobj.WorkspacePath)
         dsc_table = tables["dsc"]
         dsc_entries = []
@@ -153,15 +164,10 @@ class DParser(WorkspaceParser):
             data["COMPONENTS"] = dsc_parser.GetMods() + dsc_parser.OtherMods
             data["LIBRARIES"] = dsc_parser.GetLibs()
             
-            import pprint
-            pprint.pprint(data)
-            #pprint.pprint(dsc_parser.GetMods())
-            #pprint.pprint(dsc_parser.OtherMods)
+            dsc_entries.append(data)
+        logging.debug(f"{self.__class__.__name__}: Parsed {count} .dsc files took {round(time.time() - start, 2)} seconds.")
 
-            #print(dsc_parser.GetMods())
-
-            exit()
-
-
-
-
+        start = time.time()
+        with transaction(dsc_table) as tr:
+            tr.insert_multiple(dsc_entries)
+        logging.debug(f"{self.__class__.__name__}: Adding files to database took {round(time.time() - start, 2)} seconds.") 

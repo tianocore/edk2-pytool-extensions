@@ -85,10 +85,9 @@ class LicenseReport(Report):
         if exclude:
             regex+=f"(?!.*({exclude.replace(',', '|')})).*$"
         
-
-        result = table.search( (Query().license == "") & (Query().path.search(regex)))
+        result = table.search( (Query().LICENSE == "") & (Query().PATH.search(regex)))
         
-        Utilities.table_print( result )
+        self.to_stdout( result )
 
         print(f"\n{len(result)} files with no license found.")
 

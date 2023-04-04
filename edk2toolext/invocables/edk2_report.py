@@ -7,7 +7,7 @@ from tinydb import TinyDB, Query, where
 from tinydb.operations import add
 from tinydb.storages import JSONStorage
 from tinydb.middlewares import CachingMiddleware
-from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable
+from edk2toolext.edk2_invocable import Edk2Invocable, Edk2InvocableSettingsInterface
 from edk2toolext.invocables.edk2_ci_build import CiBuildSettingsManager
 from edk2toolext import edk2_logging
 from pathlib import Path
@@ -316,26 +316,25 @@ class Dsc:
                 return f'{section}.{module_type}'
             return f'{section}.{"common"}.{module_type}'
 
-class Edk2Report(Edk2MultiPkgAwareInvocable):
+class ReportSettingsManager(Edk2InvocableSettingsInterface):
+    pass
+class Edk2Report(Edk2Invocable):
 
-    def get_parsers(self) -> list:
-        "Returns a list of un-instantiated DbDocument subclass parsers."
-        # TODO: Parse plugins to grab any additional parsing that should be done.
-        return [
-            # CParser(),
-            # IParser(),
-            DParser(),
-        ]
-    
-    def get_reports(self) -> list:
-        """Returns a list of report generators."""
-        return [
-            LicenseReport(),
-            LibraryInfReport(),
-        ]
+    def AddCommandLineOptions(self, parserObj):
+        parserObj.add_argument("-r", "--report", "--Report", "--REPORT", 
+                               dest="report", action="append", help="Report to run. Can be specified multiple times.")
+        parserObj.add_argument("-s", "--skipparse", "--SkipParse", "--SKIPPARSE",
+                               dest="skipparse", action="store_true", help="Skip parsing the workspace and use the existing database file.")
+        parserObj.add_argument("-d", "--database", "--Database", "--DATABASE",
+                               dest="database", action="store", help="Path to the database file to use. If not specified, the default database file will be used.")
+
+    def RetrieveCommandLineOptions(self, args):
+        self.report_list = args.report
+        self.skip_parse = args.skipparse
+        self.db_path = args.database
 
     def GetSettingsClass(self):
-        return CiBuildSettingsManager
+        return ReportSettingsManager
     
     def GetLoggingFolderRelativeToRoot(self):
         return "Build"
@@ -381,45 +380,58 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
         ws = Path(self.GetWorkspaceRoot())
         env = shell_environment.GetBuildVars()
         pathobj = Edk2Path(self.GetWorkspaceRoot(), self.GetPackagesPath())
-        parsers = self.get_parsers()
-        reports = self.get_reports()
-        db_path = env.GetValue("DB_PATH", None)
-        report = env.GetValue("REPORT", None)
+        db_path = self.db_path or ws / "Build" / "DATABASE.db"
         
-        if db_path:
-            db = TinyDB(db_path, access_mode='r+', storage=CachingMiddleware(JSONStorage))
-        else:
-            db_path = ws / "Build" / f"DATABASE.db"
+        if not self.skip_parse:
             db_path.unlink(missing_ok=True)
-            db = self.generate_database(db_path, parsers, pathobj, env)
+            db = self.generate_database(db_path, pathobj, env)
+        else:
+            db = TinyDB(db_path, access_mode='r+', storage=CachingMiddleware(JSONStorage))
 
-        if report:
-            self.generate_report(report, db, env, reports)
+        print(self.report_list)
+        for to_run in self.report_list:
+            self.generate_report(to_run, db, env)
 
         db.close()
         return 0
     
-    def generate_database(self, db_path, parsers, pathobj, env):
+    def generate_database(self, db_path, pathobj, env):
         
         db = TinyDB(db_path, access_mode='r+', storage=CachingMiddleware(JSONStorage))
-        for parser in parsers:
+        for parser in self.get_parsers():
             tables = {}
             for table in parser.get_tables():
                 tables[table] = db.table(table, cache_size=None)
             
             logging.log(edk2_logging.SECTION, f"Starting parser: [{parser.__class__.__name__}]")
             start = time.time()
-            parser.parse_workspace(tables, self.requested_package_list, pathobj, env)
+            parser.parse_workspace(tables, pathobj, env)
             logging.log(edk2_logging.SECTION, f"Finished in {round(time.time() - start, 2)} seconds.")
 
         return db
     
-    def generate_report(self, report, db, env, reports):
+    def generate_report(self, report, db, env):
         if report:
-            for r in reports:
+            for r in self.get_reports():
                 if r.report_name() == report:
                     r.generate_report(db, env)
                     return
+
+    def get_parsers(self) -> list:
+        "Returns a list of un-instantiated DbDocument subclass parsers."
+        # TODO: Parse plugins to grab any additional parsing that should be done.
+        return [
+            # CParser(),
+            # IParser(),
+            DParser(),
+        ]
+    
+    def get_reports(self) -> list:
+        """Returns a list of report generators."""
+        return [
+            LicenseReport(),
+            LibraryInfReport(),
+        ]
 
     def AssociateFilesWithModules(self, db):
         start_time = time.time()
