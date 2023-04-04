@@ -1,4 +1,5 @@
 import re
+import os
 import logging
 import time
 from textwrap import wrap
@@ -17,9 +18,14 @@ from tinyrecord import transaction
 from edk2toolext.environment import shell_environment
 from edk2toolext.environment.var_dict import VarDict
 from edk2toollib.uefi.edk2.path_utilities import Edk2Path
-
+from edk2toollib.utility_functions import locate_class_in_module
 from edk2toolext.workspace.parsers import CParser, IParser, DParser
 from edk2toolext.workspace.reports import LicenseReport, LibraryInfReport
+from edk2toolext.environment.uefi_build import UefiBuilder
+from edk2toolext.environment.plugintypes.uefi_helper_plugin import HelperFunctions
+from edk2toolext.environment import plugin_manager
+from edk2toolext.environment import self_describing_environment
+import sys
 
 
 class Dsc:
@@ -322,16 +328,19 @@ class Edk2Report(Edk2Invocable):
 
     def AddCommandLineOptions(self, parserObj):
         parserObj.add_argument("-r", "--report", "--Report", "--REPORT", 
-                               dest="report", action="append", help="Report to run. Can be specified multiple times.")
+                               dest="report", action="append", default = [], help="Report to run. Can be specified multiple times.")
         parserObj.add_argument("-s", "--skipparse", "--SkipParse", "--SKIPPARSE",
                                dest="skipparse", action="store_true", help="Skip parsing the workspace and use the existing database file.")
-        parserObj.add_argument("-d", "--database", "--Database", "--DATABASE",
+        parserObj.add_argument("-db", "--database", "--Database", "--DATABASE",
                                dest="database", action="store", help="Path to the database file to use. If not specified, the default database file will be used.")
+        parserObj.add_argument("-dsc", "--dsc", "--DSC",
+                               dest="dsc", action="store", help="Path to the DSC file to use. If not specified, no package specific information will be added to the database.")
 
     def RetrieveCommandLineOptions(self, args):
         self.report_list = args.report
         self.skip_parse = args.skipparse
         self.db_path = args.database
+        self.dsc = args.dsc
 
     def GetSettingsClass(self):
         return ReportSettingsManager
@@ -343,7 +352,7 @@ class Edk2Report(Edk2Invocable):
         return "REPORT"
 
     def GetActiveScopes(self):
-        return ()
+        return ("global",)
     
     def AddParserEpilog(self):
         """Adds an epilog to the end of the argument parser when displaying help information.
@@ -377,26 +386,33 @@ class Edk2Report(Edk2Invocable):
         return custom_epilog
 
     def Go(self):
+        self.setup_workspace_environment()
+
         ws = Path(self.GetWorkspaceRoot())
         env = shell_environment.GetBuildVars()
         pathobj = Edk2Path(self.GetWorkspaceRoot(), self.GetPackagesPath())
         db_path = self.db_path or ws / "Build" / "DATABASE.db"
-        
+
         if not self.skip_parse:
             db_path.unlink(missing_ok=True)
             db = self.generate_database(db_path, pathobj, env)
         else:
             db = TinyDB(db_path, access_mode='r+', storage=CachingMiddleware(JSONStorage))
 
-        print(self.report_list)
         for to_run in self.report_list:
             self.generate_report(to_run, db, env)
 
+        # TEMP FOR TESTING
+        (dsc, fdf) = self.get_package_files(ws, pathobj)
         db.close()
         return 0
     
     def generate_database(self, db_path, pathobj, env):
+        """Runs all defined workspace parsers to generate a database.
         
+        !!! note
+            If Package information (DSC, FDF) is provided, additional package information will be added to the database.
+        """
         db = TinyDB(db_path, access_mode='r+', storage=CachingMiddleware(JSONStorage))
         for parser in self.get_parsers():
             tables = {}
@@ -407,6 +423,9 @@ class Edk2Report(Edk2Invocable):
             start = time.time()
             parser.parse_workspace(tables, pathobj, env)
             logging.log(edk2_logging.SECTION, f"Finished in {round(time.time() - start, 2)} seconds.")
+        
+        if self.get_package_info(self):
+            pass
 
         return db
     
@@ -421,9 +440,9 @@ class Edk2Report(Edk2Invocable):
         "Returns a list of un-instantiated DbDocument subclass parsers."
         # TODO: Parse plugins to grab any additional parsing that should be done.
         return [
-            # CParser(),
-            # IParser(),
-            DParser(),
+            CParser(),
+            IParser(),
+            # DParser(),
         ]
     
     def get_reports(self) -> list:
@@ -432,6 +451,60 @@ class Edk2Report(Edk2Invocable):
             LicenseReport(),
             LibraryInfReport(),
         ]
+
+    def get_package_files(self, ws, pathobj: Edk2Path):
+        """Attempts to get package information via different means."""
+
+        # Attempt 1: Check if the build module contains a UefiBuilder Object
+        # Let the UefiBuilder set the ENV then return the DSC and FDF (if applicable)
+        platform_module = locate_class_in_module(
+                self.PlatformModule, UefiBuilder)
+        if platform_module:
+
+            build_settings = platform_module()
+            build_settings.Clean = False
+            build_settings.SkipPreBuild = True
+            build_settings.SkipBuild = True
+            build_settings.SkipPostBuild = True
+            build_settings.FlashImage = False
+
+            build_settings.Go(self.GetWorkspaceRoot(), os.pathsep.join(self.GetPackagesPath()), self.helper, self.pm)
+            return (None, None) # TODO: do stuff
+        
+        # Attempt 2: Check if the dsc was provided via the command line
+        if self.dsc:
+            return (self.dsc, None)
+        
+        return (None, None)
+
+    def setup_workspace_environment(self):
+        (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(
+            self.GetWorkspaceRoot(), self.GetActiveScopes(), self.GetSkippedDirectories())
+        print(self.GetActiveScopes())
+        # Bind our current execution environment into the shell vars.
+        ph = os.path.dirname(sys.executable)
+        if " " in ph:
+            ph = '"' + ph + '"'
+        shell_env.set_shell_var("PYTHON_HOME", ph)
+        # PYTHON_COMMAND is required to be set for using edk2 python builds.
+        # todo: work with edk2 to remove the bat file and move to native python calls
+        pc = sys.executable
+        if " " in pc:
+            pc = '"' + pc + '"'
+        shell_env.set_shell_var("PYTHON_COMMAND", pc)
+
+        self.pm = plugin_manager.PluginManager()
+        failedPlugins = self.pm.SetListOfEnvironmentDescriptors(
+            build_env.plugins)
+        if failedPlugins:
+            logging.critical("One or more plugins failed to load. Halting build.")
+            for a in failedPlugins:
+                logging.error("Failed Plugin: {0}".format(a["name"]))
+            raise Exception("One or more plugins failed to load.")
+
+        self.helper = HelperFunctions()
+        if (self.helper.LoadFromPluginManager(self.pm) > 0):
+            raise Exception("One or more helper plugins failed to load.")
 
     def AssociateFilesWithModules(self, db):
         start_time = time.time()

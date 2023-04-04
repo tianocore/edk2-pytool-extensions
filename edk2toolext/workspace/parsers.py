@@ -12,6 +12,7 @@ import logging
 import re
 from pathlib import Path
 import time
+from joblib import Parallel, delayed
 
 from edk2toollib.uefi.edk2.path_utilities import Edk2Path
 from edk2toollib.uefi.edk2.parsers.inf_parser import InfParser
@@ -47,22 +48,12 @@ class CParser(WorkspaceParser):
 
         ws = Path(pathobj.WorkspacePath)
         src_table = tables["source"]
-        src_entries = []
         
         start = time.time()
-        count = 0
-        for filename in ws.rglob("*.c"):
-            src_entries.append(self._parse_file(ws, filename))
-            count+= 1
-        logging.debug(f"{self.__class__.__name__}: Parsed {count} .c files took {round(time.time() - start, 2)} seconds.")
-        
-        start = time.time()
-        count = 0
-        for filename in ws.rglob("*.h"):
-            src_entries.append(self._parse_file(ws, filename))
-            count+= 1
-        logging.debug(f"{self.__class__.__name__}: Parsed {count} .h files took {round(time.time() - start, 2)} seconds.")
-        
+        files = list(ws.rglob("*.c")) + list(ws.rglob("*.h"))
+        src_entries = Parallel(n_jobs=-1)(delayed(self._parse_file)(ws, filename) for filename in files)
+        logging.debug(f"{self.__class__.__name__}: Parsed {len(src_entries)} .c/h files took {round(time.time() - start, 2)} seconds.")
+
         start = time.time()
         with transaction(src_table) as tr:
             tr.insert_multiple(src_entries)
@@ -108,33 +99,34 @@ class IParser(WorkspaceParser):
         inf_entries = []
         
         start = time.time()
-        count = 0
-        for filename in ws.glob("**/*.inf"):
-            inf_parser = InfParser().SetEdk2Path(pathobj)
-            inf_parser.ParseFile(filename)
-            count += 1
-            
-            data = {}
-            data["GUID"] = inf_parser.Dict.get("FILE_GUID", "")
-            data["LIBRARY_CLASS"] = inf_parser.LibraryClass
-            data["PATH"] = inf_parser.Path.relative_to(ws).as_posix()
-            data["PHASES"] = inf_parser.SupportedPhases
-            data["SOURCES_USED"] = inf_parser.Sources
-            data["BINARIES_USED"] = inf_parser.Binaries
-            data["LIBRARIES_USED"] = inf_parser.LibrariesUsed
-            data["PROTOCOLS_USED"] = inf_parser.ProtocolsUsed
-            data["GUIDS_USED"] = inf_parser.GuidsUsed
-            data["PPIS_USED"] = inf_parser.PpisUsed
-            data["PCDS_USED"] = inf_parser.PcdsUsed
+        files = list(ws.glob("**/*.inf"))
+        inf_entries = Parallel(n_jobs=-1)(delayed(self._parse_file)(ws, filename, pathobj) for filename in files)
 
-            inf_entries.append(data)
-
-        logging.debug(f"{self.__class__.__name__}: Parsed {count} .inf files took {round(time.time() - start, 2)} seconds.")
+        logging.debug(f"{self.__class__.__name__}: Parsed {len(inf_entries)} .inf files took {round(time.time() - start, 2)} seconds.")
         with transaction(inf_table) as tr:
             tr.insert_multiple(inf_entries)
         logging.debug(f"{self.__class__.__name__}: Adding files to database took {round(time.time() - start, 2)} seconds.")
+    
+    def _parse_file(self, ws, filename, pathobj) -> dict:
+        inf_parser = InfParser().SetEdk2Path(pathobj)
+        inf_parser.ParseFile(filename)
+        
+        data = {}
+        data["GUID"] = inf_parser.Dict.get("FILE_GUID", "")
+        data["LIBRARY_CLASS"] = inf_parser.LibraryClass
+        data["PATH"] = inf_parser.Path.relative_to(ws).as_posix()
+        data["PHASES"] = inf_parser.SupportedPhases
+        data["SOURCES_USED"] = inf_parser.Sources
+        data["BINARIES_USED"] = inf_parser.Binaries
+        data["LIBRARIES_USED"] = inf_parser.LibrariesUsed
+        data["PROTOCOLS_USED"] = inf_parser.ProtocolsUsed
+        data["GUIDS_USED"] = inf_parser.GuidsUsed
+        data["PPIS_USED"] = inf_parser.PpisUsed
+        data["PCDS_USED"] = inf_parser.PcdsUsed
+        
+        return data
 
-
+# This is for specifics
 class DParser(WorkspaceParser):
     """A Workspace parser that parses all dsc files in the workspace and generates a table with the following schema:
     
@@ -156,7 +148,11 @@ class DParser(WorkspaceParser):
         count = 0
         for filename in ws.glob("**/*.dsc"):
             dsc_parser = DscParser().SetEdk2Path(pathobj)
-            dsc_parser.ParseFile(filename)
+            try:
+                dsc_parser.ParseFile(filename)
+            except RuntimeError as e:
+                logging.warning(f"Failed to parse {filename}: {e}")
+                continue
             count += 1
 
             data = {}
