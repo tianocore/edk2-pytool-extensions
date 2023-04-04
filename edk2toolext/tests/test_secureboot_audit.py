@@ -12,8 +12,7 @@ import unittest
 import json
 import tempfile
 
-
-from edk2toolext.windows.secureboot.SecureBootReport import (
+from edk2toolext.windows.secureboot.secureboot_audit import (
     generate_dbx_report,
     filter_revocation_list_by_arch,
     convert_uefi_org_revocation_file_to_dict,
@@ -23,7 +22,13 @@ from edk2toolext.windows.secureboot.SecureBootReport import (
 
 
 # Setup the test directory path
-TEST_DATA_PARENT_DIRECTORY = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "windows", "secureboot", "examples")
+TEST_DATA_PARENT_DIRECTORY = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "..",
+    "windows",
+    "secureboot",
+    "examples"
+)
 TEST_HASH = "80B4D96931BF0D02FD91A61E19D14F1DA452E66DB2408CA8604D411F92659F0A"
 
 
@@ -98,13 +103,12 @@ class TestSecureBootReport(unittest.TestCase):
 
         with open(dbx_report_file, "rb") as dbx_fs:
             dbx_report = json.load(dbx_fs)
-        
+
             with tempfile.TemporaryDirectory() as td:
                 test_file = os.path.join(td, 'test.xlsx')
                 write_xlsx_file(dbx_report, test_file)
 
                 self.assertEqual(os.path.exists(test_file), True)
-
 
     def test_write_json_file(self):
         """Test that we can write a json file"""
@@ -112,7 +116,7 @@ class TestSecureBootReport(unittest.TestCase):
 
         with open(dbx_report_file, "rb") as dbx_fs:
             dbx_report = json.load(dbx_fs)
-        
+
             with tempfile.TemporaryDirectory() as td:
                 test_file = os.path.join(td, 'test.json')
                 write_json_file(dbx_report, test_file)
@@ -123,7 +127,6 @@ class TestSecureBootReport(unittest.TestCase):
                     test_report = json.load(test_fs)
 
                     self.assertEqual(test_report, dbx_report)
-
 
 
 if __name__ == '__main__':
