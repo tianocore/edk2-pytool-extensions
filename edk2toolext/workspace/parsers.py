@@ -48,16 +48,14 @@ class CParser(WorkspaceParser):
 
         ws = Path(pathobj.WorkspacePath)
         src_table = tables["source"]
-        
+
         start = time.time()
         files = list(ws.rglob("*.c")) + list(ws.rglob("*.h"))
         src_entries = Parallel(n_jobs=-1)(delayed(self._parse_file)(ws, filename) for filename in files)
-        logging.debug(f"{self.__class__.__name__}: Parsed {len(src_entries)} .c/h files took {round(time.time() - start, 2)} seconds.")
+        logging.debug(f"{self.__class__.__name__}: Parsed {len(src_entries)} .c/h files; took {round(time.time() - start, 2)} seconds.")
 
-        start = time.time()
         with transaction(src_table) as tr:
             tr.insert_multiple(src_entries)
-        logging.debug(f"{self.__class__.__name__}: Adding files to database took {round(time.time() - start, 2)} seconds.")
     
     def get_tables(self) -> list[str]:
         """Return a list of tables that should be provided to the parser."""
@@ -72,7 +70,7 @@ class CParser(WorkspaceParser):
                 if match:
                     license = match.group(1)
                     break
-        
+
         return {
             "PATH": filename.relative_to(ws).as_posix(),
             "LICENSE": license,
@@ -101,11 +99,10 @@ class IParser(WorkspaceParser):
         start = time.time()
         files = list(ws.glob("**/*.inf"))
         inf_entries = Parallel(n_jobs=-1)(delayed(self._parse_file)(ws, filename, pathobj) for filename in files)
-
-        logging.debug(f"{self.__class__.__name__}: Parsed {len(inf_entries)} .inf files took {round(time.time() - start, 2)} seconds.")
+        logging.debug(f"{self.__class__.__name__}: Parsed {len(inf_entries)} .inf files took; {round(time.time() - start, 2)} seconds.")
+        
         with transaction(inf_table) as tr:
             tr.insert_multiple(inf_entries)
-        logging.debug(f"{self.__class__.__name__}: Adding files to database took {round(time.time() - start, 2)} seconds.")
     
     def _parse_file(self, ws, filename, pathobj) -> dict:
         inf_parser = InfParser().SetEdk2Path(pathobj)
@@ -126,44 +123,16 @@ class IParser(WorkspaceParser):
         
         return data
 
-# This is for specifics
+
 class DParser(WorkspaceParser):
-    """A Workspace parser that parses all dsc files in the workspace and generates a table with the following schema:
-    
-    table_name: "dsc"
-    |-------------------------------|
-    | PATH | COMPONENTS | LIBRARIES |
-    |-------------------------------|
-    """
+    """A Workspace parser that parses A signle DSC / FDF file and generates a table with the following schema:"""
 
     def get_tables(self) -> list[str]:
-        return ["dsc"]
+        return ["instance_inf"]
     
     def parse_workspace(self, tables: dict[str, Table], pathobj: Edk2Path, env: VarDict) -> None:
         ws = Path(pathobj.WorkspacePath)
-        dsc_table = tables["dsc"]
-        dsc_entries = []
+        dsc = env.GetValue("ACTIVE_PLATFORM")
+        fdf = env.GetValue("FLASH_DEFINITION")
 
-        start = time.time()
-        count = 0
-        for filename in ws.glob("**/*.dsc"):
-            dsc_parser = DscParser().SetEdk2Path(pathobj)
-            try:
-                dsc_parser.ParseFile(filename)
-            except RuntimeError as e:
-                logging.warning(f"Failed to parse {filename}: {e}")
-                continue
-            count += 1
-
-            data = {}
-            data["PATH"] = filename.relative_to(ws).as_posix()
-            data["COMPONENTS"] = dsc_parser.GetMods() + dsc_parser.OtherMods
-            data["LIBRARIES"] = dsc_parser.GetLibs()
-            
-            dsc_entries.append(data)
-        logging.debug(f"{self.__class__.__name__}: Parsed {count} .dsc files took {round(time.time() - start, 2)} seconds.")
-
-        start = time.time()
-        with transaction(dsc_table) as tr:
-            tr.insert_multiple(dsc_entries)
-        logging.debug(f"{self.__class__.__name__}: Adding files to database took {round(time.time() - start, 2)} seconds.") 
+        dsc_parser = DscParser().SetEdk2Path(pathobj)

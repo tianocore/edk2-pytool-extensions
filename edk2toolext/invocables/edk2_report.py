@@ -1,32 +1,30 @@
-import re
-import os
 import logging
+import os
+import re
 import time
+from pathlib import Path
 from textwrap import wrap
 from typing import Union
-from tinydb import TinyDB, Query, where
-from tinydb.operations import add
-from tinydb.storages import JSONStorage
+
+from tinydb import TinyDB
 from tinydb.middlewares import CachingMiddleware
-from edk2toolext.edk2_invocable import Edk2Invocable, Edk2InvocableSettingsInterface
-from edk2toolext.invocables.edk2_ci_build import CiBuildSettingsManager
+from tinydb.storages import JSONStorage
+
 from edk2toolext import edk2_logging
-from pathlib import Path
-from edk2toollib.uefi.edk2.parsers.inf_parser import InfParser
-from edk2toollib.uefi.edk2.parsers.dsc_parser import DscParser
-from tinyrecord import transaction
-from edk2toolext.environment import shell_environment
-from edk2toolext.environment.var_dict import VarDict
-from edk2toollib.uefi.edk2.path_utilities import Edk2Path
-from edk2toollib.utility_functions import locate_class_in_module
-from edk2toolext.workspace.parsers import CParser, IParser, DParser
-from edk2toolext.workspace.reports import LicenseReport, LibraryInfReport
+from edk2toolext.edk2_invocable import Edk2Invocable, Edk2InvocableSettingsInterface
 from edk2toolext.environment.uefi_build import UefiBuilder
 from edk2toolext.environment.plugintypes.uefi_helper_plugin import HelperFunctions
 from edk2toolext.environment import plugin_manager
-from edk2toolext.environment import self_describing_environment
-import sys
+from edk2toolext.environment import shell_environment
+from edk2toolext.environment.var_dict import VarDict
+from edk2toolext.workspace.parsers import CParser, IParser, DParser
+from edk2toolext.workspace.reports import LicenseReport, LibraryInfReport
 
+from edk2toollib.uefi.edk2.path_utilities import Edk2Path
+from edk2toollib.uefi.edk2.parsers.inf_parser import InfParser
+from edk2toollib.uefi.edk2.parsers.dsc_parser import DscParser
+from edk2toollib.uefi.edk2.parsers.fdf_parser import FdfParser
+from edk2toollib.utility_functions import locate_class_in_module
 
 class Dsc:
     """An object which parses a DSC file and generates a database from it.
@@ -325,6 +323,19 @@ class Dsc:
 class ReportSettingsManager(Edk2InvocableSettingsInterface):
     pass
 class Edk2Report(Edk2Invocable):
+    """An invocable used to parse the environment and run reports.
+    
+    By default, the workspace will be generically parsed and any report generated will use the generic workspace
+    information available. To generate Platform / DSC scoped reports, either:
+    
+    1. Set the DSC via thethe command line when running the invocable:
+    
+        `stuart_report -c <path/to/settings.py> ACTIVE_PLATFORM=<path/to/dsc>`,
+
+    2. Run `stuart_report` using the platform build file:
+
+        `stuart_report -c <path/to/PlatformBuild.py>`
+    """
 
     def AddCommandLineOptions(self, parserObj):
         parserObj.add_argument("-r", "--report", "--Report", "--REPORT", 
@@ -334,7 +345,7 @@ class Edk2Report(Edk2Invocable):
         parserObj.add_argument("-db", "--database", "--Database", "--DATABASE",
                                dest="database", action="store", help="Path to the database file to use. If not specified, the default database file will be used.")
         parserObj.add_argument("-dsc", "--dsc", "--DSC",
-                               dest="dsc", action="store", help="Path to the DSC file to use. If not specified, no package specific information will be added to the database.")
+                               dest="dsc", action="store", help="Path to the DSC file to use. If not specified, No DSC / FDF specific tables will be generated.")
 
     def RetrieveCommandLineOptions(self, args):
         self.report_list = args.report
@@ -386,28 +397,26 @@ class Edk2Report(Edk2Invocable):
         return custom_epilog
 
     def Go(self):
-        self.setup_workspace_environment()
-
-        ws = Path(self.GetWorkspaceRoot())
-        env = shell_environment.GetBuildVars()
-        pathobj = Edk2Path(self.GetWorkspaceRoot(), self.GetPackagesPath())
-        db_path = self.db_path or ws / "Build" / "DATABASE.db"
+        self.ws = Path(self.GetWorkspaceRoot())
+        self.env = shell_environment.GetBuildVars()
+        self.pathobj = Edk2Path(self.GetWorkspaceRoot(), self.GetPackagesPath())
+        self.set_env()
+        
+        db_path = self.db_path or self.ws / "Build" / "DATABASE.db"
 
         if not self.skip_parse:
             db_path.unlink(missing_ok=True)
-            db = self.generate_database(db_path, pathobj, env)
+            db = self.generate_database(db_path)
         else:
             db = TinyDB(db_path, access_mode='r+', storage=CachingMiddleware(JSONStorage))
 
         for to_run in self.report_list:
-            self.generate_report(to_run, db, env)
+            self.generate_report(to_run, db)
 
-        # TEMP FOR TESTING
-        (dsc, fdf) = self.get_package_files(ws, pathobj)
         db.close()
         return 0
     
-    def generate_database(self, db_path, pathobj, env):
+    def generate_database(self, db_path):
         """Runs all defined workspace parsers to generate a database.
         
         !!! note
@@ -421,19 +430,16 @@ class Edk2Report(Edk2Invocable):
             
             logging.log(edk2_logging.SECTION, f"Starting parser: [{parser.__class__.__name__}]")
             start = time.time()
-            parser.parse_workspace(tables, pathobj, env)
+            parser.parse_workspace(tables, self.pathobj, self.env)
             logging.log(edk2_logging.SECTION, f"Finished in {round(time.time() - start, 2)} seconds.")
-        
-        if self.get_package_info(self):
-            pass
 
         return db
     
-    def generate_report(self, report, db, env):
+    def generate_report(self, report, db):
         if report:
             for r in self.get_reports():
                 if r.report_name() == report:
-                    r.generate_report(db, env)
+                    r.generate_report(db, self.env)
                     return
 
     def get_parsers(self) -> list:
@@ -442,7 +448,7 @@ class Edk2Report(Edk2Invocable):
         return [
             CParser(),
             IParser(),
-            # DParser(),
+            DParser(),
         ]
     
     def get_reports(self) -> list:
@@ -452,76 +458,47 @@ class Edk2Report(Edk2Invocable):
             LibraryInfReport(),
         ]
 
-    def get_package_files(self, ws, pathobj: Edk2Path):
-        """Attempts to get package information via different means."""
+    def set_env(self):
+        """Parses a DSC / FDF file (if available) to set all env variables."""
 
-        # Attempt 1: Check if the build module contains a UefiBuilder Object
-        # Let the UefiBuilder set the ENV then return the DSC and FDF (if applicable)
-        platform_module = locate_class_in_module(
-                self.PlatformModule, UefiBuilder)
-        if platform_module:
 
-            build_settings = platform_module()
-            build_settings.Clean = False
-            build_settings.SkipPreBuild = True
-            build_settings.SkipBuild = True
-            build_settings.SkipPostBuild = True
-            build_settings.FlashImage = False
-
-            build_settings.Go(self.GetWorkspaceRoot(), os.pathsep.join(self.GetPackagesPath()), self.helper, self.pm)
-            return (None, None) # TODO: do stuff
-        
-        # Attempt 2: Check if the dsc was provided via the command line
+        # Attempt 1: If ACTIVE_PLATFORM has been set via the command line, parse that.
         if self.dsc:
-            return (self.dsc, None)
+            input_vars = self.env.GetAllNonBuildKeyValues() | self.env.GetAllBuildKeyValues()
+
+            dscp = DscParser().SetEdk2Path(self.pathobj).SetInputVars(input_vars)
+            dscp.ParseFile(self.dsc)
+            for key, value in dscp.LocalVars.items():
+                self.env.SetValue(key, value, "From Platform DSC File", True)
         
-        return (None, None)
+        if self.env.GetValue("FLASH_DEFINITION", None):
+            input_vars = self.env.GetAllNonBuildKeyValues() | self.env.GetAllBuildKeyValues()
 
-    def setup_workspace_environment(self):
-        (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(
-            self.GetWorkspaceRoot(), self.GetActiveScopes(), self.GetSkippedDirectories())
-        print(self.GetActiveScopes())
-        # Bind our current execution environment into the shell vars.
-        ph = os.path.dirname(sys.executable)
-        if " " in ph:
-            ph = '"' + ph + '"'
-        shell_env.set_shell_var("PYTHON_HOME", ph)
-        # PYTHON_COMMAND is required to be set for using edk2 python builds.
-        # todo: work with edk2 to remove the bat file and move to native python calls
-        pc = sys.executable
-        if " " in pc:
-            pc = '"' + pc + '"'
-        shell_env.set_shell_var("PYTHON_COMMAND", pc)
-
-        self.pm = plugin_manager.PluginManager()
-        failedPlugins = self.pm.SetListOfEnvironmentDescriptors(
-            build_env.plugins)
-        if failedPlugins:
-            logging.critical("One or more plugins failed to load. Halting build.")
-            for a in failedPlugins:
-                logging.error("Failed Plugin: {0}".format(a["name"]))
-            raise Exception("One or more plugins failed to load.")
-
-        self.helper = HelperFunctions()
-        if (self.helper.LoadFromPluginManager(self.pm) > 0):
-            raise Exception("One or more helper plugins failed to load.")
-
-    def AssociateFilesWithModules(self, db):
-        start_time = time.time()
-
-        module_table = db.table('modules')
-        file_table = db.table('files')
-
-        with transaction(file_table) as tr:
-            for doc_list in module_table.search(Query().SourceFiles.exists()):
-                module_dir = Path(doc_list["Path"]).parent
-                module_name = doc_list["Name"]
-                
-                for source in doc_list["SourceFiles"]:
-                    src_file = module_dir / source
-                    tr.update(add("Modules", [module_name]), where('Path') == str(src_file))
+            fdfp = FdfParser().SetEdk2Path(self.pathobj).SetInputVars(input_vars)
+            fdfp.ParseFile(self.env.GetValue("FLASH_DEFINITION", None))
+            for key, value in fdfp.LocalVars.items():
+                self.env.SetValue(key, value, "From Platform DSC File", True)
         
-        logging.info(f"Associated Source Files with Modules in {round(time.time() - start_time, 2)} seconds.")
+        # If Active platform is set then it has been parsed and we can return
+        if self.env.GetValue("ACTIVE_PLATFORM", None):
+            return
+        
+        # Attempt 2: Check if the build module contains a UefiBuilder Object
+        # Let the UefiBuilder set the ENV then return the DSC and FDF (if applicable)
+        try:
+            logging.disable(logging.CRITICAL) # Disable logging when running the UefiBuilder.
+            platform_module = locate_class_in_module(self.PlatformModule, UefiBuilder)
+            if platform_module:
+                build_settings = platform_module()
+                build_settings.Clean = False
+                build_settings.SkipPreBuild = True
+                build_settings.SkipBuild = True
+                build_settings.SkipPostBuild = True
+                build_settings.FlashImage = False
+                build_settings.Go(self.GetWorkspaceRoot(), os.pathsep.join(self.GetPackagesPath()), HelperFunctions(), plugin_manager.PluginManager())
+        finally:
+            logging.disable(logging.NOTSET)
+        return
 
 def main():
     Edk2Report().Invoke()
