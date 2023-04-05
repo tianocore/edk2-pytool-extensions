@@ -32,7 +32,7 @@ from edk2toollib.uefi.authenticated_variables_structure_support import (
 if sys.platform == "win32":
     KERNEL32 = ctypes.windll.kernel32
     EFI_VAR_MAX_BUFFER_SIZE = 1024 * 1024
-    
+
 DEFAULT_OUTPUT_FOLDER = os.path.join(".", "SecureBootFiles")
 
 # The supported files to retrieve from UEFI and their guids, additional files can be added here
