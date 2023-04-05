@@ -1,12 +1,13 @@
-# @file
-#
+# @file This file tests secureboot_audit.py script
 # Command-line tool for inspecting UEFI Secure Boot databases
 # Requires "pip install edk2-pytool-extensions"
-#
+##
 # Copyright (c) Microsoft Corporation
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""Command-line tool for inspecting UEFI Secure Boot databases."""
+
 import argparse
 import logging
 import sys
@@ -53,18 +54,20 @@ logger.setLevel(logging.INFO)
 ###################################################################################################
 
 
-def write_json_file(data, output_file):
+def write_json_file(report, output_file):
     """Writes a JSON file.
 
-    :param data: Data to write
-    :param output_file: Output file to write to
+    Args:
+        data (dict): Data to write
+        output_file (str): Output file to write to
 
-    :return: None
+    Returns:
+        None
     """
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
-    with open(output_file, "w") as f:
-        f.write(json.dumps(data, indent=4))
+    with open(output_file, "w", encoding="utf-8") as f:
+        f.write(json.dumps(report, indent=4))
 
     logger.info("Wrote report to %s", output_file)
 
@@ -72,12 +75,13 @@ def write_json_file(data, output_file):
 def write_xlsx_file(report, output_file):
     """Writes an XLSX file.
 
-    :param data: Data to write
-    :param output_file: Output file to write to
+    Args:
+        report (dict): Data to write
+        output_file (str): Output file to write to
 
-    :return: None
+    Returns:
+        None
     """
-
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
     workbook = xlsxwriter.Workbook(output_file)
@@ -92,8 +96,8 @@ def write_xlsx_file(report, output_file):
             headers = ["authenticode_hash"]
 
             # Build up the field headers in the dictionary
-            for hash in report[page]["dict"]:
-                for field in report[page]["dict"][hash]:
+            for auth_hash in report[page]["dict"]:
+                for field in report[page]["dict"][auth_hash]:
                     if field not in headers:
                         headers.append(field)
                 # Only need to iterate through one hash
@@ -103,18 +107,18 @@ def write_xlsx_file(report, output_file):
             worksheet.write_row(row, col, headers)
             row += 1
 
-            for hash in report[page]["dict"]:
+            for auth_hash in report[page]["dict"]:
                 # Write the hash
-                worksheet.write(row, col, hash)
+                worksheet.write(row, col, auth_hash)
                 col += 1
 
                 # Write the fields
                 for field in headers[1:]:  # Skip the hash
-                    if field not in report[page]["dict"][hash]:
+                    if field not in report[page]["dict"][auth_hash]:
                         col += 1
                         continue
 
-                    data = report[page]["dict"][hash][field]
+                    data = report[page]["dict"][auth_hash][field]
                     if isinstance(data, list):
                         data = ", ".join(data)
 
@@ -130,8 +134,8 @@ def write_xlsx_file(report, output_file):
             worksheet.write_row(row, col, headers)
             row += 1
 
-            for hash in report[page]["list"]:
-                worksheet.write(row, col, hash)
+            for auth_hash in report[page]["list"]:
+                worksheet.write(row, col, auth_hash)
                 row += 1
 
     workbook.close()
@@ -139,9 +143,15 @@ def write_xlsx_file(report, output_file):
     logger.info("Wrote report to %s", output_file)
 
 
-def convert_uefi_org_revocation_file_to_dict(file):
-    """Converts the excel file to json."""
+def convert_uefi_org_revocation_file_to_dict(file) -> dict:
+    """Converts the excel file to json.
 
+    Args:
+        file (str): Path to the excel file
+
+    Returns:
+        dict: The data from the excel file
+    """
     data = {}
 
     wb = openpyxl.load_workbook(file)
@@ -190,9 +200,13 @@ def convert_uefi_org_revocation_file_to_dict(file):
 
 
 def convert_uefi_org_file(args):
-    """
-    Converts the excel file to json.
+    """Converts the excel file to json.
 
+    Args:
+        args (argparse.Namespace): The arguments
+
+    Returns:
+        None
     """
     metadata = convert_uefi_org_revocation_file_to_dict(args.uefi_org_excel_file)
 
@@ -204,7 +218,7 @@ def convert_uefi_org_file(args):
     logger.info("Wrote report to %s", args.output)
 
 
-def generate_dbx_report(dbx_fs, revocations):
+def generate_dbx_report(dbx_fs, revocations) -> dict:
     """Generates a report of the dbx.
 
     Args:
@@ -214,7 +228,6 @@ def generate_dbx_report(dbx_fs, revocations):
     Returns:
         dict: The report
     """
-
     report = {
         "identified": {
             "dict": {},
@@ -234,8 +247,8 @@ def generate_dbx_report(dbx_fs, revocations):
     }
 
     dbx = EfiSignatureDatabase(dbx_fs)
-    for Esl in dbx.EslList:
-        for signature in Esl.SignatureData_List:
+    for signature_list in dbx.EslList:
+        for signature in signature_list.SignatureData_List:
             formatted_signature = ""
             for byte in signature.SignatureData:
                 formatted_signature += f"{byte:02X}"
@@ -281,9 +294,8 @@ def generate_dbx_report(dbx_fs, revocations):
     return report
 
 
-def filter_revocation_list_by_arch(revocations, filter_by_arch=None):
-    """
-    Filters the revocation list by architecture
+def filter_revocation_list_by_arch(revocations, filter_by_arch=None) -> dict:
+    """Filters the revocation list by architecture.
 
     Args:
         revocations (dict): The revocation list
@@ -292,7 +304,6 @@ def filter_revocation_list_by_arch(revocations, filter_by_arch=None):
     Returns:
         dict: The filtered revocation list
     """
-
     # Filter the revocations by arch if requested
     if filter_by_arch:
         filter_revocations = {}
@@ -310,7 +321,10 @@ def filter_revocation_list_by_arch(revocations, filter_by_arch=None):
 
 
 class FirmwareVariables(object):
+    """Class to interact with firmware variables."""
+
     def __init__(self):
+        """Constructor."""
         # enable required SeSystemEnvironmentPrivilege privilege
         privilege = win32security.LookupPrivilegeValue(
             None, "SeSystemEnvironmentPrivilege"
@@ -386,7 +400,6 @@ def get_secureboot_files(args):
     Returns:
         0 on success
     """
-
     if sys.platform != "win32":
         raise NotImplementedError("This function is only implemented for Windows")
 
@@ -418,7 +431,6 @@ def parse_dbx(args):
     Returns:
         0 on success
     """
-
     report = {}
     with open(args.revocations_file, "r", encoding="utf-8") as rev_fs:
         revocations = json.loads(rev_fs.read())
@@ -448,8 +460,7 @@ def setup_parse_dbx(subparsers):
         subparsers (ArgumentParser): the subparsers object from the ArgumentParser
 
     Returns:
-        subparsers
-
+        subparsers (ArgumentParser): the subparsers object from the ArgumentParser
     """
     parser = subparsers.add_parser("parse_dbx")
     parser.set_defaults(function=parse_dbx)
@@ -470,7 +481,8 @@ def setup_parse_dbx(subparsers):
 
     parser.add_argument(
         "--output",
-        help="Output file to write the dbx contents to (note: extension will be based on the format)",
+        help="Output file to write the dbx contents to"
+        + " (note: extension will be based on the format)",
         default=os.path.join(DEFAULT_OUTPUT_FOLDER, "dbx_report"),
     )
 
@@ -491,9 +503,8 @@ def setup_parse_uefi_org_files(subparsers):
         subparsers (ArgumentParser): the subparsers object from the ArgumentParser
 
     Returns:
-        subparsers
+        subparsers (ArgumentParser): the subparsers object from the ArgumentParser
     """
-
     parser = subparsers.add_parser("convert_file")
     parser.set_defaults(function=convert_uefi_org_file)
 
@@ -518,8 +529,7 @@ def setup_get_secureboot_files(subparsers):
         subparsers (ArgumentParser): the subparsers object from the ArgumentParser
 
     Returns:
-        subparsers
-
+        subparsers (ArgumentParser): the subparsers object from the ArgumentParser
     """
     parser = subparsers.add_parser("get")
     parser.set_defaults(function=get_secureboot_files)

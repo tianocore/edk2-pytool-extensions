@@ -45,7 +45,7 @@ Flags:
                     "flat_hash_sha256": "2DF05C41ACC56D0F4C9371DA62EC6CB311C9AFB84B4A4D8C3738583CCC874D38",
                     "component": "BOOTX64.EFI",
                     "arch": "x86_64",
-                    "partner": " Ciscso Systems Inc.",
+                    "partner": " Cisco Systems Inc.",
                     "type": "authenticode",
                     "cves": "CVE-2020-10713; CVE-2020-14308; CVE-2020-14309; CVE-2020-14310; CVE-2020-14311; CVE-2020-15705; CVE-2020-15706; CVE-2020-15707",
                     "date": "July 2020",

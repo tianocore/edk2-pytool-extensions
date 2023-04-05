@@ -24,6 +24,7 @@
         "bdist",
         "bing",
         "Boothole",
+        "BOOTX",
         "Buildid",
         "buildlog",
         "buildreport",
@@ -37,6 +38,7 @@
         "coveragerc",
         "CREDENTIALPROVIDERS",
         "creds",
+        "cves",
         "dbxupdate",
         "deduplicated",
         "depex",
@@ -83,6 +85,7 @@
         "omnicache",
         "OPROM",
         "ovmf",
+        "openpyxl",
         "packagename",
         "Pathsep",
         "Pdbs",
@@ -103,6 +106,7 @@
         "pytool",
         "pytools",
         "pyyaml",
+        "pywintypes",
         "qemu",
         "raspberrypi",
         "repoconfig",
@@ -128,8 +132,10 @@
         "unittest",
         "UPDATELOG",
         "urlunsplit",
+        "uefiorg",
         "venv",
         "vsts",
-        "xffd"
+        "xffd",
+        "xlsxwriter",
     ]
 }
