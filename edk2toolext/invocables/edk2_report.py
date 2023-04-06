@@ -330,7 +330,7 @@ class Edk2Report(Edk2Invocable):
     
     1. Set the DSC via thethe command line when running the invocable:
     
-        `stuart_report -c <path/to/settings.py> ACTIVE_PLATFORM=<path/to/dsc>`,
+        `stuart_report -c <path/to/settings.py> -dsc <path/to/dsc>`,
 
     2. Run `stuart_report` using the platform build file:
 
@@ -446,8 +446,8 @@ class Edk2Report(Edk2Invocable):
         "Returns a list of un-instantiated DbDocument subclass parsers."
         # TODO: Parse plugins to grab any additional parsing that should be done.
         return [
-            CParser(),
-            IParser(),
+            # CParser(),
+            # IParser(),
             DParser(),
         ]
     
@@ -464,6 +464,7 @@ class Edk2Report(Edk2Invocable):
 
         # Attempt 1: If ACTIVE_PLATFORM has been set via the command line, parse that.
         if self.dsc:
+            self.env.SetValue("ACTIVE_PLATFORM", self.dsc, "From Command Line", True)
             input_vars = self.env.GetAllNonBuildKeyValues() | self.env.GetAllBuildKeyValues()
 
             dscp = DscParser().SetEdk2Path(self.pathobj).SetInputVars(input_vars)
