@@ -81,6 +81,139 @@ class _InfParser(InfP):
             libraries + self.ScopedLibraryDict.get(arch, []).copy()
         return list(set(libraries))
 
+class _DscParser(DscP):
+    """A subclass of the Dsc Parser that takes into account the architecture."""
+    SECTION_LIBRARY = "LibraryClasses"
+    SECTION_COMPONENT = "Components"
+    SECTION_REGEX = re.compile(r"\[(.*)\]")
+    OVERRIDE_REGEX = re.compile(r"\<(.*)\>")
+
+    def __init__(self):
+        super().__init__()
+        self.Components = []
+        self.ScopedLibraryDict = {}
+
+    def ParseFile(self, filepath):
+        super().ParseFile(filepath)
+        self._parse_libraries()
+        self._parse_components()
+    
+    def _parse_libraries(self):
+        """Builds a lookup table of all possible library instances depending on scope.
+        
+        The following is the key/value pair:
+        key: The library class name with the scope appended. Examples below:
+            $(LIB_NAME).$(ARCH).$(MODULE_TYPE)
+            $(LIB_NAME).common.$(MODULE_TYPE)
+            $(LIB_NAME).$(ARCH)
+            $(LIB_NAME).common
+        """
+        current_scope = []
+        lines = iter(self.Lines)
+
+        try:
+            while True:
+                line = next(lines)
+                current_scope = self._get_current_scope(current_scope, line, self.SECTION_LIBRARY)
+                
+                # The current section is not SECTION_LIBRARY, so we have no valid scopes. continue to next line.
+                if not current_scope:
+                    continue
+                
+                # This line is starting a new section with a new scope. Start reading the new line
+                if self.SECTION_REGEX.match(line):
+                    continue
+                
+                # We are in a valid section, so lets parse the line and add it to our dictionary.
+                lib, instance = tuple(line.split("|"))
+                for scope in current_scope:
+                    key = f"{scope.strip()}.{lib.strip()}"
+                    value = instance.strip()
+                    self.ScopedLibraryDict[key] = value
+        except StopIteration:
+            return
+
+    def _parse_components(self):
+        current_scope = []
+        lines = iter(self.Lines)
+
+        try:
+            while True:
+                line = next(lines)
+ 
+                current_scope = self._get_current_scope(current_scope, line, self.SECTION_COMPONENT)
+                library_override_dict = {"NULL": []}
+
+                # The current section is not SECTION_COMPONENT, so we have no valid scopes. continue to next line.
+                if not current_scope:
+                    continue
+                
+                # This line is starting a new section with a new scope. Start reading the new line
+                if self.SECTION_REGEX.match(line):
+                    continue
+                
+                # This component has overrides we need to handle
+                if line.strip().endswith("{"):
+                    line = str(line)
+                    library_override_dict = self._build_library_override_dictionary(lines)
+                self.Components.append((line.strip(" {"), current_scope[0], library_override_dict))
+
+        except StopIteration:
+            return
+
+    def _get_current_scope(self, scope_list: list[str], line, section_type: str) -> list[str]:
+        """Returns the list of scopes that this line is in, as long as the section_type is correct.
+        
+        Scopes can be different depending on the section type. Component sections can only
+        contain a single scope, but library sections can contain multiple scopes.
+
+        !!! warning
+            The returned list of scopes does not include the section type.
+        """
+        match = self.SECTION_REGEX.match(line)
+
+        # If the line is not a section header, return the old section
+        if not match:
+            return scope_list
+        
+        # If the line is a section header, but not the correct section type, return []
+        elif not match.group().startswith(f"[{section_type}"):
+            return []
+        
+        # The line must be a section header and of the correct section type. Return it
+        current_section = []
+        section_list = match.group().strip("[]").split(",")
+
+        for section in section_list:
+            # Remove the section type and strip the leftover '.'. If it's empty after that, then it is actually "common"
+            current_section.append(section.replace(section_type, "").strip().lstrip(".") or "common")
+        return current_section
+
+    def _build_library_override_dictionary(self, lines):
+        library_override_dictionary = {"NULL": []}
+        section = ""
+
+        line = next(lines)
+        while line.strip() != "}":
+            if self.OVERRIDE_REGEX.match(line) and line == f"<{self.SECTION_LIBRARY}>":
+                section = self.SECTION_LIBRARY
+                line = next(lines)
+                continue
+            if self.OVERRIDE_REGEX.match(line) and line != f"<{self.SECTION_LIBRARY}>":
+                # TODO: Let the section be something else like PCD overrides
+                section = ""
+                line = next(lines)
+                continue
+            if section == self.SECTION_LIBRARY:
+                lib, instance = tuple(line.split("|"))
+
+                if lib.strip() == "NULL":
+                    library_override_dictionary["NULL"].append(instance.strip())
+                else:
+                    library_override_dictionary[lib.strip()] = instance.strip()
+            
+            line = next(lines)
+        return library_override_dictionary
 class WorkspaceParser:
     """An interface for a workspace parser."""
 
@@ -198,142 +331,57 @@ class DParser(WorkspaceParser):
         self.fdf = env.GetValue("FLASH_DEFINITION")
         self.arch = env.GetValue("ARCH").split(" ")
 
-
         if not self.dsc:
             logging.debug("No Active Platform Set, Skipping DSC Parser")
             return
 
-        # Parse the DSC
-        dscp = DscP().SetEdk2Path(self.pathobj)
+        # Our DscParser subclass can now parse components, their scope, and their overrides
+        dscp = _DscParser().SetEdk2Path(self.pathobj)
         dscp.SetInputVars(env.GetAllBuildKeyValues() | env.GetAllNonBuildKeyValues())
         dscp.ParseFile(self.dsc)
 
-        library_dict = self._build_library_dictionary(dscp)
-        component_dict = self._build_component_dict(dscp, library_dict)
-
+        # Create the instanced inf entries, including components and libraries. multiple entries
+        # of the same library will exist if multiple components use it. 
+        # 
+        # This is where we merge DSC parser information with INF parser information.
+        inf_table_entries = self.build_inf_table(dscp)
     
-    def _build_library_dictionary(self, dscp: DscP) -> dict:
-        """Builds a dictonary that contains all library classes in the DSC.
+    def build_inf_table(self, dscp: _DscParser):
         
-        The following is the key/value pair:
-        key: The library class name with the scope appended. Examples below:
-            $(LIB_NAME).$(ARCH).$(MODULE_TYPE)
-            $(LIB_NAME).common.$(MODULE_TYPE)
-            $(LIB_NAME).$(ARCH)
-            $(LIB_NAME).common
+        inf_entries = []
+        for (inf, scope, overrides) in dscp.Components:
+            infp = _InfParser().SetEdk2Path(self.pathobj)
+            infp.ParseFile(inf)
+            # scope for libraries need to contain the MODULE_TYPE also, so we will append it, if it exists
+            if "MODULE_TYPE" in infp.Dict:
+                scope += f".{infp.Dict['MODULE_TYPE']}"
+
+            inf_entries += self.parse_inf_recursively(inf, inf, inf, dscp.ScopedLibraryDict, overrides, scope, [])
+        
+        # Move entries to correct table
+        libs = []
+        comps = []
+        for entry in inf_entries:
+            if entry["PATH"] == entry["COMPONENT"]:
+                del entry["COMPONENT"]
+                comps.append(entry)
+            else:
+                libs.append(entry)
+
+        for comp in comps:
+            name = comp["PATH"]
+            x = len(list(filter(lambda lib: lib["COMPONENT"] == name, libs)))
+            print(f"[{name}] uses {x} libraries!")
+        # for lib in libs:
+        #     logging.debug(lib["COMPONENT"], lib["PATH"])
+        
+
+    def parse_inf_recursively(self, inf: str, component: str, parent, library_dict: dict, override_dict: dict, scope: str, visited):
+        """Recurses down all libraries starting from a single INF.
+        
+        Will immediately return if the INF has already been visited.
         """
-        library_dict = {}
-        current_scope = []
-        lines = iter(dscp.Lines)
-
-        # The DSC Parser does not take into account the library scope, so we partially reparse the file.
-        try:
-            while True:
-                line = next(lines)
-                current_scope = self._get_current_scope(current_scope, line, self.SECTION_LIBRARY)
-                
-                # The current section is not SECTION_LIBRARY, so we have no valid scopes. continue to next line.
-                if not current_scope:
-                    continue
-                
-                # This line is starting a new section with a new scope. Start reading the new line
-                if self.SECTION_REGEX.match(line):
-                    continue
-                
-                # We are in a valid section, so lets parse the line and add it to our dictionary.
-                lib, instance = tuple(line.split("|"))
-                for scope in current_scope:
-                    key = f"{scope.strip()}.{lib.strip()}"
-                    value = instance.strip()
-                    library_dict[key] = value
-
-        except StopIteration:
-            return library_dict
-    
-    def _build_component_dict(self, dscp: DscP, library_dict: dict) -> dict:
-        component_dict = {}
-        current_scope = []
-        lines = iter(dscp.Lines)
-
-        try:
-            while True:
-                line = next(lines)
-                current_scope = self._get_current_scope(current_scope, line, self.SECTION_COMPONENT)
-                library_override_dict = {"NULL": []}
-
-                # The current section is not SECTION_COMPONENT, so we have no valid scopes. continue to next line.
-                if not current_scope:
-                    continue
-                
-                # This line is starting a new section with a new scope. Start reading the new line
-                if self.SECTION_REGEX.match(line):
-                    continue
-
-                # We are in a valid section, so lets parse the line and add it to our dictionary.
-                
-                # This component has overrides we need to handle
-                if line.strip().endswith("{"):
-                    line = str(line)
-                    library_override_dict = self._build_library_override_dictionary(lines)
-                
-                (component, library_list) = self._parse_component_inf(line.strip(" {"), library_dict, library_override_dict, current_scope)
-
-        except StopIteration:
-            return component_dict
-
-    def _get_current_scope(self, scope_list: list[str], line, section_type: str) -> list[str]:
-        """Returns the list of scopes that this line is in, as long as the section_type is correct.
-        
-        !!! warning
-            The returned list of scopes does not include the section type.
-        """
-        match = self.SECTION_REGEX.match(line)
-
-        # If the line is not a section header, return the old section
-        if not match:
-            return scope_list
-        
-        # If the line is a section header, but not the correct section type, return []
-        elif not match.group().startswith(f"[{section_type}"):
-            return []
-        
-        # The line must be a section header and of the correct section type. Return it
-        current_section = []
-        section_list = match.group().strip("[]").split(",")
-
-        for section in section_list:
-            # Remove the section type and strip the leftover '.'. If it's empty after that, then it is actually "common"
-            current_section.append(section.replace(section_type, "").strip().lstrip(".") or "common")
-        return current_section
-
-    def _build_library_override_dictionary(self, lines):
-        library_override_dictionary = {"NULL": []}
-        section = ""
-
-        line = next(lines)
-        while line.strip() != "}":
-            if self.OVERRIDE_REGEX.match(line) and line == f"<{self.SECTION_LIBRARY}>":
-                section = self.SECTION_LIBRARY
-                line = next(lines)
-                continue
-            if self.OVERRIDE_REGEX.match(line) and line != f"<{self.SECTION_LIBRARY}>":
-                # TODO: Let the section be something else like PCD overrides
-                section = ""
-                line = next(lines)
-                continue
-            if section == self.SECTION_LIBRARY:
-                lib, instance = tuple(line.split("|"))
-
-                if lib.strip() == "NULL":
-                    library_override_dictionary["NULL"].append(instance.strip())
-                else:
-                    library_override_dictionary[lib.strip()] = instance.strip()
-            
-            line = next(lines)
-        return library_override_dictionary
-    
-    def _parse_component_inf(self, file: str, library_dict: dict, override_dict: dict, scopes: list[str]):
-        file = Path(self.pathobj.GetAbsolutePathOnThisSystemFromEdk2RelativePath(file))
+        visited.append(inf)
         library_instances = []
 
         #
@@ -341,10 +389,7 @@ class DParser(WorkspaceParser):
         #    and does not take into account the context of a DSC.
         #
         infp = _InfParser().SetEdk2Path(self.pathobj)
-        infp.ParseFile(file)
-
-        # There is only one scope in a component section
-        scope = f'{scopes[0]}.{infp.Dict["MODULE_TYPE"]}'
+        infp.ParseFile(inf)
 
         #
         # 1. Convert all libraries to their actual instances for this component. This takes into account
@@ -357,20 +402,23 @@ class DParser(WorkspaceParser):
         # Append all NULL library instances
         for null_lib in override_dict["NULL"]:
             library_instances.append(null_lib)
-        
-        # recurse to generate a list of libraries used by this component
 
-        return (
-            {
-                "PATH": infp.Path.as_posix(),
-                "NAME": infp.Dict["BASE_NAME"],
-                "MODULE_TYPE": infp.Dict["MODULE_TYPE"]
-                "SOURCES": infp.sources
-            }
-        )
-
+        # Time to visit in libraries that we have not visited yet.
+        to_return = []
+        for library in filter(lambda lib: lib not in visited, library_instances):
+            to_return+= self.parse_inf_recursively(library, component, inf, library_dict, override_dict, scope, visited)
         
-        return (None, None)
+        to_return.append({
+            "PATH": inf,
+            "NAME": infp.Dict["BASE_NAME"],
+            "COMPONENT": component,
+            "MODULE_TYPE": infp.Dict["MODULE_TYPE"],
+            "SOURCES": infp.Sources,
+            "LIBRARIES": library_instances,
+            "PCDS": infp.PcdsUsed,
+        })
+        return to_return
+        
 
     def _lib_to_instance(self, library_class_name, scope, library_dict, override_dict):
         """Converts a library name to the actual instance of the library.
