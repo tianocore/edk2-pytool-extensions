@@ -22,6 +22,7 @@ if sys.platform == "win32":
     import win32api
     import win32process
     import win32security
+    import pywintypes
 
 # import this from edk2toollib so we can parse the dbx
 from edk2toollib.uefi.authenticated_variables_structure_support import (

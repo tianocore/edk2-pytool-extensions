@@ -89,7 +89,7 @@ setuptools.setup(
         'cryptography >= 39.0.1',
         'openpyxl >= 3.1.2',
         'XlsxWriter >= 3.0.9',
-        'pywin32 >= 305 : sys.platform == "win32"'
+        'pywin32 >= 305 : sys_platform == "win32"'
     ],
     extras_require={
         'openssl': ['pyopenssl']
