@@ -1,4 +1,4 @@
-# SecureBootReport.py
+# Secure Boot Audit Tool
 
 This tool exists to help a user audit the secure boot revocation list (dbx) on their system.
 
@@ -9,9 +9,9 @@ Limitations:
 
 This tool has three primary stages:
 
-1. Get the dbx from UEFI
-2. Convert the [UEFI.org csv (xlsx)](https://uefi.org/revocationlistfile) of revocations to json format for comparison
-3. Parse the dbx file and compare it against the uefi.org revocation sheet
+    1. Get the dbx from UEFI
+    2. Convert the [UEFI.org csv (xlsx)](https://uefi.org/revocationlistfile) of revocations to json format for comparison
+    3. Parse the dbx file and compare it against the uefi.org revocation sheet
 
 ## Stage 1 (Retrieve the dbx file from your system)
 
@@ -34,6 +34,13 @@ The dbx.bin file retrieved is the pure contents of the dbx file. (I.E it is unsi
 Flags:
 
 1. `--output` [not required] - allows for redirection of the output to a new path and name
+
+## Stage 3 (Parse the dbx using the revocations list)
+
+    ```bash
+    python secureboot_audit.py parse_dbx dbx.bin uefi_org_revocations.json --filter-by-arch x86_64
+    INFO:root:Wrote report to .\SecureBootFiles\dbx_report.json
+    ```
 
 ### Understanding the output
 

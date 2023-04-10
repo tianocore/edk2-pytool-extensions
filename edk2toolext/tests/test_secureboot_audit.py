@@ -20,14 +20,11 @@ from edk2toolext.windows.secureboot.secureboot_audit import (
     write_json_file,
 )
 
-
 # Setup the test directory path
 TEST_DATA_PARENT_DIRECTORY = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
-    "..",
-    "windows",
-    "secureboot",
-    "examples"
+    os.path.dirname(os.path.abspath(__file__)),  # Test folder is relative to the test
+    "testdata",
+    "secureboot_audit"
 )
 TEST_HASH = "80B4D96931BF0D02FD91A61E19D14F1DA452E66DB2408CA8604D411F92659F0A"
 

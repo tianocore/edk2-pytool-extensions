@@ -19,7 +19,6 @@ import openpyxl
 
 # Some of these libraries are windows only, so we need to import them conditionally
 if sys.platform == "win32":
-    import pywintypes
     import win32api
     import win32process
     import win32security
@@ -28,6 +27,10 @@ if sys.platform == "win32":
 from edk2toollib.uefi.authenticated_variables_structure_support import (
     EfiSignatureDatabase,
 )
+
+logging.basicConfig()
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 if sys.platform == "win32":
     KERNEL32 = ctypes.windll.kernel32
@@ -43,13 +46,8 @@ SECUREBOOT_FILES = {
 KNOWN_CERTIFICATES = [
     "11FB1A56B8CAE09CF7B06AD620A9F13C604D108BDAF443C115FE5848805241E5",  # "Canonical Certificate",
     "F22246C9E65BB4543CB892B6507C062196A788E5A190D2D5A877B94DFDFB2935",  # "Debian Certificate",
-    #     "flathash_sha256": "20656b9c8cfd47aee8f71025dbaa73883d985f33871b3e5d2f65fdcbcb6a2b52",
-    #     "component": "Cisco Sub Ca Certificate"
 ]
 
-logging.basicConfig()
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
 
 ###################################################################################################
 # Helper functions
