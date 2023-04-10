@@ -106,6 +106,7 @@
         "pytool",
         "pytools",
         "pyyaml",
+        "pywin",
         "pywintypes",
         "qemu",
         "raspberrypi",
