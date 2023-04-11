@@ -4,14 +4,14 @@ This tool exists to help a user audit the secure boot revocation list (dbx) on t
 
 Limitations:
 
-    1. Currently only supports windows
-    2. The audit is only as good as the uefi.org csv file
+1. Currently only supports windows
+2. The audit is only as good as the uefi.org csv file
 
 This tool has three primary stages:
 
-    1. Get the dbx from UEFI
-    2. Convert the [UEFI.org csv (xlsx)](https://uefi.org/revocationlistfile) of revocations to json format for comparison
-    3. Parse the dbx file and compare it against the uefi.org revocation sheet
+ 1. Get the dbx from UEFI
+ 2. Convert the [UEFI.org csv (xlsx)](https://uefi.org/revocationlistfile) of revocations to json format for comparison
+ 3. Parse the dbx file and compare it against the uefi.org revocation sheet
 
 ## Stage 1 (Retrieve the dbx file from your system)
 
@@ -33,7 +33,7 @@ The dbx.bin file retrieved is the pure contents of the dbx file. (I.E it is unsi
 
 Flags:
 
-1. `--output` [not required] - allows for redirection of the output to a new path and name
+ 1. `--output` [not required] - allows for redirection of the output to a new path and name
 
 ## Stage 3 (Parse the dbx using the revocations list)
 
@@ -111,13 +111,13 @@ Flags:
 
 The output is broken up into three sections:
 
-1. `identified` - All the revocations in a system's dbx that match a revocation provided in revoction list
-2. `missing_protections` - All the revocations that were provided in a revocation list that do not appear in a system's dbx
-3. `not_found` - All the revocations that were in the dbx, but were not in a provided revocation list
+ 1. `identified` - All the revocations in a system's dbx that match a revocation provided in revoction list
+ 2. `missing_protections` - All the revocations that were provided in a revocation list that do not appear in a system's dbx
+ 3. `not_found` - All the revocations that were in the dbx, but were not in a provided revocation list
 
 Flags:
 
-1. `--output` [not required] - allows for redirection of the output to a new path and name
-2. `--format` [not required] - this allows the script to switch the output between `json` and `xlsx` format
-3. `--filter-by-arch` [not required] - this allows the script to filter by `x86`, `x86_64`, `arm`, `arm64` or if left off
-`None`
+ 1. `--output` [not required] - allows for redirection of the output to a new path and name
+ 2. `--format` [not required] - this allows the script to switch the output between `json` and `xlsx` format
+ 3. `--filter-by-arch` [not required] - this allows the script to filter by `x86`, `x86_64`, `arm`, `arm64` or if left off
+ `None`

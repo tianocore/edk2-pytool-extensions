@@ -78,7 +78,8 @@ setuptools.setup(
                             'edk2_capsule_tool=edk2toolext.capsule.capsule_tool:main',
                             'versioninfo_tool=edk2toolext.versioninfo.versioninfo_tool:main',
                             'validate_image_tool=edk2toolext.image_validation:main',
-                            'secureboot_audit=edk2toolext.windows.secureboot.secureboot_audit:main']
+                            'secureboot_audit=edk2toolext.windows.secureboot.secureboot_audit:main',
+                            ]
     },
     install_requires=[
         'pyyaml>=6.0.0',
