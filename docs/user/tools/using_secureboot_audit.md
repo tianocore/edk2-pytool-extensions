@@ -112,7 +112,8 @@ Flags:
 The output is broken up into three sections:
 
  1. `identified` - All the revocations in a system's dbx that match a revocation provided in revoction list
- 2. `missing_protections` - All the revocations that were provided in a revocation list that do not appear in a system's dbx
+ 2. `missing_protections` - All the revocations that were provided in a revocation list that do not appear in a system's
+dbx
  3. `not_found` - All the revocations that were in the dbx, but were not in a provided revocation list
 
 Flags:
