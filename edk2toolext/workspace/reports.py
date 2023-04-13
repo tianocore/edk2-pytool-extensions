@@ -9,12 +9,12 @@ Each file preforms this task by using the database created by the parsers.
 """
 
 from tinydb.table import Document
-from collections import namedtuple
 from tinydb import Query, TinyDB
 from edk2toolext.environment.var_dict import VarDict
 from tabulate import tabulate
 from pathlib import Path
 from argparse import ArgumentParser
+import xml.etree.ElementTree as ET
 
 class Report:
     """An interface for a report."""
@@ -32,7 +32,7 @@ class Report:
         """Configure command line arguments for this report."""
         return
 
-    def generate_report(self, db: TinyDB, env: VarDict) -> None:
+    def generate_report(self, db: TinyDB, args) -> None:
         """Generate a report."""
         raise NotImplementedError
 
@@ -58,9 +58,74 @@ class CoverageReport(Report):
 
     def add_cli_options(self, parserobj: ArgumentParser):
         """Configure command line arguments for this report."""
-        parserobj.add_argument("--XML", "--xml",
+        parserobj.add_argument("--XML", "--xml", required = True,
                                dest="xml", action="store", help="The path to the XML file parse.")
+        parserobj.add_argument("-s", "--scope", "--Scope", "--SCOPE", default="inf", choices=["inf", "pkg"],
+                                dest="scope", action="store", help="The scope to associate coverage data")
+        parserobj.add_argument("--ignore-empty", action="store_true", help="To ignore inf's with no coverage.")
+        parserobj.add_argument("--lib-only", action="store_true", help="To only show results for library INFs")
 
+    def generate_report(self, db: TinyDB, args) -> None:
+        
+        files = self._build_file_dict(args.xml)
+        
+        if args.scope == "inf":
+            self.to_stdout(self._get_inf_cov(files, db, args.ignore_empty, args.lib_only))
+
+    def _get_inf_cov(self, files: dict, db: TinyDB, ignore_empty: bool, library_only: bool):
+        table = db.table("inf")
+
+        if library_only:
+            table = table.search( Query().LIBRARY_CLASS != "")
+
+        inf_entries = []
+        # TODO: Count untested files
+        for entry in table:
+            if not entry["SOURCES_USED"]:
+                continue
+            
+            hit = 0
+            total = 0
+            missed = 0
+            for source in entry["SOURCES_USED"]:
+                if source in files:
+                    total += len(files[source])
+                    hit += len({key: value for key, value in files[source].items() if value == "1"})
+                    missed += len({key: value for key, value in files[source].items() if value == "0"})
+            
+            if not ignore_empty or total > 0:
+                inf_entries.append(
+                    {
+                        "PATH": entry["PATH"],
+                        "HIT": hit,
+                        "MISS": missed,
+                        "TOTAL": total,
+                        "PERCENT": "0.0%" if total == 0 else f"{round((hit / total)*100,2)}%" 
+                    }
+                )
+            
+        return inf_entries
+
+
+    def _build_file_dict(self, xml_path: str) -> dict:
+        tree = ET.parse(xml_path)
+        
+        file_hits = {}
+        for package in tree.iter("package"):
+            for file in package.iter("class"):
+                name = file.attrib["name"]
+                line_hit_dict = file_hits.get(name, {})
+                for line in file.iter('line'):
+                    num = line.attrib["number"]
+                    hit = line.attrib["hits"]
+
+                    if line_hit_dict.get(num, 0) == 0:
+                        line_hit_dict[num] = hit
+                file_hits[name] = line_hit_dict
+
+        # Delete any empty entries.
+        return {k: v for k, v in file_hits.items() if v}
+                    
 
 class LicenseReport(Report):
     """A report that lists all of the licenses in the workspace."""

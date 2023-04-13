@@ -194,12 +194,12 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
                 shell_environment.RevertBuildVars()
         return 0
     
-    def generate_report(self, report, db):
-        if report:
-            for r in self.get_reports():
-                if r.report_name() == report:
-                    r.generate_report(db, self.env)
-                    return
+    def generate_report(self, args, db):
+        for report in self.get_reports():
+            name, _ = report.report_info()
+            if name == args.cmd:
+                report.generate_report(db, self.args)
+                return
 
     def _get_package_config(self, pathobj: Edk2Path, pkg) -> str:
         pkg_config_file = pathobj.GetAbsolutePathOnThisSystemFromEdk2RelativePath(
@@ -220,8 +220,8 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
                 DParser(),
             ]
         return [
-            #CParser(),
-            #IParser()
+            CParser(),
+            IParser()
         ]
     
     def get_reports(self) -> list:

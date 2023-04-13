@@ -120,6 +120,7 @@
         "submodule",
         "submodules",
         "tianocore",
+        "tinydb",
         "toolchain",
         "toolext",
         "toollib",

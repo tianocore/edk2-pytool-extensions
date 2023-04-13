@@ -295,7 +295,6 @@ class IParser(WorkspaceParser):
         inf_parser.ParseFile(filename)
         
         data = {}
-        data["DSC"] = self.dsc
         data["GUID"] = inf_parser.Dict.get("FILE_GUID", "")
         data["LIBRARY_CLASS"] = inf_parser.LibraryClass
         data["PATH"] = inf_parser.Path.relative_to(ws).as_posix()
@@ -410,6 +409,7 @@ class DParser(WorkspaceParser):
             to_return+= self.parse_inf_recursively(library, component, inf, library_dict, override_dict, scope, visited)
         
         to_return.append({
+            "DSC": self.dsc,
             "PATH": inf,
             "NAME": infp.Dict["BASE_NAME"],
             "COMPONENT": component,
