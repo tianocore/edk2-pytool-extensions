@@ -13,32 +13,29 @@ from collections import namedtuple
 from tinydb import Query, TinyDB
 from edk2toolext.environment.var_dict import VarDict
 from tabulate import tabulate
+from pathlib import Path
+from argparse import ArgumentParser
 
 class Report:
     """An interface for a report."""
 
     @classmethod
-    def report_name(self):
-        """Return the name of the report.
-        
-        This name is used when specifying the report to generate via the command line.
-        It should not contain any spaces.
+    def report_info(self):
+        """Returns the report standard information
+
+        Returns:
+            (str, str): A tuple of (name, description)
         """
         raise NotImplementedError
     
-    def report_cli_args(self):
-        """Return a list of command line arguments for this report.
-        
-        Return a named tuple containing name, description.
-        
-        namedtuple("Arg", ["name", "description"]])
-        """
-        return []
+    def add_cli_options(self, parserobj: ArgumentParser):
+        """Configure command line arguments for this report."""
+        return
 
     def generate_report(self, db: TinyDB, env: VarDict) -> None:
         """Generate a report."""
         raise NotImplementedError
-    
+
     def to_stdout(self, documents: list[Document], tablefmt = "simple"):
         print(tabulate(documents, headers="keys", tablefmt=tablefmt))
     
@@ -50,26 +47,41 @@ class Report:
             filtered_list.append(Document(filtered_dict, document.doc_id))
         return filtered_list
 
+class CoverageReport(Report):
+    def report_info(self):
+        """Returns the report standard information
+
+        Returns:
+            (str, str): A tuple of (name, description)
+        """
+        return ("coverage", "Associates coverage data to build objects like libraries and components.")
+
+    def add_cli_options(self, parserobj: ArgumentParser):
+        """Configure command line arguments for this report."""
+        parserobj.add_argument("--XML", "--xml",
+                               dest="xml", action="store", help="The path to the XML file parse.")
+
+
 class LicenseReport(Report):
     """A report that lists all of the licenses in the workspace."""
 
     @classmethod
-    def report_name(self):
-        """Return the name of the report.
-        
-        This name is used when specifying the report to generate via the command line.
-        It should not contain any spaces.
-        """
-        return "no-license"
+    def report_info(self):
+        """Returns the report standard information
 
-    def report_cli_args(self):
-        """Return a list of command line arguments for this report."""
-        Arg = namedtuple("Arg", ["name", "description"])
+        Returns:
+            (str, str): A tuple of (name, description)
+        """
+        return ("no-license", "Returns a list of files that do not have a valid license.")
+
+    def add_cli_options(self, parserobj: ArgumentParser):
+        """Configure command line arguments for this report."""
         
-        return [
-            Arg("INCLUDE", "A comma separated list strings to include in the search"),
-            Arg("EXCLUDE", "A comma separated list strings to exclude in the search")
-        ]
+        parserobj.add_argument("--Include", "--INCLUDE",
+                               dest = "include", action="store", help="A comma separated list strings to include in the search.")
+        parserobj.add_argument("--Exclude", "--EXCLUDE",
+                               dest = "exclude", action="store", help="A comma separated list strings to exclude in the search.")
+
       
     def generate_report(self, db: TinyDB, env: VarDict) -> None:
         """Generate a report."""
@@ -94,21 +106,19 @@ class LicenseReport(Report):
 class LibraryInfReport(Report):
 
     @classmethod
-    def report_name(self):
-        """Return the name of the report.
-        
-        This name is used when specifying the report to generate via the command line.
-        It should not contain any spaces.
-        """
-        return "list-library"
+    def report_info(self):
+        """Returns the report standard information
 
-    def report_cli_args(self):
-        """Return a list of command line arguments for this report."""
-        Arg = namedtuple("Arg", ["name", "description"])
+        Returns:
+            (str, str): A tuple of (name, description)
+        """
+        return ("list-library", "Generates a list of library instances for a given library")
+
+    def add_cli_options(self, parserobj: ArgumentParser):
+        """Configure command line arguments for this report."""
         
-        return [
-            Arg("LIBRARY", "The library class to search for")
-        ]
+        parserobj.add_argument("--Library", "--LIBRARY",
+                               dest="library", action="store", help="The library class to search for.")
 
     def generate_report(self, db: TinyDB, env: VarDict) -> None:
         """Generate a report."""
@@ -119,23 +129,3 @@ class LibraryInfReport(Report):
         result = table.search((Query().LIBRARY_CLASS != "") & (Query().LIBRARY_CLASS.matches(lib_type)))
         r = self.columns(["LIBRARY_CLASS", "PATH"], result)
         self.to_stdout(r)
-
-class Utilities:
-
-    @classmethod
-    def to_cli_table(cls, documents: list[Document]) -> str:
-        columns = list(documents[0].keys())
-        widths = [max(len(str(row[col])) for row in documents) for col in columns]
-
-        for i, col in enumerate(columns):
-            print(col.ljust(widths[i]), end=' ')
-        print()
-
-        for width in widths:
-            print('-' * width, end=' ')
-        print()
-
-        for row in documents:
-            for i,col in enumerate(columns):
-                print(str(row[col]).ljust(widths[i]), end=' ')
-            print()

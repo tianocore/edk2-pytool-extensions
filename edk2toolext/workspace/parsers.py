@@ -19,7 +19,7 @@ from edk2toollib.uefi.edk2.parsers.inf_parser import InfParser as InfP
 from edk2toollib.uefi.edk2.parsers.dsc_parser import DscParser as DscP
 from edk2toolext.environment.var_dict import VarDict
 
-from tinydb.table import Table
+from tinydb import TinyDB
 from tinyrecord import transaction
 
 # logger = logging.getLogger(__name__)
@@ -80,6 +80,7 @@ class _InfParser(InfP):
         for arch in archs:
             libraries + self.ScopedLibraryDict.get(arch, []).copy()
         return list(set(libraries))
+
 
 class _DscParser(DscP):
     """A subclass of the Dsc Parser that takes into account the architecture."""
@@ -214,15 +215,12 @@ class _DscParser(DscP):
             
             line = next(lines)
         return library_override_dictionary
+
 class WorkspaceParser:
     """An interface for a workspace parser."""
 
-    def parse_workspace(self, tables: dict[str, Table], pathobj: Edk2Path, env: VarDict) -> None:
+    def parse_workspace(self, db: TinyDB, pathobj: Edk2Path, env: VarDict) -> None:
         """Parse the workspace and update the database."""
-        raise NotImplementedError
-    
-    def get_tables(self) -> list[str]:
-        """Return a list of tables that should be provided to the parser."""
         raise NotImplementedError
     
 class CParser(WorkspaceParser):
@@ -233,11 +231,11 @@ class CParser(WorkspaceParser):
     | PATH | LICENSE | TOTAL_LINES | CODE_LINES | COMMENT_LINES | BLANK_LINES |
     |-------------------------------------------------------------------------|
     """
-    def parse_workspace(self, tables: dict[str, Table], pathobj: Edk2Path, env: VarDict) -> None:
+    def parse_workspace(self, db: TinyDB, pathobj: Edk2Path, env: VarDict) -> None:
         """Parse the workspace and update the database."""
 
         ws = Path(pathobj.WorkspacePath)
-        src_table = tables["source"]
+        src_table = db.table("source", cache_size=None)
 
         start = time.time()
         files = list(ws.rglob("*.c")) + list(ws.rglob("*.h"))
@@ -278,12 +276,10 @@ class IParser(WorkspaceParser):
     | GUID | LIBRARY_CLASS | PATH | PHASES | SOURCES_USED | LIBRARIES_USED | PROTOCOLS_USED | GUIDS_USED | PPIS_USED | PCDS_USED |
     |----------------------------------------------------------------------------------------------------------------------------|
     """
-    def get_tables(self) -> list[str]:
-        return ["inf"]
 
-    def parse_workspace(self, tables: dict[str, Table], pathobj: Edk2Path, env: VarDict) -> None:
+    def parse_workspace(self, db: TinyDB, pathobj: Edk2Path, env: VarDict) -> None:
         ws = Path(pathobj.WorkspacePath)
-        inf_table = tables["inf"]
+        inf_table = db.table("inf", cache_size=None)
         inf_entries = []
         
         start = time.time()
@@ -299,6 +295,7 @@ class IParser(WorkspaceParser):
         inf_parser.ParseFile(filename)
         
         data = {}
+        data["DSC"] = self.dsc
         data["GUID"] = inf_parser.Dict.get("FILE_GUID", "")
         data["LIBRARY_CLASS"] = inf_parser.LibraryClass
         data["PATH"] = inf_parser.Path.relative_to(ws).as_posix()
@@ -320,11 +317,8 @@ class DParser(WorkspaceParser):
     SECTION_COMPONENT = "Components"
     SECTION_REGEX = re.compile(r"\[(.*)\]")
     OVERRIDE_REGEX = re.compile(r"\<(.*)\>")
-
-    def get_tables(self) -> list[str]:
-        return ["instance_inf"]
     
-    def parse_workspace(self, tables: dict[str, Table], pathobj: Edk2Path, env: VarDict) -> None:
+    def parse_workspace(self, db: TinyDB, pathobj: Edk2Path, env: VarDict) -> None:
         self.pathobj = pathobj
         self.ws = Path(pathobj.WorkspacePath)
         self.dsc = env.GetValue("ACTIVE_PLATFORM")
@@ -336,7 +330,7 @@ class DParser(WorkspaceParser):
             return
 
         # Our DscParser subclass can now parse components, their scope, and their overrides
-        dscp = _DscParser().SetEdk2Path(self.pathobj)
+        dscp = _DscParser().SetEdk2Path(pathobj)
         dscp.SetInputVars(env.GetAllBuildKeyValues() | env.GetAllNonBuildKeyValues())
         dscp.ParseFile(self.dsc)
 
@@ -344,14 +338,25 @@ class DParser(WorkspaceParser):
         # of the same library will exist if multiple components use it. 
         # 
         # This is where we merge DSC parser information with INF parser information.
-        inf_table_entries = self.build_inf_table(dscp)
+        inf_entries = self.build_inf_table(dscp)
+
+        table_name = str(Path(self.dsc).parent)+"_inf"
+        table = db.table(table_name, cache_size=None)
+        with transaction(table) as tr:
+            tr.insert_multiple(inf_entries)
     
     def build_inf_table(self, dscp: _DscParser):
         
         inf_entries = []
         for (inf, scope, overrides) in dscp.Components:
+            logging.debug(f"Parsing Component: [{inf}]")
             infp = _InfParser().SetEdk2Path(self.pathobj)
             infp.ParseFile(inf)
+
+            # Libraries marked as a component only have source compiled and do not link against other libraries
+            if "LIBRARY_CLASS" in infp.Dict:
+                continue
+
             # scope for libraries need to contain the MODULE_TYPE also, so we will append it, if it exists
             if "MODULE_TYPE" in infp.Dict:
                 scope += f".{infp.Dict['MODULE_TYPE']}"
@@ -364,16 +369,11 @@ class DParser(WorkspaceParser):
         for entry in inf_entries:
             if entry["PATH"] == entry["COMPONENT"]:
                 del entry["COMPONENT"]
-                comps.append(entry)
-            else:
-                libs.append(entry)
+            #     comps.append(entry)
+            # else:
+            #     libs.append(entry)
 
-        for comp in comps:
-            name = comp["PATH"]
-            x = len(list(filter(lambda lib: lib["COMPONENT"] == name, libs)))
-            print(f"[{name}] uses {x} libraries!")
-        # for lib in libs:
-        #     logging.debug(lib["COMPONENT"], lib["PATH"])
+        return inf_entries
         
 
     def parse_inf_recursively(self, inf: str, component: str, parent, library_dict: dict, override_dict: dict, scope: str, visited):
@@ -381,6 +381,7 @@ class DParser(WorkspaceParser):
         
         Will immediately return if the INF has already been visited.
         """
+        logging.debug(f"  Parsing Library: [{inf}]")
         visited.append(inf)
         library_instances = []
 
@@ -418,7 +419,6 @@ class DParser(WorkspaceParser):
             "PCDS": infp.PcdsUsed,
         })
         return to_return
-        
 
     def _lib_to_instance(self, library_class_name, scope, library_dict, override_dict):
         """Converts a library name to the actual instance of the library.
