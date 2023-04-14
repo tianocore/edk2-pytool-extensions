@@ -23,7 +23,8 @@ from git.util import rmtree
 from pathlib import Path
 
 
-logger = getLogger(__name__)
+logger = logging.getLogger(__name__)
+MIN_GIT_VERSION = "2.11.0"
 
 
 def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=False):
@@ -226,8 +227,8 @@ def repo_details(abs_file_system_path):
 
             # Worktrees
             worktree_list = []
-            worktrees = repo.git.worktree("list", "--porcelain", "-z")
-            for worktree in filter(lambda worktree: worktree.startswith("worktree"), worktrees.split('\0')):
+            worktrees = repo.git.worktree("list", "--porcelain")
+            for worktree in filter(lambda worktree: worktree.startswith("worktree"), worktrees.split('\n')):
                 worktree_list.append(Path(worktree.split(" ")[1]))
                 details["Worktrees"] = worktree_list
 
