@@ -254,7 +254,7 @@ def repo_details(abs_file_system_path):
             elif "origin" in repo.remotes:
                 details["Url"] = repo.remotes.origin.url
             # 3. Use whatever the first remote is
-            else:
+            elif len(repo.remotes) > 0:
                 details["Url"] = repo.remotes[0].url
 
     except (InvalidGitRepositoryError, NoSuchPathError):
