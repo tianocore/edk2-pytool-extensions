@@ -181,7 +181,6 @@ class LibraryInfReport(Report):
 
     def add_cli_options(self, parserobj: ArgumentParser):
         """Configure command line arguments for this report."""
-        
         parserobj.add_argument("--Library", "--LIBRARY",
                                dest="library", action="store", help="The library class to search for.")
 
@@ -194,3 +193,31 @@ class LibraryInfReport(Report):
         result = table.search((Query().LIBRARY_CLASS != "") & (Query().LIBRARY_CLASS.matches(lib_type)))
         r = self.columns(["LIBRARY_CLASS", "PATH"], result)
         self.to_stdout(r)
+
+class ComponentInfo(Report):
+
+    @classmethod
+    def report_info(self):
+        """Returns the report standard information
+
+        Returns:
+            (str, str): A tuple of (name, description)
+        """
+        return("component-info", "Provides information about a specific component.")
+    
+    def add_cli_options(self, parserobj: ArgumentParser):
+        """Configure command line arguments for this report."""
+        parserobj.add_argument("-c", "--component", "--Component", "--COMPONENT",
+                               dest="component", action="store", help="The component to get information on.")
+        parserobj.add_argument("-p", "--pkg", "--Pkg", "--PKG",
+                               dest="package", action="store", help="The package the component is used in.")
+    
+    def generate_report(self, db: TinyDB, args) -> None:
+        pkg = args.package
+        component = args.component
+        table = db.table(f'{pkg}_inf')
+        entries = table.search(Query().PATH == component)
+        for e in entries:
+            print(e)
+        
+        print(entries)

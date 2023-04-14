@@ -8,7 +8,7 @@
 The parsers are also responsible for placing this information into the database
 and providing clear documentation on the table schema."""
 
-import logging
+import logging 
 import re
 from pathlib import Path
 import time
@@ -310,7 +310,13 @@ class IParser(WorkspaceParser):
         return data
 
 class DParser(WorkspaceParser):
-    """A Workspace parser that parses a single DSC / FDF file and generates a table with the following schema:"""
+    """A Workspace parser that parses a single DSC / FDF file and generates a table with the following schema:
+    
+    table_name: "<PKGNAME>_inf"
+    |----------------------------------------------------------------------------------------------------------------------------------|
+    | DSC | GUID | LIBRARY_CLASS | PATH | PHASES | SOURCES_USED | LIBRARIES_USED | PROTOCOLS_USED | GUIDS_USED | PPIS_USED | PCDS_USED |
+    |----------------------------------------------------------------------------------------------------------------------------------|
+    """
 
     SECTION_LIBRARY = "LibraryClasses"
     SECTION_COMPONENT = "Components"

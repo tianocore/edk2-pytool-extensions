@@ -230,6 +230,7 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
             LicenseReport(),
             LibraryInfReport(),
             CoverageReport(),
+            ComponentInfo(),
         ]
 
     def replace_database(self, cur_path: Path, replace_path: Path):
