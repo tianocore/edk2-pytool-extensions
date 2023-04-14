@@ -12,7 +12,6 @@ from random import choice
 from string import ascii_letters
 
 from edk2toolext import edk2_logging
-from edk2toolext.base_abstract_invocable import BaseAbstractInvocable
 from edk2toolext.environment.uefi_build import UefiBuilder
 from edk2toolext.environment.plugintypes.uefi_helper_plugin import HelperFunctions
 from edk2toolext.environment import plugin_manager
@@ -22,10 +21,11 @@ from edk2toolext.workspace.reports import *
 from edk2toolext.invocables.edk2_multipkg_aware_invocable import MultiPkgAwareSettingsInterface, Edk2MultiPkgAwareInvocable
 
 from edk2toollib.uefi.edk2.path_utilities import Edk2Path
-from edk2toollib.uefi.edk2.parsers.inf_parser import InfParser
-from edk2toollib.uefi.edk2.parsers.dsc_parser import DscParser
-from edk2toollib.uefi.edk2.parsers.fdf_parser import FdfParser
 from edk2toollib.utility_functions import locate_class_in_module, import_module_by_file_name
+
+
+DB_NAME = "DATABASE.db"
+
 
 class ReportSettingsManager(MultiPkgAwareSettingsInterface):
     pass
@@ -46,12 +46,14 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
     """
     def __init__(self):
         super().__init__()
+        self.is_uefi_builder = False
 
     def GetSettingsClass(self):
         return ReportSettingsManager
 
     def ParseCommandLineOptions(self,):
         """Overrides Edk2Invocable's ParseCommandLineOption()."""
+        # Add the subcommand agnostic options here.
         parser = ArgumentParser("A tool to generate reports on a edk2 workspace.")
         parser.add_argument('--verbose', '--VERBOSE', '-v', dest="verbose", action='store_true', default=False,
                             help='verbose')
@@ -60,7 +62,7 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
                                   f'This should contain a {self.GetSettingsClass().__name__} instance.')
         subparsers = parser.add_subparsers(dest='cmd', required=True)
         
-        # Add the parse subcommand
+        # Add the parse subcommand options here.
         parse_parser = subparsers.add_parser("parse", help = "Parse the workspace and generate a database.")
         parse_parser.add_argument("-db", "--database", "--Database", "--DATABASE",
                                   dest="database", action="store", help="Set the database rather then parse for one.")
@@ -73,7 +75,7 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
         parse_parser.add_argument('-a', '--arch', dest="requested_arch", type=str, default=None,
                                help="Optional - CSV of architecutres requested to update. Example: -a X64,AARCH64")
         
-        # Add all report subcommands
+        # Add all report subcommand options here.
         for report in self.get_reports():
             name, description = report.report_info()
             report_parser = subparsers.add_parser(name, help=description)
@@ -89,13 +91,14 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
         try:
             self.PlatformModule = import_module_by_file_name(Path(settings_args.platform_module).absolute())
             self.PlatformSettings = locate_class_in_module(self.PlatformModule, self.GetSettingsClass())()
+            self.is_uefi_builder = locate_class_in_module(self.PlatformModule, UefiBuilder) is not None
         except:
             e = f'{settings_args.platform_module} does not contain a {self.GetSettingsClass().__name__} instance.'
             logging.error(e)
             raise RuntimeError(e)
         del settings_args.platform_module
 
-        # Save the rest
+        # Save the rest of the arguments
         self.args = settings_args
         
         # Parse any build variables added via the command line
@@ -111,35 +114,25 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
             else:
                 raise RuntimeError(f'Unknown variable passed in via CLI: {argument}')
         
-        unknown_args.clear()  # remove the arguments we've already consumed
-        
     def GetLoggingFolderRelativeToRoot(self):
-        return "Build"
+        return "Report"
     
     def GetLoggingFileName(self, loggerType):
-        return "REPORT"
+        return self.args.cmd.upper()
 
     def GetActiveScopes(self):
         return ("global",)
 
     def Go(self):
+        """Executes the invocable. Runs the subcommand specified by the user."""
+        db_path = Path(self.GetWorkspaceRoot()) / self.GetLoggingFolderRelativeToRoot() / DB_NAME
         args = self.args
-    
-        db_path = Path(self.GetWorkspaceRoot()) / "Build" / "DATABASE.db"
-
         if args.cmd == 'parse':
             return self.parse_workspace(db_path, args)
-        
-        # Otherwise run the report we care about
-        with TinyDB(db_path, access_mode='r', storage=CachingMiddleware(JSONStorage)) as db: 
-            self.generate_report(self.args, db)
-        return 0
+        return self.generate_report(self.args, db_path)
     
     def parse_workspace(self, db_path: Path, args):
         """Runs all defined workspace parsers to generate a database.
-        
-        !!! note
-            If Package information (DSC, FDF) is provided, additional package information will be added to the database.
         """
         # Delete file if it exists and recreate it.
         db_path.unlink(missing_ok = True)
@@ -194,12 +187,13 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
                 shell_environment.RevertBuildVars()
         return 0
     
-    def generate_report(self, args, db):
-        for report in self.get_reports():
-            name, _ = report.report_info()
-            if name == args.cmd:
-                report.generate_report(db, self.args)
-                return
+    def generate_report(self, args, db_path):
+        with TinyDB(db_path, access_mode='r', storage=CachingMiddleware(JSONStorage)) as db: 
+            for report in self.get_reports():
+                name, _ = report.report_info()
+                if name == args.cmd:
+                    report.generate_report(db, self.args)
+                    return
 
     def _get_package_config(self, pathobj: Edk2Path, pkg) -> str:
         pkg_config_file = pathobj.GetAbsolutePathOnThisSystemFromEdk2RelativePath(
