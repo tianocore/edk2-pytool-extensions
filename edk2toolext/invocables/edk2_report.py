@@ -206,7 +206,7 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
             logging.disable(logging.NOTSET)
         
         for parser in self.get_parsers(need_dsc = True):
-            logging.log(edk2_logging.SECTION, f"[{parser.__class__.__name__}] starting {env.GetValue('ACTIVE_PLATFORM')} [{env.GetValue('TARGET')}][{','.join(self.requested_architecture_list)}]: ")
+            logging.log(edk2_logging.SECTION, f"[{parser.__class__.__name__}] starting {env.GetValue('ACTIVE_PLATFORM')} [{env.GetValue('TARGET')}][{env.GetValue('TARGET_ARCH')}]: ")
             start = time.time()
             parser.parse_workspace(db, pathobj, env)
             logging.log(edk2_logging.PROGRESS, f"Finished in {round(time.time() - start, 2)} seconds.")
@@ -225,7 +225,7 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
             dsc = str(Path(package, dsc))
             env.SetValue("ACTIVE_PLATFORM", dsc, "Set Automatically")
 
-            env.SetValue("ARCH", ",".join(self.args.arch_list), "Set Automatically")
+            env.SetValue("TARGET_ARCH", ",".join(self.args.arch_list), "Set Automatically")
             env.SetValue("TARGET", "DEBUG", "Set Automatically") # Set target if not set via CLI
 
             # Load the Defines
@@ -246,8 +246,8 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
             for report in self.get_reports():
                 name, _ = report.report_info()
                 if name == args.cmd:
-                    report.generate_report(db, self.args)
-                    return
+                    return report.generate_report(db, self.args)
+            return -1 # Should never happen as we verify the subcommand when parsing arguments.
 
     def get_parsers(self, need_dsc = False) -> list:
         """Returns a list of un-instantiated DbDocument subclass parsers."""

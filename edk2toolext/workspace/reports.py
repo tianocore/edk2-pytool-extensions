@@ -11,7 +11,7 @@ Each report preforms this task by using the database created by the parsers.
 """
 import re
 
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
 from pathlib import Path
 from tabulate import tabulate
 from tinydb import Query, TinyDB
@@ -39,12 +39,12 @@ class WorkspaceReport:
         """Configure command line arguments for this report."""
         return
 
-    def generate_report(self, db: TinyDB, edk2path: Edk2Path, args) -> None:
+    def generate_report(self, db: TinyDB, edk2path: Edk2Path, args: Namespace) -> None:
         """Generate a report."""
         raise NotImplementedError
 
     def to_stdout(self, documents: list[Document], tablefmt = "simple"):
-        print(tabulate(documents, headers="keys", tablefmt=tablefmt))
+        print(tabulate(documents, headers="keys", tablefmt=tablefmt, maxcolwidths=100))
     
     def columns(self, column_list: list[str], documents: list[Document], ):
         """Given a list of Documents, return it with only the specified columns."""
@@ -73,24 +73,25 @@ class CoverageReport(WorkspaceReport):
         parserobj.add_argument("--ignore-empty", action="store_true", help="To ignore inf's with no coverage.")
         parserobj.add_argument("--lib-only", action="store_true", help="To only show results for library INFs")
 
-    def generate_report(self, db: TinyDB, args) -> None:
+    def generate_report(self, db: TinyDB, args: Namespace) -> None:
         self.args = args
         files = self._build_file_dict(args.xml)
         
         if args.scope == "inf":
             self._get_inf_cov(files, db, args.ignore_empty, args.lib_only)
-    
+        return 0
+
     def _get_inf_cov(self, files: dict, db: TinyDB, ignore_empty: bool, library_only: bool):
         table = db.table("inf")
         import pprint
-        
+
         if library_only:
             table = table.search( Query().LIBRARY_CLASS != "")
 
         root = ET.Element("coverage")
 
         sources = ET.SubElement(root, "sources")
-        
+
         # Set the sources so that reports can find the right paths.
         source = ET.SubElement(sources, "source")
         source.text = self.args.workspace_root
@@ -103,7 +104,7 @@ class CoverageReport(WorkspaceReport):
             if not entry["SOURCES_USED"]:
                 continue
 
-            inf = ET.SubElement(packages, "package", name=entry["PATH"])
+            inf = ET.SubElement(packages, "package", path=entry["PATH"], name=Path(entry["PATH"]).name)
             classes = ET.SubElement(inf, "classes")
             found = False
             for source in entry["SOURCES_USED"]:
@@ -122,8 +123,6 @@ class CoverageReport(WorkspaceReport):
         p.unlink(missing_ok=True)
         with open(p, 'wb') as f:
             f.write(dom.toxml(encoding="utf-8"))
-        #print(dom.toprettyxml(encoding="utf-8"))
-        #print(dom.toprettyxml())
 
     def _build_file_dict(self, xml_path: str) -> dict:
         tree = ET.parse(xml_path)
@@ -141,6 +140,7 @@ class CoverageReport(WorkspaceReport):
             path = Path(filename[match.start():]).as_posix()
             if path not in file_dict:
                 file.attrib["filename"] = path
+                file.attrib["name"] = Path(path).name
                 file_dict[path] = file
             
             # Merge the file results
@@ -171,18 +171,18 @@ class LicenseReport(WorkspaceReport):
     def add_cli_options(self, parserobj: ArgumentParser):
         """Configure command line arguments for this report."""
         
-        parserobj.add_argument("--Include", "--INCLUDE",
+        parserobj.add_argument("--include", "--Include", "--INCLUDE",
                                dest = "include", action="store", help="A comma separated list strings to include in the search.")
-        parserobj.add_argument("--Exclude", "--EXCLUDE",
+        parserobj.add_argument("--exclude", "--Exclude", "--EXCLUDE",
                                dest = "exclude", action="store", help="A comma separated list strings to exclude in the search.")
 
       
-    def generate_report(self, db: TinyDB, edk2path: Edk2Path, env: VarDict) -> None:
+    def generate_report(self, db: TinyDB, args: Namespace) -> None:
         """Generate a report."""
         table = db.table("source")
         regex = ""
-        include = env.GetValue("INCLUDE", None)
-        exclude = env.GetValue("EXCLUDE", None)
+        include = args.include
+        exclude = args.exclude
 
         regex = "^"
 
@@ -196,6 +196,7 @@ class LicenseReport(WorkspaceReport):
         self.to_stdout( result )
 
         print(f"\n{len(result)} files with no license found.")
+        return 0
 
 
 class LibraryInfReport(WorkspaceReport):
@@ -211,18 +212,19 @@ class LibraryInfReport(WorkspaceReport):
 
     def add_cli_options(self, parserobj: ArgumentParser):
         """Configure command line arguments for this report."""
-        parserobj.add_argument("--Library", "--LIBRARY",
+        parserobj.add_argument("--library", "--Library", "--LIBRARY", default = "",
                                dest="library", action="store", help="The library class to search for.")
 
-    def generate_report(self, db: TinyDB, edk2path: Edk2Path, env: VarDict) -> None:
+    def generate_report(self, db: TinyDB, args: Namespace) -> None:
         """Generate a report."""
         table = db.table("inf")
 
-        lib_type = env.GetValue("LIBRARY", "")
+        lib_type = args.library
 
         result = table.search((Query().LIBRARY_CLASS != "") & (Query().LIBRARY_CLASS.matches(lib_type)))
         r = self.columns(["LIBRARY_CLASS", "PATH"], result)
         self.to_stdout(r)
+        return 0
 
 
 class ComponentInfo(WorkspaceReport):
@@ -238,17 +240,16 @@ class ComponentInfo(WorkspaceReport):
     
     def add_cli_options(self, parserobj: ArgumentParser):
         """Configure command line arguments for this report."""
-        parserobj.add_argument("-c", "--component", "--Component", "--COMPONENT",
+        parserobj.add_argument("-c", "--component", "--Component", "--COMPONENT", default="",
                                dest="component", action="store", help="The component to get information on.")
         parserobj.add_argument("-p", "--pkg", "--Pkg", "--PKG",
                                dest="package", action="store", help="The package the component is used in.")
     
-    def generate_report(self, db: TinyDB, edk2path: Edk2Path, args) -> None:
+    def generate_report(self, db: TinyDB, args: Namespace) -> None:
         pkg = args.package
         component = args.component
         table = db.table(f'{pkg}_inf')
-        entries = table.search(Query().PATH == component)
-        for e in entries:
-            print(e)
+        entries = table.search((Query().PATH.search(component)) & ~ (Query().COMPONENT.exists()))
         
-        print(entries)
+        self.to_stdout(self.columns(["NAME", "MODULE_TYPE", "LIBRARIES"], entries))
+        return 0

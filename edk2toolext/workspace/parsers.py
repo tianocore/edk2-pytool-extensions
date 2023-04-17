@@ -339,7 +339,7 @@ class DParser(WorkspaceParser):
         self.ws = Path(pathobj.WorkspacePath)
         self.dsc = env.GetValue("ACTIVE_PLATFORM")
         self.fdf = env.GetValue("FLASH_DEFINITION")
-        self.arch = env.GetValue("ARCH").split(" ")
+        self.arch = env.GetValue("TARGET_ARCH").split(" ")
 
         if not self.dsc:
             logging.debug("No Active Platform Set, Skipping DSC Parser")
@@ -385,12 +385,8 @@ class DParser(WorkspaceParser):
         for entry in inf_entries:
             if entry["PATH"] == entry["COMPONENT"]:
                 del entry["COMPONENT"]
-            #     comps.append(entry)
-            # else:
-            #     libs.append(entry)
 
         return inf_entries
-        
 
     def parse_inf_recursively(self, inf: str, component: str, parent, library_dict: dict, override_dict: dict, scope: str, visited):
         """Recurses down all libraries starting from a single INF.
