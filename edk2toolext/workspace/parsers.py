@@ -1,3 +1,5 @@
+# @file parsers.py
+# A file containing the database parsers used by edk2_report.py
 ##
 # Copyright (c) Microsoft Corporation
 #

@@ -1,3 +1,5 @@
+# @file reports.py
+# A file containing the report generators used by edk2_report.py
 ##
 # Copyright (c) Microsoft Corporation
 #
@@ -5,19 +7,21 @@
 ##
 """This file provides classes responsible for generating reports on the workspace for edk2report.
 
-Each file preforms this task by using the database created by the parsers.
+Each report preforms this task by using the database created by the parsers.
 """
-
-from tinydb.table import Document
-from tinydb import Query, TinyDB
-from edk2toolext.environment.var_dict import VarDict
-from tabulate import tabulate
-from pathlib import Path
-from argparse import ArgumentParser
-import xml.etree.ElementTree as ET
-import xml.dom.minidom as minidom
-from edk2toollib.uefi.edk2.path_utilities import Edk2Path
 import re
+
+from argparse import ArgumentParser
+from pathlib import Path
+from tabulate import tabulate
+from tinydb import Query, TinyDB
+from tinydb.table import Document
+import xml.dom.minidom as minidom
+import xml.etree.ElementTree as ET
+
+from edk2toolext.environment.var_dict import VarDict
+from edk2toollib.uefi.edk2.path_utilities import Edk2Path
+
 
 class WorkspaceReport:
     """An interface for a report."""
@@ -74,7 +78,7 @@ class CoverageReport(WorkspaceReport):
         files = self._build_file_dict(args.xml)
         
         if args.scope == "inf":
-            self.to_stdout(self._get_inf_cov(files, db, args.ignore_empty, args.lib_only))
+            self._get_inf_cov(files, db, args.ignore_empty, args.lib_only)
     
     def _get_inf_cov(self, files: dict, db: TinyDB, ignore_empty: bool, library_only: bool):
         table = db.table("inf")
@@ -84,17 +88,17 @@ class CoverageReport(WorkspaceReport):
             table = table.search( Query().LIBRARY_CLASS != "")
 
         root = ET.Element("coverage")
-        #root.insert(0, ET.XML(r'<?xml version="1.0" encoding="utf-8"?>'))
-        #root.insert(0,ET.fromstring('!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd"'))
+
         sources = ET.SubElement(root, "sources")
+        
+        # Set the sources so that reports can find the right paths.
         source = ET.SubElement(sources, "source")
-        source.text = "."
+        source.text = self.args.workspace_root
+        for pp in self.args.packages_path_list:
+            source = ET.SubElement(sources, "source")
+            source.text = pp
 
         packages = ET.SubElement(root, "packages")
-
-        #pprint.pprint(files)
-        #exit()
-
         for entry in table:
             if not entry["SOURCES_USED"]:
                 continue
