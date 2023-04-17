@@ -216,13 +216,17 @@ class _DscParser(DscP):
             line = next(lines)
         return library_override_dictionary
 
+
 class WorkspaceParser:
     """An interface for a workspace parser."""
+    def is_dsc_scoped(self) -> bool:
+        return False
 
     def parse_workspace(self, db: TinyDB, pathobj: Edk2Path, env: VarDict) -> None:
         """Parse the workspace and update the database."""
         raise NotImplementedError
-    
+
+
 class CParser(WorkspaceParser):
     """A Workspace parser that parses all c and h files in the workspace and generates a table with the following schema:
     
@@ -268,6 +272,7 @@ class CParser(WorkspaceParser):
             "BLANK_LINES": 0,
         }
 
+
 class IParser(WorkspaceParser):
     """A Workspace parser that parses all INF files in the workspace and generates a table with the following schema:
     
@@ -309,6 +314,7 @@ class IParser(WorkspaceParser):
         
         return data
 
+
 class DParser(WorkspaceParser):
     """A Workspace parser that parses a single DSC / FDF file and generates a table with the following schema:
     
@@ -323,6 +329,9 @@ class DParser(WorkspaceParser):
     SECTION_REGEX = re.compile(r"\[(.*)\]")
     OVERRIDE_REGEX = re.compile(r"\<(.*)\>")
     
+    def is_dsc_scoped(self) -> bool:
+        return True
+
     def parse_workspace(self, db: TinyDB, pathobj: Edk2Path, env: VarDict) -> None:
         self.pathobj = pathobj
         self.ws = Path(pathobj.WorkspacePath)
