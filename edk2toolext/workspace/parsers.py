@@ -299,7 +299,8 @@ class IParser(WorkspaceParser):
         files = list(ws.glob("**/*.inf"))
         inf_entries = Parallel(n_jobs=-1)(delayed(self._parse_file)(ws, filename, pathobj) for filename in files)
         logging.debug(
-            f"{self.__class__.__name__}: Parsed {len(inf_entries)} .inf files took; {round(time.time() - start, 2)} seconds.")
+            f"{self.__class__.__name__}: Parsed {len(inf_entries)} .inf files took; "
+            f"{round(time.time() - start, 2)} seconds.")
 
         with transaction(inf_table) as tr:
             tr.insert_multiple(inf_entries)
@@ -389,7 +390,7 @@ class DParser(WorkspaceParser):
             if "MODULE_TYPE" in infp.Dict:
                 scope += f".{infp.Dict['MODULE_TYPE']}"
 
-            inf_entries += self.parse_inf_recursively(inf, inf, inf, dscp.ScopedLibraryDict, overrides, scope, [])
+            inf_entries += self.parse_inf_recursively(inf, inf, dscp.ScopedLibraryDict, overrides, scope, [])
 
         # Move entries to correct table
         for entry in inf_entries:
@@ -398,7 +399,8 @@ class DParser(WorkspaceParser):
 
         return inf_entries
 
-    def parse_inf_recursively(self, inf: str, component: str, parent, library_dict: dict, override_dict: dict, scope: str, visited):
+    def parse_inf_recursively(
+            self, inf: str, component: str, library_dict: dict, override_dict: dict, scope: str, visited):
         """Recurses down all libraries starting from a single INF.
 
         Will immediately return if the INF has already been visited.
@@ -428,7 +430,7 @@ class DParser(WorkspaceParser):
         # Time to visit in libraries that we have not visited yet.
         to_return = []
         for library in filter(lambda lib: lib not in visited, library_instances):
-            to_return += self.parse_inf_recursively(library, component, inf,
+            to_return += self.parse_inf_recursively(library, component,
                                                     library_dict, override_dict, scope, visited)
 
         to_return.append({

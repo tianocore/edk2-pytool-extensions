@@ -53,7 +53,7 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
     `GetDefinedArchitectures()` and the -a command.
 
     When the goal is to parse a platform package, the Edk2Report Generator uses methods from the `UefiBuilder`, which
-    is most commonly found in the Platform Buikld File. In this scenario, it will invoking the methods found in
+    is most commonly found in the Platform Build File. In this scenario, it will invoking the methods found in
     `UefiBuilder` which are used to build a platform. It will not execute any plugins, build the platform, nor execute
     any functionality normally called after the build command.
 

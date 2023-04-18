@@ -174,9 +174,11 @@ class LicenseReport(WorkspaceReport):
         """Configure command line arguments for this report."""
 
         parserobj.add_argument("--include", "--Include", "--INCLUDE",
-                               dest="include", action="store", help="A comma separated list strings to include in the search.")
+                               dest="include", action="store",
+                               help="A comma separated list strings to include in the search.")
         parserobj.add_argument("--exclude", "--Exclude", "--EXCLUDE",
-                               dest="exclude", action="store", help="A comma separated list strings to exclude in the search.")
+                               dest="exclude", action="store",
+                               help="A comma separated list strings to exclude in the search.")
 
     def run_report(self, db: TinyDB, args: Namespace) -> None:
         """Generate a report."""
@@ -268,11 +270,13 @@ class UnusedComponents(WorkspaceReport):
 
     def add_cli_options(self, parserobj: ArgumentParser):
         """Configure command line arguments for this report."""
-        parserobj.add_argument("-p", "--package", "--Package", "--PACKAGE", required=True,
-                               dest="package", action="store", help="The package name to find unused components / libraries in."
+        parserobj.add_argument("-p", "--package", "--Package", "--PACKAGE",
+                               required=True, dest="package", action="store",
+                               help="The package name to find unused components / libraries in."
                                "ex: MyPlatformPkg")
         parserobj.add_argument("--ignoreapp", "--IgnoreApp", "--IGNOREAPP",
-                               dest="ignoreapp", action="store_true", help="Ignore unused UEFI Application components.")
+                               dest="ignoreapp", action="store_true",
+                               help="Ignore unused UEFI Application components.")
 
     def run_report(self, db: TinyDB, args: Namespace) -> None:
 
@@ -328,7 +332,6 @@ class UnusedComponents(WorkspaceReport):
             total_unused_components.append(unused_components)
             total_unused_libraries.append(unused_libraries - unused_components)
 
-        import pprint
         print("Unused Components:")
         for inf in reduce(lambda acc, curr: acc.intersection(curr), total_unused_components):
             print(f'  {inf}')
