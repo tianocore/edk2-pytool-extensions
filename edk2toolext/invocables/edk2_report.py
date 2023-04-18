@@ -340,7 +340,7 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
             return {}
 
     def _format_package_and_arch_list(self, args):
-        """flattens the package and arch list.
+        """Flattens the package and arch list.
 
         These lists can come in the form of ["Arch1", "Arch2", "Arch3"], ["Arch1,Arch2", "Arch3"]
         We transform them to always be ["Arch1", "Arch2", "Arch3"]

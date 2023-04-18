@@ -29,7 +29,7 @@ class WorkspaceReport:
 
     @classmethod
     def report_info(self):
-        """Returns the report standard information
+        """Returns the report standard information.
 
         Returns:
             (str, str): A tuple of (name, description)
@@ -45,6 +45,7 @@ class WorkspaceReport:
         raise NotImplementedError
 
     def to_stdout(self, documents: list[Document], tablefmt="simple"):
+        """Prints a tinydb table as a ascii table."""
         print(tabulate(documents, headers="keys", tablefmt=tablefmt, maxcolwidths=100))
 
     def columns(self, column_list: list[str], documents: list[Document], ):

@@ -223,6 +223,7 @@ class WorkspaceParser:
     """An interface for a workspace parser."""
 
     def is_dsc_scoped(self) -> bool:
+        """Return if this parser relies on a DSC with the environment set."""
         return False
 
     def parse_workspace(self, db: TinyDB, pathobj: Edk2Path, env: VarDict) -> None:
@@ -242,7 +243,6 @@ class CParser(WorkspaceParser):
 
     def parse_workspace(self, db: TinyDB, pathobj: Edk2Path, env: VarDict) -> None:
         """Parse the workspace and update the database."""
-
         ws = Path(pathobj.WorkspacePath)
         src_table = db.table("source", cache_size=None)
 
@@ -255,10 +255,6 @@ class CParser(WorkspaceParser):
 
         with transaction(src_table) as tr:
             tr.insert_multiple(src_entries)
-
-    def get_tables(self) -> list[str]:
-        """Return a list of tables that should be provided to the parser."""
-        return ["source"]
 
     def _parse_file(self, ws, filename: Path) -> dict:
         """Parse a C file and return the results."""
@@ -291,6 +287,7 @@ class IParser(WorkspaceParser):
     """
 
     def parse_workspace(self, db: TinyDB, pathobj: Edk2Path, env: VarDict) -> None:
+        """Parse the workspace and update the database."""
         ws = Path(pathobj.WorkspacePath)
         inf_table = db.table("inf", cache_size=None)
         inf_entries = []
@@ -344,9 +341,11 @@ class DParser(WorkspaceParser):
     OVERRIDE_REGEX = re.compile(r"\<(.*)\>")
 
     def is_dsc_scoped(self) -> bool:
+        """Return if this parser relies on a DSC with the environment set."""
         return True
 
     def parse_workspace(self, db: TinyDB, pathobj: Edk2Path, env: VarDict) -> None:
+        """Parse the workspace and update the database.""" 
         self.pathobj = pathobj
         self.ws = Path(pathobj.WorkspacePath)
         self.dsc = env.GetValue("ACTIVE_PLATFORM")
@@ -367,14 +366,14 @@ class DParser(WorkspaceParser):
         # of the same library will exist if multiple components use it.
         #
         # This is where we merge DSC parser information with INF parser information.
-        inf_entries = self.build_inf_table(dscp)
+        inf_entries = self._build_inf_table(dscp)
 
         table_name = f'{str(Path(self.dsc).parent)}_{self.target}_dsc'
         table = db.table(table_name, cache_size=None)
         with transaction(table) as tr:
             tr.insert_multiple(inf_entries)
 
-    def build_inf_table(self, dscp: _DscParser):
+    def _build_inf_table(self, dscp: _DscParser):
 
         inf_entries = []
         for (inf, scope, overrides) in dscp.Components:
@@ -390,7 +389,7 @@ class DParser(WorkspaceParser):
             if "MODULE_TYPE" in infp.Dict:
                 scope += f".{infp.Dict['MODULE_TYPE']}"
 
-            inf_entries += self.parse_inf_recursively(inf, inf, dscp.ScopedLibraryDict, overrides, scope, [])
+            inf_entries += self._parse_inf_recursively(inf, inf, dscp.ScopedLibraryDict, overrides, scope, [])
 
         # Move entries to correct table
         for entry in inf_entries:
@@ -399,7 +398,7 @@ class DParser(WorkspaceParser):
 
         return inf_entries
 
-    def parse_inf_recursively(
+    def _parse_inf_recursively(
             self, inf: str, component: str, library_dict: dict, override_dict: dict, scope: str, visited):
         """Recurses down all libraries starting from a single INF.
 
@@ -430,7 +429,7 @@ class DParser(WorkspaceParser):
         # Time to visit in libraries that we have not visited yet.
         to_return = []
         for library in filter(lambda lib: lib not in visited, library_instances):
-            to_return += self.parse_inf_recursively(library, component,
+            to_return += self._parse_inf_recursively(library, component,
                                                     library_dict, override_dict, scope, visited)
 
         to_return.append({
@@ -500,9 +499,11 @@ class FParser(WorkspaceParser):
     """
 
     def is_dsc_scoped(self) -> bool:
+        """Return if this parser relies on a DSC with the environment set."""
         return True
 
     def parse_workspace(self, db: TinyDB, pathobj: Edk2Path, env: VarDict) -> None:
+        """Parse the workspace and update the database."""
         self.pathobj = pathobj
         self.ws = Path(pathobj.WorkspacePath)
         self.dsc = env.GetValue("ACTIVE_PLATFORM")
