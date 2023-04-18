@@ -86,7 +86,9 @@ setuptools.setup(
         'pefile>=2023.2.7',
         'semantic_version>=2.10.0',
         'GitPython>=3.1.30',
-        'cryptography >= 39.0.1'
+        'cryptography >= 39.0.1',
+        'tinydb >= 4.7.1',
+        'tinyrecord >= 0.2.0',
     ],
     extras_require={
         'openssl': ['pyopenssl']

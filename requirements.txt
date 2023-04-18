@@ -8,3 +8,5 @@ semantic_version == 2.10.0
 GitPython == 3.1.31
 pyyaml == 6.0.0
 cryptography == 40.0.1
+tinydb == 4.7.1
+tinyrecord == 0.2.0

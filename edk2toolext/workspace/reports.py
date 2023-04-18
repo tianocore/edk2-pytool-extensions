@@ -21,7 +21,6 @@ from tinydb.table import Document
 import xml.dom.minidom as minidom
 import xml.etree.ElementTree as ET
 
-from edk2toolext.environment.var_dict import VarDict
 from edk2toollib.uefi.edk2.path_utilities import Edk2Path
 
 
