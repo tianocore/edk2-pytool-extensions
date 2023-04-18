@@ -8,7 +8,8 @@
 """This file provides classes that are responsible for parsing the workspace for edk2report.
 
 The parsers are also responsible for placing this information into the database
-and providing clear documentation on the table schema."""
+and providing clear documentation on the table schema.
+"""
 
 import logging
 import re
@@ -233,6 +234,7 @@ class WorkspaceParser:
 
 class CParser(WorkspaceParser):
     """A Workspace parser that parses all c and h files in the workspace.
+
     Generates a table with the following schema:
 
     table_name: "source"
@@ -278,6 +280,7 @@ class CParser(WorkspaceParser):
 
 class IParser(WorkspaceParser):
     """A Workspace parser that parses all INF files in the workspace.
+
     Generates a table with the following schema:
 
     table_name: "inf"
@@ -328,6 +331,7 @@ class IParser(WorkspaceParser):
 
 class DParser(WorkspaceParser):
     """A Workspace parser that parses a single DSC file.
+
     Generates a table with the following schema:
 
     table_name: "<PKGNAME>_inf"
@@ -490,6 +494,7 @@ class DParser(WorkspaceParser):
 
 class FParser(WorkspaceParser):
     """A Workspace parser that parses a single FDF file.
+
     Generates a table with the following schema:
 
     table_name: "<PKGNAME>_fdf"

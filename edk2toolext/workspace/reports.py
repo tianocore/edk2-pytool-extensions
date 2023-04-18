@@ -207,7 +207,7 @@ class LibraryInfReport(WorkspaceReport):
     """A report that generates a list of library instances for a given library."""
 
     def report_info(self):
-        """Returns the report standard information
+        """Returns the report standard information.
 
         Returns:
             (str, str): A tuple of (name, description)
@@ -235,7 +235,7 @@ class ComponentInfo(WorkspaceReport):
     """A report that provides information about a specific component."""
 
     def report_info(self):
-        """Returns the report standard information
+        """Returns the report standard information.
 
         Returns:
             (str, str): A tuple of (name, description)
@@ -264,7 +264,7 @@ class UnusedComponents(WorkspaceReport):
     """A report that returns any unused components for a specific build."""
 
     def report_info(self):
-        """Returns the report standard information
+        """Returns the report standard information.
 
         Returns:
             (str, str): A tuple of (name, description)
