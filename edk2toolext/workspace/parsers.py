@@ -345,7 +345,7 @@ class DParser(WorkspaceParser):
         return True
 
     def parse_workspace(self, db: TinyDB, pathobj: Edk2Path, env: VarDict) -> None:
-        """Parse the workspace and update the database.""" 
+        """Parse the workspace and update the database."""
         self.pathobj = pathobj
         self.ws = Path(pathobj.WorkspacePath)
         self.dsc = env.GetValue("ACTIVE_PLATFORM")
@@ -430,7 +430,7 @@ class DParser(WorkspaceParser):
         to_return = []
         for library in filter(lambda lib: lib not in visited, library_instances):
             to_return += self._parse_inf_recursively(library, component,
-                                                    library_dict, override_dict, scope, visited)
+                                                     library_dict, override_dict, scope, visited)
 
         to_return.append({
             "DSC": self.dsc,

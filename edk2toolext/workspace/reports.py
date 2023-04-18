@@ -58,6 +58,7 @@ class WorkspaceReport:
 
 
 class CoverageReport(WorkspaceReport):
+    """A Report that converts coverage data from exe scope to INF scope."""
     def report_info(self):
         """Returns the report standard information
 
@@ -76,6 +77,7 @@ class CoverageReport(WorkspaceReport):
         parserobj.add_argument("--lib-only", action="store_true", help="To only show results for library INFs")
 
     def run_report(self, db: TinyDB, args: Namespace) -> None:
+        """Generate the Coverage report."""
         self.args = args
         files = self._build_file_dict(args.xml)
 
@@ -182,7 +184,7 @@ class LicenseReport(WorkspaceReport):
                                help="A comma separated list strings to exclude in the search.")
 
     def run_report(self, db: TinyDB, args: Namespace) -> None:
-        """Generate a report."""
+        """Generate the License report."""
         table = db.table("source")
         regex = ""
         include = args.include
@@ -220,7 +222,7 @@ class LibraryInfReport(WorkspaceReport):
                                dest="library", action="store", help="The library class to search for.")
 
     def run_report(self, db: TinyDB, args: Namespace) -> None:
-        """Generate a report."""
+        """Generate the Library INF report."""
         table = db.table("inf")
 
         lib_type = args.library
@@ -250,6 +252,7 @@ class ComponentInfo(WorkspaceReport):
                                dest="package", action="store", help="The package the component is used in.")
 
     def run_report(self, db: TinyDB, args: Namespace) -> None:
+        """Generate the Component Info report."""
         pkg = args.package
         component = args.component
         table = db.table(f'{pkg}_inf')
@@ -280,7 +283,7 @@ class UnusedComponents(WorkspaceReport):
                                help="Ignore unused UEFI Application components.")
 
     def run_report(self, db: TinyDB, args: Namespace) -> None:
-
+        """Generate the Unused Component report."""
         total_unused_components = []
         total_unused_libraries = []
 
@@ -319,11 +322,11 @@ class UnusedComponents(WorkspaceReport):
 
             # Grab all libraries used by components that are not used
             for component in unused_components:
-                self.recurse_inf(component, dsc, unused_component_library_list)
+                self._recurse_inf(component, dsc, unused_component_library_list)
 
             # Grab all libraries used by components that are used
             for component in used_components:
-                self.recurse_inf(component, dsc, used_component_library_list)
+                self._recurse_inf(component, dsc, used_component_library_list)
 
             # The unused libraries for this target is the difference between the two
             unused_libraries = set(unused_component_library_list) - set(used_component_library_list)
@@ -343,10 +346,10 @@ class UnusedComponents(WorkspaceReport):
 
         return 0
 
-    def recurse_inf(self, inf, table, library_list):
+    def _recurse_inf(self, inf, table, library_list):
         if inf in library_list:
             return
 
         library_list.append(inf)
         for inf in table.search(Query().PATH == inf)[0]["LIBRARIES_USED"]:
-            self.recurse_inf(inf, table, library_list)
+            self._recurse_inf(inf, table, library_list)
