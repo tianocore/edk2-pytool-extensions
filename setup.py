@@ -90,6 +90,7 @@ setuptools.setup(
         'tinydb >= 4.7.1',
         'tinyrecord >= 0.2.0',
         'joblib >= 1.2.0',
+        'tabulate >= 0.9.0',
     ],
     extras_require={
         'openssl': ['pyopenssl']
