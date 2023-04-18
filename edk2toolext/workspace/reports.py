@@ -27,7 +27,6 @@ from edk2toollib.uefi.edk2.path_utilities import Edk2Path
 class WorkspaceReport:
     """An interface for a report."""
 
-    @classmethod
     def report_info(self):
         """Returns the report standard information.
 
@@ -59,8 +58,9 @@ class WorkspaceReport:
 
 class CoverageReport(WorkspaceReport):
     """A Report that converts coverage data from exe scope to INF scope."""
+
     def report_info(self):
-        """Returns the report standard information
+        """Returns the report standard information.
 
         Returns:
             (str, str): A tuple of (name, description)
@@ -164,9 +164,8 @@ class CoverageReport(WorkspaceReport):
 class LicenseReport(WorkspaceReport):
     """A report that lists all of the licenses in the workspace."""
 
-    @classmethod
     def report_info(self):
-        """Returns the report standard information
+        """Returns the report standard information.
 
         Returns:
             (str, str): A tuple of (name, description)
@@ -175,7 +174,6 @@ class LicenseReport(WorkspaceReport):
 
     def add_cli_options(self, parserobj: ArgumentParser):
         """Configure command line arguments for this report."""
-
         parserobj.add_argument("--include", "--Include", "--INCLUDE",
                                dest="include", action="store",
                                help="A comma separated list strings to include in the search.")
@@ -206,8 +204,8 @@ class LicenseReport(WorkspaceReport):
 
 
 class LibraryInfReport(WorkspaceReport):
+    """A report that generates a list of library instances for a given library."""
 
-    @classmethod
     def report_info(self):
         """Returns the report standard information
 
@@ -234,8 +232,8 @@ class LibraryInfReport(WorkspaceReport):
 
 
 class ComponentInfo(WorkspaceReport):
+    """A report that provides information about a specific component."""
 
-    @classmethod
     def report_info(self):
         """Returns the report standard information
 
@@ -263,7 +261,8 @@ class ComponentInfo(WorkspaceReport):
 
 
 class UnusedComponents(WorkspaceReport):
-    @classmethod
+    """A report that returns any unused components for a specific build."""
+
     def report_info(self):
         """Returns the report standard information
 
