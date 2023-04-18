@@ -235,9 +235,9 @@ class CParser(WorkspaceParser):
     Generates a table with the following schema:
 
     table_name: "source"
-    |-------------------------------------------------------------------------|
-    | PATH | LICENSE | TOTAL_LINES | CODE_LINES | COMMENT_LINES | BLANK_LINES |
-    |-------------------------------------------------------------------------|
+    |-------------------------------------------------------------------------| # noqa: E501
+    | PATH | LICENSE | TOTAL_LINES | CODE_LINES | COMMENT_LINES | BLANK_LINES | # noqa: E501
+    |-------------------------------------------------------------------------| # noqa: E501
     """
 
     def parse_workspace(self, db: TinyDB, pathobj: Edk2Path, env: VarDict) -> None:
@@ -285,9 +285,9 @@ class IParser(WorkspaceParser):
     Generates a table with the following schema:
 
     table_name: "inf"
-    |----------------------------------------------------------------------------------------------------------------------------|
-    | GUID | LIBRARY_CLASS | PATH | PHASES | SOURCES_USED | LIBRARIES_USED | PROTOCOLS_USED | GUIDS_USED | PPIS_USED | PCDS_USED |
-    |----------------------------------------------------------------------------------------------------------------------------|
+    |----------------------------------------------------------------------------------------------------------------------------| # noqa: E501
+    | GUID | LIBRARY_CLASS | PATH | PHASES | SOURCES_USED | LIBRARIES_USED | PROTOCOLS_USED | GUIDS_USED | PPIS_USED | PCDS_USED | # noqa: E501
+    |----------------------------------------------------------------------------------------------------------------------------| # noqa: E501
     """
 
     def parse_workspace(self, db: TinyDB, pathobj: Edk2Path, env: VarDict) -> None:
@@ -333,9 +333,9 @@ class DParser(WorkspaceParser):
     Generates a table with the following schema:
 
     table_name: "<PKGNAME>_inf"
-    |----------------------------------------------------------------------------------------------------------------------------------|
-    | DSC | GUID | LIBRARY_CLASS | PATH | PHASES | SOURCES_USED | LIBRARIES_USED | PROTOCOLS_USED | GUIDS_USED | PPIS_USED | PCDS_USED |
-    |----------------------------------------------------------------------------------------------------------------------------------|
+    |----------------------------------------------------------------------------------------------------------------------------------| # noqa: E501
+    | DSC | GUID | LIBRARY_CLASS | PATH | PHASES | SOURCES_USED | LIBRARIES_USED | PROTOCOLS_USED | GUIDS_USED | PPIS_USED | PCDS_USED | # noqa: E501
+    |----------------------------------------------------------------------------------------------------------------------------------| # noqa: E501
     """
     SECTION_LIBRARY = "LibraryClasses"
     SECTION_COMPONENT = "Components"
@@ -492,9 +492,9 @@ class FParser(WorkspaceParser):
     Generates a table with the following schema:
 
     table_name: "<PKGNAME>_fdf"
-    |------------------------------------------------------|
-    | FDF | PATH | TARGET | FV_NAME | INF_LIST | FILE_LIST |
-    |------------------------------------------------------|
+    |------------------------------------------------------| # noqa: E501
+    | FDF | PATH | TARGET | FV_NAME | INF_LIST | FILE_LIST | # noqa: E501
+    |------------------------------------------------------| # noqa: E501
     """
 
     def is_dsc_scoped(self) -> bool:
