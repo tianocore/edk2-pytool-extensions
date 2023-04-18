@@ -25,7 +25,7 @@ from pathlib import Path
 
 
 logger = logging.getLogger(__name__)
-MIN_GIT_VERSION = "2.36.0"
+MIN_GIT_VERSION = "2.11.0"
 
 
 def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=False):
