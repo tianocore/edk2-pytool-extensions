@@ -147,9 +147,9 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
         """Returns the logging file name for this invocation."""
         return self.args.cmd.upper() + "_LOG"
 
-    def GetActiveScopes(self):
-        """Returns the scopes."""
-        return ("global",)
+    # def GetActiveScopes(self):
+    #     """Returns the scopes."""
+    #     return ("global",)
 
     def Go(self):
         """Executes the invocable. Runs the subcommand specified by the user."""
