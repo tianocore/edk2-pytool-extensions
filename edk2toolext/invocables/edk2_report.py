@@ -37,6 +37,7 @@ TARGET_LIST = ["DEBUG", "RELEASE"]
 
 
 class ReportSettingsManager(MultiPkgAwareSettingsInterface):
+    """Settings to support ReportSettingsManager functionality."""
     pass
 
 
@@ -61,10 +62,12 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
     """
 
     def __init__(self):
+        """Initializes an Edk2Report Object."""
         super().__init__()
         self.is_uefi_builder = False
 
     def GetSettingsClass(self):
+        """Returns the Settings Manager for the invocable."""
         return ReportSettingsManager
 
     def ParseCommandLineOptions(self,):
@@ -137,12 +140,15 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
                 raise RuntimeError(f'Unknown variable passed in via CLI: {argument}')
 
     def GetLoggingFolderRelativeToRoot(self):
+        """Returns the folder to place logging files in."""
         return "Report"
 
     def GetLoggingFileName(self, loggerType):
+        """Returns the logging file name for this invocation."""
         return self.args.cmd.upper() + "_LOG"
 
     def GetActiveScopes(self):
+        """Returns the scopes."""
         return ("global",)
 
     def Go(self):
@@ -293,6 +299,7 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
             return
 
     def InputParametersConfiguredCallback(self):
+        """Perform actions after input parameters have been configured."""
         return
 
     def _add_build_config_env(self, path: Path, env):
@@ -357,4 +364,5 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
 
 
 def main():
+    """Entry point to invoke Edk2PlatformSetup."""
     Edk2Report().Invoke()
