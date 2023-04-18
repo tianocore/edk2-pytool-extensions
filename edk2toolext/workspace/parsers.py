@@ -231,7 +231,8 @@ class WorkspaceParser:
 
 
 class CParser(WorkspaceParser):
-    """A Workspace parser that parses all c and h files in the workspace and generates a table with the following schema:
+    """A Workspace parser that parses all c and h files in the workspace.
+    Generates a table with the following schema:
 
     table_name: "source"
     |-------------------------------------------------------------------------|
@@ -249,7 +250,8 @@ class CParser(WorkspaceParser):
         files = list(ws.rglob("*.c")) + list(ws.rglob("*.h"))
         src_entries = Parallel(n_jobs=-1)(delayed(self._parse_file)(ws, filename) for filename in files)
         logging.debug(
-            f"{self.__class__.__name__}: Parsed {len(src_entries)} .c/h files; took {round(time.time() - start, 2)} seconds.")
+            f"{self.__class__.__name__}: Parsed {len(src_entries)} .c/h files; "
+            f"took {round(time.time() - start, 2)} seconds.")
 
         with transaction(src_table) as tr:
             tr.insert_multiple(src_entries)
@@ -279,7 +281,8 @@ class CParser(WorkspaceParser):
 
 
 class IParser(WorkspaceParser):
-    """A Workspace parser that parses all INF files in the workspace and generates a table with the following schema:
+    """A Workspace parser that parses all INF files in the workspace.
+    Generates a table with the following schema:
 
     table_name: "inf"
     |----------------------------------------------------------------------------------------------------------------------------|
@@ -326,7 +329,8 @@ class IParser(WorkspaceParser):
 
 
 class DParser(WorkspaceParser):
-    """A Workspace parser that parses a single DSC file and generates a table with the following schema:
+    """A Workspace parser that parses a single DSC file.
+    Generates a table with the following schema:
 
     table_name: "<PKGNAME>_inf"
     |----------------------------------------------------------------------------------------------------------------------------------|
@@ -484,7 +488,8 @@ class DParser(WorkspaceParser):
 
 
 class FParser(WorkspaceParser):
-    """A Workspace parser that parses a single FDF file and generates a table with the following schema:
+    """A Workspace parser that parses a single FDF file.
+    Generates a table with the following schema:
 
     table_name: "<PKGNAME>_fdf"
     |------------------------------------------------------|

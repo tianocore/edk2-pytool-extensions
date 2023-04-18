@@ -26,7 +26,8 @@ from edk2toolext.environment.uefi_build import UefiBuilder
 from edk2toolext.environment.plugintypes.uefi_helper_plugin import HelperFunctions
 from edk2toolext.environment import plugin_manager
 from edk2toolext.environment import shell_environment
-from edk2toolext.invocables.edk2_multipkg_aware_invocable import MultiPkgAwareSettingsInterface, Edk2MultiPkgAwareInvocable
+from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable
+from edk2toolext.invocables.edk2_multipkg_aware_invocable import MultiPkgAwareSettingsInterface
 from edk2toollib.uefi.edk2.path_utilities import Edk2Path
 from edk2toollib.utility_functions import locate_class_in_module, import_module_by_file_name
 
@@ -48,7 +49,7 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
     Edk2 packages, and a repo containing platform packages. When the goal is to parse the workspace' Edk2 packages,
     The Edk2Report Generator uses methods from the MultiPkgAwareSettingsInterface, which is most commonly found in
     a CI Settings File. In this scenario, it will either parse all packages defined by `GetPackagesSupported()` or
-    a subset of those packages as defined by the -p flag. The same can be said about the architectures by using 
+    a subset of those packages as defined by the -p flag. The same can be said about the architectures by using
     `GetDefinedArchitectures()` and the -a command.
 
     When the goal is to parse a platform package, the Edk2Report Generator uses methods from the `UefiBuilder`, which
@@ -73,8 +74,8 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
         parser.add_argument('--verbose', '--VERBOSE', '-v', dest="verbose", action='store_true', default=False,
                             help='verbose')
         parser.add_argument('-c', '--platform_module', required=True,
-                                  dest='platform_module', help='Provide the Platform Module relative to the current working directory.'
-                                  f'This should contain a {self.GetSettingsClass().__name__} instance.')
+                            dest='platform_module', help='Provide the Platform Module relative to the current working '
+                            f' directory. This should contain a {self.GetSettingsClass().__name__} instance.')
         parser.add_argument('-p', '--pkg', '--pkg-dir', dest='package_list', type=str,
                             help='Optional - A package list of packages to parse.'
                             'Can list multiple by doing -p <pkg1>,<pkg2> or -p <pkg3> -p <pkg4>',
@@ -211,7 +212,9 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
 
             for parser in self.get_parsers(need_dsc=True):
                 logging.log(
-                    edk2_logging.SECTION, f"[{parser.__class__.__name__}] starting {Path(env.GetValue('ACTIVE_PLATFORM')).name} [{env.GetValue('TARGET')}][{env.GetValue('TARGET_ARCH')}]: ")
+                    edk2_logging.SECTION,
+                    f"[{parser.__class__.__name__}] starting {Path(env.GetValue('ACTIVE_PLATFORM')).name} "
+                    f"[{env.GetValue('TARGET')}][{env.GetValue('TARGET_ARCH')}]: ")
                 start = time.time()
                 parser.parse_workspace(db, pathobj, env)
                 logging.log(edk2_logging.PROGRESS, f"Finished in {round(time.time() - start, 2)} seconds.")
@@ -241,7 +244,9 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
                 # Actually run them
                 for parser in self.get_parsers(need_dsc=True):
                     logging.log(
-                        edk2_logging.SECTION, f"[{parser.__class__.__name__}] starting {env.GetValue('ACTIVE_PLATFORM')} [{env.GetValue('TARGET')}][{env.GetValue('ARCH')}]: ")
+                        edk2_logging.SECTION,
+                        f"[{parser.__class__.__name__}] starting {env.GetValue('ACTIVE_PLATFORM')} "
+                        f"[{env.GetValue('TARGET')}][{env.GetValue('ARCH')}]: ")
                     start = time.time()
                     parser.parse_workspace(db, pathobj, env)
                     logging.log(edk2_logging.PROGRESS, f"Finished in {round(time.time() - start, 2)} seconds.")
