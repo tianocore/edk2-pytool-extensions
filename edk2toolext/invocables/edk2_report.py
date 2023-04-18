@@ -58,6 +58,7 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
 
     Addionally, any build variables can be overwritten or added via the command line VAR=VALUE functionality.
     """
+
     def __init__(self):
         super().__init__()
         self.is_uefi_builder = False
@@ -84,11 +85,11 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
         subparsers = parser.add_subparsers(dest='cmd', required=[])
 
         # Add the parse subcommand options here.
-        parse_parser = subparsers.add_parser("parse", help = "Parse the workspace and generate a database.")
+        parse_parser = subparsers.add_parser("parse", help="Parse the workspace and generate a database.")
         parse_parser.add_argument("-db", "--database", "--Database", "--DATABASE",
                                   dest="database", action="store", help="Set the database rather then parse for one.")
-        parse_parser.add_argument('--build-config', dest='build_config', default = "",
-                                 type=str, help='Provide shell variables in a file')
+        parse_parser.add_argument('--build-config', dest='build_config', default="",
+                                  type=str, help='Provide shell variables in a file')
 
         # Add all report subcommand options here.
         for report in self.get_reports():
@@ -129,8 +130,8 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
                 tokens = argument.strip().split('=')
                 env.SetValue(tokens[0].strip().upper(), tokens[1].strip(), "From Command Line")
             elif argument.count("=") == 0:
-                env.SetValue(argument.strip().upper(), 
-                ''.join(choice(ascii_letters) for _ in range(20)),"Non valued variable set From cmdLine")
+                env.SetValue(argument.strip().upper(),
+                             ''.join(choice(ascii_letters) for _ in range(20)), "Non valued variable set From cmdLine")
             else:
                 raise RuntimeError(f'Unknown variable passed in via CLI: {argument}')
 
@@ -159,7 +160,7 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
     def parse_workspace(self, db_path: Path, args):
         """Runs all defined workspace parsers to generate a database."""
         # Delete database if it exists and recreate it.
-        db_path.unlink(missing_ok = True)
+        db_path.unlink(missing_ok=True)
         db_path.touch()
 
         # If we are provided a database, copy it to our preferred location.
@@ -171,7 +172,7 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
 
         with TinyDB(db_path, access_mode='r+', storage=CachingMiddleware(JSONStorage)) as db:
             # Run all non-dsc setting specific parsers
-            for parser in self.get_parsers(need_dsc = False):
+            for parser in self.get_parsers(need_dsc=False):
                 logging.log(edk2_logging.SECTION, f"[{parser.__class__.__name__}] starting...")
                 start = time.time()
                 parser.parse_workspace(db, pathobj, env)
@@ -194,7 +195,7 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
             shell_environment.CheckpointBuildVars()
             env.SetValue('TARGET', target, "Set automatically.")
             try:
-                logging.disable(logging.CRITICAL) # Disable logging when running the UefiBuilder.
+                logging.disable(logging.CRITICAL)  # Disable logging when running the UefiBuilder.
                 platform_module = locate_class_in_module(self.PlatformModule, UefiBuilder)
                 if platform_module:
                     build_settings = platform_module()
@@ -203,12 +204,14 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
                     build_settings.SkipBuild = True
                     build_settings.SkipPostBuild = True
                     build_settings.FlashImage = False
-                    build_settings.Go(self.GetWorkspaceRoot(), os.pathsep.join(self.GetPackagesPath()), HelperFunctions(), plugin_manager.PluginManager())
+                    build_settings.Go(self.GetWorkspaceRoot(), os.pathsep.join(self.GetPackagesPath()),
+                                      HelperFunctions(), plugin_manager.PluginManager())
             finally:
                 logging.disable(logging.NOTSET)
 
-            for parser in self.get_parsers(need_dsc = True):
-                logging.log(edk2_logging.SECTION, f"[{parser.__class__.__name__}] starting {Path(env.GetValue('ACTIVE_PLATFORM')).name} [{env.GetValue('TARGET')}][{env.GetValue('TARGET_ARCH')}]: ")
+            for parser in self.get_parsers(need_dsc=True):
+                logging.log(
+                    edk2_logging.SECTION, f"[{parser.__class__.__name__}] starting {Path(env.GetValue('ACTIVE_PLATFORM')).name} [{env.GetValue('TARGET')}][{env.GetValue('TARGET_ARCH')}]: ")
                 start = time.time()
                 parser.parse_workspace(db, pathobj, env)
                 logging.log(edk2_logging.PROGRESS, f"Finished in {round(time.time() - start, 2)} seconds.")
@@ -236,23 +239,24 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
                     env.SetValue(key, value, "Defined in Package CI yaml")
 
                 # Actually run them
-                for parser in self.get_parsers(need_dsc = True):
-                    logging.log(edk2_logging.SECTION, f"[{parser.__class__.__name__}] starting {env.GetValue('ACTIVE_PLATFORM')} [{env.GetValue('TARGET')}][{env.GetValue('ARCH')}]: ")
+                for parser in self.get_parsers(need_dsc=True):
+                    logging.log(
+                        edk2_logging.SECTION, f"[{parser.__class__.__name__}] starting {env.GetValue('ACTIVE_PLATFORM')} [{env.GetValue('TARGET')}][{env.GetValue('ARCH')}]: ")
                     start = time.time()
                     parser.parse_workspace(db, pathobj, env)
-                    logging.log(edk2_logging.PROGRESS, f"Finished in {round(time.time() - start, 2)} seconds.")    
+                    logging.log(edk2_logging.PROGRESS, f"Finished in {round(time.time() - start, 2)} seconds.")
                 shell_environment.RevertBuildVars()
 
     def run_report(self, args, db_path):
         """Runs the specified report."""
-        with TinyDB(db_path, access_mode='r', storage=CachingMiddleware(JSONStorage)) as db: 
+        with TinyDB(db_path, access_mode='r', storage=CachingMiddleware(JSONStorage)) as db:
             for report in self.get_reports():
                 name, _ = report.report_info()
                 if name == args.cmd:
                     return report.run_report(db, self.args)
-            return -1 # Should never happen as we verify the subcommand when parsing arguments.
+            return -1  # Should never happen as we verify the subcommand when parsing arguments.
 
-    def get_parsers(self, need_dsc = False) -> list:
+    def get_parsers(self, need_dsc=False) -> list:
         """Returns a list of un-instantiated DbDocument subclass parsers."""
         parser_list = []
 
@@ -305,8 +309,8 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
                 tokens = argument.strip().split('=')
                 env.SetValue(tokens[0].strip().upper(), tokens[1].strip(), "From Command Line")
             elif argument.count("=") == 0:
-                env.SetValue(argument.strip().upper(), 
-                ''.join(choice(ascii_letters) for _ in range(20)),
+                env.SetValue(argument.strip().upper(),
+                             ''.join(choice(ascii_letters) for _ in range(20)),
                              "Non valued variable set From cmdLine")
             else:
                 raise RuntimeError(f'Unknown variable passed in via CLI: {argument}')
@@ -328,10 +332,10 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
 
         These lists can come in the form of ["Arch1", "Arch2", "Arch3"], ["Arch1,Arch2", "Arch3"]
         We transform them to always be ["Arch1", "Arch2", "Arch3"]
-        """  
+        """
         # Parse out the individual packages
         package_list = set()
-        for item in args.package_list:  
+        for item in args.package_list:
             item_list = item.split(",")
             for individual_item in item_list:
                 # in case cmd line caller used Windows folder slashes
@@ -345,6 +349,7 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
             for individual_item in item_list:
                 arch_list.add(individual_item.strip())
         args.arch_list = list(arch_list)
+
 
 def main():
     Edk2Report().Invoke()

@@ -10,7 +10,7 @@
 The parsers are also responsible for placing this information into the database
 and providing clear documentation on the table schema."""
 
-import logging 
+import logging
 import re
 from pathlib import Path
 import time
@@ -221,6 +221,7 @@ class _DscParser(DscP):
 
 class WorkspaceParser:
     """An interface for a workspace parser."""
+
     def is_dsc_scoped(self) -> bool:
         return False
 
@@ -237,6 +238,7 @@ class CParser(WorkspaceParser):
     | PATH | LICENSE | TOTAL_LINES | CODE_LINES | COMMENT_LINES | BLANK_LINES |
     |-------------------------------------------------------------------------|
     """
+
     def parse_workspace(self, db: TinyDB, pathobj: Edk2Path, env: VarDict) -> None:
         """Parse the workspace and update the database."""
 
@@ -246,7 +248,8 @@ class CParser(WorkspaceParser):
         start = time.time()
         files = list(ws.rglob("*.c")) + list(ws.rglob("*.h"))
         src_entries = Parallel(n_jobs=-1)(delayed(self._parse_file)(ws, filename) for filename in files)
-        logging.debug(f"{self.__class__.__name__}: Parsed {len(src_entries)} .c/h files; took {round(time.time() - start, 2)} seconds.")
+        logging.debug(
+            f"{self.__class__.__name__}: Parsed {len(src_entries)} .c/h files; took {round(time.time() - start, 2)} seconds.")
 
         with transaction(src_table) as tr:
             tr.insert_multiple(src_entries)
@@ -258,9 +261,9 @@ class CParser(WorkspaceParser):
     def _parse_file(self, ws, filename: Path) -> dict:
         """Parse a C file and return the results."""
         license = ""
-        with open (filename, 'r', encoding='cp850') as f:
+        with open(filename, 'r', encoding='cp850') as f:
             for line in f.readlines():
-                match = re.search(r"SPDX-License-Identifier:\s*(.*)$", line) # TODO: This is not a standard format.
+                match = re.search(r"SPDX-License-Identifier:\s*(.*)$", line)  # TODO: This is not a standard format.
                 if match:
                     license = match.group(1)
                     break
@@ -292,7 +295,8 @@ class IParser(WorkspaceParser):
         start = time.time()
         files = list(ws.glob("**/*.inf"))
         inf_entries = Parallel(n_jobs=-1)(delayed(self._parse_file)(ws, filename, pathobj) for filename in files)
-        logging.debug(f"{self.__class__.__name__}: Parsed {len(inf_entries)} .inf files took; {round(time.time() - start, 2)} seconds.")
+        logging.debug(
+            f"{self.__class__.__name__}: Parsed {len(inf_entries)} .inf files took; {round(time.time() - start, 2)} seconds.")
 
         with transaction(inf_table) as tr:
             tr.insert_multiple(inf_entries)
@@ -355,8 +359,8 @@ class DParser(WorkspaceParser):
         dscp.ParseFile(self.dsc)
 
         # Create the instanced inf entries, including components and libraries. multiple entries
-        # of the same library will exist if multiple components use it. 
-        # 
+        # of the same library will exist if multiple components use it.
+        #
         # This is where we merge DSC parser information with INF parser information.
         inf_entries = self.build_inf_table(dscp)
 
@@ -420,7 +424,8 @@ class DParser(WorkspaceParser):
         # Time to visit in libraries that we have not visited yet.
         to_return = []
         for library in filter(lambda lib: lib not in visited, library_instances):
-            to_return+= self.parse_inf_recursively(library, component, inf, library_dict, override_dict, scope, visited)
+            to_return += self.parse_inf_recursively(library, component, inf,
+                                                    library_dict, override_dict, scope, visited)
 
         to_return.append({
             "DSC": self.dsc,
@@ -430,9 +435,9 @@ class DParser(WorkspaceParser):
             "MODULE_TYPE": infp.Dict["MODULE_TYPE"],
             "SOURCES_USED": infp.Sources,
             "LIBRARIES_USED": library_instances,
-            "PROTOCOLS_USED": [], # TODO
-            "GUIDS_USED": [], # TODO
-            "PPIS_USED": [], # TODO
+            "PROTOCOLS_USED": [],  # TODO
+            "GUIDS_USED": [],  # TODO
+            "PPIS_USED": [],  # TODO
             "PCDS_USED": infp.PcdsUsed,
         })
         return to_return
@@ -477,14 +482,16 @@ class DParser(WorkspaceParser):
 
         logging.error(f"{lookup} is missing from dict.")
 
+
 class FParser(WorkspaceParser):
     """A Workspace parser that parses a single FDF file and generates a table with the following schema:
-    
+
     table_name: "<PKGNAME>_fdf"
     |------------------------------------------------------|
     | FDF | PATH | TARGET | FV_NAME | INF_LIST | FILE_LIST |
     |------------------------------------------------------|
     """
+
     def is_dsc_scoped(self) -> bool:
         return True
 
@@ -507,7 +514,7 @@ class FParser(WorkspaceParser):
         entry_list = []
         for fv in fdfp.FVs:
 
-            inf_list = [] # Some INF's start with RuleOverride. We only need the INF
+            inf_list = []  # Some INF's start with RuleOverride. We only need the INF
             for inf in fdfp.FVs[fv]["Infs"]:
                 inf_list.append(inf.split(" ")[-1])
 

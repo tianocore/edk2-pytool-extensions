@@ -44,7 +44,7 @@ class WorkspaceReport:
         """Generate a report."""
         raise NotImplementedError
 
-    def to_stdout(self, documents: list[Document], tablefmt = "simple"):
+    def to_stdout(self, documents: list[Document], tablefmt="simple"):
         print(tabulate(documents, headers="keys", tablefmt=tablefmt, maxcolwidths=100))
 
     def columns(self, column_list: list[str], documents: list[Document], ):
@@ -67,10 +67,10 @@ class CoverageReport(WorkspaceReport):
 
     def add_cli_options(self, parserobj: ArgumentParser):
         """Configure command line arguments for this report."""
-        parserobj.add_argument("--XML", "--xml", required = True,
+        parserobj.add_argument("--XML", "--xml", required=True,
                                dest="xml", action="store", help="The path to the XML file parse.")
         parserobj.add_argument("-s", "--scope", "--Scope", "--SCOPE", default="inf", choices=["inf", "pkg"],
-                                dest="scope", action="store", help="The scope to associate coverage data")
+                               dest="scope", action="store", help="The scope to associate coverage data")
         parserobj.add_argument("--ignore-empty", action="store_true", help="To ignore inf's with no coverage.")
         parserobj.add_argument("--lib-only", action="store_true", help="To only show results for library INFs")
 
@@ -86,7 +86,7 @@ class CoverageReport(WorkspaceReport):
         table = db.table("inf")
 
         if library_only:
-            table = table.search( Query().LIBRARY_CLASS != "")
+            table = table.search(Query().LIBRARY_CLASS != "")
 
         root = ET.Element("coverage")
 
@@ -115,9 +115,10 @@ class CoverageReport(WorkspaceReport):
             if not found:
                 packages.remove(inf)
 
-        xml_string = ET.tostring(root,"utf-8")
+        xml_string = ET.tostring(root, "utf-8")
         dom = minidom.parseString(xml_string)
-        dt = minidom.getDOMImplementation('').createDocumentType('coverage', None, "http://cobertura.sourceforge.net/xml/coverage-04.dtd")
+        dt = minidom.getDOMImplementation('').createDocumentType(
+            'coverage', None, "http://cobertura.sourceforge.net/xml/coverage-04.dtd")
         dom.insertBefore(dt, dom.documentElement)
         p = Path("tmp.xml")
         p.unlink(missing_ok=True)
@@ -154,7 +155,8 @@ class CoverageReport(WorkspaceReport):
                         continue
                     match = to_update.find("lines").find(f".//line[@number='{line_number}']")
                     match.set("hits", str(int(match.attrib.get("hits")) + int(line.attrib.get("hits"))))
-        return file_dict     
+        return file_dict
+
 
 class LicenseReport(WorkspaceReport):
     """A report that lists all of the licenses in the workspace."""
@@ -172,10 +174,9 @@ class LicenseReport(WorkspaceReport):
         """Configure command line arguments for this report."""
 
         parserobj.add_argument("--include", "--Include", "--INCLUDE",
-                               dest = "include", action="store", help="A comma separated list strings to include in the search.")
+                               dest="include", action="store", help="A comma separated list strings to include in the search.")
         parserobj.add_argument("--exclude", "--Exclude", "--EXCLUDE",
-                               dest = "exclude", action="store", help="A comma separated list strings to exclude in the search.")
-
+                               dest="exclude", action="store", help="A comma separated list strings to exclude in the search.")
 
     def run_report(self, db: TinyDB, args: Namespace) -> None:
         """Generate a report."""
@@ -187,13 +188,13 @@ class LicenseReport(WorkspaceReport):
         regex = "^"
 
         if include:
-            regex+=f"(?=.*({include.replace(',', '|')}))"
+            regex += f"(?=.*({include.replace(',', '|')}))"
         if exclude:
-            regex+=f"(?!.*({exclude.replace(',', '|')})).*$"
+            regex += f"(?!.*({exclude.replace(',', '|')})).*$"
 
-        result = table.search( (Query().LICENSE == "") & (Query().PATH.search(regex)))
-    
-        self.to_stdout( result )
+        result = table.search((Query().LICENSE == "") & (Query().PATH.search(regex)))
+
+        self.to_stdout(result)
 
         print(f"\n{len(result)} files with no license found.")
         return 0
@@ -212,7 +213,7 @@ class LibraryInfReport(WorkspaceReport):
 
     def add_cli_options(self, parserobj: ArgumentParser):
         """Configure command line arguments for this report."""
-        parserobj.add_argument("--library", "--Library", "--LIBRARY", default = "",
+        parserobj.add_argument("--library", "--Library", "--LIBRARY", default="",
                                dest="library", action="store", help="The library class to search for.")
 
     def run_report(self, db: TinyDB, args: Namespace) -> None:
@@ -236,7 +237,7 @@ class ComponentInfo(WorkspaceReport):
         Returns:
             (str, str): A tuple of (name, description)
         """
-        return("component-info", "Provides information about a specific component.")
+        return ("component-info", "Provides information about a specific component.")
 
     def add_cli_options(self, parserobj: ArgumentParser):
         """Configure command line arguments for this report."""
@@ -294,7 +295,7 @@ class UnusedComponents(WorkspaceReport):
             fdf_components = []
 
             # Grab all components from the DSC
-            entries = dsc.search( ~ Query().COMPONENT.exists() )
+            entries = dsc.search(~ Query().COMPONENT.exists())
             for entry in entries:
                 if args.ignoreapp and entry["MODULE_TYPE"] == "UEFI_APPLICATION":
                     continue
@@ -324,7 +325,7 @@ class UnusedComponents(WorkspaceReport):
 
             # Insert so we have an array of arrays. This is because at the end, we need to take the
             # Intersection of the arrays
-            total_unused_components.append(unused_components)            
+            total_unused_components.append(unused_components)
             total_unused_libraries.append(unused_libraries - unused_components)
 
         import pprint
@@ -343,5 +344,5 @@ class UnusedComponents(WorkspaceReport):
             return
 
         library_list.append(inf)
-        for inf in table.search( Query().PATH == inf)[0]["LIBRARIES_USED"]:
+        for inf in table.search(Query().PATH == inf)[0]["LIBRARIES_USED"]:
             self.recurse_inf(inf, table, library_list)
