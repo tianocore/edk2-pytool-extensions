@@ -128,6 +128,11 @@ class _DscParser(DscP):
                 if self.SECTION_REGEX.match(line):
                     continue
 
+                if len(line.split("|")) != 2:
+                    logging.debug("Unexpected Line in Library Section:")
+                    logging.debug(f"  {line}")
+                    continue
+
                 # We are in a valid section, so lets parse the line and add it to our dictionary.
                 lib, instance = tuple(line.split("|"))
                 for scope in current_scope:
@@ -190,7 +195,8 @@ class _DscParser(DscP):
 
         for section in section_list:
             # Remove the section type and strip the leftover '.'. If it's empty after that, then it is actually "common"
-            current_section.append(section.replace(section_type, "").strip().lstrip(".") or "common")
+            section = section.replace(section_type, "").replace("Common", "common").strip().lstrip(".")
+            current_section.append(section or "common")
         return current_section
 
     def _build_library_override_dictionary(self, lines):
