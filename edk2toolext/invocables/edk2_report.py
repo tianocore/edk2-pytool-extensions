@@ -23,8 +23,6 @@ from tinydb.storages import JSONStorage
 from edk2toolext import edk2_logging
 from edk2toolext.workspace import reports, parsers
 from edk2toolext.environment.uefi_build import UefiBuilder
-from edk2toolext.environment.plugintypes.uefi_helper_plugin import HelperFunctions
-from edk2toolext.environment import plugin_manager
 from edk2toolext.environment import shell_environment
 from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable
 from edk2toolext.invocables.edk2_multipkg_aware_invocable import MultiPkgAwareSettingsInterface
@@ -185,12 +183,14 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
                 parser.parse_workspace(db, pathobj, env)
                 logging.log(edk2_logging.PROGRESS, f"Finished in {round(time.time() - start, 2)} seconds.")
 
+            logging.log(edk2_logging.SECTION, "Preparing environment for running build setting specific parsers.")
+            logging.debug(f'Scopes: {self.GetActiveScopes()}')
             if self.is_uefi_builder:
-                self.parse_with_builder_settings(db, pathobj, env)
+                logging.debug("Setting environment variables with UefiBuilder.")
+                return self.parse_with_builder_settings(db, pathobj, env)
             else:
-                self.parse_with_ci_settings(db, pathobj, env)
-
-        return 0
+                logging.debug("Setting environment variables from CI settings.")
+                return self.parse_with_ci_settings(db, pathobj, env)
 
     def parse_with_builder_settings(self, db, pathobj, env):
         """Parses the workspace using a uefi builder to setup the environment."""
@@ -201,8 +201,10 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
         for target in TARGET_LIST:
             shell_environment.CheckpointBuildVars()
             env.SetValue('TARGET', target, "Set automatically.")
+            exception_msg = ""
             try:
-                logging.disable(logging.CRITICAL)  # Disable logging when running the UefiBuilder.
+                if not self.Verbose:
+                    logging.disable(logging.CRITICAL)  # Disable logging when running the UefiBuilder.
                 platform_module = locate_class_in_module(self.PlatformModule, UefiBuilder)
                 if platform_module:
                     build_settings = platform_module()
@@ -212,20 +214,29 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
                     build_settings.SkipPostBuild = True
                     build_settings.FlashImage = False
                     build_settings.Go(self.GetWorkspaceRoot(), os.pathsep.join(self.GetPackagesPath()),
-                                      HelperFunctions(), plugin_manager.PluginManager())
+                                      self.helper, self.plugin_manager)
+            except Exception as e:
+                exception_msg = e
             finally:
-                logging.disable(logging.NOTSET)
+                if not self.Verbose:
+                    logging.disable(logging.NOTSET)
+            if exception_msg:
+                logging.error("Failed to run UefiBuilder to set the environment.")
+                logging.error(exception_msg)
+                return -1
 
+            for key, value in (env.GetAllBuildKeyValues() | env.GetAllNonBuildKeyValues()).items():
+                logging.debug(f"  {key} = {value}")
             for parser in self.get_parsers(need_dsc=True):
                 logging.log(
                     edk2_logging.SECTION,
-                    f"[{parser.__class__.__name__}] starting {Path(env.GetValue('ACTIVE_PLATFORM')).name} "
+                    f"[{parser.__class__.__name__}] starting {Path(env.GetValue('ACTIVE_PLATFORM')).stem} "
                     f"[{env.GetValue('TARGET')}][{env.GetValue('TARGET_ARCH')}]: ")
                 start = time.time()
                 parser.parse_workspace(db, pathobj, env)
                 logging.log(edk2_logging.PROGRESS, f"Finished in {round(time.time() - start, 2)} seconds.")
             shell_environment.RevertBuildVars()
-        return
+        return 0
 
     def parse_with_ci_settings(self, db, pathobj, env):
         """Parses the workspace using ci settings to setup the environment."""
@@ -257,6 +268,7 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
                     parser.parse_workspace(db, pathobj, env)
                     logging.log(edk2_logging.PROGRESS, f"Finished in {round(time.time() - start, 2)} seconds.")
                 shell_environment.RevertBuildVars()
+        return 0
 
     def run_report(self, args, db_path):
         """Runs the specified report."""
