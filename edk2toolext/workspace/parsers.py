@@ -164,6 +164,7 @@ class _DscParser(DscP):
                 # This component has overrides we need to handle
                 if line.strip().endswith("{"):
                     line = str(line)
+                    logging.debug(f"Building Library Override Dictionary for Component: {line.strip(' {')}")
                     library_override_dict = self._build_library_override_dictionary(lines)
                 self.Components.append((line.strip(" {"), current_scope[0], library_override_dict))
 
@@ -215,6 +216,7 @@ class _DscParser(DscP):
                 line = next(lines)
                 continue
             if section == self.SECTION_LIBRARY:
+                logging.debug(f"  Library Section Override: {line}")
                 lib, instance = tuple(line.split("|"))
 
                 if lib.strip() == "NULL":
