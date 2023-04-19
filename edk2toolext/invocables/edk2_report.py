@@ -215,6 +215,7 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
                     build_settings.FlashImage = False
                     build_settings.Go(self.GetWorkspaceRoot(), os.pathsep.join(self.GetPackagesPath()),
                                       self.helper, self.plugin_manager)
+                    build_settings.PlatformPreBuild()
             except Exception as e:
                 exception_msg = e
             finally:
