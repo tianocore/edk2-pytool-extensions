@@ -256,6 +256,7 @@ class CParser(WorkspaceParser):
 
         start = time.time()
         files = list(ws.rglob("*.c")) + list(ws.rglob("*.h"))
+        files = [file for file in files if not file.is_relative_to(ws / "Build")]
         src_entries = Parallel(n_jobs=-1)(delayed(self._parse_file)(ws, filename) for filename in files)
         logging.debug(
             f"{self.__class__.__name__}: Parsed {len(src_entries)} .c/h files; "
@@ -303,6 +304,7 @@ class IParser(WorkspaceParser):
 
         start = time.time()
         files = list(ws.glob("**/*.inf"))
+        files = [file for file in files if not file.is_relative_to(ws / "Build")]
         inf_entries = Parallel(n_jobs=-1)(delayed(self._parse_file)(ws, filename, pathobj) for filename in files)
         logging.debug(
             f"{self.__class__.__name__}: Parsed {len(inf_entries)} .inf files took; "
