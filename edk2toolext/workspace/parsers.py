@@ -375,6 +375,15 @@ class DParser(WorkspaceParser):
         dscp = _DscParser().SetEdk2Path(pathobj)
         dscp.SetInputVars(env.GetAllBuildKeyValues() | env.GetAllNonBuildKeyValues())
         dscp.ParseFile(self.dsc)
+        logging.debug(f"All DSCs included in {self.dsc}:")
+        for dsc in dscp.GetAllDscPaths():
+            logging.debug(f"  {dsc}")
+        
+        logging.debug("Fully expanded DSC:")
+        for line in dscp.Lines:
+            logging.debug(f"  {line}")
+        dscp.WriteLinesToFile("../tmp.dsc")
+        logging.debug("End of DSC")
 
         # Create the instanced inf entries, including components and libraries. multiple entries
         # of the same library will exist if multiple components use it.
