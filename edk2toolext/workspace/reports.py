@@ -253,10 +253,13 @@ class ComponentInfo(WorkspaceReport):
         """Generate the Component Info report."""
         pkg = args.package
         component = args.component
-        table = db.table(f'{pkg}_inf')
-        entries = table.search((Query().PATH.search(component)) & ~ (Query().COMPONENT.exists()))
 
-        self.to_stdout(self.columns(["NAME", "MODULE_TYPE", "LIBRARIES"], entries))
+        for target in ["DEBUG", "RELEASE"]:
+            table_name = f'{pkg}_{target}_dsc'
+            table = db.table(table_name)
+            print(f"\nEntry for Table: {table_name}")
+            entries = table.search((Query().PATH.search(component)) & ~ (Query().COMPONENT.exists()))
+            self.to_stdout(self.columns(["NAME", "MODULE_TYPE", "LIBRARIES_USED"], entries))
         return 0
 
 
@@ -283,6 +286,7 @@ class UnusedComponents(WorkspaceReport):
 
     def run_report(self, db: TinyDB, args: Namespace) -> None:
         """Generate the Unused Component report."""
+        self.pathobj = Edk2Path(args.workspace_root, args.packages_path_list)
         total_unused_components = []
         total_unused_libraries = []
 
@@ -297,6 +301,7 @@ class UnusedComponents(WorkspaceReport):
                 logging.error(f"Missing Data! fdf table size: {len(fdf)}, dsc table size: {len(dsc)}. ")
                 logging.error("Verify name of fdf/dsc and that they have been parsed.")
                 return -1
+            logging.debug(f"Found {len(fdf)} entries in {fdf_table_name} and {len(dsc)} entries in {dsc_table_name}.")
 
             all_components = []
             fdf_components = []
@@ -335,14 +340,20 @@ class UnusedComponents(WorkspaceReport):
             total_unused_components.append(unused_components)
             total_unused_libraries.append(unused_libraries - unused_components)
 
+        component_count = 0
+        library_count = 0
         print("Unused Components:")
         for inf in reduce(lambda acc, curr: acc.intersection(curr), total_unused_components):
+            component_count += 1
             print(f'  {inf}')
 
         print("Unused Libraries:")
         for inf in reduce(lambda acc, curr: acc.intersection(curr), total_unused_libraries):
+            library_count += 1
             print(f'  {inf}')
-
+        
+        print(f"Total compiled, but unused, components: {component_count}")
+        print(f"Total compiled, but unused, libraries: {library_count}")
         return 0
 
     def _recurse_inf(self, inf, table, library_list):
@@ -350,5 +361,14 @@ class UnusedComponents(WorkspaceReport):
             return
 
         library_list.append(inf)
+        search_result = table.search(Query().PATH == inf)
+
+        # The INF that we are searching for does not exist. Typically this is because
+        # We are searching for a library found in a component that is not being used,
+        # So they have no reason to have the INF described.
+        if len(search_result) == 0:
+            logging.debug(f"No entry found for {inf} in {table.name}")
+            return
+
         for inf in table.search(Query().PATH == inf)[0]["LIBRARIES_USED"]:
             self._recurse_inf(inf, table, library_list)

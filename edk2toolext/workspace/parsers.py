@@ -382,7 +382,6 @@ class DParser(WorkspaceParser):
         logging.debug("Fully expanded DSC:")
         for line in dscp.Lines:
             logging.debug(f"  {line}")
-        dscp.WriteLinesToFile("../tmp.dsc")
         logging.debug("End of DSC")
 
         # Create the instanced inf entries, including components and libraries. multiple entries
@@ -390,6 +389,9 @@ class DParser(WorkspaceParser):
         #
         # This is where we merge DSC parser information with INF parser information.
         inf_entries = self._build_inf_table(dscp)
+        for entry in inf_entries:
+            if Path(entry["PATH"]).is_absolute():
+                entry["PATH"] = self.pathobj.GetEdk2RelativePathFromAbsolutePath(entry["PATH"])
 
         table_name = f'{str(Path(self.dsc).parent)}_{self.target}_dsc'
         table = db.table(table_name, cache_size=None)
@@ -548,7 +550,10 @@ class FParser(WorkspaceParser):
 
             inf_list = []  # Some INF's start with RuleOverride. We only need the INF
             for inf in fdfp.FVs[fv]["Infs"]:
-                inf_list.append(inf.split(" ")[-1])
+                inf_path = inf.split(" ")[-1]
+                if Path(inf_path).is_absolute():
+                    inf_path = self.pathobj.GetEdk2RelativePathFromAbsolutePath(inf_path)
+                inf_list.append(inf_path)
 
             entry_list.append({
                 "FDF": Path(self.fdf).name,
