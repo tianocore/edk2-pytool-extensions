@@ -12,7 +12,7 @@ import os
 import time
 import yaml
 
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
 from pathlib import Path
 from random import choice
 from string import ascii_letters
@@ -77,21 +77,22 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
         parser.add_argument('-c', '--platform_module', required=True,
                             dest='platform_module', help='Provide the Platform Module relative to the current working '
                             f' directory. This should contain a {self.GetSettingsClass().__name__} instance.')
-        parser.add_argument('-p', '--pkg', '--pkg-dir', dest='package_list', type=str,
-                            help='Optional - A package list of packages to parse.'
-                            'Can list multiple by doing -p <pkg1>,<pkg2> or -p <pkg3> -p <pkg4>',
-                            action="append", default=[])
-        parser.add_argument('-a', '--arch', dest="arch_list", type=str, default="",
-                            help='Optional - A list of architectures to use when parsing.'
-                            'Can list multiple by doing -a <arch1>,<arch2> or -a <arch1> -a <arch2>')
+        
         subparsers = parser.add_subparsers(dest='cmd', required=[])
-
-        # Add the parse subcommand options here.
+        
+        # All the parser subcommand options here.
         parse_parser = subparsers.add_parser("parse", help="Parse the workspace and generate a database.")
         parse_parser.add_argument("-db", "--database", "--Database", "--DATABASE",
                                   dest="database", action="store", help="Set the database rather then parse for one.")
         parse_parser.add_argument('--build-config', dest='build_config', default="",
                                   type=str, help='Provide shell variables in a file')
+        parse_parser.add_argument('-p', '--pkg', '--pkg-dir', dest='package_list', type=str,
+                                  help='Optional - A package list of packages to parse.'
+                                  'Can list multiple by doing -p <pkg1>,<pkg2> or -p <pkg3> -p <pkg4>',
+                                  action="append", default=[])
+        parse_parser.add_argument('-a', '--arch', dest="arch_list", type=str, default="",
+                                  help='Optional - A list of architectures to use when parsing.'
+                                  'Can list multiple by doing -a <arch1>,<arch2> or -a <arch1> -a <arch2>')
 
         # Add all report subcommand options here.
         for report in self.get_reports():
@@ -119,12 +120,6 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
         # Save the rest of the arguments
         self.args = settings_args
 
-        # Set Package and architecture if not specified. Not applicable if using a UefiBuilder
-        if not self.is_uefi_builder:
-            self.args.package_list = self.args.package_list or self.PlatformSettings.GetPackagesSupported()
-            self.args.arch_list = self.args.arch_list or self.PlatformSettings.GetArchitecturesSupported()
-            self._format_package_and_arch_list(self.args)
-
         # Parse any build variables added via the command line
         env = shell_environment.GetBuildVars()
         for argument in unknown_args:
@@ -145,9 +140,9 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
         """Returns the logging file name for this invocation."""
         return self.args.cmd.upper() + "_LOG"
 
-    # def GetActiveScopes(self):
-    #     """Returns the scopes."""
-    #     return ("global",)
+    def InputParametersConfiguredCallback(self):
+        """Perform actions after input parameters have been configured."""
+        return
 
     def Go(self):
         """Executes the invocable. Runs the subcommand specified by the user."""
@@ -160,9 +155,9 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
 
         if args.cmd == 'parse':
             return self.parse_workspace(db_path, args)
-        return self.run_report(self.args, db_path)
+        return self.run_report(args, db_path)
 
-    def parse_workspace(self, db_path: Path, args):
+    def parse_workspace(self, db_path: Path, args: Namespace):
         """Runs all defined workspace parsers to generate a database."""
         # Delete database if it exists and recreate it.
         db_path.unlink(missing_ok=True)
@@ -176,17 +171,11 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
         env = shell_environment.GetBuildVars()
 
         with TinyDB(db_path, access_mode='r+', storage=CachingMiddleware(JSONStorage)) as db:
-            # Run all non-dsc setting specific parsers
-            for parser in self.get_parsers(need_dsc=False):
-                logging.log(edk2_logging.SECTION, f"[{parser.__class__.__name__}] starting...")
-                start = time.time()
-                parser.parse_workspace(db, pathobj, env)
-                logging.log(edk2_logging.PROGRESS, f"Finished in {round(time.time() - start, 2)} seconds.")
+            self.run_parsers(db, pathobj, env)
 
-            logging.log(edk2_logging.SECTION, "Preparing environment for running build setting specific parsers.")
-            logging.debug(f'Scopes: {self.GetActiveScopes()}')
+            logging.log(edk2_logging.SECTION, "Preparing environment for running environment aware parsers.")
             if self.is_uefi_builder:
-                logging.debug("Setting environment variables with UefiBuilder.")
+                logging.debug("Setting environment variables from UefiBuilder.")
                 return self.parse_with_builder_settings(db, pathobj, env)
             else:
                 logging.debug("Setting environment variables from CI settings.")
@@ -194,9 +183,8 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
 
     def parse_with_builder_settings(self, db, pathobj, env):
         """Parses the workspace using a uefi builder to setup the environment."""
-        # Add environment variables from the build config (If doing UefiBuilder Only)
-        build_config = self.args.build_config or Path(self.GetWorkspaceRoot(), "BuildConfig.conf")
-        self._add_build_config_env(Path(build_config), env)
+        build_config = Path(self.args.build_config) or Path(self.GetWorkspaceRoot(), "BuildConfig.conf")
+        self._add_build_config_env(build_config, env)
 
         for target in TARGET_LIST:
             shell_environment.CheckpointBuildVars()
@@ -226,21 +214,24 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
                 logging.error(exception_msg)
                 return -1
 
+            # Log the environment for debug purposes
             for key, value in (env.GetAllBuildKeyValues() | env.GetAllNonBuildKeyValues()).items():
                 logging.debug(f"  {key} = {value}")
-            for parser in self.get_parsers(need_dsc=True):
-                logging.log(
-                    edk2_logging.SECTION,
-                    f"[{parser.__class__.__name__}] starting {Path(env.GetValue('ACTIVE_PLATFORM')).stem} "
-                    f"[{env.GetValue('TARGET')}][{env.GetValue('TARGET_ARCH')}]: ")
-                start = time.time()
-                parser.parse_workspace(db, pathobj, env)
-                logging.log(edk2_logging.PROGRESS, f"Finished in {round(time.time() - start, 2)} seconds.")
+
+            self.run_parsers(db, pathobj, env, run_per_env=True)
+
             shell_environment.RevertBuildVars()
         return 0
 
     def parse_with_ci_settings(self, db, pathobj, env):
         """Parses the workspace using ci settings to setup the environment."""
+        
+        # Set Package and architecture if not specified.
+        if not self.is_uefi_builder:
+            self.args.package_list = self.args.package_list or self.PlatformSettings.GetPackagesSupported()
+            self.args.arch_list = self.args.arch_list or self.PlatformSettings.GetArchitecturesSupported()
+            self._format_package_and_arch_list(self.args)
+
         for target in ["DEBUG", "RELEASE"]:
             for package in self.args.package_list:
                 shell_environment.CheckpointBuildVars()
@@ -259,15 +250,12 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
                 for key, value in pkg_config.get("Defines", {}).items():
                     env.SetValue(key, value, "Defined in Package CI yaml")
 
-                # Actually run them
-                for parser in self.get_parsers(need_dsc=True):
-                    logging.log(
-                        edk2_logging.SECTION,
-                        f"[{parser.__class__.__name__}] starting {env.GetValue('ACTIVE_PLATFORM')} "
-                        f"[{env.GetValue('TARGET')}][{env.GetValue('ARCH')}]: ")
-                    start = time.time()
-                    parser.parse_workspace(db, pathobj, env)
-                    logging.log(edk2_logging.PROGRESS, f"Finished in {round(time.time() - start, 2)} seconds.")
+                # Log the environment for debug purposes
+                for key, value in (env.GetAllBuildKeyValues() | env.GetAllNonBuildKeyValues()).items():
+                    logging.debug(f"  {key} = {value}")
+
+                self.run_parsers(db, pathobj, env, run_per_env=True)
+
                 shell_environment.RevertBuildVars()
         return 0
 
@@ -280,16 +268,21 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
                     return report.run_report(db, self.args)
             return -1  # Should never happen as we verify the subcommand when parsing arguments.
 
-    def get_parsers(self, need_dsc=False) -> list:
-        """Returns a list of un-instantiated DbDocument subclass parsers."""
-        parser_list = []
+    def run_parsers(self, db, pathobj, env, run_per_env = False) -> list:
+        """Runs parsers on the workspace.
 
+        Runs parsers that require an env if an env is provided. Otherwise runs parsers that
+        do not require an env.
+        """
         # Automatically grab all parsers and filter by the need of a dsc
         for _, obj in inspect.getmembers(parsers):
             if inspect.isclass(obj) and issubclass(obj, parsers.WorkspaceParser) and obj != parsers.WorkspaceParser:
-                if need_dsc == obj().is_dsc_scoped():
-                    parser_list.append(obj())
-        return parser_list
+                parser = obj()
+                if run_per_env == parser.run_per_env():
+                    logging.log(edk2_logging.SECTION, f"[{parser.__class__.__name__}] starting...")
+                    start = time.time()
+                    parser.parse_workspace(db, pathobj, env)
+                    logging.log(edk2_logging.PROGRESS, f"Finished in {round(time.time() - start, 2)} seconds.")
 
     def get_reports(self) -> list:
         """Returns a list of report generators."""
@@ -311,9 +304,6 @@ class Edk2Report(Edk2MultiPkgAwareInvocable):
             cur_path.write_text(replace_path).read_text()
             return
 
-    def InputParametersConfiguredCallback(self):
-        """Perform actions after input parameters have been configured."""
-        return
 
     def _add_build_config_env(self, path: Path, env):
         """Adds build configuration variables to the env."""

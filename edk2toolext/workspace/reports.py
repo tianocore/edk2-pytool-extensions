@@ -343,12 +343,14 @@ class UnusedComponents(WorkspaceReport):
         component_count = 0
         library_count = 0
         print("Unused Components:")
-        for inf in reduce(lambda acc, curr: acc.intersection(curr), total_unused_components):
+        total_unused_components = list(reduce(lambda acc, curr: acc.intersection(curr), total_unused_components))
+        for inf in total_unused_components:
             component_count += 1
             print(f'  {inf}')
 
         print("Unused Libraries:")
-        for inf in reduce(lambda acc, curr: acc.intersection(curr), total_unused_libraries):
+        total_unused_libraries = list(reduce(lambda acc, curr: acc.intersection(curr), total_unused_libraries))
+        for inf in total_unused_libraries:
             library_count += 1
             print(f'  {inf}')
         

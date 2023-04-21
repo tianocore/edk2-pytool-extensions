@@ -231,13 +231,13 @@ class _DscParser(DscP):
 class WorkspaceParser:
     """An interface for a workspace parser."""
 
-    def is_dsc_scoped(self) -> bool:
+    def run_per_env(self) -> bool:
         """Return if this parser relies on a DSC with the environment set."""
         return False
 
     def parse_workspace(self, db: TinyDB, pathobj: Edk2Path, env: VarDict) -> None:
-        """Parse the workspace and update the database."""
-        raise NotImplementedError
+        """Parse the workspace using the environment and update the database."""
+        pass
 
 
 class CParser(WorkspaceParser):
@@ -354,8 +354,8 @@ class DParser(WorkspaceParser):
     SECTION_REGEX = re.compile(r"\[(.*)\]")
     OVERRIDE_REGEX = re.compile(r"\<(.*)\>")
 
-    def is_dsc_scoped(self) -> bool:
-        """Return if this parser relies on a DSC with the environment set."""
+    def run_per_env(self) -> bool:
+        """Return if this parser should run for each environment scope."""
         return True
 
     def parse_workspace(self, db: TinyDB, pathobj: Edk2Path, env: VarDict) -> None:
@@ -524,8 +524,8 @@ class FParser(WorkspaceParser):
     |------------------------------------------------------| # noqa: E501
     """
 
-    def is_dsc_scoped(self) -> bool:
-        """Return if this parser relies on a DSC with the environment set."""
+    def run_per_env(self) -> bool:
+        """Return if this parser should run for each environment scope."""
         return True
 
     def parse_workspace(self, db: TinyDB, pathobj: Edk2Path, env: VarDict) -> None:
