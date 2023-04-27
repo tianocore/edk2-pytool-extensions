@@ -85,10 +85,9 @@ setuptools.setup(
         'pefile>=2023.2.7',
         'semantic_version>=2.10.0',
         'GitPython>=3.1.30',
-        'cryptography >= 39.0.1'
     ],
     extras_require={
-        'openssl': ['pyopenssl']
+        'openssl': ['pyopenssl', 'cryptography >= 39.0.1']
     },
     classifiers=[
         "Programming Language :: Python :: 3",
