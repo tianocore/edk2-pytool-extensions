@@ -36,7 +36,8 @@ jobs:
       with:
         python-version: ${{ inputs.python-version }}
         cache: 'pip'
-    
+    - name: LS
+      run: ls
     - name: Install pip Dependencies
       run: |
         python -m pip install --upgrade pip
