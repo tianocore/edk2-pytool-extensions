@@ -15,8 +15,8 @@ from io import StringIO
 from edk2toolext.environment.external_dependency import ExternalDependency
 from edk2toollib.utility_functions import RunCmd, RemoveTree
 from edk2toollib.utility_functions import GetHostInfo
-import pkg_resources
 from typing import List
+from edk2toolext.bin.nuget import DownloadNuget
 
 
 class NugetDependency(ExternalDependency):
@@ -54,22 +54,21 @@ class NugetDependency(ExternalDependency):
             (list): ["nuget.exe"] or ["mono", "/PATH/TO/nuget.exe"]
             (None): none was found
         """
-        file_name = "NuGet.exe"
         cmd = []
         if GetHostInfo().os == "Linux":
             cmd += ["mono"]
 
         nuget_path = os.getenv(cls.NUGET_ENV_VAR_NAME)
-        if nuget_path is None:
-            # No env variable found.  Get it from our package
-            requirement = pkg_resources.Requirement.parse("edk2-pytool-extensions")
-            nuget_file_path = os.path.join("edk2toolext", "bin")
-            nuget_path = pkg_resources.resource_filename(requirement, nuget_file_path)
-
-        nuget_path = os.path.join(nuget_path, file_name)
+        if nuget_path is not None:
+            nuget_path = os.path.join(nuget_path, "NuGet.exe")
+            if not os.path.isfile(nuget_path):
+                logging.info(f'{cls.NUGET_ENV_VAR_NAME} set, but did not exist. Attempting to download.')
+                DownloadNuget(nuget_path)
+        else:
+            nuget_path = DownloadNuget()
 
         if not os.path.isfile(nuget_path):
-            logging.error("We weren't able to find Nuget! Please reinstall your pip environment")
+            logging.error("We weren't able to find or download NuGet!")
             return None
 
         # Make sure quoted string if it has spaces
