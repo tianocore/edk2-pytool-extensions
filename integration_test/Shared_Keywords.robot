@@ -153,7 +153,7 @@ Stuart platform build
     [Arguments]  ${setting_file}  ${arch}  ${target}  ${tool_chain}  ${ws}
     Log to console  Stuart Build
     ${result}=   Run Process    stuart_build
-    ...  -c  ${setting_file}  -a  ${arch}  TOOL_CHAIN_TAG\=${tool_chain}  TARGET\=${target}
+    ...  -c  ${setting_file}  -a  ${arch}  TOOL_CHAIN_TAG\=${tool_chain}  TARGET\=${target}  CODE_COVERAGE\=FALSE
     ...  cwd=${ws}  stdout=stdout.txt  stderr=stderr.txt
     Log Many	stdout: ${result.stdout}  stderr: ${result.stderr}
     Should Be Equal As Integers  ${result.rc}  0
@@ -171,7 +171,7 @@ Stuart CI build
     [Arguments]  ${setting_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws}
     Log to console  Stuart CI Build
     ${result}=   Run Process    stuart_ci_build
-    ...  -c  ${setting_file}  -a  ${archs}  -t  ${targets}  -p  ${packages}  TOOL_CHAIN_TAG\=${tool_chain}
+    ...  -c  ${setting_file}  -a  ${archs}  -t  ${targets}  -p  ${packages}  TOOL_CHAIN_TAG\=${tool_chain}  CODE_COVERAGE\=FALSE
     ...  cwd=${ws}  stdout=stdout.txt  stderr=stderr.txt
     Log Many	stdout: ${result.stdout}  stderr: ${result.stderr}
     Should Be Equal As Integers  ${result.rc}  0
