@@ -100,8 +100,8 @@ class TestNugetDependency(unittest.TestCase):
         # delete the package file
         original = NugetDependency.GetNugetCmd()[-1]  # get last item which will be exe path
         os.remove(original)
-        path = NugetDependency.GetNugetCmd()
-        self.assertIsNone(path)  # Should not be found
+        path = NugetDependency.GetNugetCmd()[-1]
+        self.assertTrue(os.path.isfile(path))
 
     def test_nuget_env_var(self):
         if NugetDependency.NUGET_ENV_VAR_NAME in os.environ:
