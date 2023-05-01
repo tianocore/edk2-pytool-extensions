@@ -20,28 +20,18 @@ with open("readme.md", "r") as fh:
 class PostSdistCommand(sdist):
     """Post-sdist."""
     def run(self): # noqa
-        # we need to download nuget so throw the exception if we don't get it
-        DownloadNuget()
         sdist.run(self)
 
 
 class PostInstallCommand(install):
     """Post-install."""
     def run(self): # noqa
-        try:
-            DownloadNuget()
-        except Exception:
-            pass
         install.run(self)
 
 
 class PostDevCommand(develop):
     """Post-develop."""
     def run(self): # noqa
-        try:
-            DownloadNuget()
-        except Exception:
-            pass
         develop.run(self)
 
 

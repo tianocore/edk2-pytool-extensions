@@ -25,7 +25,7 @@ from pathlib import Path
 
 
 logger = logging.getLogger(__name__)
-MIN_GIT_VERSION = "2.36.0"
+MIN_GIT_VERSION = "2.11.0"
 
 
 def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=False):
@@ -234,8 +234,8 @@ def repo_details(abs_file_system_path):
 
             # Worktrees
             worktree_list = []
-            worktrees = repo.git.worktree("list", "--porcelain", "-z")
-            for worktree in filter(lambda worktree: worktree.startswith("worktree"), worktrees.split('\0')):
+            worktrees = repo.git.worktree("list", "--porcelain")
+            for worktree in filter(lambda worktree: worktree.startswith("worktree"), worktrees.split('\n')):
                 worktree_list.append(Path(worktree.split(" ")[1]))
                 details["Worktrees"] = worktree_list
 
@@ -245,7 +245,18 @@ def repo_details(abs_file_system_path):
             details["Bare"] = repo.bare
             details["Dirty"] = repo.is_dirty(untracked_files=True)
             details["Initialized"] = True
-            details["Url"] = repo.remotes.origin.url
+
+            # 1. Use the remote associated with the branch if on a branch and it exists
+            if not repo.head.is_detached and repo.branches[repo.head.ref.name].tracking_branch():
+                remote_name = repo.branches[repo.head.ref.name].tracking_branch().remote_name
+                details["Url"] = repo.remotes[remote_name].url
+            # 2. Use the origin url if it exists
+            elif "origin" in repo.remotes:
+                details["Url"] = repo.remotes.origin.url
+            # 3. Use whatever the first remote is
+            elif len(repo.remotes) > 0:
+                details["Url"] = repo.remotes[0].url
+
     except (InvalidGitRepositoryError, NoSuchPathError):
         pass
     return details
