@@ -22,7 +22,8 @@ def main():
     excluded_files = ["__init__.py", "capsule_helper.py", "capsule_tool.py", "pyopenssl_signer.py",
                       "signing_helper.py", "signtool_signer.py", "sig_db_tool.py",
                       "firmware_policy_tool.py", "image_validation.py", "nuget_publishing.py",
-                      "omnicache.py", "nuget.py", "versioninfo_tool.py", "versioninfo_helper.py"]
+                      "omnicache.py", "nuget.py", "versioninfo_tool.py", "versioninfo_helper.py",
+                      "secureboot_audit.py"]
 
     for file_path in files:
         edit_path = file_path

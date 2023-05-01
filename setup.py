@@ -67,7 +67,9 @@ setuptools.setup(
                             'firmware_policy_tool=edk2toolext.windows.policy.firmware_policy_tool:main',
                             'edk2_capsule_tool=edk2toolext.capsule.capsule_tool:main',
                             'versioninfo_tool=edk2toolext.versioninfo.versioninfo_tool:main',
-                            'validate_image_tool=edk2toolext.image_validation:main']
+                            'validate_image_tool=edk2toolext.image_validation:main',
+                            'secureboot_audit=edk2toolext.windows.secureboot.secureboot_audit:main',
+                            ]
     },
     install_requires=[
         'pyyaml>=6.0.0',
@@ -75,7 +77,9 @@ setuptools.setup(
         'pefile>=2023.2.7',
         'semantic_version>=2.10.0',
         'GitPython>=3.1.30',
-
+        'openpyxl >= 3.1.2',
+        'XlsxWriter >= 3.0.9',
+        'pywin32 >= 305 ; sys_platform=="win32"'
     ],
     extras_require={
         'openssl': [
