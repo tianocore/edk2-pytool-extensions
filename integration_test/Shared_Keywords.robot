@@ -162,7 +162,7 @@ Stuart platform run
     [Arguments]  ${setting_file}  ${arch}  ${target}  ${tool_chain}  ${additional_flags}  ${ws}
     Log to console  Stuart Build Run
     ${result}=   Run Process    stuart_build
-    ...  -c  ${setting_file}  -a  ${arch}  TOOL_CHAIN_TAG\=${tool_chain}  TARGET\=${target}  --FlashOnly  QEMU_HEADLESS\=TRUE  QEMU_CPUHP_QUIRK\=TRUE  ${additional_flags}
+    ...  -c  ${setting_file}  -a  ${arch}  TOOL_CHAIN_TAG\=${tool_chain}  TARGET\=${target}  --FlashOnly  QEMU_HEADLESS\=TRUE  ${additional_flags}
     ...  cwd=${ws}  stdout=stdout.txt  stderr=stderr.txt
     Log Many	stdout: ${result.stdout}  stderr: ${result.stderr}
     Should Be Equal As Integers  ${result.rc}  0
