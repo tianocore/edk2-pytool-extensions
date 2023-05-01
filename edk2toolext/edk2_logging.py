@@ -258,7 +258,7 @@ class Edk2LogFilter(logging.Filter):
         secrets_regex_strings = [
             r"[a-z0-9]{46}",  # Nuget API Key is generated as all lowercase
             r"gh[pousr]_[A-Za-z0-9_]+",  # Github PAT
-            r"[a-z0-9]{52}", # Azure PAT is generated as all lowercase 
+            r"[a-z0-9]{52}",  # Azure PAT is generated as all lowercase
         ]
 
         self.secrets_regex = re.compile(r"{}".format("|".join(secrets_regex_strings)), re.IGNORECASE)
