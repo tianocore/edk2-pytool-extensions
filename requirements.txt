@@ -9,5 +9,5 @@ GitPython == 3.1.31
 pyyaml == 6.0.0
 cryptography == 40.0.2
 openpyxl == 3.1.2
-XlsxWriter == 3.0.9
+XlsxWriter == 3.1.0
 pywin32 == 306; sys_platform == 'win32'
