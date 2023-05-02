@@ -289,8 +289,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
 
             # now check DSC
             dsc = DscParser()
-            dsc.SetBaseAbsPath(self.edk2_path_obj.WorkspacePath)
-            dsc.SetPackagePaths(self.edk2_path_obj.PackagePathList)
+            dsc.SetEdk2Path(self.edk2_path_obj)
             # given that PR eval runs before dependencies are downloaded we must tolerate errors
             dsc.SetNoFailMode()
             dsc.SetInputVars(PlatformDscInfo[1])
@@ -315,15 +314,14 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         #
         for f in filter(lambda f: Path(f).suffix == ".inf", files):
             for p in remaining_packages[:]:
-                dsc = self._get_pkg_dsc_path(p)
+                dsc, defines = self._get_package_ci_information(p)
                 if not dsc:
-                    logging.debug(f"Policy 5 - Package {p} skipped due to missing ci.dsc file or missing Compiler "
-                                  "Plugin DSC path.")
+                    logging.debug(f"Policy 5 - Package {p} skipped due to missing ci.dsc file or missing DscPath"
+                                  "section of the PrEval settings.")
                     continue
 
                 dsc_parser = DscParser()
-                dsc_parser.SetBaseAbsPath(self.edk2_path_obj.WorkspacePath)
-                dsc_parser.SetPackagePaths(self.edk2_path_obj.PackagePathList)
+                dsc_parser.SetEdk2Path(self.edk2_path_obj).SetInputVars(defines)
                 dsc_parser.ParseFile(dsc)
 
                 if f in dsc_parser.Libs:
@@ -504,20 +502,21 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
 
         return returnlist
 
-    def _get_pkg_dsc_path(self, pkg_name: str) -> str:
+    def _get_package_ci_information(self, pkg_name: str) -> str:
         pkg_path = Path(self.edk2_path_obj.GetAbsolutePathOnThisSystemFromEdk2RelativePath(pkg_name))
         ci_file = pkg_path.joinpath(f'{pkg_name}.ci.yaml')
+        dsc = None
+        defines = None
 
         if not ci_file.exists():
-            return None
+            return (None, None)
 
         with open(ci_file, 'r') as f:
             data = yaml.safe_load(f)
-            try:
-                dsc = data["CompilerPlugin"]["DscPath"]
-                return str(pkg_path / dsc) if dsc else None
-            except KeyError:
-                return None
+            dsc = data.get("PrEval", {"DscPath": None})["DscPath"]
+            dsc = str(pkg_path / dsc) if dsc else None
+            defines = data.get("Defines", None)
+            return (dsc, defines)
 
 
 def main():
