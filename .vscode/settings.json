@@ -4,7 +4,10 @@
     "${workspaceFolder}/tests.unit"
   ],
   "python.testing.unittestEnabled": false,
-  "python.linting.flake8Enabled": true,
-  "python.linting.enabled": true,
-  "python.linting.pydocstyleEnabled": true,
+  "[python]": {
+    "editor.defaultFormatter": null,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.ruff": true
+    }
+  }
 }

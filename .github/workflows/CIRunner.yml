@@ -52,9 +52,9 @@ jobs:
         npm install -g markdownlint-cli@0.32.2
         npm install -g cspell@5.20.0
     
-    - name: Run flake8
+    - name: Run ruff
       if: success() || failure()
-      run: flake8 ${{ inputs.package-src }}
+      run: ruff check ${{ inputs.package-src }} --format=github
     
     - name: Run markdownlint
       if: success() || failure()
@@ -63,10 +63,6 @@ jobs:
     - name: Run cspell
       if: success() || failure()
       run: cspell -c .cspell.json "**/*.py" "**/*.md"
-    
-    - name: Run pydocstyle
-      if: success() || failure()
-      run: pydocstyle ${{ inputs.package-src }}
     
     - name: Run mkdocs build
       if: success() || failure()

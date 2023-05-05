@@ -13,3 +13,4 @@ build.
 flake8.err.log
 /.eggs
 site
+/.ruff_cache

@@ -31,9 +31,7 @@ jobs:
       root_package_folder: ${{parameters.root_package_folder}}
       codecov_enabled: ${{parameters.codecov_enabled}}
 
-  - template: flake8-test-steps.yml
-
-  - template: pydocstyle-test-steps.yml
+  - template: ruff-test-steps.yml
     parameters:
       root_package_folder: ${{parameters.root_package_folder}}
 
