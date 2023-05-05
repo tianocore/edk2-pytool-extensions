@@ -25,10 +25,9 @@ and validate that pytools works as expected. Some basic examples are:
 2. Activate virtual environment
 3. Clone edk2-pytool-extension
 4. Check out desired version/branch and cd to root (folder where *setup.py* is located)
-5. Pip Install the local version by running `pip install -e .` in the root directory
-6. Pip install remaining dependencies by running `pip install --upgrade -r integration_test/pip-requirements.txt`
-7. cd to *integration_test* directory (folder where *this* document is located)
-8. Run robot `python -m robot.run -v TEST_OUTPUT_BASE:test -d report <additional flags here> <robot file to run or directory>`
+5. Pip Install the local version by running `pip install -e .[dev]` in the root directory
+6. cd to *integration_test* directory (folder where *this* document is located)
+7. Run robot `python -m robot.run -v TEST_OUTPUT_BASE:test -d report <additional flags here> <robot file to run or directory>`
    1. use `.` to run all test cases in all robot files in the current directory
    2. use `edk2_stuart_pr_eval.robot` robot file for testing stuart pr eval using edk2 repo
    3. use `edk2_core_ci.robot` robot file for running parts of the core ci tests on edk2

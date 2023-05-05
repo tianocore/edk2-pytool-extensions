@@ -41,22 +41,10 @@ out all the different parts.
 3. Install development dependencies into this virtual environment
 
     ``` cmd
-    pip install --upgrade -r requirements.txt
+    pip install --upgrade -e .[dev,docs]
     ```
 
-4. Uninstall any copy of edk2-pytool-extensions
-
-    ``` cmd
-    pip uninstall edk2-pytool-extensions
-    ```
-
-5. Install from local source (run command from root of repo)
-
-    ``` cmd
-    pip install -e .
-    ```
-
-6. To support spell checking / validation NodeJs and cspell are used.
+4. To support spell checking / validation NodeJs and cspell are used.
 
     * Install NodeJS from <https://nodejs.org/en/>
     * Use npm to install cspell.
@@ -69,7 +57,7 @@ out all the different parts.
       * <https://github.com/streetsidesoftware/cspell>
       * <https://www.npmjs.com/package/cspell>
 
-7. To support linting the markdown files NodeJs and markdownlint are used.
+5. To support linting the markdown files NodeJs and markdownlint are used.
 
     * Install NodeJS from <https://nodejs.org/en/>
     * Use npm to install markdownlint-cli.
@@ -81,12 +69,6 @@ out all the different parts.
     * Src and doc available:
       * <https://www.npmjs.com/package/markdownlint>
       * <https://www.npmjs.com/package/markdownlint-cli>
-
-8. To support documentation generation, install docs requirements
-
-    ```cmd
-    pip install --upgrade -r docs/user/requirements.txt
-    ```
 
 ## Testing
 

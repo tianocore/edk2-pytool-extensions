@@ -33,7 +33,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install --upgrade -r docs/user/requirements.txt
+          pip install --upgrade -e .[docs]
       
       - name: Build Documentation
         run: |

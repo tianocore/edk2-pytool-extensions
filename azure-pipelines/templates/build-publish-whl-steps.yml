@@ -10,10 +10,10 @@ parameters:
   pypi_auth_feed: ''
 
 steps:
-- script: pip install --upgrade -r requirements.publisher.txt
+- script: pip install --upgrade -e .[publish]
   displayName: 'Install PyPI publishing requirements'
 
-- script: python setup.py sdist bdist_wheel
+- script: python build --wheel --sdist
   displayName: 'Build a wheel'
 
 - task: PythonScript@0

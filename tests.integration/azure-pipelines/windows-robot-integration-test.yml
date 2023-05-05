@@ -51,14 +51,8 @@ jobs:
       versionSpec: '$(PythonVersion)'
       architecture: 'x64'
 
-  - script: pip install --upgrade -r requirements.txt
+  - script: pip install --upgrade -e .[dev]
     displayName: 'Install requirements'
-
-  - script: pip install --upgrade -r integration_test/pip-requirements.txt
-    displayName: 'Install Integration test requirements'
-
-  - script: pip install -e .
-    displayName: 'Install from Source'
 
   - powershell: choco install qemu --version=2023.4.24; Write-Host "##vso[task.prependpath]c:\Program Files\qemu"
     displayName: Install QEMU and Set QEMU on path # friendly name displayed in the UI
