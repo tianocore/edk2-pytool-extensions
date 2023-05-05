@@ -36,13 +36,13 @@ developing.  If not please first do that.  Directions on the
     1. Install tools
 
         ``` cmd
-        pip install --upgrade -r requirements.publisher.txt
+        pip install --upgrade -e .[publish]
         ```
 
     2. Build a wheel
 
         ``` cmd
-        python setup.py sdist bdist_wheel
+        python build --sdist --wheel
         ```
 
     3. Confirm wheel version is aligned with git tag
