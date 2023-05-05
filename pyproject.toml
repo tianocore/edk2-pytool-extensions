@@ -1,0 +1,102 @@
+[build-system]
+requires = ["setuptools", "setuptools_scm[toml]"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "edk2-pytool-extensions"
+maintainers = [{name = "EDK2 Pytool Maintainers", email = "edk2-pytools@microsoft.com"}]
+dynamic = ["version"]
+description = "Python tools supporting UEFI EDK2 firmware development"
+readme = {file = "readme.md", content-type = "markdown"}
+license = {file = "LICENSE"}
+dependencies = [
+    "edk2-pytool-library>=0.14.0",
+    "pyyaml>=6.0.0",
+    "pefile>=2023.2.7",
+    "semantic_version>=2.10.0",
+    "GitPython>=3.1.30",
+    "openpyxl>=3.1.2",
+    "XlsxWriter>=3.0.9",
+    "pywin32>=305; sys_platform=='win32'",
+]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11"
+]
+
+[project.urls]
+homepage = "https://github.com/tianocore/edk2-pytool-extensions"
+documentation = "https://www.tianocore.org/edk2-pytool-extensions/"
+issues = "https://github.com/tianocore/edk2-pytool-extensions/issues"
+
+[project.optional-dependencies]
+dev = [
+    "edk2-pytool-extensions[openssl]",
+    "flake8 == 6.0.0",
+    "flake8-pyproject == 1.2.3",
+    "pytest == 7.3.1",
+    "coverage == 7.2.5",
+    "pydocstyle == 6.3.0",
+    "robotframework == 6.0.2",
+    "regex == 2023.5.5",
+]
+publish = [
+    "setuptools == 67.7.2",
+    "build == 0.10.0",
+    "twine == 4.0.2",
+]
+docs = [
+    "black==23.3.0",
+    "mkdocs==1.4.2",
+    "mkdocs-material==9.1.9",
+    "mkdocstrings[python]==0.21.2",
+    "mkdocstrings-python==0.9.0",
+    "markdown-include==0.8.1",
+    "mkdocs-gen-files==0.5.0",
+    "mkdocs-exclude==1.0.2",
+    "mkdocs-awesome-pages-plugin==2.9.0",
+]
+openssl = [
+    "pyopenssl",
+    "cryptography >= 39.0.1",
+]
+
+[project.scripts]
+stuart_setup = "edk2toolext.invocables.edk2_setup:main"
+stuart_update = "edk2toolext.invocables.edk2_update:main"
+stuart_build = "edk2toolext.invocables.edk2_platform_build:main"
+stuart_ci_setup = "edk2toolext.invocables.edk2_ci_setup:main"
+stuart_pr_eval = "edk2toolext.invocables.edk2_pr_eval:main"
+stuart_ci_build = "edk2toolext.invocables.edk2_ci_build:main"
+omnicache = "edk2toolext.omnicache:main"
+nuget-publish = "edk2toolext.nuget_publishing:go"
+sig_db_tool = "edk2toolext.uefi.sig_db_tool:main"
+firmware_policy_tool = "edk2toolext.windows.policy.firmware_policy_tool:main"
+edk2_capsule_tool = "dek2toolext.capsule.capsule_tool:main"
+versioninfo_tool = "edk2toolext.versioninfo.versioninfo_tool:main"
+validate_image_tool = "edk2toolext.image_validation:main"
+secureboot_audit = "edk2toolext.windows.secureboot.secureboot_audit:main"
+
+[tool.setuptools_scm]
+
+[tool.coverage.run]
+include = ["edk2toolext/*"]
+
+[tool.flake8]
+ignore = "E266,E722,W503"
+max_line_length = 120
+
+[tool.pydocstyle]
+convention = "google"
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests.unit"
+]
