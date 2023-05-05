@@ -1,39 +1,39 @@
-# @file test_edk2_plat_build.py
-# This contains unit tests for the edk2_plat_build
+# @file test_edk2_ci_setup.py
+# This contains unit tests for the edk2_ci_setup
 ##
 # Copyright (c) Microsoft Corporation
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 import unittest
-from edk2toolext.invocables.edk2_platform_build import Edk2PlatformBuild
+from edk2toolext.invocables.edk2_ci_setup import Edk2CiBuildSetup
 import sys
+import shutil
 import os
 import logging
-import shutil
 from importlib import reload
 from edk2toolext.environment import shell_environment
-from edk2toolext.tests.uefi_tree import uefi_tree
+from uefi_tree import uefi_tree
 from edk2toolext.environment import self_describing_environment
 from edk2toolext.environment import version_aggregator
 
 
-class TestEdk2PlatBuild(unittest.TestCase):
+class TestEdk2CiSetup(unittest.TestCase):
 
     minimalTree = None
 
     def setUp(self):
-        TestEdk2PlatBuild.restart_logging()
+        TestEdk2CiSetup.restart_logging()
         tree = uefi_tree()
         self.minimalTree = tree.get_workspace()
+        print(self.minimalTree)
         pass
 
     def tearDown(self):
         shell_environment.GetEnvironment().restore_initial_checkpoint()
+        TestEdk2CiSetup.restart_logging()
         buildFolder = os.path.join(self.minimalTree, "Build")
         shutil.rmtree(buildFolder, ignore_errors=True)
-        TestEdk2PlatBuild.restart_logging()
-        # we need to make sure to tear down the version aggregator and the SDE
         self_describing_environment.DestroyEnvironment()
         version_aggregator.ResetVersionAggregator()
         pass
@@ -57,16 +57,25 @@ class TestEdk2PlatBuild(unittest.TestCase):
         pass
 
     def test_init(self):
-        builder = Edk2PlatformBuild()
+        builder = Edk2CiBuildSetup()
         self.assertIsNotNone(builder)
 
     def test_ci_setup(self):
-        builder = Edk2PlatformBuild()
+        builder = Edk2CiBuildSetup()
         settings_file = os.path.join(self.minimalTree, "settings.py")
-        sys.argv = ["stuart_build", "-c", settings_file]
+        sys.argv = ["stuart_ci_setup", "-c", settings_file, "-v"]
         try:
             builder.Invoke()
-        except SystemExit:
-            # self.assertEqual(e.code, 0, "We should have a non zero error code")
-            # we'll fail because we don't have the build command
+        except SystemExit as e:
+            self.assertEqual(e.code, 0, "We should have a non zero error code")
+            pass
+
+    def test_ci_setup_bad_omnicache_path(self):
+        builder = Edk2CiBuildSetup()
+        settings_file = os.path.join(self.minimalTree, "settings.py")
+        sys.argv = ["stuart_ci_setup", "-c", settings_file, "-v", "--omnicache", "does_not_exist"]
+        try:
+            builder.Invoke()
+        except SystemExit as e:
+            self.assertEqual(e.code, 0, "We should have a non zero error code")
             pass

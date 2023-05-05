@@ -12,6 +12,7 @@ import os
 import unittest
 
 from edk2toolext.capsule import signing_helper
+from edk2toolext.capsule import pyopenssl_signer
 
 
 class SignerLocationTests(unittest.TestCase):
@@ -30,10 +31,7 @@ class SignerLocationTests(unittest.TestCase):
         self.assertTrue(hasattr(py_signer, 'sign'))
 
     def test_should_be_able_to_fetch_a_user_provided_signer_module(self):
-        test_script_path = os.path.dirname(os.path.abspath(__file__))
-        # TEST NOTE: This is a little hacky and will break if relative paths are changed.
-        module_root_path = os.path.dirname(os.path.dirname(test_script_path))
-        py_signer_path = os.path.join(module_root_path, 'capsule', 'pyopenssl_signer.py')
+        py_signer_path = pyopenssl_signer.__file__
         self.assertTrue(os.path.isfile(py_signer_path))
         py_signer = signing_helper.get_signer(signing_helper.LOCAL_MODULE_SIGNER, py_signer_path)
         self.assertTrue(hasattr(py_signer, 'sign'))

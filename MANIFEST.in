@@ -5,11 +5,11 @@ exclude codecov.yaml
 prune azure-pipelines
 prune .github
 prune docs
-# Lets keep the tests - prune edk2toolext/tests
+prune tests.unit
+prune tests.integration
 exclude .cspell.json
 exclude .flake8
 exclude .coveragerc
 exclude .gitignore
 include edk2toolext/bin/NuGet.exe
 include readme.md
-include setup.py
