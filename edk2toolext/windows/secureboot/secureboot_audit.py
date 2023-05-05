@@ -59,7 +59,7 @@ def write_json_file(report, output_file):
     """Writes a JSON file.
 
     Args:
-        data (dict): Data to write
+        report (dict): report to write
         output_file (str): Output file to write to
 
     Returns:
@@ -396,7 +396,7 @@ def get_secureboot_files(args):
     """Gets the DBX from the system.
 
     Args:
-        ArgumentParser (ArgumentParser.namespace): the namespace from the ArgumentParser
+        args (ArgumentParser.namespace): the namespace from the ArgumentParser
 
     Returns:
         0 on success
@@ -427,7 +427,7 @@ def parse_dbx(args):
     """Parses the DBX.
 
     Args:
-        ArgumentParser (ArgumentParser.namespace): the namespace from the ArgumentParser
+        args (ArgumentParser.namespace): the namespace from the ArgumentParser
 
     Returns:
         0 on success

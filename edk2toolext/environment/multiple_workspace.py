@@ -130,6 +130,7 @@ class MultipleWorkspace(object):
 
         Args:
             cls (obj): The class pointer
+            PathStr (str): The path string
 
         Returns:
             (Str): Path string including the $(WORKSPACE)
