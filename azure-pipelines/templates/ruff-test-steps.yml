@@ -1,0 +1,27 @@
+# File ruff-test-steps.yml
+#
+# template file to run ruff and if error publish log
+#
+# Copyright (c) 2019, Microsoft Corporation
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+
+parameters:
+  root_package_folder: ''
+  
+steps:
+- script: ruff check ${{parameters.root_package_folder}}
+  displayName: 'Run ruff'
+  condition: succeededOrFailed()
+
+# Only capture and archive the lint log on failures.
+- script: ruff check ${{parameters.root_package_folder}} > ruff.err.log
+  displayName: 'Capture ruff failures'
+  condition: Failed()
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: 'ruff.err.log' 
+    artifactName: 'ruff Error log file'
+  continueOnError: true
+  condition: Failed()

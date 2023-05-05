@@ -39,11 +39,9 @@ issues = "https://github.com/tianocore/edk2-pytool-extensions/issues"
 [project.optional-dependencies]
 dev = [
     "edk2-pytool-extensions[openssl]",
-    "flake8 == 6.0.0",
-    "flake8-pyproject == 1.2.3",
+    "ruff == 0.0.265",
     "pytest == 7.3.1",
     "coverage == 7.2.5",
-    "pydocstyle == 6.3.0",
     "robotframework == 6.0.2",
     "regex == 2023.5.5",
 ]
@@ -89,11 +87,16 @@ secureboot_audit = "edk2toolext.windows.secureboot.secureboot_audit:main"
 [tool.coverage.run]
 include = ["edk2toolext/*"]
 
-[tool.flake8]
-ignore = "E266,E722,W503"
-max_line_length = 120
+[tool.ruff]
+src = ["edk2toolext"]
+select = [
+    "E", # Pycodestyle errors
+    "F", # PyFlakes
+    "D", # pydocstyle
+]
+line-length = 120
 
-[tool.pydocstyle]
+[tool.ruff.pydocstyle]
 convention = "google"
 
 [tool.pytest.ini_options]
