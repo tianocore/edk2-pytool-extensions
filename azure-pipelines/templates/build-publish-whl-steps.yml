@@ -13,7 +13,7 @@ steps:
 - script: pip install --upgrade -e .[publish]
   displayName: 'Install PyPI publishing requirements'
 
-- script: python build --wheel --sdist
+- script: python -m build --wheel --sdist
   displayName: 'Build a wheel'
 
 - task: PythonScript@0
