@@ -7,7 +7,7 @@ name = "edk2-pytool-extensions"
 maintainers = [{name = "EDK2 Pytool Maintainers", email = "edk2-pytools@microsoft.com"}]
 dynamic = ["version"]
 description = "Python tools supporting UEFI EDK2 firmware development"
-readme = {file = "readme.md", content-type = "markdown"}
+readme = {file = "readme.md", content-type = "text/markdown"}
 license = {file = "LICENSE"}
 dependencies = [
     "edk2-pytool-library>=0.14.0",
