@@ -76,10 +76,10 @@ class MyNewInvocableSettingsManager(Edk2InvocableSettingsInterface):
 
     def GetPlatformVersion(self):
         return None # Optional for a platform to implement, so we return a default value
-    
+
     def GetPlatformAlignment(self):
         raise NotImplementedError() # Required by a platform to be implemented so we raise an error
-    
+
     # GetPackagesPath(self): # we need this method, but since it already exists, we don't need to reimplement it
 ```
 
@@ -138,7 +138,7 @@ class MyNewInvocableSettingsManager(Edk2InvocableSettingsInterface):
 
     def GetPlatformVersion(self):
         return None # Optional for a platform to implement, so we return a default value
-    
+
     def GetPlatformAlignment(self):
         raise NotImplementedError() # Required by a platform to be implemented so we raise an error
 
@@ -167,7 +167,7 @@ class MyNewInvocable(Edk2Invocable):
     def GetAlignment(self):
         # New Method
         return self.PlatformSettings.GetPlatformAlignment()
-    
+
     def Go(self):
         # Do Core functionality of the invocable. Environment is already set up.
 ```
@@ -210,10 +210,10 @@ from edk2toolext.invocables.edk2_pr_eval import PrEvalSettingsManager
 from edk2toolext.invocables.my_new_invocable import MyNewInvocableSettingsManager # Path will be different
 class SettingsManager(UpdateSettingsManager, SetupSettingsManager, PrEvalSettingsManager, MyNewInvocableSettingsManager):
     ... # Existing methods removed to save space
-    
+
     def GetPlatformVersion(self):
         return 1
-    
+
     def GetPlatformAlignment(self):
         return 4096
 ```

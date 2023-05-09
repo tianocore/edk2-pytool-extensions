@@ -21,7 +21,7 @@ Administrative functions are gated off of github access.
 So members with write access can change some settings and team member can change more global settings.
 
 ## Does codecov.io handle PR (incoming noise) vs CI (baseline)
-  
+
 Yes.
 It automatically infers the branch is being run.
 
