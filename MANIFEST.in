@@ -7,6 +7,9 @@ prune .github
 prune docs
 prune tests.unit
 prune tests.integration
+prune .vscode
+prune edk2_pytool_extensions.egg-info
+exclude .markdownlint.yaml
 exclude .cspell.json
 exclude .flake8
 exclude .coveragerc
