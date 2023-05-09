@@ -134,6 +134,42 @@ out all the different parts.
     mkdocs build --strict
     ```
 
+### Githooks
+
+ptionally, there are two githooks provided to automate testing locally before running CI
+
+* githooks/basic-pre-commit-config.yaml
+  * This file runs only the quickest checks in order to test the code for common mistakes
+  * This yaml will pull in all the tools into an enviornment it needs to run
+* githooks/advanced-pre-commit-config.yaml
+  * This file will run all the basic checks and the longer running checks
+  * This yaml will need mkdocs installed prior to running
+
+#### Installing
+
+Installing is entirely optional, a developer may choose to run this manually.
+The following command will enable this pre-commit to prior to each commit. If it detects
+issues it will fail to commit until they are fixed.
+
+```bash
+pip install pre-commit
+pre-commit install -c githooks/basic-pre-commit-config.yaml
+```
+
+#### Running across the entire repository (Manually)
+
+This step is entirely manual but gives a good example of what the behavior of this tool will be.
+
+```bash
+pre-commit run --all-files -c githooks/basic-pre-commit-config.yaml
+```
+
+#### Uninstalling
+
+```bash
+pre-commit uninstall
+```
+
 ## Conventions Shortlist
 
 ### File and folder names
