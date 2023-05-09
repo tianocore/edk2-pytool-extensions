@@ -1,0 +1,38 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.2.0
+    hooks:
+    -   id: trailing-whitespace
+        types_or: [python, markdown]
+    -   id: end-of-file-fixer
+    -   id: check-added-large-files
+    -   id: check-merge-conflict
+    -   id: check-ast # check python ast
+-   repo: https://github.com/streetsidesoftware/cspell-cli
+    rev:  v6.31.0
+    hooks:
+    -   id: cspell
+        types_or: [markdown, python]
+-   repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev:  "v0.0.265"
+    hooks:
+    -   id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+-   repo: https://github.com/igorshubovych/markdownlint-cli
+    rev:  v0.12.0
+    hooks:
+    -   id: markdownlint
+        args: [--config, .markdownlint.yaml]
+-   repo: local
+    hooks:
+    -   id: BasicDevTests
+        name: BasicDevTests
+        language: system
+        entry: python BasicDevTests.py
+    -   id: mkdocs-build
+        name: Build MkDocs site
+        entry: mkdocs build --strict
+        language: python
+        always_run: true
+        pass_filenames: false
+        require_serial: true
