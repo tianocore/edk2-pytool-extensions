@@ -74,5 +74,5 @@ collect the stuart log to debug problems.
 
 ## Copyright
 
-Copyright (c) Microsoft Corporation.  
+Copyright (c) Microsoft Corporation.
 SPDX-License-Identifier: BSD-2-Clause-Patent

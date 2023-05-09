@@ -106,4 +106,3 @@ Run Edk2 MdeModulePkg CoreCI for NOOPT and HostTest
     Stuart update          ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
     Build BaseTools        ${tool_chain}  ${ws_root}
     Stuart CI build        ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
-
