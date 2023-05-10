@@ -110,9 +110,6 @@ class Edk2PlatformBuild(Edk2Invocable):
     def GetVerifyCheckRequired(self) -> bool:
         """Will call self_describing_environment.VerifyEnvironment if this returns True.
 
-        !!! hint
-            Optional override in a subclass
-
         Returns:
             (bool): whether verify check is required or not
         """
