@@ -65,7 +65,7 @@ class ExternalDependency(object):
         self.contents_dir = os.path.join(
             self.descriptor_location, self.name + "_extdep")
         self.state_file_path = os.path.join(
-            self.contents_dir, "extdep_state.json")
+            self.contents_dir, "extdep_state.yaml")
         self.published_path = self.compute_published_path()
 
     def set_global_cache_path(self, global_cache_path):
