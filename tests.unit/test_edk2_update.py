@@ -84,7 +84,7 @@ class TestEdk2Update(unittest.TestCase):
         updater = self.invoke_update(tree.get_settings_provider_path())
         # make sure it worked
         self.assertTrue(os.path.exists(os.path.join(WORKSPACE, "Edk2TestUpdate_extdep",
-                                                    "NuGet.CommandLine_extdep", "extdep_state.json")))
+                                                    "NuGet.CommandLine_extdep", "extdep_state.yaml")))
         build_env, shell_env, failure = updater.PerformUpdate()
         # we should have no failures
         self.assertEqual(failure, 0)
