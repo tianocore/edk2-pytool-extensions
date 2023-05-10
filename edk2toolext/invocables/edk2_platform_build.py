@@ -69,14 +69,10 @@ class Edk2PlatformBuild(Edk2Invocable):
             except (TypeError):
                 raise RuntimeError(f"UefiBuild not found in module:\n{dir(self.PlatformModule)}")
 
-        parserObj.add_argument('-nv', '-NV', '--noverify', '--NOVERIFY', '--NoVerify',
-                               dest="verify", default=True, action='store_false',
-                               help='Skip verifying external dependencies before build.')
         self.PlatformBuilder.AddPlatformCommandLineOptions(parserObj)
 
     def RetrieveCommandLineOptions(self, args):
         """Retrieve command line options from the argparser."""
-        self.verify = args.verify
         self.PlatformBuilder.RetrievePlatformCommandLineOptions(args)
 
     def AddParserEpilog(self) -> str:

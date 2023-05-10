@@ -85,17 +85,7 @@ class GitDependency(ExternalDependency):
         super().clean()
 
     def verify(self):
-        """Verifies the clone was successful.
-
-        !!! Note
-            If verify is set to false in the dependencies state file,
-            it will always skip the verification process.
-        """
-        state_data = self.get_state_file_data()
-        if state_data and state_data['verify'] is False:
-            logging.warning(f'{self.name} is unverified. Unexpected results may occur.')
-            return True
-
+        """Verifies the clone was successful."""
         result = True
         details = repo_resolver.repo_details(self._local_repo_root_path)
 
