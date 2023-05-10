@@ -103,19 +103,6 @@ class Edk2PlatformBuild(Edk2Invocable):
 
         return custom_epilog + epilog
 
-    def GetVerifyCheckRequired(self) -> bool:
-        """Will call self_describing_environment.VerifyEnvironment if this returns True.
-
-        !!! hint
-            Optional override in a subclass
-
-        Returns:
-            (bool): whether verify check is required or not
-        """
-        if not self.verify:
-            logging.warning("Skipping Environment Verification. Unexpected results may occur.")
-        return self.verify
-
     def GetSettingsClass(self):
         """Returns the BuildSettingsManager class.
 
