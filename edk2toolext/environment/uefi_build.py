@@ -473,7 +473,12 @@ class UefiBuilder(object):
                           os.path.normpath(os.path.join(self.ws, self.env.GetValue("OUTPUT_DIRECTORY"))),
                           "Computed in SetEnv")
 
-        target = self.env.GetValue("TARGET")
+        target = self.env.GetValue("TARGET", None)
+        if target is None:
+            logging.error("Environment variable TARGET must be set to a build target.")
+            logging.error("Review the 'CLI Env Guide' section provided when using stuart_build with the -help flag.")
+            return -1
+
         self.env.SetValue("BUILD_OUTPUT_BASE", os.path.join(self.env.GetValue(
             "BUILD_OUT_TEMP"), target + "_" + self.env.GetValue("TOOL_CHAIN_TAG")), "Computed in SetEnv")
 
@@ -638,7 +643,12 @@ class UefiBuilder(object):
             # Get the tool chain tag and then find the family
             # need to parse tools_def and find *_<TAG>_*_*_FAMILY
             # Example:  *_VS2019_*_*_FAMILY        = MSFT
-            tag = "*_" + self.env.GetValue("TOOL_CHAIN_TAG") + "_*_*_FAMILY"
+            tool_chain = self.env.GetValue("TOOL_CHAIN_TAG", None)
+            if tool_chain is None:
+                logging.error("Environment variable TOOL_CHAIN_TAG must be set to a tool chain.")
+                logging.error("Review the 'CLI Env Guide' section provided when using stuart_build with the -help flag.")
+                return -1
+            tag = "*_" + tool_chain + "_*_*_FAMILY"
             tool_chain_family = tdp.Dict.get(tag, "UNKNOWN")
             self.env.SetValue("FAMILY", tool_chain_family, "DSC Spec macro - from tools_def.txt")
 
