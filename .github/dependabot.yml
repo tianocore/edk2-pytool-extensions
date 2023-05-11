@@ -15,10 +15,6 @@ updates:
     schedule:
       interval: "daily"
   - package-ecosystem: "pip"
-    directory: "/integration_test/"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "pip"
     directory: "/docs/user/"
     schedule:
       interval: "daily"

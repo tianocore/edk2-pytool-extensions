@@ -33,7 +33,7 @@ classifiers=[
     ]
 ```
 
-### integration_test/azure-pipelines/windows-robot-integration-test.yml
+### tests.integration/azure-pipelines/windows-robot-integration-test.yml
 
 Since we support the last three minor versions of python, we want to ensure
 that we run integration tests against all three supported versions.
