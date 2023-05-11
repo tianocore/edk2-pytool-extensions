@@ -52,14 +52,14 @@ publish = [
 ]
 docs = [
     "black==23.3.0",
-    "mkdocs==1.4.2",
-    "mkdocs-material==9.1.9",
+    "mkdocs==1.4.3",
+    "mkdocs-material==9.1.11",
     "mkdocstrings[python]==0.21.2",
-    "mkdocstrings-python==0.9.0",
+    "mkdocstrings-python==1.0.0",
     "markdown-include==0.8.1",
     "mkdocs-gen-files==0.5.0",
     "mkdocs-exclude==1.0.2",
-    "mkdocs-awesome-pages-plugin==2.9.0",
+    "mkdocs-awesome-pages-plugin==2.9.1",
 ]
 openssl = [
     "pyopenssl",
