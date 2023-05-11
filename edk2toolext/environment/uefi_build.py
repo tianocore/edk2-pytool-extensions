@@ -476,7 +476,8 @@ class UefiBuilder(object):
         target = self.env.GetValue("TARGET", None)
         if target is None:
             logging.error("Environment variable TARGET must be set to a build target.")
-            logging.error("Review the 'CLI Env Guide' section provided when using stuart_build with the -help flag.")
+            logging.error("Review the 'CLI Env Guide' section provided when using stuart_build "\
+                          "with the -help flag.")
             return -1
 
         self.env.SetValue("BUILD_OUTPUT_BASE", os.path.join(self.env.GetValue(
@@ -646,7 +647,8 @@ class UefiBuilder(object):
             tool_chain = self.env.GetValue("TOOL_CHAIN_TAG", None)
             if tool_chain is None:
                 logging.error("Environment variable TOOL_CHAIN_TAG must be set to a tool chain.")
-                logging.error("Review the 'CLI Env Guide' section provided when using stuart_build with the -help flag.")
+                logging.error("Review the 'CLI Env Guide' section provided when using stuart_build "\
+                              "with the -help flag.")
                 return -1
             tag = "*_" + tool_chain + "_*_*_FAMILY"
             tool_chain_family = tdp.Dict.get(tag, "UNKNOWN")
