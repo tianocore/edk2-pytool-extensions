@@ -136,7 +136,7 @@ out all the different parts.
 
 ### Githooks
 
-ptionally, there are two githooks provided to automate testing locally before running CI
+Optionally, there are two githooks provided to automate testing locally before running CI
 
 * githooks/basic-pre-commit-config.yaml
   * This file runs only the quickest checks in order to test the code for common mistakes
