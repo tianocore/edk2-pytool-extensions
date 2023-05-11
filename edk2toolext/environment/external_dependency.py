@@ -177,8 +177,19 @@ class ExternalDependency(object):
     def verify(self):
         """Verifies the dependency was successfully downloaded."""
         result = True
-        state_data = self.get_state_file_data()
+        state_data = None
 
+        # See whether or not the state file exists.
+        if not os.path.isfile(self.state_file_path):
+            result = False
+
+        # Attempt to load the state file.
+        if result:
+            with open(self.state_file_path, 'r') as file:
+                try:
+                    state_data = yaml.safe_load(file)
+                except Exception:
+                    pass
         if state_data is None:
             result = False
 
@@ -191,27 +202,15 @@ class ExternalDependency(object):
 
     def report_version(self):
         """Reports the version of the external dependency."""
-        state_data = self.get_state_file_data()
-        version = self.version
-        if state_data and state_data['verify'] is False:
-            version = "UNVERIFIED"
         version_aggregator.GetVersionAggregator().ReportVersion(self.name,
-                                                                version,
+                                                                self.version,
                                                                 version_aggregator.VersionTypes.INFO,
                                                                 self.descriptor_location)
 
     def update_state_file(self):
         """Updates the file representing the state of the dependency."""
         with open(self.state_file_path, 'w+') as file:
-            yaml.dump({'version': self.version, 'verify': True}, file)
-
-    def get_state_file_data(self):
-        """Loads the state file data into a json file and returns it."""
-        try:
-            with open(self.state_file_path, 'r') as file:
-                return yaml.safe_load(file)
-        except Exception:
-            return None
+            yaml.dump({'version': self.version}, file)
 
 
 def ExtDepFactory(descriptor):

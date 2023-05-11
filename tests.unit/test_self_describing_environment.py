@@ -10,8 +10,6 @@ import pathlib
 import unittest
 import tempfile
 import git
-import yaml
-import os
 from edk2toolext.environment import self_describing_environment
 from uefi_tree import uefi_tree
 from edk2toolext.environment import version_aggregator
@@ -136,33 +134,6 @@ class Testself_describing_environment(unittest.TestCase):
 
         repo.git.worktree("add", "my_worktree")
         self_describing_environment.BootstrapEnvironment(self.workspace, ('global',))
-
-    def test_no_verify_extdep(self):
-        tree = uefi_tree(self.workspace, create_platform=False)
-        tree.create_ext_dep(dep_type="git",
-                            scope="global",
-                            name="HelloWorld",
-                            source="https://github.com/octocat/Hello-World.git",
-                            version="7fd1a60b01f91b314f59955a4e4d4e80d8edf11d")
-
-        # Bootstrap the environment
-        self_describing_environment.BootstrapEnvironment(self.workspace, ("global",))
-        self_describing_environment.UpdateDependencies(self.workspace, scopes=("global",))
-        self_describing_environment.VerifyEnvironment(self.workspace, scopes=("global",))
-
-        # Delete the readme to make the repo dirty then verify it fails
-        readme = os.path.join(tree.get_workspace(), "HelloWorld_extdep", "HelloWorld", "README")
-        os.remove(readme)
-        self.assertFalse(self_describing_environment.VerifyEnvironment(self.workspace, scopes=("global",)))
-
-        # Update the state file to not verify the specific external dependency then verify it passes
-        state_file = os.path.join(tree.get_workspace(), "HelloWorld_extdep", "extdep_state.yaml")
-        with open(state_file, 'r+') as f:
-            content = yaml.safe_load(f)
-            f.seek(0)
-            content["verify"] = False
-            yaml.safe_dump(content, f)
-        self.assertTrue(self_describing_environment.VerifyEnvironment(self.workspace, scopes=("global",)))
 
 
 if __name__ == '__main__':
