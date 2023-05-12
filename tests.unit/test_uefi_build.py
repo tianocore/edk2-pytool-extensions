@@ -164,20 +164,22 @@ class TestUefiBuild(unittest.TestCase):
 
     # TODO finish unit test
 
-def test_missing_TOOL_CHAIN_TAG(tmp_path, caplog):
+def test_missing_ENV_variables(tmp_path, caplog):
     with caplog.at_level(logging.ERROR):
         TestUefiBuild().create_min_uefi_build_tree(tmp_path)
-        target_folder = os.path.join(tmp_path, "Conf", "target.template")
-        os.remove(target_folder)
-        TestUefiBuild.write_to_file(target_folder, ["ACTIVE_PLATFORM = Test.dsc\n"])
-
-        shell_environment.GetBuildVars().SetValue("EDK_TOOLS_PATH",
-                                                  str(tmp_path),
-                                                  "Set in build wrapper test")
-
+        target_template = os.path.join(tmp_path, "Conf", "target.template")
         builder = uefi_build.UefiBuilder()
         manager = PluginManager()
         helper = uefi_helper_plugin.HelperFunctions()
+        
+        #
+        # 1. Make sure we error and log a clean message when TOOL_CHAIN_TAG is missing
+        #
+        shell_environment.GetBuildVars().SetValue("EDK_TOOLS_PATH",
+                                                  str(tmp_path),
+                                                  "Set in build wrapper test")
+        os.remove(target_template)
+        TestUefiBuild.write_to_file(target_template, ["ACTIVE_PLATFORM = Test.dsc\n"])
         ret = builder.Go(str(tmp_path), "", helper, manager)
 
         # two error messages are logged when the environment variable is missing
@@ -185,22 +187,19 @@ def test_missing_TOOL_CHAIN_TAG(tmp_path, caplog):
         assert len(list(filter(lambda r: r.levelno == logging.ERROR, caplog.records))) == 2
         assert len(list(filter(lambda r: "TOOL_CHAIN_TAG" in r.message, caplog.records))) == 1
 
-
-def test_missing_TARGET(tmp_path, caplog):
-    with caplog.at_level(logging.ERROR):
-        TestUefiBuild().create_min_uefi_build_tree(tmp_path)
-        target_folder = os.path.join(tmp_path, "Conf", "target.template")
-        os.remove(target_folder)
-        TestUefiBuild.write_to_file(target_folder, ["ACTIVE_PLATFORM = Test.dsc\n",
-                                                    "TOOL_CHAIN_TAG = VS2022\n"])
-
-        shell_environment.GetBuildVars().SetValue("EDK_TOOLS_PATH",
-                                                  str(tmp_path),
-                                                  "Set in build wrapper test")
-
-        builder = uefi_build.UefiBuilder()
-        manager = PluginManager()
-        helper = uefi_helper_plugin.HelperFunctions()
+        #
+        # 2. Delete artifacts
+        #
+        for file in (tmp_path / "Conf").glob("**/*.txt"):
+            file.unlink()
+        caplog.clear()
+        
+        #
+        # 3. Make sure we error and log a clean message when TARGET is missing
+        #
+        os.remove(target_template)
+        TestUefiBuild.write_to_file(target_template, ["ACTIVE_PLATFORM = Test.dsc\n",
+                                                      "TOOL_CHAIN_TAG = VS2022\n"])
         ret = builder.Go(str(tmp_path), "", helper, manager)
 
         # two error messages are logged when the environment variable is missing
