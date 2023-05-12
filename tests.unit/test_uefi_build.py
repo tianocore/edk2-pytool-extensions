@@ -192,7 +192,7 @@ def test_missing_TARGET(tmp_path, caplog):
         target_folder = os.path.join(tmp_path, "Conf", "target.template")
         os.remove(target_folder)
         TestUefiBuild.write_to_file(target_folder, ["ACTIVE_PLATFORM = Test.dsc\n",
-                                                  "TOOL_CHAIN_TAG = VS2022\n"])
+                                                    "TOOL_CHAIN_TAG = VS2022\n"])
 
         shell_environment.GetBuildVars().SetValue("EDK_TOOLS_PATH",
                                                   str(tmp_path),
@@ -204,7 +204,6 @@ def test_missing_TARGET(tmp_path, caplog):
         ret = builder.Go(str(tmp_path), "", helper, manager)
 
         # two error messages are logged when the environment variable is missing
-        print(caplog.records)
         assert ret == -1
         assert len(list(filter(lambda r: r.levelno == logging.ERROR, caplog.records))) == 2
         assert len(list(filter(lambda r: "TARGET" in r.message, caplog.records))) == 1
