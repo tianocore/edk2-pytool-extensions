@@ -211,7 +211,8 @@ def scan_compiler_output(output_stream):
     # Would prefer to do something like r"(?:\/[^\/: ]*)+\/?:\d+:\d+: (error):"
     # but the script is currently setup on fixed formatting assumptions rather
     # than offering per rule flexibility to parse tokens via regex
-    gcc_error_exp = re.compile(r":\d+:\d+: (error):")
+    gcc_error_exp = re.compile(r":\d+:\d+: (error):", re.IGNORECASE)
+    gcc_fatal_error_exp = re.compile(r"fatal error:")
     edk2_error_exp = re.compile(r"error F(\d+):")
     build_py_error_exp = re.compile(r"error (\d+)E:")
     linker_error_exp = re.compile(r"error LNK(\d+):")
@@ -226,6 +227,9 @@ def scan_compiler_output(output_stream):
         if match is not None:
             error = output_compiler_error(match, line, "Compiler")
             problems.append((logging.ERROR, error))
+        match = gcc_fatal_error_exp.search(line)
+        if match is not None:
+            problems.append((logging.ERROR, line))
         match = warning_exp.search(line)
         if match is not None:
             error = output_compiler_error(match, line, "Compiler")

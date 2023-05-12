@@ -52,11 +52,13 @@ class Test_edk2_logging(unittest.TestCase):
         output_stream = io.StringIO("<source_file>error A1: error 1 details\n"
                                     "<source_file>warning B2: warning 2 details\n"
                                     "<source_file>error C3: error 3 details\n"
-                                    "<source_file>warning D4: warning 4 details\n")
+                                    "<source_file>warning D4: warning 4 details\n"
+                                    "<source_file>fatal error: details\n")
         expected_output = [(logging.ERROR, "Compiler #1 from <source_file> error 1 details"),
                            (logging.WARNING, "Compiler #2 from <source_file> warning 2 details"),
                            (logging.ERROR, "Compiler #3 from <source_file> error 3 details"),
-                           (logging.WARNING, "Compiler #4 from <source_file> warning 4 details")]
+                           (logging.WARNING, "Compiler #4 from <source_file> warning 4 details"),
+                           (logging.ERROR, "<source_file>fatal error: details")]
         self.assertEqual(edk2_logging.scan_compiler_output(output_stream), expected_output)
 
         # Input with no issue (empty string)
