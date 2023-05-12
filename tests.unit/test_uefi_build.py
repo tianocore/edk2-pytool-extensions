@@ -7,6 +7,8 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 import unittest
+import logging
+import pytest
 from edk2toolext.environment import uefi_build
 from edk2toolext.environment.plugintypes import uefi_helper_plugin
 from edk2toolext.environment.plugin_manager import PluginManager
@@ -58,7 +60,7 @@ class TestUefiBuild(unittest.TestCase):
                                                   "TOOL_CHAIN_TAG = test\n",
                                                   "TARGET = DEBUG\n"])
         tools_path = os.path.join(conf_folder, "tools_def.template")
-        TestUefiBuild.write_to_file(tools_path, ["hello"])
+        TestUefiBuild.write_to_file(tools_path, ["*_VS2022_*_*_FAMILY        = MSFT"])
         build_path = os.path.join(conf_folder, "build_rule.template")
         TestUefiBuild.write_to_file(build_path, ["hello"])
         platform_path = os.path.join(root, "Test.dsc")
@@ -161,6 +163,49 @@ class TestUefiBuild(unittest.TestCase):
         self.assertTrue(os.path.isfile(test_file_path))
 
     # TODO finish unit test
+
+def test_missing_ENV_variables(tmp_path, caplog):
+    with caplog.at_level(logging.ERROR):
+        TestUefiBuild().create_min_uefi_build_tree(tmp_path)
+        target_template = os.path.join(tmp_path, "Conf", "target.template")
+        builder = uefi_build.UefiBuilder()
+        manager = PluginManager()
+        helper = uefi_helper_plugin.HelperFunctions()
+        
+        #
+        # 1. Make sure we error and log a clean message when TOOL_CHAIN_TAG is missing
+        #
+        shell_environment.GetBuildVars().SetValue("EDK_TOOLS_PATH",
+                                                  str(tmp_path),
+                                                  "Set in build wrapper test")
+        os.remove(target_template)
+        TestUefiBuild.write_to_file(target_template, ["ACTIVE_PLATFORM = Test.dsc\n"])
+        ret = builder.Go(str(tmp_path), "", helper, manager)
+
+        # two error messages are logged when the environment variable is missing
+        assert ret == -1
+        assert len(list(filter(lambda r: r.levelno == logging.ERROR, caplog.records))) == 2
+        assert len(list(filter(lambda r: "TOOL_CHAIN_TAG" in r.message, caplog.records))) == 1
+
+        #
+        # 2. Delete artifacts
+        #
+        for file in (tmp_path / "Conf").glob("**/*.txt"):
+            file.unlink()
+        caplog.clear()
+        
+        #
+        # 3. Make sure we error and log a clean message when TARGET is missing
+        #
+        os.remove(target_template)
+        TestUefiBuild.write_to_file(target_template, ["ACTIVE_PLATFORM = Test.dsc\n",
+                                                      "TOOL_CHAIN_TAG = VS2022\n"])
+        ret = builder.Go(str(tmp_path), "", helper, manager)
+
+        # two error messages are logged when the environment variable is missing
+        assert ret == -1
+        assert len(list(filter(lambda r: r.levelno == logging.ERROR, caplog.records))) == 2
+        assert len(list(filter(lambda r: "TARGET" in r.message, caplog.records))) == 1
 
 
 if __name__ == '__main__':
