@@ -39,7 +39,7 @@ issues = "https://github.com/tianocore/edk2-pytool-extensions/issues"
 [project.optional-dependencies]
 dev = [
     "edk2-pytool-extensions[openssl]",
-    "ruff == 0.0.265",
+    "ruff == 0.0.267",
     "pytest == 7.3.1",
     "coverage == 7.2.5",
     "robotframework == 6.0.2",
