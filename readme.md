@@ -5,6 +5,8 @@
 [![ci]][_ci]
 [![docs]][_docs]
 
+Getting Started? Check out our documentation at [https://www.tianocore.org/edk2-pytool-extensions](https://www.tianocore.org/edk2-pytool-extensions/)!
+
 This is a Tianocore maintained project consisting of command line and other
 python tools and extensions for building and maintaining an Edk2 based UEFI
 firmware code tree. Part of these tools include "invocables" that can be used to
