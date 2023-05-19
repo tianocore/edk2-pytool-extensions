@@ -8,9 +8,9 @@ name: CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "feature/1.0.0" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "master", "feature/1.0.0" ]
 
 jobs:
   
