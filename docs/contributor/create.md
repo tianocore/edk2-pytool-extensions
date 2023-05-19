@@ -194,21 +194,21 @@ methods. Lets do that now.
 ### Before
 
 ```python
-from edk2toolext.invocables.edk2_setup import SetupSettingsManager
+from edk2toolext.invocables.edk2_initialize import InitializeSettingsManager
 from edk2toolext.invocables.edk2_update import UpdateSettingsManager
 from edk2toolext.invocables.edk2_pr_eval import PrEvalSettingsManager
-class SettingsManager(UpdateSettingsManager, SetupSettingsManager, PrEvalSettingsManager):
+class SettingsManager(UpdateSettingsManager, InitializeSettingsManager, PrEvalSettingsManager):
     ... # Existing methods removed to save space
 ```
 
 ### After
 
 ```python
-from edk2toolext.invocables.edk2_setup import SetupSettingsManager
+from edk2toolext.invocables.edk2edk2_initialize_setup import InitializeSettingsManager
 from edk2toolext.invocables.edk2_update import UpdateSettingsManager
 from edk2toolext.invocables.edk2_pr_eval import PrEvalSettingsManager
 from edk2toolext.invocables.my_new_invocable import MyNewInvocableSettingsManager # Path will be different
-class SettingsManager(UpdateSettingsManager, SetupSettingsManager, PrEvalSettingsManager, MyNewInvocableSettingsManager):
+class SettingsManager(UpdateSettingsManager, InitializeSettingsManager, PrEvalSettingsManager, MyNewInvocableSettingsManager):
     ... # Existing methods removed to save space
 
     def GetPlatformVersion(self):

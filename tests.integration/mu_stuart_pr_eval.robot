@@ -15,7 +15,7 @@ Suite Setup  One time setup  ${repo_url}  ${ws_dir}
 # Suite Setup
 
 *** Variables ***
-${repo_url}           https://github.com/microsoft/mu_basecore
+${repo_url}           https://github.com/javagedes/mu_basecore
 ${default_branch}     not_yet_set
 ${ws_dir}             mu_basecore
 ${core_ci_file}       .pytool/CISettings.py

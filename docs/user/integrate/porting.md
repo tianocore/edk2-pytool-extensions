@@ -166,16 +166,16 @@ import os
 import logging
 from edk2toolext.environment.uefi_build import UefiBuilder
 from edk2toolext.invocables.edk2_platform_build import BuildSettingsManager
-from edk2toolext.invocables.edk2_setup import SetupSettingsManager
+from edk2toolext.invocables.edk2_initialize import InitializeSettingsManager
 from edk2toolext.invocables.edk2_update import UpdateSettingsManager
 from edk2toollib.utility_functions import GetHostInfo
-from edk2toolext.invocables.edk2_setup import RequiredSubmodule
+from edk2toolext.invocables.edk2_initialize import Submodule
 
 #
 #==========================================================================
 # PLATFORM BUILD ENVIRONMENT CONFIGURATION
 #
-class RpiSettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSettingsManager):
+class RpiSettingsManager(UpdateSettingsManager, InitializeSettingsManager, BuildSettingsManager):
     def __init__(self):
         SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
         self.ws = SCRIPT_PATH
@@ -191,7 +191,7 @@ Right now we are importing the needed classes from the pytools as well as
 defining a class which will provide the settings to stuart.
 
 The three invocables that we have implemented settings for are `stuart_build`,
-`stuart_update`, and `stuart_setup`. If you were to call one of these, you'd get
+`stuart_update`, and `stuart_init`. If you were to call one of these, you'd get
 an error on a non-implemented method.
 
 Since our settings provider it is still missing a lot of functionality. While it
@@ -209,7 +209,7 @@ Let's focus on getting setup working. Let's add Scopes and RequiredSubmodules.
 ```python
 ...
 
-class RpiSettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSettingsManager):
+class RpiSettingsManager(UpdateSettingsManager, InitializeSettingsManager, BuildSettingsManager):
     def __init__(self):
         SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
         self.ws = SCRIPT_PATH
@@ -227,16 +227,16 @@ class RpiSettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSetti
         These should be edk2 workspace relative paths '''
         return ("RaspberryPi/RPi3", )
 
-    def GetRequiredSubmodules(self):
+    def get_required_submodules(self):
         ''' return iterable containing RequiredSubmodule objects.
         If no RequiredSubmodules return an empty iterable
         '''
         return [
-            RequiredSubmodule("MU_BASECORE"),
-            RequiredSubmodule("Common/MU_OEM"),
-            RequiredSubmodule("Common/MU"),
-            RequiredSubmodule("Common/TIANO"),
-            RequiredSubmodule("Silicon/ARM/MU_TIANO"),
+            Submodule("MU_BASECORE"),
+            Submodule("Common/MU_OEM"),
+            Submodule("Common/MU"),
+            Submodule("Common/TIANO"),
+            Submodule("Silicon/ARM/MU_TIANO"),
         ]
 
     def GetArchitecturesSupported(self):
@@ -267,7 +267,7 @@ platforms or select between different platforms.
 Now if we call setup, we should see something like this:
 
 ```cmd
-~/rpi$ stuart_setup -c RpiPlatformBuild.py
+~/rpi$ stuart_init -c RpiPlatformBuild.py
 SECTION - Init SDE
 SECTION - Loading Plugins
 SECTION - Start Invocable Tool

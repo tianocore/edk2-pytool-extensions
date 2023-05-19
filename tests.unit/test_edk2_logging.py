@@ -6,10 +6,11 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 import io
+import logging
 import os
 import tempfile
 import unittest
-import logging
+
 from edk2toolext import edk2_logging
 
 
@@ -194,7 +195,8 @@ class Test_edk2_logging(unittest.TestCase):
 def test_NO_secret_filter(caplog):
     end_list = [" ", ",", ";", ":", " "]
     start_list = [" ", " ", " ", " ", ":"]
-    
+
+    del os.environ["CI"]
     edk2_logging.setup_console_logging(logging.DEBUG)
     # Test secret github (valid) 1
     fake_secret = "ghp_aeiou1"
@@ -209,7 +211,7 @@ def test_CI_secret_filter(caplog):
     caplog.set_level(logging.DEBUG)
     end_list = [" ", ",", ";", ":", " "]
     start_list = [" ", " ", " ", " ", ":"]
-    
+
     os.environ["CI"] = "TRUE"
     edk2_logging.setup_console_logging(logging.DEBUG)
     caplog.clear()
@@ -227,7 +229,7 @@ def test_TF_BUILD_secret_filter(caplog):
     caplog.set_level(logging.DEBUG)
     end_list = [" ", ",", ";", ":", " "]
     start_list = [" ", " ", " ", " ", ":"]
-    
+
     os.environ["TF_BUILD"] = "TRUE"
     edk2_logging.setup_console_logging(logging.DEBUG)
     caplog.clear()

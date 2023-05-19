@@ -326,7 +326,7 @@ Here's what we will be importing:
 ```python
 import os
 import logging
-from edk2toolext.invocables.edk2_ci_setup import CiSetupSettingsManager
+from edk2toolext.invocables.edk2_initialize import InitializeSettingsManager
 from edk2toolext.invocables.edk2_update import UpdateSettingsManager
 try:
     from DriverBuilder import BinaryBuildSettingsManager
@@ -468,7 +468,7 @@ class SettingsManager(UpdateSettingsManager, CiSetupSettingsManager, BinaryBuild
 ```
 
 The methods implemented here are a mix of our own settings class and other invocables such as stuart_update or
-stuart_setup. Hopefully they're straightforward and easy to follow.
+stuart_init. Hopefully they're straightforward and easy to follow.
 
 ## Conclusion
 
@@ -640,7 +640,7 @@ if __name__ == "__main__":
 import os
 import logging
 from edk2toolext.environment.uefi_build import UefiBuilder
-from edk2toolext.invocables.edk2_ci_setup import CiSetupSettingsManager
+from edk2toolext.invocables.edk2_initialize import InitializeSettingsManager
 from edk2toolext.invocables.edk2_update import UpdateSettingsManager
 try:
     from DriverBuilder_temp import BinaryBuildSettingsManager
