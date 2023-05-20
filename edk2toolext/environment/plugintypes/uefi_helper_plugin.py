@@ -101,6 +101,6 @@ class HelperFunctions(object):
             except Exception as e:
                 logging.warning(
                     "Unable to register {0}".format(Descriptor.Name))
-                logging.info(e)
+                logging.error(e)
                 error += 1
         return error
