@@ -206,6 +206,7 @@ def test_NO_secret_filter(caplog):
     caplog.clear()
 
 def test_CI_secret_filter(caplog):
+    caplog.set_level(logging.DEBUG)
     end_list = [" ", ",", ";", ":", " "]
     start_list = [" ", " ", " ", " ", ":"]
     
@@ -223,6 +224,7 @@ def test_CI_secret_filter(caplog):
     caplog.clear()
 
 def test_TF_BUILD_secret_filter(caplog):
+    caplog.set_level(logging.DEBUG)
     end_list = [" ", ",", ";", ":", " "]
     start_list = [" ", " ", " ", " ", ":"]
     
