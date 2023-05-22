@@ -12,7 +12,7 @@ setup_logging is a helper function that creates 1-3 of the handlers. The output_
 so they can keep track of compiler output
 
 !!! note
-    Secret / PAT filtering automaticaly automatically occur if "CI" or "TF_BUILD" is set to TRUE in the os's
+    Secret / PAT filtering will automatically occur if "CI" or "TF_BUILD" is set to TRUE in the os's
     environment.
 
 ## General Practice
