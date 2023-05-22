@@ -191,14 +191,28 @@ class Test_edk2_logging(unittest.TestCase):
                            (logging.ERROR, "EDK2 #002 from : Failed to build module")]
         self.assertEqual(edk2_logging.scan_compiler_output(output_stream), expected_output)
 
-
-# caplog is a pytest fixture that captures log messages
-def test_catch_secrets_filter(caplog):
-    caplog.set_level(logging.DEBUG)
-    edk2_logging.setup_console_logging(logging.DEBUG)
-
+def test_NO_secret_filter(caplog):
     end_list = [" ", ",", ";", ":", " "]
     start_list = [" ", " ", " ", " ", ":"]
+    
+    edk2_logging.setup_console_logging(logging.DEBUG)
+    # Test secret github (valid) 1
+    fake_secret = "ghp_aeiou1"
+    for start, end in zip(start_list, end_list):
+        logging.debug(f"This is a secret{start}{fake_secret}{end}to be caught")
+
+    for (record, start, end) in zip(caplog.records, start_list, end_list):
+        assert record.msg == f"This is a secret{start}{fake_secret}{end}to be caught"
+    caplog.clear()
+
+def test_CI_secret_filter(caplog):
+    caplog.set_level(logging.DEBUG)
+    end_list = [" ", ",", ";", ":", " "]
+    start_list = [" ", " ", " ", " ", ":"]
+    
+    os.environ["CI"] = "TRUE"
+    edk2_logging.setup_console_logging(logging.DEBUG)
+    caplog.clear()
 
     # Test secret github (valid) 1
     fake_secret = "ghp_aeiou1"
@@ -208,6 +222,34 @@ def test_catch_secrets_filter(caplog):
     for (record, start, end) in zip(caplog.records, start_list, end_list):
         assert record.msg == f"This is a secret{start}*******{end}to be caught"
     caplog.clear()
+
+def test_TF_BUILD_secret_filter(caplog):
+    caplog.set_level(logging.DEBUG)
+    end_list = [" ", ",", ";", ":", " "]
+    start_list = [" ", " ", " ", " ", ":"]
+    
+    os.environ["TF_BUILD"] = "TRUE"
+    edk2_logging.setup_console_logging(logging.DEBUG)
+    caplog.clear()
+
+    # Test secret github (valid) 1
+    fake_secret = "ghp_aeiou1"
+    for start, end in zip(start_list, end_list):
+        logging.debug(f"This is a secret{start}{fake_secret}{end}to be caught")
+
+    for (record, start, end) in zip(caplog.records, start_list, end_list):
+        assert record.msg == f"This is a secret{start}*******{end}to be caught"
+    caplog.clear()
+
+# caplog is a pytest fixture that captures log messages
+def test_catch_secrets_filter(caplog):
+    caplog.set_level(logging.DEBUG)
+    os.environ["CI"] = "TRUE"
+    edk2_logging.setup_console_logging(logging.DEBUG)
+    caplog.clear()
+
+    end_list = [" ", ",", ";", ":", " "]
+    start_list = [" ", " ", " ", " ", ":"]
 
     # Test secret github (valid) 2
     fake_secret = "gho_aeiou1"
