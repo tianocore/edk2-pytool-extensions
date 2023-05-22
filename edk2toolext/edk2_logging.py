@@ -1,12 +1,17 @@
 # @file edk2_logging.py
-# Handle basic logging config for builds;
+# Handle basic logging config for invocables;
 # splits logs into a master log and per package.
 ##
 # Copyright (c) Microsoft Corporation
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
-"""Handles basic logging config for builds.
+"""Handles basic logging config for invocables.
+
+edk2_logging will automatically filter logs for PATs / Secrets when it is
+detected that the invocable is running on a CI system. It does this via
+searching for "CI" or "TF_BUILD" in the os's environment variables. If either
+of these exists and and are set to TRUE, filtering will occur.
 
 Splits logs into a master log and per package log.
 """
@@ -120,7 +125,11 @@ def setup_txt_logger(directory, filename="log", logging_level=logging.INFO,
 # sets up a colored console logger
 def setup_console_logging(logging_level=logging.INFO, formatter=None, logging_namespace='',
                           isVerbose=False, use_azure_colors=False, use_color=True):
-    """Configures a console logger."""
+    """Configures a console logger.
+    
+    Filtering of secrets will automatically occur if "CI" or "TF_BUILD" is set to TRUE
+    in the os's environment.
+    """
     if formatter is None and isVerbose:
         formatter_msg = "%(name)s: %(levelname)s - %(message)s"
     elif formatter is None:
