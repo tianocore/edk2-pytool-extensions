@@ -287,9 +287,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
             changed_modules = [Path(m) for m in changed_modules]
 
             # now check DSC
-            dsc = DscParser()
-            dsc.SetBaseAbsPath(self.edk2_path_obj.WorkspacePath)
-            dsc.SetPackagePaths(self.edk2_path_obj.PackagePathList)
+            dsc = DscParser().SetEdk2Path(self.edk2_path_obj)
             # given that PR eval runs before dependencies are downloaded we must tolerate errors
             dsc.SetNoFailMode()
             dsc.SetInputVars(PlatformDscInfo[1])
@@ -345,8 +343,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         # For each INF file
         for f in inf_files:
             ip = InfParser()
-            ip.SetBaseAbsPath(self.edk2_path_obj.WorkspacePath).SetPackagePaths(
-                self.edk2_path_obj.PackagePathList).ParseFile(f)
+            ip.SetEdk2Path(self.edk2_path_obj).ParseFile(f)
 
             for p in ip.PackagesUsed:
                 if p.startswith(support_package):
@@ -406,7 +403,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
 
         # parse it
         dec = DecParser()
-        dec.SetBaseAbsPath(self.edk2_path_obj.WorkspacePath).SetPackagePaths(self.edk2_path_obj.PackagePathList)
+        dec.SetEdk2Path(self.edk2_path_obj)
         dec.ParseFile(wsr_dec_path)
         return dec
 

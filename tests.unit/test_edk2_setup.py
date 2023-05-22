@@ -120,7 +120,7 @@ class Settings(SetupSettingsManager):
 
     def GetRequiredSubmodules(self) -> list[RequiredSubmodule]:
         return [
-            RequiredSubmodule('Common\BAD_REPO', True)
+            RequiredSubmodule('Common\\BAD_REPO', True)
         ]
 
     def GetPackagesSupported(self) -> list[str]:
