@@ -211,6 +211,8 @@ def test_CI_secret_filter(caplog):
     
     os.environ["CI"] = "TRUE"
     edk2_logging.setup_console_logging(logging.DEBUG)
+    caplog.clear()
+
     # Test secret github (valid) 1
     fake_secret = "ghp_aeiou1"
     for start, end in zip(start_list, end_list):
@@ -226,6 +228,8 @@ def test_TF_BUILD_secret_filter(caplog):
     
     os.environ["TF_BUILD"] = "TRUE"
     edk2_logging.setup_console_logging(logging.DEBUG)
+    caplog.clear()
+
     # Test secret github (valid) 1
     fake_secret = "ghp_aeiou1"
     for start, end in zip(start_list, end_list):
@@ -240,6 +244,7 @@ def test_catch_secrets_filter(caplog):
     caplog.set_level(logging.DEBUG)
     os.environ["CI"] = "TRUE"
     edk2_logging.setup_console_logging(logging.DEBUG)
+    caplog.clear()
 
     end_list = [" ", ",", ";", ":", " "]
     start_list = [" ", " ", " ", " ", ":"]
