@@ -258,6 +258,17 @@ class Edk2LogFilter(logging.Filter):
         logging.Filter.__init__(self)
         self._verbose = False
         self._currentSection = "root"
+        self.apply_filter = False
+        
+        # Turn on filtering for azure pipelines
+        if os.environ.get("CI", "FALSE").upper() == "TRUE":
+            logging.debug("Detected CI Build on Github Actions. Secrets Filtering Enabled.")
+            self.apply_filter = True
+        
+        # Turn on filter for github actions
+        elif os.environ.get("TF_BUILD", "FALSE").upper() == "TRUE":
+            logging.debug("Detected CI Build on Azure Pipelines. Secrets Filtering Enabled.")
+            self.apply_filter = True
 
         secrets_regex_strings = [
             r"[a-z0-9]{46}",  # Nuget API Key is generated as all lowercase
@@ -282,5 +293,6 @@ class Edk2LogFilter(logging.Filter):
         # check to make sure we haven't already filtered this record
         if record.name not in Edk2LogFilter._allowedLoggers and record.levelno < logging.WARNING and not self._verbose:
             return False
-        record.msg = self.secrets_regex.sub("*******", str(record.msg))
+        if self.apply_filter:
+            record.msg = self.secrets_regex.sub("*******", str(record.msg))
         return True
