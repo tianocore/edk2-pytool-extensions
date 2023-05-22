@@ -284,5 +284,3 @@ def test_catch_secrets_filter(caplog):
     for (record, start, end) in zip(caplog.records, start_list, end_list):
         assert record.msg == f"This is a secret{start}{fake_secret}{end}to be caught"
     caplog.clear()
-
-# def test_no_filter_secrets()
