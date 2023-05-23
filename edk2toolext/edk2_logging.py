@@ -1,12 +1,17 @@
 # @file edk2_logging.py
-# Handle basic logging config for builds;
+# Handle basic logging config for invocables;
 # splits logs into a master log and per package.
 ##
 # Copyright (c) Microsoft Corporation
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
-"""Handles basic logging config for builds.
+"""Handles basic logging config for invocables.
+
+edk2_logging will automatically filter logs for PATs / Secrets when it is
+detected that the invocable is running on a CI system. It does this via
+searching for "CI" or "TF_BUILD" in the os's environment variables. If either
+of these exists and and are set to TRUE, filtering will occur.
 
 Splits logs into a master log and per package log.
 """
@@ -120,7 +125,11 @@ def setup_txt_logger(directory, filename="log", logging_level=logging.INFO,
 # sets up a colored console logger
 def setup_console_logging(logging_level=logging.INFO, formatter=None, logging_namespace='',
                           isVerbose=False, use_azure_colors=False, use_color=True):
-    """Configures a console logger."""
+    """Configures a console logger.
+    
+    Filtering of secrets will automatically occur if "CI" or "TF_BUILD" is set to TRUE
+    in the os's environment.
+    """
     if formatter is None and isVerbose:
         formatter_msg = "%(name)s: %(levelname)s - %(message)s"
     elif formatter is None:
@@ -211,7 +220,8 @@ def scan_compiler_output(output_stream):
     # Would prefer to do something like r"(?:\/[^\/: ]*)+\/?:\d+:\d+: (error):"
     # but the script is currently setup on fixed formatting assumptions rather
     # than offering per rule flexibility to parse tokens via regex
-    gcc_error_exp = re.compile(r":\d+:\d+: (error):")
+    gcc_error_exp = re.compile(r":\d+:\d+: (error):", re.IGNORECASE)
+    gcc_fatal_error_exp = re.compile(r"fatal error:")
     edk2_error_exp = re.compile(r"error F(\d+):")
     build_py_error_exp = re.compile(r"error (\d+)E:")
     linker_error_exp = re.compile(r"error LNK(\d+):")
@@ -226,6 +236,9 @@ def scan_compiler_output(output_stream):
         if match is not None:
             error = output_compiler_error(match, line, "Compiler")
             problems.append((logging.ERROR, error))
+        match = gcc_fatal_error_exp.search(line)
+        if match is not None:
+            problems.append((logging.ERROR, line))
         match = warning_exp.search(line)
         if match is not None:
             error = output_compiler_error(match, line, "Compiler")
@@ -254,6 +267,17 @@ class Edk2LogFilter(logging.Filter):
         logging.Filter.__init__(self)
         self._verbose = False
         self._currentSection = "root"
+        self.apply_filter = False
+        
+        # Turn on filtering for azure pipelines
+        if os.environ.get("CI", "FALSE").upper() == "TRUE":
+            logging.debug("Detected CI Build on Github Actions. Secrets Filtering Enabled.")
+            self.apply_filter = True
+        
+        # Turn on filter for github actions
+        elif os.environ.get("TF_BUILD", "FALSE").upper() == "TRUE":
+            logging.debug("Detected CI Build on Azure Pipelines. Secrets Filtering Enabled.")
+            self.apply_filter = True
 
         secrets_regex_strings = [
             r"[a-z0-9]{46}",  # Nuget API Key is generated as all lowercase
@@ -278,5 +302,6 @@ class Edk2LogFilter(logging.Filter):
         # check to make sure we haven't already filtered this record
         if record.name not in Edk2LogFilter._allowedLoggers and record.levelno < logging.WARNING and not self._verbose:
             return False
-        record.msg = self.secrets_regex.sub("*******", str(record.msg))
+        if self.apply_filter:
+            record.msg = self.secrets_regex.sub("*******", str(record.msg))
         return True
