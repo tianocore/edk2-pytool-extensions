@@ -19,6 +19,7 @@ import logging
 import yaml
 import hashlib
 import shutil
+from pathlib import Path
 from edk2toolext.environment import version_aggregator
 from edk2toollib.utility_functions import GetHostInfo, RemoveTree
 
@@ -38,6 +39,7 @@ class ExternalDependency(object):
         flags (list[str]): Flags dictating what actions should be taken once this dependency is resolved
                            More info: (docs/feature_extdep/)
         var_name (str): Used with set_*_var flag. Determines name of var to be set.
+        sha256 (str): Hash of downloaded dependency. Will be calculated if not provided. Optional
 
     !!! tip
         The attributes are what must be described in the ext_dep yaml file!
@@ -58,6 +60,7 @@ class ExternalDependency(object):
         self.flags = descriptor.get('flags', None)
         self.var_name = descriptor.get('var_name', None)
         self.error_msg = descriptor.get('error_msg', None)
+        self.sha256 = descriptor.get('sha256', None)
         self.global_cache_path = None
 
         self.descriptor_location = os.path.dirname(
@@ -144,6 +147,8 @@ class ExternalDependency(object):
         logging.debug("Found %s extdep '%s' in global cache." % (self.type, self.name))
         self.copy_from_global_cache(self.contents_dir)
         self.published_path = self.compute_published_path()
+        if self.sha256 is None:
+            self.calculate_sha256()
         self.update_state_file()
         return True
 
@@ -196,6 +201,9 @@ class ExternalDependency(object):
         # If loaded, check the version.
         if result and state_data['version'] != self.version:
             result = False
+        
+        if result and state_data['sha256'] != self.sha256:
+            result = False
 
         logging.debug("Verify '%s' returning '%s'." % (self.name, result))
         return result
@@ -210,8 +218,17 @@ class ExternalDependency(object):
     def update_state_file(self):
         """Updates the file representing the state of the dependency."""
         with open(self.state_file_path, 'w+') as file:
-            yaml.dump({'version': self.version}, file)
+            yaml.dump({'version': self.version, 'sha256': self.sha256}, file)
 
+    def calculate_sha256(self):
+        """Calculates the overall sha256 of the directory."""
+        sha256 = hashlib.sha256()
+        for file in sorted(Path(self.contents_dir).rglob("*")):
+            if file.is_file() and file.name != "extdep_state.yaml":
+                with open(file, 'rb') as f:
+                    for chunk in iter(lambda: f.read(4096), b''):
+                        sha256.update(chunk)
+        self.sha256 = sha256.hexdigest().lower()
 
 def ExtDepFactory(descriptor):
     """External Dependency Factory capable of generating each type of dependency.

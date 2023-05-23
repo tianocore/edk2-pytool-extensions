@@ -152,6 +152,7 @@ class AzureCliUniversalDependency(ExternalDependency):
             # We successfully found the package in the cache.
             # The published path may change now that the package has been unpacked.
             self.published_path = self.compute_published_path()
+            self.calculate_sha256()
             return
 
         #
@@ -173,6 +174,7 @@ class AzureCliUniversalDependency(ExternalDependency):
         #
         # Add a file to track the state of the dependency.
         #
+        self.calculate_sha256()
         self.update_state_file()
 
         # The published path may change now that the package has been unpacked.

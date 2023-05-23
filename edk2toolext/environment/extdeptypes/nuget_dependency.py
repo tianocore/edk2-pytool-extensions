@@ -11,6 +11,9 @@ import os
 import logging
 import semantic_version
 import shutil
+import yaml
+import hashlib
+from pathlib import Path
 from io import StringIO
 from edk2toolext.environment.external_dependency import ExternalDependency
 from edk2toollib.utility_functions import RunCmd, RemoveTree
@@ -266,6 +269,7 @@ class NugetDependency(ExternalDependency):
             # We successfully found the package in the cache.
             # The published path may change now that the package has been unpacked.
             # Bail.
+            self.calculate_sha256()
             self.update_state_file()
             self.published_path = self.compute_published_path()
             return
@@ -297,6 +301,7 @@ class NugetDependency(ExternalDependency):
         #
         # Add a file to track the state of the dependency.
         #
+        self.calculate_sha256()
         self.update_state_file()
 
         #

@@ -35,7 +35,7 @@ class WebDependency(ExternalDependency):
                              compute_published_path is run.
         compression_type (str): Supports zip and tar. If the file isn't
                                 compressed, do not include this field. Optional
-        sha256 (str): Hash of downloaded file to be checked against. Optional
+        sha256 (str): Hash of downloaded dependency. Will be calculated if not provided. Optional
 
     !!! tip
         The attributes are what must be described in the ext_dep yaml file!
@@ -48,7 +48,6 @@ class WebDependency(ExternalDependency):
         super().__init__(descriptor)
         self.internal_path = os.path.normpath(descriptor['internal_path'])
         self.compression_type = descriptor.get('compression_type', None)
-        self.sha256 = descriptor.get('sha256', None)
 
         # If the internal path starts with a / that means we are downloading a directory
         self.download_is_directory = self.internal_path.startswith(os.path.sep)
@@ -169,6 +168,9 @@ class WebDependency(ExternalDependency):
             shutil.move(temp_file_path, complete_internal_path)
 
         self.copy_to_global_cache(self.contents_dir)
+
+        if not self.sha256:
+            self.calculate_sha256()
 
         # Add a file to track the state of the dependency.
         self.update_state_file()
