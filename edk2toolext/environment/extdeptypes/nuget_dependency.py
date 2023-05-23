@@ -11,9 +11,6 @@ import os
 import logging
 import semantic_version
 import shutil
-import yaml
-import hashlib
-from pathlib import Path
 from io import StringIO
 from edk2toolext.environment.external_dependency import ExternalDependency
 from edk2toollib.utility_functions import RunCmd, RemoveTree
