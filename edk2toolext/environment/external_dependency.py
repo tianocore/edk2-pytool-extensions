@@ -111,7 +111,11 @@ class ExternalDependency(object):
                 logging.debug("{0} does not exist".format(dirname))
 
             if new_published_path is None:
-                logging.error("Could not find appropriate folder for {0}. {1}".format(self.name, str(host)))
+                logging.error(f"{self.name} is host specific, but does not appear to have support for {str(host)}.")
+                logging.error(f"Verify support for detected host: {str(host)} and contact dependency provider to add "\
+                              "support.")
+                logging.error("Otherwise, delete the external dependency directory to reset.")
+                
                 new_published_path = self.contents_dir
 
         if self.flags and "include_separator" in self.flags:
