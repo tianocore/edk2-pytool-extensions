@@ -12,8 +12,10 @@ setup_logging is a helper function that creates 1-3 of the handlers. The output_
 so they can keep track of compiler output
 
 !!! note
-    Secret / PAT filtering will automatically occur if "CI" or "TF_BUILD" is set to TRUE in the os's
-    environment.
+    Secret / PAT filtering will automatically occur if "CI" or "TF_BUILD" is set to "TRUE" in the os's
+    environment. Additionally, if "DEBUG" or "RUNNER_DEBUG" is set to "TRUE" or "1" respectively, the
+    console logger logging level will be forced to DEBUG. This is to support easy CI server debugging for
+    azure pipelines and github actions.
 
 ## General Practice
 

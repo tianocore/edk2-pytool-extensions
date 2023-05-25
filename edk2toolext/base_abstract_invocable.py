@@ -168,8 +168,10 @@ class BaseAbstractInvocable(object):
     def ConfigureLogging(self):
         """Sets up the logging.
 
-        !!! tip
-            Optional override in a subclass if new behavior is needed
+        !!! warning
+            console logging can be overwritten via the environment variables DEBUG
+            or RUNNER_DEBUG to easily enable server CI debugging. Review the logging
+            documentation for more details.
         """
         logger = logging.getLogger('')
         logger.setLevel(self.GetLoggingLevel("base"))
@@ -177,7 +179,12 @@ class BaseAbstractInvocable(object):
         # Adjust console mode depending on mode.
         edk2_logging.setup_section_level()
 
-        edk2_logging.setup_console_logging(self.GetLoggingLevel("con"))
+        if os.environ.get('RUNNER_DEBUG', "0") == "1" or os.environ.get('DEBUG', 'FALSE').upper() == 'TRUE':
+            logging.warning("Console logging forced to DEBUG due to CI environment.")
+            con_level = logging.DEBUG
+        else:
+            con_level = self.GetLoggingLevel("con")
+        edk2_logging.setup_console_logging(con_level)
 
         log_directory = os.path.join(self.GetWorkspaceRoot(), self.GetLoggingFolderRelativeToRoot())
 
