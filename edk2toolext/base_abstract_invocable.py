@@ -169,7 +169,7 @@ class BaseAbstractInvocable(object):
         """Sets up the logging.
 
         !!! warning
-            console logging can be overwritten via the environment variables DEBUG
+            console logging level can be overwritten via the environment variables DEBUG
             or RUNNER_DEBUG to easily enable server CI debugging. Review the logging
             documentation for more details.
         """
