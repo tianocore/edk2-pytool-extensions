@@ -97,7 +97,7 @@ Azure CLI tool to retrieve the content. To use this ext_dep type the development
 environment must have the Azure CLI tool available and the devops extension.  Since
 anonymous feeds are not supported your environment must already be authenticated or
 you must define a system environment variable that will hold a DevOps PAT with package
-read authorization.  
+read authorization.
 
 More information:
 
