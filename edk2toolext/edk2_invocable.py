@@ -294,6 +294,9 @@ class Edk2Invocable(BaseAbstractInvocable):
         Returns:
             (logging.Level): logging level
         """
+        if loggerType == "con" and self.Verbose:
+            return logging.DEBUG
+
         try:
             level = self.PlatformSettings.GetLoggingLevel(loggerType)
             if level is not None:
@@ -301,7 +304,7 @@ class Edk2Invocable(BaseAbstractInvocable):
         except Exception:
             pass
 
-        if (loggerType == "con") and not self.Verbose:
+        if loggerType == "con" and not self.Verbose:
             return logging.WARNING
         return logging.DEBUG
 
