@@ -14,6 +14,7 @@ Contains a PrEvalSettingsManager that must be subclassed in a build settings
 file. This provides platform specific information to Edk2PrEval invocable
 while allowing the invocable itself to remain platform agnostic.
 """
+import yaml
 import os
 import logging
 from io import StringIO
@@ -306,6 +307,26 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
                         remaining_packages.remove(p)  # remove from remaining packages
                         break
 
+        #
+        # Policy 5: If a file changed is a Library INF file, then build all packages that depend on that Library
+        # Only supported on packages with a ci.dsc file which contains PrEval.DscPath section.
+        #
+        for f in filter(lambda f: Path(f).suffix == ".inf", files):
+            for p in remaining_packages[:]:
+                dsc, defines = self._get_package_ci_information(p)
+                if not dsc:
+                    logging.debug(f"Policy 5 - Package {p} skipped due to missing ci.dsc file or missing DscPath"
+                                  "section of the PrEval settings.")
+                    continue
+
+                dsc_parser = DscParser()
+                dsc_parser.SetEdk2Path(self.edk2_path_obj).SetInputVars(defines)
+                dsc_parser.ParseFile(dsc)
+
+                if f in dsc_parser.Libs:
+                    packages_to_build[p] = f"Policy 5 - Package depends on Library {f}"
+                    remaining_packages.remove(p)
+
         # All done now return result
 
         return packages_to_build
@@ -478,6 +499,22 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
                             returnlist.append(os.path.join(Root, File))
 
         return returnlist
+
+    def _get_package_ci_information(self, pkg_name: str) -> str:
+        pkg_path = Path(self.edk2_path_obj.GetAbsolutePathOnThisSystemFromEdk2RelativePath(pkg_name))
+        ci_file = pkg_path.joinpath(f'{pkg_name}.ci.yaml')
+        dsc = None
+        defines = None
+
+        if not ci_file.exists():
+            return (None, None)
+
+        with open(ci_file, 'r') as f:
+            data = yaml.safe_load(f)
+            dsc = data.get("PrEval", {"DscPath": None})["DscPath"]
+            dsc = str(pkg_path / dsc) if dsc else None
+            defines = data.get("Defines", {})
+            return (dsc, defines)
 
 
 def main():
