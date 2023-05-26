@@ -310,7 +310,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
 
         #
         # Policy 5: If a file changed is a Library INF file, then build all packages that depend on that Library
-        # Only supported on packages with a ci.dsc file which contains a Compiler Plugin dsc path
+        # Only supported on packages with a ci.dsc file which contains PrEval.DscPath section.
         #
         for f in filter(lambda f: Path(f).suffix == ".inf", files):
             for p in remaining_packages[:]:
@@ -515,7 +515,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
             data = yaml.safe_load(f)
             dsc = data.get("PrEval", {"DscPath": None})["DscPath"]
             dsc = str(pkg_path / dsc) if dsc else None
-            defines = data.get("Defines", None)
+            defines = data.get("Defines", {})
             return (dsc, defines)
 
 
