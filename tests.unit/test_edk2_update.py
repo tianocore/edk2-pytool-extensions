@@ -11,6 +11,7 @@ import tempfile
 import sys
 import os
 import logging
+from pathlib import Path
 from importlib import reload
 from edk2toolext.environment import shell_environment
 from uefi_tree import uefi_tree
@@ -225,3 +226,41 @@ class TestEdk2Update(unittest.TestCase):
         build_env, shell_env, failure = updater.PerformUpdate()
         # we should have no failures
         self.assertEqual(failure, 1)
+    
+def test_log_error_on_missing_host_specific_folder(caplog, tmpdir):
+    ''' make sure we can update host_specific extdeps '''
+    caplog.set_level(logging.ERROR)
+    tree = uefi_tree(tmpdir)
+    tree.create_ext_dep(
+        dep_type = 'nuget',
+        name = 'mu_nasm',
+        version = '20016.1.1',
+        source = "https://pkgs.dev.azure.com/projectmu/mu/_packaging/Basetools-Binary/nuget/v3/index.json",
+        dir_path = "first/",
+        extra_data={"flags": ['host_specific']}
+    )
+    # Should download everything fine.
+    sys.argv = ["stuart_update", "-c", tree.get_settings_provider_path()]
+    builder = Edk2Update()
+    try:
+        builder.Invoke()
+    except SystemExit as e:
+        assert e.code == 0
+    
+    extdep_base = Path(tmpdir, "first", "mu_nasm_extdep")
+    assert 6 == len(list(extdep_base.iterdir()))
+
+    # Delete one of the supported hosts
+    if os.name == 'nt':
+        host = extdep_base / "Windows-x86-64"
+    else:
+        host = extdep_base / "Linux-x86-64"
+    for file in host.iterdir():
+        file.unlink()
+    host.rmdir()
+    assert 5 == len(list(extdep_base.iterdir()))
+
+    # We should catch the missing host and update
+    _, _, failure = builder.PerformUpdate()
+    assert failure == 0
+    assert len(caplog.records) > 0
