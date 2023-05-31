@@ -294,7 +294,7 @@ class Edk2Invocable(BaseAbstractInvocable):
         Returns:
             (logging.Level): logging level
         """
-        if loggerType == "con" and self.Verbose:
+        if self.Verbose:
             return logging.DEBUG
 
         try:
@@ -459,7 +459,7 @@ class Edk2Invocable(BaseAbstractInvocable):
         parserObj.add_argument('--build-config', dest='build_config', default=default_build_config_path, type=str,
                                help='Provide shell variables in a file')
         parserObj.add_argument('--verbose', '--VERBOSE', '-v', dest="verbose", action='store_true', default=False,
-                               help='verbose')
+                               help='Overrides platform settings and sets all loggers to verbose (logging.DEBUG).')
 
         # set the epilog to display with --help, -h
         parserObj.epilog = self.AddParserEpilog()
