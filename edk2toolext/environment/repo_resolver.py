@@ -142,9 +142,9 @@ def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=F
                 return
             else:
                 logger.critical("The URL of the git Repo {2} in the folder {0} does not match {1}".format(
-                    git_path, dependency["Url"], repo_details(git_path).url))
+                    git_path, dependency["Url"], details["Url"]))
                 raise Exception("The URL of the git Repo {2} in the folder {0} does not match {1}".format(
-                    git_path, dependency["Url"], repo_details(git_path).url))
+                    git_path, dependency["Url"], details["Url"]))
 
     ##########################################################################
     # 6. The repo is normal, Perform a regular checkout.                     #
