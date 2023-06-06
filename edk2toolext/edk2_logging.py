@@ -273,17 +273,17 @@ class Edk2LogFilter(logging.Filter):
         self._verbose = False
         self._currentSection = "root"
         self.apply_filter = False
-
+        
         # Turn on filtering for azure pipelines
         if os.environ.get("CI", "FALSE").upper() == "TRUE":
             logging.debug("Detected CI Build on Github Actions. Secrets Filtering Enabled.")
             self.apply_filter = True
-
+        
         # Turn on filter for github actions
         elif os.environ.get("TF_BUILD", "FALSE").upper() == "TRUE":
             logging.debug("Detected CI Build on Azure Pipelines. Secrets Filtering Enabled.")
             self.apply_filter = True
-        
+
         secrets_regex_strings = [
             r"[a-z0-9]{46}",  # Nuget API Key is generated as all lowercase
             r"gh[pousr]_[A-Za-z0-9_]+",  # Github PAT
