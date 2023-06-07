@@ -269,14 +269,8 @@ class Edk2LogFilter(logging.Filter):
         self._currentSection = "root"
         self.apply_filter = False
         
-        # Turn on filtering for azure pipelines
-        if os.environ.get("CI", "FALSE").upper() == "TRUE":
-            logging.debug("Detected CI Build on Github Actions. Secrets Filtering Enabled.")
-            self.apply_filter = True
-        
-        # Turn on filter for github actions
-        elif os.environ.get("TF_BUILD", "FALSE").upper() == "TRUE":
-            logging.debug("Detected CI Build on Azure Pipelines. Secrets Filtering Enabled.")
+        # Turn on filtering for azure pipelines / github actions
+        if os.environ.get("CI", "FALSE").upper() == "TRUE" or os.environ.get("TF_BUILD", "FALSE").upper() == "TRUE":
             self.apply_filter = True
 
         secrets_regex_strings = [
