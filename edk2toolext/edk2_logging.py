@@ -110,9 +110,14 @@ def setup_txt_logger(directory, filename="log", logging_level=logging.INFO,
     if not os.path.isdir(directory):
         os.makedirs(directory)
 
-    # Create file logger
     logfile_path = os.path.join(directory, filename + ".txt")
-    filelogger = file_handler.FileHandler(filename=(logfile_path), mode='w+')
+
+    # delete file before starting a new log
+    if os.path.isfile(logfile_path):
+        os.remove(logfile_path)
+
+    # Create file logger
+    filelogger = file_handler.FileHandler(filename=(logfile_path), mode='a')
     filelogger.setLevel(logging_level)
     filelogger.setFormatter(log_formatter)
     logger.addHandler(filelogger)
