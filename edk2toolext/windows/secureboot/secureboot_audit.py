@@ -145,7 +145,14 @@ def write_xlsx_file(report, output_file):
     logger.info("Wrote report to %s", output_file)
 
 def convert_row_to_metadata(row) -> dict:
+    """Converts a row from the csv to a metadata dictionary.
 
+    Args:
+        row (list): A row from the csv file
+
+    Returns:
+        dict: A dictionary containing the metadata
+    """
     convert_arch = {"64-bit": "x86_64", "32-bit": "x86", "64-bit ARM": "arm64"}
     authenticode_hash = row[1].upper()
 
@@ -482,6 +489,15 @@ def parse_dbx(args):
 ###################################################################################################
 
 def valid_file(param, valid_extensions=(".csv", ".xlsx")):
+    """Checks if a file is valid.
+
+    Args:
+        param (str): the file to check
+        valid_extensions (tuple): the valid extensions
+
+    Returns:
+        str: the file if it is valid
+    """
     base, ext = os.path.splitext(param)
     if ext.lower() not in valid_extensions:
         raise argparse.ArgumentTypeError('File must be one of the following types: {}'.format(valid_extensions))
