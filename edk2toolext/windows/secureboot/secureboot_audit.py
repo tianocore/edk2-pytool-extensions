@@ -170,7 +170,7 @@ def convert_row_to_metadata(row) -> dict:
         if authenticode_hash in KNOWN_CERTIFICATES
         else "authenticode",
         "cves": map_cve(row[5]),
-        "date": row[6],
+        "date": row[6].replace("\n", ""),
         "authority": None,
         "links": [],
     }
