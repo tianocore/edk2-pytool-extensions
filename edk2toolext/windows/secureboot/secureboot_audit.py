@@ -14,6 +14,7 @@ import sys
 import ctypes
 import os
 import json
+import csv
 import xlsxwriter
 import openpyxl
 
@@ -143,59 +144,90 @@ def write_xlsx_file(report, output_file):
 
     logger.info("Wrote report to %s", output_file)
 
+def convert_row_to_metadata(row) -> dict:
+    """Converts a row from the csv to a metadata dictionary.
+
+    Args:
+        row (list): A row from the csv file
+
+    Returns:
+        dict: A dictionary containing the metadata
+    """
+    convert_arch = {"64-bit": "x86_64", "32-bit": "x86", "64-bit ARM": "arm64"}
+    authenticode_hash = row[1].upper()
+
+    def map_cve(cve):
+        # Intentionally naive mapping of CVE's to the correct format
+        if 'CVE' in cve.upper():
+            # this condition could have multiple CVE's in it
+            return cve
+        elif "black lotus" in cve.lower():
+            return "CVE-2022-21894"
+        else:
+            return "N/A"
+
+    # if the hash isn't in the known certificates list than it's authenticode
+    # the only two types are authenticode and certificate however in practice only authenticode is used
+    meta_data = {
+        "flat_hash_sha256": row[0],
+        "component": row[2] if row[2] != "" else None,
+        "arch": convert_arch.get(row[3], row[3]),
+        "partner": row[4],
+        "type": "certificate"
+        if authenticode_hash in KNOWN_CERTIFICATES
+        else "authenticode",
+        "cves": map_cve(row[5]),
+        "date": row[6].replace("\n", ""),
+        "authority": None,
+        "links": [],
+    }
+
+    # Add links to the cve's if they exist
+    for cve in meta_data["cves"].split("; "):
+        if cve == "" or "XXXXX" in cve or "N/A" in cve:
+            break
+
+        meta_data["links"].append(f"https://nvd.nist.gov/vuln/detail/{cve}")
+
+    # Add the authority if it exists
+    # See https://oofhours.com/2021/01/19/uefi-secure-boot-who-controls-what-can-run/
+    if meta_data["partner"] != "Unknown":
+        if meta_data["partner"] == "Microsoft":
+            meta_data["authority"] = "Microsoft Windows Production PCA 2011"
+        else:
+            meta_data["authority"] = "Microsoft Corporation UEFI CA 2011"
+
+    return authenticode_hash, meta_data
+
 
 def convert_uefi_org_revocation_file_to_dict(file) -> dict:
     """Converts the excel file to json.
 
     Args:
-        file (str): Path to the excel file
+        file (str): Path to the excel or csv file
 
     Returns:
-        dict: The data from the excel file
+        dict: The data from the excel or csv file
     """
     data = {}
 
-    wb = openpyxl.load_workbook(file)
-    ws = wb.active
-    for row in ws.iter_rows(min_row=2, values_only=True):
-        # Set up the variables in a way that is human readable
-        # flat hash is useless
-        convert_arch = {"64-bit": "x86_64", "32-bit": "x86", "64-bit ARM": "arm64"}
-
-        authenticode_hash = row[1].upper()
-
-        # if the hash isn't in the known certificates list than it's authenticode
-        # the only two types are authenticode and certificate however in practice only authenticode is used
-        meta_data = {
-            "flat_hash_sha256": row[0],
-            "component": row[2],
-            "arch": convert_arch.get(row[3], row[3]),
-            "partner": row[4],
-            "type": "certificate"
-            if authenticode_hash in KNOWN_CERTIFICATES
-            else "authenticode",
-            "cves": row[5],
-            "date": row[6],
-            "authority": None,
-            "links": [],
-        }
-
-        # Add links to the cve's if they exist
-        for cve in meta_data["cves"].split("; "):
-            if cve == "" or "XXXXX" in cve or "N/A" in cve:
-                break
-
-            meta_data["links"].append(f"https://nvd.nist.gov/vuln/detail/{cve}")
-
-        # Add the authority if it exists
-        # See https://oofhours.com/2021/01/19/uefi-secure-boot-who-controls-what-can-run/
-        if meta_data["partner"] != "Unknown":
-            if meta_data["partner"] == "Microsoft":
-                meta_data["authority"] = "Microsoft Windows Production PCA 2011"
-            else:
-                meta_data["authority"] = "Microsoft Corporation UEFI CA 2011"
-
-        data[authenticode_hash] = meta_data
+    if file.endswith(".xlsx"):
+        wb = openpyxl.load_workbook(file)
+        ws = wb.active
+        for row in ws.iter_rows(min_row=2, values_only=True):
+            authenticode_hash, meta_data = convert_row_to_metadata(row)
+            data[authenticode_hash] = meta_data
+    elif file.endswith(".csv"):
+        with open(file, "r") as f:
+            for i, row in enumerate(csv.reader(f)):
+                if i == 0:
+                    # Skip the header
+                    continue
+                authenticode_hash, meta_data = convert_row_to_metadata(row)
+                data[authenticode_hash] = meta_data
+    else:
+        # This should never happen
+        raise Exception("Unknown file type")
 
     return data
 
@@ -209,7 +241,7 @@ def convert_uefi_org_file(args):
     Returns:
         None
     """
-    metadata = convert_uefi_org_revocation_file_to_dict(args.uefi_org_excel_file)
+    metadata = convert_uefi_org_revocation_file_to_dict(args.uefi_org_file)
 
     os.makedirs(os.path.dirname(args.output), exist_ok=True)
 
@@ -418,6 +450,9 @@ def get_secureboot_files(args):
     with open(output_file, "wb") as f:
         f.write(var)
 
+    with open(output_file, "rb") as f:
+        EfiSignatureDatabase(f).Print()
+
     logger.info("Wrote %s", output_file)
 
     return 0
@@ -452,6 +487,21 @@ def parse_dbx(args):
 ###################################################################################################
 # Command Line Parsing Functions
 ###################################################################################################
+
+def valid_file(param, valid_extensions=(".csv", ".xlsx")):
+    """Checks if a file is valid.
+
+    Args:
+        param (str): the file to check
+        valid_extensions (tuple): the valid extensions
+
+    Returns:
+        str: the file if it is valid
+    """
+    base, ext = os.path.splitext(param)
+    if ext.lower() not in valid_extensions:
+        raise argparse.ArgumentTypeError('File must be one of the following types: {}'.format(valid_extensions))
+    return param
 
 
 def setup_parse_dbx(subparsers):
@@ -496,7 +546,6 @@ def setup_parse_dbx(subparsers):
 
     return subparsers
 
-
 def setup_parse_uefi_org_files(subparsers):
     """Setup the parse_uefi_org_files subparser.
 
@@ -510,8 +559,9 @@ def setup_parse_uefi_org_files(subparsers):
     parser.set_defaults(function=convert_uefi_org_file)
 
     parser.add_argument(
-        "uefi_org_excel_file",
-        help="The excel file from uefi.org to parse, this will provide metadata about the signatures",
+        "uefi_org_file",
+        type=valid_file,
+        help="The csv or excel file from uefi.org to parse, this will provide metadata about the signatures",
     )
 
     parser.add_argument(
