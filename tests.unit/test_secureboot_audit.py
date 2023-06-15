@@ -94,6 +94,22 @@ class TestSecureBootReport(unittest.TestCase):
 
             self.assertEqual(revocations, expected_revocations)
 
+    def test_convert_uefi_org_revocation_file_to_dict(self):
+        """Test that we can convert the uefi.org revocation file to a dict"""
+        csv_file = os.path.join(TEST_DATA_PARENT_DIRECTORY, "dbx_info_2020_2023_uefiorg_v3.csv")
+
+        revocations = convert_uefi_org_revocation_file_to_dict(csv_file)
+
+        with open("uefi_org_revocations2.json", "w") as rev_fs:
+            json.dump(revocations, rev_fs)
+
+        revocations_file = os.path.join(TEST_DATA_PARENT_DIRECTORY, "uefi_org_revocations.json")
+
+        with open(revocations_file, "rb") as rev_fs:
+            expected_revocations = json.load(rev_fs)
+
+            self.assertEqual(revocations, expected_revocations)
+
     def test_write_xlsx_file(self):
         """Test that we can write a xlsx file"""
         dbx_report_file = os.path.join(TEST_DATA_PARENT_DIRECTORY, "dbx_report.json")

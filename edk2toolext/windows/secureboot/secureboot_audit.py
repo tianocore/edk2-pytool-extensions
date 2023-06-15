@@ -157,13 +157,13 @@ def convert_row_to_metadata(row) -> dict:
         elif "black lotus" in cve.lower():
             return "CVE-2022-21894"
         else:
-            return "CVE-XXXX-XXXX"
+            return "N/A"
 
     # if the hash isn't in the known certificates list than it's authenticode
     # the only two types are authenticode and certificate however in practice only authenticode is used
     meta_data = {
         "flat_hash_sha256": row[0],
-        "component": row[2],
+        "component": row[2] if row[2] != "" else None,
         "arch": convert_arch.get(row[3], row[3]),
         "partner": row[4],
         "type": "certificate"
