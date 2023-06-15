@@ -14,6 +14,7 @@ import sys
 import ctypes
 import os
 import json
+import csv
 import xlsxwriter
 import openpyxl
 
@@ -148,6 +149,16 @@ def convert_row_to_metadata(row) -> dict:
     convert_arch = {"64-bit": "x86_64", "32-bit": "x86", "64-bit ARM": "arm64"}
     authenticode_hash = row[1].upper()
 
+    def map_cve(cve):
+        # Intentionally naive mapping of CVE's to the correct format
+        if 'CVE' in cve.upper():
+            # this condition could have multiple CVE's in it
+            return cve
+        elif "black lotus" in cve.lower():
+            return "CVE-2022-21894"
+        else:
+            return "CVE-XXXX-XXXX"
+
     # if the hash isn't in the known certificates list than it's authenticode
     # the only two types are authenticode and certificate however in practice only authenticode is used
     meta_data = {
@@ -158,7 +169,7 @@ def convert_row_to_metadata(row) -> dict:
         "type": "certificate"
         if authenticode_hash in KNOWN_CERTIFICATES
         else "authenticode",
-        "cves": row[5],
+        "cves": map_cve(row[5]),
         "date": row[6],
         "authority": None,
         "links": [],
@@ -201,8 +212,10 @@ def convert_uefi_org_revocation_file_to_dict(file) -> dict:
             data[authenticode_hash] = meta_data
     elif file.endswith(".csv"):
         with open(file, "r") as f:
-            for row in f.readlines():
-                row = row.split(",")
+            for i, row in enumerate(csv.reader(f)):
+                if i == 0:
+                    # Skip the header
+                    continue
                 authenticode_hash, meta_data = convert_row_to_metadata(row)
                 data[authenticode_hash] = meta_data
     else:
