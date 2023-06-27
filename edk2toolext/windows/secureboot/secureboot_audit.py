@@ -42,7 +42,11 @@ DEFAULT_OUTPUT_FOLDER = os.path.join(".", "SecureBootFiles")
 
 # The supported files to retrieve from UEFI and their guids, additional files can be added here
 SECUREBOOT_FILES = {
-    "dbx": "{d719b2cb-3d3a-4596-a3bc-dad00e67656f}"  # EFI_IMAGE_SECURITY_DATABASE_GUID
+    "dbx": "{d719b2cb-3d3a-4596-a3bc-dad00e67656f}", # EFI_IMAGE_SECURITY_DATABASE_GUID
+    "db":  "{d719b2cb-3d3a-4596-a3bc-dad00e67656f}", # EFI_IMAGE_SECURITY_DATABASE_GUID
+    "dbt": "{d719b2cb-3d3a-4596-a3bc-dad00e67656f}", # EFI_IMAGE_SECURITY_DATABASE_GUID
+    "KEK": "{8BE4DF61-93CA-11d2-AA0D-00E098032B8C}", # EFI_GLOBAL_VARIABLE
+    "PK":  "{8BE4DF61-93CA-11d2-AA0D-00E098032B8C}"  # EFI_GLOBAL_VARIABLE   
 }
 
 KNOWN_CERTIFICATES = [
