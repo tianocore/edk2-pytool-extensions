@@ -245,6 +245,8 @@ def repo_details(abs_file_system_path):
             details["Bare"] = repo.bare
             details["Dirty"] = repo.is_dirty(untracked_files=True)
             details["Initialized"] = True
+            details["Submodules"] = [submodule.name for submodule in repo.submodules]
+            details["Remotes"] = [remote.name for remote in repo.remotes]
 
             # 1. Use the remote associated with the branch if on a branch and it exists
             if not repo.head.is_detached and repo.branches[repo.head.ref.name].tracking_branch():
