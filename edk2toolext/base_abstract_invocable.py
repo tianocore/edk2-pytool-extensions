@@ -7,14 +7,14 @@
 ##
 
 """The Base abstract Invocable that all other invocables should inherit from."""
+import logging
 import os
 import sys
-import logging
 from datetime import datetime
+
 from edk2toolext import edk2_logging
-from edk2toolext.environment import plugin_manager
+from edk2toolext.environment import plugin_manager, self_describing_environment
 from edk2toolext.environment.plugintypes.uefi_helper_plugin import HelperFunctions
-from edk2toolext.environment import self_describing_environment
 
 
 class BaseAbstractInvocable(object):
@@ -120,7 +120,6 @@ class BaseAbstractInvocable(object):
         !!! hint
             Optional override in subclass
         """
-        pass
 
     def GetVerifyCheckRequired(self):
         """Will call self_describing_environment.VerifyEnvironment if this returns True.

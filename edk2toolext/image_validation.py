@@ -11,11 +11,12 @@
 It also provides CLI functions to set and clear the nx_compat flag.
 """
 
-import os
-from pefile import PE, SECTION_CHARACTERISTICS, MACHINE_TYPE, SUBSYSTEM_TYPE
-import logging
 import argparse
+import logging
+import os
 import sys
+
+from pefile import MACHINE_TYPE, PE, SECTION_CHARACTERISTICS, SUBSYSTEM_TYPE
 
 from edk2toolext import edk2_logging
 

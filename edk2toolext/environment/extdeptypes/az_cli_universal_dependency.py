@@ -9,15 +9,16 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 """An ExternalDependency subclass able to download from an Azure feed."""
-import os
-import logging
-import shutil
 import json
+import logging
+import os
+import shutil
 from io import StringIO
-from edk2toolext.environment import shell_environment
+
+from edk2toollib.utility_functions import RemoveTree, RunCmd
+
+from edk2toolext.environment import shell_environment, version_aggregator
 from edk2toolext.environment.external_dependency import ExternalDependency
-from edk2toollib.utility_functions import RunCmd, RemoveTree
-from edk2toolext.environment import version_aggregator
 
 
 class AzureCliUniversalDependency(ExternalDependency):

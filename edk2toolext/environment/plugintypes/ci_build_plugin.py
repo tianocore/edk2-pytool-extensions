@@ -7,8 +7,8 @@
 ##
 """Plugin that supports adding tests or operations to the ci environment."""
 
-import os
 import logging
+import os
 from typing import List, Tuple
 
 
@@ -34,7 +34,6 @@ class ICiBuildPlugin(object):
             (int): 0 - passed successfully
             (int): -1 - skipped for missing prereq
         """
-        pass
 
     def GetTestName(self, packagename: str, environment: object) -> Tuple[str, str]:
         """Provides the test case and class name.
@@ -50,7 +49,6 @@ class ICiBuildPlugin(object):
         Returns:
             (Tuple[str, str]): (test case name, test case base class name)
         """
-        pass
 
     def RunsOnTargetList(self) -> List[str]:
         """Returns a list of edk2 TARGETs that this plugin would like to run on.

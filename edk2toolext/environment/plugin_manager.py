@@ -7,10 +7,11 @@
 ##
 """This module contains code that supports Build Plugins."""
 
-import sys
-import os
 import importlib
 import logging
+import os
+import sys
+
 from edk2toolext.environment import shell_environment
 
 

@@ -10,10 +10,11 @@
 
 Customized for edk2-pytool-extensions based build and support dynamic Visual studio support 2017++
 """
-import os
 import logging
+import os
 import shutil
 import time
+
 from edk2toolext.environment import version_aggregator
 
 

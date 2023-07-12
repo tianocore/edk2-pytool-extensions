@@ -11,16 +11,14 @@
 Scans the environment for files that describe the source and dependencies
 and then acts upon those files.
 """
-import os
 import logging
-from edk2toolext.environment import repo_resolver
-from edk2toolext.environment import shell_environment
-from edk2toolext.environment import environment_descriptor_files as EDF
-from edk2toolext.environment import external_dependency
+import os
+import time
 from multiprocessing import dummy
 from pathlib import Path
-import time
 
+from edk2toolext.environment import environment_descriptor_files as EDF
+from edk2toolext.environment import external_dependency, repo_resolver, shell_environment
 
 ENVIRONMENT_BOOTSTRAP_COMPLETE = False
 ENV_STATE = None

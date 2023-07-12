@@ -11,16 +11,26 @@ Contains a SetupSettingsManager that must be subclassed in a build settings
 file. This provides platform specific information to Edk2PlatformSetup invocable
 while allowing the invocable itself to remain platform agnostic.
 """
-import os
 import logging
+import os
 from typing import List
-from edk2toolext import edk2_logging
-from edk2toolext.environment.repo_resolver import submodule_resolve, clean, submodule_clean, repo_details
-from edk2toolext.environment.repo_resolver import InvalidGitRepositoryError, GitCommandError
-from edk2toolext.environment import version_aggregator
-from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable
-from edk2toolext.invocables.edk2_multipkg_aware_invocable import MultiPkgAwareSettingsInterface
+
 from edk2toollib.utility_functions import GetHostInfo
+
+from edk2toolext import edk2_logging
+from edk2toolext.environment import version_aggregator
+from edk2toolext.environment.repo_resolver import (
+    GitCommandError,
+    InvalidGitRepositoryError,
+    clean,
+    repo_details,
+    submodule_clean,
+    submodule_resolve,
+)
+from edk2toolext.invocables.edk2_multipkg_aware_invocable import (
+    Edk2MultiPkgAwareInvocable,
+    MultiPkgAwareSettingsInterface,
+)
 
 
 class RequiredSubmodule():

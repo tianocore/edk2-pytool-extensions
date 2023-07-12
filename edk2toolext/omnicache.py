@@ -5,17 +5,18 @@
 ##
 # spell-checker:ignore rtags
 """Omnicache tool for lessening network usage and time of cloning repositories."""
-import os
-import sys
-import logging
 import argparse
 import datetime
-import yaml
+import logging
+import os
+import sys
 import uuid
 from io import StringIO
 
-from edk2toolext import edk2_logging
+import yaml
 from edk2toollib.utility_functions import RunCmd
+
+from edk2toolext import edk2_logging
 
 # Omnicache version 0.11+ design notes:
 # 1. Only a single remote per URL will be permitted.

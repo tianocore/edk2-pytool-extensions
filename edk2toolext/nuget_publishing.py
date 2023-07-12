@@ -7,17 +7,19 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 """Provides configuration, packing, and publishing nuget packages to a release feed."""
-import os
-import sys
 import argparse
-import logging
-import yaml
-import xml.etree.ElementTree as etree
-import shutil
 import datetime
+import logging
+import os
+import shutil
+import sys
+import xml.etree.ElementTree as etree
 from io import StringIO
-from edk2toolext.environment.extdeptypes.nuget_dependency import NugetDependency
+
+import yaml
 from edk2toollib.utility_functions import RunCmd
+
+from edk2toolext.environment.extdeptypes.nuget_dependency import NugetDependency
 
 # Use associated SPDX license Identifier
 # https://learn.microsoft.com/en-us/nuget/reference/nuspec#license

@@ -122,7 +122,6 @@ class MultiPkgAwareSettingsInterface(Edk2InvocableSettingsInterface):
         Raises:
             Exception: A requested package is not supported
         """
-        pass
 
     def SetArchitectures(self, list_of_requested_architectures):
         """Confirms the requested architecture list is valid.
@@ -136,7 +135,6 @@ class MultiPkgAwareSettingsInterface(Edk2InvocableSettingsInterface):
         Raises:
             Exception: A requested architecture is not supported
         """
-        pass
 
     def SetTargets(self, list_of_requested_target):
         """Confirms the requested target list is valid.
@@ -150,7 +148,6 @@ class MultiPkgAwareSettingsInterface(Edk2InvocableSettingsInterface):
         Raises:
             Exception: A requested target is not supported
         """
-        pass
 
 
 class Edk2MultiPkgAwareInvocable(Edk2Invocable):

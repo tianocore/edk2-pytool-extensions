@@ -13,18 +13,19 @@ file, along with a UefiBuilder subclass. This provides platform specific
 information to the Edk2PlatformBuild invocable while allowing the invocable
 itself to remain platform agnostic.
 """
+import logging
 import os
 import sys
-import logging
 from textwrap import wrap
-from edk2toolext import edk2_logging
-from edk2toolext.environment import plugin_manager
-from edk2toolext.environment.plugintypes.uefi_helper_plugin import HelperFunctions
-from edk2toolext.environment import self_describing_environment
-from edk2toolext.environment.uefi_build import UefiBuilder
-from edk2toolext.edk2_invocable import Edk2Invocable, Edk2InvocableSettingsInterface
-from edk2toollib.utility_functions import locate_class_in_module
+
 from edk2toollib.uefi.edk2.path_utilities import Edk2Path
+from edk2toollib.utility_functions import locate_class_in_module
+
+from edk2toolext import edk2_logging
+from edk2toolext.edk2_invocable import Edk2Invocable, Edk2InvocableSettingsInterface
+from edk2toolext.environment import plugin_manager, self_describing_environment
+from edk2toolext.environment.plugintypes.uefi_helper_plugin import HelperFunctions
+from edk2toolext.environment.uefi_build import UefiBuilder
 
 
 class BuildSettingsManager(Edk2InvocableSettingsInterface):

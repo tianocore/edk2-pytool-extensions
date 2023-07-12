@@ -14,13 +14,15 @@ These manipulations include retrieving, validating, and cleaning external
 dependencies for the build environment.
 """
 
-import os
-import logging
-import yaml
 import hashlib
+import logging
+import os
 import shutil
-from edk2toolext.environment import version_aggregator
+
+import yaml
 from edk2toollib.utility_functions import GetHostInfo, RemoveTree
+
+from edk2toolext.environment import version_aggregator
 
 
 class ExternalDependency(object):
@@ -115,7 +117,7 @@ class ExternalDependency(object):
                 logging.error(f"Verify support for detected host: {str(host)} and contact dependency provider to add "\
                               "support.")
                 logging.error("Otherwise, delete the external dependency directory to reset.")
-                
+
                 new_published_path = self.contents_dir
 
         if self.flags and "include_separator" in self.flags:
@@ -223,10 +225,10 @@ def ExtDepFactory(descriptor):
     !!! Note
         Ensure all external dependencies are imported in this class to avoid errors.
     """
-    from edk2toolext.environment.extdeptypes.web_dependency import WebDependency
-    from edk2toolext.environment.extdeptypes.nuget_dependency import NugetDependency
-    from edk2toolext.environment.extdeptypes.git_dependency import GitDependency
     from edk2toolext.environment.extdeptypes.az_cli_universal_dependency import AzureCliUniversalDependency
+    from edk2toolext.environment.extdeptypes.git_dependency import GitDependency
+    from edk2toolext.environment.extdeptypes.nuget_dependency import NugetDependency
+    from edk2toolext.environment.extdeptypes.web_dependency import WebDependency
     if descriptor['type'] == NugetDependency.TypeString:
         return NugetDependency(descriptor)
     elif descriptor['type'] == WebDependency.TypeString:
