@@ -248,7 +248,8 @@ class NugetDependency(ExternalDependency):
             if non_interactive and found_cred_provider:  # we should be interactive next time
                 self._attempt_nuget_install(install_dir, False)
             else:
-                if is_unauthorized:
+                # Only provide this error message if they are not using a credential provider, but receive a 401 error
+                if is_unauthorized and not found_cred_provider:
                     logging.warning("[Nuget] A package requires credentials, but you do not have a credential "\
                                     "provider installed.")
                     logging.warning("[Nuget] Please install a credential provider and try again or run the following "\
