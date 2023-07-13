@@ -231,12 +231,15 @@ class NugetDependency(ExternalDependency):
         output_stream.seek(0)  # return the start of the stream
         # check if we found credential providers
         found_cred_provider = False
+        is_unauthorized = False
         for out_line in output_stream:
             line = out_line.strip()
             if line.startswith("CredentialProvider") or line.startswith("[CredentialProvider"):
                 found_cred_provider = True
             if line.endswith("as a credential provider plugin."):
                 found_cred_provider = True
+            if "401 (Unauthorized)" in line:
+                is_unauthorized = True
         # if we fail, then we should retry if we have credential providers
         # we currently steal command input so if we don't have cred providers, we hang
         # this gives cred providers a chance to prompt for input since they don't use stdin
@@ -245,6 +248,13 @@ class NugetDependency(ExternalDependency):
             if non_interactive and found_cred_provider:  # we should be interactive next time
                 self._attempt_nuget_install(install_dir, False)
             else:
+                # Only provide this error message if they are not using a credential provider, but receive a 401 error
+                if is_unauthorized and not found_cred_provider:
+                    logging.warning("[Nuget] A package requires credentials, but you do not have a credential "\
+                                    "provider installed.")
+                    logging.warning("[Nuget] Please install a credential provider and try again or run the following "\
+                                    "command in your terminal to install the package manually:")
+                    logging.warning(f"[{' '.join(cmd).replace(' -NonInteractive', '')}]")
                 raise RuntimeError(f"[Nuget] We failed to install this version {self.version} of {package_name}")
 
     def fetch(self):
