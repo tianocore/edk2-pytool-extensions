@@ -114,7 +114,6 @@ class ICiBuildPlugin(object):
                                     ignoreIt = True
                                     break
                         if not ignoreIt:
-                            logging.debug(os.path.join(Root, File))
                             returnlist.append(os.path.join(Root, File))
 
         return returnlist
