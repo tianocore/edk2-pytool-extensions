@@ -9,14 +9,14 @@
 ##
 """CLI interface for creating EDK FMP UEFI Capsules from payload files."""
 
-import os
-import sys
 import argparse
 import copy
-import yaml
 import logging
+import os
+import sys
 
-from edk2toolext.capsule import signing_helper, capsule_helper
+import yaml
+from edk2toolext.capsule import capsule_helper, signing_helper
 
 TOOL_DESCRIPTION = """
 EDK Capsule Tool is a command-line tool to assist with the production of UEFI

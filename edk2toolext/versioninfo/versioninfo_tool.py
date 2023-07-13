@@ -15,11 +15,12 @@ versioning info and produces a resource file that once compiled will create a
 standard resource section.
 """
 
-import os
-import sys
 import argparse
 import json
 import logging
+import os
+import sys
+
 from edk2toolext.versioninfo.versioninfo_helper import PEObject, VERSIONINFOGenerator
 
 TOOL_VERSION = "0.7.0"  # please change this as the tool is updated.

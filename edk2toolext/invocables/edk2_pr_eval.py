@@ -14,19 +14,23 @@ Contains a PrEvalSettingsManager that must be subclassed in a build settings
 file. This provides platform specific information to Edk2PrEval invocable
 while allowing the invocable itself to remain platform agnostic.
 """
-import yaml
-import os
 import logging
+import os
 from io import StringIO
 from pathlib import Path
-from edk2toolext import edk2_logging
-from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable
-from edk2toolext.invocables.edk2_multipkg_aware_invocable import MultiPkgAwareSettingsInterface
+
+import yaml
 from edk2toollib.uefi.edk2 import path_utilities
 from edk2toollib.uefi.edk2.parsers.dec_parser import DecParser
 from edk2toollib.uefi.edk2.parsers.dsc_parser import DscParser
 from edk2toollib.uefi.edk2.parsers.inf_parser import InfParser
 from edk2toollib.utility_functions import RunCmd
+
+from edk2toolext import edk2_logging
+from edk2toolext.invocables.edk2_multipkg_aware_invocable import (
+    Edk2MultiPkgAwareInvocable,
+    MultiPkgAwareSettingsInterface,
+)
 
 
 class PrEvalSettingsManager(MultiPkgAwareSettingsInterface):

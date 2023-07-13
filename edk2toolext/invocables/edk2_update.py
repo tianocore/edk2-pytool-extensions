@@ -13,10 +13,13 @@ file. This provides platform specific information to Edk2Update invocable
 while allowing the invocable itself to remain platform agnostic.
 """
 import logging
+
 from edk2toolext import edk2_logging
 from edk2toolext.environment import self_describing_environment
-from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable
-from edk2toolext.invocables.edk2_multipkg_aware_invocable import MultiPkgAwareSettingsInterface
+from edk2toolext.invocables.edk2_multipkg_aware_invocable import (
+    Edk2MultiPkgAwareInvocable,
+    MultiPkgAwareSettingsInterface,
+)
 
 
 class UpdateSettingsManager(MultiPkgAwareSettingsInterface):
@@ -28,7 +31,6 @@ class UpdateSettingsManager(MultiPkgAwareSettingsInterface):
     Update settings manager has no additional APIs not already defined in it's super class, however
     The class should still be overwritten by the platform.
     """
-    pass
 
 
 def build_env_changed(build_env, build_env_2):

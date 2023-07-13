@@ -8,12 +8,12 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 """An ExternalDependency subclass able to clone from git."""
-import os
 import logging
+import os
 from urllib.parse import urlsplit, urlunsplit
+
+from edk2toolext.environment import repo_resolver, shell_environment
 from edk2toolext.environment.external_dependency import ExternalDependency
-from edk2toolext.environment import repo_resolver
-from edk2toolext.environment import shell_environment
 
 
 class GitDependency(ExternalDependency):

@@ -14,15 +14,16 @@ submodules along with providing common information about the repo or submodule.
 The intent is to keep all git functionality consolidated in this module. Currently edk2_ci_setup.py,
 edk2_setup.py, and git_dependency.py use this module to perform git operations.
 """
-import os
 import logging
-from edk2toolext import edk2_logging
-from edk2toollib.utility_functions import version_compare
-from git import Repo, GitCommandError, InvalidGitRepositoryError, NoSuchPathError
-from git.cmd import Git
-from git.util import rmtree
+import os
 from pathlib import Path
 
+from edk2toollib.utility_functions import version_compare
+from git import GitCommandError, InvalidGitRepositoryError, NoSuchPathError, Repo
+from git.cmd import Git
+from git.util import rmtree
+
+from edk2toolext import edk2_logging
 
 logger = logging.getLogger(__name__)
 MIN_GIT_VERSION = "2.11.0"

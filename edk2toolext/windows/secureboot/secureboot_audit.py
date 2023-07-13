@@ -9,21 +9,22 @@
 """Command-line tool for inspecting UEFI Secure Boot databases."""
 
 import argparse
-import logging
-import sys
-import ctypes
-import os
-import json
 import csv
-import xlsxwriter
+import ctypes
+import json
+import logging
+import os
+import sys
+
 import openpyxl
+import xlsxwriter
 
 # Some of these libraries are windows only, so we need to import them conditionally
 if sys.platform == "win32":
+    import pywintypes
     import win32api
     import win32process
     import win32security
-    import pywintypes
 
 # import this from edk2toollib so we can parse the dbx
 from edk2toollib.uefi.authenticated_variables_structure_support import (
@@ -46,7 +47,7 @@ SECUREBOOT_FILES = {
     "db":  "{d719b2cb-3d3a-4596-a3bc-dad00e67656f}", # EFI_IMAGE_SECURITY_DATABASE_GUID
     "dbt": "{d719b2cb-3d3a-4596-a3bc-dad00e67656f}", # EFI_IMAGE_SECURITY_DATABASE_GUID
     "KEK": "{8BE4DF61-93CA-11d2-AA0D-00E098032B8C}", # EFI_GLOBAL_VARIABLE
-    "PK":  "{8BE4DF61-93CA-11d2-AA0D-00E098032B8C}"  # EFI_GLOBAL_VARIABLE   
+    "PK":  "{8BE4DF61-93CA-11d2-AA0D-00E098032B8C}"  # EFI_GLOBAL_VARIABLE
 }
 
 KNOWN_CERTIFICATES = [

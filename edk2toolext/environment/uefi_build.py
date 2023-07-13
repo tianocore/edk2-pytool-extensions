@@ -14,22 +14,23 @@ This class is designed to be subclassed by a platform to allow more extensive
 and custom behavior.
 """
 
-import os
+import datetime
 import logging
-from edk2toolext.environment.multiple_workspace import MultipleWorkspace
-from edk2toolext.environment import conf_mgmt
-import traceback
+import os
 import time
-from edk2toolext.environment import shell_environment
-from edk2toollib.uefi.edk2.parsers.targettxt_parser import TargetTxtParser
+import traceback
+from collections import namedtuple
+
 from edk2toollib.uefi.edk2.parsers.dsc_parser import DscParser
 from edk2toollib.uefi.edk2.parsers.fdf_parser import FdfParser
+from edk2toollib.uefi.edk2.parsers.targettxt_parser import TargetTxtParser
 from edk2toollib.uefi.edk2.path_utilities import Edk2Path
-from edk2toollib.utility_functions import RunCmd, RemoveTree
+from edk2toollib.utility_functions import RemoveTree, RunCmd
+
 from edk2toolext import edk2_logging
+from edk2toolext.environment import conf_mgmt, shell_environment
+from edk2toolext.environment.multiple_workspace import MultipleWorkspace
 from edk2toolext.environment.plugintypes.uefi_build_plugin import IUefiBuildPlugin
-import datetime
-from collections import namedtuple
 
 
 class UefiBuilder(object):

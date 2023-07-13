@@ -17,8 +17,8 @@ Splits logs into a master log and per package log.
 """
 import logging
 import os
-import shutil
 import re
+import shutil
 
 try:
     from edk2toollib.log import ansi_handler
@@ -131,7 +131,7 @@ def setup_txt_logger(directory, filename="log", logging_level=logging.INFO,
 def setup_console_logging(logging_level=logging.INFO, formatter=None, logging_namespace='',
                           isVerbose=False, use_azure_colors=False, use_color=True):
     """Configures a console logger.
-    
+
     Filtering of secrets will automatically occur if "CI" or "TF_BUILD" is set to TRUE
     in the os's environment.
     """
@@ -273,7 +273,7 @@ class Edk2LogFilter(logging.Filter):
         self._verbose = False
         self._currentSection = "root"
         self.apply_filter = False
-        
+
         # Turn on filtering for azure pipelines / github actions
         if os.environ.get("CI", "FALSE").upper() == "TRUE" or os.environ.get("TF_BUILD", "FALSE").upper() == "TRUE":
             self.apply_filter = True

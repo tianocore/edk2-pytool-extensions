@@ -16,11 +16,12 @@ This module contains helper functions for creating VERSIONINFO resources
 from json files, along with the functions to output version information from
 PE/PE+ files.
 """
-import pefile
 import json
 import logging
 from datetime import datetime
 from typing import Tuple
+
+import pefile
 
 
 class PEStrings(object):

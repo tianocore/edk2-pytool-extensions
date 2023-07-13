@@ -7,16 +7,17 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 """An ExternalDependency subclass able to download from NuGet."""
-import os
 import logging
-import semantic_version
+import os
 import shutil
 from io import StringIO
-from edk2toolext.environment.external_dependency import ExternalDependency
-from edk2toollib.utility_functions import RunCmd, RemoveTree
-from edk2toollib.utility_functions import GetHostInfo
 from typing import List
+
+import semantic_version
+from edk2toollib.utility_functions import GetHostInfo, RemoveTree, RunCmd
+
 from edk2toolext.bin.nuget import DownloadNuget
+from edk2toolext.environment.external_dependency import ExternalDependency
 
 
 class NugetDependency(ExternalDependency):
@@ -234,7 +235,7 @@ class NugetDependency(ExternalDependency):
         is_unauthorized = False
         for out_line in output_stream:
             line = out_line.strip()
-            if line.startswith("CredentialProvider") or line.startswith("[CredentialProvider"):
+            if line.startswith(("CredentialProvider", "[CredentialProvider")):
                 found_cred_provider = True
             if line.endswith("as a credential provider plugin."):
                 found_cred_provider = True

@@ -23,8 +23,8 @@ import os
 import tempfile
 import warnings
 
-from edk2toollib.windows import locate_tools
 from edk2toollib.utility_functions import RunCmd
+from edk2toollib.windows import locate_tools
 
 GLOBAL_SIGNTOOL_PATH = None
 SUPPORTED_SIGNATURE_TYPE_OPTIONS = {

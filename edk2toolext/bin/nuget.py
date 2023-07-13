@@ -6,10 +6,10 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 """This module contains code that knows how to download nuget."""
+import logging
 import os
 import urllib.error
 import urllib.request
-import logging
 from importlib import resources
 from pathlib import Path
 

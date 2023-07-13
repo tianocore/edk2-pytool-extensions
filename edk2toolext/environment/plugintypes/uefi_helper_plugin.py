@@ -22,7 +22,6 @@ class IUefiHelperPlugin(object):
         Args:
             obj (HelperFunctions): HelperFunctions object that allows functional registration
         """
-        pass
 
 
 class HelperFunctions(object):
