@@ -10,6 +10,7 @@
 
 import logging
 import os
+import pathlib
 import shutil
 import tarfile
 import tempfile
@@ -90,8 +91,6 @@ class WebDependency(ExternalDependency):
             logging.info(f"{compressed_file_path} is a zip file, trying to unpack it.")
             _ref = zipfile.ZipFile(compressed_file_path, 'r')
             files_in_volume = _ref.namelist()
-            x = _ref.infolist()
-            print(x)
 
         elif compression_type and "tar" in compression_type:
             logging.info(f"{compressed_file_path} is a tar file, trying to unpack it.")
@@ -104,14 +103,16 @@ class WebDependency(ExternalDependency):
 
         # Filter the files inside to only the ones that are inside the important folder
         files_to_extract = [name for name in files_in_volume if linux_internal_path in name]
-        import pathlib
+
         for file in files_to_extract:
-            expected_mode = _ref.getinfo(file).external_attr >> 16
-            print(expected_mode)
             _ref.extract(member=file, path=destination)
-            pathlib.Path(destination, file).chmod(expected_mode)
-            actual_mode = pathlib.Path(destination, file).stat().st_mode
-            print(actual_mode)
+
+            # unzip functionality does not preserve file permissions. Fix-up the permissions
+            path = pathlib.Path(destination, file)
+            if path.is_file() and compression_type == "zip":
+                expected_mode = _ref.getinfo(file).external_attr >> 16
+                path.chmod(expected_mode)
+
         _ref.close()
 
     def fetch(self):

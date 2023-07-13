@@ -475,7 +475,11 @@ class TestWebDependency(unittest.TestCase):
 
     @pytest.mark.skipif(platform == "win32", reason="Only Linux care about file attributes.")
     def test_unpack_zip_file_attr(self):
-        """Test that unpacked zip files keep their file attributes."""
+        """Test that unpacked zip files keep their file attributes.
+
+        This is done by downloading the Basetools extdep where we know for a fact that each
+        file should have the owner executable bit set.
+        """
         extdep_file = pathlib.Path(test_dir, "my_ext_dep.json")
 
         with open(extdep_file, "w+") as f:
@@ -488,6 +492,10 @@ class TestWebDependency(unittest.TestCase):
         extdep_dir = pathlib.Path(test_dir, "Mu-Basetools_extdep")
 
         assert extdep_dir.exists()
+
+        OWNER_EXE = 0o100
+        for file in [path for path in extdep_dir.rglob("*") if "Linux" in str(path) and path.is_file()]:
+            assert file.stat().st_mode & OWNER_EXE
 
 if __name__ == '__main__':
     unittest.main()
