@@ -22,6 +22,7 @@ from sys import platform
 import pytest
 from edk2toolext.environment import environment_descriptor_files as EDF
 from edk2toolext.environment.extdeptypes.web_dependency import WebDependency
+from edk2toollib.utility_functions import RemoveTree
 
 test_dir = None
 bad_json_file = '''
@@ -103,7 +104,7 @@ def prep_workspace():
         test_dir = tempfile.mkdtemp()
         logging.debug("temp dir is: %s" % test_dir)
     else:
-        shutil.rmtree(test_dir)
+        RemoveTree(test_dir)
         test_dir = tempfile.mkdtemp()
 
 
