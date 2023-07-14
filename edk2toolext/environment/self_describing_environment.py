@@ -354,7 +354,7 @@ def DestroyEnvironment() -> None:
     ENV_STATE = None
 
 
-def BootstrapEnvironment(workspace: str, scopes: Optional[tuple]=(), skipped_dirs: Optional[tuple]=()) -> tuple:
+def BootstrapEnvironment(workspace: str, scopes: Optional[tuple]=None, skipped_dirs: Optional[tuple]=None) -> tuple:
     """Performs a multistage bootstrap of the environment.
 
     1. Locate and load all environment description files
@@ -419,7 +419,7 @@ def BootstrapEnvironment(workspace: str, scopes: Optional[tuple]=(), skipped_dir
     return ENV_STATE
 
 
-def CleanEnvironment(workspace: str, scopes: Optional[tuple]=(), skipped_dirs: Optional[tuple]=()) -> None:
+def CleanEnvironment(workspace: str, scopes: Optional[tuple]=None, skipped_dirs: Optional[tuple]=None) -> None:
     """Cleans all external dependencies based on environment.
 
     Environment is bootstrapped from provided arguments and all dependencies
@@ -445,7 +445,7 @@ def CleanEnvironment(workspace: str, scopes: Optional[tuple]=(), skipped_dirs: O
     build_env.clean_extdeps(shell_env)
 
 
-def UpdateDependencies(workspace: str, scopes: Optional[tuple]=(), skipped_dirs: Optional[tuple]=()) -> tuple:
+def UpdateDependencies(workspace: str, scopes: Optional[tuple]=None, skipped_dirs: Optional[tuple]=None) -> tuple:
     """Updates all external dependencies based on environment.
 
     Environment is bootstrapped from provided arguments and all dependencies
@@ -474,7 +474,7 @@ def UpdateDependencies(workspace: str, scopes: Optional[tuple]=(), skipped_dirs:
     return build_env.update_extdeps(shell_env)
 
 
-def VerifyEnvironment(workspace: str, scopes: Optional[tuple]=(), skipped_dirs: Optional[tuple]=()) -> bool:
+def VerifyEnvironment(workspace: str, scopes: Optional[tuple]=None, skipped_dirs: Optional[tuple]=None) -> bool:
     """Verifies all external dependencies based on environment.
 
     Environment is bootstrapped from provided arguments and all dependencies
