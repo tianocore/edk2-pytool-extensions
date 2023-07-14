@@ -32,7 +32,7 @@ SUPPORTED_SIGNATURE_TYPE_OPTIONS = {
 }
 
 
-def get_signtool_path():
+def get_signtool_path() -> None:
     """Locates a valid installation of Windows Signtool.
 
     Will attempt to reuse a previously located version, since this call can be
@@ -145,7 +145,7 @@ def sign(data: bytes, signature_options: dict, signer_options: dict) -> bytes:
     return out_data
 
 
-def sign_in_place(sign_file_path, signature_options, signer_options):
+def sign_in_place(sign_file_path: str, signature_options: dict, signer_options: dict) -> None:
     """Alternate module-specific signing interface.
 
     Supports particular signatures associated with windows capsule files
@@ -154,8 +154,8 @@ def sign_in_place(sign_file_path, signature_options, signer_options):
 
     Args:
         sign_file_path (str): sign file path
-        signature_options (Dict): dictionary containing signature options
-        signer_options (Dict): dictionary containing signer options
+        signature_options (dict): dictionary containing signature options
+        signer_options (dict): dictionary containing signer options
 
     Raises:
         (ValueError()): Unsupported signature or signer options

@@ -19,6 +19,7 @@ import logging
 import os
 import re
 import shutil
+from typing import Optional, Self, TextIO
 
 try:
     from edk2toollib.log import ansi_handler
@@ -46,7 +47,7 @@ PROGRESS = logging.CRITICAL - 1  # just below critical
 
 
 # sub_directory is relative to ws argument
-def clean_build_logs(ws, sub_directory=None):
+def clean_build_logs(ws: str, sub_directory: Optional[str]=None) -> None:
     """Removes all build logs."""
     # Make sure that we have a clean environment.
     if sub_directory is None:
@@ -55,22 +56,22 @@ def clean_build_logs(ws, sub_directory=None):
         shutil.rmtree(os.path.join(ws, sub_directory))
 
 
-def get_section_level():
+def get_section_level() -> int:
     """Returns SECTION."""
     return SECTION
 
 
-def get_subsection_level():
+def get_subsection_level() -> int:
     """Returns SUB_SECTION."""
     return SUB_SECTION
 
 
-def get_progress_level():
+def get_progress_level() -> int:
     """Returns PROGRESS."""
     return PROGRESS
 
 
-def get_edk2_filter(verbose=False):
+def get_edk2_filter(verbose: bool=False) -> logging.Filter:
     """Returns an edk2 filter."""
     gEdk2Filter = Edk2LogFilter()
     if verbose:
@@ -78,12 +79,12 @@ def get_edk2_filter(verbose=False):
     return gEdk2Filter
 
 
-def log_progress(message):
+def log_progress(message: str) -> None:
     """Creates a logging message at the progress section level."""
     logging.log(get_progress_level(), message)
 
 
-def setup_section_level():
+def setup_section_level() -> None:
     """Sets up different sections to log to."""
     # todo define section level
     # add section as a level to the logger
@@ -99,8 +100,14 @@ def setup_section_level():
 
 
 # creates the the plaintext logger
-def setup_txt_logger(directory, filename="log", logging_level=logging.INFO,
-                     formatter=None, logging_namespace='', isVerbose=False):
+def setup_txt_logger(
+    directory: str,
+    filename: str="log",
+    logging_level: int=logging.INFO,
+    formatter: Optional[logging.Formatter]=None,
+    logging_namespace: Optional[str]='',
+    isVerbose: bool=False
+) -> tuple:
     """Configures a text logger."""
     logger = logging.getLogger(logging_namespace)
     log_formatter = formatter
@@ -128,8 +135,14 @@ def setup_txt_logger(directory, filename="log", logging_level=logging.INFO,
 
 
 # sets up a colored console logger
-def setup_console_logging(logging_level=logging.INFO, formatter=None, logging_namespace='',
-                          isVerbose=False, use_azure_colors=False, use_color=True):
+def setup_console_logging(
+    logging_level: int=logging.INFO,
+    formatter: Optional[logging.Formatter]=None,
+    logging_namespace: Optional[str]='',
+    isVerbose: bool=False,
+    use_azure_colors: bool=False,
+    use_color: bool=True
+) -> logging.Handler:
     """Configures a console logger.
 
     Filtering of secrets will automatically occur if "CI" or "TF_BUILD" is set to TRUE
@@ -167,7 +180,7 @@ def setup_console_logging(logging_level=logging.INFO, formatter=None, logging_na
     return safeHandler
 
 
-def stop_logging(loghandle, logging_namespace=''):
+def stop_logging(loghandle: list[logging.Handler] | logging.Handler, logging_namespace: Optional[str]='') -> None:
     """Stops logging on a log handle."""
     logger = logging.getLogger(logging_namespace)
     if loghandle is None:
@@ -182,7 +195,7 @@ def stop_logging(loghandle, logging_namespace=''):
         logger.removeHandler(loghandle)
 
 
-def create_output_stream(level=logging.INFO, logging_namespace=''):
+def create_output_stream(level: int=logging.INFO, logging_namespace: Optional[str]='') -> logging.Handler:
     """Creates an output stream to log to."""
     # creates an output stream that is in memory
     if string_handler:
@@ -195,7 +208,7 @@ def create_output_stream(level=logging.INFO, logging_namespace=''):
     return handler
 
 
-def remove_output_stream(handler, logging_namespace=''):
+def remove_output_stream(handler: logging.Handler, logging_namespace: Optional[str]='') -> None:
     """Removes an output stream to log to."""
     logger = logging.getLogger(logging_namespace)
     if isinstance(handler, list):
@@ -205,15 +218,15 @@ def remove_output_stream(handler, logging_namespace=''):
         logger.removeHandler(handler)
 
 
-def scan_compiler_output(output_stream):
+def scan_compiler_output(output_stream: TextIO) -> list[tuple]:
     """Scans the compiler for errors and warnings.
 
     Returns:
-        (list[Tuple[logging.Type, str]]): list of tuples containing the type
+        (list[tuple[logging.Type, str]]): list of tuples containing the type
             of issue (Error, warning) and the description.
     """
     # seek to the start of the output stream
-    def output_compiler_error(match, line, start_txt="Compiler"):
+    def output_compiler_error(match: re.Match, line: str, start_txt:str="Compiler") ->str:
         start, end = match.span()
         source = line[:start].strip()
         error = line[end:].strip()
@@ -271,7 +284,7 @@ class Edk2LogFilter(logging.Filter):
     """Subclass of logging.Filter."""
     _allowedLoggers = ["root"]
 
-    def __init__(self):
+    def __init__(self: Self) -> None:
         """Inits a filter."""
         logging.Filter.__init__(self)
         self._verbose = False
@@ -290,17 +303,17 @@ class Edk2LogFilter(logging.Filter):
 
         self.secrets_regex = re.compile(r"{}".format("|".join(secrets_regex_strings)), re.IGNORECASE)
 
-    def setVerbose(self, isVerbose=True):
+    def setVerbose(self: Self, isVerbose: bool=True) -> None:
         """Sets the filter verbosity."""
         self._verbose = isVerbose
 
-    def addSection(self, section):
+    def addSection(self: Self, section: str) -> None:
         """Adds a section to the filter."""
         # TODO request the global singleton?
         # how to make this class static
         Edk2LogFilter._allowedLoggers.append(section)
 
-    def filter(self, record):
+    def filter(self: Self, record: logging.LogRecord) -> bool:
         """Adds a filter for a record if it doesn't already exist."""
         # check to make sure we haven't already filtered this record
         if record.name not in Edk2LogFilter._allowedLoggers and record.levelno < logging.WARNING and not self._verbose:

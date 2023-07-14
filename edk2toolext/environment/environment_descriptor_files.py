@@ -13,6 +13,7 @@
 It can parse the files, validate them, and return objects representing their contents.
 """
 import os
+from typing import Self
 
 import yaml
 
@@ -27,7 +28,7 @@ class PathEnv(object):
         descriptor_location (string): location of the PathEnv
         published_path (string): location of the PathEnv
     """
-    def __init__(self, descriptor):
+    def __init__(self: Self, descriptor: dict) -> None:
         """Init with the descriptor information."""
         super(PathEnv, self).__init__()
 
@@ -50,7 +51,7 @@ class DescriptorFile(object):
         file_path (str): descriptor file path
         descriptor_contents (Dict): Contents of the descriptor file
     """
-    def __init__(self, file_path):
+    def __init__(self: Self, file_path: str) -> None:
         """Loads the contents of the descriptor file and validates.
 
         Args:
@@ -99,7 +100,7 @@ class DescriptorFile(object):
             if (isinstance(v, str)):
                 self.descriptor_contents[k] = self.sanitize_string(v)
 
-    def sanitize_string(self, s):
+    def sanitize_string(self: Self, s: str) -> str:
         """Clean up a string "value" in the descriptor file."""
         # Perform any actions needed to clean the string.
         return s.strip()
@@ -107,7 +108,7 @@ class DescriptorFile(object):
 
 class PathEnvDescriptor(DescriptorFile):
     """Descriptor File for a PATH ENV."""
-    def __init__(self, file_path):
+    def __init__(self: Self, file_path: str) -> None:
         """Inits the descriptor as a PathEnvDescriptor from the provided path.
 
         Loads the contents of the filepath into descriptor_contents
@@ -134,7 +135,7 @@ class ExternDepDescriptor(DescriptorFile):
             descriptor_contents (Dict): Contents of the Descriptor yaml file
             file_path (PathLike): path to the descriptor file
     """
-    def __init__(self, file_path):
+    def __init__(self: Self, file_path: str) -> None:
         """Inits the descriptor as a ExternDepDescriptor from the provided path.
 
         Loads the contents of the filepath into descriptor_contents
@@ -161,7 +162,7 @@ class PluginDescriptor(DescriptorFile):
         descriptor_contents (Dict): Contents of the Descriptor yaml file
         file_path (PathLike): path to the descriptor file
     """
-    def __init__(self, file_path):
+    def __init__(self: Self, file_path: str) -> None:
         """Inits the descriptor as a PluginDescriptor from the provided path.
 
         Loads the contents of the filepath into descriptor_contents

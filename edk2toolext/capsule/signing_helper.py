@@ -29,7 +29,7 @@ PYPATH_MODULE_SIGNER = 'pymodule'
 LOCAL_MODULE_SIGNER = 'local_module'
 
 
-def get_signer(type, specifier=None):
+def get_signer(type, specifier: str=None): # noqa: ruff: ANN201
     """Load a signer module based on the arguments.
 
     if type is PYPATH_MODULE_SIGNER, the specifier should be the python module.

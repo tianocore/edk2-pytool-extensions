@@ -21,7 +21,7 @@ import argparse
 from edk2toollib.uefi.authenticated_variables_structure_support import EfiSignatureDatabase
 
 
-def main():
+def main() -> None:
     """Parses command-line parameters using ArgumentParser.
 
     Parses command-line parameters using ArgumentParser delegating to helper

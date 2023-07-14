@@ -12,6 +12,7 @@ import logging
 import os
 import sys
 import warnings
+from typing import Self
 
 from edk2toolext.environment import shell_environment
 
@@ -25,14 +26,14 @@ class PluginDescriptor(object):
         Name (str): name attribute from descriptor
         Module (obj): module attribute from descriptor
     """
-    def __init__(self, t):
+    def __init__(self: Self, t:dict) -> None:
         """Inits the Plugin descriptor with the Descriptor."""
         self.descriptor = t
         self.Obj = None
         self.Name = t["name"]
         self.Module = t["module"]
 
-    def __str__(self):
+    def __str__(self: Self) -> str:
         """String representation of the plugin descriptor."""
         return "PLUGIN DESCRIPTOR:{0}".format(self.Name)
 
@@ -43,11 +44,11 @@ class PluginManager(object):
     Attributes:
         Descriptors (List[PluginDescriptor]): list of plugin descriptors
     """
-    def __init__(self):
+    def __init__(self: Self) -> None:
         """Inits an empty plugin manager."""
         self.Descriptors = []
 
-    def SetListOfEnvironmentDescriptors(self, newlist):
+    def SetListOfEnvironmentDescriptors(self: Self, newlist: list) -> int:
         """Passes a tuple of environment descriptor dictionaries to be loaded as plugins."""
         env = shell_environment.GetBuildVars()
         failed = []
@@ -65,19 +66,23 @@ class PluginManager(object):
                 failed.append(a)
         return failed
 
-    def GetPluginsOfClass(self, classobj):
-        """Return list of all plugins of a given class."""
+    def GetPluginsOfClass(self: Self, classobj: type) -> list[object]:
+        """Return list of all plugins of a given class.
+
+        Returns:
+            list[object]: plugin instances of the requested class
+        """
         temp = []
         for a in self.Descriptors:
             if (isinstance(a.Obj, classobj)):
                 temp.append(a)
         return temp
 
-    def GetAllPlugins(self):
+    def GetAllPlugins(self: Self) -> list[object]:
         """Return list of all plugins."""
         return self.Descriptors
 
-    def _load(self, PluginDescriptor):
+    def _load(self: Self, PluginDescriptor: 'PluginDescriptor') -> int:
         """Load and instantiate the plugin.
 
         Args:

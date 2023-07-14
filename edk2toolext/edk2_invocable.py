@@ -25,7 +25,7 @@ import warnings
 from random import choice
 from string import ascii_letters
 from textwrap import dedent
-from typing import Iterable, Tuple
+from typing import Iterable, Self
 
 import pkg_resources
 from edk2toollib.utility_functions import GetHostInfo, RunCmd, import_module_by_file_name, locate_class_in_module
@@ -75,7 +75,7 @@ class Edk2InvocableSettingsInterface():
         call the functions in this class as a part of those invocable settings managers.
     """
 
-    def GetWorkspaceRoot(self) -> str:
+    def GetWorkspaceRoot(self: Self) -> str:
         """Return the workspace root for initializing the SDE.
 
         !!! tip
@@ -88,7 +88,7 @@ class Edk2InvocableSettingsInterface():
         """
         raise NotImplementedError()
 
-    def GetPackagesPath(self) -> Iterable[os.PathLike]:
+    def GetPackagesPath(self: Self) -> Iterable[os.PathLike]:
         """Provides an iterable of paths should should be mapped as edk2 PackagePaths.
 
         !!! tip
@@ -99,7 +99,7 @@ class Edk2InvocableSettingsInterface():
         """
         return []
 
-    def GetActiveScopes(self) -> Tuple[str]:
+    def GetActiveScopes(self: Self) -> tuple[str]:
         """Provides scopes that should be active for this process.
 
         !!! tip
@@ -110,7 +110,7 @@ class Edk2InvocableSettingsInterface():
         """
         return ()
 
-    def GetLoggingLevel(self, loggerType: str) -> str:
+    def GetLoggingLevel(self: Self, loggerType: str) -> int:
         """Get the logging level depending on logger type.
 
         !!! tip
@@ -128,27 +128,27 @@ class Edk2InvocableSettingsInterface():
         """
         return None
 
-    def AddCommandLineOptions(self, parserObj: object) -> None:
+    def AddCommandLineOptions(self: Self, parserObj: argparse.ArgumentParser) -> None:
         """Add command line options to the argparser.
 
         !!! tip
             Optional override in a subclass
 
         Args:
-            parserObj: Argparser object.
+            parserObj (argparse.ArgumentParser): Argparser object.
         """
 
-    def RetrieveCommandLineOptions(self, args: object) -> None:
+    def RetrieveCommandLineOptions(self: Self, args: argparse.Namespace) -> None:
         """Retrieve Command line options from the argparser.
 
         !!! tip
             Optional override in a subclass
 
         Args:
-            args: argparser args namespace containing command line options
+            args (argparse.Namespace): argparser args namespace containing command line options
         """
 
-    def GetSkippedDirectories(self) -> Tuple[str]:
+    def GetSkippedDirectories(self: Self) -> tuple[str]:
         """Returns a tuple containing workspace-relative directories to be skipped.
 
         !!! tip
@@ -179,7 +179,7 @@ class Edk2Invocable(BaseAbstractInvocable):
     """
 
     @classmethod
-    def collect_python_pip_info(cls):
+    def collect_python_pip_info(cls: 'Edk2Invocable') -> None:
         """Class method to collect all pip packages names and versions.
 
         Reports them to the global version_aggregator as well as print them to the screen.
@@ -246,7 +246,7 @@ class Edk2Invocable(BaseAbstractInvocable):
         except AttributeError:
             raise RuntimeError("Can't call this before PlatformSettings has been set up!")
 
-    def GetPackagesPath(self) -> Iterable[os.PathLike]:
+    def GetPackagesPath(self: Self) -> Iterable[os.PathLike]:
         """Returns an iterable of packages path.
 
         !!! note
@@ -260,7 +260,7 @@ class Edk2Invocable(BaseAbstractInvocable):
         except AttributeError:
             raise RuntimeError("Can't call this before PlatformSettings has been set up!")
 
-    def GetActiveScopes(self) -> Tuple[str]:
+    def GetActiveScopes(self: Self) -> tuple[str]:
         """Returns an iterable of Active scopes.
 
         !!! note
@@ -285,7 +285,7 @@ class Edk2Invocable(BaseAbstractInvocable):
         scopes += ('global',)
         return scopes
 
-    def GetLoggingLevel(self, loggerType):
+    def GetLoggingLevel(self: Self, loggerType: str) -> int:
         """Get the logging level for a given logger type.
 
         !!! note
@@ -308,21 +308,21 @@ class Edk2Invocable(BaseAbstractInvocable):
             return logging.WARNING
         return logging.DEBUG
 
-    def AddCommandLineOptions(self, parserObj):
+    def AddCommandLineOptions(self: Self, parserObj: argparse.ArgumentParser) -> None:
         """Add command line options to the argparser.
 
         !!! note
             Optional Override to add functionality
         """
 
-    def RetrieveCommandLineOptions(self, args):
+    def RetrieveCommandLineOptions(self: Self, args: argparse.Namespace) -> None:
         """Retrieve command line options from the argparser.
 
         !!! note
             Optional Override to add functionality
         """
 
-    def GetSkippedDirectories(self):
+    def GetSkippedDirectories(self: Self) -> tuple[str]:
         """Returns a Tuple containing workspace-relative directories that should be skipped.
 
         !!! tip
@@ -339,7 +339,7 @@ class Edk2Invocable(BaseAbstractInvocable):
         except AttributeError:
             raise RuntimeError("Can't call this before PlatformSettings has been set up!")
 
-    def GetSettingsClass(self):
+    def GetSettingsClass(self: Self) -> type:
         """The required settings manager for the invocable.
 
         !!! note
@@ -350,11 +350,11 @@ class Edk2Invocable(BaseAbstractInvocable):
         """
         raise NotImplementedError()
 
-    def GetLoggingFolderRelativeToRoot(self):
+    def GetLoggingFolderRelativeToRoot(self: Self) -> str:
         """Directory containing all logging files."""
         return "Build"
 
-    def AddParserEpilog(self) -> str:
+    def AddParserEpilog(self: Self) -> str:
         """Adds an epilog to the end of the argument parser when displaying help information.
 
         Returns:
@@ -373,7 +373,7 @@ class Edk2Invocable(BaseAbstractInvocable):
             ''')
         return epilog
 
-    def ParseCommandLineOptions(self):
+    def ParseCommandLineOptions(self: Self) -> None:
         """Parses command line options.
 
         Sets up argparser specifically to get PlatformSettingsManager instance.

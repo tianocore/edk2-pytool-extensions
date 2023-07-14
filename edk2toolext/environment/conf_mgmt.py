@@ -14,22 +14,23 @@ import logging
 import os
 import shutil
 import time
+from typing import Self
 
 from edk2toolext.environment import version_aggregator
 
 
 class ConfMgmt():
     """Handles Edk2 Conf Management."""
-    def __init__(self):
+    def __init__(self: Self) -> None:
         """Init an empty ConfMgmt object."""
         self.Logger = logging.getLogger("ConfMgmt")
         self.delay_time_in_seconds = 30
 
-    def _set_delay_time(self, time_in_seconds):
+    def _set_delay_time(self: Self, time_in_seconds: int) -> None:
         """Allow changing the warning time for out of date templates."""
         self.delay_time_in_seconds = time_in_seconds
 
-    def populate_conf_dir(self, conf_folder_path: str, override_conf: bool, conf_template_source_list: list) -> None:
+    def populate_conf_dir(self: Self, conf_folder_path: str, override_conf: bool, conf_template_src_list: list) -> None:
         """Compare the conf dir files to the template files.
 
         Copy files if they are not present in the conf dir or the override parameter is set.
@@ -38,7 +39,7 @@ class ConfMgmt():
             conf_folder_path (str): folder path to output conf location (absolute path)
             override_conf (bool):  boolean to indicate if templates files should replace conf files
                 regardless of existence or version.
-            conf_template_source_list (list): priority list of folder path that might contain a "Conf"
+            conf_template_src_list (list): priority list of folder path that might contain a "Conf"
                 older with template files to use
 
         Note: When complete the conf_folder_path dir must be setup for edk2 builds
@@ -59,7 +60,7 @@ class ConfMgmt():
             template_file_path = None
 
             # find template file given multiple root locations
-            for r in conf_template_source_list:
+            for r in conf_template_src_list:
                 p = os.path.join(r, templatefiles[x])
                 if os.path.isfile(p):
                     template_file_path = p
@@ -79,7 +80,7 @@ class ConfMgmt():
             version_aggregator.GetVersionAggregator().ReportVersion(outfiles[x], self._get_version(outfiles[x]),
                                                                     version_aggregator.VersionTypes.INFO)
 
-    def _get_version(self, conf_file: str) -> str:
+    def _get_version(self: Self, conf_file: str) -> str:
         """Parse the version from the conf_file.
 
         version should be in #!VERSION={value} format
@@ -98,7 +99,7 @@ class ConfMgmt():
                         pass
         return version
 
-    def _is_older_version(self, conf_file: str, template_file: str) -> bool:
+    def _is_older_version(self: Self, conf_file: str, template_file: str) -> bool:
         """Determines whether the conf or template file is older.
 
         Given a conf_file and a template_file file determine if
@@ -122,7 +123,7 @@ class ConfMgmt():
         finally:
             return (conf < template)
 
-    def _copy_conf_file_if_necessary(self, conf_file: str, template_file: str, override_conf: bool) -> None:
+    def _copy_conf_file_if_necessary(self: Self, conf_file: str, template_file: str, override_conf: bool) -> None:
         """Copy template_file to conf_file if policy applies.
 
         Args:

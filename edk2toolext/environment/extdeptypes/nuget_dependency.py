@@ -11,7 +11,7 @@ import logging
 import os
 import shutil
 from io import StringIO
-from typing import List
+from typing import Optional, Self
 
 import semantic_version
 from edk2toollib.utility_functions import GetHostInfo, RemoveTree, RunCmd
@@ -35,13 +35,13 @@ class NugetDependency(ExternalDependency):
     # Env variable name for path to folder containing NuGet.exe
     NUGET_ENV_VAR_NAME = "NUGET_PATH"
 
-    def __init__(self, descriptor):
+    def __init__(self: Self, descriptor: dict) -> None:
         """Inits a nuget dependency based off the provided descriptor."""
         super().__init__(descriptor)
         self.nuget_cache_path = None
 
     @classmethod
-    def GetNugetCmd(cls) -> List[str]:
+    def GetNugetCmd(cls: 'NugetDependency') -> list[str]:
         """Appends mono to the command and resolves the full path of the exe for mono.
 
         Used to add nuget support on posix platforms.
@@ -81,7 +81,7 @@ class NugetDependency(ExternalDependency):
         return cmd
 
     @staticmethod
-    def normalize_version(version, nuget_name=""):
+    def normalize_version(version: str, nuget_name: Optional[str]="") -> str:
         """Normalizes the version as NuGet versioning diverges from Semantic Versioning.
 
         https://learn.microsoft.com/en-us/nuget/concepts/package-versioning#where-nugetversion-diverges-from-semantic-versioning
@@ -154,7 +154,7 @@ class NugetDependency(ExternalDependency):
 
         return reformed_ver
 
-    def _fetch_from_nuget_cache(self, package_name):
+    def _fetch_from_nuget_cache(self: Self, package_name: str) -> bool:
         result = False
 
         #
@@ -208,11 +208,11 @@ class NugetDependency(ExternalDependency):
 
         return result
 
-    def __str__(self):
+    def __str__(self: Self) -> str:
         """Return a string representation."""
         return f"NugetDependecy: {self.name}@{self.version}"
 
-    def _attempt_nuget_install(self, install_dir, non_interactive=True):
+    def _attempt_nuget_install(self: Self, install_dir: str, non_interactive: Optional[bool]=True) -> None:
         #
         # fetch the contents of the package.
         #
@@ -258,7 +258,7 @@ class NugetDependency(ExternalDependency):
                     logging.warning(f"[{' '.join(cmd).replace(' -NonInteractive', '')}]")
                 raise RuntimeError(f"[Nuget] We failed to install this version {self.version} of {package_name}")
 
-    def fetch(self):
+    def fetch(self: Self) -> None:
         """Fetches the dependency using internal state from the init."""
         package_name = self.name
 
@@ -318,11 +318,11 @@ class NugetDependency(ExternalDependency):
         # The published path may change now that the package has been unpacked.
         self.published_path = self.compute_published_path()
 
-    def get_temp_dir(self):
+    def get_temp_dir(self: Self) -> str:
         """Returns the temporary directory the NuGet package is downloaded to."""
         return self.contents_dir + "_temp"
 
-    def clean(self):
+    def clean(self: Self) -> None:
         """Removes the temporary directory the NuGet package is downloaded to."""
         super(NugetDependency, self).clean()
         if os.path.isdir(self.get_temp_dir()):

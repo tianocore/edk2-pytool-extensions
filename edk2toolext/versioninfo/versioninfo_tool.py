@@ -20,6 +20,7 @@ import json
 import logging
 import os
 import sys
+import typing
 
 from edk2toolext.versioninfo.versioninfo_helper import PEObject, VERSIONINFOGenerator
 
@@ -45,7 +46,7 @@ An example to decode a binary efi file and output the rsrc in json might look li
 """ % (TOOL_VERSION, os.path.basename(sys.argv[0]), os.path.basename(sys.argv[0]))
 
 
-def get_cli_options(args=None):
+def get_cli_options(args:typing.Sequence[str]=None) -> argparse.Namespace:
     """Parse options from the command line.
 
     Will parse the primary options from the command line. If provided, will take the options as
@@ -66,14 +67,14 @@ def get_cli_options(args=None):
     return parser.parse_args(args=args)
 
 
-def decode_version_info(input_file):
+def decode_version_info(input_file: str) -> dict:
     """Takes in a PE file (input_file) and returns the version dictionary.
 
     Args:
         input_file (str): path to a PE file
 
     Returns:
-        (Dict): version dictionary
+        (dict): version dictionary
     """
     if not os.path.exists(input_file):
         raise FileNotFoundError(input_file)
@@ -81,7 +82,7 @@ def decode_version_info(input_file):
     return pe.get_version_dict()
 
 
-def decode_version_info_dump_json(input_file, output_file):
+def decode_version_info_dump_json(input_file: str, output_file: str) -> bool:
     """Takes in a PE file (input_file) and dumps the output as json to (output_file).
 
     Args:
@@ -89,7 +90,7 @@ def decode_version_info_dump_json(input_file, output_file):
         output_file (str): Path to json dump
 
     Returns:
-        (Boolean): result of parsing and dumping
+        (bool): result of parsing and dumping
     """
     version_info = decode_version_info(input_file)
     if not version_info:
@@ -100,7 +101,7 @@ def decode_version_info_dump_json(input_file, output_file):
     return True
 
 
-def encode_version_info(input_file):
+def encode_version_info(input_file: str) -> VERSIONINFOGenerator:
     """Takes in a JSON file (inputfile) and returns an object.
 
     Args:
@@ -114,7 +115,7 @@ def encode_version_info(input_file):
     return VERSIONINFOGenerator(input_file)
 
 
-def encode_version_info_dump_rc(input_file, output_file):
+def encode_version_info_dump_rc(input_file: str, output_file: str) -> bool:
     """Takes in a JSON file (input_file) and outputs an RC file(output_file).
 
     Args:
@@ -122,12 +123,12 @@ def encode_version_info_dump_rc(input_file, output_file):
         output_file (str): path to RC file
 
     Returns:
-        (Boolean): Result of writing to file
+        (bool): Result of writing to file
     """
     return encode_version_info(input_file).write(output_file, TOOL_VERSION)
 
 
-def main():
+def main() -> None:
     """Parse args, executes versioninfo_tool."""
     logging.getLogger().addHandler(logging.StreamHandler())
     args = get_cli_options()

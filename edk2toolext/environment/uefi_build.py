@@ -14,12 +14,14 @@ This class is designed to be subclassed by a platform to allow more extensive
 and custom behavior.
 """
 
+import argparse
 import datetime
 import logging
 import os
 import time
 import traceback
 from collections import namedtuple
+from typing import Self
 
 from edk2toollib.uefi.edk2.parsers.dsc_parser import DscParser
 from edk2toollib.uefi.edk2.parsers.fdf_parser import FdfParser
@@ -30,7 +32,9 @@ from edk2toollib.utility_functions import RemoveTree, RunCmd
 from edk2toolext import edk2_logging
 from edk2toolext.environment import conf_mgmt, shell_environment
 from edk2toolext.environment.multiple_workspace import MultipleWorkspace
+from edk2toolext.environment.plugin_manager import PluginManager
 from edk2toolext.environment.plugintypes.uefi_build_plugin import IUefiBuildPlugin
+from edk2toolext.environment.plugintypes.uefi_helper_plugin import HelperFunctions
 
 
 class UefiBuilder(object):
@@ -61,7 +65,7 @@ class UefiBuilder(object):
         pm (PluginManager): The plugin manager
     """
 
-    def __init__(self):
+    def __init__(self: Self) -> None:
         """Inits an empty UefiBuilder."""
         self.SkipBuild = False
         self.SkipPreBuild = False
@@ -73,7 +77,7 @@ class UefiBuilder(object):
         self.UpdateConf = False
         self.OutputConfig = None
 
-    def AddPlatformCommandLineOptions(self, parserObj):
+    def AddPlatformCommandLineOptions(self: Self, parserObj: argparse.ArgumentParser) -> None:
         """Adds command line options to the argparser.
 
         Args:
@@ -102,7 +106,7 @@ class UefiBuilder(object):
                                dest='OutputConfig', required=False, type=str,
                                help='Provide shell variables in a file')
 
-    def RetrievePlatformCommandLineOptions(self, args):
+    def RetrievePlatformCommandLineOptions(self: Self, args: argparse.Namespace) -> None:
         """Retrieve command line options from the argparser.
 
         Args:
@@ -129,7 +133,7 @@ class UefiBuilder(object):
             self.SkipPostBuild = True
             self.FlashImage = False
 
-    def Go(self, WorkSpace, PackagesPath, PInHelper, PInManager):
+    def Go(self: Self, WorkSpace: str, PackagesPath: str, PInHelper: HelperFunctions, PInManager: PluginManager) -> int:
         """Core executable that performs all build steps."""
         self.env = shell_environment.GetBuildVars()
         self.mws = MultipleWorkspace()
@@ -233,7 +237,7 @@ class UefiBuilder(object):
 
         return 0
 
-    def CleanTree(self, RemoveConfTemplateFilesToo=False):
+    def CleanTree(self: Self, RemoveConfTemplateFilesToo: bool=False) -> int:
         """Cleans the build directory.
 
         Args:
@@ -271,7 +275,7 @@ class UefiBuilder(object):
 
         return ret
 
-    def Build(self):
+    def Build(self: Self) -> int:
         """Adds all arguments to the build command and runs it."""
         BuildType = self.env.GetValue("TARGET")
         edk2_logging.log_progress("Running Build %s" % BuildType)
@@ -341,7 +345,7 @@ class UefiBuilder(object):
 
         return 0
 
-    def PreBuild(self):
+    def PreBuild(self: Self) -> int:
         """Performs internal PreBuild steps.
 
         This includes calling the platform overridable `PlatformPreBuild()`
@@ -374,7 +378,7 @@ class UefiBuilder(object):
                 logging.debug("Plugin Success: %s" % Descriptor.Name)
         return ret
 
-    def PostBuild(self):
+    def PostBuild(self: Self) -> int:
         """Performs internal PostBuild steps.
 
         This includes calling the platform overridable `PlatformPostBuild()`.
@@ -409,7 +413,7 @@ class UefiBuilder(object):
 
         return ret
 
-    def SetEnv(self):
+    def SetEnv(self: Self) -> int:
         """Performs internal SetEnv steps.
 
         This includes platform overridable `SetPlatformEnv()` and `SetPlatformEnvAfterTarget().
@@ -506,7 +510,7 @@ class UefiBuilder(object):
 
         return 0
 
-    def FlashRomImage(self):
+    def FlashRomImage(self: Self) -> int:
         """Executes platform overridable `PlatformFlashImage()`."""
         return self.PlatformFlashImage()
 
@@ -515,7 +519,7 @@ class UefiBuilder(object):
     # -----------------------------------------------------------------------
 
     @classmethod
-    def PlatformPreBuild(self):
+    def PlatformPreBuild(self: Self) -> int:
         """Perform Platform PreBuild Steps.
 
         Returns:
@@ -524,7 +528,7 @@ class UefiBuilder(object):
         return 0
 
     @classmethod
-    def PlatformPostBuild(self):
+    def PlatformPostBuild(self: Self) -> int:
         """Perform Platform PostBuild Steps.
 
         Returns:
@@ -533,7 +537,7 @@ class UefiBuilder(object):
         return 0
 
     @classmethod
-    def SetPlatformEnv(self):
+    def SetPlatformEnv(self: Self) -> int:
         """Set and read Platform Env variables.
 
         This is performed before platform files like the DSC and FDF have been parsed.
@@ -549,7 +553,7 @@ class UefiBuilder(object):
         return 0
 
     @classmethod
-    def SetPlatformEnvAfterTarget(self):
+    def SetPlatformEnvAfterTarget(self: Self) -> int:
         """Set and read Platform Env variables after platform files have been parsed.
 
         Returns:
@@ -558,7 +562,7 @@ class UefiBuilder(object):
         return 0
 
     @classmethod
-    def SetPlatformDefaultEnv(self) -> list[namedtuple]:
+    def SetPlatformDefaultEnv(self: Self) -> list[namedtuple]:
         """Sets platform default environment variables by returning them as a list.
 
         Variables returned from this method are printed to the command line when
@@ -576,7 +580,7 @@ class UefiBuilder(object):
         return []
 
     @classmethod
-    def PlatformBuildRom(self):
+    def PlatformBuildRom(self: Self) -> int:
         """Build the platform Rom.
 
         !!! tip
@@ -586,7 +590,7 @@ class UefiBuilder(object):
         return 0
 
     @classmethod
-    def PlatformFlashImage(self):
+    def PlatformFlashImage(self: Self) -> int:
         """Flashes the image to the system.
 
         Returns:
@@ -595,7 +599,7 @@ class UefiBuilder(object):
         return 0
 
     @classmethod
-    def PlatformGatedBuildShouldHappen(self):
+    def PlatformGatedBuildShouldHappen(self: Self) -> bool:
         """Specifies if a gated build should happen.
 
         Returns:
@@ -607,7 +611,7 @@ class UefiBuilder(object):
     #  HELPER FUNCTIONS
     # ------------------------------------------------------------------------
     #
-    def ParseTargetFile(self):
+    def ParseTargetFile(self: Self) -> int:
         """Parses the target.txt file and adds values as env settings.
 
         "Sets them so they can be overriden.
@@ -636,7 +640,7 @@ class UefiBuilder(object):
 
         return 0
 
-    def ParseToolsDefFile(self):
+    def ParseToolsDefFile(self: Self) -> int:
         """Parses the tools_def.txt file and adds values as env settings.
 
         "Sets them so they can be overriden.
@@ -668,7 +672,7 @@ class UefiBuilder(object):
 
         return 0
 
-    def ParseDscFile(self):
+    def ParseDscFile(self: Self) -> int:
         """Parses the active platform DSC file.
 
         This will get lots of variable info to be used in the build. This
@@ -698,7 +702,7 @@ class UefiBuilder(object):
 
         return 0
 
-    def ParseFdfFile(self):
+    def ParseFdfFile(self: Self) -> int:
         """Parses the active platform FDF file.
 
         This will get lots of variable info to be used in the build. This makes
@@ -729,7 +733,7 @@ class UefiBuilder(object):
 
         return 0
 
-    def SetBasicDefaults(self):
+    def SetBasicDefaults(self: Self) -> int:
         """Sets default values for numerous build control flow variables."""
         self.env.SetValue("WORKSPACE", self.ws, "DEFAULT")
         if (self.pp is not None):

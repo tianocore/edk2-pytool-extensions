@@ -17,6 +17,7 @@ edk2_setup.py, and git_dependency.py use this module to perform git operations.
 import logging
 import os
 from pathlib import Path
+from typing import Optional
 
 from edk2toollib.utility_functions import version_compare
 from git import GitCommandError, InvalidGitRepositoryError, NoSuchPathError, Repo
@@ -29,12 +30,18 @@ logger = logging.getLogger(__name__)
 MIN_GIT_VERSION = "2.11.0"
 
 
-def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=False):
+def resolve(
+    file_system_path: os.Pathlink,
+    dependency: dict,
+    force: bool=False,
+    ignore: bool=False,
+    update_ok: bool=False
+) -> None:
     """Resolves a particular repo.
 
     Args:
-        file_system_path (Pathlike): path to repo
-        dependency (Dict): contains Path, Commit, Branch
+        file_system_path (os.Pathlike): path to repo
+        dependency (dict): contains Path, Commit, Branch
         force (bool): If it is OK to update the commit or branch
         ignore (bool): If it is OK to ignore errors or not.
         update_ok (bool): If it is OK to update the commit or branch
@@ -154,16 +161,26 @@ def resolve(file_system_path, dependency, force=False, ignore=False, update_ok=F
     return
 
 
-def resolve_all(workspace_path, dependencies, force=False, ignore=False, update_ok=False, omnicache_dir=None):
+def resolve_all(
+    workspace_path: os.PathLike,
+    dependencies: list[dict],
+    force: bool=False,
+    ignore: bool=False,
+    update_ok: bool=False,
+    omnicache_dir: str=None
+) -> list[str]:
     """Resolves all repos.
 
     Args:
-        workspace_path (Pathlike): workspace root
-        dependencies (List[Dict]): Dict contains Path, Commit, Branch
+        workspace_path (osPathlike): workspace root
+        dependencies (list[dict]): Dict contains Path, Commit, Branch
         force (bool): If it is OK to update the commit or branch
         ignore (bool): If it is OK to ignore errors or not.
         update_ok (bool): If it is OK to update the commit or branch
-        omnicache_dir (:obj:`bool`, optional): Omnicache path, if used
+        omnicache_dir (str): Omnicache path, if used
+
+    Returns:
+        (list[str]): list of paths to repos resolved
 
     Raises:
         (Exception): An error resolving a repo and ignore=False
@@ -195,17 +212,17 @@ def resolve_all(workspace_path, dependencies, force=False, ignore=False, update_
     return repos
 
 
-def repo_details(abs_file_system_path):
+def repo_details(abs_file_system_path: os.PathLike) -> dict:
     """Return information about the repo.
 
     if self.valid is False, all other return members are set to default values
     and should not be expected to be correct.
 
     Args:
-        abs_file_system_path (PathLike): repo directory
+        abs_file_system_path (os.PathLike): repo directory
 
     Returns:
-        (obj): Object with data members listed above
+        (dict): dict containing details about the repository
     """
     git_version = ".".join(map(str, Git().version_info))
     if version_compare(git_version, MIN_GIT_VERSION) < 0:
@@ -265,23 +282,23 @@ def repo_details(abs_file_system_path):
     return details
 
 
-def clear_folder(abs_file_system_path):
+def clear_folder(abs_file_system_path: os.PathLike) -> None:
     """Cleans the folder.
 
     Args:
-        abs_file_system_path (PathLike): Directory to delete.
+        abs_file_system_path (os.PathLike): Directory to delete.
     """
     logger.warning("WARNING: Deleting contents of folder {0} to make way for Git repo".format(
         abs_file_system_path))
     rmtree(abs_file_system_path)
 
 
-def clone_repo(abs_file_system_path, DepObj):
+def clone_repo(abs_file_system_path: os.PathLike, DepObj: dict) -> tuple:
     """Clones the repo in the folder using the dependency object.
 
     Args:
-        abs_file_system_path (PathLike): destination to clone
-        DepObj (Dict): dict containing Commit, Full, Branch, etc
+        abs_file_system_path (os.PathLike): destination to clone
+        DepObj (dict): dict containing Commit, Full, Branch, etc
 
     Returns:
         ((PathLike, Bool)): (destination, result)
@@ -308,7 +325,7 @@ def clone_repo(abs_file_system_path, DepObj):
         reference = os.path.abspath(DepObj["ReferencePath"])
 
     # Used to generate clone params from flags
-    def _build_params_list(branch=None, shallow=None, reference=None):
+    def _build_params_list(branch: str=None, shallow: str=None, reference: str=None) -> None:
         params = []
         if branch:
             shallow = True
@@ -348,12 +365,18 @@ def clone_repo(abs_file_system_path, DepObj):
     return (dest, True)
 
 
-def checkout(abs_file_system_path, dep, update_ok=False, ignore_dep_state_mismatch=False, force=False):
+def checkout(
+    abs_file_system_path: str,
+    dep: dict,
+    update_ok: bool=False,
+    ignore_dep_state_mismatch: bool=False,
+    force: bool=False
+) -> None:
     """Checks out a commit or branch.
 
     Args:
-        abs_file_system_path (PathLike): The path to the repo
-        dep (Dict): A dictionary containing a either a Commit or Branch, and also a Path
+        abs_file_system_path (os.PathLike): The path to the repo
+        dep (dict): A dictionary containing a either a Commit or Branch, and also a Path
         update_ok (bool): If it is OK to update the commit or branch
         ignore_dep_state_mismatch (bool): Whether a mismatch will result in an exception or not.
         force (bool): If it is OK to update the commit or branch
@@ -419,11 +442,11 @@ def checkout(abs_file_system_path, dep, update_ok=False, ignore_dep_state_mismat
             raise Exception("Branch or Commit must be specified for {0}".format(dep["Path"]))
 
 
-def clean(abs_file_system_path, ignore_files=[]):
+def clean(abs_file_system_path: os.PathLike, ignore_files: Optional[list]=[]) -> None:
     """Resets and cleans the repo.
 
     Args:
-        abs_file_system_path (PathLike): repo directory
+        abs_file_system_path (os.PathLike): repo directory
         ignore_files (list): list of files to ignore when performing a clean
 
     Raises:
@@ -440,12 +463,12 @@ def clean(abs_file_system_path, ignore_files=[]):
         repo.git.clean(*params)
 
 
-def submodule_clean(abs_file_system_path, submodule):
+def submodule_clean(abs_file_system_path: os.PathLike, submodule: dict) -> None:
     """Resets and cleans a submodule of the repo.
 
     Args:
-        abs_file_system_path (PathLike): repo directory
-        submodule (obj): object containing path (relative) attribute
+        abs_file_system_path (os.PathLike): repo directory
+        submodule (dict): object containing path (relative) attribute
 
     Raises:
         (GitCommandError): The command is invalid
@@ -463,14 +486,18 @@ def submodule_clean(abs_file_system_path, submodule):
             clean(os.path.join(abs_file_system_path, submodule.path))
 
 
-def submodule_resolve(abs_file_system_path, submodule, omnicache_path=None):
+def submodule_resolve(
+    abs_file_system_path: os.PathLike,
+    submodule: dict,
+    omnicache_path: Optional[os.PathLike]=None
+) -> None:
     """Resolves a submodule to the specified branch and commit in .gitmodules.
 
     On the submodule, first performs a submodule sync followed by a submodule update --init.
 
     Args:
-        abs_file_system_path (PathLike): repo directory
-        submodule (obj): object containing attributes: path (relative) and recursive
+        abs_file_system_path (os.PathLike): repo directory
+        submodule (dict): object containing attributes: path (relative) and recursive
         omnicache_path (PathLike | None): absolute path to the omnicache, if used
 
     Raises:

@@ -101,6 +101,7 @@ select = [
     "D", # pydocstyle
     "I", # isort
     "PIE", # flake8 - PIE
+    "ANN", # function annotations
 ]
 line-length = 120
 

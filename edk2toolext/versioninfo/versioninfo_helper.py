@@ -19,7 +19,7 @@ PE/PE+ files.
 import json
 import logging
 from datetime import datetime
-from typing import Tuple
+from typing import Self, Tuple
 
 import pefile
 
@@ -329,7 +329,7 @@ class PEObject(object):
     """
     _pe: pefile.PE = None
 
-    def __init__(self, filepath: str) -> None:
+    def __init__(self: Self, filepath: str) -> None:
         """Initializes PE parser.
 
         Args:
@@ -340,7 +340,7 @@ class PEObject(object):
         except pefile.PEFormatError as e:
             logging.error("Error loading PE: " + str(e))
 
-    def _populate_entry(self, key: str, val: int, dict: dict) -> None:
+    def _populate_entry(self: Self, key: str, val: int, dict: dict) -> None:
         """Formats and inserts VERSIONINFO fields into dictionary.
 
         Args:
@@ -370,7 +370,7 @@ class PEObject(object):
             return
         dict[key] = hex(val)
 
-    def contains_rsrc(self) -> bool:
+    def contains_rsrc(self: Self) -> bool:
         """Checks if PE object contains .rsrc section.
 
         Returns:
@@ -381,7 +381,7 @@ class PEObject(object):
                 return True
         return False
 
-    def get_version_dict(self) -> dict:
+    def get_version_dict(self: Self) -> dict:
         """Parses PE/PE+ loaded into PEObject.
 
         Returns:
@@ -511,7 +511,7 @@ class VERSIONINFOGenerator(object):
 
     _version_dict = None
 
-    def __init__(self, filepath: str) -> None:
+    def __init__(self: Self, filepath: str) -> None:
         """Initializes the VERSIONINFO generator.
 
         Initializes the VERSIONINFO generator using a JSON file containing
@@ -530,7 +530,7 @@ class VERSIONINFOGenerator(object):
             except json.decoder.JSONDecodeError as e:
                 logging.error("Invalid JSON format, " + str(e))
 
-    def validate(self) -> bool:
+    def validate(self: Self) -> bool:
         """Checks if the loaded JSON file represents a valid VERSIONINFO resource.
 
         Returns:
@@ -636,7 +636,7 @@ class VERSIONINFOGenerator(object):
 
         return valid
 
-    def validate_minimal(self) -> bool:
+    def validate_minimal(self: Self) -> bool:
         """Checks if the loaded JSON file represents a valid minimal VERSIONINFO resource.
 
         Returns:
@@ -656,7 +656,7 @@ class VERSIONINFOGenerator(object):
 
         return validate_version_number(self._version_dict[PEStrings.FILE_VERSION_STR])
 
-    def write_minimal(self, path: str, version: str) -> bool:
+    def write_minimal(self: Self, path: str, version: str) -> bool:
         """Write a minimal VERSIONINFO resource file.
 
         Args:
@@ -709,7 +709,7 @@ class VERSIONINFOGenerator(object):
 
         return True
 
-    def write(self, path: str, version: str) -> bool:
+    def write(self: Self, path: str, version: str) -> bool:
         """Encodes the loaded JSON and writes it to VERSION.rc.
 
         Encodes the loaded JSON and writes it to VERSION.rc, a resource file compatible with rc.exe.

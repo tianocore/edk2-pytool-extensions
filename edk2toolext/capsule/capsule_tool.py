@@ -14,6 +14,7 @@ import copy
 import logging
 import os
 import sys
+from typing import IO, Optional
 
 import yaml
 
@@ -31,7 +32,7 @@ An example call might look like:
 """ % (os.path.basename(sys.argv[0]),)
 
 
-def get_cli_options(args=None):
+def get_cli_options() -> argparse.Namespace:
     """Parse the primary options from the command line."""
     parser = argparse.ArgumentParser(description=TOOL_DESCRIPTION, formatter_class=argparse.RawDescriptionHelpFormatter)
 
@@ -59,10 +60,10 @@ def get_cli_options(args=None):
     parser.add_argument('output_dir',
                         help='a filesystem path to the directory to save output files. if directory does not exist, entire directory path will be created. if directory does exist, contents will be updated based on the capsule_options') # noqa
 
-    return parser.parse_args(args=args)
+    return parser.parse_args()
 
 
-def load_options_file(in_file):
+def load_options_file(in_file: IO) -> Optional[dict]:
     """Loads a yaml file into a dictionary and returns it."""
     if not hasattr(in_file, 'read'):
         return None
@@ -70,7 +71,7 @@ def load_options_file(in_file):
     return yaml.safe_load(in_file)
 
 
-def update_options(file_options, capsule_options, signer_options):
+def update_options(file_options: dict, capsule_options: list[str], signer_options: dict) -> dict:
     """Takes in a pre-loaded options dictionary and adds all corresponding options from the command line.
 
     Command line options will be organized by type (into capsule_options or
@@ -95,7 +96,7 @@ def update_options(file_options, capsule_options, signer_options):
     return updated_options
 
 
-def main():
+def main() -> None:
     """Main entry point into the Capsule Tool."""
     args = get_cli_options()
     final_options = update_options(load_options_file(args.options_file), args.capsule_options, args.signer_options)

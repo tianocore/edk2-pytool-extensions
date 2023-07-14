@@ -11,9 +11,10 @@ Contains a SetupSettingsManager that must be subclassed in a build settings
 file. This provides platform specific information to Edk2PlatformSetup invocable
 while allowing the invocable itself to remain platform agnostic.
 """
+import argparse
 import logging
 import os
-from typing import List
+from typing import Iterable, Self
 
 from edk2toollib.utility_functions import GetHostInfo
 
@@ -35,7 +36,7 @@ from edk2toolext.invocables.edk2_multipkg_aware_invocable import (
 
 class RequiredSubmodule():
     """A class containing information about a git submodule."""
-    def __init__(self, path: str, recursive: bool = True):
+    def __init__(self: Self, path: str, recursive: bool = True) -> None:
         """Object to hold necessary information for resolving submodules.
 
         Args:
@@ -57,12 +58,12 @@ class SetupSettingsManager(MultiPkgAwareSettingsInterface):
         ```python
         from edk2toolext.invocables.edk2_setup import SetupSettingsManager, RequiredSubmodule
         class PlatformManager(SetupSettingsManager):
-            def GetRequiredSubmodules(self) -> List[RequiredSubmodule]:
+            def GetRequiredSubmodules(self) -> Iterable[RequiredSubmodule]:
                 return [RequiredSubmodule('Common/MU', True)]
         ```
     """
 
-    def GetRequiredSubmodules(self) -> List[RequiredSubmodule]:
+    def GetRequiredSubmodules(self: Self) -> Iterable[RequiredSubmodule]:
         """Provides a list of required git submodules.
 
         These submodules are those that must be setup for the platform
@@ -72,7 +73,7 @@ class SetupSettingsManager(MultiPkgAwareSettingsInterface):
             Optional Override in a subclass
 
         Returns:
-            A list of required submodules, or an empty list
+            A Iterable of required submodules, or an empty Iterable
         """
         return []
 
@@ -80,7 +81,7 @@ class SetupSettingsManager(MultiPkgAwareSettingsInterface):
 class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
     """Invocable that updates git submodules listed in RequiredSubmodules."""
 
-    def AddCommandLineOptions(self, parserObj):
+    def AddCommandLineOptions(self: Self, parserObj: argparse.ArgumentParser) -> None:
         """Adds command line options to the argparser."""
         parserObj.add_argument('--force', '--FORCE', '--Force', dest="force", action='store_true', default=False)
         parserObj.add_argument('--omnicache', '--OMNICACHE', '--Omnicache', dest='omnicache_path',
@@ -88,7 +89,7 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
 
         super().AddCommandLineOptions(parserObj)
 
-    def RetrieveCommandLineOptions(self, args):
+    def RetrieveCommandLineOptions(self: Self, args: argparse.Namespace) -> None:
         """Retrieve command line options from the argparser."""
         self.force_it = args.force
         self.omnicache_path = args.omnicache_path
@@ -98,11 +99,11 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
 
         super().RetrieveCommandLineOptions(args)
 
-    def GetVerifyCheckRequired(self):
+    def GetVerifyCheckRequired(self: Self) -> bool:
         """Will not call self_describing_environment.VerifyEnvironment because it hasn't been set up yet."""
         return False
 
-    def GetSettingsClass(self):
+    def GetSettingsClass(self: Self) -> type:
         """Returns the SetupSettingsManager class.
 
         !!! warning
@@ -110,11 +111,11 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
         """
         return SetupSettingsManager
 
-    def GetLoggingFileName(self, loggerType):
+    def GetLoggingFileName(self: Self, loggerType: str) -> str:
         """Returns the filename (SETUPLOG) of where the logs for the Edk2CiBuild invocable are stored in."""
         return "SETUPLOG"
 
-    def Go(self):
+    def Go(self: Self) -> int:
         """Executes the core functionality of the Edk2PlatformSetup invocable."""
         required_submodules = self.PlatformSettings.GetRequiredSubmodules()
 
@@ -192,6 +193,6 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
         return 0
 
 
-def main():
+def main() -> None:
     """Entry point to invoke Edk2PlatformSetup."""
     Edk2PlatformSetup().Invoke()
