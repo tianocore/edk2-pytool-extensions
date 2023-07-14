@@ -10,6 +10,7 @@
 
 import logging
 import os
+import pathlib
 import shutil
 import tarfile
 import tempfile
@@ -105,6 +106,13 @@ class WebDependency(ExternalDependency):
 
         for file in files_to_extract:
             _ref.extract(member=file, path=destination)
+
+            # unzip functionality does not preserve file permissions. Fix-up the permissions
+            path = pathlib.Path(destination, file)
+            if path.is_file() and compression_type == "zip":
+                expected_mode = _ref.getinfo(file).external_attr >> 16
+                path.chmod(expected_mode)
+
         _ref.close()
 
     def fetch(self):

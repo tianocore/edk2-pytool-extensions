@@ -7,17 +7,22 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 
-import os
-import unittest
+import json
 import logging
+import os
+import pathlib
 import shutil
 import tarfile
-import zipfile
 import tempfile
-import json
+import unittest
 import urllib.request
+import zipfile
+from sys import platform
+
+import pytest
 from edk2toolext.environment import environment_descriptor_files as EDF
 from edk2toolext.environment.extdeptypes.web_dependency import WebDependency
+from edk2toollib.utility_functions import RemoveTree
 
 test_dir = None
 bad_json_file = '''
@@ -78,6 +83,19 @@ jquery_json_file = {
     "internal_path": "jquery.js"
 }
 
+basetools_json_file = {
+  "scope": "global",
+  "type": "web",
+  "name": "Mu-Basetools",
+  "source": "https://github.com/microsoft/mu_basecore/releases/download/v2023020002.0.3/basetools-v2023020002.0.3.zip",
+  "version": "v2023020002.0.3",
+  "sha256": "6eaf5dc61690592e441c92c3150167c40315efb24a3805a05642d5b4f875b008",
+  "internal_path": "/basetools/",
+  "compression_type": "zip",
+  "flags": ["set_shell_var", "set_path", "host_specific"],
+  "var_name": "EDK_TOOLS_BIN"
+}
+
 
 def prep_workspace():
     global test_dir
@@ -86,7 +104,7 @@ def prep_workspace():
         test_dir = tempfile.mkdtemp()
         logging.debug("temp dir is: %s" % test_dir)
     else:
-        shutil.rmtree(test_dir)
+        RemoveTree(test_dir)
         test_dir = tempfile.mkdtemp()
 
 
@@ -456,6 +474,29 @@ class TestWebDependency(unittest.TestCase):
         self.assertFalse(internal_path_win in namelist[0])
         self.assertTrue(WebDependency.linuxize_path(internal_path_win) in namelist[0])
 
+    @pytest.mark.skipif(platform == "win32", reason="Only Linux care about file attributes.")
+    def test_unpack_zip_file_attr(self):
+        """Test that unpacked zip files keep their file attributes.
+
+        This is done by downloading the Basetools extdep where we know for a fact that each
+        file should have the owner executable bit set.
+        """
+        extdep_file = pathlib.Path(test_dir, "my_ext_dep.json")
+
+        with open(extdep_file, "w+") as f:
+            f.write(json.dumps(basetools_json_file))
+
+        extdep_descriptor = EDF.ExternDepDescriptor(extdep_file).descriptor_contents
+        extdep = WebDependency(extdep_descriptor)
+        extdep.fetch()
+
+        extdep_dir = pathlib.Path(test_dir, "Mu-Basetools_extdep")
+
+        assert extdep_dir.exists()
+
+        OWNER_EXE = 0o100
+        for file in [path for path in extdep_dir.rglob("*") if "Linux" in str(path) and path.is_file()]:
+            assert file.stat().st_mode & OWNER_EXE
 
 if __name__ == '__main__':
     unittest.main()
