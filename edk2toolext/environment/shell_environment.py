@@ -400,7 +400,7 @@ def GetBuildVars() -> var_dict.VarDict:
         def __init__(self: Self) -> None:
             self.internal_shell_env = ShellEnvironment()
 
-        def __getattr__(self: Self, attrname: str) -> Any: # noqa: ANN401
+        def __getattr__(self: Self, attrname: str) -> Any: # noqa: ruff: ANN401
             # Instead, invoke on the active BuildVars object.
             return getattr(self.internal_shell_env.active_buildvars, attrname)
 
