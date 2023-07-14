@@ -31,11 +31,21 @@ class self_describing_environment(object):
     Scans the environment for files that describe the source and dependencies
     and then acts upon those files.
     """
-    def __init__(self: Self, workspace_path: str, scopes: Optional[tuple]=(), skipped_dirs: Optional[tuple]=()) -> None:
+    def __init__(
+        self: Self,
+        workspace_path: str,
+        scopes: Optional[tuple]=None,
+        skipped_dirs: Optional[tuple]=None
+    ) -> None:
         """Inits an empty self describing environment."""
         logging.debug("--- self_describing_environment.__init__()")
         logging.debug(f"Skipped directories specified = {skipped_dirs}")
         super(self_describing_environment, self).__init__()
+
+        if scopes is None:
+            scopes = ()
+        if skipped_dirs is None:
+            skipped_dirs = ()
 
         self.workspace = workspace_path
 
@@ -344,7 +354,7 @@ def DestroyEnvironment() -> None:
     ENV_STATE = None
 
 
-def BootstrapEnvironment(workspace: str, scopes: Optional[tuple]=(), skipped_dirs: Optional[tuple]=()) -> tuple:
+def BootstrapEnvironment(workspace: str, scopes: Optional[tuple]=None, skipped_dirs: Optional[tuple]=None) -> tuple:
     """Performs a multistage bootstrap of the environment.
 
     1. Locate and load all environment description files
@@ -364,6 +374,11 @@ def BootstrapEnvironment(workspace: str, scopes: Optional[tuple]=(), skipped_dir
     !!! warning
         if only one scope or skipped_dir, the tuple should end with a comma example: '(myscope,)'
     """
+    if scopes is None:
+        scopes = ()
+    if skipped_dirs is None:
+        skipped_dirs = ()
+
     global ENVIRONMENT_BOOTSTRAP_COMPLETE, ENV_STATE
 
     if not ENVIRONMENT_BOOTSTRAP_COMPLETE:
@@ -404,7 +419,7 @@ def BootstrapEnvironment(workspace: str, scopes: Optional[tuple]=(), skipped_dir
     return ENV_STATE
 
 
-def CleanEnvironment(workspace: str, scopes: Optional[tuple]=(), skipped_dirs: Optional[tuple]=()) -> None:
+def CleanEnvironment(workspace: str, scopes: Optional[tuple]=None, skipped_dirs: Optional[tuple]=None) -> None:
     """Cleans all external dependencies based on environment.
 
     Environment is bootstrapped from provided arguments and all dependencies
@@ -418,6 +433,11 @@ def CleanEnvironment(workspace: str, scopes: Optional[tuple]=(), skipped_dirs: O
     !!! warning
         If only one scope or skipped_dir, the tuple should end with a comma example: '(myscope,)'
     """
+    if scopes is None:
+        scopes = ()
+    if skipped_dirs is None:
+        skipped_dirs = ()
+
     # Bootstrap the environment.
     (build_env, shell_env) = BootstrapEnvironment(workspace, scopes, skipped_dirs)
 
@@ -425,7 +445,7 @@ def CleanEnvironment(workspace: str, scopes: Optional[tuple]=(), skipped_dirs: O
     build_env.clean_extdeps(shell_env)
 
 
-def UpdateDependencies(workspace: str, scopes: Optional[tuple]=(), skipped_dirs: Optional[tuple]=()) -> tuple:
+def UpdateDependencies(workspace: str, scopes: Optional[tuple]=None, skipped_dirs: Optional[tuple]=None) -> tuple:
     """Updates all external dependencies based on environment.
 
     Environment is bootstrapped from provided arguments and all dependencies
@@ -442,6 +462,11 @@ def UpdateDependencies(workspace: str, scopes: Optional[tuple]=(), skipped_dirs:
     !!! warning
         If only one scope or skipped_dir, the tuple should end with a comma example: '(myscope,)'
     """
+    if scopes is None:
+        scopes = ()
+    if skipped_dirs is None:
+        skipped_dirs = ()
+
     # Bootstrap the environment.
     (build_env, shell_env) = BootstrapEnvironment(workspace, scopes, skipped_dirs)
 
@@ -449,7 +474,7 @@ def UpdateDependencies(workspace: str, scopes: Optional[tuple]=(), skipped_dirs:
     return build_env.update_extdeps(shell_env)
 
 
-def VerifyEnvironment(workspace: str, scopes: Optional[tuple]=(), skipped_dirs: Optional[tuple]=()) -> bool:
+def VerifyEnvironment(workspace: str, scopes: Optional[tuple]=None, skipped_dirs: Optional[tuple]=None) -> bool:
     """Verifies all external dependencies based on environment.
 
     Environment is bootstrapped from provided arguments and all dependencies
@@ -463,6 +488,10 @@ def VerifyEnvironment(workspace: str, scopes: Optional[tuple]=(), skipped_dirs: 
     !!! warning
         If only one scope or skipped_dir, the tuple should end with a comma example: '(myscope,)'
     """
+    if scopes is None:
+        scopes = ()
+    if skipped_dirs is None:
+        skipped_dirs = ()
     # Bootstrap the environment.
     (build_env, shell_env) = BootstrapEnvironment(workspace, scopes, skipped_dirs)
 
