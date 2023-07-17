@@ -196,12 +196,12 @@ def test_NO_secret_filter(caplog):
     end_list = [" ", ",", ";", ":", " "]
     start_list = [" ", " ", " ", " ", ":"]
 
-    del os.environ["CI"]
-    edk2_logging.setup_console_logging(logging.DEBUG)
+    caplog.set_level(logging.CRITICAL)
+    edk2_logging.setup_console_logging(logging.CRITICAL)
     # Test secret github (valid) 1
     fake_secret = "ghp_aeiou1"
     for start, end in zip(start_list, end_list):
-        logging.debug(f"This is a secret{start}{fake_secret}{end}to be caught")
+        logging.critical(f"This is a secret{start}{fake_secret}{end}to be caught")
 
     for (record, start, end) in zip(caplog.records, start_list, end_list):
         assert record.msg == f"This is a secret{start}{fake_secret}{end}to be caught"
