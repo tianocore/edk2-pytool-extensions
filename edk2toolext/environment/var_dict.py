@@ -17,7 +17,7 @@ sharing for the build process, pre-build, and post-build.
 import logging
 from random import choice
 from string import ascii_letters
-from typing import Optional, Self, TextIO
+from typing import Optional, TextIO
 
 
 class EnvEntry(object):
@@ -29,13 +29,13 @@ class EnvEntry(object):
         overridable (bool): If the value can be overwritten in the future
     """
 
-    def __init__(self: Self, value: str, comment: str, overridable: str=False) -> None:
+    def __init__(self, value: str, comment: str, overridable: str=False) -> None:
         """Inits an entry with the specified values."""
         self.Value = value
         self.Comment = comment
         self.Overrideable = overridable
 
-    def PrintEntry(self: Self, f: Optional[TextIO]=None) -> None:
+    def PrintEntry(self, f: Optional[TextIO]=None) -> None:
         """Prints the value.
 
         Args:
@@ -50,7 +50,7 @@ class EnvEntry(object):
     # Function used to override the value if option allows it
     #
 
-    def SetValue(self: Self, value: str, comment: str, overridable: Optional[bool]=False) -> bool:
+    def SetValue(self, value: str, comment: str, overridable: Optional[bool]=False) -> bool:
         """Sets the value of the entry if it os overridable.
 
         Args:
@@ -75,12 +75,12 @@ class EnvEntry(object):
         self.Overrideable = overridable
         return True
 
-    def AllowOverride(self: Self) -> bool:
+    def AllowOverride(self) -> bool:
         """Allows the value to be overwritten in the future."""
         self.Overrideable = True
         return True
 
-    def GetValue(self: Self) -> str:
+    def GetValue(self) -> str:
         """Returns the value."""
         return self.Value
 
@@ -88,16 +88,16 @@ class EnvEntry(object):
 class VarDict(object):
     """An overridable dictionary to store build configuration data."""
 
-    def __init__(self: Self) -> None:
+    def __init__(self) -> None:
         """Inits an empty VarDict."""
         self.Logger = logging.getLogger("EnvDict")
         self.Dstore = {}  # a set of envs
 
-    def GetEntry(self: Self, key: str) -> Optional[EnvEntry]:
+    def GetEntry(self, key: str) -> Optional[EnvEntry]:
         """Returns an entry in the Dstore Dict."""
         return self.Dstore.get(key.upper())
 
-    def __copy__(self: Self) -> 'VarDict':
+    def __copy__(self) -> 'VarDict':
         """Copies data into a new VarDict."""
         new_copy = VarDict()
         new_copy.Logger = self.Logger
@@ -111,7 +111,7 @@ class VarDict(object):
             new_copy.SetValue(key, value, comment, override)
         return new_copy
 
-    def GetValue(self: Self, k: str, default: Optional[str]=None) -> str:
+    def GetValue(self, k: str, default: Optional[str]=None) -> str:
         """Gets a value from the variable dictionary that was set during build.
 
         !!! note
@@ -138,7 +138,7 @@ class VarDict(object):
             self.Logger.debug("Key %s not found" % key)
             return default
 
-    def SetValue(self: Self, k: str, v: str, comment: str, overridable: bool=False) -> bool:
+    def SetValue(self, k: str, v: str, comment: str, overridable: bool=False) -> bool:
         """Sets an environment variable to be used throughout the build.
 
         Args:
@@ -168,7 +168,7 @@ class VarDict(object):
 
         return en.SetValue(value, comment, overridable)
 
-    def AllowOverride(self: Self, k: str) -> bool:
+    def AllowOverride(self, k: str) -> bool:
         """Forces the key/value pair to be overridable.
 
         Note: Even if overridable was specifically set to False,
@@ -188,7 +188,7 @@ class VarDict(object):
             return True
         return False
 
-    def GetBuildValue(self: Self, key: str, BuildType: Optional[str]=None) -> str:
+    def GetBuildValue(self, key: str, BuildType: Optional[str]=None) -> str:
         """Get a build var value for given key and buildtype.
 
         !!! tip
@@ -237,7 +237,7 @@ class VarDict(object):
         # return value...if not found should return None
         return rv
 
-    def GetAllBuildKeyValues(self: Self, BuildType: Optional[str]=None) -> dict:
+    def GetAllBuildKeyValues(self, BuildType: Optional[str]=None) -> dict:
         """Gets a dictionary for all build vars.
 
         !!! tip
@@ -286,7 +286,7 @@ class VarDict(object):
 
         return returndict
 
-    def GetAllNonBuildKeyValues(self: Self) -> dict:
+    def GetAllNonBuildKeyValues(self) -> dict:
         """Returns a dict of non Build Key values.
 
         Return a copy of the dictionary of all keys, values in the environment
@@ -299,7 +299,7 @@ class VarDict(object):
                 returndict[key] = value.GetValue()
         return returndict
 
-    def PrintAll(self: Self, fp: Optional[TextIO] =None) -> None:
+    def PrintAll(self, fp: Optional[TextIO] =None) -> None:
         """Prints all variables.
 
         If fp is not none, writes to a fp also

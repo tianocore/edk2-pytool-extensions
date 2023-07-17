@@ -18,7 +18,6 @@ import logging
 import os
 import sys
 from textwrap import wrap
-from typing import Self
 
 from edk2toollib.uefi.edk2.path_utilities import Edk2Path
 from edk2toollib.utility_functions import locate_class_in_module
@@ -45,7 +44,7 @@ class BuildSettingsManager(Edk2InvocableSettingsInterface):
         ```
     """
 
-    def GetName(self: Self) -> str:
+    def GetName(self) -> str:
         """Get the name of the repo, platform, or product being build.
 
         !!! tip
@@ -60,7 +59,7 @@ class BuildSettingsManager(Edk2InvocableSettingsInterface):
 class Edk2PlatformBuild(Edk2Invocable):
     """Invocable that performs some environment setup,Imports UefiBuilder and calls go."""
 
-    def AddCommandLineOptions(self: Self, parserObj: argparse.ArgumentParser) -> None:
+    def AddCommandLineOptions(self, parserObj: argparse.ArgumentParser) -> None:
         """Adds command line options to the argparser."""
         # PlatformSettings could also be a subclass of UefiBuilder, who knows!
         if isinstance(self.PlatformSettings, UefiBuilder):
@@ -74,11 +73,11 @@ class Edk2PlatformBuild(Edk2Invocable):
 
         self.PlatformBuilder.AddPlatformCommandLineOptions(parserObj)
 
-    def RetrieveCommandLineOptions(self: Self, args: argparse.Namespace) -> None:
+    def RetrieveCommandLineOptions(self, args: argparse.Namespace) -> None:
         """Retrieve command line options from the argparser."""
         self.PlatformBuilder.RetrievePlatformCommandLineOptions(args)
 
-    def AddParserEpilog(self: Self) -> str:
+    def AddParserEpilog(self) -> str:
         """Adds an epilog to the end of the argument parser when displaying help information.
 
         Returns:
@@ -106,7 +105,7 @@ class Edk2PlatformBuild(Edk2Invocable):
 
         return custom_epilog + epilog
 
-    def GetSettingsClass(self: Self) -> type:
+    def GetSettingsClass(self) -> type:
         """Returns the BuildSettingsManager class.
 
         !!! warning
@@ -114,14 +113,14 @@ class Edk2PlatformBuild(Edk2Invocable):
         """
         return BuildSettingsManager
 
-    def GetLoggingFileName(self: Self, loggerType: str) -> str:
+    def GetLoggingFileName(self, loggerType: str) -> str:
         """Returns the filename of where the logs for the Edk2PlatformBuild invocable are stored in."""
         name = self.PlatformSettings.GetName()
         if name is not None:
             return f"BUILDLOG_{name}"
         return "BUILDLOG"
 
-    def Go(self: Self) -> int:
+    def Go(self) -> int:
         """Executes the core functionality of the Edk2PlatformBuild invocable."""
         logging.info("Running Python version: " + str(sys.version_info))
 

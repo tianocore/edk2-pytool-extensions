@@ -71,7 +71,7 @@ class ExternalDependency(object):
             self.contents_dir, "extdep_state.yaml")
         self.published_path = self.compute_published_path()
 
-    def set_global_cache_path(self: Self, global_cache_path: str) -> Self:
+    def set_global_cache_path(self, global_cache_path: str) -> Self:
         """Sets the global cache path to locate already downloaded dependencies.
 
         Arguments:
@@ -80,7 +80,7 @@ class ExternalDependency(object):
         self.global_cache_path = os.path.abspath(global_cache_path)
         return self
 
-    def compute_published_path(self: Self) -> str:
+    def compute_published_path(self) -> str:
         """Determines the published path."""
         new_published_path = self.contents_dir
 
@@ -132,7 +132,7 @@ class ExternalDependency(object):
         if os.path.isdir(self.contents_dir):
             RemoveTree(self.contents_dir)
 
-    def determine_cache_path(self: Self) -> Optional[str]:
+    def determine_cache_path(self) -> Optional[str]:
         """Determines the cache path is global_cache_path is not none."""
         result = None
         if self.global_cache_path is not None and os.path.isdir(self.global_cache_path):
@@ -143,7 +143,7 @@ class ExternalDependency(object):
             result = os.path.join(self.global_cache_path, self.type, self.name, subpath)
         return result
 
-    def fetch(self: Self) -> bool:
+    def fetch(self) -> bool:
         """Fetches the dependency using internal state from the init."""
         cache_path = self.determine_cache_path()
         if cache_path is None or not os.path.isdir(cache_path):
@@ -154,7 +154,7 @@ class ExternalDependency(object):
         self.update_state_file()
         return True
 
-    def copy_from_global_cache(self: Self, dest_path: str) -> None:
+    def copy_from_global_cache(self, dest_path: str) -> None:
         """Copies the dependency from global cache if present.
 
         Arguments:
@@ -166,7 +166,7 @@ class ExternalDependency(object):
         if os.path.isdir(cache_path):
             shutil.copytree(cache_path, dest_path, dirs_exist_ok=True)
 
-    def copy_to_global_cache(self: Self, source_path: str) -> None:
+    def copy_to_global_cache(self, source_path: str) -> None:
         """Copies the dependency to global cache if present.
 
         Arguments:
@@ -181,7 +181,7 @@ class ExternalDependency(object):
             shutil.rmtree(cache_path)
         shutil.copytree(source_path, cache_path, dirs_exist_ok=True)
 
-    def verify(self: Self) -> int:
+    def verify(self) -> int:
         """Verifies the dependency was successfully downloaded."""
         result = True
         state_data = None
@@ -207,14 +207,14 @@ class ExternalDependency(object):
         logging.debug("Verify '%s' returning '%s'." % (self.name, result))
         return result
 
-    def report_version(self: Self) -> None:
+    def report_version(self) -> None:
         """Reports the version of the external dependency."""
         version_aggregator.GetVersionAggregator().ReportVersion(self.name,
                                                                 self.version,
                                                                 version_aggregator.VersionTypes.INFO,
                                                                 self.descriptor_location)
 
-    def update_state_file(self: Self) -> None:
+    def update_state_file(self) -> None:
         """Updates the file representing the state of the dependency."""
         with open(self.state_file_path, 'w+') as file:
             yaml.dump({'version': self.version}, file)

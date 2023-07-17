@@ -14,7 +14,6 @@ while allowing the invocable itself to remain platform agnostic.
 """
 import argparse
 import logging
-from typing import Self
 
 from edk2toolext import edk2_logging
 from edk2toolext.environment import self_describing_environment
@@ -50,7 +49,7 @@ class Edk2Update(Edk2MultiPkgAwareInvocable):
 
     MAX_RETRY_COUNT = 10
 
-    def PerformUpdate(self: Self) -> tuple:
+    def PerformUpdate(self) -> tuple:
         """Updates the dependencies."""
         ws_root = self.GetWorkspaceRoot()
         scopes = self.GetActiveScopes()
@@ -61,11 +60,11 @@ class Edk2Update(Edk2MultiPkgAwareInvocable):
             logging.log(edk2_logging.SECTION, f"\tUpdated/Verified {success} dependencies")
         return (build_env, shell_env, failure)
 
-    def GetVerifyCheckRequired(self: Self) -> bool:
+    def GetVerifyCheckRequired(self) -> bool:
         """Will not call self_describing_environment.VerifyEnvironment because ext_deps haven't been unpacked yet."""
         return False
 
-    def GetSettingsClass(self: Self) -> type:
+    def GetSettingsClass(self) -> type:
         """Returns the UpdateSettingsManager class.
 
         !!! warning
@@ -73,19 +72,19 @@ class Edk2Update(Edk2MultiPkgAwareInvocable):
         """
         return UpdateSettingsManager
 
-    def GetLoggingFileName(self: Self, loggerType: str) -> str:
+    def GetLoggingFileName(self, loggerType: str) -> str:
         """Returns the filename (UPDATE_LOG) of where the logs for the Edk2CiBuild invocable are stored in."""
         return "UPDATE_LOG"
 
-    def AddCommandLineOptions(self: Self, parserObj: argparse.ArgumentParser) -> None:
+    def AddCommandLineOptions(self, parserObj: argparse.ArgumentParser) -> None:
         """Adds command line options to the argparser."""
         super().AddCommandLineOptions(parserObj)
 
-    def RetrieveCommandLineOptions(self: Self, args: argparse.Namespace) -> None:
+    def RetrieveCommandLineOptions(self, args: argparse.Namespace) -> None:
         """Retrieve command line options from the argparser."""
         super().RetrieveCommandLineOptions(args)
 
-    def Go(self: Self) -> int:
+    def Go(self) -> int:
         """Executes the core functionality of the Edk2Update invocable."""
         RetryCount = 0
         failure_count = 0

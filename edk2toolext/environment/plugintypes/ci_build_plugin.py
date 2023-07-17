@@ -9,7 +9,7 @@
 
 import logging
 import os
-from typing import Self, TextIO
+from typing import TextIO
 
 from edk2toollib.log.junit_report_format import JunitReportTestCase
 from edk2toollib.uefi.edk2.path_utilities import Edk2Path
@@ -22,7 +22,7 @@ from edk2toolext.environment.var_dict import VarDict
 class ICiBuildPlugin(object):
     """Plugin that supports adding tests or operations to the ci environment."""
     def RunBuildPlugin(
-        self: Self,
+        self,
         packagename: str,
         Edk2pathObj: Edk2Path,
         pkgconfig: dict,
@@ -52,7 +52,7 @@ class ICiBuildPlugin(object):
             (int): -1 - skipped for missing prereq
         """
 
-    def GetTestName(self: Self, packagename: str, environment: object) -> tuple[str, str]:
+    def GetTestName(self, packagename: str, environment: object) -> tuple[str, str]:
         """Provides the test case and class name.
 
         Given the package name and configuration provide the caller
@@ -67,7 +67,7 @@ class ICiBuildPlugin(object):
             (Tuple[str, str]): (test case name, test case base class name)
         """
 
-    def RunsOnTargetList(self: Self) -> list[str]:
+    def RunsOnTargetList(self) -> list[str]:
         """Returns a list of edk2 TARGETs that this plugin would like to run on.
 
         !!! note "Known target values"
@@ -79,7 +79,7 @@ class ICiBuildPlugin(object):
         return ["NO-TARGET"]
 
     def WalkDirectoryForExtension(
-        self: Self,
+        self,
         extensionlist: list[str],
         directory: os.PathLike,
         ignorelist: list[str] = None

@@ -18,7 +18,6 @@ import tempfile
 import urllib.error
 import urllib.request
 import zipfile
-from typing import Self
 
 from edk2toollib.utility_functions import RemoveTree
 
@@ -48,7 +47,7 @@ class WebDependency(ExternalDependency):
 
     TypeString = "web"
 
-    def __init__(self: Self, descriptor: dict) -> None:
+    def __init__(self, descriptor: dict) -> None:
         """Inits a web dependency based off the provided descriptor."""
         super().__init__(descriptor)
         self.internal_path = os.path.normpath(descriptor['internal_path'])
@@ -61,7 +60,7 @@ class WebDependency(ExternalDependency):
         # Now we can get rid of the leading /
         self.internal_path = self.internal_path.strip(os.path.sep)
 
-    def __str__(self: Self) -> str:
+    def __str__(self) -> str:
         """Returns a string representation."""
         return f"WebDependecy: {self.source}@{self.version}"
 
@@ -118,7 +117,7 @@ class WebDependency(ExternalDependency):
 
         _ref.close()
 
-    def fetch(self: Self) -> None:
+    def fetch(self) -> None:
         """Fetches the dependency using internal state from the init."""
         # First, check the global cache to see if it's present.
         if super().fetch():

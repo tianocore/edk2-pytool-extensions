@@ -15,7 +15,7 @@ import json
 import logging
 import os
 import sys
-from typing import BinaryIO, Self
+from typing import BinaryIO
 
 import openpyxl
 import xlsxwriter
@@ -370,7 +370,7 @@ def filter_revocation_list_by_arch(revocations: dict, filter_by_arch: str=None) 
 class FirmwareVariables(object):
     """Class to interact with firmware variables."""
 
-    def __init__(self: Self) -> None:
+    def __init__(self) -> None:
         """Constructor."""
         # enable required SeSystemEnvironmentPrivilege privilege
         privilege = win32security.LookupPrivilegeValue(
@@ -403,7 +403,7 @@ class FirmwareVariables(object):
             self._GetFirmwareEnvironmentVariable = None
             logger.warning("Get function doesn't exist")
 
-    def get_variable(self: Self, name: str, guid: str) -> bytes:
+    def get_variable(self, name: str, guid: str) -> bytes:
         """Gets a firmware variable.
 
         Args:

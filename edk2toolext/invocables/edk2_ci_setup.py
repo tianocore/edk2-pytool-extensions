@@ -15,7 +15,7 @@ while allowing the invocable itself to remain platform agnostic.
 import argparse
 import logging
 import os
-from typing import Iterable, Self
+from typing import Iterable
 
 from edk2toolext.environment import repo_resolver
 from edk2toolext.invocables.edk2_multipkg_aware_invocable import (
@@ -42,7 +42,7 @@ class CiSetupSettingsManager(MultiPkgAwareSettingsInterface):
         ```
     """
 
-    def GetDependencies(self: Self) -> Iterable[dict]:
+    def GetDependencies(self) -> Iterable[dict]:
         """Get any Git Repository Dependendencies.
 
         This list of repositories will be resolved during the setup step.
@@ -71,7 +71,7 @@ class Edk2CiBuildSetup(Edk2MultiPkgAwareInvocable):
 
     Edk2CiBuildSetup sets up the necessary environment for Edk2CiBuild by preparing all necessary submodules.
     """
-    def AddCommandLineOptions(self: Self, parser: argparse.ArgumentParser) -> None:
+    def AddCommandLineOptions(self, parser: argparse.ArgumentParser) -> None:
         """Adds command line arguments to Edk2CiBuild."""
         parser.add_argument('-ignore', '--ignore-git', dest="git_ignore", action="store_true",
                             help="Whether to ignore errors in the git cloning process", default=False)
@@ -83,7 +83,7 @@ class Edk2CiBuildSetup(Edk2MultiPkgAwareInvocable):
                             help="Whether to update git repos as needed in the git cloning process", default=False)
         super().AddCommandLineOptions(parser)
 
-    def RetrieveCommandLineOptions(self: Self, args: argparse.Namespace) -> None:
+    def RetrieveCommandLineOptions(self, args: argparse.Namespace) -> None:
         """Retrieve command line options from the argparser."""
         self.git_ignore = args.git_ignore
         self.git_force = args.git_force
@@ -95,11 +95,11 @@ class Edk2CiBuildSetup(Edk2MultiPkgAwareInvocable):
 
         super().RetrieveCommandLineOptions(args)
 
-    def GetVerifyCheckRequired(self: Self) -> bool:
+    def GetVerifyCheckRequired(self) -> bool:
         """Will not verify environment."""
         return False
 
-    def GetSettingsClass(self: Self) -> type:
+    def GetSettingsClass(self) -> type:
         """Returns the CiSetupSettingsManager class.
 
         !!! warning
@@ -107,11 +107,11 @@ class Edk2CiBuildSetup(Edk2MultiPkgAwareInvocable):
         """
         return CiSetupSettingsManager
 
-    def GetLoggingFileName(self: Self, loggerType: str) -> str:
+    def GetLoggingFileName(self, loggerType: str) -> str:
         """Returns the filename (CISETUP) of where the logs for the Edk2CiBuild invocable are stored in."""
         return "CISETUP"
 
-    def Go(self: Self) -> int:
+    def Go(self) -> int:
         """Executes the core functionality of the Edk2CiSetup invocable."""
         setup_dependencies = self.PlatformSettings.GetDependencies()
         logging.debug(f"Dependencies list {setup_dependencies}")

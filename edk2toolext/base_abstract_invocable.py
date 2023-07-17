@@ -11,7 +11,7 @@ import logging
 import os
 import sys
 from datetime import datetime
-from typing import Optional, Self
+from typing import Optional
 
 from edk2toolext import edk2_logging
 from edk2toolext.environment import plugin_manager, self_describing_environment
@@ -29,12 +29,12 @@ class BaseAbstractInvocable(object):
         plugin_manager (plugin_manager.PluginManager): the plugin manager
         helper (HelperFunctions): container for all helper functions
     """
-    def __init__(self: Self) -> None:
+    def __init__(self) -> None:
         """Init the Invocable."""
         self.log_filename = None
         return
 
-    def ParseCommandLineOptions(self: Self) -> None:
+    def ParseCommandLineOptions(self) -> None:
         """Parse command line arguments.
 
         !!! tip
@@ -42,7 +42,7 @@ class BaseAbstractInvocable(object):
         """
         raise NotImplementedError()
 
-    def GetWorkspaceRoot(self: Self) -> str:
+    def GetWorkspaceRoot(self) -> str:
         """Return the workspace root for initializing the Self Describing Environment.
 
         !!! tip
@@ -54,7 +54,7 @@ class BaseAbstractInvocable(object):
         """
         raise NotImplementedError()
 
-    def GetActiveScopes(self: Self) -> tuple:
+    def GetActiveScopes(self) -> tuple:
         """Return tuple containing scopes that should be active for this process.
 
         !!! tip
@@ -68,7 +68,7 @@ class BaseAbstractInvocable(object):
         """
         raise NotImplementedError()
 
-    def GetSkippedDirectories(self: Self) -> tuple:
+    def GetSkippedDirectories(self) -> tuple:
         """Return tuple containing workspace-relative directory paths that should be skipped for processing.
 
         !!! tip
@@ -82,7 +82,7 @@ class BaseAbstractInvocable(object):
         """
         return ()
 
-    def GetLoggingLevel(self: str, loggerType: str) -> Optional[int]:
+    def GetLoggingLevel(self, loggerType: str) -> Optional[int]:
         """Get the logging level depending on logger type.
 
         !!! tip
@@ -104,7 +104,7 @@ class BaseAbstractInvocable(object):
         """
         raise NotImplementedError()
 
-    def GetLoggingFolderRelativeToRoot(self: Self) -> str:
+    def GetLoggingFolderRelativeToRoot(self) -> str:
         """Return the path to a directory to hold all log files.
 
         !!! hint
@@ -115,14 +115,14 @@ class BaseAbstractInvocable(object):
         """
         raise NotImplementedError()
 
-    def InputParametersConfiguredCallback(self: Self) -> int:
+    def InputParametersConfiguredCallback(self) -> int:
         """A Callback once all input parameters are collected.
 
         !!! hint
             Optional override in subclass
         """
 
-    def GetVerifyCheckRequired(self: Self) -> bool:
+    def GetVerifyCheckRequired(self) -> bool:
         """Will call self_describing_environment.VerifyEnvironment if this returns True.
 
         !!! hint
@@ -133,7 +133,7 @@ class BaseAbstractInvocable(object):
         """
         return True
 
-    def GetLoggingFileName(self: Self, loggerType: str) -> Optional[str]:
+    def GetLoggingFileName(self, loggerType: str) -> Optional[str]:
         """Get the logging File name to provide file name customization.
 
         !!! hint
@@ -155,7 +155,7 @@ class BaseAbstractInvocable(object):
         """
         raise NotImplementedError()
 
-    def Go(self: Self) -> None:
+    def Go(self) -> None:
         """Main function to run.
 
         Main function to run after the environment and logging has been configured.
@@ -165,7 +165,7 @@ class BaseAbstractInvocable(object):
         """
         raise NotImplementedError()
 
-    def ConfigureLogging(self: Self) -> None:
+    def ConfigureLogging(self) -> None:
         """Sets up the logging.
 
         !!! tip
@@ -190,7 +190,7 @@ class BaseAbstractInvocable(object):
 
         logging.info("Log Started: " + datetime.strftime(datetime.now(), "%A, %B %d, %Y %I:%M%p"))
 
-    def Invoke(self: Self) -> None:
+    def Invoke(self) -> None:
         """Main process function to configure logging and the environment.
 
         !!! danger

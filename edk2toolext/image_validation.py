@@ -15,7 +15,7 @@ import argparse
 import logging
 import os
 import sys
-from typing import Optional, Self, Sequence
+from typing import Optional, Sequence
 
 from pefile import MACHINE_TYPE, PE, SECTION_CHARACTERISTICS, SUBSYSTEM_TYPE
 
@@ -94,14 +94,14 @@ class Result:
 
 class TestInterface:
     """Interface for creating tests to execute on parsed PE/COFF files."""
-    def name(self: Self) -> str:
+    def name(self) -> str:
         """Returns the name of the test.
 
         "WARNING: Implement in a subclass.
         """
         raise NotImplementedError("Must Override Test Interface")
 
-    def execute(self: Self, pe: PE, config_data: dict) -> Result:
+    def execute(self, pe: PE, config_data: dict) -> Result:
         """Executes the test on the pefile.
 
         Arguments:
@@ -118,7 +118,7 @@ class TestInterface:
 
 class TestManager(object):
     """Manager responsible for executing all tests on all parsed PE/COFF files."""
-    def __init__(self: Self, config_data: Optional[dict]=None) -> None:
+    def __init__(self, config_data: Optional[dict]=None) -> None:
         """Inits the TestManager with configuration data.
 
         Args:
@@ -245,7 +245,7 @@ class TestManager(object):
                 }
             }
 
-    def add_test(self: Self, test: TestInterface) -> None:
+    def add_test(self, test: TestInterface) -> None:
         """Adds a test to the test manager.
 
         Will be executed in the order added.
@@ -255,7 +255,7 @@ class TestManager(object):
         """
         self.tests.append(test)
 
-    def add_tests(self: Self, tests: list[TestInterface]) -> None:
+    def add_tests(self, tests: list[TestInterface]) -> None:
         """Adds multiple test to the test manager.
 
         Tests will be executed in the order added.
@@ -265,7 +265,7 @@ class TestManager(object):
         """
         self.tests.extend(tests)
 
-    def run_tests(self: Self, pe: PE, profile: str="DEFAULT") -> Result:
+    def run_tests(self, pe: PE, profile: str="DEFAULT") -> Result:
         """Runs all tests that have been added to the test manager.
 
         Tests will be executed in the order added
@@ -343,11 +343,11 @@ class TestWriteExecuteFlags(TestInterface):
         Write-able or Read-able, but not both.
     """
 
-    def name(self: Self) -> str:
+    def name(self) -> str:
         """Returns the name of the test."""
         return 'Section data / code separation verification'
 
-    def execute(self: Self, pe: PE, config_data: dict) -> Result:
+    def execute(self, pe: PE, config_data: dict) -> Result:
         """Executes the test on the pefile.
 
         Arguments:
@@ -393,11 +393,11 @@ class TestSectionAlignment(TestInterface):
         requirements specified in the config file
     """
 
-    def name(self: Self) -> str:
+    def name(self) -> str:
         """Returns the name of the test."""
         return 'Section alignment verification'
 
-    def execute(self: Self, pe: PE, config_data: dict) -> Result:
+    def execute(self, pe: PE, config_data: dict) -> Result:
         """Executes the test on the pefile.
 
         Arguments:
@@ -472,11 +472,11 @@ class TestSubsystemValue(TestInterface):
         Update the subsystem type in the source code.
     """
 
-    def name(self: Self) -> str:
+    def name(self) -> str:
         """Returns the name of the test."""
         return 'Subsystem type verification'
 
-    def execute(self: Self, pe: PE, config_data: dict) -> Result:
+    def execute(self, pe: PE, config_data: dict) -> Result:
         """Executes the test on the pefile.
 
         Arguments:

@@ -14,7 +14,6 @@ import logging
 import os
 import shutil
 from io import StringIO
-from typing import Self
 
 from edk2toollib.utility_functions import RemoveTree, RunCmd
 
@@ -84,7 +83,7 @@ class AzureCliUniversalDependency(ExternalDependency):
 
         cls.VersionLogged = True
 
-    def __init__(self: Self, descriptor: dict) -> None:
+    def __init__(self, descriptor: dict) -> None:
         """Inits a Azure CLI dependency based off the provided descriptior."""
         super().__init__(descriptor)
         self.global_cache_path = None
@@ -99,15 +98,15 @@ class AzureCliUniversalDependency(ExternalDependency):
             # Get the PAT or if not defined in shell_var it will return None
             self._pat = shell_environment.GetEnvironment().get_shell_var(_pat_var)
 
-    def _fetch_from_cache(self: Self, package_name: str) -> bool:
+    def _fetch_from_cache(self, package_name: str) -> bool:
         ## AZ tool has no cache feature
         return False
 
-    def __str__(self: Self) -> str:
+    def __str__(self) -> str:
         """Return a string representation."""
         return f"AzCliUniversalDependency: {self.name}@{self.version}"
 
-    def _attempt_universal_install(self: Self, install_dir: str) -> None:
+    def _attempt_universal_install(self, install_dir: str) -> None:
         #
         # fetch the contents of the package.
         #
@@ -142,7 +141,7 @@ class AzureCliUniversalDependency(ExternalDependency):
             raise Exception("Download Universal Package version (%s) different than requested (%s)." %
                             (downloaded_version, self.version))
 
-    def fetch(self: Self) -> None:
+    def fetch(self) -> None:
         """Fetches the dependency using internal state from the init."""
         #
         # Before trying anything with we should check
@@ -180,11 +179,11 @@ class AzureCliUniversalDependency(ExternalDependency):
         # The published path may change now that the package has been unpacked.
         self.published_path = self.compute_published_path()
 
-    def get_temp_dir(self: Self) -> str:
+    def get_temp_dir(self) -> str:
         """Returns the temporary directory the Azure CLI feed is downloaded to."""
         return self.contents_dir + "_temp"
 
-    def clean(self: Self) -> None:
+    def clean(self) -> None:
         """Removes the temporary directory the NuGet package is downloaded to."""
         super(AzureCliUniversalDependency, self).clean()
         if os.path.isdir(self.get_temp_dir()):

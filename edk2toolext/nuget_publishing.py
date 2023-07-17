@@ -15,7 +15,7 @@ import shutil
 import sys
 import xml.etree.ElementTree as etree
 from io import StringIO
-from typing import Optional, Self
+from typing import Optional
 
 import yaml
 from edk2toollib.utility_functions import RunCmd
@@ -63,7 +63,7 @@ class NugetSupport(object):
 
     RELEASE_NOTE_SHORT_STRING_MAX_LENGTH = 500
 
-    def __init__(self: Self, Name: Optional[str]=None, ConfigFile: Optional[str]=None) -> None:
+    def __init__(self, Name: Optional[str]=None, ConfigFile: Optional[str]=None) -> None:
         """Inits a new NugetSupport object.
 
         for new instances without existing config provide the Name parameter.
@@ -83,13 +83,13 @@ class NugetSupport(object):
             self.ConfigData = {"name": Name}
             self.Config = None
 
-    def CleanUp(self: Self) -> None:
+    def CleanUp(self) -> None:
         """Remove all temporary files."""
         logging.debug("CleanUp Called.  Deleting all Temp Files")
         for a in self.TempFileToDelete:
             os.remove(a)
 
-    def ToConfigFile(self: Self, filepath: Optional[str]=None) -> int:
+    def ToConfigFile(self, filepath: Optional[str]=None) -> int:
         """Save config to a yaml file."""
         if (not self.ConfigChanged):
             logging.debug("No Config Changes.  Skip Writing config file")
@@ -111,14 +111,14 @@ class NugetSupport(object):
         self.ConfigChanged = False
         return 0
 
-    def FromConfigfile(self: Self, filepath: str) -> None:
+    def FromConfigfile(self, filepath: str) -> None:
         """Load config from a yaml file."""
         self.Config = filepath
         with open(self.Config, "r") as c:
             self.ConfigData = yaml.safe_load(c)
 
     def SetBasicData(
-            self: Self,
+            self,
             authors: str,
             license: str,
             project: str,
@@ -153,7 +153,7 @@ class NugetSupport(object):
 
         self.ConfigChanged = True
 
-    def UpdateLicensePath(self: Self, licensepath: str) -> None:
+    def UpdateLicensePath(self, licensepath: str) -> None:
         """Update license in the config data.
 
         Update license in the config data with an absolute path to a license
@@ -161,7 +161,7 @@ class NugetSupport(object):
         """
         self.ConfigData["license"] = licensepath
 
-    def IsValidLicense(self: Self) -> bool:
+    def IsValidLicense(self) -> bool:
         """Returns whether the License is valid."""
         if "license" not in self.ConfigData:
             return False
@@ -179,12 +179,12 @@ class NugetSupport(object):
 
         return True
 
-    def UpdateCopyright(self: Self, copyright: str) -> None:
+    def UpdateCopyright(self, copyright: str) -> None:
         """Update copyright in the config data."""
         self.ConfigData["copyright_string"] = copyright
         self.ConfigChanged = True
 
-    def UpdateTags(self: Self, tags: list[str]=None) -> None:
+    def UpdateTags(self, tags: list[str]=None) -> None:
         """Update tags in the config data."""
         if tags is None:
             tags = []
@@ -192,7 +192,7 @@ class NugetSupport(object):
         self.ConfigChanged = True
 
     def UpdateRepositoryInfo(
-            self: Self,
+            self,
             r_type: Optional[str]=None,
             url: Optional[str]=None,
             branch:Optional[str]=None,
@@ -212,7 +212,7 @@ class NugetSupport(object):
             self.ConfigData["repository_commit"] = commit
             self.ConfigChanged = True
 
-    def Print(self: Self) -> str:
+    def Print(self) -> str:
         """Print info about the Nuget Object."""
         print("=======================================")
         print(" Name:        " + self.Name)
@@ -231,7 +231,7 @@ class NugetSupport(object):
         print("-----------------------------------------")
         print("=======================================")
 
-    def LogObject(self: Self) -> None:
+    def LogObject(self) -> None:
         """Logs info about Nuget Object to the logger."""
         logging.debug("=======================================")
         logging.debug(" Name:        " + self.Name)
@@ -255,7 +255,7 @@ class NugetSupport(object):
     # create a nuspec file for packing
     #
 
-    def _MakeNuspecXml(self: Self, ContentDir: str, ReleaseNotesText: Optional[str]=None) ->str:
+    def _MakeNuspecXml(self, ContentDir: str, ReleaseNotesText: Optional[str]=None) ->str:
         package = etree.fromstring(NugetSupport.NUSPEC_TEMPLATE_XML)
         package.attrib["xmlns"] = "http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd"
         meta = package.find("./metadata")
@@ -318,7 +318,7 @@ class NugetSupport(object):
 
         return etree.tostring(package)
 
-    def _GetNuPkgFileName(self: Self, version: str) -> str:
+    def _GetNuPkgFileName(self, version: str) -> str:
         # Nuget removes leading zeros so to match we must do the same
         s = self.Name + "."
         append_tag = None
@@ -337,7 +337,7 @@ class NugetSupport(object):
         s += ".nupkg"
         return s
 
-    def Pack(self: Self, version: str, OutputDir: str, ContentDir:str, RelNotes: Optional[str]=None) -> int:
+    def Pack(self, version: str, OutputDir: str, ContentDir:str, RelNotes: Optional[str]=None) -> int:
         """Pack the current contents into Nupkg."""
         self.NewVersion = version
 
@@ -369,7 +369,7 @@ class NugetSupport(object):
         self.TempFileToDelete.append(self.NuPackageFile)
         return ret
 
-    def Push(self: Self, nuPackage: str, apikey: str) -> int:
+    def Push(self, nuPackage: str, apikey: str) -> int:
         """Push nuget package to the server.
 
         Raises:

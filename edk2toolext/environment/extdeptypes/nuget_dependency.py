@@ -11,7 +11,7 @@ import logging
 import os
 import shutil
 from io import StringIO
-from typing import Optional, Self
+from typing import Optional
 
 import semantic_version
 from edk2toollib.utility_functions import GetHostInfo, RemoveTree, RunCmd
@@ -35,7 +35,7 @@ class NugetDependency(ExternalDependency):
     # Env variable name for path to folder containing NuGet.exe
     NUGET_ENV_VAR_NAME = "NUGET_PATH"
 
-    def __init__(self: Self, descriptor: dict) -> None:
+    def __init__(self, descriptor: dict) -> None:
         """Inits a nuget dependency based off the provided descriptor."""
         super().__init__(descriptor)
         self.nuget_cache_path = None
@@ -154,7 +154,7 @@ class NugetDependency(ExternalDependency):
 
         return reformed_ver
 
-    def _fetch_from_nuget_cache(self: Self, package_name: str) -> bool:
+    def _fetch_from_nuget_cache(self, package_name: str) -> bool:
         result = False
 
         #
@@ -208,11 +208,11 @@ class NugetDependency(ExternalDependency):
 
         return result
 
-    def __str__(self: Self) -> str:
+    def __str__(self) -> str:
         """Return a string representation."""
         return f"NugetDependecy: {self.name}@{self.version}"
 
-    def _attempt_nuget_install(self: Self, install_dir: str, non_interactive: Optional[bool]=True) -> None:
+    def _attempt_nuget_install(self, install_dir: str, non_interactive: Optional[bool]=True) -> None:
         #
         # fetch the contents of the package.
         #
@@ -258,7 +258,7 @@ class NugetDependency(ExternalDependency):
                     logging.warning(f"[{' '.join(cmd).replace(' -NonInteractive', '')}]")
                 raise RuntimeError(f"[Nuget] We failed to install this version {self.version} of {package_name}")
 
-    def fetch(self: Self) -> None:
+    def fetch(self) -> None:
         """Fetches the dependency using internal state from the init."""
         package_name = self.name
 
@@ -318,11 +318,11 @@ class NugetDependency(ExternalDependency):
         # The published path may change now that the package has been unpacked.
         self.published_path = self.compute_published_path()
 
-    def get_temp_dir(self: Self) -> str:
+    def get_temp_dir(self) -> str:
         """Returns the temporary directory the NuGet package is downloaded to."""
         return self.contents_dir + "_temp"
 
-    def clean(self: Self) -> None:
+    def clean(self) -> None:
         """Removes the temporary directory the NuGet package is downloaded to."""
         super(NugetDependency, self).clean()
         if os.path.isdir(self.get_temp_dir()):

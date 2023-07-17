@@ -14,7 +14,7 @@ binaries, submodule configuration used in a build.
 import copy
 import logging
 from enum import Enum
-from typing import Optional, Self
+from typing import Optional
 
 VERSION_AGGREGATOR = None
 
@@ -25,13 +25,13 @@ class version_aggregator(object):
     Used to facilitate the collection of information regarding the tools,
     binaries, submodule configuration used in a build.
     """
-    def __init__(self: Self) -> None:
+    def __init__(self) -> None:
         """Inits an empty verion aggregator."""
         super(version_aggregator, self).__init__()
         self._Versions = {}
         self._logger = logging.getLogger("version_aggregator")
 
-    def ReportVersion(self: Self, key: str, value: str, versionType:str, path:Optional[str]=None) -> None:
+    def ReportVersion(self, key: str, value: str, versionType:str, path:Optional[str]=None) -> None:
         """Report the version of something.
 
         Args:
@@ -60,7 +60,7 @@ class version_aggregator(object):
         }
         self._logger.debug("version_aggregator logging version: {0}".format(str(self._Versions[key])))
 
-    def Print(self: Self) -> None:
+    def Print(self) -> None:
         """Prints out the current information from the version aggregator."""
         for version_key in self._Versions:
             version = self._Versions[version_key]
@@ -68,11 +68,11 @@ class version_aggregator(object):
         if len(self._Versions) == 0:
             print("VERSION AGGREGATOR IS EMPTY")
 
-    def GetAggregatedVersionInformation(self: Self) -> 'version_aggregator':
+    def GetAggregatedVersionInformation(self) -> 'version_aggregator':
         """Returns a copy of the aggregated information."""
         return copy.deepcopy(self._Versions)
 
-    def Reset(self: Self) -> None:
+    def Reset(self) -> None:
         """Resets all versions."""
         self._Versions = {}
 

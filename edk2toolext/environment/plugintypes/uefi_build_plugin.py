@@ -6,7 +6,6 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 """Plugin that supports Pre and Post Build Steps."""
-from typing import Self
 
 from edk2toolext.environment.uefi_build import UefiBuilder
 
@@ -14,7 +13,7 @@ from edk2toolext.environment.uefi_build import UefiBuilder
 class IUefiBuildPlugin(object):
     """Plugin that supports Pre and Post Build Steps."""
 
-    def do_post_build(self: Self, thebuilder: UefiBuilder) -> int:
+    def do_post_build(self, thebuilder: UefiBuilder) -> int:
         """Runs Post Build Plugin Operations.
 
         Args:
@@ -25,7 +24,7 @@ class IUefiBuildPlugin(object):
         """
         return 0
 
-    def do_pre_build(self: Self, thebuilder: UefiBuilder) -> int:
+    def do_pre_build(self, thebuilder: UefiBuilder) -> int:
         """Runs Pre Build Plugin Operations.
 
         Args:

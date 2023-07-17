@@ -8,7 +8,7 @@
 ##
 """Plugin that supports adding Extension or helper methods to the build environment."""
 import logging
-from typing import Callable, Self
+from typing import Callable
 
 from edk2toolext.environment.plugin_manager import PluginManager
 
@@ -16,7 +16,7 @@ from edk2toolext.environment.plugin_manager import PluginManager
 class IUefiHelperPlugin(object):
     """The class that should be subclassed when creating a UEFI Helper Plugin."""
 
-    def RegisterHelpers(self: Self, obj: 'HelperFunctions') -> None:
+    def RegisterHelpers(self, obj: 'HelperFunctions') -> None:
         """Allows a plugin to register its functions.
 
         !!! tip
@@ -33,11 +33,11 @@ class HelperFunctions(object):
     Attributes:
         RegisteredFunctions(dict): registered functions
     """
-    def __init__(self: Self) -> None:
+    def __init__(self) -> None:
         """Initializes instance."""
         self.RegisteredFunctions = {}
 
-    def DebugLogRegisteredFunctions(self: Self) -> None:
+    def DebugLogRegisteredFunctions(self) -> None:
         """Logs all registered functions and their source path.
 
         Uses logging.debug to write all registered functions and their source path.
@@ -48,7 +48,7 @@ class HelperFunctions(object):
         logging.debug("Finished logging %d functions",
                       len(self.RegisteredFunctions))
 
-    def Register(self: Self, name: str, function: Callable, filepath: str) -> None:
+    def Register(self, name: str, function: Callable, filepath: str) -> None:
         """Registers a plugin.
 
         Plugins that want to register a helper function should call
@@ -68,7 +68,7 @@ class HelperFunctions(object):
         setattr(self, name, function)
         self.RegisteredFunctions[name] = filepath
 
-    def HasFunction(self: Self, name: str) -> bool:
+    def HasFunction(self, name: str) -> bool:
         """Returns if a function exists.
 
         Args:
@@ -82,7 +82,7 @@ class HelperFunctions(object):
         else:
             return False
 
-    def LoadFromPluginManager(self: Self, pm: PluginManager) -> int:
+    def LoadFromPluginManager(self, pm: PluginManager) -> int:
         """Load all IUefiHelperPlugins into the class.
 
         Uses the PluginManager class to get all IUefiHelperPlugins in the environment,

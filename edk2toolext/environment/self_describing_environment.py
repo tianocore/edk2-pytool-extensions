@@ -32,7 +32,7 @@ class self_describing_environment(object):
     and then acts upon those files.
     """
     def __init__(
-        self: Self,
+        self,
         workspace_path: str,
         scopes: Optional[tuple]=None,
         skipped_dirs: Optional[tuple]=None
@@ -73,7 +73,7 @@ class self_describing_environment(object):
         self.extdeps = None
         self.plugins = None
 
-    def _gather_env_files(self: Self, ext_strings: list[str], base_path: str) -> dict:
+    def _gather_env_files(self, ext_strings: list[str], base_path: str) -> dict:
         logging.debug("--- self_describing_environment._gather_env_files()")
         # Make sure that the search extension matches easily.
         search_files = tuple(ext_string.lower() for ext_string in ext_strings)
@@ -101,7 +101,7 @@ class self_describing_environment(object):
 
         return matches
 
-    def load_workspace(self: Self) ->Self:
+    def load_workspace(self) ->Self:
         """Loads the workspace."""
         logging.debug("--- self_describing_environment.load_workspace()")
         logging.debug("Loading workspace: %s" % self.workspace)
@@ -198,7 +198,7 @@ class self_describing_environment(object):
         return self
 
     # This is a generator to reduce code duplication when wrapping the pathenv objects.
-    def _get_paths(self: Self) -> EDF.PathEnv:
+    def _get_paths(self) -> EDF.PathEnv:
         if self.paths is not None:
             # Apply in reverse order to get the expected hierarchy.
             for path_descriptor in reversed(self.paths):
@@ -208,7 +208,7 @@ class self_describing_environment(object):
 
     # This is a generator to reduce code duplication when wrapping the extdep objects.
     def _get_extdeps(
-        self: Self,
+        self,
         env_object: shell_environment.ShellEnvironment
     ) -> external_dependency.ExternalDependency:
         if self.extdeps is not None:
@@ -223,7 +223,7 @@ class self_describing_environment(object):
                 yield extdep
 
     def _apply_descriptor_object_to_env(
-        self: Self,
+        self,
         desc_object: external_dependency.ExtDepFactory,
         env_object: shell_environment.ShellEnvironment
     ) -> None:
@@ -241,25 +241,25 @@ class self_describing_environment(object):
             env_object.set_shell_var(
                 desc_object.var_name, desc_object.published_path)
 
-    def update_simple_paths(self: Self, env_object: shell_environment.ShellEnvironment) -> None:
+    def update_simple_paths(self, env_object: shell_environment.ShellEnvironment) -> None:
         """Updates simple paths."""
         logging.debug("--- self_describing_environment.update_simple_paths()")
         for path in self._get_paths():
             self._apply_descriptor_object_to_env(path, env_object)
 
-    def update_extdep_paths(self: Self, env_object: shell_environment.ShellEnvironment) -> None:
+    def update_extdep_paths(self, env_object: shell_environment.ShellEnvironment) -> None:
         """Updates external dependency paths."""
         logging.debug("--- self_describing_environment.update_extdep_paths()")
         for extdep in self._get_extdeps(env_object):
             self._apply_descriptor_object_to_env(extdep, env_object)
 
-    def report_extdep_version(self: Self, env_object: shell_environment.ShellEnvironment) -> None:
+    def report_extdep_version(self, env_object: shell_environment.ShellEnvironment) -> None:
         """Reports the version of all external dependencies."""
         logging.debug("--- self_describing_environment.report_extdep_version()")
         for extdep in self._get_extdeps(env_object):
             extdep.report_version()
 
-    def update_extdeps(self: Self, env_object: shell_environment.ShellEnvironment) -> tuple:
+    def update_extdeps(self, env_object: shell_environment.ShellEnvironment) -> tuple:
         """Updates external dependencies.
 
         Returns:
@@ -268,7 +268,7 @@ class self_describing_environment(object):
         logging.debug("--- self_describing_environment.update_extdeps()")
         # This function is called by our thread pool
 
-        def update_extdep(self: Self, extdep: external_dependency.ExternalDependency) -> bool:
+        def update_extdep(self: 'self_describing_environment', extdep: external_dependency.ExternalDependency) -> bool:
             # Check to see whether it's necessary to fetch the files.
             try:
                 if not extdep.verify():
@@ -329,13 +329,13 @@ class self_describing_environment(object):
             raise RuntimeError("We encountered an exception while updating ext-deps. Review your log")
         return success_count, failure_count
 
-    def clean_extdeps(self: Self, env_object: shell_environment.ShellEnvironment) -> None:
+    def clean_extdeps(self, env_object: shell_environment.ShellEnvironment) -> None:
         """Cleans external dependencies."""
         for extdep in self._get_extdeps(env_object):
             extdep.clean()
             # TODO: Determine whether we want to update the env.
 
-    def verify_extdeps(self: Self, env_object: shell_environment.ShellEnvironment) -> bool:
+    def verify_extdeps(self, env_object: shell_environment.ShellEnvironment) -> bool:
         """Verifies external dependencies."""
         result = True
         for extdep in self._get_extdeps(env_object):

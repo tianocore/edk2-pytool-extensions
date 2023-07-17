@@ -19,7 +19,7 @@ import logging
 import os
 import re
 import shutil
-from typing import Optional, Self, TextIO
+from typing import Optional, TextIO
 
 try:
     from edk2toollib.log import ansi_handler
@@ -284,7 +284,7 @@ class Edk2LogFilter(logging.Filter):
     """Subclass of logging.Filter."""
     _allowedLoggers = ["root"]
 
-    def __init__(self: Self) -> None:
+    def __init__(self) -> None:
         """Inits a filter."""
         logging.Filter.__init__(self)
         self._verbose = False
@@ -303,17 +303,17 @@ class Edk2LogFilter(logging.Filter):
 
         self.secrets_regex = re.compile(r"{}".format("|".join(secrets_regex_strings)), re.IGNORECASE)
 
-    def setVerbose(self: Self, isVerbose: bool=True) -> None:
+    def setVerbose(self, isVerbose: bool=True) -> None:
         """Sets the filter verbosity."""
         self._verbose = isVerbose
 
-    def addSection(self: Self, section: str) -> None:
+    def addSection(self, section: str) -> None:
         """Adds a section to the filter."""
         # TODO request the global singleton?
         # how to make this class static
         Edk2LogFilter._allowedLoggers.append(section)
 
-    def filter(self: Self, record: logging.LogRecord) -> bool:
+    def filter(self, record: logging.LogRecord) -> bool:
         """Adds a filter for a record if it doesn't already exist."""
         # check to make sure we haven't already filtered this record
         if record.name not in Edk2LogFilter._allowedLoggers and record.levelno < logging.WARNING and not self._verbose:

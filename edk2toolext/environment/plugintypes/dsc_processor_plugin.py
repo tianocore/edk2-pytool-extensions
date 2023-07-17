@@ -6,7 +6,6 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 """Plugin for parsing DSCs."""
-from typing import Self
 
 from edk2toollib.uefi.edk2.parsers.dsc_parser import DscParser
 
@@ -16,7 +15,7 @@ from edk2toolext.environment.uefi_build import UefiBuilder
 class IDscProcessorPlugin(object):
     """Plugin for parsing DSCs."""
 
-    def do_transform(self: Self, dsc: DscParser, thebuilder: UefiBuilder) -> int:
+    def do_transform(self, dsc: DscParser, thebuilder: UefiBuilder) -> int:
         """Does the transform on a DSC.
 
         Args:
@@ -28,7 +27,7 @@ class IDscProcessorPlugin(object):
         """
         return 0
 
-    def get_level(self: Self, thebuilder: UefiBuilder) -> int:
+    def get_level(self, thebuilder: UefiBuilder) -> int:
         """Gets the level that this transform operates at.
 
         Args:

@@ -17,7 +17,7 @@ import logging
 import os
 import sys
 import traceback
-from typing import Any, Optional, Self
+from typing import Any, Optional
 
 import yaml
 from edk2toollib.log.junit_report_format import JunitTestReport
@@ -51,7 +51,7 @@ class CiBuildSettingsManager(MultiPkgAwareSettingsInterface):
         ```
     """
 
-    def GetName(self: Self) -> str:
+    def GetName(self) -> str:
         """Get the name of the repo, platform, or product being build by CI.
 
         !!! tip
@@ -62,7 +62,7 @@ class CiBuildSettingsManager(MultiPkgAwareSettingsInterface):
         """
         raise NotImplementedError()
 
-    def GetPluginSettings(self: Self) -> dict[str, Any]:
+    def GetPluginSettings(self) -> dict[str, Any]:
         """Provide a dictionary of global settings for individual plugins.
 
         !!! tip
@@ -84,7 +84,7 @@ class CiBuildSettingsManager(MultiPkgAwareSettingsInterface):
 class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
     """Invocable supporting an iterative multi-package build and test process leveraging CI build plugins."""
 
-    def GetSettingsClass(self: Self) -> type:
+    def GetSettingsClass(self) -> type:
         """Returns the CiBuildSettingsManager class.
 
         !!! warning
@@ -92,11 +92,11 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
         """
         return CiBuildSettingsManager
 
-    def GetLoggingFileName(self: Self, loggerType: str) -> str:
+    def GetLoggingFileName(self, loggerType: str) -> str:
         """Returns the filename (CI_BUILDLOG) of where the logs for the Edk2CiBuild invocable are stored in."""
         return "CI_BUILDLOG"
 
-    def Go(self: Self) -> int:
+    def Go(self) -> int:
         """Executes the core functionality of the Edk2CiBuild invocable."""
         log_directory = os.path.join(self.GetWorkspaceRoot(), self.GetLoggingFolderRelativeToRoot())
 
