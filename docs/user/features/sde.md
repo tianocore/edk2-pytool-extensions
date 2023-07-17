@@ -165,14 +165,14 @@ itself, stuart can now perform the minimal steps to enable building any given pl
 
 NOTE:
 
-- `stuart_setup` should only be required once per build machine, per platform being built. It is not necessary to run
+- `stuart_init` should only be required once per build machine, per platform being built. It is not necessary to run
    it regularly. Only when setting up a new personal workstation or starting to work with a platform that you haven't
    used yet.
-- The `stuart_setup` feature does not actually build the platform.
-- The `stuart_setup` feature will NOT change branches in any submodule that already exists locally, or that has local
+- The `stuart_init` feature does not actually build the platform.
+- The `stuart_init` feature will NOT change branches in any submodule that already exists locally, or that has local
   changes. This is to prevent accidental loss of work. If you would like the script to try making changes even in
   these cases, use the "--FORCE" argument.
-- The `stuart_setup` feature does not yet install dev singing certs. Those steps must still be performed manually.
+- The `stuart_init` feature does not yet install dev singing certs. Those steps must still be performed manually.
 
 ### Updating
 
@@ -182,12 +182,6 @@ the branch you're working on), it is possible that the dependencies will have to
 you will see a message prompting you to do so when you run `stuart_build` to build your platform. To perform this
 update, simply run the `stuart_update`. Any dependencies that match their current versions will be skipped and only
 out-of-date dependencies will be refreshed.
-
-### Setting Up for CI Build
-
-Stuart CI Build works on a similar mechanism to `stuart_build` and expects to be have things setup and updated.
-Git Modules are monitored and handled via the repo_resolver framework, which has more logic to it, and doesn't
-handle submodules. `stuart_ci_setup` handles python defined git modules to clone into the code tree.
 
 ### Building
 

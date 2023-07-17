@@ -15,7 +15,7 @@ Suite Setup  One time setup  ${repo_url}  ${ws_dir}
 # Suite Setup
 
 *** Variables ***
-${repo_url}           https://github.com/microsoft/mu_basecore
+${repo_url}           https://github.com/javagedes/mu_basecore
 ${default_branch}     not_yet_set
 ${ws_dir}             mu_basecore
 ${ci_file}            .pytool/CISettings.py
@@ -53,7 +53,7 @@ Run ProjectMu MdePkg CoreCI Debug
     # make sure on default branch
     Reset git repo to default branch  ${ws_root}  ${default_branch}
 
-    Stuart setup           ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
+    Stuart init            ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
     Stuart update          ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
     Build BaseTools        ${tool_chain}  ${ws_root}
     Stuart CI build        ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
@@ -69,7 +69,7 @@ Run ProjectMu MdeModulePkg CoreCI Release
     # make sure on default branch
     Reset git repo to default branch  ${ws_root}  ${default_branch}
 
-    Stuart setup           ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
+    Stuart init            ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
     Stuart update          ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
     Build BaseTools        ${tool_chain}  ${ws_root}
     Stuart CI build        ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
@@ -85,7 +85,7 @@ Run ProjectMu UefiCpuPkg CoreCI for No-Target
     # make sure on default branch
     Reset git repo to default branch  ${ws_root}  ${default_branch}
 
-    Stuart setup           ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
+    Stuart init            ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
     Stuart update          ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
     Build BaseTools        ${tool_chain}  ${ws_root}
     Stuart CI build        ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
@@ -101,7 +101,7 @@ Run ProjectMu MdeModulePkg CoreCI for NOOPT and HostTest
     # make sure on default branch
     Reset git repo to default branch  ${ws_root}  ${default_branch}
 
-    Stuart setup           ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
+    Stuart init            ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
     Stuart update          ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}
     Build BaseTools        ${tool_chain}  ${ws_root}
     Stuart CI build        ${ci_file}  ${archs}  ${targets}  ${packages}  ${tool_chain}  ${ws_root}

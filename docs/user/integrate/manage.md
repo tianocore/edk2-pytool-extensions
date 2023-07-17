@@ -17,7 +17,7 @@ be tied to a platform either; they can be in the platform repository or in a
 separate repository. Some examples of `CiBuildPlugins` are uncrustify audits,
 guid audits, package builds, etc.
 
-`stuart_ci_setup` can be called to clone whatever code repositories would be
+`stuart_init` can be called to clone whatever code repositories would be
 required for this operation. `stuart_update` can be called to download all the
 tools the environment says it needs. From there, `stuart_ci_build` takes a list of
 packages to look at and runs all plugins on each package.
@@ -35,7 +35,7 @@ Take a look all all the relevant invocables below:
 
 - [Edk2InvocableSettingsInterface](/api/edk2_invocable/#edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface)
 - [MultiPkgAwareSettingsInterface](/api/invocables/edk2_multipkg_aware_invocable/#edk2toolext.invocables.edk2_multipkg_aware_invocable.MultiPkgAwareSettingsInterface)
-- [CiSetupSettingsManager](/api/invocables/edk2_ci_setup/#edk2toolext.invocables.edk2_ci_setup.CiSetupSettingsManager)
+- [InitializeSettingsManager](/api/invocables/edk2_initialize/#edk2toolext.invocables.edk2_initialize.InitializeSettingsManager)
 - [UpdateSettingsManager](/api/invocables/edk2_update/#edk2toolext.invocables.edk2_update.UpdateSettingsManager)
-- [CiBuildSettingsManager](/api/invocables/edk2_ci_setup/#edk2toolext.invocables.edk2_ci_setup.CiSetupSettingsManager)
+- [CiBuildSettingsManager](/api/invocables/edk2_ci_build/#edk2toolext.invocables.edk2_ci_build.CiBuildSettingsManager)
 - [PrEvalSettingsManager](/api/invocables/edk2_pr_eval/#edk2toolext.invocables.edk2_pr_eval.PrEvalSettingsManager)

@@ -155,15 +155,13 @@ class uefi_tree:
 from edk2toolext.environment.uefi_build import UefiBuilder
 import os
 from edk2toolext.invocables.edk2_platform_build import BuildSettingsManager
-from edk2toolext.invocables.edk2_setup import SetupSettingsManager
-from edk2toolext.invocables.edk2_ci_setup import Edk2CiBuildSetup
-from edk2toolext.invocables.edk2_ci_setup import CiSetupSettingsManager
+from edk2toolext.invocables.edk2_initialize import InitializeSettingsManager
 from edk2toolext.invocables.edk2_ci_build import CiBuildSettingsManager
 from edk2toolext.invocables.edk2_update import UpdateSettingsManager
 
 
-class TestSettingsManager(BuildSettingsManager, SetupSettingsManager, Edk2CiBuildSetup,
-                          CiSetupSettingsManager, CiBuildSettingsManager, UpdateSettingsManager):
+class TestSettingsManager(BuildSettingsManager, InitializeSettingsManager,
+                          UpdateSettingsManager, CiBuildSettingsManager):
 
     def GetActiveScopes(self):
         return []
@@ -174,7 +172,7 @@ class TestSettingsManager(BuildSettingsManager, SetupSettingsManager, Edk2CiBuil
     def GetPackagesPath(self):
         return []
 
-    def GetRequiredSubmodules(self):
+    def get_required_submodules(self):
         return []
 
     def GetDependencies(self):

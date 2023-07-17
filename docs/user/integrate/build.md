@@ -5,7 +5,7 @@ are one [settings file](/features/settings_manager) away from a great
 platform building experience.
 
 The build process has three [stuart commands](/#what-can-i-ask-stuart-to-do)
-to take your firmware code tree from freshly cloned to fully built: `stuart_setup`, `stuart_update`, `stuart_build`
+to take your firmware code tree from freshly cloned to fully built: `stuart_init`, `stuart_update`, `stuart_build`
 (hereby known has the "command(s)"). Behind the scenes, each command is an [Invocable](/features/invocable)
 that has a corresponding [Settings Manager](/features/settings_manager) that the platform subclasses to provide
 platform specific information.
@@ -27,7 +27,7 @@ provide functions used across all three commands and can be shared among the Set
 
 1. [Edk2InvocableSettingsInterface](/api/edk2_invocable/#edk2toolext.edk2_invocable.Edk2InvocableSettingsInterface)
 2. [MultiPkgAwareSettingsInterface](/api/invocables/edk2_multipkg_aware_invocable/#edk2toolext.invocables.edk2_multipkg_aware_invocable.MultiPkgAwareSettingsInterface)
-3. [SetupSettingsManager](/api/invocables/edk2_setup/#edk2toolext.invocables.edk2_setup.SetupSettingsManager)
+3. [InitializeSettingsManager](/api/invocables/edk2_initialize/#edk2toolext.invocables.edk2_initialize.InitializeSettingsManager)
 4. [UpdateSettingsManager](/api/invocables/edk2_update/#edk2toolext.invocables.edk2_update.UpdateSettingsManager)
 5. [BuildSettingsManager](/api/invocables/edk2_ci_build/#edk2toolext.invocables.edk2_ci_build.CiBuildSettingsManager)
 
@@ -39,13 +39,13 @@ spread across Edk2-Pytools (Extensions and Library).
 
 Lets take a look at each command!
 
-## Stuart Setup
+## Stuart Init
 
-`stuart_setup` is the first command and is responsible for setting up the code tree. Currently, this only involves
-preparing the git submodules necessary for build. If you've created an [Omnicache](/tools/using_omnicache_tool/), here
+`stuart_init` is the first command and is responsible for setting up the code tree. This involves preparing git
+submodules and repos necessary for build. If you've created an [Omnicache](/tools/using_omnicache_tool/), here
 is where you would use it to save on network bandwidth, disk space, and time when cloning repos. As you might expect,
-`stuart_setup` does not automatically know what submodules are necessary for each platform; we must use the
-[SetupSettingsManager](/api/invocables/edk2_setup/#edk2toolext.invocables.edk2_setup.SetupSettingsManager)
+`stuart_init` does not automatically know what submodules are necessary for each platform; we must use the
+[InitializeSettingsManager](/api/invocables/edk2_initialize/#edk2toolext.invocables.edk2_initialize.InitializeSettingsManager)
 to provide that information.
 
 !!! Note
@@ -57,7 +57,7 @@ to provide that information.
     that multiple (or all) commands use, which is why they are in the parent class. Don't worry though! If you miss
     overriding a required method, you'll raise a `NotImplementedError`!
 
-**Review the `stuart_setup` specific settings manager [here](/api/invocables/edk2_setup/#edk2toolext.invocables.edk2_setup.SetupSettingsManager).**
+**Review the `stuart_init` specific settings manager [here](/api/invocables/edk2_initialize/#edk2toolext.invocables.edk2_initialize.InitializeSettingsManager).**
 
 ## Stuart Update
 

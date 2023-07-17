@@ -1,32 +1,27 @@
-# @file test_edk2_setup.py
-# This contains unit tests for the edk2_ci_setup
-##
-# Copyright (c) Microsoft Corporation
-#
-# SPDX-License-Identifier: BSD-2-Clause-Patent
-##
-import pytest
-import git
+
+import logging
 import pathlib
 import sys
-import logging
 
-from edk2toolext.invocables import edk2_setup
+import git
+import pytest
 from edk2toolext.environment import shell_environment
+from edk2toolext.invocables import edk2_initialize
 
 MIN_BUILD_FILE = r"""
-from edk2toolext.invocables.edk2_setup import SetupSettingsManager, RequiredSubmodule
+from edk2toolext.invocables.edk2_initialize import InitializeSettingsManager, Submodule, Repository
 import pathlib
 
-class Settings(SetupSettingsManager):
+class Settings(InitializeSettingsManager):
     # MIN BUILD FILE
     def GetWorkspaceRoot(self) -> str:
         return str(pathlib.Path(__file__).parent)
 
-    def GetRequiredSubmodules(self) -> list[RequiredSubmodule]:
-        return [
-            RequiredSubmodule('Common/MU', True)
-        ]
+    def get_required_submodules(self) -> list[Submodule]:
+        return [Submodule('Common/MU', True)]
+
+    def get_required_repositories(self) -> list[Repository]:
+        return [Repository("spoon", "https://github.com/octocat/Spoon-Knife", branch="main")]
 
     def GetPackagesSupported(self) -> list[str]:
         return []
@@ -39,17 +34,17 @@ class Settings(SetupSettingsManager):
 """
 
 MIN_BUILD_FILE_BACKSLASH = r"""
-from edk2toolext.invocables.edk2_setup import SetupSettingsManager, RequiredSubmodule
+from edk2toolext.invocables.edk2_initialize import InitializeSettingsManager, Submodule, Repository
 import pathlib
 
-class Settings(SetupSettingsManager):
+class Settings(InitializeSettingsManager):
     # MIN BUILD FILE with backslashes
     def GetWorkspaceRoot(self) -> str:
         return str(pathlib.Path(__file__).parent)
 
-    def GetRequiredSubmodules(self) -> list[RequiredSubmodule]:
+    def get_required_submodules(self) -> list[Submodule]:
         return [
-            RequiredSubmodule('Common\\MU', True)
+            Submodule('Common\\MU', True)
         ]
 
     def GetPackagesSupported(self) -> list[str]:
@@ -62,17 +57,19 @@ class Settings(SetupSettingsManager):
         return []
 """
 
-
 EMPTY_BUILD_FILE = r"""
-from edk2toolext.invocables.edk2_setup import SetupSettingsManager, RequiredSubmodule
+from edk2toolext.invocables.edk2_initialize import InitializeSettingsManager, Submodule, Repository
 import pathlib
 
-class Settings(SetupSettingsManager):
+class Settings(InitializeSettingsManager):
     # EMPTY BUILD FILE
     def GetWorkspaceRoot(self) -> str:
         return str(pathlib.Path(__file__).parent)
 
-    def GetRequiredSubmodules(self) -> list[RequiredSubmodule]:
+    def get_required_submodules(self) -> list[Submodule]:
+        return []
+
+    def get_required_repositories(self) -> list[Repository]:
         return []
 
     def GetPackagesSupported(self) -> list[str]:
@@ -85,17 +82,19 @@ class Settings(SetupSettingsManager):
         return []
 """
 
-
 INVALID_REPO_BUILD_FILE = r"""
-from edk2toolext.invocables.edk2_setup import SetupSettingsManager, RequiredSubmodule
+from edk2toolext.invocables.edk2_initialize import InitializeSettingsManager, Submodule, Repository
 import pathlib
 
-class Settings(SetupSettingsManager):
+class Settings(InitializeSettingsManager):
     # INVALID REPO BUILD FILE
     def GetWorkspaceRoot(self) -> str:
         return str(pathlib.Path(__file__).parent.parent)
 
-    def GetRequiredSubmodules(self) -> list[RequiredSubmodule]:
+    def get_required_submodules(self) -> list[Submodule]:
+        return []
+
+    def get_required_repositories(self) -> list[Repository]:
         return []
 
     def GetPackagesSupported(self) -> list[str]:
@@ -108,20 +107,22 @@ class Settings(SetupSettingsManager):
         return []
 """
 
-
 INVALID_SUBMODULE_BUILD_FILE = r"""
-from edk2toolext.invocables.edk2_setup import SetupSettingsManager, RequiredSubmodule
+from edk2toolext.invocables.edk2_initialize import InitializeSettingsManager, Submodule, Repository
 import pathlib
 
-class Settings(SetupSettingsManager):
+class Settings(InitializeSettingsManager):
     # INVALID SUBMODULE BUILD FILE
     def GetWorkspaceRoot(self) -> str:
         return str(pathlib.Path(__file__).parent)
 
-    def GetRequiredSubmodules(self) -> list[RequiredSubmodule]:
+    def get_required_submodules(self) -> list[Submodule]:
         return [
-            RequiredSubmodule('Common\\BAD_REPO', True)
+            Submodule('Common\BAD_REPO', True)
         ]
+
+    def get_required_repositories(self) -> list[Repository]:
+        return [Repository("spoon", "https://github.com/octocat/BAD", branch="main")]
 
     def GetPackagesSupported(self) -> list[str]:
         return []
@@ -132,7 +133,6 @@ class Settings(SetupSettingsManager):
     def GetTargetsSupported(self) -> list[str]:
         return []
 """
-
 
 @pytest.fixture(scope="function")
 def tree(tmpdir):
@@ -151,19 +151,36 @@ def write_build_file(tree, file):
 
 
 def test_setup_simple_repo(tree: pathlib.Path):
-    """Tests that edk2_setup can successfuly clone a submodule."""
+    """Tests that edk2_init can successfuly clone a submodule."""
+    ############################################################
+    # Skip Submodules and repo and verify None are initialized #
+    ############################################################
+    min_build_file = write_build_file(tree, MIN_BUILD_FILE)
+    sys.argv = ["stuart_init", "-c", str(min_build_file), "--repo-only", "--submodule-only"]
+    mu_submodule = tree / "Common" / "MU"
+    spoon_repo = tree / "spoon"
+
+    assert not spoon_repo.exists()
+    assert len(list(mu_submodule.iterdir())) == 0  # The MU submodule should not exist
+    try:
+        edk2_initialize.main()
+    except SystemExit as e:
+        assert e.code == 0
+    assert len(list(mu_submodule.iterdir())) == 0  # The MU submodule should not exist
+    assert not spoon_repo.exists()
+
     #############################################
     # Perform Initial Setup and verify it works #
     #############################################
-    min_build_file = write_build_file(tree, MIN_BUILD_FILE)
-    sys.argv = ["stuart_setup", "-c", str(min_build_file), "-v"]
-    mu_submodule = tree / "Common" / "MU"
+    sys.argv = ["stuart_init", "-c", str(min_build_file), "-v"]
 
+    assert not spoon_repo.exists()
     assert len(list(mu_submodule.iterdir())) == 0  # The MU submodule should not exist
     try:
-        edk2_setup.main()
+        edk2_initialize.main()
     except SystemExit as e:
         assert e.code == 0
+    assert spoon_repo.exists()
     assert len(list(mu_submodule.iterdir())) > 0  # The MU submodule should exist
 
     #######################################################################
@@ -172,9 +189,9 @@ def test_setup_simple_repo(tree: pathlib.Path):
     with git.Repo(tree) as repo:
         assert repo.is_dirty(untracked_files=True) is True
 
-    sys.argv = ["stuart_setup", "-c", str(min_build_file), "-v", "--FORCE"]
+    sys.argv = ["stuart_init", "-c", str(min_build_file), "-v", "--FORCE"]
     try:
-        edk2_setup.main()
+        edk2_initialize.main()
     except SystemExit as e:
         assert e.code == 0
 
@@ -191,9 +208,9 @@ def test_setup_simple_repo(tree: pathlib.Path):
     with git.Repo(mu_submodule) as repo:
         assert repo.is_dirty(untracked_files=True) is True
 
-    sys.argv = ["stuart_setup", "-c", str(min_build_file), "-v"]
+    sys.argv = ["stuart_init", "-c", str(min_build_file), "-v"]
     try:
-        edk2_setup.main()
+        edk2_initialize.main()
     except SystemExit as e:
         assert e.code == 0
 
@@ -206,9 +223,9 @@ def test_setup_simple_repo(tree: pathlib.Path):
     with git.Repo(mu_submodule) as repo:
         assert repo.is_dirty(untracked_files=True) is True
 
-    sys.argv = ["stuart_setup", "-c", str(min_build_file), "-v", "--FORCE"]
+    sys.argv = ["stuart_init", "-c", str(min_build_file), "-v", "--FORCE"]
     try:
-        edk2_setup.main()
+        edk2_initialize.main()
     except SystemExit as e:
         assert e.code == 0
 
@@ -217,46 +234,46 @@ def test_setup_simple_repo(tree: pathlib.Path):
 
 
 def test_setup_bad_omnicache(caplog, tree: pathlib.Path):
-    """Tests that edk2_setup catches a bad omnicache path."""
+    """Tests that edk2_init catches a bad omnicache path."""
     caplog.at_level(logging.WARNING)  # Capture only warnings
     empty_build_file = write_build_file(tree, EMPTY_BUILD_FILE)
-    sys.argv = ["stuart_setup", "-c", str(empty_build_file), "-v", "--omnicache", "does_not_exist"]
+    sys.argv = ["stuart_init", "-c", str(empty_build_file), "-v", "--omnicache", "does_not_exist"]
 
     try:
-        edk2_setup.main()
+        edk2_initialize.main()
     except SystemExit as e:
         assert e.code == 0
 
     # Verify we output a warning about the omnicache path being invalid
     for record in caplog.records:
-        if "Omnicache path set to invalid path" in record.msg:
+        if "Omnicache path does not exist" in record.msg:
             break
     else:
         pytest.fail("Did not find a warning about the omnicache path being invalid.")
 
 
 def test_setup_invalid_repo(tree: pathlib.Path):
-    """Tests that edk2_setup catches a bad omnicache path."""
+    """Tests that edk2_init catches a bad omnicache path."""
     invalid_build_file = write_build_file(tree, INVALID_REPO_BUILD_FILE)
-    sys.argv = ["stuart_setup", "-c", str(invalid_build_file), "-v", "--FORCE"]
+    sys.argv = ["stuart_init", "-c", str(invalid_build_file), "-v", "--FORCE"]
     try:
-        edk2_setup.main()
+        edk2_initialize.main()
     except SystemExit as e:
         assert e.code == -1
 
 
 def test_setup_invalid_submodule(tree: pathlib.Path):
-    """Tests that edk2_setup catches a bad submodule path."""
+    """Tests that edk2_init catches a bad submodule path."""
     invalid_build_file = write_build_file(tree, INVALID_SUBMODULE_BUILD_FILE)
-    sys.argv = ["stuart_setup", "-c", str(invalid_build_file), "-v"]
+    sys.argv = ["stuart_init", "-c", str(invalid_build_file), "-v"]
     try:
-        edk2_setup.main()
+        edk2_initialize.main()
     except SystemExit as e:
         assert e.code == -1
 
-    sys.argv = ["stuart_setup", "-c", str(invalid_build_file), "-v", "--FORCE"]
+    sys.argv = ["stuart_init", "-c", str(invalid_build_file), "-v", "--FORCE"]
     try:
-        edk2_setup.main()
+        edk2_initialize.main()
     except SystemExit as e:
         assert e.code == -1
 
@@ -266,7 +283,7 @@ def test_parse_command_line_options(tree: pathlib.Path):
     # Test valid command line options
     empty_build_file = write_build_file(tree, EMPTY_BUILD_FILE)
     sys.argv = [
-        "stuart_setup", "-c", str(empty_build_file),
+        "stuart_init", "-c", str(empty_build_file),
         "BLD_*_VAR",
         "VAR",
         "BLD_DEBUG_VAR2",
@@ -275,7 +292,7 @@ def test_parse_command_line_options(tree: pathlib.Path):
         "BLD_*_TEST_VAR2=TEST"
     ]
     try:
-        edk2_setup.main()
+        edk2_initialize.main()
     except SystemExit as e:
         assert e.code == 0
 
@@ -290,12 +307,12 @@ def test_parse_command_line_options(tree: pathlib.Path):
     # Test invalid command line options
     for arg in ["BLD_*_VAR=5=10", "BLD_DEBUG_VAR2=5=5", "BLD_RELEASE_VAR3=5=5", "VAR=10=10"]:
         sys.argv = [
-            "stuart_setup",
+            "stuart_init",
             "-c", str(empty_build_file),
             arg
         ]
         try:
-            edk2_setup.main()
+            edk2_initialize.main()
         except RuntimeError as e:
             assert str(e).startswith(f"Unknown variable passed in via CLI: {arg}")
 
@@ -313,10 +330,10 @@ def test_conf_file(tree: pathlib.Path):
             "\nTEST_VAR=TEST",
             "\nBLD_*_TEST_VAR2=TEST"
         ])
-    sys.argv = ["stuart_setup", "-c", str(empty_build_file)]
+    sys.argv = ["stuart_init", "-c", str(empty_build_file)]
 
     try:
-        edk2_setup.main()
+        edk2_initialize.main()
     except SystemExit as e:
         assert e.code == 0
 
@@ -335,12 +352,12 @@ def test_conf_file(tree: pathlib.Path):
             f.writelines([arg])
 
         sys.argv = [
-            "stuart_setup",
+            "stuart_init",
             "-c", str(empty_build_file),
             arg
         ]
         try:
-            edk2_setup.main()
+            edk2_initialize.main()
         except RuntimeError as e:
             assert str(e).startswith(f"Unknown variable passed in via CLI: {arg}")
 
@@ -352,11 +369,11 @@ def test_backslash_linux(tree: pathlib.Path, caplog):
 
     build_file = write_build_file(tree, MIN_BUILD_FILE_BACKSLASH)
     sys.argv = [
-        "stuart_setup", "-c", str(build_file), "--FORCE",
+        "stuart_init", "-c", str(build_file), "--FORCE",
     ]
 
     try:
-        edk2_setup.main()
+        edk2_initialize.main()
     except SystemExit as e:
         assert e.code == -1
 
@@ -371,13 +388,13 @@ def test_backslash_linux(tree: pathlib.Path, caplog):
 def test_backslash_windows(tree: pathlib.Path):
     build_file = write_build_file(tree, MIN_BUILD_FILE_BACKSLASH)
     sys.argv = [
-        "stuart_setup", "-c", str(build_file), "--FORCE",
+        "stuart_init", "-c", str(build_file), "--FORCE",
     ]
     mu_submodule = tree / "Common" / "MU"
 
     assert len(list(mu_submodule.iterdir())) == 0  # The MU submodule should not exist
     try:
-        edk2_setup.main()
+        edk2_initialize.main()
     except SystemExit as e:
         assert e.code == 0
     assert len(list(mu_submodule.iterdir())) > 0  # The MU submodule should not exist

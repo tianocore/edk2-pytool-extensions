@@ -6,7 +6,7 @@ edk2-pytool-extensions, then these commands will be available to execute as
 seen below:
 
 ```cmd
-stuart_setup -c path/to/SettingsFile.py
+stuart_init -c path/to/SettingsFile.py
 stuart_update -c path/to/SettingsFile.py
 stuart_build -c path/to/SettingsFile.py
 ```
@@ -22,7 +22,7 @@ flags. Due to this **Your platform's build instructions is the single
 source of truth.**
 
 !!! tip
-    Once you've run `stuart_setup` and `stuart_update`, building your platform
+    Once you've run `stuart_init` and `stuart_update`, building your platform
     again is as simple as executing `stuart_build -c path/to/SettingsFile.py`.
 
 As you can see, Each of these commands has a single required flag `-c` that
@@ -39,13 +39,13 @@ of this file.**
 
 Curious about what each command does? Check out the below sections.
 
-## stuart_setup
+## stuart_init
 
-Stuart_setup is responsible for downloading all git submodule dependencies as
-specified by your platform.
+Stuart_init is responsible for downloading all git submodule dependencies and
+repository dependencies as specified by your configuration file.
 
 ```cmd
-stuart_setup -c path/to/SettingsFile.py
+stuart_init -c path/to/SettingsFile.py
 ```
 
 ## stuart_update

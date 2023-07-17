@@ -51,7 +51,7 @@ Run Edk2 Ovmf PlatformCI
     # make sure on default branch
     Reset git repo to default branch  ${ws_root}  ${default_branch}
 
-    Stuart setup           ${ci_file}  ${arch}  ${target}  ${package}  ${tool_chain}  ${ws_root}
+    Stuart init            ${ci_file}  ${arch}  ${target}  ${package}  ${tool_chain}  ${ws_root}
     Stuart update          ${ci_file}  ${arch}  ${target}  ${package}  ${tool_chain}  ${ws_root}
     Build BaseTools        ${tool_chain}  ${ws_root}
     Stuart platform build  ${ci_file}  ${arch}  ${target}  ${tool_chain}  ${ws_root}
@@ -68,7 +68,7 @@ Run Edk2 EmulatorPkg PlatformCI
     # make sure on default branch
     Reset git repo to default branch  ${ws_root}  ${default_branch}
 
-    Stuart setup           ${ci_file}  ${arch}  ${target}  ${package}  ${tool_chain}  ${ws_root}
+    Stuart init            ${ci_file}  ${arch}  ${target}  ${package}  ${tool_chain}  ${ws_root}
     Stuart update          ${ci_file}  ${arch}  ${target}  ${package}  ${tool_chain}  ${ws_root}
     Build BaseTools        ${tool_chain}  ${ws_root}
     Stuart platform build  ${ci_file}  ${arch}  ${target}  ${tool_chain}  ${ws_root}

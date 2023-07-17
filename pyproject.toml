@@ -68,10 +68,9 @@ openssl = [
 ]
 
 [project.scripts]
-stuart_setup = "edk2toolext.invocables.edk2_setup:main"
+stuart_init = "edk2toolext.invocables.edk2_initialize:main"
 stuart_update = "edk2toolext.invocables.edk2_update:main"
 stuart_build = "edk2toolext.invocables.edk2_platform_build:main"
-stuart_ci_setup = "edk2toolext.invocables.edk2_ci_setup:main"
 stuart_pr_eval = "edk2toolext.invocables.edk2_pr_eval:main"
 stuart_ci_build = "edk2toolext.invocables.edk2_ci_build:main"
 omnicache = "edk2toolext.omnicache:main"

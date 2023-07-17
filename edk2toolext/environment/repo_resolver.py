@@ -11,8 +11,8 @@ edk2-pytool-extensions has consolidated all git functionality within the repo_re
 on the GitPython PyPi module.  This module provides functionality to clone, checkout, and clean repos and
 submodules along with providing common information about the repo or submodule.
 
-The intent is to keep all git functionality consolidated in this module. Currently edk2_ci_setup.py,
-edk2_setup.py, and git_dependency.py use this module to perform git operations.
+The intent is to keep all git functionality consolidated in this module. Currently
+edk2_initialize.py, and git_dependency.py use this module to perform git operations.
 """
 import logging
 import os

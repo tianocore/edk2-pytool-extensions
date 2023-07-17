@@ -11,7 +11,7 @@ edk2-pytool-extensions, then these commands will be available to execute as
 seen below:
 
 ```cmd
-stuart_ci_setup -c path/to/CISettingsFile.py
+stuart_init -c path/to/CISettingsFile.py
 stuart_update -c path/to/CISettingsFile.py
 stuart_ci_build -c path/to/CISettingsFile.py
 ```
@@ -33,13 +33,13 @@ of this file.**
 
 Curious about what each command does? Check out the below sections.
 
-## stuart_ci_setup
+## stuart_init
 
-Stuart_ci_setup is responsible for downloading all git submodule dependencies
-required to perform all CI tasks.
+Stuart_init is responsible for downloading all git submodule and repository
+dependencies required to perform all CI tasks.
 
 ```cmd
-stuart_ci_setup -c path/to/CISettingsFile.py
+stuart_init -c path/to/CISettingsFile.py
 ```
 
 ## stuart_update

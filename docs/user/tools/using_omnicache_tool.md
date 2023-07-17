@@ -130,14 +130,13 @@ If you want to use a scheduled task here is one way to do it on Windows.
   SCHTASKS /Create /XML "O_U.xml" /TN "Omnicache Updater"
   ```
 
-## Using Omnicache for stuart_setup
+## Using Omnicache for stuart_init
 
 Set the environment variable **OMNICACHE_PATH** for automatic usage. To provide
 a path manually:
 
 ```cmd
-stuart_setup --omnicache <path>
-stuart_ci_setup --omnicache <path>
+stuart_init --omnicache <path>
 ```
 
 ## Using Omnicache for git clone

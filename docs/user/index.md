@@ -99,10 +99,10 @@ etc (and vise versa).
 I'm glad you asked! Stuart has a variety of invocable tasks that he hopes will
 be helpful for a wide variety workflows.
 
-### stuart_setup
+### stuart_init
 
-Sets up the git repo based on the gitsubmodule file in your repo. It checks to make
-sure the required repos as provided by settings manager are present.
+Initializes the repo based on the configuration file. Can initialize submodules or
+other repositories using `get_required_submodules()` or `get_required_repositories()`.
 
 ### stuart_update
 
@@ -113,11 +113,6 @@ active scopes currently defined. These scopes come from the settings manager.
 
 Builds a platform. Requires an instance of `UefiBuilder` to be provided in
 addition to the settings manager.
-
-### stuart_ci_setup
-
-Intended for CI environment setup. Given a list of required repos from the
-settings manager, clone each of them in the workspace.
 
 ### stuart_ci_build
 
