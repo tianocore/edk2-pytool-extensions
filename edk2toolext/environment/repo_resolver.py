@@ -31,7 +31,7 @@ MIN_GIT_VERSION = "2.11.0"
 
 
 def resolve(
-    file_system_path: os.Pathlink,
+    file_system_path: os.PathLike,
     dependency: dict,
     force: bool=False,
     ignore: bool=False,

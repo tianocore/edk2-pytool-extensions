@@ -16,7 +16,7 @@ import os
 import time
 from multiprocessing import dummy
 from pathlib import Path
-from typing import Optional, Self
+from typing import Optional
 
 from edk2toolext.environment import environment_descriptor_files as EDF
 from edk2toolext.environment import external_dependency, repo_resolver, shell_environment
@@ -101,7 +101,7 @@ class self_describing_environment(object):
 
         return matches
 
-    def load_workspace(self) ->Self:
+    def load_workspace(self) ->'self_describing_environment':
         """Loads the workspace."""
         logging.debug("--- self_describing_environment.load_workspace()")
         logging.debug("Loading workspace: %s" % self.workspace)

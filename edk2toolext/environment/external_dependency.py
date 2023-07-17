@@ -18,7 +18,7 @@ import hashlib
 import logging
 import os
 import shutil
-from typing import Optional, Self
+from typing import Optional
 
 import yaml
 from edk2toollib.utility_functions import GetHostInfo, RemoveTree
@@ -71,7 +71,7 @@ class ExternalDependency(object):
             self.contents_dir, "extdep_state.yaml")
         self.published_path = self.compute_published_path()
 
-    def set_global_cache_path(self, global_cache_path: str) -> Self:
+    def set_global_cache_path(self, global_cache_path: str) -> 'ExternalDependency':
         """Sets the global cache path to locate already downloaded dependencies.
 
         Arguments:
