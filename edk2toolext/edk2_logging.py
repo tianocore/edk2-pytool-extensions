@@ -19,7 +19,7 @@ import logging
 import os
 import re
 import shutil
-from typing import Optional, TextIO
+from typing import Optional, TextIO, Union
 
 try:
     from edk2toollib.log import ansi_handler
@@ -180,7 +180,7 @@ def setup_console_logging(
     return safeHandler
 
 
-def stop_logging(loghandle: list[logging.Handler] | logging.Handler, logging_namespace: Optional[str]='') -> None:
+def stop_logging(loghandle: Union[list[logging.Handler], logging.Handler], logging_namespace: Optional[str]='') -> None:
     """Stops logging on a log handle."""
     logger = logging.getLogger(logging_namespace)
     if loghandle is None:
