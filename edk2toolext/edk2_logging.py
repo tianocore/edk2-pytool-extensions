@@ -275,8 +275,6 @@ class Edk2LogFilter(logging.Filter):
         self.apply_filter = False
 
         # Turn on filtering for azure pipelines / github actions
-        logging.error(os.environ.get("CI", "FALSE").upper())
-        logging.error(os.environ.get("TF_BUILD", "FALSE").upper())
         if os.environ.get("CI", "FALSE").upper() == "TRUE" or os.environ.get("TF_BUILD", "FALSE").upper() == "TRUE":
             self.apply_filter = True
 
