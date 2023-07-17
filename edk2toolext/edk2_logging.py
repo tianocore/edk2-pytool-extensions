@@ -302,7 +302,6 @@ class Edk2LogFilter(logging.Filter):
         # check to make sure we haven't already filtered this record
         if record.name not in Edk2LogFilter._allowedLoggers and record.levelno < logging.WARNING and not self._verbose:
             return False
-        logging.warning(self.apply_filter)
         if self.apply_filter:
             record.msg = self.secrets_regex.sub("*******", str(record.msg))
         return True
