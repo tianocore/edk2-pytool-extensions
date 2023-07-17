@@ -195,7 +195,7 @@ class Test_edk2_logging(unittest.TestCase):
 def test_NO_secret_filter(caplog):
     end_list = [" ", ",", ";", ":", " "]
     start_list = [" ", " ", " ", " ", ":"]
-    caplog.clear()
+
     del os.environ["CI"]
     edk2_logging.setup_console_logging(logging.DEBUG)
     # Test secret github (valid) 1
