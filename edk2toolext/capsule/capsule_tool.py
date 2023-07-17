@@ -14,7 +14,7 @@ import copy
 import logging
 import os
 import sys
-from typing import IO, Optional
+from typing import IO, Any, Optional
 
 import yaml
 
@@ -32,7 +32,7 @@ An example call might look like:
 """ % (os.path.basename(sys.argv[0]),)
 
 
-def get_cli_options() -> argparse.Namespace:
+def get_cli_options(*args: Any) -> argparse.Namespace:
     """Parse the primary options from the command line."""
     parser = argparse.ArgumentParser(description=TOOL_DESCRIPTION, formatter_class=argparse.RawDescriptionHelpFormatter)
 
