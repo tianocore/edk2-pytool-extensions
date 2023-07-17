@@ -7,13 +7,11 @@
 ##
 """Plugin that supports Pre and Post Build Steps."""
 
-from edk2toolext.environment.uefi_build import UefiBuilder
-
 
 class IUefiBuildPlugin(object):
     """Plugin that supports Pre and Post Build Steps."""
 
-    def do_post_build(self, thebuilder: UefiBuilder) -> int:
+    def do_post_build(self, thebuilder: 'UefiBuilder') -> int:  # noqa: F821
         """Runs Post Build Plugin Operations.
 
         Args:
@@ -24,7 +22,7 @@ class IUefiBuildPlugin(object):
         """
         return 0
 
-    def do_pre_build(self, thebuilder: UefiBuilder) -> int:
+    def do_pre_build(self, thebuilder: 'UefiBuilder') -> int:  # noqa: F821
         """Runs Pre Build Plugin Operations.
 
         Args:
