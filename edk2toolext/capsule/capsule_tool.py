@@ -32,7 +32,7 @@ An example call might look like:
 """ % (os.path.basename(sys.argv[0]),)
 
 
-def get_cli_options(*args: Any) -> argparse.Namespace:
+def get_cli_options(args: Any=None) -> argparse.Namespace: # noqa: ANN401
     """Parse the primary options from the command line."""
     parser = argparse.ArgumentParser(description=TOOL_DESCRIPTION, formatter_class=argparse.RawDescriptionHelpFormatter)
 
@@ -60,7 +60,7 @@ def get_cli_options(*args: Any) -> argparse.Namespace:
     parser.add_argument('output_dir',
                         help='a filesystem path to the directory to save output files. if directory does not exist, entire directory path will be created. if directory does exist, contents will be updated based on the capsule_options') # noqa
 
-    return parser.parse_args()
+    return parser.parse_args(args=args)
 
 
 def load_options_file(in_file: IO) -> Optional[dict]:
