@@ -324,6 +324,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
                     continue
 
                 dsc_parser = DscParser()
+                dsc_parser.SetNoFailMode()
                 dsc_parser.SetEdk2Path(self.edk2_path_obj).SetInputVars(defines)
                 dsc_parser.ParseFile(dsc)
 
