@@ -42,7 +42,7 @@ dev = [
     "ruff == 0.0.280",
     "pytest == 7.4.0",
     "coverage == 7.2.7",
-    "robotframework == 6.1",
+    "robotframework == 6.1.1",
     "regex == 2023.6.3",
     "pre-commit == 3.3.3",
 ]
