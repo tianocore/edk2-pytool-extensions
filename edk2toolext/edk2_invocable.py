@@ -21,6 +21,7 @@ import inspect
 import logging
 import os
 import sys
+import warnings
 from random import choice
 from string import ascii_letters
 from textwrap import dedent
@@ -390,6 +391,9 @@ class Edk2Invocable(BaseAbstractInvocable):
             settingsParserObj.print_help()
             print(e)
             sys.exit(2)
+
+        # Turn on Deprecation warnings for code in the module
+        warnings.filterwarnings("default", category=DeprecationWarning, module=self.PlatformModule.__name__)
 
         # instantiate the second argparser that will get passed around
         parserObj = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,)
