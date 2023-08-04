@@ -10,7 +10,7 @@ description = "Python tools supporting UEFI EDK2 firmware development"
 readme = {file = "readme.md", content-type = "text/markdown"}
 license = {file = "LICENSE"}
 dependencies = [
-    "edk2-pytool-library>=0.14.0",
+    "edk2-pytool-library>=0.16.1",
     "pyyaml>=6.0.0",
     "pefile>=2023.2.7",
     "semantic_version>=2.10.0",
