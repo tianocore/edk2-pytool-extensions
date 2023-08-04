@@ -53,7 +53,8 @@ class UefiBuilder(object):
         Clean (bool): Clean the build directory or not
         Update Conf (bool): Update the conf or not
         env (VarDict): Special dictionary containing build and env vars
-        mws (MultipleWorkspace): multiple workspace manager
+        mws (MultipleWorkspace): DEPRECATED. Use self.edk2path
+        edk2path (Edk2Path): path utilities for manipulating edk2 paths, packages, and modules
         ws (str): Workspace root dir
         pp (str): packagespath separated by os.pathsep
         Helper (HelperFunctions): object containing registered helper functions
@@ -133,6 +134,7 @@ class UefiBuilder(object):
         self.env = shell_environment.GetBuildVars()
         self.mws = MultipleWorkspace()
         self.mws.setWs(WorkSpace, PackagesPath)
+        self.edk2path = Edk2Path(WorkSpace, PackagesPath.split(os.pathsep))
         self.ws = WorkSpace
         self.pp = PackagesPath  # string using os.pathsep
         self.Helper = PInHelper
@@ -434,7 +436,7 @@ class UefiBuilder(object):
         TemplateDirList = [self.env.GetValue("EDK_TOOLS_PATH")]  # set to edk2 BaseTools
         PlatTemplatesForConf = self.env.GetValue("CONF_TEMPLATE_DIR")  # get platform defined additional path
         if (PlatTemplatesForConf is not None):
-            PlatTemplatesForConf = self.mws.join(self.ws, PlatTemplatesForConf)
+            PlatTemplatesForConf = self.edk2path.GetAbsolutePathOnThisSystemFromEdk2RelativePath(PlatTemplatesForConf)
             TemplateDirList.insert(0, PlatTemplatesForConf)
             logging.debug(f"Platform defined override for Template Conf Files: {PlatTemplatesForConf}")
 
@@ -610,11 +612,13 @@ class UefiBuilder(object):
 
         "Sets them so they can be overriden.
         """
-        if (os.path.isfile(self.mws.join(self.ws, "Conf", "target.txt"))):
+        conf_file_path = self.edk2path.GetAbsolutePathOnThisSystemFromEdk2RelativePath(
+            "Conf", "target.txt")
+        if os.path.isfile(conf_file_path):
             # parse TargetTxt File
             logging.debug("Parse Target.txt file")
             ttp = TargetTxtParser()
-            ttp.ParseFile(self.mws.join(self.ws, "Conf", "target.txt"))
+            ttp.ParseFile(conf_file_path)
             for key, value in ttp.Dict.items():
                 # set env as overrideable
                 self.env.SetValue(key, value, "From Target.txt", True)
@@ -637,11 +641,13 @@ class UefiBuilder(object):
 
         "Sets them so they can be overriden.
         """
-        if (os.path.isfile(self.mws.join(self.ws, "Conf", "tools_def.txt"))):
+        toolsdef_file_path = self.edk2path.GetAbsolutePathOnThisSystemFromEdk2RelativePath(
+            "Conf", "tools_def.txt")
+        if os.path.isfile(toolsdef_file_path):
             # parse ToolsdefTxt File
             logging.debug("Parse tools_def.txt file")
             tdp = TargetTxtParser()
-            tdp.ParseFile(self.mws.join(self.ws, "Conf", "tools_def.txt"))
+            tdp.ParseFile(toolsdef_file_path)
 
             # Get the tool chain tag and then find the family
             # need to parse tools_def and find *_<TAG>_*_*_FAMILY
@@ -671,18 +677,17 @@ class UefiBuilder(object):
         if self.env.GetValue("ACTIVE_PLATFORM") is None:
             logging.error("The DSC file was not set. Please set ACTIVE_PLATFORM")
             return -1
-        dsc_file_path = self.mws.join(
-            self.ws, self.env.GetValue("ACTIVE_PLATFORM"))
-        if (os.path.isfile(dsc_file_path)):
+        dsc_file_path = self.edk2path.GetAbsolutePathOnThisSystemFromEdk2RelativePath(
+            self.env.GetValue("ACTIVE_PLATFORM"))
+        if os.path.isfile(dsc_file_path):
             # parse DSC File
-            logging.debug(
-                "Parse Active Platform DSC file: {0}".format(dsc_file_path))
+            logging.debug("Parse Active Platform DSC file: {0}".format(dsc_file_path))
 
             # Get the vars from the environment that are not build keys
             input_vars = self.env.GetAllNonBuildKeyValues()
             # Update with special environment set build keys
             input_vars.update(self.env.GetAllBuildKeyValues())
-            dscp = DscParser().SetEdk2Path(Edk2Path(self.ws, self.pp.split(os.pathsep))).SetInputVars(input_vars)
+            dscp = DscParser().SetEdk2Path(self.edk2path).SetInputVars(input_vars)
             dscp.ParseFile(dsc_file_path)
             for key, value in dscp.LocalVars.items():
                 # set env as overrideable
@@ -703,7 +708,9 @@ class UefiBuilder(object):
         if (self.env.GetValue("FLASH_DEFINITION") is None):
             logging.debug("No flash definition set")
             return 0
-        if (os.path.isfile(self.mws.join(self.ws, self.env.GetValue("FLASH_DEFINITION")))):
+        fdf_file_path = self.edk2path.GetAbsolutePathOnThisSystemFromEdk2RelativePath(
+            self.env.GetValue("FLASH_DEFINITION"))
+        if os.path.isfile(fdf_file_path):
             # parse the FDF file- fdf files have similar syntax to DSC and therefore parser works for both.
             logging.debug("Parse Active Flash Definition (FDF) file")
 
@@ -711,9 +718,8 @@ class UefiBuilder(object):
             input_vars = self.env.GetAllNonBuildKeyValues()
             # Update with special environment set build keys
             input_vars.update(self.env.GetAllBuildKeyValues())
-            fdf_parser = FdfParser().SetEdk2Path(Edk2Path(self.ws, self.pp.split(os.pathsep))).SetInputVars(input_vars)
-            pa = self.mws.join(self.ws, self.env.GetValue("FLASH_DEFINITION"))
-            fdf_parser.ParseFile(pa)
+            fdf_parser = FdfParser().SetEdk2Path(self.edk2path).SetInputVars(input_vars)
+            fdf_parser.ParseFile(fdf_file_path)
             for key, value in fdf_parser.LocalVars.items():
                 self.env.SetValue(key, value, "From Platform FDF File", True)
 
