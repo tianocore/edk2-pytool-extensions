@@ -178,7 +178,7 @@ class ShellEnvironment(metaclass=Singleton):
             new_path (str): path to override with
         """
         self.logger.debug("Overriding PATH with new value.")
-        if type(new_path) is str:
+        if isinstance(new_path, str):
             new_path = list(new_path.split(os.pathsep))
         self._internal_set_path(new_path)
 
@@ -189,7 +189,7 @@ class ShellEnvironment(metaclass=Singleton):
             new_path (str): path to override with
         """
         self.logger.debug("Overriding PYTHONPATH with new value.")
-        if type(new_path) is str:
+        if isinstance(new_path, str):
             new_path = list(new_path.split(os.pathsep))
         self._internal_set_pypath(new_path)
 

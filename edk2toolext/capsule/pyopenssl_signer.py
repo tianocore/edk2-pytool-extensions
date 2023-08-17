@@ -68,13 +68,13 @@ def sign(data: bytes, signature_options: dict, signer_options: dict) -> bytes:
         with open(signer_options['key_file'], 'rb') as key_file:
             signer_options['key_data'] = key_file.read()
 
-    if type(signer_options['key_data']) is not bytes:
+    if not isinstance(signer_options['key_data'], bytes):
         signer_options['key_data'] = signer_options['key_data'].encode()
 
     password = None
     if 'key_file_password' in signer_options:
         password = signer_options['key_file_password']
-        if type(password) is not bytes:
+        if not isinstance(password, bytes):
             password = password.encode()
 
     # TODO: Figure out OIDs.
