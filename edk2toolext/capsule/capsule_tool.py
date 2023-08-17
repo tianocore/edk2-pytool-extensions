@@ -16,6 +16,7 @@ import os
 import sys
 
 import yaml
+
 from edk2toolext.capsule import capsule_helper, signing_helper
 
 TOOL_DESCRIPTION = """

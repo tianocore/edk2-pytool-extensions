@@ -18,8 +18,9 @@ file path to a local Python module that should be dynamically loaded.
 
 import importlib
 
-from edk2toolext.capsule import signtool_signer
 from edk2toollib.utility_functions import import_module_by_file_name
+
+from edk2toolext.capsule import signtool_signer
 
 # Valid types.
 PYOPENSSL_SIGNER = 'pyopenssl'
