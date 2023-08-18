@@ -8,18 +8,21 @@
 """An invocable to run workspace parsers on a workspace and generate a database."""
 import logging
 import os
-import yaml
-from edk2toollib.database import Edk2DB, Query, transaction
-from edk2toollib.database.tables import *
-from edk2toolext.environment.uefi_build import UefiBuilder
-from edk2toolext.environment import shell_environment
-from edk2toolext.invocables.edk2_multipkg_aware_invocable import Edk2MultiPkgAwareInvocable
-from edk2toolext.invocables.edk2_multipkg_aware_invocable import MultiPkgAwareSettingsInterface
-from edk2toollib.uefi.edk2.path_utilities import Edk2Path
-from edk2toollib.utility_functions import locate_class_in_module
-from edk2toolext.environment.var_dict import VarDict
 from pathlib import Path
 
+import yaml
+from edk2toollib.database import Edk2DB, Query, transaction
+from edk2toollib.database.tables import EnvironmentTable, InfTable, InstancedFvTable, InstancedInfTable, SourceTable
+from edk2toollib.uefi.edk2.path_utilities import Edk2Path
+from edk2toollib.utility_functions import locate_class_in_module
+
+from edk2toolext.environment import shell_environment
+from edk2toolext.environment.uefi_build import UefiBuilder
+from edk2toolext.environment.var_dict import VarDict
+from edk2toolext.invocables.edk2_multipkg_aware_invocable import (
+    Edk2MultiPkgAwareInvocable,
+    MultiPkgAwareSettingsInterface,
+)
 
 DB_NAME = "DATABASE.db"
 
@@ -95,26 +98,30 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
         pathobj = Edk2Path(self.GetWorkspaceRoot(), self.GetPackagesPath())
         env = shell_environment.GetBuildVars()
 
-        with Edk2DB(pathobj, db_path) as db:
+        with Edk2DB(Edk2DB.FILE_RW, pathobj=pathobj, db_path=db_path) as db:
             if not self.append:
                 db.drop_tables()
 
+            table_parsers = []
             # Generate Environment unaware tables
             if len(db.tables()) == 0:
-                self.generate_tables(db, self.env_unaware_tables())
+                table_parsers.extend([parser() for parser in self.env_unaware_tables()])
 
             # Generate environment aware tables
             if self.is_uefi_builder:
-                self.parse_with_builder_settings(db, pathobj, env)
+                table_parsers.extend(self.configure_parsers_builder_settings(db, pathobj, env))
             else:
-                self.parse_with_ci_settings(db, pathobj, env)
+                table_parsers.extend(self.configure_parsers_ci_settings(db, pathobj, env))
+
+            self.generate_tables(db, table_parsers, append = True)
+            self._correlate_env(db)
 
         return 0
 
-    def generate_tables(self, db: Edk2DB, tables: list, env = {}, append = False):
+    def generate_tables(self, db: Edk2DB, tables: list, append = False):
         """Runs parsers to generate a list of tables in the database."""
-        db.register_multiple(tables)
-        db.parse(env=env, append=append)
+        db.register(*tables)
+        db.parse(append=append)
         db.clear_parsers()
 
     def env_unaware_tables(self) -> list:
@@ -123,8 +130,8 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
         These parsers only need to be run once, as environment settings will not affect their output.
         """
         return [
-            SourceTable(),
-            InfTable(),
+            SourceTable,
+            InfTable,
         ]
 
     def env_aware_tables(self) -> list:
@@ -133,14 +140,18 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
         These parsers results will change if the environment changes.
         """
         return [
-            EnvironmentTable(),
-            InstancedInfTable(),
-            InstancedFvTable(),
+            EnvironmentTable,
+            InstancedInfTable,
+            InstancedFvTable,
         ]
 
-    def parse_with_builder_settings(self, db: Edk2DB, pathobj: Edk2Path, env: VarDict):
+    def configure_parsers_builder_settings(self, db: Edk2DB, pathobj: Edk2Path, env: VarDict):
         """Parses the workspace using a uefi builder to setup the environment."""
         logging.info("Setting up the environment with the UefiBuilder.")
+
+        # Build a list of parsers by running the platform's UefiBuilder PreBuild steps.
+        # Each parser should only exist once.
+        parsers = []
         exception_msg = ""
         try:
             if not self.Verbose:
@@ -170,12 +181,18 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
             logging.debug(f"  {key} = {value}")
 
         env_dict = env.GetAllBuildKeyValues() | env.GetAllNonBuildKeyValues()
-        self.generate_tables(db, self.env_aware_tables(), env_dict, True)
-        return 0
+        for table in self.env_aware_tables():
+            parsers.append(table(env=env_dict))
+        return parsers
 
-    def parse_with_ci_settings(self, db: Edk2DB, pathobj: Edk2Path, env: VarDict):
+    def configure_parsers_ci_settings(self, db: Edk2DB, pathobj: Edk2Path, env: VarDict):
         """Parses the workspace using ci settings to setup the environment."""
+        parsers = []
+
+        # Build a list of Parsers to run with the expected settings.
+        # The same parser will exist for each package, with that package's settings.
         for package in self.requested_package_list:
+            logging.error("Package:", package)
             logging.info(f"Setting up the environment for {package}.")
             shell_environment.CheckpointBuildVars()
 
@@ -199,10 +216,14 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
                 logging.debug(f"  {key} = {value}")
 
             env_dict = env.GetAllBuildKeyValues() | env.GetAllNonBuildKeyValues()
-            self.generate_tables(db, self.env_aware_tables(), env_dict, True)
+            for table in self.env_aware_tables():
+                try:
+                    parsers.append(table(env=env_dict))
+                except KeyError:
+                    logging.debug(f"Skipping {table.__name__} for {package}, not supported.")
 
             shell_environment.RevertBuildVars()
-        return
+        return parsers
 
     def _get_package_config(self, pathobj: Edk2Path, pkg) -> str:
         """Gets configuration information for a package from the ci.yaml file."""
