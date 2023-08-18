@@ -7,16 +7,17 @@
 ##
 """An executable that allows a user to select a report and execute it on a given database."""
 import logging
-import sys
 import pathlib
-from datetime import datetime
+import sys
 from argparse import ArgumentParser
+from datetime import datetime
+
 from edk2toollib.database import Edk2DB
-from edk2toolext.environment.reporttypes import CoverageReport
+
 from edk2toolext import edk2_logging
+from edk2toolext.environment.reporttypes import CoverageReport, ComponentQuery
 
-
-REPORTS = [CoverageReport()]
+REPORTS = [CoverageReport(), ComponentQuery()]
 
 
 def setup_logging(verbose: bool):
@@ -36,7 +37,7 @@ def parse_args():
     parser.add_argument('-db', '--database', '--DATABASE', dest='database', type = pathlib.Path,
                         default=pathlib.Path("Report","DATABASE.db"),
                         help="The database to use when generating reports.")
-    
+
     # Register the report arguments as subparser
     subparsers = parser.add_subparsers(dest='cmd', required=[])
     for report in REPORTS:
@@ -60,7 +61,7 @@ def main():
     cmd = args.cmd
     del args.cmd
 
-    with Edk2DB(db_path = db_path) as db:
+    with Edk2DB(Edk2DB.FILE_RO, db_path = db_path) as db:
         for report in REPORTS:
             name, _ = report.report_info()
             if name == cmd:

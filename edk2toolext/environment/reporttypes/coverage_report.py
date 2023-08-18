@@ -6,14 +6,16 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 """A report ingests a cobertura.xml file and organizes it by INF."""
-from edk2toolext.environment.reporttypes.base_report import Report
-from edk2toollib.database import Edk2DB, Query
-from argparse import ArgumentParser, Namespace
-import re
-import xml.etree.ElementTree as ET
-import xml.dom.minidom as minidom
-from pathlib import Path
 import logging
+import re
+import xml.dom.minidom as minidom
+import xml.etree.ElementTree as ET
+from argparse import ArgumentParser, Namespace
+from pathlib import Path
+
+from edk2toollib.database import Edk2DB, Query
+
+from edk2toolext.environment.reporttypes.base_report import Report
 
 
 class CoverageReport(Report):
@@ -36,7 +38,7 @@ class CoverageReport(Report):
         parserobj.add_argument("-p", "--package", "--Package", "--PACKAGE", dest="package_list", action="append",
                                default=[],
                                help="The package to include in the report. Can be specified multiple times.")
-        parserobj.add_argument("-ws", "--workspace", "--Workspace", "--WORKSPACE", dest="workspace", 
+        parserobj.add_argument("-ws", "--workspace", "--Workspace", "--WORKSPACE", dest="workspace",
                                help="The Workspace root to associate with the report.", default=".")
         parserobj.add_argument("--library", action="store_true", dest="lib_only", default="False",
                                help="To only show results for library INFs")

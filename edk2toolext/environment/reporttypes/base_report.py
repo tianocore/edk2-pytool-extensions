@@ -7,6 +7,7 @@
 ##
 """An interface to create custom reports with."""
 from argparse import ArgumentParser, Namespace
+
 from edk2toollib.database import Edk2DB
 from edk2toollib.uefi.edk2.path_utilities import Edk2Path
 
@@ -25,6 +26,6 @@ class Report:
         """Configure command line arguments for this report."""
         return
 
-    def run_report(self, db: Edk2DB, edk2path: Edk2Path, args: Namespace) -> None:
+    def run_report(self, db: Edk2DB, args: Namespace) -> None:
         """Generate a report."""
         raise NotImplementedError
