@@ -47,7 +47,7 @@ dev = [
     "pre-commit == 3.3.3",
 ]
 publish = [
-    "setuptools == 68.0.0",
+    "setuptools == 68.1.2",
     "build == 0.10.0",
     "twine == 4.0.2",
 ]
