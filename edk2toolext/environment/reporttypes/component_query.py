@@ -8,11 +8,10 @@
 """An interface to create custom reports with."""
 from argparse import ArgumentParser, Namespace
 import sys
-from pathlib import Path
+from pathlib import PurePath, Path
 
 from edk2toollib.database import Edk2DB, Query
-from edk2toollib.uefi.edk2.path_utilities import Edk2Path
-from edk2toollib.database.queries import ComponentQuery
+
 
 class Report:
     """The interface to create custom reports."""
@@ -22,16 +21,19 @@ class Report:
         Returns:
             (str, str): A tuple of (name, description)
         """
-        return ("component", "Queries information about a component that that was parsed from a DSC.")
+        return ("dump-component-libs", "Recursively dumps the libraries used by a component, and libraries used by "
+                "those libraries.")
 
     def add_cli_options(self, parserobj: ArgumentParser):
         """Configure command line arguments for this report."""
         parserobj.add_argument(dest="component", action="store", help="The component to query.")
-        parserobj.add_argument("-f", "--file", dest="file", default=sys.stdout, help="The file (or stdout), to write the report to.")
-        parserobj.add_argument("-d", "--depth", dest="depth", type=int, default=999, help="The depth to recurse when printing libraries used.")
+        parserobj.add_argument("-f", "--file", dest="file", default=sys.stdout, help="The file, to write the report to."
+                               " Defaults to stdout.")
+        parserobj.add_argument("-d", "--depth", dest="depth", type=int, default=999, help="The depth to recurse when "
+                               "printing libraries used.")
 
     def run_report(self, db: Edk2DB, args: Namespace) -> None:
-        """Generate a report."""
+        """Runs the report."""
         if isinstance(args.file, str):
             if Path(args.file).exists():
                 Path(args.file).unlink()
@@ -40,25 +42,32 @@ class Report:
             self.file = args.file
 
         self.depth = args.depth
-        self.component = args.component
 
         table_name = "instanced_inf"
         table = db.table(table_name)
 
-        print(args.component, file=self.file)
-        libraries = table.search(Query().PATH == args.component)[0]['LIBRARIES_USED']
-        for library in libraries:
-            self.print_libraries_used_recursive(table, library, [])
+        def compare_path(path):
+            return PurePath(path).as_posix() in PurePath(args.component).as_posix()
 
-    def print_libraries_used_recursive(self, table, library, visited, depth = 1):
+        inf = table.search(Query().PATH.test(compare_path))[0]
+
+        libraries = inf['LIBRARIES_USED']
+        inf_path = inf['PATH']
+
+        print(inf_path, file=self.file)
+        for library in libraries:
+            self.print_libraries_used_recursive(table, library, inf_path, [])
+
+    def print_libraries_used_recursive(self, table, library, component, visited, depth = 1):
+        """Prints the libraries used in a provided library / component."""
         if depth > self.depth:
             return
         print(f'{"  "*depth}{library}', file=self.file)
-        libraries = table.search((Query().PATH == library) & (Query().COMPONENT == self.component))[0]['LIBRARIES_USED']
+        libraries = table.search((Query().PATH == library) & (Query().COMPONENT == component))[0]['LIBRARIES_USED']
         for library in libraries:
             if library in visited:
                 continue
             visited.append(library)
-            self.print_libraries_used_recursive(table, library, visited.copy(), depth=depth+1)
+            self.print_libraries_used_recursive(table, library, component, visited.copy(), depth=depth+1)
         return
 
