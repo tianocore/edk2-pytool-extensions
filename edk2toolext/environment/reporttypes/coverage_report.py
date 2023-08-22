@@ -14,7 +14,6 @@ from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
 from edk2toollib.database import Edk2DB, Query
-from edk2toollib.uefi.edk2.path_utilities import Edk2Path
 
 from edk2toolext.environment.reporttypes.base_report import Report
 
@@ -47,16 +46,14 @@ class CoverageReport(Report):
     def run_report(self, db: Edk2DB, args: Namespace) -> None:
         """Generate the Coverage report."""
         self.args = args
-        pp = db.table("environment").all()[-1]["PACKAGES_PATH"].split(";")
-        edk2path = Edk2Path(args.workspace, pp)
-        files = self._build_file_dict(edk2path, args.xml)
+        files = self._build_file_dict(args.xml)
 
         if args.scope == "inf":
             logging.info("Organizing coverage report by INF.")
             self._get_inf_cov(files, db, args.lib_only)
         return 0
 
-    def _build_file_dict(self, edk2path: Edk2Path, xml_path: str) -> dict:
+    def _build_file_dict(self, xml_path: str) -> dict:
         tree = ET.parse(xml_path)
         regex = re.compile('|'.join(map(re.escape, self.args.package_list)))
         file_dict = {}
@@ -70,7 +67,6 @@ class CoverageReport(Report):
                 continue
 
             path = Path(filename[match.start():]).as_posix()
-            path = edk2path.GetEdk2RelativePathFromAbsolutePath(path)
             if path not in file_dict:
                 file.attrib["filename"] = path
                 file.attrib["name"] = Path(path).name
@@ -114,10 +110,11 @@ class CoverageReport(Report):
             classes = ET.SubElement(inf, "classes")
             found = False
             for source in entry["SOURCES_USED"]:
-                source = Path(Path(entry["PATH"]).parent, source).as_posix()
-                if source in files:
+                source = Path(entry["PATH"]).parent / source
+                match = next((key for key in files.keys() if source.is_relative_to(key)), None)
+                if match is not None:
                     found = True
-                    classes.append(files[source])
+                    classes.append(files[match])
             if not found:
                 packages.remove(inf)
 
