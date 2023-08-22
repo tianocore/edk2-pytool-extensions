@@ -92,12 +92,6 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
         """Returns the logging file name for this invocation."""
         return "PARSE_LOG"
 
-    def GetLoggingLevel(self, loggerType):
-        if loggerType == "con":
-            return logging.DEBUG
-        else:
-            return logging.DEBUG
-
     def Go(self):
         """Executes the invocable. Runs the subcommand specified by the user."""
         db_path = Path(self.GetWorkspaceRoot()) / self.GetLoggingFolderRelativeToRoot() / DB_NAME
@@ -198,7 +192,6 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
         # Build a list of Parsers to run with the expected settings.
         # The same parser will exist for each package, with that package's settings.
         for package in self.requested_package_list:
-            logging.error("Package:", package)
             logging.info(f"Setting up the environment for {package}.")
             shell_environment.CheckpointBuildVars()
 

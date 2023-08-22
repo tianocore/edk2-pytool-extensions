@@ -14,7 +14,7 @@ from typing import Tuple
 from edk2toollib.database import Edk2DB, Query
 
 
-class Report:
+class ComponentDumpQuery:
     """The interface to create custom reports."""
     def report_info(self):
         """Returns the report standard information.
@@ -71,6 +71,8 @@ class Report:
         if depth > self.depth:
             return
         print(f'{"  "*depth}- {library_class}| {library_instance or "NOT FOUND IN DSC"}', file=self.file)
+        if library_instance is None:
+            return
         libraries = table.search((Query().PATH == library_instance) & (Query().COMPONENT == component))[0]['LIBRARIES_USED']
         for library in libraries:
             if library in visited:
