@@ -9,6 +9,7 @@
 from argparse import ArgumentParser, Namespace
 import sys
 from pathlib import PurePath, Path
+from typing import Tuple
 
 from edk2toollib.database import Edk2DB, Query
 
@@ -27,10 +28,12 @@ class Report:
     def add_cli_options(self, parserobj: ArgumentParser):
         """Configure command line arguments for this report."""
         parserobj.add_argument(dest="component", action="store", help="The component to query.")
-        parserobj.add_argument("-f", "--file", dest="file", default=sys.stdout, help="The file, to write the report to."
+        parserobj.add_argument("-o", "--out", dest="file", default=sys.stdout, help="The file, to write the report to."
                                " Defaults to stdout.")
         parserobj.add_argument("-d", "--depth", dest="depth", type=int, default=999, help="The depth to recurse when "
                                "printing libraries used.")
+        parserobj.add_argument("-f, --flatten", dest="flatten", action="store_true",
+                               help="Flatten the list of libraries used in the component.")
 
     def run_report(self, db: Edk2DB, args: Namespace) -> None:
         """Runs the report."""
@@ -55,10 +58,14 @@ class Report:
         inf_path = inf['PATH']
 
         print(inf_path, file=self.file)
-        for library in libraries:
-            self.print_libraries_used_recursive(table, library, inf_path, [])
+        if args.flatten:
+            self.print_libraries_flat(table, inf_path)
+        else:
+            for library in libraries:
+                    self.print_libraries_recursive(table, library, inf_path, [])
 
-    def print_libraries_used_recursive(self, table, library, component, visited, depth = 1):
+
+    def print_libraries_recursive(self, table, library: Tuple[str, str], component: str, visited: list, depth: int = 0):
         """Prints the libraries used in a provided library / component."""
         library_class, library_instance = library
         if depth > self.depth:
@@ -69,6 +76,11 @@ class Report:
             if library in visited:
                 continue
             visited.append(library)
-            self.print_libraries_used_recursive(table, library, component, visited.copy(), depth=depth+1)
+            self.print_libraries_recursive(table, library, component, visited.copy(), depth=depth+1)
         return
 
+    def print_libraries_flat(self, table, component):
+        """Prints the libraries used in a provided component."""
+        libraries = table.search(Query().COMPONENT == component)
+        for library in libraries:
+            print(f'- {library["LIBRARY_CLASS"]}| {library["PATH"]}', file=self.file)
