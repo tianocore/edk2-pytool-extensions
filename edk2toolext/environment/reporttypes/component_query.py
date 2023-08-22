@@ -60,10 +60,11 @@ class Report:
 
     def print_libraries_used_recursive(self, table, library, component, visited, depth = 1):
         """Prints the libraries used in a provided library / component."""
+        library_class, library_instance = library
         if depth > self.depth:
             return
-        print(f'{"  "*depth}{library}', file=self.file)
-        libraries = table.search((Query().PATH == library) & (Query().COMPONENT == component))[0]['LIBRARIES_USED']
+        print(f'{"  "*depth}- {library_class}| {library_instance or "NOT FOUND IN DSC"}', file=self.file)
+        libraries = table.search((Query().PATH == library_instance) & (Query().COMPONENT == component))[0]['LIBRARIES_USED']
         for library in libraries:
             if library in visited:
                 continue
