@@ -32,8 +32,10 @@ class ComponentDumpQuery:
                                " Defaults to stdout.")
         parserobj.add_argument("-d", "--depth", dest="depth", type=int, default=999, help="The depth to recurse when "
                                "printing libraries used.")
-        parserobj.add_argument("-f, --flatten", dest="flatten", action="store_true",
+        parserobj.add_argument("-f", "--flatten", dest="flatten", action="store_true",
                                help="Flatten the list of libraries used in the component.")
+        parserobj.add_argument("-s", "--sort", dest="sort", action="store_true",
+                               help="Sort the libraries listed in alphabetical order.")
 
     def run_report(self, db: Edk2DB, args: Namespace) -> None:
         """Runs the report."""
@@ -45,6 +47,7 @@ class ComponentDumpQuery:
             self.file = args.file
 
         self.depth = args.depth
+        self.sort = args.sort
 
         table_name = "instanced_inf"
         table = db.table(table_name)
@@ -54,16 +57,18 @@ class ComponentDumpQuery:
 
         inf = table.search(Query().PATH.test(compare_path))[0]
 
-        libraries = inf['LIBRARIES_USED']
-        inf_path = inf['PATH']
-
-        print(inf_path, file=self.file)
+        # Print in flat format
         if args.flatten:
-            self.print_libraries_flat(table, inf_path)
-        else:
-            for library in libraries:
-                    self.print_libraries_recursive(table, library, inf_path, [])
+            return self.print_libraries_flat(table, inf['PATH'])
 
+        # Print in recursive format
+        libraries = inf['LIBRARIES_USED']
+        if self.sort:
+            libraries = sorted(libraries)
+
+        print(inf['PATH'], file=self.file)
+        for library in libraries:
+            self.print_libraries_recursive(table, library, inf['PATH'], [])
 
     def print_libraries_recursive(self, table, library: Tuple[str, str], component: str, visited: list, depth: int = 0):
         """Prints the libraries used in a provided library / component."""
@@ -74,6 +79,10 @@ class ComponentDumpQuery:
         if library_instance is None:
             return
         libraries = table.search((Query().PATH == library_instance) & (Query().COMPONENT == component))[0]['LIBRARIES_USED']
+
+        if self.sort:
+            libraries = sorted(libraries)
+
         for library in libraries:
             if library in visited:
                 continue
@@ -84,5 +93,9 @@ class ComponentDumpQuery:
     def print_libraries_flat(self, table, component):
         """Prints the libraries used in a provided component."""
         libraries = table.search(Query().COMPONENT == component)
+
+        if self.sort:
+            libraries = sorted(libraries, key=lambda x: x['LIBRARY_CLASS'])
+
         for library in libraries:
             print(f'- {library["LIBRARY_CLASS"]}| {library["PATH"]}', file=self.file)
