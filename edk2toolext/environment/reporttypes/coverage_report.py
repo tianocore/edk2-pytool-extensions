@@ -26,7 +26,8 @@ class CoverageReport(Report):
         Returns:
             (str, str): A tuple of (name, description)
         """
-        return ("coverage", "Converts an xml coverage report into a similar xml coverage report, but organized as specified by `-s`.")
+        return ("coverage", "Converts an xml coverage report into a similar xml coverage report, but organized as "
+                "specified by `-s`.")
 
     def add_cli_options(self, parserobj: ArgumentParser):
         """Configure command line arguments for this report."""

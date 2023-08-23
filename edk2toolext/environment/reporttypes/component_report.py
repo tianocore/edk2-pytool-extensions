@@ -6,9 +6,9 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 """An interface to create custom reports with."""
-from argparse import ArgumentParser, Namespace
 import sys
-from pathlib import PurePath, Path
+from argparse import ArgumentParser, Namespace
+from pathlib import Path, PurePath
 from typing import Tuple
 
 from edk2toollib.database import Edk2DB, Query
@@ -78,7 +78,9 @@ class ComponentDumpQuery:
         print(f'{"  "*depth}- {library_class}| {library_instance or "NOT FOUND IN DSC"}', file=self.file)
         if library_instance is None:
             return
-        libraries = table.search((Query().PATH == library_instance) & (Query().COMPONENT == component))[0]['LIBRARIES_USED']
+        libraries = table.search(
+            (Query().PATH == library_instance) & (Query().COMPONENT == component)
+        )[0]['LIBRARIES_USED']
 
         if self.sort:
             libraries = sorted(libraries)
