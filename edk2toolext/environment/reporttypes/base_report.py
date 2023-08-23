@@ -9,7 +9,6 @@
 from argparse import ArgumentParser, Namespace
 
 from edk2toollib.database import Edk2DB
-from edk2toollib.uefi.edk2.path_utilities import Edk2Path
 
 
 class Report:
