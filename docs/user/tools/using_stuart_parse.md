@@ -41,7 +41,7 @@ class CiSettingsManger(CiBuildSettingsManager, ParseSettingsManager):
 ```
 
 **WARNING**: ParseSettingsManager does add additional command line arguments that are used when attached to the same
-object as the `CIBuildSettingsManager``, but also exist when attached to the `UefiBuiler` This may create argument
+object as the `CIBuildSettingsManager``, but also exist when attached to the `UefiBuilder` This may create argument
 parser conflicts between platform added arguments and default arguments, that will need to be resolved.
 
 ## Command Line Interface
