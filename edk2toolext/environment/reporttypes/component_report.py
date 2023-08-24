@@ -22,8 +22,7 @@ class ComponentDumpQuery:
         Returns:
             (str, str): A tuple of (name, description)
         """
-        return ("dump-component-libs", "Recursively dumps the libraries used by a component, and libraries used by "
-                "those libraries.")
+        return ("component-libs", "Dumps the library instances used by a component.")
 
     def add_cli_options(self, parserobj: ArgumentParser):
         """Configure command line arguments for this report."""

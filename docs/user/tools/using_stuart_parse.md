@@ -1,9 +1,9 @@
 # Stuart Parse Tool
 
-The stuart parse tool (`stuart_parse`) is the first half of a two part tool used for generating a database and reports
-about an Edk2 UEFI codebase. The stuart parse tool will run against a codebase, executing multiple workspace parsers
-and creating a database with tables for each parser that can then be consumed by any tool (though specifically by the
-[edk2 report](/tools/using_edk2_report)tool) to be used as needed. In addition to parsing generic workspace
+The stuart parse tool (`stuart_parse`) is the first half of a two part tool used for generating a database and running
+reports for an Edk2 UEFI codebase. The stuart parse tool will run against a codebase, executing multiple workspace
+parsers and creating a database with tables for each parser that can then be consumed by any tool (though specifically
+by the [edk2 report](/tools/using_edk2_report) tool) to be used as needed. In addition to parsing generic workspace
 information, the parse tool is also able to parse instanced information about a package, utilizing environment
 variables described by either the `stuart_build` (for platform packages) or `stuart_ci_build` (for non-platform
 packages).
@@ -14,16 +14,13 @@ Like all other stuart invocables, it has a [SettingsManager](/features/settings_
 tool has been designed to be easily implemented into the existing infrastructure and can be implemented one of two
 two separate ways:
 
-1. Associate the [ParseSettingsManager](/api/invocables/edk2_parse/#edk2toolext.invocables.edk2_parse.ParseSettingsManager)
+1. Subclass the [ParseSettingsManager](/api/invocables/edk2_parse/#edk2toolext.invocables.edk2_parse.ParseSettingsManager)
    to the same python object as the [UefiBuilder](/api/environment/uefi_build/#edk2toolext.environment.uefi_build.UefiBuilder)
    is subclassed to. This scenario is used to parse the workspace in terms of platform packages.
 
 2. Associate the [ParseSettingsManager](/api/invocables/edk2_parse/#edk2toolext.invocables.edk2_parse.ParseSettingsManager)
    to the same python object as the [CiBuildSettingsManager](/api/invocables/edk2_ci_build/#edk2toolext.invocables.edk2_ci_build.CiBuildSettingsManager)
    is subclassed to. This scenario is used to parse the workspace in terms of non-platform packages.
-
-The `ParseSettingsManager` does not require implementing any additional functionality that is not already defined by
-the `UefiBuilder` or `CiBuildSettingsManager`, so the implementation is as simple as:
 
 ```python
 # Before implementation (platform package)
@@ -42,6 +39,10 @@ class CiSettingsManager(CiBuildSettingsManager):
 class CiSettingsManger(CiBuildSettingsManager, ParseSettingsManager):
     ...
 ```
+
+**WARNING**: ParseSettingsManager does add additional command line arguments that are used when attached to the same
+object as the `CIBuildSettingsManager``, but also exist when attached to the `UefiBuiler` This may create argument
+parser conflicts between platform added arguments and default arguments, that will need to be resolved.
 
 ## Command Line Interface
 
