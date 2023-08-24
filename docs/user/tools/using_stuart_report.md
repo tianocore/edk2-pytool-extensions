@@ -23,10 +23,10 @@ options:
 
 Review the command line arguments with `stuart_report -h`. As you can tell, the
 command line interface for the tool itself is simple, only truly needing a path
-to the database to use. Out of convenience, the default path for the databse is
-Reports/DATABASE.db, as that is where the database is generated when running
+to the database to use. Out of convenience, the default path for the database
+is Reports/DATABASE.db, as that is where the database is generated when running
 `stuart_parse`. If the database is moved or renamed, you will need to manually
-link it with the `-db, --databse`.
+link it with the `-db, --database`.
 
 Each available report (positional argument) has it's own subset of command line
 arguments so before running a report, it is important to review it's interface
