@@ -9,7 +9,7 @@ the fact, or used to compare different versions of the firmware.
 
 ## Command line arguments
 
-```
+``` cmd
 positional arguments:
     {...} # List of available reports and a short description
 

@@ -41,7 +41,7 @@ class CiSettingsManger(CiBuildSettingsManager, ParseSettingsManager):
 ```
 
 **WARNING**: ParseSettingsManager does add additional command line arguments that are used when attached to the same
-object as the `CIBuildSettingsManager``, but also exist when attached to the `UefiBuilder` This may create argument
+object as the `CIBuildSettingsManager`, but also exist when attached to the `UefiBuilder` This may create argument
 parser conflicts between platform added arguments and default arguments, that will need to be resolved.
 
 ## Command Line Interface
@@ -50,12 +50,10 @@ Similar to all other invocables, the user can use the `-h` flag review a detaile
 however for convenience, here are the options available:
 
 ``` cmd
-
 Optional Arguments:
   --append, --Append, --APPEND    Run only environment aware parsers and append them to the database.
   -p, --pkg, --pkg-dir            Packages to parse (CI builder only)
   -a, --arch                      Architectures to use when parsing (CI builder only)
-
 ```
 
 ## Example usage
