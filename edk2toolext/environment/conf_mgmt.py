@@ -55,7 +55,7 @@ class ConfMgmt():
         templatefiles = [os.path.join("Conf", os.path.splitext(f)[0] + ".template") for f in files]
 
         # loop thru each Conf file needed
-        for x in range(0, len(outfiles)):
+        for x in range(len(outfiles)):
             template_file_path = None
 
             # find template file given multiple root locations
