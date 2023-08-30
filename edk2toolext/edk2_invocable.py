@@ -26,6 +26,7 @@ from random import choice
 from string import ascii_letters
 from textwrap import dedent
 from typing import Iterable, Tuple
+from pathlib import Path
 
 import pkg_resources
 from edk2toollib.utility_functions import GetHostInfo, RunCmd, import_module_by_file_name, locate_class_in_module
@@ -383,12 +384,29 @@ class Edk2Invocable(BaseAbstractInvocable):
         settingsParserObj.add_argument('-h', '--help', dest="help", action="store_true",
                                        help='show this help message and exit')
         settingsParserObj.add_argument('-c', '--platform_module', dest='platform_module',
-                                       default="PlatformBuild.py", type=str,
+                                       default=None, type=str,
                                        help='Provide the Platform Module relative to the current working directory.'
                                             f'This should contain a {self.GetSettingsClass().__name__} instance.')
 
         # get the settings manager from the provided file and load an instance
         settingsArg, unknown_args = settingsParserObj.parse_known_args()
+
+        # If a platform module was not provided, do some simple heuristics to see if we can
+        # locate one of the common names & locations of a platform module
+        if settingsArg.platform_module is None:
+            cur_dir = Path(".").resolve()
+            while cur_dir is not cur_dir.parent:
+                if not settingsArg.platform_module:
+                    for path in [".pytool/CISettings.py", "CISettings.py", "PlatformBuild.py"]:
+                        if (cur_dir / path).exists():
+                            settingsArg.platform_module = str(cur_dir / path)
+                            break
+                if settingsArg.platform_module is not None:
+                    break
+                cur_dir = cur_dir.parent
+            else:
+                settingsArg.platform_module = "PlatformBuild.py"
+
         try:
             self.PlatformModule = import_module_by_file_name(os.path.abspath(settingsArg.platform_module))
             self.PlatformSettings = locate_class_in_module(
