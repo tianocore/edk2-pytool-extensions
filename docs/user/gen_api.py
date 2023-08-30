@@ -56,6 +56,9 @@ def main():
         # Point the "Edit on Github" button in the docs to point at the source code
         edit_path = os.path.join('..', 'edk2toolext', edit_path)
         mkdocs_gen_files.set_edit_path(filename, edit_path)
+    
+    with mkdocs_gen_files.open("api/.pages", "w") as f:
+        print("title: API Reference", file=f)
 
 
 main()

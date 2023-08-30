@@ -4,7 +4,19 @@ copyright: Copyright (c) Microsoft.  All rights reserved
 site_description: edk2toolext package documentation
 
 theme:
-  name: readthedocs
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.indexes
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
 
 docs_dir: docs/user
 
@@ -76,18 +88,5 @@ nav:
     - Reports with Stuart: integrate/reporting.md
     - Porting Example: integrate/porting.md
   - ... | tools/**/*.md
-  - Advanced Features:
-    - Invocables: features/invocable.md
-    - Creating Invocables: features/creating_invocable.md
-    - Ext Deps: features/extdep.md
-    - Creating Ext Deps: features/creating_extdep.md
-    - Plugins: features/plugin_manager.md
-    - Create a Plugin: features/creating_plugins.md
-    - Environment Variables: features/environment_variables.md
-    - Self Describing Environment: features/sde.md
-    - Settings Manager: features/settings_manager.md
-    - Logging: features/logging.md
-    - CodeQL: features/codeql.md
-    - WSL: features/using_linux.md
-  - API Reference:
-    - ... | flat | api/**/*.md
+  - ... | features/**/*.md
+  - ... | api/**/*.md

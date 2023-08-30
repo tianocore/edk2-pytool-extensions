@@ -1,3 +1,8 @@
+---
+hide:
+   - navigation
+   - toc
+---
 # Our Philosophy
 
 Edk2 Pytool Extensions (edk2toolext) is a Tianocore maintained project
