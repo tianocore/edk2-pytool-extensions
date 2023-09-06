@@ -85,6 +85,7 @@ nav:
     - Self Describing Environment: features/sde.md
     - Settings Manager: features/settings_manager.md
     - Logging: features/logging.md
+    - CodeQL: features/codeql.md
     - WSL: features/using_linux.md
   - API Reference:
     - ... | flat | api/**/*.md
