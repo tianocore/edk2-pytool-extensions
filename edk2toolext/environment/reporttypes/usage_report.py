@@ -69,7 +69,7 @@ class UsageReport(Report):
     def add_cli_options(self, parserobj: ArgumentParser):
         """Configure command line arguments for this report."""
         parserobj.add_argument("-e", "-env", dest="env_id", action="store", help = "The environment id to generate the report for. Defaults to the latest environment.")
-        parserobj.add_argument("-o", "-output", dest="output", action="store", help = "The output file to write the report to. Defaults to 'usage_report.html'.", default="usage_report.html")
+        parserobj.add_argument("-o", "-output", dest="output", action="store", help = "The output file to write the report to. Defaults to 'usage_report.html'.", default=None)
 
     def run_report(self, db: Edk2DB, args: Namespace):
         """Generate the Usage report."""
