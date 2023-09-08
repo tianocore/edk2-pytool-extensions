@@ -68,7 +68,8 @@ class UsageReport(Report):
 
     def add_cli_options(self, parserobj: ArgumentParser):
         """Configure command line arguments for this report."""
-        parserobj.add_argument("-e", "-env", dest="env_id", action="store", help = "The environment id to generate the report for.")
+        parserobj.add_argument("-e", "-env", dest="env_id", action="store", help = "The environment id to generate the report for. Defaults to the latest environment.")
+        parserobj.add_argument("-o", "-output", dest="output", action="store", help = "The output file to write the report to. Defaults to 'usage_report.html'.", default="usage_report.html")
 
     def run_report(self, db: Edk2DB, args: Namespace):
         """Generate the Usage report."""
@@ -123,7 +124,10 @@ class UsageReport(Report):
 
         # Open the template and write the html with the data
         html_output = template.render(**data)
-        with open('test.html', 'w') as f:
+        path_out = args.output or data["env"].get("PLATFORM_NAME", None) or "usage_report.html"
+        if not path_out.endswith(".html"):
+            path_out += ".html"
+        with open(path_out, 'w') as f:
             f.write(html_output)
 
     def _get_env_vars(self, connection, env_id):
