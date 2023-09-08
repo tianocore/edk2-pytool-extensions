@@ -13,6 +13,21 @@ from typing import Tuple
 
 from edk2toollib.database import Edk2DB
 
+LIBRARY_QUERY = """
+SELECT
+    instanced_inf.id,
+    instanced_inf.class,
+    instanced_inf.path
+FROM
+    junction
+    LEFT JOIN instanced_inf ON instanced_inf.id = junction.key2
+WHERE
+    junction.table1 = 'instanced_inf'
+    AND junction.table2 = 'instanced_inf'
+    AND junction.key1 = ?
+    AND junction.env = ?
+    AND instanced_inf.component = ?
+"""
 
 class ComponentDumpReport:
     """The interface to create custom reports."""
@@ -35,6 +50,7 @@ class ComponentDumpReport:
                                help="Flatten the list of libraries used in the component.")
         parserobj.add_argument("-s", "--sort", dest="sort", action="store_true",
                                help="Sort the libraries listed in alphabetical order.")
+        parserobj.add_argument("-e", "--env", dest="env_id", action="store", help="The environment id to generate the report for.")
 
     def run_report(self, db: Edk2DB, args: Namespace) -> None:
         """Runs the report."""
@@ -47,56 +63,55 @@ class ComponentDumpReport:
 
         self.depth = args.depth
         self.sort = args.sort
+        self.db = db
 
-        table_name = "instanced_inf"
-        table = db.table(table_name)
+        self.env_id = args.env_id or db.connection.execute("SELECT id FROM environment ORDER BY date DESC LIMIT 1;").fetchone()[0]
+        self.component = PurePath(args.component).as_posix()
 
-        def compare_path(path):
-            return PurePath(path).as_posix() in PurePath(args.component).as_posix()
-
-        inf = table.search(Query().PATH.test(compare_path))[0]
-
+        id, inf_path = self.db.connection.execute("SELECT id, path FROM instanced_inf WHERE (path LIKE ? OR ? LIKE '%' || path || '%') AND env = ?", (f'%{self.component}%', self.component, self.env_id)).fetchone()
         # Print in flat format
         if args.flatten:
-            return self.print_libraries_flat(table, inf['PATH'])
+            return self.print_libraries_flat(inf_path)
 
         # Print in recursive format
-        libraries = inf['LIBRARIES_USED']
+        libraries = self.db.connection.execute(LIBRARY_QUERY, (id, self.env_id, self.component)).fetchall()
+
         if self.sort:
-            libraries = sorted(libraries)
+            libraries = sorted(libraries, key=lambda x: x[1])
 
-        print(inf['PATH'], file=self.file)
+        print(inf_path, file=self.file)
         for library in libraries:
-            self.print_libraries_recursive(table, library, inf['PATH'], [])
+            self.print_libraries_recursive(library, [])
 
-    def print_libraries_recursive(self, table, library: Tuple[str, str], component: str, visited: list, depth: int = 0):
+    def print_libraries_recursive(self, library: Tuple[str, str, str], visited: list, depth: int = 0):
         """Prints the libraries used in a provided library / component."""
-        library_class, library_instance = library
-        if depth > self.depth:
+        id, library_class, library_instance = library
+        if depth >= self.depth:
             return
         print(f'{"  "*depth}- {library_class}| {library_instance or "NOT FOUND IN DSC"}', file=self.file)
+
         if library_instance is None:
             return
-        libraries = table.search(
-            (Query().PATH == library_instance) & (Query().COMPONENT == component)
-        )[0]['LIBRARIES_USED']
+
+        libraries = self.db.connection.execute(LIBRARY_QUERY, (id, self.env_id, self.component))
 
         if self.sort:
-            libraries = sorted(libraries)
+            libraries = sorted(libraries, key=lambda x: x[1])
 
         for library in libraries:
             if library in visited:
                 continue
             visited.append(library)
-            self.print_libraries_recursive(table, library, component, visited.copy(), depth=depth+1)
+            self.print_libraries_recursive( library, visited.copy(), depth=depth+1)
         return
 
-    def print_libraries_flat(self, table, component):
+    def print_libraries_flat(self, component):
         """Prints the libraries used in a provided component."""
-        libraries = table.search(Query().COMPONENT == component)
+        libraries = self.db.connection.execute("SELECT class, path FROM instanced_inf WHERE component = ? AND path != component", (component,)).fetchall()
 
+        length = max(len(item[0]) for item in libraries)
         if self.sort:
-            libraries = sorted(libraries, key=lambda x: x['LIBRARY_CLASS'])
+            libraries = sorted(libraries, key=lambda x: x[0])
 
         for library in libraries:
-            print(f'- {library["LIBRARY_CLASS"]}| {library["PATH"]}', file=self.file)
+            print(f'- {library[0]:{length}}| {library[1]}', file=self.file)
