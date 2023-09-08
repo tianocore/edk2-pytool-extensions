@@ -15,9 +15,9 @@ from datetime import datetime
 from edk2toollib.database import Edk2DB
 
 from edk2toolext import edk2_logging
-from edk2toolext.environment.reporttypes import ComponentDumpQuery, CoverageReport
+from edk2toolext.environment.reporttypes import ComponentDumpReport, CoverageReport, UsageReport
 
-REPORTS = [CoverageReport(), ComponentDumpQuery()]
+REPORTS = [CoverageReport(), ComponentDumpReport(), UsageReport()]
 
 
 def setup_logging(verbose: bool):
@@ -61,7 +61,7 @@ def main():
     cmd = args.cmd
     del args.cmd
 
-    with Edk2DB(Edk2DB.FILE_RO, db_path = db_path) as db:
+    with Edk2DB(db_path = db_path) as db:
         for report in REPORTS:
             name, _ = report.report_info()
             if name == cmd:

@@ -11,8 +11,8 @@ import os
 from pathlib import Path
 
 import yaml
-from edk2toollib.database import Edk2DB, Query, transaction
-from edk2toollib.database.tables import EnvironmentTable, InfTable, InstancedFvTable, InstancedInfTable, SourceTable
+from edk2toollib.database import Edk2DB
+from edk2toollib.database.tables import EnvironmentTable, InfTable, InstancedFvTable, InstancedInfTable, SourceTable, PackageTable
 from edk2toollib.uefi.edk2.path_utilities import Edk2Path
 from edk2toollib.utility_functions import locate_class_in_module
 
@@ -98,30 +98,28 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
         pathobj = Edk2Path(self.GetWorkspaceRoot(), self.GetPackagesPath())
         env = shell_environment.GetBuildVars()
 
-        with Edk2DB(Edk2DB.FILE_RW, pathobj=pathobj, db_path=db_path) as db:
-            if not self.append:
-                db.drop_tables()
-
-            table_parsers = []
-            # Generate Environment unaware tables
-            if len(db.tables()) == 0:
-                table_parsers.extend([parser() for parser in self.env_unaware_tables()])
+        with Edk2DB(db_path, pathobj=pathobj) as db:
+            db.register(*self.tables())
+            # table_parsers = []
+            # # Generate Environment unaware tables
+            # # TODO check if the database is empty or not
+            # # if len(db.tables()) == 0:
+            # table_parsers.extend([parser() for parser in self.env_unaware_tables()])
 
             # Generate environment aware tables
             if self.is_uefi_builder:
-                table_parsers.extend(self.configure_parsers_builder_settings(db, pathobj, env))
+                self.parse_with_builder_settings(db, pathobj, env)
             else:
-                table_parsers.extend(self.configure_parsers_ci_settings(db, pathobj, env))
+                self.parse_with_ci_settings(db, pathobj, env)
 
-            self.generate_tables(db, table_parsers, append = True)
-            self._correlate_env(db)
+            # self.generate_tables(db, table_parsers, append = True)
 
         return 0
 
     def generate_tables(self, db: Edk2DB, tables: list, append = False):
         """Runs parsers to generate a list of tables in the database."""
         db.register(*tables)
-        db.parse(append=append)
+        db.parse()
         db.clear_parsers()
 
     def env_unaware_tables(self) -> list:
@@ -130,8 +128,9 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
         These parsers only need to be run once, as environment settings will not affect their output.
         """
         return [
-            SourceTable,
-            InfTable,
+            PackageTable(),
+            SourceTable(),
+            InfTable(),
         ]
 
     def env_aware_tables(self) -> list:
@@ -140,18 +139,23 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
         These parsers results will change if the environment changes.
         """
         return [
-            EnvironmentTable,
-            InstancedInfTable,
-            InstancedFvTable,
+            EnvironmentTable(),
+            InstancedInfTable(),
+            InstancedFvTable(),
         ]
 
-    def configure_parsers_builder_settings(self, db: Edk2DB, pathobj: Edk2Path, env: VarDict):
+    def tables(self) -> list:
+        return [
+            PackageTable(),
+            SourceTable(),
+            InfTable(),
+            InstancedInfTable(),
+            InstancedFvTable(),
+        ]
+
+    def parse_with_builder_settings(self, db: Edk2DB, pathobj: Edk2Path, env: VarDict):
         """Parses the workspace using a uefi builder to setup the environment."""
         logging.info("Setting up the environment with the UefiBuilder.")
-
-        # Build a list of parsers by running the platform's UefiBuilder PreBuild steps.
-        # Each parser should only exist once.
-        parsers = []
         exception_msg = ""
         try:
             if not self.Verbose:
@@ -181,14 +185,11 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
             logging.debug(f"  {key} = {value}")
 
         env_dict = env.GetAllBuildKeyValues() | env.GetAllNonBuildKeyValues()
-        for table in self.env_aware_tables():
-            parsers.append(table(env=env_dict))
-        return parsers
+        db.parse(env_dict)
+        return 0
 
-    def configure_parsers_ci_settings(self, db: Edk2DB, pathobj: Edk2Path, env: VarDict):
+    def parse_with_ci_settings(self, db: Edk2DB, pathobj: Edk2Path, env: VarDict):
         """Parses the workspace using ci settings to setup the environment."""
-        parsers = []
-
         # Build a list of Parsers to run with the expected settings.
         # The same parser will exist for each package, with that package's settings.
         for package in self.requested_package_list:
@@ -215,14 +216,9 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
                 logging.debug(f"  {key} = {value}")
 
             env_dict = env.GetAllBuildKeyValues() | env.GetAllNonBuildKeyValues()
-            for table in self.env_aware_tables():
-                try:
-                    parsers.append(table(env=env_dict))
-                except KeyError:
-                    logging.debug(f"Skipping {table.__name__} for {package}, not supported.")
-
+            db.parse(env_dict)
             shell_environment.RevertBuildVars()
-        return parsers
+        return 0
 
     def _get_package_config(self, pathobj: Edk2Path, pkg) -> str:
         """Gets configuration information for a package from the ci.yaml file."""
@@ -234,18 +230,6 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
                 return yaml.safe_load(f)
         else:
             logging.debug(f"No package config file for {pkg}")
-
-    def _correlate_env(self, db: Edk2DB):
-        """Associates the newest entry in the environment table with all newly created entries and all other tables.
-
-        This allows us to go back and look at the build environment values that the particular data was generated with.
-        """
-        idx = len(db.table("environment")) - 1
-        for table in filter(lambda table: table != "environment", db.tables()):
-            table = db.table(table)
-
-            with transaction(table) as tr:
-                tr.update({'ENV': idx}, ~Query().ENV.exists())
 
 
 def main():

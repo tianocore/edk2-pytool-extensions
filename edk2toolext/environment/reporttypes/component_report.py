@@ -11,10 +11,10 @@ from argparse import ArgumentParser, Namespace
 from pathlib import Path, PurePath
 from typing import Tuple
 
-from edk2toollib.database import Edk2DB, Query
+from edk2toollib.database import Edk2DB
 
 
-class ComponentDumpQuery:
+class ComponentDumpReport:
     """The interface to create custom reports."""
     def report_info(self):
         """Returns the report standard information.

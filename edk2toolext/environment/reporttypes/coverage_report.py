@@ -13,7 +13,7 @@ import xml.etree.ElementTree as ET
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
-from edk2toollib.database import Edk2DB, Query
+from edk2toollib.database import Edk2DB
 
 from edk2toolext.environment.reporttypes.base_report import Report
 

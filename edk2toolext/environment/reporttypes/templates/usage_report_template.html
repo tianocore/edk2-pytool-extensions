@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>EDK2-PyTool-Extensions Usage Report</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" />
+    <style>
+        div.attribution {
+            border: 1px solid #ddd;
+            background-color: #bbb;
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Javascript libraries -->
+    <script type="text/javascript" charset="utf-8" src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="https://cdn.plot.ly/plotly-2.25.2.min.js"></script> 
+
+    <!-- Html -->
+    <div class="container-fluid">
+        <h2> INF Usage Report</h2>
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="summary-tab" data-bs-toggle="tab" data-bs-target="#summary" type="button" role="tab" aria-controls="summary" aria-selected="true">Summary</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="env-tab" data-bs-toggle="tab" data-bs-target="#env" type="button" role="tab" aria-controls="env" aria-selected="false">Environment Variables</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="data-tab" data-bs-toggle="tab" data-bs-target="#data" type="button" role="tab" aria-controls="data" aria-selected="false">Data Table</button>
+            </li>
+        </ul>
+        <div class="tab-content">
+            <!-- Summary Tab -->
+            <div id="summary" class="tab-pane fade show active" role="tabpanel" aria-labelledby="summary-tab">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        {{ comp_pie_chart }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ lib_pie_chart }}
+                    </div>
+                </div>
+                <div class="row align-items-left">
+                    <div class="col">
+                        <div class="card" style="width: 30rem;">
+                            <h5 class="card-header">Build Information</h5>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">Platform: {{ env.ACTIVE_PLATFORM }}</li>
+                                <li class="list-group-item">Target: {{ env.TARGET }}</li>
+                                <li class="list-group-item">Architectures: {{ env.ARCH }}</li>
+                                <li class="list-group-item">Toolchain: {{ env.TOOLCHAIN }}</li>
+                                <li class="list-group-item">Commit Sha: {{ version }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Environment Variables Tab -->
+            <div id="env" class="tab-pane fade" role="tabpanel" aria-labelledby="env-tab">
+                <div class="card">
+                    <h5 class="card-header">Environment Variables</h5>
+                    <table id="env-table" class="table table-striped table-bordered table-hover display" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Variable</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for key, value in env.items() %}
+                            <tr>
+                                <td>{{ key }}</td>
+                                <td>{{ value }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Data Tab -->
+            <div id="data" class="tab-pane fade" role="tabpanel" aria-labelledby="data-tab">
+                <div class="card">
+                    <h5 class="card-header">INF Information</h5>
+                    <table id="inf-table" class="table table-striped table-bordered table-hover display" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Repository</th>
+                                <th>Package</th>
+                                <th>Path</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for repo, package, path in inf_list %}
+                            <tr>
+                                <td>{{ repo }}</td>
+                                <td>{{ package }}</td>
+                                <td>{{ path }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Scripts -->
+    <script>
+        $(document).ready(function() {
+
+            $('#env-table').DataTable({
+                "pageLength": 20,
+            });
+
+            $('#inf-table').DataTable({
+                "pageLength": 20,
+            });
+        });
+    </script>
+</body>
+</html>
