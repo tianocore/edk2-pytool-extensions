@@ -4,6 +4,7 @@ from edk2toolext.environment.reporttypes.base_report import Report
 from edk2toollib.database import Edk2DB
 from edk2toolext.environment.reporttypes import templates
 import io
+import logging
 try:
     from jinja2 import Environment, FileSystemLoader
     import plotly.graph_objects as go
@@ -129,6 +130,7 @@ class UsageReport(Report):
             path_out += ".html"
         with open(path_out, 'w') as f:
             f.write(html_output)
+        logging.info(f"Report written to {path_out}.")
 
     def _get_env_vars(self, connection, env_id):
         env_vars = {}
