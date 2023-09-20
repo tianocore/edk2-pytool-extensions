@@ -1,19 +1,12 @@
 
-from argparse import ArgumentParser, Namespace
-from edk2toolext.environment.reporttypes.base_report import Report
-from edk2toollib.database import Edk2DB
-from edk2toolext.environment.reporttypes import templates
 import io
 import logging
-try:
-    from jinja2 import Environment, FileSystemLoader
-    import plotly.graph_objects as go
-except ImportError as e:
-    print(e)
-    print("WARNING: This report requires pip modules not installed with edk2-pytool-extensions:")
-    print("  Run the following command: `pip install jinja2 plotly`")
-    exit(-1)
+from argparse import ArgumentParser, Namespace
 
+from edk2toollib.database import Edk2DB
+
+from edk2toolext.environment.reporttypes import templates
+from edk2toolext.environment.reporttypes.base_report import Report
 
 QUERY = """
 WITH variable AS (
@@ -74,6 +67,15 @@ class UsageReport(Report):
 
     def run_report(self, db: Edk2DB, args: Namespace):
         """Generate the Usage report."""
+        try:
+            import plotly.graph_objects as go
+            from jinja2 import Environment, FileSystemLoader
+        except ImportError as e:
+            print(e)
+            print("WARNING: This report requires pip modules not installed with edk2-pytool-extensions:")
+            print("  Run the following command: `pip install jinja2 plotly`")
+            exit(-1)
+
         env_id = args.env_id or db.connection.execute("SELECT id FROM environment ORDER BY date DESC LIMIT 1;").fetchone()[0]
 
         # Vars for html template
@@ -81,17 +83,17 @@ class UsageReport(Report):
         template = env.get_template("usage_report_template.html")
 
         # This is the data that gets passed to the html template
-        data = {}
-
-        data["version"] = db.connection.execute("SELECT version FROM environment WHERE id = ?;", (env_id,)).fetchone()[0]
-        data["env"] = self._get_env_vars(db.connection, env_id)
+        data = {
+            "version": db.connection.execute("SELECT version FROM environment WHERE id = ?;", (env_id,)).fetchone()[0],
+            "env": self._get_env_vars(db.connection, env_id),
+            "inf_list": set(),
+        }
 
         # Split up the data from the database
         lib_infs = {}
         comp_infs = {}
-        inf_list = set()
         for repo, package, inf, _src, _lc, is_component in db.connection.execute(QUERY, (env_id,)).fetchall():
-            inf_list.add((repo, package, inf))
+            data["inf_list"].add((repo, package, inf))
             if is_component:
                 d = comp_infs
             else:
@@ -100,9 +102,6 @@ class UsageReport(Report):
                 d[repo] = [inf]
             else:
                 d[repo].append(inf)
-
-        # Add the inf_list to the data
-        data["inf_list"] = inf_list
 
         # Build the reports
         reports = [
@@ -113,7 +112,7 @@ class UsageReport(Report):
             # Build the figure
             labels = [key for key in value.keys()]
             values = [len(set(value)) for value in value.values()]
-            fig = go.Figure(data=[go.Pie(labels=labels, values=values, hole = .3, title=title, titleposition="top center")])
+            fig = go.Figure(go.Pie(labels=labels, values=values, hole = .3, title=title, titleposition="top center"))
 
             # Write the html
             html = io.StringIO()

@@ -12,7 +12,13 @@ from pathlib import Path
 
 import yaml
 from edk2toollib.database import Edk2DB
-from edk2toollib.database.tables import EnvironmentTable, InfTable, InstancedFvTable, InstancedInfTable, SourceTable, PackageTable
+from edk2toollib.database.tables import (
+    InfTable,
+    InstancedFvTable,
+    InstancedInfTable,
+    PackageTable,
+    SourceTable,
+)
 from edk2toollib.uefi.edk2.path_utilities import Edk2Path
 from edk2toollib.utility_functions import locate_class_in_module
 
@@ -25,6 +31,15 @@ from edk2toolext.invocables.edk2_multipkg_aware_invocable import (
 )
 
 DB_NAME = "DATABASE.db"
+
+
+TABLES = [
+    PackageTable(),
+    SourceTable(),
+    InfTable(),
+    InstancedInfTable(),
+    InstancedFvTable(),
+]
 
 
 class ParseSettingsManager(MultiPkgAwareSettingsInterface):
@@ -75,13 +90,13 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
     def AddCommandLineOptions(self, parserObj):
         """Adds the command line options."""
         super().AddCommandLineOptions(parserObj) # Adds the CI Settings File options
-        parserObj.add_argument('--append', '--Append', "--APPEND", dest='append', action='store_true',
-                               help="Run only the env-aware parsers and append the results to the database.")
+        parserObj.add_argument('--clear', '--Clear', "--CLEAR", dest='clear', action='store_true',
+                               help="Deletes the database before parsing the environment.")
 
     def RetrieveCommandLineOptions(self, args):
         """Retrives the command line options."""
         super().RetrieveCommandLineOptions(args) # Stores the CI Settings File options
-        self.append = args.append
+        self.clear = args.clear
         self.is_uefi_builder = locate_class_in_module(self.PlatformModule, UefiBuilder) is not None
 
     def GetLoggingFolderRelativeToRoot(self):
@@ -97,14 +112,13 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
         db_path = Path(self.GetWorkspaceRoot()) / self.GetLoggingFolderRelativeToRoot() / DB_NAME
         pathobj = Edk2Path(self.GetWorkspaceRoot(), self.GetPackagesPath())
         env = shell_environment.GetBuildVars()
+        logging.info("HELLO")
+
+        if self.clear:
+            db_path.unlink(missing_ok=True)
 
         with Edk2DB(db_path, pathobj=pathobj) as db:
-            db.register(*self.tables())
-            # table_parsers = []
-            # # Generate Environment unaware tables
-            # # TODO check if the database is empty or not
-            # # if len(db.tables()) == 0:
-            # table_parsers.extend([parser() for parser in self.env_unaware_tables()])
+            db.register(*TABLES)
 
             # Generate environment aware tables
             if self.is_uefi_builder:
@@ -112,46 +126,7 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
             else:
                 self.parse_with_ci_settings(db, pathobj, env)
 
-            # self.generate_tables(db, table_parsers, append = True)
-
         return 0
-
-    def generate_tables(self, db: Edk2DB, tables: list, append = False):
-        """Runs parsers to generate a list of tables in the database."""
-        db.register(*tables)
-        db.parse()
-        db.clear_parsers()
-
-    def env_unaware_tables(self) -> list:
-        """Returns table generator objects for tables that don't change based on environment settings.
-
-        These parsers only need to be run once, as environment settings will not affect their output.
-        """
-        return [
-            PackageTable(),
-            SourceTable(),
-            InfTable(),
-        ]
-
-    def env_aware_tables(self) -> list:
-        """Returns table generator objects for tables that change based on environment settings.
-
-        These parsers results will change if the environment changes.
-        """
-        return [
-            EnvironmentTable(),
-            InstancedInfTable(),
-            InstancedFvTable(),
-        ]
-
-    def tables(self) -> list:
-        return [
-            PackageTable(),
-            SourceTable(),
-            InfTable(),
-            InstancedInfTable(),
-            InstancedFvTable(),
-        ]
 
     def parse_with_builder_settings(self, db: Edk2DB, pathobj: Edk2Path, env: VarDict):
         """Parses the workspace using a uefi builder to setup the environment."""
@@ -185,6 +160,11 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
             logging.debug(f"  {key} = {value}")
 
         env_dict = env.GetAllBuildKeyValues() | env.GetAllNonBuildKeyValues()
+        logging.info("Running parsers with the following settings:")
+        logging.info(f"  TARGET: {env_dict['TARGET']}")
+        logging.info(f"  ACTIVE_PLATFORM: {env_dict['ACTIVE_PLATFORM']}")
+        logging.info(f"  TARGET_ARCH: {env_dict['TARGET_ARCH']}")
+        db.parse(env_dict)
         db.parse(env_dict)
         return 0
 
@@ -193,31 +173,37 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
         # Build a list of Parsers to run with the expected settings.
         # The same parser will exist for each package, with that package's settings.
         for package in self.requested_package_list:
-            logging.info(f"Setting up the environment for {package}.")
-            shell_environment.CheckpointBuildVars()
+            for target in set(self.requested_target_list) & set(["DEBUG", "RELEASE"]):
+                logging.info(f"Setting up the environment for {package}.")
+                shell_environment.CheckpointBuildVars()
 
-            pkg_config = self._get_package_config(pathobj, package)
-            dsc = pkg_config.get("CompilerPlugin", {"DscPath": ""})["DscPath"]
-            if not dsc:
-                logging.info("Skipping package, no DSC found in ci.yaml file.")
-                continue
-            dsc = str(Path(package, dsc))
+                pkg_config = self._get_package_config(pathobj, package)
+                dsc = pkg_config.get("CompilerPlugin", {"DscPath": ""})["DscPath"]
+                if not dsc:
+                    logging.info("Package skipped! No DSC found in ci.yaml file.")
+                    continue
+                dsc = str(Path(package, dsc))
 
-            env.SetValue("TARGET", "DEBUG", "Set by Edk2 Parse.")  # Set if not set from CLI
-            env.SetValue("ACTIVE_PLATFORM", dsc, "Set Automatically.")
-            env.SetValue("TARGET_ARCH", " ".join(self.requested_architecture_list), "Set Automatically")
-            env.SetValue("PACKAGES_PATH", ";".join(self.GetPackagesPath()), "Set Automatically")
-            # Load the Defines
-            for key, value in pkg_config.get("Defines", {}).items():
-                env.SetValue(key, value, "Defined in Package CI yaml")
+                env.SetValue("TARGET", target, "Set via commandline arguments")
+                env.SetValue("ACTIVE_PLATFORM", dsc, "Set Automatically.")
+                env.SetValue("TARGET_ARCH", " ".join(self.requested_architecture_list), "Set Automatically")
+                env.SetValue("PACKAGES_PATH", ";".join(self.GetPackagesPath()), "Set Automatically")
 
-            # Log the environment for debug purposes
-            for key, value in (env.GetAllBuildKeyValues() | env.GetAllNonBuildKeyValues()).items():
-                logging.debug(f"  {key} = {value}")
+                # Load the Defines
+                for key, value in pkg_config.get("Defines", {}).items():
+                    env.SetValue(key, value, "Defined in Package CI yaml")
 
-            env_dict = env.GetAllBuildKeyValues() | env.GetAllNonBuildKeyValues()
-            db.parse(env_dict)
-            shell_environment.RevertBuildVars()
+                # Log the environment for debug purposes
+                for key, value in (env.GetAllBuildKeyValues() | env.GetAllNonBuildKeyValues()).items():
+                    logging.debug(f"  {key} = {value}")
+
+                env_dict = env.GetAllBuildKeyValues() | env.GetAllNonBuildKeyValues()
+                logging.info("Running parsers with the following settings:")
+                logging.info(f"  TARGET: {target}")
+                logging.info(f"  ACTIVE_PLATFORM: {dsc}")
+                logging.info(f"  TARGET_ARCH: {' '.join(self.requested_architecture_list)}")
+                db.parse(env_dict)
+                shell_environment.RevertBuildVars()
         return 0
 
     def _get_package_config(self, pathobj: Edk2Path, pkg) -> str:
