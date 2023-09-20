@@ -1,4 +1,13 @@
-
+# @file usage_report.py
+# A report that generates an html report about which repositories INFs (That are consumed for a platform) originate
+# from
+#
+##
+# Copyright (c) Microsoft Corporation
+#
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+"""A report that generates an html report about which repositories INFs origin from."""
 import io
 import logging
 from argparse import ArgumentParser, Namespace
@@ -50,6 +59,20 @@ ORDER BY
     inf_list.path
 """
 
+VERSION_QUERY = """
+SELECT version
+FROM environment
+WHERE id = ?;
+"""
+
+ID_QUERY = """
+SELECT id
+FROM environment
+ORDER BY date
+DESC LIMIT 1;
+"""
+
+
 class UsageReport(Report):
     """A report that generates a INF usage report for a specific build."""
     def report_info(self):
@@ -62,8 +85,11 @@ class UsageReport(Report):
 
     def add_cli_options(self, parserobj: ArgumentParser):
         """Configure command line arguments for this report."""
-        parserobj.add_argument("-e", "-env", dest="env_id", action="store", help = "The environment id to generate the report for. Defaults to the latest environment.")
-        parserobj.add_argument("-o", "-output", dest="output", action="store", help = "The output file to write the report to. Defaults to 'usage_report.html'.", default=None)
+        parserobj.add_argument("-e", "-env", dest="env_id", action="store",
+                               help = "The environment id to generate the report for. Defaults to the latest "
+                               "environment.")
+        parserobj.add_argument("-o", "-output", dest="output", action="store", default=None,
+                               help = "The output file to write the report to. Defaults to 'usage_report.html'.")
 
     def run_report(self, db: Edk2DB, args: Namespace):
         """Generate the Usage report."""
@@ -76,7 +102,7 @@ class UsageReport(Report):
             print("  Run the following command: `pip install jinja2 plotly`")
             exit(-1)
 
-        env_id = args.env_id or db.connection.execute("SELECT id FROM environment ORDER BY date DESC LIMIT 1;").fetchone()[0]
+        env_id = args.env_id or db.connection.execute(ID_QUERY).fetchone()[0]
 
         # Vars for html template
         env = Environment(loader=FileSystemLoader(templates.__path__))
@@ -84,7 +110,7 @@ class UsageReport(Report):
 
         # This is the data that gets passed to the html template
         data = {
-            "version": db.connection.execute("SELECT version FROM environment WHERE id = ?;", (env_id,)).fetchone()[0],
+            "version": db.connection.execute(VERSION_QUERY, (env_id,)).fetchone()[0],
             "env": self._get_env_vars(db.connection, env_id),
             "inf_list": set(),
         }

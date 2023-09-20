@@ -13,6 +13,14 @@ from typing import Tuple
 
 from edk2toollib.database import Edk2DB
 
+COMPONENT_QUERY = """
+SELECT id, path
+FROM instanced_inf
+WHERE
+    (path LIKE ? OR ? LIKE '%' || path || '%')
+    AND env = ?
+"""
+
 LIBRARY_QUERY = """
 SELECT
     instanced_inf.id,
@@ -26,7 +34,22 @@ WHERE
     AND junction.table2 = 'instanced_inf'
     AND junction.key1 = ?
     AND junction.env = ?
-    AND instanced_inf.component = ?
+    AND instanced_inf.component = ?;
+"""
+
+FLAT_LIBRARY_QUERY = """
+SELECT class, path
+FROM instanced_inf
+WHERE
+    component = ?
+    AND path != component;
+"""
+
+ID_QUERY = """
+SELECT id
+FROM environment
+ORDER BY date
+DESC LIMIT 1;
 """
 
 class ComponentDumpReport:
@@ -37,7 +60,7 @@ class ComponentDumpReport:
         Returns:
             (str, str): A tuple of (name, description)
         """
-        return ("component-libs", "Dumps the library instances used by a component.")
+        return ("component-libs", "Dumps the library instances used by  component.")
 
     def add_cli_options(self, parserobj: ArgumentParser):
         """Configure command line arguments for this report."""
@@ -50,7 +73,8 @@ class ComponentDumpReport:
                                help="Flatten the list of libraries used in the component.")
         parserobj.add_argument("-s", "--sort", dest="sort", action="store_true",
                                help="Sort the libraries listed in alphabetical order.")
-        parserobj.add_argument("-e", "--env", dest="env_id", action="store", help="The environment id to generate the report for.")
+        parserobj.add_argument("-e", "--env", dest="env_id", action="store",
+                               help="The environment id to generate the report for.")
 
     def run_report(self, db: Edk2DB, args: Namespace) -> None:
         """Runs the report."""
@@ -63,18 +87,19 @@ class ComponentDumpReport:
 
         self.depth = args.depth
         self.sort = args.sort
-        self.db = db
+        self.conn = db.connection
 
-        self.env_id = args.env_id or db.connection.execute("SELECT id FROM environment ORDER BY date DESC LIMIT 1;").fetchone()[0]
+        self.env_id = args.env_id or self.conn.execute(ID_QUERY).fetchone()[0]
         self.component = PurePath(args.component).as_posix()
 
-        id, inf_path = self.db.connection.execute("SELECT id, path FROM instanced_inf WHERE (path LIKE ? OR ? LIKE '%' || path || '%') AND env = ?", (f'%{self.component}%', self.component, self.env_id)).fetchone()
+        id, inf_path = self.conn.execute(
+            COMPONENT_QUERY, (f'%{self.component}%', self.component, self.env_id)).fetchone()
         # Print in flat format
         if args.flatten:
             return self.print_libraries_flat(inf_path)
 
         # Print in recursive format
-        libraries = self.db.connection.execute(LIBRARY_QUERY, (id, self.env_id, self.component)).fetchall()
+        libraries = self.conn.execute(LIBRARY_QUERY, (id, self.env_id, self.component)).fetchall()
 
         if self.sort:
             libraries = sorted(libraries, key=lambda x: x[1])
@@ -93,7 +118,7 @@ class ComponentDumpReport:
         if library_instance is None:
             return
 
-        libraries = self.db.connection.execute(LIBRARY_QUERY, (id, self.env_id, self.component))
+        libraries = self.conn.execute(LIBRARY_QUERY, (id, self.env_id, self.component))
 
         if self.sort:
             libraries = sorted(libraries, key=lambda x: x[1])
@@ -107,7 +132,7 @@ class ComponentDumpReport:
 
     def print_libraries_flat(self, component):
         """Prints the libraries used in a provided component."""
-        libraries = self.db.connection.execute("SELECT class, path FROM instanced_inf WHERE component = ? AND path != component", (component,)).fetchall()
+        libraries = self.conn.execute(FLAT_LIBRARY_QUERY, (component,)).fetchall()
 
         length = max(len(item[0]) for item in libraries)
         if self.sort:

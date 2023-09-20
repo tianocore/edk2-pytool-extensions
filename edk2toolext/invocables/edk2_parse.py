@@ -112,7 +112,6 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
         db_path = Path(self.GetWorkspaceRoot()) / self.GetLoggingFolderRelativeToRoot() / DB_NAME
         pathobj = Edk2Path(self.GetWorkspaceRoot(), self.GetPackagesPath())
         env = shell_environment.GetBuildVars()
-        logging.info("HELLO")
 
         if self.clear:
             db_path.unlink(missing_ok=True)

@@ -12,11 +12,37 @@ import xml.dom.minidom as minidom
 import xml.etree.ElementTree as ET
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
+import os
 
 from edk2toollib.database import Edk2DB
 
 from edk2toolext.environment.reporttypes.base_report import Report
 
+SOURCE_QUERY = """
+SELECT inf.path, inf.library_class, junction.key2 as source
+FROM
+    inf
+    LEFT JOIN junction ON inf.path = junction.key1
+WHERE
+    junction.table1 = 'inf'
+    AND junction.table2 = 'source'
+    AND junction.env = ?;
+"""
+
+PACKAGE_PATH_QUERY = """
+SELECT value
+FROM environment_values
+WHERE
+    key = 'PACKAGES_PATH'
+    AND id = ?;
+"""
+
+ID_QUERY = """
+SELECT id
+FROM environment
+ORDER BY date
+DESC LIMIT 1;
+"""
 
 class CoverageReport(Report):
     """A report ingests a cobertura.xml file and organizes it by INF."""
@@ -86,11 +112,20 @@ class CoverageReport(Report):
         return file_dict
 
     def _get_inf_cov(self, files: dict, db: Edk2DB, library_only: bool):
-        inf_table = db.table("inf")
-        env_table = db.table("environment")
-        packages_path = env_table.all()[-1]["PACKAGES_PATH"].split(";")
-        if library_only:
-            inf_table = inf_table.search(Query().LIBRARY_CLASS != "")
+        env_id, = db.connection.execute(ID_QUERY).fetchone()
+        pp_list, = db.connection.execute(PACKAGE_PATH_QUERY, (env_id,)).fetchone()
+        pp_list = pp_list.split(os.pathsep)
+
+        # Build dictionary containing source files for each INF
+        # If library_only, filter out INFs that do not have a library_class
+        entry_dict = {}
+        for inf, library_class, source in db.connection.execute(SOURCE_QUERY, (env_id,)):
+            if library_only and library_class == "":
+                continue
+            if inf not in entry_dict:
+                entry_dict[inf] = [source]
+            else:
+                entry_dict[inf].append(source)
 
         root = ET.Element("coverage")
 
@@ -98,20 +133,19 @@ class CoverageReport(Report):
         # Set the sources so that reports can find the right paths.
         source = ET.SubElement(sources, "source")
         source.text = self.args.workspace
-        for pp in packages_path:
+        for pp in pp_list:
             source = ET.SubElement(sources, "source")
             source.text = pp
 
         packages = ET.SubElement(root, "packages")
-        for entry in inf_table:
-            if not entry["SOURCES_USED"]:
+        for path, source_list in entry_dict.items():
+            if not source_list:
                 continue
-            inf = ET.SubElement(packages, "package", path=entry["PATH"], name=Path(entry["PATH"]).name)
+            inf = ET.SubElement(packages, "package", path=path, name=Path(path).name)
             classes = ET.SubElement(inf, "classes")
             found = False
-            for source in entry["SOURCES_USED"]:
-                source = Path(entry["PATH"]).parent / source
-                match = next((key for key in files.keys() if source.is_relative_to(key)), None)
+            for source in source_list:
+                match = next((key for key in files.keys() if Path(source).is_relative_to(key)), None)
                 if match is not None:
                     found = True
                     classes.append(files[match])
