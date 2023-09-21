@@ -37,6 +37,11 @@ WHERE
     AND id = ?;
 """
 
+PACKAGE_LIST_QUERY = """
+SELECT name
+FROM package;
+"""
+
 ID_QUERY = """
 SELECT id
 FROM environment
@@ -72,6 +77,11 @@ class CoverageReport(Report):
     def run_report(self, db: Edk2DB, args: Namespace) -> None:
         """Generate the Coverage report."""
         self.args = args
+
+        # If not packages are specified, use all packages in the database
+        self.args.package_list = self.args.package_list or \
+            [pkg for pkg, in db.connection.execute(PACKAGE_LIST_QUERY).fetchall()]
+
         files = self._build_file_dict(args.xml)
 
         if args.scope == "inf":
@@ -120,7 +130,7 @@ class CoverageReport(Report):
         # If library_only, filter out INFs that do not have a library_class
         entry_dict = {}
         for inf, library_class, source in db.connection.execute(SOURCE_QUERY, (env_id,)):
-            if library_only and library_class == "":
+            if library_only and library_class is None:
                 continue
             if inf not in entry_dict:
                 entry_dict[inf] = [source]
@@ -135,7 +145,7 @@ class CoverageReport(Report):
         source.text = self.args.workspace
         for pp in pp_list:
             source = ET.SubElement(sources, "source")
-            source.text = pp
+            source.text = Path(str(self.args.workspace, pp))
 
         packages = ET.SubElement(root, "packages")
         for path, source_list in entry_dict.items():
