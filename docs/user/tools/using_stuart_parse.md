@@ -2,11 +2,11 @@
 
 The stuart parse tool (`stuart_parse`) is the first half of a two part tool used for generating a database and running
 reports for an Edk2 UEFI codebase. The stuart parse tool will run against a codebase, executing multiple workspace
-parsers and creating a database with tables for each parser that can then be consumed by any tool (though specifically
-by the [edk2 report](/tools/using_edk2_report) tool) to be used as needed. In addition to parsing generic workspace
-information, the parse tool is also able to parse instanced information about a package, utilizing environment
-variables described by either the `stuart_build` (for platform packages) or `stuart_ci_build` (for non-platform
-packages).
+parsers and creating a sqlite3 database with tables for each parser that can then be consumed by any tool (though
+specifically by the [edk2 report](/tools/using_edk2_report) tool) to be used as needed. In addition to parsing generic
+workspace information, the parse tool is also able to parse instanced information about a package, utilizing
+environment variables described by either the `stuart_build` (for platform packages) or `stuart_ci_build` (for
+non-platform packages).
 
 ## Setting Up The Tool
 
@@ -40,6 +40,10 @@ class CiSettingsManger(CiBuildSettingsManager, ParseSettingsManager):
     ...
 ```
 
+Attaching directly to the same object as the `UefiBuilder` or `CiBuildSettingsManager` is for convenience; as long
+as the `UefiBuilder` or `CiBuildSettingsManager` is in the file (or is a parent of a class in the file), the parser
+will work as expected.
+
 **WARNING**: ParseSettingsManager does add additional command line arguments that are used when attached to the same
 object as the `CIBuildSettingsManager`, but also exist when attached to the `UefiBuilder` This may create argument
 parser conflicts between platform added arguments and default arguments, that will need to be resolved.
@@ -54,6 +58,7 @@ Optional Arguments:
   --append, --Append, --APPEND    Run only environment aware parsers and append them to the database.
   -p, --pkg, --pkg-dir            Packages to parse (CI builder only)
   -a, --arch                      Architectures to use when parsing (CI builder only)
+  -t, --target                    Targets (DEBUG, etc.) to use when parsing (CI builder only)
 ```
 
 ## Example usage
@@ -70,4 +75,7 @@ stuart_parse -c .pytool/CISettings.py
 
 :: parse the workspace for all packages supported in mu_basecore, filtering the packages
 stuart_parse -c .pytool/CISettings.py -p MdePkg -p MdeModulePkg
+
+:: parse the workspace for all packages supported in mu_basecore, only using DEBUG
+stuart_parse -c .pytool/CISettings.py -t DEBUG
 ```

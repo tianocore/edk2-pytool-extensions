@@ -7,12 +7,12 @@
 ##
 """A report ingests a cobertura.xml file and organizes it by INF."""
 import logging
+import os
 import re
 import xml.dom.minidom as minidom
 import xml.etree.ElementTree as ET
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
-import os
 
 from edk2toollib.database import Edk2DB
 
@@ -145,7 +145,7 @@ class CoverageReport(Report):
         source.text = self.args.workspace
         for pp in pp_list:
             source = ET.SubElement(sources, "source")
-            source.text = Path(str(self.args.workspace, pp))
+            source.text = str(Path(self.args.workspace, pp))
 
         packages = ET.SubElement(root, "packages")
         for path, source_list in entry_dict.items():
@@ -171,3 +171,4 @@ class CoverageReport(Report):
         p.unlink(missing_ok=True)
         with open(p, 'wb') as f:
             f.write(dom.toxml(encoding="utf-8"))
+        logging.info(f"Coverage report written to {p}")

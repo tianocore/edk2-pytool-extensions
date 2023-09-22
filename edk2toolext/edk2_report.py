@@ -11,6 +11,9 @@ import pathlib
 import sys
 from argparse import ArgumentParser
 from datetime import datetime
+import glob
+import tempfile
+import sqlite3
 
 from edk2toollib.database import Edk2DB
 
@@ -34,9 +37,8 @@ def parse_args():
     parser = ArgumentParser("A tool to generate reports on a edk2 workspace.")
     parser.add_argument('--verbose', '--VERBOSE', '-v', dest="verbose", action='store_true', default=False,
                         help='verbose')
-    parser.add_argument('-db', '--database', '--DATABASE', dest='database', type = pathlib.Path,
-                        default=pathlib.Path("Report","DATABASE.db"),
-                        help="The database to use when generating reports.")
+    parser.add_argument('-db', '--database', '--DATABASE', dest='database', default=str(pathlib.Path("Report","DATABASE.db")),
+                        help="The database to use when generating reports. Can be a comma separated list of db's to merge. Globbing is supported.")
 
     # Register the report arguments as subparser
     subparsers = parser.add_subparsers(dest='cmd', required=[])
@@ -53,10 +55,31 @@ def main():
     setup_logging(args.verbose)
 
     # Verify arguments
-    db_path = args.database
-    if not db_path.exists():
-        logging.error(f"Database not found at path: [{db_path}]")
+    to_merge = []
+    database_list = args.database.split(",")
+    for database in database_list:
+        found = list(glob.glob(database))
+        if not found:
+            logging.warning(f"No database at path: [{database}]")
+        else:
+            to_merge.extend(list(glob.glob(database)))
+
+    if not to_merge:
+        logging.error("No databases found.")
         return -1
+
+    for database in to_merge:
+        if not pathlib.Path(database).exists():
+            logging.error(f"Database does not exst: [{database}]")
+            return -1
+
+    if len(to_merge) == 1:
+        logging.info(f"Single Database file found at: {to_merge[0]}")
+        db_path = to_merge[0]
+    else:
+        logging.info("Multiple Database files found...")
+        db_path = merge_databases(to_merge).name
+
     del args.database
     cmd = args.cmd
     del args.cmd
@@ -67,6 +90,26 @@ def main():
             if name == cmd:
                 return report.run_report(db, args)
     return -1
+
+def merge_databases(databases: list[str]) -> str:
+    """Performs an in-memory merge of databases and provides a string path to the temporary file."""
+    logging.info(f"Merging database: {databases[0]}")
+    db = pathlib.Path(databases[0])
+    temp_db = tempfile.NamedTemporaryFile(delete=False)
+    temp_db.write(db.read_bytes())
+
+    conn = sqlite3.connect(temp_db.name)
+    tables = conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
+    for database in databases[1:]:
+        logging.info(f"Merging database: {database}")
+        conn.execute(f"ATTACH DATABASE '{database}' AS temp_db")
+        for table, in tables:
+            conn.execute(f"INSERT OR REPLACE INTO main.{table} SELECT * FROM temp_db.{table};")
+        conn.commit()
+        conn.execute("DETACH DATABASE temp_db;")
+        conn.commit()
+
+    return temp_db
 
 
 def go():
