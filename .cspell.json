@@ -96,6 +96,8 @@
         "pefile",
         "pkgconfig",
         "PKGS",
+        "plotly",
+        "plotlyjs",
         "plugintypes",
         "pousr",
         "ppis",

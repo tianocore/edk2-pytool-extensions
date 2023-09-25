@@ -42,7 +42,7 @@ xml that re-organizes the data to be based off the library INF rather than the
 executed binary used for testing. It provides a more accurate representation of
 the current code coverage as most UEFI developers will care about code coverage
 of a specific library. Additionally, some files are used in multiple INFs,
-which this report will more accruately depict.
+which this report will more accurately depict.
 
 Due to the complex nature involved in building a UEFI package, code coverage
 results can also contain code coverage results for INFs outside of the package

@@ -72,7 +72,7 @@ def main():
 
     for database in to_merge:
         if not pathlib.Path(database).exists():
-            logging.error(f"Database does not exst: [{database}]")
+            logging.error(f"Database does not exist: [{database}]")
             return -1
 
     if len(to_merge) == 1:
