@@ -164,7 +164,6 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
         logging.info(f"  ACTIVE_PLATFORM: {env_dict['ACTIVE_PLATFORM']}")
         logging.info(f"  TARGET_ARCH: {env_dict['TARGET_ARCH']}")
         db.parse(env_dict)
-        db.parse(env_dict)
         return 0
 
     def parse_with_ci_settings(self, db: Edk2DB, pathobj: Edk2Path, env: VarDict):

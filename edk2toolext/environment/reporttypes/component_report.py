@@ -14,27 +14,25 @@ from typing import Tuple
 from edk2toollib.database import Edk2DB
 
 COMPONENT_QUERY = """
-SELECT id, path
+SELECT path
 FROM instanced_inf
 WHERE
     (path LIKE ? OR ? LIKE '%' || path || '%')
-    AND env = ?
+    AND env = ?;
 """
 
 LIBRARY_QUERY = """
-SELECT
-    instanced_inf.id,
-    instanced_inf.class,
-    instanced_inf.path
-FROM
-    junction
-    LEFT JOIN instanced_inf ON instanced_inf.id = junction.key2
+SELECT ii.class, iij.instanced_inf2
+FROM instanced_inf_junction AS iij
+JOIN instanced_inf as ii
+    ON
+        ii.env = iij.env
+        AND ii.component = iij.component
+        AND iij.instanced_inf2 = ii.path
 WHERE
-    junction.table1 = 'instanced_inf'
-    AND junction.table2 = 'instanced_inf'
-    AND junction.key1 = ?
-    AND junction.env = ?
-    AND instanced_inf.component = ?;
+    iij.env = ?
+    AND iij.component = ?
+    AND iij.instanced_inf1 = ?;
 """
 
 FLAT_LIBRARY_QUERY = """
@@ -42,6 +40,7 @@ SELECT class, path
 FROM instanced_inf
 WHERE
     component = ?
+    AND env = ?
     AND path != component;
 """
 
@@ -92,14 +91,14 @@ class ComponentDumpReport:
         self.env_id = args.env_id or self.conn.execute(ID_QUERY).fetchone()[0]
         self.component = PurePath(args.component).as_posix()
 
-        id, inf_path = self.conn.execute(
+        inf_path, = self.conn.execute(
             COMPONENT_QUERY, (f'%{self.component}%', self.component, self.env_id)).fetchone()
         # Print in flat format
         if args.flatten:
             return self.print_libraries_flat(inf_path)
 
         # Print in recursive format
-        libraries = self.conn.execute(LIBRARY_QUERY, (id, self.env_id, self.component)).fetchall()
+        libraries = self.conn.execute(LIBRARY_QUERY, (self.env_id, self.component, self.component)).fetchall()
 
         if self.sort:
             libraries = sorted(libraries, key=lambda x: x[1])
@@ -108,9 +107,9 @@ class ComponentDumpReport:
         for library in libraries:
             self.print_libraries_recursive(library, [])
 
-    def print_libraries_recursive(self, library: Tuple[str, str, str], visited: list, depth: int = 0):
+    def print_libraries_recursive(self, library: Tuple[str, str], visited: list, depth: int = 0):
         """Prints the libraries used in a provided library / component."""
-        id, library_class, library_instance = library
+        library_class, library_instance = library
         if depth >= self.depth:
             return
         print(f'{"  "*depth}- {library_class}| {library_instance or "NOT FOUND IN DSC"}', file=self.file)
@@ -118,7 +117,7 @@ class ComponentDumpReport:
         if library_instance is None:
             return
 
-        libraries = self.conn.execute(LIBRARY_QUERY, (id, self.env_id, self.component))
+        libraries = self.conn.execute(LIBRARY_QUERY, (self.env_id, self.component, library_instance)).fetchall()
 
         if self.sort:
             libraries = sorted(libraries, key=lambda x: x[1])
@@ -132,7 +131,7 @@ class ComponentDumpReport:
 
     def print_libraries_flat(self, component):
         """Prints the libraries used in a provided component."""
-        libraries = self.conn.execute(FLAT_LIBRARY_QUERY, (component,)).fetchall()
+        libraries = self.conn.execute(FLAT_LIBRARY_QUERY, (component,self.env_id)).fetchall()
 
         length = max(len(item[0]) for item in libraries)
         if self.sort:

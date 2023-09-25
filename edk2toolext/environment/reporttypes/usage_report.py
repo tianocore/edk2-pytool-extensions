@@ -39,7 +39,7 @@ FROM
         FROM
             variable,
             instanced_fv
-            JOIN junction ON instanced_fv.id = junction.key1
+            JOIN junction ON instanced_fv.env = junction.env
             AND junction.table1 = 'instanced_fv'
             AND junction.table2 = 'inf'
             JOIN instanced_inf ON instanced_inf.component = junction.key2
