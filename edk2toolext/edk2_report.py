@@ -6,14 +6,14 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 """An executable that allows a user to select a report and execute it on a given database."""
+import glob
 import logging
 import pathlib
+import sqlite3
 import sys
+import tempfile
 from argparse import ArgumentParser
 from datetime import datetime
-import glob
-import tempfile
-import sqlite3
 
 from edk2toollib.database import Edk2DB
 
@@ -37,14 +37,16 @@ def parse_args():
     parser = ArgumentParser("A tool to generate reports on a edk2 workspace.")
     parser.add_argument('--verbose', '--VERBOSE', '-v', dest="verbose", action='store_true', default=False,
                         help='verbose')
-    parser.add_argument('-db', '--database', '--DATABASE', dest='database', default=str(pathlib.Path("Report","DATABASE.db")),
-                        help="The database to use when generating reports. Can be a comma separated list of db's to merge. Globbing is supported.")
+    parser.add_argument('-db', '--database', '--DATABASE', dest='database',
+                        default=str(pathlib.Path("Report","DATABASE.db")),
+                        help="The database to use when generatingreports. Can be a comma separated list of db's to "
+                             "merge. Globbing is supported.")
 
     # Register the report arguments as subparser
     subparsers = parser.add_subparsers(dest='cmd', required=[])
     for report in REPORTS:
         name, description = report.report_info()
-        report_parser = subparsers.add_parser(name, help=description)
+        report_parser = subparsers.add_parser(name, description=description)
         report.add_cli_options(report_parser)
 
     return parser.parse_args()
