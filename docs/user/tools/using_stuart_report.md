@@ -10,15 +10,17 @@ the fact, or used to compare different versions of the firmware.
 ## Command line arguments
 
 ``` cmd
+usage: A tool to generate reports on a edk2 workspace. [-h] [--verbose] [-db DATABASE] {coverage,component-libs,usage} ...
+
 positional arguments:
-    {...} # List of available reports and a short description
+  {coverage,component-libs,usage}
 
 options:
   -h, --help            show this help message and exit
   --verbose, --VERBOSE, -v
                         verbose
   -db DATABASE, --database DATABASE, --DATABASE DATABASE
-                        The database to use when generating reports.
+                        The database to use when generating reports. Can be a comma separated list of db's to merge. Globbing is supported.
 ```
 
 Review the command line arguments with `stuart_report -h`. As you can tell, the
