@@ -38,7 +38,7 @@ def parse_args():
     parser.add_argument('--verbose', '--VERBOSE', '-v', dest="verbose", action='store_true', default=False,
                         help='verbose')
     parser.add_argument('-db', '--database', '--DATABASE', dest='database',
-                        default=str(pathlib.Path("Report","DATABASE.db")),
+                        default=str(pathlib.Path("Build","DATABASE.db")),
                         help="The database to use when generating reports. Can be a comma separated list of db's to "
                              "merge. Globbing is supported.")
 

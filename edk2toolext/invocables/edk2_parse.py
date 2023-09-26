@@ -99,10 +99,6 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
         self.clear = args.clear
         self.is_uefi_builder = locate_class_in_module(self.PlatformModule, UefiBuilder) is not None
 
-    def GetLoggingFolderRelativeToRoot(self):
-        """Returns the folder to place logging files in."""
-        return "Report"
-
     def GetLoggingFileName(self, loggerType):
         """Returns the logging file name for this invocation."""
         return "PARSE_LOG"
