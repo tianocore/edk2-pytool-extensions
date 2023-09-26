@@ -1,4 +1,4 @@
-# @file report_generator.py
+# @file edk2_report.py
 # An executable that allows a user to select a report and execute it on a given database.
 ##
 # Copyright (c) Microsoft Corporation

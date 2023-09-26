@@ -7,7 +7,7 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
-"""A report that generates an html report about which repositories INFs origin from."""
+"""A report that generates an html report about which repositories INFs originate from."""
 import io
 import logging
 from argparse import ArgumentParser, Namespace

@@ -68,4 +68,4 @@ parser conflicts between platform added arguments and default arguments, that wi
 `Stuart_report` is a standalone command line tool that is not need to be associated with a python settings file. It
 only needs access to the database. Out of convenience, it assumes the database exists where `stuart_report` generates
 it in the workspace, however you can override that with the `-db` command line argument. Simply run `stuart_report -h`
-to view all reports, or review [TODO] TODO.
+to view all reports, or review [Using Reports](/using/reporting/)

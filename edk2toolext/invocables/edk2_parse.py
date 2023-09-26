@@ -32,7 +32,6 @@ from edk2toolext.invocables.edk2_multipkg_aware_invocable import (
 
 DB_NAME = "DATABASE.db"
 
-
 TABLES = [
     PackageTable(),
     SourceTable(),
@@ -166,8 +165,6 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
 
     def parse_with_ci_settings(self, db: Edk2DB, pathobj: Edk2Path, env: VarDict):
         """Parses the workspace using ci settings to setup the environment."""
-        # Build a list of Parsers to run with the expected settings.
-        # The same parser will exist for each package, with that package's settings.
         for package in self.requested_package_list:
             for target in set(self.requested_target_list) & set(["DEBUG", "RELEASE"]):
                 logging.info(f"Setting up the environment for {package}.")

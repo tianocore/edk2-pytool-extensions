@@ -1,5 +1,5 @@
-# @file component_query.py
-# A query to print information about a component that could be compiled.
+# @file component_report.py
+# A report to print information about a component that could be compiled.
 ##
 # Copyright (c) Microsoft Corporation
 #
