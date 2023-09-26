@@ -109,6 +109,8 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
         pathobj = Edk2Path(self.GetWorkspaceRoot(), self.GetPackagesPath())
         env = shell_environment.GetBuildVars()
 
+        logging.info(f"Generating database at {db_path}")
+
         if self.clear:
             db_path.unlink(missing_ok=True)
 

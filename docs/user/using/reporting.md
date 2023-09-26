@@ -1,8 +1,8 @@
 # Reporting
 
-Top take your EDKII workspace from freshly cloned, to parsed and ready to be reported on, you only need to execute three commands.
-If you've properly [installed](/using/install) edk2-pytool-extensions, then these commands will be available to execute as seen
-below:
+Top take your EDK2 workspace from freshly cloned, to parsed and ready to be reported on, you only need to execute three
+commands. If you've properly [installed](/using/install) edk2-pytool-extensions, then these commands will be available
+to execute as seen below:
 
 ```cmd
 stuart_setup (or stuart_ci_setup) -c path/to/SettingsFile.py

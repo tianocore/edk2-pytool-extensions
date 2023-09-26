@@ -1,6 +1,6 @@
-# Reporting on a EDKII workspace
+# Reporting on a EDK2 workspace
 
-Stuart provides both a library implementation and an invocable for parsing an EDKII workspace, creating a database, and
+Stuart provides both a library implementation and an invocable for parsing an EDK2 workspace, creating a database, and
 running generic reports against the database. Reporting is supported both on regular packages (built with
 `stuart_ci_build`) and platform packages (built with `stuart_build`).
 
