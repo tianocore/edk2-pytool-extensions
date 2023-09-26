@@ -126,6 +126,19 @@ This includes compiler plugin, which builds each package for the required
 targets. Stuart will checkpoint the original environment and restore that
 checkpoint between each test.
 
+### stuart_parse
+
+This is the first of two commands that, given a list of packages, will parse
+and create a sqlite3 database that is used by a second invocable to generate
+reports or run queries against.
+
+### stuart_report
+
+While the database is standalone, and you can run sql queries directly against
+the database, stuart_report allows you to run prebuilt queries and reports
+against the database. Each report is different, from printing results to the
+terminal, to creating an html document to view results.
+
 ## Living with Stuart
 
 ### .gitignore

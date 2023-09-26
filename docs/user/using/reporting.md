@@ -1,13 +1,54 @@
-# Report Generator Tool
+# Reporting
 
-The report generator tool `stuart_report` is a tool that allows you to run
-reports on database that was generated via `stuart_parse`. The tool is designed
-to be portable, such that it can be ran on a database and the repository the
-database was generated from does not have to be present. This is so that
-databases can be archived, or passed around, and reports can be generated after
-the fact, or used to compare different versions of the firmware.
+Top take your EDKII workspace from freshly cloned, to parsed and ready to be reported on, you only need to execute three commands.
+If you've properly [installed](/using/install) edk2-pytool-extensions, then these commands will be available to execute as seen
+below:
 
-## Command line arguments
+```cmd
+stuart_setup (or stuart_ci_setup) -c path/to/SettingsFile.py
+stuart_update -c path/to/SettingsFile.py
+stuart_parse -c path/to/SettingsFile.py
+```
+
+From there, you will use stuart_report (or sql queries against the database) to run reports / queries against the database.
+
+## Stuart Parse
+
+### Command Line Interface
+
+Similar to all other invocables, the user can use the `-h` flag review a detailed description of the CLI interface,
+however for convenience, here are the options available:
+
+``` cmd
+Optional Arguments:
+  --append, --Append, --APPEND    Run only environment aware parsers and append them to the database.
+  -p, --pkg, --pkg-dir            Packages to parse (CI builder only)
+  -a, --arch                      Architectures to use when parsing (CI builder only)
+  -t, --target                    Targets (DEBUG, etc.) to use when parsing (CI builder only)
+```
+
+### Example usage
+
+``` cmd
+:: parse the workspace for mu_tiano_platform's QemuQ35Pkg in debug mode
+stuart_parse -c Platforms/QemuQ35Pkg/PlatformBuild.py TARGET=DEBUG
+
+:: parse the workspace for mu_tiano_platform's QemuQ35Pkg in release mode, appending the results to the existing database
+stuart_parse -c Platforms/QemuQ35Pkg/PlatformBuild.py --append TARGET=RELEASE
+
+:: parse the workspace for all packages supported in mu_basecore
+stuart_parse -c .pytool/CISettings.py
+
+:: parse the workspace for all packages supported in mu_basecore, filtering the packages
+stuart_parse -c .pytool/CISettings.py -p MdePkg -p MdeModulePkg
+
+:: parse the workspace for all packages supported in mu_basecore, only using DEBUG
+stuart_parse -c .pytool/CISettings.py -t DEBUG
+```
+
+## Stuart Report
+
+### Command line arguments
 
 ``` cmd
 usage: A tool to generate reports on a edk2 workspace. [-h] [--verbose] [-db DATABASE] {coverage,component-libs,usage} ...
@@ -35,7 +76,7 @@ arguments so before running a report, it is important to review it's interface
 also `stuart_report <Report> -h` to see the customizations / necessary
 arguments for the report.
 
-### Coverage Report
+#### Coverage Report
 
 `stuart_report coverage` converts coverage xml results into a similar coverage
 xml that re-organizes the data to be based off the library INF rather than the
@@ -70,7 +111,7 @@ options:
   --library             To only show results for library INFs
 ```
 
-### Usage Report
+#### Usage Report
 
 `stuart_report usage` generates a standalone html document (requires internat)
 that contains pie charts showing the different library and component INFs that
@@ -91,7 +132,7 @@ options:
                         The output file to write the report to. Defaults to 'usage_report.html'.
 ```
 
-### Component Library Report
+#### Component Library Report
 
 `stuart_report component-libs` prints to the terminal (or writes to a file) the
 actual list of library instances (and their associated library classes) used to
