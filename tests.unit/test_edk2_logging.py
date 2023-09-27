@@ -6,10 +6,11 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 import io
+import logging
 import os
 import tempfile
 import unittest
-import logging
+
 from edk2toolext import edk2_logging
 
 
@@ -194,7 +195,7 @@ class Test_edk2_logging(unittest.TestCase):
 def test_NO_secret_filter(caplog):
     end_list = [" ", ",", ";", ":", " "]
     start_list = [" ", " ", " ", " ", ":"]
-    
+
     edk2_logging.setup_console_logging(logging.DEBUG)
     # Test secret github (valid) 1
     fake_secret = "ghp_aeiou1"
@@ -209,7 +210,7 @@ def test_CI_secret_filter(caplog):
     caplog.set_level(logging.DEBUG)
     end_list = [" ", ",", ";", ":", " "]
     start_list = [" ", " ", " ", " ", ":"]
-    
+
     os.environ["CI"] = "TRUE"
     edk2_logging.setup_console_logging(logging.DEBUG)
     caplog.clear()
@@ -227,7 +228,7 @@ def test_TF_BUILD_secret_filter(caplog):
     caplog.set_level(logging.DEBUG)
     end_list = [" ", ",", ";", ":", " "]
     start_list = [" ", " ", " ", " ", ":"]
-    
+
     os.environ["TF_BUILD"] = "TRUE"
     edk2_logging.setup_console_logging(logging.DEBUG)
     caplog.clear()
@@ -286,3 +287,55 @@ def test_catch_secrets_filter(caplog):
     for (record, start, end) in zip(caplog.records, start_list, end_list):
         assert record.msg == f"This is a secret{start}{fake_secret}{end}to be caught"
     caplog.clear()
+
+def test_scan_compiler_output_rust_scenarios():
+    output_stream = io.StringIO(r"""
+error: This should be caught
+error[AA500]: This should not be caught
+error[E0605]: This should be caught
+error[E0605] This should not be caught
+catch this error: This should not be caught
+--> This should be caught
+> This should not be caught
+catch this error --> This should not be caught
+    """)
+    expected_output = [
+        (logging.ERROR, 'error: This should be caught'),
+        (logging.ERROR, 'error[E0605]: This should be caught'),
+        (logging.ERROR, '--> This should be caught'),
+    ]
+    assert edk2_logging.scan_compiler_output(output_stream) == expected_output
+
+def test_scan_compiler_output_rust_actual():
+    output_stream = io.StringIO(r"""
+[cargo-make] INFO - cargo make 0.37.1
+[cargo-make] INFO - Calling cargo metadata to extract project info
+[cargo-make] INFO - Cargo metadata done
+[cargo-make] INFO - Build File: Makefile.toml
+[cargo-make] INFO - Task: build
+[cargo-make] INFO - Profile: development
+[cargo-make] INFO - Running Task: legacy-migration
+[cargo-make] INFO - Running Task: individual-package-targets
+[cargo-make] INFO - Execute Command: "cargo" "build" "-p" "RustCrate" "--profile" "dev" "--target" "x86_64-unknown-uefi" "-Zbuild-std=core,compiler_builtins,alloc" "-Zbuild-std-features=compiler-builtins-mem" "-Zunstable-options" "--timings=html"
+   Compiling RustCrate v0.1.0 (C:\\src\\RustCrate)
+error[E0605]: non-primitive cast: `MemorySpaceDescriptor` as `*mut MemorySpaceDescriptor`
+   --> RustCrate\\src/main.rs:248:66
+    |
+248 |         if get_memory_space_descriptor(desc.memory_base_address, descriptor as *mut MemorySpaceDescriptor)
+    |                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ invalid cast
+    |
+help: consider borrowing the value
+    |
+248 |         if get_memory_space_descriptor(desc.memory_base_address, &mut descriptor as *mut MemorySpaceDescriptor)
+    |                                                                  ++++
+
+For more information about this error, try `rustc --explain E0605`.
+error: could not compile `RustCrate` (bin "RustCrate") due to previous error
+      Timing report saved to C:\\src\\RustCrate\\target\\cargo-timings\\cargo-timing-20230927T151803Z.html
+[cargo-make] ERROR - Error while executing command, exit code: 101
+[cargo-make] WARN - Build Failed.
+    """)
+    expected_output = [(logging.ERROR, 'error[E0605]: non-primitive cast: `MemorySpaceDescriptor` as `*mut MemorySpaceDescriptor`'),
+                        (logging.ERROR, r'--> RustCrate\\src/main.rs:248:66'),
+                        (logging.ERROR, 'error: could not compile `RustCrate` (bin "RustCrate") due to previous error')]
+    assert edk2_logging.scan_compiler_output(output_stream) == expected_output
