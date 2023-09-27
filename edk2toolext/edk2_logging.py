@@ -231,6 +231,7 @@ def scan_compiler_output(output_stream):
     build_py_error_exp = re.compile(r"error (\d+)E:")
     linker_error_exp = re.compile(r"error LNK(\d+):")
     warning_exp = re.compile(r"warning [A-Z]?(\d+):")
+    rust_error_exp = re.compile(r"^(-->|error(?:\[[A-Za-z]\d+\])?:)")
     for raw_line in output_stream.readlines():
         line = raw_line.strip("\n").strip()
         match = error_exp.search(line)
@@ -260,6 +261,9 @@ def scan_compiler_output(output_stream):
         if match is not None:
             error = output_compiler_error(match, line, "Build.py")
             problems.append((logging.ERROR, error))
+        match = rust_error_exp.search(line)
+        if match is not None:
+            problems.append((logging.ERROR, line))
     return problems
 
 
