@@ -9,17 +9,16 @@ release (3.9, 3.10, etc).
 Each individual step will be a different section below and be associated with a
 specific file that must be updated.
 
-### setup.py
+### pyproject.toml
 
 This file is responsible for the release process to pypi. We want to make sure
-we keep the required python version for our pypi releases up to date.
-Within `setuptools.setup()` locate the line `python_requires = "XXX"` and
-update it to the next version.
+we keep the required version for our pypi releases up to date. Update
+`requires-python` to the minimum required python.
 
 We typically support the last three minor versions; barring any special
 exceptions, if the newest minor version is 3.11, then overall, we will
 support 3.9, 3.10, and 3.11. Therefore you should update the line to
-`python_requires = ">=3.9.0"`.
+`python-requires = ">=3.9.0"`.
 
 Additionally, we must update the classifiers section to show the three
 supported python versions:
@@ -32,6 +31,14 @@ classifiers=[
         "Programming Language :: Python :: 3.11"
     ]
 ```
+
+### bug_report.yml
+
+Update the supported python versions in the entry with `id: py_version`
+
+### VariableProducer.yml
+
+Update `pythonversions` to the support versions
 
 ### tests.integration/azure-pipelines/windows-robot-integration-test.yml
 

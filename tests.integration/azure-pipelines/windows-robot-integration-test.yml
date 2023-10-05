@@ -10,7 +10,7 @@
 parameters:
 - name: PythonVersionList
   type: object
-  default: ['3.9', '3.10', '3.11']
+  default: ['3.10', '3.11', '3.12']
 
 jobs:
 - job:
