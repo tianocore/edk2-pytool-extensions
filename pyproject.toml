@@ -9,6 +9,7 @@ dynamic = ["version"]
 description = "Python tools supporting UEFI EDK2 firmware development"
 readme = {file = "readme.md", content-type = "text/markdown"}
 license = {file = "LICENSE"}
+requires-python = ">=3.10"
 dependencies = [
     "edk2-pytool-library>=0.16.1",
     "pyyaml>=6.0.0",
@@ -18,6 +19,7 @@ dependencies = [
     "openpyxl>=3.1.2",
     "XlsxWriter>=3.0.9",
     "pywin32>=305; sys_platform=='win32'",
+    "setuptools>=68.2.2",
 ]
 
 classifiers = [
