@@ -85,10 +85,7 @@ jobs:
         output.xml
         report.html
       flattenFolders: true
-    # condition: succeededOrFailed()
-    condition: and(succeededOrFailed(), not(and(eq(variables.PythonVersion, '3.9'), contains(variables.Image, 'ubuntu'))))  
-    # Above conditional is a temp workaround for known ubuntu python 3.9 Tar file bug
-    # https://bugzilla.tianocore.org/show_bug.cgi?id=3891
+    condition: succeededOrFailed()
 
   # Publish build artifacts to Azure Artifacts/TFS or a file share
   - task: PublishBuildArtifacts@1
