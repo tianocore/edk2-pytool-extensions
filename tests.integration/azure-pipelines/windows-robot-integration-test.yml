@@ -10,7 +10,7 @@
 parameters:
 - name: PythonVersionList
   type: object
-  default: ['3.9', '3.10', '3.11']
+  default: ['3.10', '3.11', '3.12']
 
 jobs:
 - job:
@@ -73,9 +73,6 @@ jobs:
   - script: python -m robot.run -v TEST_OUTPUT_BASE:$(Build.BinariesDirectory) -v TOOL_CHAIN_TAG:$(ToolChain) -d report --xunit xunittestresults.xml --include $(Tag) -L TRACE .
     displayName: 'Run Robot Tests'
     workingDirectory: "tests.integration"
-    condition: not(and(eq(variables.PythonVersion, '3.9'), contains(variables.Image, 'ubuntu')))  
-    # Above conditional is a temp workaround for known ubuntu python 3.9 Tar file bug
-    # https://bugzilla.tianocore.org/show_bug.cgi?id=3891
 
   # Copy the build logs to the artifact staging directory
   - task: CopyFiles@2
@@ -88,10 +85,7 @@ jobs:
         output.xml
         report.html
       flattenFolders: true
-    # condition: succeededOrFailed()
-    condition: and(succeededOrFailed(), not(and(eq(variables.PythonVersion, '3.9'), contains(variables.Image, 'ubuntu'))))  
-    # Above conditional is a temp workaround for known ubuntu python 3.9 Tar file bug
-    # https://bugzilla.tianocore.org/show_bug.cgi?id=3891
+    condition: succeededOrFailed()
 
   # Publish build artifacts to Azure Artifacts/TFS or a file share
   - task: PublishBuildArtifacts@1

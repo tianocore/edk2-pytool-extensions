@@ -41,18 +41,18 @@ coverage of those unit tests. We require 100% unit test success
 
 | Host Type           | Toolchain   | Project    | Integration Tests |
 | :------------------ | :---------  | :--------- | :---------------- |
-| Windows Server 2019 | Python 3.9  | Edk2       | [![ewt1]][_it]    |
-| Windows Server 2019 | Python 3.10 | Edk2       | [![ewt2]][_it]    |
-| Windows Server 2019 | Python 3.11 | Edk2       | [![ewt3]][_it]    |
-| Linux Ubuntu 20.04  | Python 3.9  | Edk2       | [![eut1]][_i359]  |
-| Linux Ubuntu 20.04  | Python 3.10 | Edk2       | [![eut2]][_it]    |
-| Linux Ubuntu 20.04  | Python 3.11 | Edk2       | [![eut3]][_it]    |
-| Windows Server 2022 | Python 3.9  | Project Mu | [![mwt1]][_it]    |
-| Windows Server 2022 | Python 3.10 | Project Mu | [![mwt2]][_it]    |
-| Windows Server 2022 | Python 3.11 | Project Mu | [![mwt3]][_it]    |
-| Linux Ubuntu 22.04  | Python 3.9  | Project Mu | [![mut1]][_i359]  |
-| Linux Ubuntu 22.04  | Python 3.10 | Project Mu | [![mut2]][_it]    |
-| Linux Ubuntu 22.04  | Python 3.11 | Project Mu | [![mut3]][_it]    |
+| Windows Server 2019 | Python 3.10 | Edk2       | [![ewt1]][_it]    |
+| Windows Server 2019 | Python 3.11 | Edk2       | [![ewt2]][_it]    |
+| Windows Server 2019 | Python 3.12 | Edk2       | [![ewt3]][_it]    |
+| Linux Ubuntu 20.04  | Python 3.10 | Edk2       | [![eut1]][_i359]  |
+| Linux Ubuntu 20.04  | Python 3.11 | Edk2       | [![eut2]][_it]    |
+| Linux Ubuntu 20.04  | Python 3.12 | Edk2       | [![eut3]][_it]    |
+| Windows Server 2022 | Python 3.10 | Project Mu | [![mwt1]][_it]    |
+| Windows Server 2022 | Python 3.11 | Project Mu | [![mwt2]][_it]    |
+| Windows Server 2022 | Python 3.12 | Project Mu | [![mwt3]][_it]    |
+| Linux Ubuntu 22.04  | Python 3.10 | Project Mu | [![mut1]][_i359]  |
+| Linux Ubuntu 22.04  | Python 3.11 | Project Mu | [![mut2]][_it]    |
+| Linux Ubuntu 22.04  | Python 3.12 | Project Mu | [![mut3]][_it]    |
 
 ### Current Release
 
@@ -173,18 +173,18 @@ contributing to the edk2-pytool-extensions repository.
 
 [_it]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_build?definitionId=52&_a=summary&repositoryFilter=2&branchFilter=14
 [_i359]: https://github.com/tianocore/edk2-pytool-extensions/issues/359
-[ewt1]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Integration%20Tests?branchName=master&configuration=Edk2_Windows_Python39
-[ewt2]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Integration%20Tests?branchName=master&configuration=Edk2_Windows_Python310
-[ewt3]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Integration%20Tests?branchName=master&configuration=Edk2_Windows_Python311
+[ewt1]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Integration%20Tests?branchName=master&configuration=Edk2_Windows_Python310
+[ewt2]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Integration%20Tests?branchName=master&configuration=Edk2_Windows_Python311
+[ewt3]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Integration%20Tests?branchName=master&configuration=Edk2_Windows_Python312
 
-[eut1]: https://img.shields.io/github/issues/detail/label/tianocore/edk2-pytool-extensions/359?color=orange&label=issue%20359
-[eut2]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Integration%20Tests?branchName=master&configuration=Edk2_Ubuntu_Python310
-[eut3]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Integration%20Tests?branchName=master&configuration=Edk2_Ubuntu_Python311
+[eut1]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Integration%20Tests?branchName=master&configuration=Edk2_Ubuntu_Python310
+[eut2]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Integration%20Tests?branchName=master&configuration=Edk2_Ubuntu_Python311
+[eut3]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Integration%20Tests?branchName=master&configuration=Edk2_Ubuntu_Python312
 
-[mwt1]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Integration%20Tests?branchName=master&configuration=ProjectMu_Windows_Python39
-[mwt2]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Integration%20Tests?branchName=master&configuration=ProjectMu_Windows_Python310
-[mwt3]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Integration%20Tests?branchName=master&configuration=ProjectMu_Windows_Python311
+[mwt1]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Integration%20Tests?branchName=master&configuration=ProjectMu_Windows_Python310
+[mwt2]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Integration%20Tests?branchName=master&configuration=ProjectMu_Windows_Python311
+[mwt3]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Integration%20Tests?branchName=master&configuration=ProjectMu_Windows_Python312
 
-[mut1]: https://img.shields.io/github/issues/detail/label/tianocore/edk2-pytool-extensions/359?color=orange&label=issue%20359
-[mut2]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Integration%20Tests?branchName=master&configuration=ProjectMu_Ubuntu_Python310
-[mut3]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Integration%20Tests?branchName=master&configuration=ProjectMu_Ubuntu_Python311
+[mut1]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Integration%20Tests?branchName=master&configuration=ProjectMu_Ubuntu_Python310
+[mut2]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Integration%20Tests?branchName=master&configuration=ProjectMu_Ubuntu_Python311
+[mut3]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Integration%20Tests?branchName=master&configuration=ProjectMu_Ubuntu_Python312
