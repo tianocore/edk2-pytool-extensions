@@ -337,9 +337,3 @@ class CoverageReport(Report):
         with open(p, 'wb') as f:
             f.write(dom.toxml(encoding="utf-8"))
         logging.info(f"Coverage xml data written to {p}")
-
-        p = Path(self.args.output).with_suffix(".json")
-        p.unlink(missing_ok=True)
-        with open(p, 'w') as f:
-            json.dump(results, f, indent=4)
-        logging.info(f"Covered files report written to {p}")
