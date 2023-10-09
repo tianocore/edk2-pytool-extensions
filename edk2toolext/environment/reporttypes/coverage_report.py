@@ -6,14 +6,15 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 """A report ingests a cobertura.xml file and organizes it by INF."""
+import fnmatch
+import json
 import logging
 import os
 import re
 import xml.dom.minidom as minidom
 import xml.etree.ElementTree as ET
-from argparse import ArgumentParser, Namespace, Action
+from argparse import Action, ArgumentParser, Namespace
 from pathlib import Path
-import json
 
 from edk2toollib.database import Edk2DB
 
@@ -31,9 +32,31 @@ WHERE
 """
 
 INSTANCED_SOURCE_QUERY = """
-SELECT DISTINCT instanced_inf, source
-FROM instanced_inf_source_junction
-WHERE env = ?
+WITH variable AS (
+    SELECT
+        ? AS env -- VARIABLE: Change this to the environment parse you care about
+)
+SELECT
+    inf_list.path,
+    junction.key2
+FROM
+    (
+        SELECT
+            DISTINCT instanced_inf.path
+        FROM
+            variable,
+            instanced_fv
+            JOIN junction ON instanced_fv.env = junction.env
+            AND junction.table1 = 'instanced_fv'
+            AND junction.table2 = 'inf'
+            JOIN instanced_inf ON instanced_inf.component = junction.key2
+        WHERE
+            instanced_fv.env = variable.env
+    ) inf_list,
+    variable
+    JOIN junction ON junction.key1 = inf_list.path
+    AND junction.table2 = 'source'
+    AND junction.env = variable.env
 """
 
 PACKAGE_PATH_QUERY = """
@@ -63,7 +86,8 @@ FROM
     LEFT JOIN environment_values ON environment.id = environment_values.id
 WHERE
     environment_values.key = 'ACTIVE_PLATFORM'
-    AND environment_values.value LIKE '%' || ? || '%'
+    AND environment_values.value = ?
+ORDER BY environment.date DESC
 LIMIT 1;
 """
 
@@ -86,22 +110,31 @@ class CoverageReport(Report):
 
     def add_cli_options(self, parserobj: ArgumentParser):
         """Configure command line arguments for this report."""
-        group = parserobj.add_mutually_exclusive_group(required=True)
+
+        # Group 1
+        group = parserobj.add_argument_group("Coverage by package options")
         group.add_argument("--by-package", action="store_true", dest="by_package", default=False,
                            help="Filters test coverage to only files in the specified packages(s)")
+        group.add_argument("-p", "--package", "--Package", "--PACKAGE", dest="package_list",
+                           action=SplitCommaAction, default=[],
+                           help="The package to include in the report. Can be specified multiple times.")
+        # Group 2
+        group = parserobj.add_argument_group("Coverage by platform options")
         group.add_argument("--by-platform", action="store_true", dest="by_platform", default=False,
                            help="Filters test coverage to all files used to build the specified platform package.")
+        group.add_argument("-d", "--dsc", "--DSC", dest="dsc", 
+                           help="Edk2 relative path the ACTIVE_PLATFORM DSC file.")
+
+        # Other args
         parserobj.add_argument(dest="xml", action="store", help="The path to the XML file parse.")
         parserobj.add_argument("-o", "--output", "--Output", "--OUTPUT", dest="output", default="Coverage.xml",
                                help="The path to the output XML file.", action="store")
         parserobj.add_argument("-ws", "--workspace", "--Workspace", "--WORKSPACE", dest="workspace",
                                help="The Workspace root associated with the xml argument.", default=".")
-        parserobj.add_argument("-p", "--package", "--Package", "--PACKAGE", dest="package_list",
-                               action=SplitCommaAction, default=[],
-                               help="The package to include in the report. Can be specified multiple times.")
+
         parserobj.add_argument("-e", "--exclude", "--Exclude", "--EXCLUDE", dest="exclude",
                                action=SplitCommaAction, default=[],
-                               help="INFs (and their associated sources) to exclude from the report. Can be specified "
+                               help="Package path relative paths or file. Globbing is supported. Can be specified "
                                "multiple times")
 
     def run_report(self, db: Edk2DB, args: Namespace) -> None:
@@ -114,6 +147,7 @@ class CoverageReport(Report):
             logging.info("Organizing coverage report by Platform.")
             return self.run_by_platform(db)
 
+        logging.error("No report type specified via command line or configuration file.")
         return -1
 
     def run_by_platform(self, db: Edk2DB):
@@ -125,18 +159,27 @@ class CoverageReport(Report):
         Returns:
             (bool): True if the report was successful, False otherwise.
         """
-        # Verify valid platform package
-        if len(self.args.package_list) > 1:
-            logging.error("Invalid package provided. --by-platform requires a single platform package be provided.")
-            logging.error("Please specify a single platform package with the -p flag.")
+        # Verify valid ACTIVE_PLATFORM
+        dsc = self.args.dsc
+        if not dsc:
+            logging.error("No ACTIVE_PLATFORM dsc file specified. It should be edk2 package path relative.")
             return -1
-        package = self.args.package_list[0]
-        logging.info(f"Platform requested: {package}")
+        logging.info(f"ACTIVE_PLATFORM requested: {dsc}")
+
+        # replace any files with their contents
+        temporary_list = []
+        for pattern in self.args.exclude:
+            if Path(pattern).exists():
+                with open(pattern, "r") as f:
+                    temporary_list.extend(f.read().splitlines())
+            else:
+                temporary_list.append(pattern)
+        self.args.exclude = temporary_list
 
         # Get env_id
-        result = db.connection.execute(ID_QUERY_BY_PACKAGE, (package,)).fetchone()
+        result = db.connection.execute(ID_QUERY_BY_PACKAGE, (dsc,)).fetchone()
         if result is None:
-            logging.error(f"Could not locate an ACTIVE_PLATFORM containing the provided package: {package}")
+            logging.error(f"Could not locate an ACTIVE_PLATFORM containing the provided package: {dsc}")
             return -1
         env_id, = result
 
@@ -259,27 +302,30 @@ class CoverageReport(Report):
             source.text = str(Path(self.args.workspace, pp))
 
         packages = ET.SubElement(root, "packages")
-        results = {}
         for path, source_list in inf_source_dict.items():
-            if path in self.args.exclude:
-                logging.debug(f"Excluding INF {path} from report due to --exclude flag.")
-                continue
             if not source_list:
                 continue
             inf = ET.SubElement(packages, "package", path=path, name=Path(path).name)
             classes = ET.SubElement(inf, "classes")
-            found = False
+
             for source in source_list:
+                # Check if the file should be excluded
+                exclude_file = False
+                for pattern in self.args.exclude:
+                    if fnmatch.fnmatch(source, pattern):
+                        exclude_file = True
+                        break
+                if exclude_file:
+                    continue
+
+                if source in self.args.exclude:
+                    logging.debug(f"Excluding {path} from report due to --exclude flag.")
+                    continue
                 match = next((key for key in source_coverage_dict.keys() if Path(source).is_relative_to(key)), None)
                 if match is not None:
-                    found = True
                     classes.append(source_coverage_dict[match])
-                    results[source] = True
                 else:
-                    results[source] = False
-            if not found:
-                logging.debug(f'{path} has no coverage data.')
-                packages.remove(inf)
+                    classes.append(ET.Element("class", name=Path(source).name, filename=source))
 
         xml_string = ET.tostring(root, "utf-8")
         dom = minidom.parseString(xml_string)
