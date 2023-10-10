@@ -7,7 +7,6 @@
 ##
 """A report ingests a cobertura.xml file and organizes it by INF."""
 import fnmatch
-import json
 import logging
 import os
 import re
@@ -110,7 +109,6 @@ class CoverageReport(Report):
 
     def add_cli_options(self, parserobj: ArgumentParser):
         """Configure command line arguments for this report."""
-
         # Group 1
         group = parserobj.add_argument_group("Coverage by package options")
         group.add_argument("--by-package", action="store_true", dest="by_package", default=False,
@@ -122,7 +120,7 @@ class CoverageReport(Report):
         group = parserobj.add_argument_group("Coverage by platform options")
         group.add_argument("--by-platform", action="store_true", dest="by_platform", default=False,
                            help="Filters test coverage to all files used to build the specified platform package.")
-        group.add_argument("-d", "--dsc", "--DSC", dest="dsc", 
+        group.add_argument("-d", "--dsc", "--DSC", dest="dsc",
                            help="Edk2 relative path the ACTIVE_PLATFORM DSC file.")
 
         # Other args
