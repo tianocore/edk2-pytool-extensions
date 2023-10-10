@@ -212,7 +212,7 @@ class CoverageReport(Report):
         # Build source / coverage association dictionary
         coverage_files = self.build_source_coverage_dictionary(self.args.xml, package_list)
 
-        # Build inf / source assocation dictionary
+        # Build inf / source association dictionary
         package_files = self.build_inf_source_dictionary(db, env_id, SOURCE_QUERY)
 
         # Build the report
