@@ -224,6 +224,9 @@ class Edk2Invocable(BaseAbstractInvocable):
             match = re.search(r'(\d+\.\d+\.\d+)', ver)
             if match:
                 ver = match.group(1)
+            elif ver != "N/A":
+                raise Exception("A Rust tool is installed, but its version "
+                                "format is unexpected and cannot be parsed.")
 
             logging.info(f"{tool_name} version: {ver}")
             ver_agg = version_aggregator.GetVersionAggregator()
