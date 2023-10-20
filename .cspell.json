@@ -114,6 +114,7 @@
         "rmtree",
         "rpartition",
         "rtags",
+        "rustc",
         "schtasks",
         "sdist",
         "setuplog",

@@ -101,6 +101,7 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
         log_directory = os.path.join(self.GetWorkspaceRoot(), self.GetLoggingFolderRelativeToRoot())
 
         Edk2CiBuild.collect_python_pip_info()
+        Edk2CiBuild.collect_rust_info()
 
         # make Edk2Path object to handle all path operations
         try:

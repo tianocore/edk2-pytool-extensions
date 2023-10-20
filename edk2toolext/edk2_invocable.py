@@ -28,7 +28,7 @@ from textwrap import dedent
 from typing import Iterable, Tuple
 
 import pkg_resources
-from edk2toollib.utility_functions import GetHostInfo, import_module_by_file_name, locate_class_in_module
+from edk2toollib.utility_functions import GetHostInfo, RunCmd, import_module_by_file_name, locate_class_in_module
 
 from edk2toolext.base_abstract_invocable import BaseAbstractInvocable
 from edk2toolext.environment import shell_environment, version_aggregator
@@ -195,6 +195,42 @@ class Edk2Invocable(BaseAbstractInvocable):
             version = pkg_resources.get_distribution(package).version
             logging.info("{0} version: {1}".format(package.project_name, version))
             ver_agg.ReportVersion(package.project_name, version, version_aggregator.VersionTypes.PIP)
+
+    @classmethod
+    def collect_rust_info(cls):
+        """Class method to collect Rust tool versions.
+
+        Reports them to the global version_aggregator as well as print them to the screen.
+        """
+        import re
+        from io import StringIO
+
+        def get_rust_tool_version(tool_name: str, tool_params: str = "--version"):
+            cmd_output = StringIO()
+            ret = RunCmd(tool_name, tool_params, outstream=cmd_output, logging_level=logging.DEBUG)
+            if ret == 0:
+                return cmd_output.getvalue().strip()
+            else:
+                return "N/A"
+
+        tools = {
+            "cargo": ("cargo",),
+            "cargo make": ("cargo", "make --version"),
+            "rustc": ("rustc",)
+        }
+
+        for tool_name, tool_cmd in tools.items():
+            ver = get_rust_tool_version(*tool_cmd)
+            match = re.search(r'(\d+\.\d+\.\d+)', ver)
+            if match:
+                ver = match.group(1)
+            elif ver != "N/A":
+                raise Exception("A Rust tool is installed, but its version "
+                                "format is unexpected and cannot be parsed.")
+
+            logging.info(f"{tool_name} version: {ver}")
+            ver_agg = version_aggregator.GetVersionAggregator()
+            ver_agg.ReportVersion(tool_name, ver, version_aggregator.VersionTypes.TOOL)
 
     def GetWorkspaceRoot(self) -> os.PathLike:
         """Returns the absolute path to the workspace root.
