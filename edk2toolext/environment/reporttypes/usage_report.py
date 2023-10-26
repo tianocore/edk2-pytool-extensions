@@ -10,6 +10,7 @@
 """A report that generates an html report about which repositories INFs originate from."""
 import io
 import logging
+import pathlib
 from argparse import ArgumentParser, Namespace
 
 from edk2toollib.database import Edk2DB
@@ -153,6 +154,8 @@ class UsageReport(Report):
         path_out = args.output or data["env"].get("PLATFORM_NAME", None) or "usage_report.html"
         if not path_out.endswith(".html"):
             path_out += ".html"
+
+        pathlib.Path(path_out).parent.mkdir(exist_ok=True, parents=True)
         with open(path_out, 'w') as f:
             f.write(html_output)
         logging.info(f"Report written to {path_out}.")

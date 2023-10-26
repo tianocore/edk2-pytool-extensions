@@ -151,11 +151,10 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
             logging.error(exception_msg)
             return -1
 
-        # Log the environment for debug purposes
-        for key, value in (env.GetAllBuildKeyValues() | env.GetAllNonBuildKeyValues()).items():
-            logging.debug(f"  {key} = {value}")
-
         env_dict = env.GetAllBuildKeyValues() | env.GetAllNonBuildKeyValues()
+         # Log the environment for debug purposes
+        for key, value in env_dict.items():
+            logging.debug(f"  {key} = {value}")
         logging.info("Running parsers with the following settings:")
         logging.info(f"  TARGET: {env_dict['TARGET']}")
         logging.info(f"  ACTIVE_PLATFORM: {env_dict['ACTIVE_PLATFORM']}")
