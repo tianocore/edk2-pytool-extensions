@@ -27,6 +27,7 @@ FROM
 WHERE
     junction.table1 = 'inf'
     AND junction.table2 = 'source'
+    AND UPPER(SUBSTR(junction.key2, -2)) = '.C'
     AND junction.env = ?;
 """
 
@@ -55,6 +56,7 @@ FROM
     variable
     JOIN junction ON junction.key1 = inf_list.path
     AND junction.table2 = 'source'
+    AND UPPER(SUBSTR(junction.key2, -2)) = '.C'
     AND junction.env = variable.env
 """
 
