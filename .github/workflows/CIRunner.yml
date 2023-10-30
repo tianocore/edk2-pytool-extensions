@@ -54,7 +54,7 @@ jobs:
     
     - name: Run ruff
       if: success() || failure()
-      run: ruff check ${{ inputs.package-src }} --format=github
+      run: ruff check ${{ inputs.package-src }} --output-format=github
     
     - name: Run markdownlint
       if: success() || failure()
