@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 """An invocable to run workspace parsers on a workspace and generate a database."""
+import argparse
 import logging
 import os
 from pathlib import Path
@@ -19,8 +20,9 @@ from edk2toollib.database.tables import (
     PackageTable,
     SourceTable,
 )
+from edk2toollib.database.tables.base_table import TableGenerator
 from edk2toollib.uefi.edk2.path_utilities import Edk2Path
-from edk2toollib.utility_functions import locate_class_in_module
+from edk2toollib.utility_functions import import_module_by_file_name, locate_class_in_module
 
 from edk2toolext.environment import shell_environment
 from edk2toolext.environment.uefi_build import UefiBuilder
@@ -40,6 +42,16 @@ TABLES = [
     InstancedFvTable(),
 ]
 
+class AppendSplitAction(argparse.Action):
+    """An argparse action to split a comma separated list and append it to a list.
+
+    example: -p Pkg1,Pkg2 -p Pkg3 => ['Pkg1', 'Pkg2', 'Pkg3']
+    """
+    def __call__(self, parser, namespace, values, option_string=None):
+        """The command to invoke the action."""
+        items = getattr(namespace, self.dest, [])
+        items.extend(values.split(','))
+        setattr(namespace, self.dest, items)
 
 class ParseSettingsManager(MultiPkgAwareSettingsInterface):
     """Settings to support ReportSettingsManager functionality."""
@@ -86,17 +98,26 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
         """Returns the Settings Manager for the invocable."""
         return ParseSettingsManager
 
+    def GetVerifyCheckRequired(self):
+        """Will call self_describing_environment.VerifyEnvironment if this returns True."""
+        return False
+
     def AddCommandLineOptions(self, parserObj):
         """Adds the command line options."""
         super().AddCommandLineOptions(parserObj) # Adds the CI Settings File options
         parserObj.add_argument('--clear', '--Clear', "--CLEAR", dest='clear', action='store_true',
                                help="Deletes the database before parsing the environment.")
+        parserObj.add_argument('-l', '--load-table', '--Load-Table', '--LOAD-TABLE', dest='extra_tables',
+                               action=AppendSplitAction, default=[], metavar='<path>',
+                               help="Comma separated path to a python file containing a `TableParser`(s). "
+                               "Includes this table with the default tables. Can be provided multiple times")
 
     def RetrieveCommandLineOptions(self, args):
         """Retrives the command line options."""
         super().RetrieveCommandLineOptions(args) # Stores the CI Settings File options
         self.clear = args.clear
         self.is_uefi_builder = locate_class_in_module(self.PlatformModule, UefiBuilder) is not None
+        self.extra_tables = args.extra_tables
 
     def GetLoggingFileName(self, loggerType):
         """Returns the logging file name for this invocation."""
@@ -115,6 +136,9 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
 
         with Edk2DB(db_path, pathobj=pathobj) as db:
             db.register(*TABLES)
+
+            # Load and register any extra requested tables
+            db.register(*self.load_extra_tables(self.extra_tables))
 
             # Generate environment aware tables
             if self.is_uefi_builder:
@@ -209,6 +233,27 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
         else:
             logging.debug(f"No package config file for {pkg}")
 
+    def load_extra_tables(self, table_paths: list) -> list[TableGenerator]:
+        """Loads TableParsers from a python file.
+
+        Returns:
+            (list): A list of instantiated TableParsers.
+        """
+        table_list = []
+        for path in table_paths:
+            if not Path(path).exists():
+                logging.warning(f'[{path}] does not exist; Skipping.')
+                continue
+            try:
+                module = import_module_by_file_name(path)
+                table_generator = locate_class_in_module(module, TableGenerator)()
+                table_list.append(table_generator)
+            except TypeError:
+                logging.warning(f'[{path}] does not contain a TableGenerator class; Skipping.')
+            except SyntaxError as e:
+                logging.warning(f'Failed to register [{path}] due to a SyntaxError; Error:')
+                logging.warning(f'  {e}')
+        return table_list
 
 def main():
     """Entry point to invoke Edk2PlatformSetup."""

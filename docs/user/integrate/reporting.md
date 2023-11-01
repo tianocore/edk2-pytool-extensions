@@ -4,7 +4,7 @@ Stuart provides both a library implementation and an invocable for parsing an ED
 running generic reports against the database. Reporting is supported both on regular packages (built with
 `stuart_ci_build`) and platform packages (built with `stuart_build`).
 
-There are three [stuart commands](/#what-can-i-ask-stuart-to-do) to create a database, then a forth command to run
+There are three [stuart commands](/#what-can-i-ask-stuart-to-do) to create a database, then a fourth command to run
 reports against the database: `stuart_setup`/`stuart_ci_setup`, `stuart_update`, and `stuart_parse`. From there, a
 developer can directly query the sqlite3 database or call `stuart_report <report>` to run a pre-build report.
 
