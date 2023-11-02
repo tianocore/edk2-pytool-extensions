@@ -267,7 +267,7 @@ class CoverageReport(Report):
             db (Edk2DB): The database containing the necessary data
             env_id (int): The environment id to query
             query (str): The query to use to get the data
-            package_list(list): The packages to filter the results by
+            package_list (list): The packages to filter the results by
 
         Returns:
             dict[str, list[str]]: A dictionary of INFs and the source files they use.
