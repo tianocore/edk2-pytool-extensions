@@ -42,6 +42,7 @@ TABLES = [
     InstancedFvTable(),
 ]
 
+
 class AppendSplitAction(argparse.Action):
     """An argparse action to split a comma separated list and append it to a list.
 
@@ -52,6 +53,7 @@ class AppendSplitAction(argparse.Action):
         items = getattr(namespace, self.dest, [])
         items.extend(values.split(','))
         setattr(namespace, self.dest, items)
+
 
 class ParseSettingsManager(MultiPkgAwareSettingsInterface):
     """Settings to support ReportSettingsManager functionality."""
@@ -131,8 +133,6 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
         pathobj = Edk2Path(self.GetWorkspaceRoot(), self.GetPackagesPath())
         env = shell_environment.GetBuildVars()
 
-        logging.info(f"Generating database at {db_path}")
-
         if self.clear:
             db_path.unlink(missing_ok=True)
 
@@ -148,6 +148,7 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
             else:
                 self.parse_with_ci_settings(db, pathobj, env)
 
+        logging.info(f'Database generated at {db_path}.')
         return 0
 
     def parse_with_builder_settings(self, db: Edk2DB, pathobj: Edk2Path, env: VarDict):
@@ -155,8 +156,6 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
         logging.info("Setting up the environment with the UefiBuilder.")
         exception_msg = ""
         try:
-            if not self.Verbose:
-                logging.disable(logging.CRITICAL)  # Disable logging when running the UefiBuilder.
             platform_module = locate_class_in_module(self.PlatformModule, UefiBuilder)
             build_settings = platform_module()
             build_settings.Clean = False
@@ -169,9 +168,6 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
             build_settings.PlatformPreBuild()
         except Exception as e:
             exception_msg = e
-        finally:
-            if not self.Verbose:
-                logging.disable(logging.NOTSET)
         if exception_msg:
             logging.error("Failed to run UefiBuilder to set the environment.")
             logging.error(exception_msg)

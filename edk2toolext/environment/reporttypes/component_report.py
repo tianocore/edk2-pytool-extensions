@@ -5,7 +5,7 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
-"""An interface to create custom reports with."""
+"""A report to print information about a component that could be compiled."""
 import sys
 from argparse import ArgumentParser, Namespace
 from pathlib import Path, PurePath
@@ -52,7 +52,7 @@ DESC LIMIT 1;
 """
 
 class ComponentDumpReport:
-    """The interface to create custom reports."""
+    """A report to print information about a component that could be compiled."""
     def report_info(self):
         """Returns the report standard information.
 

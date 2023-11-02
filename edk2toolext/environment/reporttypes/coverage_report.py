@@ -1,11 +1,11 @@
 # @file coverage_report.py
-# A report ingests a cobertura.xml file and organizes it by INF.
+# A report that re-organizes a cobertura.xml by INF.
 ##
 # Copyright (c) Microsoft Corporation
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
-"""A report ingests a cobertura.xml file and organizes it by INF."""
+"""A report that re-organizes a cobertura.xml by INF."""
 import fnmatch
 import logging
 import os
@@ -99,7 +99,12 @@ class SplitCommaAction(Action):
        setattr(namespace, self.dest, getattr(namespace, self.dest, []) + values.split(','))
 
 class CoverageReport(Report):
-    """A report ingests a cobertura.xml file and organizes it by INF."""
+    """A report that re-organizes a cobertura.xml by INF.
+
+    This report will supports two modes, by-package and by-platform. By-package will only include coverage data for
+    files in the specified edk2 packages. By-platform will only include coverage data for files used to build the
+    specified platform dsc.
+    """
     def report_info(self):
         """Returns the report standard information.
 
@@ -168,8 +173,6 @@ class CoverageReport(Report):
             logging.error("No ACTIVE_PLATFORM dsc file specified. It should be edk2 package path relative.")
             return -1
         logging.info(f"ACTIVE_PLATFORM requested: {dsc}")
-
-
 
         # Get env_id
         result = db.connection.execute(ID_QUERY_BY_PACKAGE, (dsc,)).fetchone()

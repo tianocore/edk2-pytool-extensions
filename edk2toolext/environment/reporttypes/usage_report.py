@@ -1,6 +1,6 @@
 # @file usage_report.py
 # A report that generates an html report about which repositories INFs (That are consumed for a platform) originate
-# from
+# from.
 #
 ##
 # Copyright (c) Microsoft Corporation
