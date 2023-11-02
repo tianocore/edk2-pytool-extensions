@@ -128,7 +128,7 @@ checkpoint between each test.
 
 ### stuart_parse
 
-Will parse and Edk2 workspace and create a standalone sqlite3 database that 
+Will parse and Edk2 workspace and create a standalone sqlite3 database that
 can be queried through sql tools or by stuart_report to generate common
 uefi/edk2 focused reports.
 
