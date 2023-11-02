@@ -134,12 +134,15 @@ class CoverageReport(Report):
 
         parserobj.add_argument("-e", "--exclude", "--Exclude", "--EXCLUDE", dest="exclude",
                                action=SplitCommaAction, default=[],
-                               help="Package path relative paths or file. Globbing is supported. Can be specified "
-                               "multiple times")
+                               help="Package path relative paths or file (.txt). Globbing is supported. Can be "
+                               "specified multiple times")
 
     def run_report(self, db: Edk2DB, args: Namespace) -> None:
         """Generate the Coverage report."""
         self.args = args
+
+        self.update_excluded_files()
+
         if args.by_package:
             logging.info("Organizing coverage report by Package.")
             return self.run_by_package(db)
@@ -166,15 +169,7 @@ class CoverageReport(Report):
             return -1
         logging.info(f"ACTIVE_PLATFORM requested: {dsc}")
 
-        # replace any files with their contents
-        temporary_list = []
-        for pattern in self.args.exclude:
-            if Path(pattern).exists():
-                with open(pattern, "r") as f:
-                    temporary_list.extend(f.read().splitlines())
-            else:
-                temporary_list.append(pattern)
-        self.args.exclude = temporary_list
+
 
         # Get env_id
         result = db.connection.execute(ID_QUERY_BY_PACKAGE, (dsc,)).fetchone()
@@ -313,14 +308,12 @@ class CoverageReport(Report):
                 exclude_file = False
                 for pattern in self.args.exclude:
                     if fnmatch.fnmatch(source, pattern):
+                        logging.debug(f'{source} excluded due to {pattern}')
                         exclude_file = True
                         break
                 if exclude_file:
                     continue
 
-                if source in self.args.exclude:
-                    logging.debug(f"Excluding {path} from report due to --exclude flag.")
-                    continue
                 match = next((key for key in source_coverage_dict.keys() if Path(source).is_relative_to(key)), None)
                 if match is not None:
                     classes.append(source_coverage_dict[match])
@@ -337,3 +330,14 @@ class CoverageReport(Report):
         with open(p, 'wb') as f:
             f.write(dom.toxml(encoding="utf-8"))
         logging.info(f"Coverage xml data written to {p}")
+
+    def update_excluded_files(self):
+        """Replaces any files in the exclude list with their contents."""
+        temporary_list = []
+        for pattern in self.args.exclude:
+            if Path(pattern).exists() and Path(pattern).suffix == ".txt":
+                with open(pattern, "r") as f:
+                    temporary_list.extend(f.read().splitlines())
+            else:
+                temporary_list.append(pattern)
+        self.args.exclude = temporary_list

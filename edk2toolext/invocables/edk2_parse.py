@@ -125,6 +125,8 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
 
     def Go(self):
         """Executes the invocable. Runs the subcommand specified by the user."""
+        logging.warning("stuart_parse is in active development. Please report any issues to the edk2-pytool-extensions "
+                        "repo.")
         db_path = Path(self.GetWorkspaceRoot()) / self.GetLoggingFolderRelativeToRoot() / DB_NAME
         pathobj = Edk2Path(self.GetWorkspaceRoot(), self.GetPackagesPath())
         env = shell_environment.GetBuildVars()
