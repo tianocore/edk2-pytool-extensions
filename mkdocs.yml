@@ -69,9 +69,11 @@ nav:
     - Installation Instructions: using/install.md
     - Build Instructions: using/build.md
     - Core CI Instructions: using/ci.md
+    - Workspace Reporting: using/reporting.md
   - Integrating Stuart:
     - Build with Stuart: integrate/build.md
     - Core CI with Stuart: integrate/manage.md
+    - Reports with Stuart: integrate/reporting.md
     - Porting Example: integrate/porting.md
   - ... | tools/**/*.md
   - Advanced Features:
