@@ -187,7 +187,7 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
     def parse_with_ci_settings(self, db: Edk2DB, pathobj: Edk2Path, env: VarDict):
         """Parses the workspace using ci settings to setup the environment."""
         for package in self.requested_package_list:
-            for target in set(self.requested_target_list) & set(["DEBUG", "RELEASE"]):
+            for target in set(self.requested_target_list) & set(["DEBUG", "RELEASE", "NOOPT"]):
                 logging.info(f"Setting up the environment for {package}.")
                 shell_environment.CheckpointBuildVars()
 

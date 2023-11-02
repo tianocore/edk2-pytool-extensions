@@ -47,9 +47,10 @@ FROM
             variable,
             instanced_fv
             JOIN junction ON instanced_fv.env = junction.env
-            AND junction.table1 = 'instanced_fv'
-            AND junction.table2 = 'inf'
-            JOIN instanced_inf ON instanced_inf.component = junction.key2
+                AND junction.table1 = 'instanced_fv'
+                AND junction.table2 = 'inf'
+            JOIN instanced_inf ON instanced_inf.env = junction.env
+                AND instanced_inf.component = junction.key2
         WHERE
             instanced_fv.env = variable.env
     ) inf_list,
@@ -187,7 +188,7 @@ class CoverageReport(Report):
         coverage_files = self.build_source_coverage_dictionary(self.args.xml, package_list)
 
         # Build inf / source association dictionary
-        package_files = self.build_inf_source_dictionary(db, env_id, INSTANCED_SOURCE_QUERY)
+        package_files = self.build_inf_source_dictionary(db, env_id, INSTANCED_SOURCE_QUERY, package_list)
 
         # Build the report
         return self.build_report(db, env_id, coverage_files, package_files)
@@ -213,7 +214,7 @@ class CoverageReport(Report):
         coverage_files = self.build_source_coverage_dictionary(self.args.xml, package_list)
 
         # Build inf / source association dictionary
-        package_files = self.build_inf_source_dictionary(db, env_id, SOURCE_QUERY)
+        package_files = self.build_inf_source_dictionary(db, env_id, SOURCE_QUERY, package_list)
 
         # Build the report
         return self.build_report(db, env_id, coverage_files, package_files)
@@ -259,13 +260,14 @@ class CoverageReport(Report):
                     match.set("hits", str(int(match.attrib.get("hits")) + int(line.attrib.get("hits"))))
         return file_dict
 
-    def build_inf_source_dictionary(self, db: Edk2DB, env_id: int, query: str) -> dict:
+    def build_inf_source_dictionary(self, db: Edk2DB, env_id: int, query: str, package_list: list) -> dict:
         """Builds a dictionary of INFs and the source files they use.
 
         Args:
             db (Edk2DB): The database containing the necessary data
             env_id (int): The environment id to query
             query (str): The query to use to get the data
+            package_list(list): The packages to filter the results by
 
         Returns:
             dict[str, list[str]]: A dictionary of INFs and the source files they use.
@@ -274,6 +276,9 @@ class CoverageReport(Report):
         results = db.connection.execute(query, (env_id,)).fetchall()
 
         for inf, source in results:
+            if not any(inf.startswith(pkg) for pkg in package_list):
+                continue
+            inf
             if inf not in entry_dict:
                 entry_dict[inf] = [source]
             else:
