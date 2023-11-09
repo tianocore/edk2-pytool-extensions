@@ -30,6 +30,12 @@
                 <button class="nav-link active" id="summary-tab" data-bs-toggle="tab" data-bs-target="#summary" type="button" role="tab" aria-controls="summary" aria-selected="true">Summary</button>
             </li>
             <li class="nav-item" role="presentation">
+                <button class="nav-link" id="inf-pie-tab" data-bs-toggle="tab" data-bs-target="#inf" type="button" role="tab" aria-controls="inf" aria-selected="false">INF Reports</button>
+            </li>
+            <li class="nav-=item" role="presentation">
+                <button class="nav-link" id="lc-pie-tab" data-bs-toggle="tab" data-bs-target="#lc" type="button" role="tab" aria-controls="lc" aria-selected="false">Line Count Reports</button>          
+            </li>
+            <li class="nav-item" role="presentation">
                 <button class="nav-link" id="env-tab" data-bs-toggle="tab" data-bs-target="#env" type="button" role="tab" aria-controls="env" aria-selected="false">Environment Variables</button>
             </li>
             <li class="nav-item" role="presentation">
@@ -39,26 +45,6 @@
         <div class="tab-content">
             <!-- Summary Tab -->
             <div id="summary" class="tab-pane fade show active" role="tabpanel" aria-labelledby="summary-tab">
-                <div class="row align-items-center">
-                    <div class="col-md-6">
-                        {{ total_pie_chart }}
-                    </div>
-                    <div class="col-md-6">
-                        {{ comp_pie_chart }}
-                    </div>
-                    <div class="col-md-6">
-                        {{ lib_pie_chart }}
-                    </div>
-                    <div class="col-md-6">
-                        {{ total_src_pie_chart }}
-                    </div>
-                    <div class="col-md-6">
-                        {{ comp_src_pie_chart }}
-                    </div>
-                    <div class="col-md-6">
-                        {{ lib_src_pie_chart }}
-                    </div>
-                </div>
                 <div class="row align-items-left">
                     <div class="col">
                         <div class="card" style="width: 30rem;">
@@ -71,6 +57,32 @@
                                 <li class="list-group-item">Commit Sha: {{ version }}</li>
                             </ul>
                         </div>
+                    </div>
+                </div>
+            </div>
+            <div id="inf" class="tab-pane fade" role="tabpanel" aria-labelledby="inf-pie-tab">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        {{ total_pie_chart }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ comp_pie_chart }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ lib_pie_chart }}
+                    </div>
+                </div>
+            </div>
+            <div id="lc" class="tab-pane fade" role="tabpanel" aria-labelledby="lc-pie-tab">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        {{ total_src_pie_chart }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ comp_src_pie_chart }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ lib_src_pie_chart }}
                     </div>
                 </div>
             </div>
