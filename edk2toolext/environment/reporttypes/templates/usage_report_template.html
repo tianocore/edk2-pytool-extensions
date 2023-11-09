@@ -60,6 +60,7 @@
                     </div>
                 </div>
             </div>
+            <!-- INF Reports -->
             <div id="inf" class="tab-pane fade" role="tabpanel" aria-labelledby="inf-pie-tab">
                 <div class="row align-items-center">
                     <div class="col-md-6">
@@ -73,6 +74,7 @@
                     </div>
                 </div>
             </div>
+            <!-- Source Reports -->
             <div id="lc" class="tab-pane fade" role="tabpanel" aria-labelledby="lc-pie-tab">
                 <div class="row align-items-center">
                     <div class="col-md-6">
@@ -118,14 +120,16 @@
                                 <th>Repository</th>
                                 <th>Package</th>
                                 <th>Path</th>
+                                <th>Line Count</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for repo, package, path in inf_list %}
+                            {% for repo, package, path, lc in inf_list %}
                             <tr>
                                 <td>{{ repo }}</td>
                                 <td>{{ package }}</td>
                                 <td>{{ path }}</td>
+                                <td>{{ lc }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>

@@ -168,9 +168,11 @@ class UsageReport(Report):
         comp_lines = {}
         total_lines = {}
 
-        inf_list = set()
+        inf_dict = {}
         for repo, package, inf, _src, line_count, is_component in db.connection.execute(QUERY, (env_id,)).fetchall():
-            inf_list.add((repo, package, inf))
+            key = (repo, package, inf)
+            current = inf_dict.setdefault(key, (repo, package, inf, 0))
+            inf_dict[key] = (repo, package, inf, current[3] + (line_count or 0))
 
             if is_component:
                 inf_d = comp_infs
@@ -194,7 +196,7 @@ class UsageReport(Report):
             ("lib_src_pie_chart", lib_lines, "Library Line Count Per Repository", False),
             ("comp_src_pie_chart", comp_lines, "Component Line Count Per Repository", False),
         ]
-        return (reports, inf_list)
+        return (reports, set(inf_dict.values()))
 
     def _get_env_vars(self, connection, env_id):
         env_vars = {}
