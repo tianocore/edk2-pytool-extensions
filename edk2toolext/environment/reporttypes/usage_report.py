@@ -74,7 +74,8 @@ DESC LIMIT 1;
 """
 
 
-COLORS = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf', '#aec7e8', '#ffbb78', '#98df8a', '#ff9896', '#c5b0d5']
+COLORS = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f','#bcbd22', '#17becf',
+          '#aec7e8', '#ffbb78', '#98df8a', '#ff9896', '#c5b0d5',]
 
 
 class UsageReport(Report):
@@ -192,7 +193,7 @@ class UsageReport(Report):
             ("total_pie_chart", total_infs, "Total INF Usage Per Repository", True),
             ("lib_pie_chart", lib_infs, "Library Usage Per Repository", True),
             ("comp_pie_chart", comp_infs, "Component Usage Per Repository", True),
-            ("total_src_pie_chart", total_lines, "Total Line Count Per Reporitory", False),
+            ("total_src_pie_chart", total_lines, "Total Line Count Per Repository", False),
             ("lib_src_pie_chart", lib_lines, "Library Line Count Per Repository", False),
             ("comp_src_pie_chart", comp_lines, "Component Line Count Per Repository", False),
         ]
