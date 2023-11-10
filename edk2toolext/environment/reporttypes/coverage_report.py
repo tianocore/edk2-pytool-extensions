@@ -8,16 +8,15 @@
 """A report that re-organizes a cobertura.xml by INF."""
 import fnmatch
 import logging
-import os
 import re
 import xml.dom.minidom as minidom
 import xml.etree.ElementTree as ET
 from argparse import Action, ArgumentParser, Namespace
 from pathlib import Path
-from pygount import SourceAnalysis
 
 from edk2toollib.database import Edk2DB
 from edk2toollib.uefi.edk2.path_utilities import Edk2Path
+from pygount import SourceAnalysis
 
 from edk2toolext.environment.reporttypes.base_report import Report
 
@@ -254,7 +253,7 @@ class CoverageReport(Report):
             path = Path(filename[match.start():]).as_posix()
             if path not in file_dict:
                 file.attrib["filename"] = path
-                file.attrib["name"] = Path(path).name
+                file.attrib["name"] = "\\".join(Path(path).parts)
                 file_dict[path] = file
 
             # Merge the file results
@@ -343,7 +342,7 @@ class CoverageReport(Report):
 
         # Flaten the report to only source files, removing duplicates from INFs.
         if self.args.flatten:
-            root = self.flatten_report(root)
+            root = self.flatten_report(root, edk2path)
 
         xml_string = ET.tostring(root, "utf-8")
         dom = minidom.parseString(xml_string)
@@ -369,16 +368,17 @@ class CoverageReport(Report):
 
     def create_file_xml(self, source_path: str, edk2path: Edk2Path) -> ET:
         """Parses the source file and creates a coverage 'lines' xml element for it."""
-        source_path = edk2path.GetAbsolutePathOnThisSystemFromEdk2RelativePath(source_path)
-        code_count = SourceAnalysis.from_file(source_path, "_").code_count
-        file_xml = ET.Element("class", name=Path(source_path).name, filename=source_path)
+        full_path = edk2path.GetAbsolutePathOnThisSystemFromEdk2RelativePath(source_path)
+        code_count = SourceAnalysis.from_file(full_path, "_").code_count
+        file_xml = ET.Element("class", name="\\".join(Path(source_path).parts), filename=source_path)
         lines_xml = ET.Element("lines")
+
         for i in range(1, code_count + 1):
             lines_xml.append(ET.Element("line", number=str(i), hits="0"))
         file_xml.append(lines_xml)
         return file_xml
 
-    def flatten_report(self, root: ET.Element) -> ET.Element:
+    def flatten_report(self, root: ET.Element, edk2path: Edk2Path) -> ET.Element:
         """Flattens the report to only source files, removing the INF layer and duplicate source files."""
         class_list = ET.Element("classes")
 
@@ -386,6 +386,8 @@ class CoverageReport(Report):
         count = 0
         for class_element in root.iter("class"):
             filename = class_element.get('filename')
+            filename = filename.replace("/", "\\")
+            class_element.set("name", "\\".join(Path(filename).parts))
             class_dict[filename] = class_element
             count += 1
 
