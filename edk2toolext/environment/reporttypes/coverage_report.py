@@ -412,5 +412,5 @@ class CoverageReport(Report):
         except ImportError as e:
             print(e)
             print("WARNING: This report requires pip modules not installed with edk2-pytool-extensions:")
-            print("  Run the following command: `pip install pygout`")
+            print("  Run the following command: `pip install pygount`")
             exit(-1)
