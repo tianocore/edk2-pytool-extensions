@@ -104,6 +104,7 @@
         "prebuild",
         "prepended",
         "pygit",
+        "pygout",
         "pymodule",
         "pyopenssl",
         "pypath",

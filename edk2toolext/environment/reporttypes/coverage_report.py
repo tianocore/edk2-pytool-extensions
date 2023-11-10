@@ -16,7 +16,6 @@ from pathlib import Path
 
 from edk2toollib.database import Edk2DB
 from edk2toollib.uefi.edk2.path_utilities import Edk2Path
-from pygount import SourceAnalysis
 
 from edk2toolext.environment.reporttypes.base_report import Report
 
@@ -136,7 +135,7 @@ class CoverageReport(Report):
         # Group 3 - Run either by-platform or by-package with a FULL report
         group = parserobj.add_argument_group("Full Report")
         group.add_argument("--full", action="store_true", dest="full", default=False,
-                           help="Include all files in the report, not just those with coverage data.")
+                           help="Include all files in the report, not just those with coverage data. Requires pygount.")
         group.add_argument("-ws", "--workspace", "--Workspace", "--WORKSPACE", dest="workspace",
                                help="The Workspace root associated with the xml argument.", default=".")
 
@@ -155,6 +154,9 @@ class CoverageReport(Report):
     def run_report(self, db: Edk2DB, args: Namespace) -> None:
         """Generate the Coverage report."""
         self.args = args
+
+        if self.args.full:
+            self.verify_pygount()
 
         self.update_excluded_files()
 
@@ -368,6 +370,7 @@ class CoverageReport(Report):
 
     def create_file_xml(self, source_path: str, edk2path: Edk2Path) -> ET:
         """Parses the source file and creates a coverage 'lines' xml element for it."""
+        from pygount import SourceAnalysis
         full_path = edk2path.GetAbsolutePathOnThisSystemFromEdk2RelativePath(source_path)
         code_count = SourceAnalysis.from_file(full_path, "_").code_count
         file_xml = ET.Element("class", name="\\".join(Path(source_path).parts), filename=source_path)
@@ -401,3 +404,13 @@ class CoverageReport(Report):
         packages.clear()
         packages.append(package_element)
         return root
+
+    def verify_pygount(self):
+        """Verify that pygount is installed."""
+        try:
+            from pygount import SourceAnalysis  # noqa: F401
+        except ImportError as e:
+            print(e)
+            print("WARNING: This report requires pip modules not installed with edk2-pytool-extensions:")
+            print("  Run the following command: `pip install pygout`")
+            exit(-1)
