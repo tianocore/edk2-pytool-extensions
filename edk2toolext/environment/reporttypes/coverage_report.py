@@ -8,6 +8,7 @@
 """A report that re-organizes a cobertura.xml by INF."""
 import fnmatch
 import logging
+import os
 import re
 import xml.dom.minidom as minidom
 import xml.etree.ElementTree as ET
@@ -304,7 +305,7 @@ class CoverageReport(Report):
         specified file.
         """
         pp_list, = db.connection.execute(PACKAGE_PATH_QUERY, (env_id,)).fetchone()
-        pp_list = re.split(r'[:;]', pp_list)
+        pp_list = pp_list.split(os.pathsep)
         edk2path = Edk2Path(self.args.workspace, pp_list)
 
         root = ET.Element("coverage")
