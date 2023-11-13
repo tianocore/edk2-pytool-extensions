@@ -8,7 +8,6 @@
 """A report that re-organizes a cobertura.xml by INF."""
 import fnmatch
 import logging
-import os
 import re
 import xml.dom.minidom as minidom
 import xml.etree.ElementTree as ET
@@ -16,6 +15,7 @@ from argparse import Action, ArgumentParser, Namespace
 from pathlib import Path
 
 from edk2toollib.database import Edk2DB
+from edk2toollib.uefi.edk2.path_utilities import Edk2Path
 
 from edk2toolext.environment.reporttypes.base_report import Report
 
@@ -117,35 +117,46 @@ class CoverageReport(Report):
 
     def add_cli_options(self, parserobj: ArgumentParser):
         """Configure command line arguments for this report."""
-        # Group 1
+        # Group 1 - Calculate coverage only for files in a specific package
         group = parserobj.add_argument_group("Coverage by package options")
         group.add_argument("--by-package", action="store_true", dest="by_package", default=False,
                            help="Filters test coverage to only files in the specified packages(s)")
         group.add_argument("-p", "--package", "--Package", "--PACKAGE", dest="package_list",
                            action=SplitCommaAction, default=[],
                            help="The package to include in the report. Can be specified multiple times.")
-        # Group 2
+
+        # Group 2 - Calculate coverage only on files used by a specific platform
         group = parserobj.add_argument_group("Coverage by platform options")
         group.add_argument("--by-platform", action="store_true", dest="by_platform", default=False,
                            help="Filters test coverage to all files used to build the specified platform package.")
         group.add_argument("-d", "--dsc", "--DSC", dest="dsc",
                            help="Edk2 relative path the ACTIVE_PLATFORM DSC file.")
 
+        # Group 3 - Run either by-platform or by-package with a FULL report
+        group = parserobj.add_argument_group("Full Report")
+        group.add_argument("--full", action="store_true", dest="full", default=False,
+                           help="Include all files in the report, not just those with coverage data. Requires pygount.")
+        group.add_argument("-ws", "--workspace", "--Workspace", "--WORKSPACE", dest="workspace",
+                               help="The Workspace root associated with the xml argument.", default=".")
+
         # Other args
         parserobj.add_argument(dest="xml", action="store", help="The path to the XML file parse.")
         parserobj.add_argument("-o", "--output", "--Output", "--OUTPUT", dest="output", default="Coverage.xml",
                                help="The path to the output XML file.", action="store")
-        parserobj.add_argument("-ws", "--workspace", "--Workspace", "--WORKSPACE", dest="workspace",
-                               help="The Workspace root associated with the xml argument.", default=".")
-
         parserobj.add_argument("-e", "--exclude", "--Exclude", "--EXCLUDE", dest="exclude",
                                action=SplitCommaAction, default=[],
                                help="Package path relative paths or file (.txt). Globbing is supported. Can be "
                                "specified multiple times")
+        parserobj.add_argument("--flatten", action="store_true", dest="flatten", default=False,
+                              help="Flatten the report to only source files. This removes duplicate files that are in "
+                              "multiple INFs.")
 
     def run_report(self, db: Edk2DB, args: Namespace) -> None:
         """Generate the Coverage report."""
         self.args = args
+
+        if self.args.full:
+            self.verify_pygount()
 
         self.update_excluded_files()
 
@@ -244,7 +255,7 @@ class CoverageReport(Report):
             path = Path(filename[match.start():]).as_posix()
             if path not in file_dict:
                 file.attrib["filename"] = path
-                file.attrib["name"] = Path(path).name
+                file.attrib["name"] = "\\".join(Path(path).parts)
                 file_dict[path] = file
 
             # Merge the file results
@@ -293,7 +304,8 @@ class CoverageReport(Report):
         specified file.
         """
         pp_list, = db.connection.execute(PACKAGE_PATH_QUERY, (env_id,)).fetchone()
-        pp_list = pp_list.split(os.pathsep)
+        pp_list = re.split(r'[:;]', pp_list)
+        edk2path = Edk2Path(self.args.workspace, pp_list)
 
         root = ET.Element("coverage")
         sources = ET.SubElement(root, "sources")
@@ -306,6 +318,8 @@ class CoverageReport(Report):
 
         packages = ET.SubElement(root, "packages")
         for path, source_list in inf_source_dict.items():
+            if fnmatch.fnmatch(path, "*Test*"):
+                continue
             if not source_list:
                 continue
             inf = ET.SubElement(packages, "package", path=path, name=Path(path).name)
@@ -325,8 +339,12 @@ class CoverageReport(Report):
                 match = next((key for key in source_coverage_dict.keys() if Path(source).is_relative_to(key)), None)
                 if match is not None:
                     classes.append(source_coverage_dict[match])
-                else:
-                    classes.append(ET.Element("class", name=Path(source).name, filename=source))
+                elif self.args.full:
+                    classes.append(self.create_source_xml(source, edk2path))
+
+        # Flaten the report to only source files, removing duplicates from INFs.
+        if self.args.flatten:
+            root = self.flatten_report(root, edk2path)
 
         xml_string = ET.tostring(root, "utf-8")
         dom = minidom.parseString(xml_string)
@@ -336,7 +354,7 @@ class CoverageReport(Report):
         p = Path(self.args.output)
         p.unlink(missing_ok=True)
         with open(p, 'wb') as f:
-            f.write(dom.toxml(encoding="utf-8"))
+            f.write(dom.toprettyxml(encoding="utf-8", indent="  "))
         logging.info(f"Coverage xml data written to {p}")
 
     def update_excluded_files(self):
@@ -349,3 +367,48 @@ class CoverageReport(Report):
             else:
                 temporary_list.append(pattern)
         self.args.exclude = temporary_list
+
+    def create_source_xml(self, source_path: str, edk2path: Edk2Path) -> ET:
+        """Parses the source file and creates a coverage 'lines' xml element for it."""
+        from pygount import SourceAnalysis
+        full_path = edk2path.GetAbsolutePathOnThisSystemFromEdk2RelativePath(source_path)
+        code_count = SourceAnalysis.from_file(full_path, "_").code_count
+        file_xml = ET.Element("class", name="\\".join(Path(source_path).parts), filename=source_path)
+        lines_xml = ET.Element("lines")
+
+        for i in range(1, code_count + 1):
+            lines_xml.append(ET.Element("line", number=str(i), hits="0"))
+        file_xml.append(lines_xml)
+        return file_xml
+
+    def flatten_report(self, root: ET.Element, edk2path: Edk2Path) -> ET.Element:
+        """Flattens the report to only source files, removing the INF layer and duplicate source files."""
+        class_list = ET.Element("classes")
+
+        class_dict = {}
+        for class_element in root.iter("class"):
+            filename = class_element.get('filename')
+            filename = "\\".join(Path(filename).parts)
+            class_element.set("name", filename)
+            class_dict[filename] = class_element
+
+        for class_element in class_dict.values():
+            class_list.append(class_element)
+
+        package_element = ET.Element("package", name = "All Source")
+        package_element.append(class_list)
+
+        packages = root.find('.//packages')
+        packages.clear()
+        packages.append(package_element)
+        return root
+
+    def verify_pygount(self):
+        """Verify that pygount is installed."""
+        try:
+            from pygount import SourceAnalysis  # noqa: F401
+        except ImportError as e:
+            print(e)
+            print("WARNING: This report requires pip modules not installed with edk2-pytool-extensions:")
+            print("  Run the following command: `pip install pygount`")
+            exit(-1)
