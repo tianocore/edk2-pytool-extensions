@@ -388,7 +388,8 @@ class CoverageReport(Report):
         class_dict = {}
         for class_element in root.iter("class"):
             filename = class_element.get('filename')
-            class_element.set("name", "\\".join(Path(filename).parts))
+            filename = "\\".join(Path(filename).parts)
+            class_element.set("name", filename)
             class_dict[filename] = class_element
 
         for class_element in class_dict.values():
