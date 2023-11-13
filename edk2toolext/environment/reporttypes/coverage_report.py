@@ -386,13 +386,10 @@ class CoverageReport(Report):
         class_list = ET.Element("classes")
 
         class_dict = {}
-        count = 0
         for class_element in root.iter("class"):
             filename = class_element.get('filename')
-            filename = filename.replace("/", "\\")
             class_element.set("name", "\\".join(Path(filename).parts))
             class_dict[filename] = class_element
-            count += 1
 
         for class_element in class_dict.values():
             class_list.append(class_element)
