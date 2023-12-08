@@ -420,7 +420,7 @@ class Edk2Invocable(BaseAbstractInvocable):
         except (FileNotFoundError):
             if settingsArg.help:
                 try:
-                    print("WARNING: Some command line arguments may be missing. Provide a platform module file to "
+                    print("WARNING: Some command line arguments may be missing. Provide a PLATFORM_MODULE file to "
                           "ensure all command line arguments are present.\n")
                     self.AddCommandLineOptions(settingsParserObj)
                 except:
