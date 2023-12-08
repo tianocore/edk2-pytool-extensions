@@ -9,7 +9,9 @@
 import argparse
 import logging
 import os
+from argparse import ArgumentParser, Namespace
 from pathlib import Path
+from typing import Iterable, Optional, Sequence
 
 import yaml
 from edk2toollib.database import Edk2DB
@@ -48,7 +50,13 @@ class AppendSplitAction(argparse.Action):
 
     example: -p Pkg1,Pkg2 -p Pkg3 => ['Pkg1', 'Pkg2', 'Pkg3']
     """
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(
+            self,
+            parser: ArgumentParser,
+            namespace: Namespace,
+            values: Sequence[str],
+            option_string: Optional[str] = None
+        ) -> None:
         """The command to invoke the action."""
         items = getattr(namespace, self.dest, [])
         items.extend(values.split(','))
@@ -57,17 +65,17 @@ class AppendSplitAction(argparse.Action):
 
 class ParseSettingsManager(MultiPkgAwareSettingsInterface):
     """Settings to support ReportSettingsManager functionality."""
-    def GetPackagesSupported(self):
+    def GetPackagesSupported(self) -> Iterable[str]:
         """Returns an iterable of edk2 packages supported by this build."""
         # Re-define and return an empty list instead of raising an exception as this is only needed when parsing
         # based off of a CI Settings File.
         return []
-    def GetArchitecturesSupported(self):
+    def GetArchitecturesSupported(self) -> Iterable:
         """Returns an iterable of edk2 architectures supported by this build."""
         # Re-define and return an empty list instead of raising an exception as this is only needed when parsing
         # based off of a CI Settings File.
         return []
-    def GetTargetsSupported(self):
+    def GetTargetsSupported(self) -> Iterable:
         """Returns an iterable of edk2 target tags supported by this build."""
         # Re-define and return an empty list instead of raising an exception as this is only needed when parsing
         # based off of a CI Settings File.
@@ -91,20 +99,20 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
     Addionally, any build variables can be overwritten or added via the command line VAR=VALUE functionality.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initializes an Edk2Report Object."""
         super().__init__()
         self.is_uefi_builder = False
 
-    def GetSettingsClass(self):
+    def GetSettingsClass(self) -> type:
         """Returns the Settings Manager for the invocable."""
         return ParseSettingsManager
 
-    def GetVerifyCheckRequired(self):
+    def GetVerifyCheckRequired(self) -> bool:
         """Will call self_describing_environment.VerifyEnvironment if this returns True."""
         return False
 
-    def AddCommandLineOptions(self, parserObj):
+    def AddCommandLineOptions(self, parserObj: ArgumentParser) -> None:
         """Adds the command line options."""
         super().AddCommandLineOptions(parserObj) # Adds the CI Settings File options
         parserObj.add_argument('--clear', '--Clear', "--CLEAR", dest='clear', action='store_true',
@@ -114,18 +122,18 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
                                help="Comma separated path to a python file containing a `TableParser`(s). "
                                "Includes this table with the default tables. Can be provided multiple times")
 
-    def RetrieveCommandLineOptions(self, args):
+    def RetrieveCommandLineOptions(self, args: Namespace) -> None:
         """Retrives the command line options."""
         super().RetrieveCommandLineOptions(args) # Stores the CI Settings File options
         self.clear = args.clear
         self.is_uefi_builder = locate_class_in_module(self.PlatformModule, UefiBuilder) is not None
         self.extra_tables = args.extra_tables
 
-    def GetLoggingFileName(self, loggerType):
+    def GetLoggingFileName(self, loggerType: str) -> str:
         """Returns the logging file name for this invocation."""
         return "PARSE_LOG"
 
-    def Go(self):
+    def Go(self) -> int:
         """Executes the invocable. Runs the subcommand specified by the user."""
         logging.warning("stuart_parse is in active development. Please report any issues to the edk2-pytool-extensions "
                         "repo.")
@@ -151,7 +159,7 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
         logging.info(f'Database generated at {db_path}.')
         return 0
 
-    def parse_with_builder_settings(self, db: Edk2DB, pathobj: Edk2Path, env: VarDict):
+    def parse_with_builder_settings(self, db: Edk2DB, pathobj: Edk2Path, env: VarDict) -> int:
         """Parses the workspace using a uefi builder to setup the environment."""
         logging.info("Setting up the environment with the UefiBuilder.")
         exception_msg = ""
@@ -184,7 +192,7 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
         db.parse(env_dict)
         return 0
 
-    def parse_with_ci_settings(self, db: Edk2DB, pathobj: Edk2Path, env: VarDict):
+    def parse_with_ci_settings(self, db: Edk2DB, pathobj: Edk2Path, env: VarDict) -> int:
         """Parses the workspace using ci settings to setup the environment."""
         for package in self.requested_package_list:
             for target in set(self.requested_target_list) & set(["DEBUG", "RELEASE", "NOOPT"]):
@@ -220,7 +228,7 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
                 shell_environment.RevertBuildVars()
         return 0
 
-    def _get_package_config(self, pathobj: Edk2Path, pkg) -> str:
+    def _get_package_config(self, pathobj: Edk2Path, pkg: str) -> str:
         """Gets configuration information for a package from the ci.yaml file."""
         pkg_config_file = pathobj.GetAbsolutePathOnThisSystemFromEdk2RelativePath(
             str(Path(pkg, pkg + ".ci.yaml"))
@@ -253,6 +261,6 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
                 logging.warning(f'  {e}')
         return table_list
 
-def main():
+def main() -> None:
     """Entry point to invoke Edk2PlatformSetup."""
     Edk2Parse().Invoke()

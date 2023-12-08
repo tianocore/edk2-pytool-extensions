@@ -7,13 +7,14 @@
 ##
 """An interface to create custom reports with."""
 from argparse import ArgumentParser, Namespace
+from typing import Tuple
 
 from edk2toollib.database import Edk2DB
 
 
 class Report:
     """The interface to create custom reports."""
-    def report_info(self):
+    def report_info(self) -> Tuple[str, str]:
         """Returns the report standard information.
 
         Returns:
@@ -21,7 +22,7 @@ class Report:
         """
         raise NotImplementedError
 
-    def add_cli_options(self, parserobj: ArgumentParser):
+    def add_cli_options(self, parserobj: ArgumentParser) -> None:
         """Configure command line arguments for this report."""
         return
 

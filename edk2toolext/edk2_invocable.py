@@ -197,7 +197,7 @@ class Edk2Invocable(BaseAbstractInvocable):
             ver_agg.ReportVersion(package.project_name, version, version_aggregator.VersionTypes.PIP)
 
     @classmethod
-    def collect_rust_info(cls):
+    def collect_rust_info(cls: 'Edk2Invocable') -> None:
         """Class method to collect Rust tool versions.
 
         Reports them to the global version_aggregator as well as print them to the screen.
@@ -205,7 +205,7 @@ class Edk2Invocable(BaseAbstractInvocable):
         import re
         from io import StringIO
 
-        def get_rust_tool_version(tool_name: str, tool_params: str = "--version"):
+        def get_rust_tool_version(tool_name: str, tool_params: str = "--version") -> str:
             cmd_output = StringIO()
             ret = RunCmd(tool_name, tool_params, outstream=cmd_output, logging_level=logging.DEBUG)
             if ret == 0:

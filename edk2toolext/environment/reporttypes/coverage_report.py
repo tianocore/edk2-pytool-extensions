@@ -14,6 +14,7 @@ import xml.dom.minidom as minidom
 import xml.etree.ElementTree as ET
 from argparse import Action, ArgumentParser, Namespace
 from pathlib import Path
+from typing import Optional, Sequence, Tuple
 
 from edk2toollib.database import Edk2DB
 from edk2toollib.uefi.edk2.path_utilities import Edk2Path
@@ -96,7 +97,12 @@ LIMIT 1;
 
 class SplitCommaAction(Action):
     """A Custom action similar to append, but will split the input string on commas first."""
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(
+            self, parser: ArgumentParser,
+            namespace: Namespace,
+            values: str | Sequence[str],
+            option_string: Optional[str] = None,
+            ) -> None:
        """Command entry."""
        setattr(namespace, self.dest, getattr(namespace, self.dest, []) + values.split(','))
 
@@ -107,7 +113,7 @@ class CoverageReport(Report):
     files in the specified edk2 packages. By-platform will only include coverage data for files used to build the
     specified platform dsc.
     """
-    def report_info(self):
+    def report_info(self) -> Tuple[str, str]:
         """Returns the report standard information.
 
         Returns:
@@ -116,7 +122,7 @@ class CoverageReport(Report):
         return ("coverage", "Reorganizes an xml coverage report by INF rather than executable. Filters results based "
                 "on --by-package or --by-platform flags.")
 
-    def add_cli_options(self, parserobj: ArgumentParser):
+    def add_cli_options(self, parserobj: ArgumentParser) -> None:
         """Configure command line arguments for this report."""
         # Group 1 - Calculate coverage only for files in a specific package
         group = parserobj.add_argument_group("Coverage by package options")
@@ -171,14 +177,11 @@ class CoverageReport(Report):
         logging.error("No report type specified via command line or configuration file.")
         return -1
 
-    def run_by_platform(self, db: Edk2DB):
+    def run_by_platform(self, db: Edk2DB) -> None:
         """Runs the report, only adding coverage data for source files used to build the platform.
 
         Args:
             db (Edk2DB): The database containing the necessary data
-
-        Returns:
-            (bool): True if the report was successful, False otherwise.
         """
         # Verify valid ACTIVE_PLATFORM
         dsc = self.args.dsc
@@ -203,16 +206,13 @@ class CoverageReport(Report):
         package_files = self.build_inf_source_dictionary(db, env_id, INSTANCED_SOURCE_QUERY, package_list)
 
         # Build the report
-        return self.build_report(db, env_id, coverage_files, package_files)
+        self.build_report(db, env_id, coverage_files, package_files)
 
-    def run_by_package(self, db: Edk2DB):
+    def run_by_package(self, db: Edk2DB) -> None:
         """Runs the report, only adding coverage data for source files in the specified packages.
 
         Args:
             db (Edk2DB): The database containing the necessary data
-
-        Returns:
-            (bool): True if the report was successful, False otherwise.
         """
         # Get package_list
         package_list = self.args.package_list or \
@@ -297,7 +297,7 @@ class CoverageReport(Report):
                 entry_dict[inf].append(source)
         return entry_dict
 
-    def build_report(self, db: Edk2DB, env_id: int, source_coverage_dict: dict, inf_source_dict: dict):
+    def build_report(self, db: Edk2DB, env_id: int, source_coverage_dict: dict, inf_source_dict: dict) -> None:
         """Builds the report.
 
         For each source file in each INF in the inf_source dictionary, look to see if there is coverage data for it in
@@ -358,7 +358,7 @@ class CoverageReport(Report):
             f.write(dom.toprettyxml(encoding="utf-8", indent="  "))
         logging.info(f"Coverage xml data written to {p}")
 
-    def update_excluded_files(self):
+    def update_excluded_files(self) -> None:
         """Replaces any files in the exclude list with their contents."""
         temporary_list = []
         for pattern in self.args.exclude:
@@ -404,7 +404,7 @@ class CoverageReport(Report):
         packages.append(package_element)
         return root
 
-    def verify_pygount(self):
+    def verify_pygount(self) -> None:
         """Verify that pygount is installed."""
         try:
             from pygount import SourceAnalysis  # noqa: F401
