@@ -379,7 +379,7 @@ class Edk2Invocable(BaseAbstractInvocable):
         """
         # first argparser will only get settings manager and help will be disabled
         settingsParserObj = argparse.ArgumentParser(add_help=False)
-        
+
         settingsParserObj.add_argument('-h', '--help', dest="help", action="store_true",
                                        help='show this help message and exit')
         settingsParserObj.add_argument('-c', '--platform_module', dest='platform_module',
@@ -423,9 +423,9 @@ class Edk2Invocable(BaseAbstractInvocable):
                     print("WARNING: Some command line arguments may be missing. Provide a PLATFORM_MODULE file to "
                           "ensure all command line arguments are present.\n")
                     self.AddCommandLineOptions(settingsParserObj)
-                except:
+                except Exception:
                     pass
-            else:     
+            else:
                 # Gracefully exit if we can't find the file
                 print(f"We weren't able to find {settingsArg.platform_module}")
             settingsParserObj.print_help()
