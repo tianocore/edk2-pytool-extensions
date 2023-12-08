@@ -180,7 +180,7 @@ class Edk2MultiPkgAwareInvocable(Edk2Invocable):
                                'Can list multiple by doing -p <pkg1>,<pkg2> or -p <pkg3> -p <pkg4>',
                                action="append", default=[])
         parserObj.add_argument('-a', '--arch', dest="requested_arch", type=str, default=None,
-                               help="Optional - CSV of architecutres requested to update. Example: -a X64,AARCH64")
+                               help="Optional - CSV of architecture requested to update. Example: -a X64,AARCH64")
         parserObj.add_argument('-t', '--target', dest='requested_target', type=str, default=None,
                                help="Optional - CSV of targets requested to update.  Example: -t DEBUG,NOOPT")
 

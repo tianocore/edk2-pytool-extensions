@@ -380,6 +380,8 @@ class Edk2Invocable(BaseAbstractInvocable):
         # first argparser will only get settings manager and help will be disabled
         settingsParserObj = argparse.ArgumentParser(add_help=False)
 
+        settingsParserObj.add_argument('-h', '--help', dest="help", action="store_true",
+                                       help='show this help message and exit')
         settingsParserObj.add_argument('-c', '--platform_module', dest='platform_module',
                                        default="PlatformBuild.py", type=str,
                                        help='Provide the Platform Module relative to the current working directory.'
@@ -416,8 +418,16 @@ class Edk2Invocable(BaseAbstractInvocable):
             sys.exit(1)
 
         except (FileNotFoundError):
-            # Gracefully exit if we can't find the file
-            print(f"We weren't able to find {settingsArg.platform_module}")
+            if settingsArg.help:
+                try:
+                    print("WARNING: Some command line arguments may be missing. Provide a PLATFORM_MODULE file to "
+                          "ensure all command line arguments are present.\n")
+                    self.AddCommandLineOptions(settingsParserObj)
+                except Exception:
+                    pass
+            else:
+                # Gracefully exit if we can't find the file
+                print(f"We weren't able to find {settingsArg.platform_module}")
             settingsParserObj.print_help()
             sys.exit(2)
 
