@@ -22,11 +22,11 @@ import logging
 import os
 import sys
 import warnings
+from pathlib import Path
 from random import choice
 from string import ascii_letters
 from textwrap import dedent
 from typing import Iterable, Tuple
-from pathlib import Path
 
 import pkg_resources
 from edk2toollib.utility_functions import GetHostInfo, RunCmd, import_module_by_file_name, locate_class_in_module
