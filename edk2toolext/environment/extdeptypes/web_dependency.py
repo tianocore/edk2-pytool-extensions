@@ -11,6 +11,7 @@
 import logging
 import os
 import pathlib
+import platform
 import shutil
 import tarfile
 import tempfile
@@ -108,8 +109,9 @@ class WebDependency(ExternalDependency):
             _ref.extract(member=file, path=destination)
 
             # unzip functionality does not preserve file permissions. Fix-up the permissions
+            # if using a non-windows machine.
             path = pathlib.Path(destination, file)
-            if path.is_file() and compression_type == "zip":
+            if path.is_file() and compression_type == "zip" and not platform.system().startswith("Win"):
                 expected_mode = _ref.getinfo(file).external_attr >> 16
                 path.chmod(expected_mode)
 
