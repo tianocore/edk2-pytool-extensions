@@ -11,13 +11,13 @@
 import logging
 import os
 import pathlib
+import platform
 import shutil
 import tarfile
 import tempfile
 import urllib.error
 import urllib.request
 import zipfile
-import platform
 
 from edk2toollib.utility_functions import RemoveTree
 
