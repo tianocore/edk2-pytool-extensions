@@ -465,7 +465,7 @@ class Edk2Invocable(BaseAbstractInvocable):
         parserObj.epilog = self.AddParserEpilog()
 
         # setup sys.argv and argparse round 2
-        sys.argv = [sys.argv[0]] + unknown_args
+        sys.argv = [sys.argv[0]] + ["--help"] if settingsArg.help else unknown_args
         args, unknown_args = parserObj.parse_known_args()
         self.Verbose = args.verbose
 
