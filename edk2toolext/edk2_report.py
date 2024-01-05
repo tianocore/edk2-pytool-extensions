@@ -88,11 +88,11 @@ def main() -> int:
     cmd = args.cmd
     del args.cmd
 
-    with Edk2DB(db_path = db_path) as db:
-        for report in REPORTS:
-            name, _ = report.report_info()
-            if name == cmd:
-                return report.run_report(db, args)
+    db = Edk2DB(db_path = db_path)
+    for report in REPORTS:
+        name, _ = report.report_info()
+        if name == cmd:
+            return report.run_report(db, args)
     return -1
 
 def merge_databases(databases: list[str]) -> str:

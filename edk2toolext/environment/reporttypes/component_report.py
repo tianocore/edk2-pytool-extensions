@@ -11,45 +11,9 @@ from argparse import ArgumentParser, Namespace
 from pathlib import Path, PurePath
 from typing import Tuple
 
-from edk2toollib.database import Edk2DB
+from edk2toollib.database import Edk2DB, Environment, InstancedInf, Session
+from sqlalchemy import desc
 
-COMPONENT_QUERY = """
-SELECT path
-FROM instanced_inf
-WHERE
-    (path LIKE ? OR ? LIKE '%' || path || '%')
-    AND env = ?;
-"""
-
-LIBRARY_QUERY = """
-SELECT ii.class, iij.instanced_inf2
-FROM instanced_inf_junction AS iij
-JOIN instanced_inf as ii
-    ON
-        ii.env = iij.env
-        AND ii.component = iij.component
-        AND iij.instanced_inf2 = ii.path
-WHERE
-    iij.env = ?
-    AND iij.component = ?
-    AND iij.instanced_inf1 = ?;
-"""
-
-FLAT_LIBRARY_QUERY = """
-SELECT class, path
-FROM instanced_inf
-WHERE
-    component = ?
-    AND env = ?
-    AND path != component;
-"""
-
-ID_QUERY = """
-SELECT id
-FROM environment
-ORDER BY date
-DESC LIMIT 1;
-"""
 
 class ComponentDumpReport:
     """A report to print information about a component that could be compiled."""
@@ -86,38 +50,43 @@ class ComponentDumpReport:
 
         self.depth = args.depth
         self.sort = args.sort
-        self.conn = db.connection
 
-        self.env_id = args.env_id or self.conn.execute(ID_QUERY).fetchone()[0]
         self.component = PurePath(args.component).as_posix()
 
-        inf_path, = self.conn.execute(
-            COMPONENT_QUERY, (f'%{self.component}%', self.component, self.env_id)).fetchone()
-        # Print in flat format
-        if args.flatten:
-            return self.print_libraries_flat(inf_path)
+        with db.session() as session:
+            self.env_id = args.env_id or session.query(Environment).order_by(desc(Environment.date)).first().id
+            component = (
+                session
+                    .query(InstancedInf)
+                    .filter_by(env=self.env_id, cls=None)
+                    .filter(InstancedInf.path.like(f'%{self.component}%'))
+                    .one()
+            )
 
-        # Print in recursive format
-        libraries = self.conn.execute(LIBRARY_QUERY, (self.env_id, self.component, self.component)).fetchall()
+            if args.flatten:
+                return self.print_libraries_flat(component.path, session)
 
-        if self.sort:
-            libraries = sorted(libraries, key=lambda x: x[1])
+            libraries = component.libraries
+            if self.sort:
+                libraries = sorted(libraries, key=lambda x: x.cls)
 
-        print(inf_path, file=self.file)
-        for library in libraries:
-            self.print_libraries_recursive(library, [])
+            print(component.path, file=self.file)
+            for library in libraries:
+                self.print_libraries_recursive(library, [], session)
 
-    def print_libraries_recursive(self, library: Tuple[str, str], visited: list, depth: int = 0) -> None:
+    def print_libraries_recursive(self, library: InstancedInf, visited: list, session: Session, depth: int = 0) -> None:
         """Prints the libraries used in a provided library / component."""
-        library_class, library_instance = library
         if depth >= self.depth:
             return
+
+        library_class = library.cls
+        library_instance = library.path
+
         print(f'{"  "*depth}- {library_class}| {library_instance or "NOT FOUND IN DSC"}', file=self.file)
 
         if library_instance is None:
             return
-
-        libraries = self.conn.execute(LIBRARY_QUERY, (self.env_id, self.component, library_instance)).fetchall()
+        libraries = library.libraries
 
         if self.sort:
             libraries = sorted(libraries, key=lambda x: x[1])
@@ -126,16 +95,22 @@ class ComponentDumpReport:
             if library in visited:
                 continue
             visited.append(library)
-            self.print_libraries_recursive( library, visited.copy(), depth=depth+1)
+            self.print_libraries_recursive( library, visited.copy(), session, depth=depth+1)
         return
 
-    def print_libraries_flat(self, component: str) -> None:
+    def print_libraries_flat(self, component: str, session: Session) -> None:
         """Prints the libraries used in a provided component."""
-        libraries = self.conn.execute(FLAT_LIBRARY_QUERY, (component,self.env_id)).fetchall()
+        libraries = (
+            session
+                .query(InstancedInf)
+                .filter_by(env = self.env_id, component = component)
+                .filter(InstancedInf.cls.isnot(None))
+                .all()
+        )
 
-        length = max(len(item[0]) for item in libraries)
+        length = max(len(library.cls) for library in libraries)
         if self.sort:
-            libraries = sorted(libraries, key=lambda x: x[0])
+            libraries = sorted(libraries, key=lambda x: x.cls)
 
         for library in libraries:
-            print(f'- {library[0]:{length}}| {library[1]}', file=self.file)
+            print(f'- {library.cls:{length}}| {library.path}', file=self.file)

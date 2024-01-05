@@ -16,13 +16,14 @@ from typing import Iterable, Optional, Sequence
 import yaml
 from edk2toollib.database import Edk2DB
 from edk2toollib.database.tables import (
+    EnvironmentTable,
     InfTable,
     InstancedFvTable,
     InstancedInfTable,
     PackageTable,
     SourceTable,
+    TableGenerator,
 )
-from edk2toollib.database.tables.base_table import TableGenerator
 from edk2toollib.uefi.edk2.path_utilities import Edk2Path
 from edk2toollib.utility_functions import import_module_by_file_name, locate_class_in_module
 
@@ -37,6 +38,7 @@ from edk2toolext.invocables.edk2_multipkg_aware_invocable import (
 DB_NAME = "DATABASE.db"
 
 TABLES = [
+    EnvironmentTable(),
     PackageTable(),
     SourceTable(),
     InfTable(),
@@ -144,17 +146,17 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
         if self.clear:
             db_path.unlink(missing_ok=True)
 
-        with Edk2DB(db_path, pathobj=pathobj) as db:
-            db.register(*TABLES)
+        db = Edk2DB(db_path, pathobj=pathobj)
+        db.register(*TABLES)
 
-            # Load and register any extra requested tables
-            db.register(*self.load_extra_tables(self.extra_tables))
+        # Load and register any extra requested tables
+        db.register(*self.load_extra_tables(self.extra_tables))
 
-            # Generate environment aware tables
-            if self.is_uefi_builder:
-                self.parse_with_builder_settings(db, pathobj, env)
-            else:
-                self.parse_with_ci_settings(db, pathobj, env)
+        # Generate environment aware tables
+        if self.is_uefi_builder:
+            self.parse_with_builder_settings(db, pathobj, env)
+        else:
+            self.parse_with_ci_settings(db, pathobj, env)
 
         logging.info(f'Database generated at {db_path}.')
         return 0

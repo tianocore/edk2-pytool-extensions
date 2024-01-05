@@ -12,69 +12,15 @@ import io
 import logging
 import pathlib
 from argparse import ArgumentParser, Namespace
-from sqlite3 import Connection
 from typing import Tuple
 
-from edk2toollib.database import Edk2DB
+from edk2toollib.database import Edk2DB, Fv, InstancedInf, Session
+from edk2toollib.database import Environment as Env
+from sqlalchemy import desc
+from sqlalchemy.orm import aliased
 
 from edk2toolext.environment.reporttypes import templates
 from edk2toolext.environment.reporttypes.base_report import Report
-
-QUERY = """
-WITH variable AS (
-    SELECT
-        ? AS env -- VARIABLE: Change this to the environment parse you care about
-)
-SELECT DISTINCT
-    package.repository AS "Repository",
-    inf.package AS "Package",
-    inf_list.path AS "INF Path",
-    junction.key2 AS "Source Path",
-    source.total_lines AS "Code Line Count",
-    CASE
-        WHEN inf.library_class IS NULL THEN TRUE
-        ELSE FALSE
-    END AS "Component"
-FROM
-    (
-        SELECT
-            DISTINCT instanced_inf.path
-        FROM
-            variable,
-            instanced_fv
-            JOIN junction ON instanced_fv.env = junction.env
-            AND junction.table1 = 'instanced_fv'
-            AND junction.table2 = 'inf'
-            JOIN instanced_inf ON instanced_inf.component = junction.key2
-        WHERE
-            instanced_fv.env = variable.env
-    ) inf_list,
-    variable
-    JOIN junction ON junction.key1 = inf_list.path
-    AND junction.table2 = 'source'
-    AND junction.env = variable.env
-    LEFT JOIN source ON source.path = junction.key2
-    LEFT JOIN inf ON inf.path = inf_list.path
-    LEFT JOIN package ON inf.package = package.name
-ORDER BY
-    package.repository,
-    package.name,
-    inf_list.path
-"""
-
-VERSION_QUERY = """
-SELECT version
-FROM environment
-WHERE id = ?;
-"""
-
-ID_QUERY = """
-SELECT id
-FROM environment
-ORDER BY date
-DESC LIMIT 1;
-"""
-
 
 COLORS = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f','#bcbd22', '#17becf',
           '#aec7e8', '#ffbb78', '#98df8a', '#ff9896', '#c5b0d5',]
@@ -109,8 +55,12 @@ class UsageReport(Report):
             print("  Run the following command: `pip install jinja2 plotly`")
             exit(-1)
 
-        env_id = args.env_id or db.connection.execute(ID_QUERY).fetchone()[0]
-        reports, inf_list = self.generate_data(env_id, db)
+        # Retrieve needed data from the database and build the data sets.
+        with db.session() as session:
+            env_id = args.env_id or session.query(Env).order_by(desc(Env.date)).first().id
+            version = session.query(Env).filter_by(id=env_id).first().version
+            env_vars = self._get_env_vars(session, env_id)
+            reports, inf_list = self.generate_data(env_id, session)
 
         # Build color map for consistent colors across all reports
         color_map = {}
@@ -121,8 +71,8 @@ class UsageReport(Report):
         env = Environment(loader=FileSystemLoader(templates.__path__))
         template = env.get_template("usage_report_template.html")
         report_data = {
-            "version": db.connection.execute(VERSION_QUERY, (env_id,)).fetchone()[0],
-            "env": self._get_env_vars(db.connection, env_id),
+            "version": version,
+            "env": env_vars,
             "inf_list":  inf_list,
         }
 
@@ -154,12 +104,12 @@ class UsageReport(Report):
             f.write(html_output)
         logging.info(f"Report written to {path_out}.")
 
-    def generate_data(self, env_id: int, db: Edk2DB) -> tuple[dict, set]:
+    def generate_data(self, env_id: int, session: Session) -> tuple[dict, set]:
         """Generates a list of pie chart data.
 
         Args:
             env_id (int): The environment id the report is generating off of.
-            db (Edk2DB): The database to pull data from.
+            session (Session): The session with a connection to the database.
 
         Returns:
             (dict, set): (pie chart data, set of all INFs)
@@ -172,7 +122,42 @@ class UsageReport(Report):
         total_lines = {}
 
         inf_dict = {}
-        for repo, package, inf, _src, line_count, is_component in db.connection.execute(QUERY, (env_id,)).fetchall():
+
+        # Generate a list of all INFs used by the platform. Do this by grabbing
+        # all Components from FVs, then enumerate the INFs that have that
+        # component as their component.
+        inf_alias = aliased(InstancedInf)
+        inf_list = (
+            session.query(inf_alias)
+                .join(Fv.infs)
+                .join(inf_alias, InstancedInf.path == inf_alias.component)
+                .filter(Fv.env == env_id)
+                .filter(inf_alias.env == env_id)
+                .filter(InstancedInf.env == env_id)
+                .group_by(inf_alias.path)
+                .distinct(inf_alias.path)
+                .all()
+        )
+        final_data = []
+
+        # Finally iterate through each INF and build the datatable we need.
+        for inf in inf_list:
+            for source in inf.sources:
+                if inf.package is None:
+                    package_name = "None"
+                else:
+                    package_name = inf.package.name
+
+                final_data.append((
+                    inf.repository.name,
+                    package_name,
+                    inf.path,
+                    source.path,
+                    source.total_lines,
+                    inf.path == inf.component,
+                ))
+
+        for repo, package, inf, _src, line_count, is_component in final_data:
             key = (repo, package, inf)
             current = inf_dict.setdefault(key, (repo, package, inf, 0))
             inf_dict[key] = (repo, package, inf, current[3] + (line_count or 0))
@@ -201,11 +186,11 @@ class UsageReport(Report):
         ]
         return (reports, set(inf_dict.values()))
 
-    def _get_env_vars(self, connection: Connection, env_id: int) -> dict:
+    def _get_env_vars(self, session: Session, env_id: int) -> dict[str, str]:
         env_vars = {}
-        results = connection.execute("SELECT key, value FROM environment_values WHERE id = ?;", (env_id,)).fetchall()
-        for key, value in results:
-            env_vars[key] = value
+        env = session.query(Env).filter_by(id=env_id).one()
+        for value in env.values:
+            env_vars[value.key] = value.value
         return env_vars
 
     def _merge_dicts(self, dict1: dict, dict2: dict) -> dict:
