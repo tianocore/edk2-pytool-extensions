@@ -28,7 +28,7 @@ COLORS = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e3
 
 class UsageReport(Report):
     """A report that generates a INF usage report for a specific build."""
-    def report_info(self) -> Tuple(str, str):
+    def report_info(self) -> Tuple[str, str]:
         """Returns the report standard information.
 
         Returns:
@@ -104,7 +104,7 @@ class UsageReport(Report):
             f.write(html_output)
         logging.info(f"Report written to {path_out}.")
 
-    def generate_data(self, env_id: int, session: Session) -> tuple[dict, set]:
+    def generate_data(self, env_id: int, session: Session) -> Tuple[dict, set]:
         """Generates a list of pie chart data.
 
         Args:
