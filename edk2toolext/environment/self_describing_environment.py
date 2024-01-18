@@ -16,6 +16,7 @@ import os
 import time
 from multiprocessing import dummy
 from pathlib import Path
+from typing import Optional
 
 from edk2toolext.environment import environment_descriptor_files as EDF
 from edk2toolext.environment import external_dependency, repo_resolver, shell_environment
@@ -30,11 +31,21 @@ class self_describing_environment(object):
     Scans the environment for files that describe the source and dependencies
     and then acts upon those files.
     """
-    def __init__(self, workspace_path, scopes=(), skipped_dirs=()):
+    def __init__(
+        self,
+        workspace_path: str,
+        scopes: Optional[tuple]=None,
+        skipped_dirs: Optional[tuple]=None
+    ) -> None:
         """Inits an empty self describing environment."""
         logging.debug("--- self_describing_environment.__init__()")
         logging.debug(f"Skipped directories specified = {skipped_dirs}")
         super(self_describing_environment, self).__init__()
+
+        if scopes is None:
+            scopes = ()
+        if skipped_dirs is None:
+            skipped_dirs = ()
 
         self.workspace = workspace_path
 
@@ -62,7 +73,7 @@ class self_describing_environment(object):
         self.extdeps = None
         self.plugins = None
 
-    def _gather_env_files(self, ext_strings, base_path):
+    def _gather_env_files(self, ext_strings: list[str], base_path: str) -> dict:
         logging.debug("--- self_describing_environment._gather_env_files()")
         # Make sure that the search extension matches easily.
         search_files = tuple(ext_string.lower() for ext_string in ext_strings)
@@ -90,7 +101,7 @@ class self_describing_environment(object):
 
         return matches
 
-    def load_workspace(self):
+    def load_workspace(self) ->'self_describing_environment':
         """Loads the workspace."""
         logging.debug("--- self_describing_environment.load_workspace()")
         logging.debug("Loading workspace: %s" % self.workspace)
@@ -109,7 +120,7 @@ class self_describing_environment(object):
         all_descriptors = list()
 
         # helper function to get all the descriptors of a type and cast them
-        def _get_all_descriptors_of_type(key, class_type):
+        def _get_all_descriptors_of_type(key: str, class_type: type) ->tuple:
             if key not in env_files:
                 return tuple()
             return tuple(class_type(desc_file) for desc_file in env_files[key])
@@ -187,7 +198,7 @@ class self_describing_environment(object):
         return self
 
     # This is a generator to reduce code duplication when wrapping the pathenv objects.
-    def _get_paths(self):
+    def _get_paths(self) -> EDF.PathEnv:
         if self.paths is not None:
             # Apply in reverse order to get the expected hierarchy.
             for path_descriptor in reversed(self.paths):
@@ -196,7 +207,10 @@ class self_describing_environment(object):
                 yield EDF.PathEnv(path_descriptor)
 
     # This is a generator to reduce code duplication when wrapping the extdep objects.
-    def _get_extdeps(self, env_object):
+    def _get_extdeps(
+        self,
+        env_object: shell_environment.ShellEnvironment
+    ) -> external_dependency.ExternalDependency:
         if self.extdeps is not None:
             global_cache_path = env_object.get_shell_var("STUART_EXTDEP_CACHE_PATH")
             # Apply in reverse order to get the expected hierarchy.
@@ -208,7 +222,11 @@ class self_describing_environment(object):
                     extdep.set_global_cache_path(global_cache_path)
                 yield extdep
 
-    def _apply_descriptor_object_to_env(self, desc_object, env_object):
+    def _apply_descriptor_object_to_env(
+        self,
+        desc_object: external_dependency.ExtDepFactory,
+        env_object: shell_environment.ShellEnvironment
+    ) -> None:
         # Walk through each possible environment modification
         # and apply to the environment as required.
 
@@ -223,30 +241,34 @@ class self_describing_environment(object):
             env_object.set_shell_var(
                 desc_object.var_name, desc_object.published_path)
 
-    def update_simple_paths(self, env_object):
+    def update_simple_paths(self, env_object: shell_environment.ShellEnvironment) -> None:
         """Updates simple paths."""
         logging.debug("--- self_describing_environment.update_simple_paths()")
         for path in self._get_paths():
             self._apply_descriptor_object_to_env(path, env_object)
 
-    def update_extdep_paths(self, env_object):
+    def update_extdep_paths(self, env_object: shell_environment.ShellEnvironment) -> None:
         """Updates external dependency paths."""
         logging.debug("--- self_describing_environment.update_extdep_paths()")
         for extdep in self._get_extdeps(env_object):
             self._apply_descriptor_object_to_env(extdep, env_object)
 
-    def report_extdep_version(self, env_object):
+    def report_extdep_version(self, env_object: shell_environment.ShellEnvironment) -> None:
         """Reports the version of all external dependencies."""
         logging.debug("--- self_describing_environment.report_extdep_version()")
         for extdep in self._get_extdeps(env_object):
             extdep.report_version()
 
-    def update_extdeps(self, env_object):
-        """Updates external dependencies."""
+    def update_extdeps(self, env_object: shell_environment.ShellEnvironment) -> tuple:
+        """Updates external dependencies.
+
+        Returns:
+            (tuple): (success_count, failure_count)
+        """
         logging.debug("--- self_describing_environment.update_extdeps()")
         # This function is called by our thread pool
 
-        def update_extdep(self, extdep):
+        def update_extdep(self: 'self_describing_environment', extdep: external_dependency.ExternalDependency) -> bool:
             # Check to see whether it's necessary to fetch the files.
             try:
                 if not extdep.verify():
@@ -307,13 +329,13 @@ class self_describing_environment(object):
             raise RuntimeError("We encountered an exception while updating ext-deps. Review your log")
         return success_count, failure_count
 
-    def clean_extdeps(self, env_object):
+    def clean_extdeps(self, env_object: shell_environment.ShellEnvironment) -> None:
         """Cleans external dependencies."""
         for extdep in self._get_extdeps(env_object):
             extdep.clean()
             # TODO: Determine whether we want to update the env.
 
-    def verify_extdeps(self, env_object):
+    def verify_extdeps(self, env_object: shell_environment.ShellEnvironment) -> bool:
         """Verifies external dependencies."""
         result = True
         for extdep in self._get_extdeps(env_object):
@@ -324,7 +346,7 @@ class self_describing_environment(object):
         return result
 
 
-def DestroyEnvironment():
+def DestroyEnvironment() -> None:
     """Destroys global environment state."""
     global ENVIRONMENT_BOOTSTRAP_COMPLETE, ENV_STATE
 
@@ -332,7 +354,7 @@ def DestroyEnvironment():
     ENV_STATE = None
 
 
-def BootstrapEnvironment(workspace, scopes=(), skipped_dirs=()):
+def BootstrapEnvironment(workspace: str, scopes: Optional[tuple]=None, skipped_dirs: Optional[tuple]=None) -> tuple:
     """Performs a multistage bootstrap of the environment.
 
     1. Locate and load all environment description files
@@ -345,9 +367,18 @@ def BootstrapEnvironment(workspace, scopes=(), skipped_dirs=()):
         scopes (Tuple): scopes being built against
         skipped_dirs (Tuple): directories to ignore
 
+
+    Returns:
+        tuple: (self_describing_environment,ShellEnvironment)
+
     !!! warning
         if only one scope or skipped_dir, the tuple should end with a comma example: '(myscope,)'
     """
+    if scopes is None:
+        scopes = ()
+    if skipped_dirs is None:
+        skipped_dirs = ()
+
     global ENVIRONMENT_BOOTSTRAP_COMPLETE, ENV_STATE
 
     if not ENVIRONMENT_BOOTSTRAP_COMPLETE:
@@ -388,7 +419,7 @@ def BootstrapEnvironment(workspace, scopes=(), skipped_dirs=()):
     return ENV_STATE
 
 
-def CleanEnvironment(workspace, scopes=(), skipped_dirs=()):
+def CleanEnvironment(workspace: str, scopes: Optional[tuple]=None, skipped_dirs: Optional[tuple]=None) -> None:
     """Cleans all external dependencies based on environment.
 
     Environment is bootstrapped from provided arguments and all dependencies
@@ -402,6 +433,11 @@ def CleanEnvironment(workspace, scopes=(), skipped_dirs=()):
     !!! warning
         If only one scope or skipped_dir, the tuple should end with a comma example: '(myscope,)'
     """
+    if scopes is None:
+        scopes = ()
+    if skipped_dirs is None:
+        skipped_dirs = ()
+
     # Bootstrap the environment.
     (build_env, shell_env) = BootstrapEnvironment(workspace, scopes, skipped_dirs)
 
@@ -409,7 +445,7 @@ def CleanEnvironment(workspace, scopes=(), skipped_dirs=()):
     build_env.clean_extdeps(shell_env)
 
 
-def UpdateDependencies(workspace, scopes=(), skipped_dirs=()):
+def UpdateDependencies(workspace: str, scopes: Optional[tuple]=None, skipped_dirs: Optional[tuple]=None) -> tuple:
     """Updates all external dependencies based on environment.
 
     Environment is bootstrapped from provided arguments and all dependencies
@@ -420,9 +456,17 @@ def UpdateDependencies(workspace, scopes=(), skipped_dirs=()):
         scopes (Tuple): scopes being built against
         skipped_dirs (Tuple): directories to ignore
 
+    Returns:
+        (Tuple): (success_count, failure_count)
+
     !!! warning
         If only one scope or skipped_dir, the tuple should end with a comma example: '(myscope,)'
     """
+    if scopes is None:
+        scopes = ()
+    if skipped_dirs is None:
+        skipped_dirs = ()
+
     # Bootstrap the environment.
     (build_env, shell_env) = BootstrapEnvironment(workspace, scopes, skipped_dirs)
 
@@ -430,7 +474,7 @@ def UpdateDependencies(workspace, scopes=(), skipped_dirs=()):
     return build_env.update_extdeps(shell_env)
 
 
-def VerifyEnvironment(workspace, scopes=(), skipped_dirs=()):
+def VerifyEnvironment(workspace: str, scopes: Optional[tuple]=None, skipped_dirs: Optional[tuple]=None) -> bool:
     """Verifies all external dependencies based on environment.
 
     Environment is bootstrapped from provided arguments and all dependencies
@@ -444,6 +488,10 @@ def VerifyEnvironment(workspace, scopes=(), skipped_dirs=()):
     !!! warning
         If only one scope or skipped_dir, the tuple should end with a comma example: '(myscope,)'
     """
+    if scopes is None:
+        scopes = ()
+    if skipped_dirs is None:
+        skipped_dirs = ()
     # Bootstrap the environment.
     (build_env, shell_env) = BootstrapEnvironment(workspace, scopes, skipped_dirs)
 

@@ -9,12 +9,29 @@
 
 import logging
 import os
-from typing import List, Tuple
+from typing import TextIO
+
+from edk2toollib.log.junit_report_format import JunitReportTestCase
+from edk2toollib.uefi.edk2.path_utilities import Edk2Path
+
+from edk2toolext.environment.plugin_manager import PluginManager
+from edk2toolext.environment.plugintypes.uefi_helper_plugin import HelperFunctions
+from edk2toolext.environment.var_dict import VarDict
 
 
 class ICiBuildPlugin(object):
     """Plugin that supports adding tests or operations to the ci environment."""
-    def RunBuildPlugin(self, packagename, Edk2pathObj, pkgconfig, environment, PLM, PLMHelper, tc, output_stream):
+    def RunBuildPlugin(
+        self,
+        packagename: str,
+        Edk2pathObj: Edk2Path,
+        pkgconfig: dict,
+        environment: VarDict,
+        PLM: PluginManager,
+        PLMHelper: HelperFunctions,
+        tc: JunitReportTestCase,
+        output_stream: TextIO
+    ) -> int:
         """External function of plugin.
 
         This function is used to perform the task of the CiBuild Plugin
@@ -23,7 +40,7 @@ class ICiBuildPlugin(object):
             packagename (str): edk2 path to package (workspace/package path relative)
             Edk2pathObj (Edk2Path): Edk2Path configured with workspace and package path
             pkgconfig (dict): Package config
-            environment (EnvConfig): Environment config
+            environment (VarDict): Environment config
             PLM (PluginManager): Plugin manager instance
             PLMHelper (HelperFunctions): Plugin helper object instace
             tc (obj): test case that needs state configured for reporting by plugin
@@ -35,7 +52,7 @@ class ICiBuildPlugin(object):
             (int): -1 - skipped for missing prereq
         """
 
-    def GetTestName(self, packagename: str, environment: object) -> Tuple[str, str]:
+    def GetTestName(self, packagename: str, environment: object) -> tuple[str, str]:
         """Provides the test case and class name.
 
         Given the package name and configuration provide the caller
@@ -50,7 +67,7 @@ class ICiBuildPlugin(object):
             (Tuple[str, str]): (test case name, test case base class name)
         """
 
-    def RunsOnTargetList(self) -> List[str]:
+    def RunsOnTargetList(self) -> list[str]:
         """Returns a list of edk2 TARGETs that this plugin would like to run on.
 
         !!! note "Known target values"
@@ -61,13 +78,17 @@ class ICiBuildPlugin(object):
         """
         return ["NO-TARGET"]
 
-    def WalkDirectoryForExtension(self, extensionlist: List[str], directory: os.PathLike,
-                                  ignorelist: List[str] = None) -> List[os.PathLike]:
+    def WalkDirectoryForExtension(
+        self,
+        extensionlist: list[str],
+        directory: os.PathLike,
+        ignorelist: list[str] = None
+    ) -> list[os.PathLike]:
         """Walks a file directory recursively for all items ending in certain extension.
 
         Args:
             extensionlist (List[str]): list of file extensions
-            directory (PathLike): absolute path to directory to start looking
+            directory (os.PathLike): absolute path to directory to start looking
             ignorelist (List[str]): a list of case insensitive filenames to ignore (Optional)
 
         Returns:

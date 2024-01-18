@@ -12,7 +12,7 @@ import pathlib
 import sqlite3
 import sys
 import tempfile
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
 from datetime import datetime
 
 from edk2toollib.database import Edk2DB
@@ -23,7 +23,7 @@ from edk2toolext.environment.reporttypes import ComponentDumpReport, CoverageRep
 REPORTS = [CoverageReport(), ComponentDumpReport(), UsageReport()]
 
 
-def setup_logging(verbose: bool):
+def setup_logging(verbose: bool) -> None:
     """Setup logging for the tool."""
     logger = logging.getLogger('')
     logger.setLevel(logging.DEBUG if verbose else logging.INFO)
@@ -32,7 +32,7 @@ def setup_logging(verbose: bool):
     logging.info("Log Started: " + datetime.strftime(datetime.now(), "%A, %B %d, %Y %I:%M%p"))
 
 
-def parse_args():
+def parse_args() -> Namespace:
     """Parse the arguments for the tool."""
     parser = ArgumentParser("A tool to generate reports on a edk2 workspace.")
     parser.add_argument('--verbose', '--VERBOSE', '-v', dest="verbose", action='store_true', default=False,
@@ -51,7 +51,7 @@ def parse_args():
 
     return parser.parse_args()
 
-def main():
+def main() -> int:
     """Main functionality of the executable."""
     args = parse_args()
     setup_logging(args.verbose)
@@ -116,7 +116,7 @@ def merge_databases(databases: list[str]) -> str:
     return temp_db
 
 
-def go():
+def go() -> None:
     """Main entry into the report generator tool.
 
     Sets up the logger for the tool and then runs the tool.

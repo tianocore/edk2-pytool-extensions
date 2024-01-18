@@ -12,6 +12,7 @@ Contains a UpdateSettingsManager that must be subclassed in a build settings
 file. This provides platform specific information to Edk2Update invocable
 while allowing the invocable itself to remain platform agnostic.
 """
+import argparse
 import logging
 
 from edk2toolext import edk2_logging
@@ -33,7 +34,10 @@ class UpdateSettingsManager(MultiPkgAwareSettingsInterface):
     """
 
 
-def build_env_changed(build_env, build_env_2):
+def build_env_changed(
+        build_env: self_describing_environment.self_describing_environment,
+        build_env_2: self_describing_environment.self_describing_environment
+    ) -> bool:
     """Return True if build_env has changed."""
     return (build_env.paths != build_env_2.paths) or \
            (build_env.extdeps != build_env_2.extdeps) or \
@@ -45,7 +49,7 @@ class Edk2Update(Edk2MultiPkgAwareInvocable):
 
     MAX_RETRY_COUNT = 10
 
-    def PerformUpdate(self):
+    def PerformUpdate(self) -> tuple:
         """Updates the dependencies."""
         ws_root = self.GetWorkspaceRoot()
         scopes = self.GetActiveScopes()
@@ -56,11 +60,11 @@ class Edk2Update(Edk2MultiPkgAwareInvocable):
             logging.log(edk2_logging.SECTION, f"\tUpdated/Verified {success} dependencies")
         return (build_env, shell_env, failure)
 
-    def GetVerifyCheckRequired(self):
+    def GetVerifyCheckRequired(self) -> bool:
         """Will not call self_describing_environment.VerifyEnvironment because ext_deps haven't been unpacked yet."""
         return False
 
-    def GetSettingsClass(self):
+    def GetSettingsClass(self) -> type:
         """Returns the UpdateSettingsManager class.
 
         !!! warning
@@ -68,19 +72,19 @@ class Edk2Update(Edk2MultiPkgAwareInvocable):
         """
         return UpdateSettingsManager
 
-    def GetLoggingFileName(self, loggerType):
+    def GetLoggingFileName(self, loggerType: str) -> str:
         """Returns the filename (UPDATE_LOG) of where the logs for the Edk2CiBuild invocable are stored in."""
         return "UPDATE_LOG"
 
-    def AddCommandLineOptions(self, parserObj):
+    def AddCommandLineOptions(self, parserObj: argparse.ArgumentParser) -> None:
         """Adds command line options to the argparser."""
         super().AddCommandLineOptions(parserObj)
 
-    def RetrieveCommandLineOptions(self, args):
+    def RetrieveCommandLineOptions(self, args: argparse.Namespace) -> None:
         """Retrieve command line options from the argparser."""
         super().RetrieveCommandLineOptions(args)
 
-    def Go(self):
+    def Go(self) -> int:
         """Executes the core functionality of the Edk2Update invocable."""
         RetryCount = 0
         failure_count = 0
@@ -115,6 +119,6 @@ class Edk2Update(Edk2MultiPkgAwareInvocable):
         return failure_count
 
 
-def main():
+def main() -> None:
     """Entry point to invoke Edk2Update."""
     Edk2Update().Invoke()

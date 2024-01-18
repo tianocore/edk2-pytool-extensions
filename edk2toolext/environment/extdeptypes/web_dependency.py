@@ -47,7 +47,7 @@ class WebDependency(ExternalDependency):
 
     TypeString = "web"
 
-    def __init__(self, descriptor):
+    def __init__(self, descriptor: dict) -> None:
         """Inits a web dependency based off the provided descriptor."""
         super().__init__(descriptor)
         self.internal_path = os.path.normpath(descriptor['internal_path'])
@@ -60,12 +60,12 @@ class WebDependency(ExternalDependency):
         # Now we can get rid of the leading /
         self.internal_path = self.internal_path.strip(os.path.sep)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Returns a string representation."""
         return f"WebDependecy: {self.source}@{self.version}"
 
     @staticmethod
-    def linuxize_path(path):
+    def linuxize_path(path: str) -> str:
         """Replaces windows style separators with linux style separators.
 
         Arguments:
@@ -74,7 +74,7 @@ class WebDependency(ExternalDependency):
         return "/".join(path.split("\\"))
 
     @staticmethod
-    def unpack(compressed_file_path, destination, internal_path, compression_type):
+    def unpack(compressed_file_path: str, destination: str, internal_path: str, compression_type: str) -> None:
         """Unpacks a compressed file to the specified location; zip or tar supported.
 
         Arguments:
@@ -117,7 +117,7 @@ class WebDependency(ExternalDependency):
 
         _ref.close()
 
-    def fetch(self):
+    def fetch(self) -> None:
         """Fetches the dependency using internal state from the init."""
         # First, check the global cache to see if it's present.
         if super().fetch():

@@ -15,6 +15,7 @@ import json
 import logging
 import os
 import sys
+from typing import BinaryIO
 
 import openpyxl
 import xlsxwriter
@@ -61,7 +62,7 @@ KNOWN_CERTIFICATES = [
 ###################################################################################################
 
 
-def write_json_file(report, output_file):
+def write_json_file(report: dict, output_file: str) -> None:
     """Writes a JSON file.
 
     Args:
@@ -79,7 +80,7 @@ def write_json_file(report, output_file):
     logger.info("Wrote report to %s", output_file)
 
 
-def write_xlsx_file(report, output_file):
+def write_xlsx_file(report: dict, output_file: str) -> None:
     """Writes an XLSX file.
 
     Args:
@@ -149,7 +150,7 @@ def write_xlsx_file(report, output_file):
 
     logger.info("Wrote report to %s", output_file)
 
-def convert_row_to_metadata(row) -> dict:
+def convert_row_to_metadata(row: list) -> dict:
     """Converts a row from the csv to a metadata dictionary.
 
     Args:
@@ -161,7 +162,15 @@ def convert_row_to_metadata(row) -> dict:
     convert_arch = {"64-bit": "x86_64", "32-bit": "x86", "64-bit ARM": "arm64"}
     authenticode_hash = row[1].upper()
 
-    def map_cve(cve):
+    def map_cve(cve: str) -> str:
+        """Maps a CVE to the correct format.
+
+        Args:
+            cve (str): CVE to map
+
+        Returns:
+            str: Mapped CVE
+        """
         # Intentionally naive mapping of CVE's to the correct format
         if 'CVE' in cve.upper():
             # this condition could have multiple CVE's in it
@@ -205,7 +214,7 @@ def convert_row_to_metadata(row) -> dict:
     return authenticode_hash, meta_data
 
 
-def convert_uefi_org_revocation_file_to_dict(file) -> dict:
+def convert_uefi_org_revocation_file_to_dict(file: str) -> dict:
     """Converts the excel file to json.
 
     Args:
@@ -237,7 +246,7 @@ def convert_uefi_org_revocation_file_to_dict(file) -> dict:
     return data
 
 
-def convert_uefi_org_file(args):
+def convert_uefi_org_file(args: argparse.Namespace) -> None:
     """Converts the excel file to json.
 
     Args:
@@ -256,7 +265,7 @@ def convert_uefi_org_file(args):
     logger.info("Wrote report to %s", args.output)
 
 
-def generate_dbx_report(dbx_fs, revocations) -> dict:
+def generate_dbx_report(dbx_fs: BinaryIO, revocations: dict) -> dict:
     """Generates a report of the dbx.
 
     Args:
@@ -332,7 +341,7 @@ def generate_dbx_report(dbx_fs, revocations) -> dict:
     return report
 
 
-def filter_revocation_list_by_arch(revocations, filter_by_arch=None) -> dict:
+def filter_revocation_list_by_arch(revocations: dict, filter_by_arch: str=None) -> dict:
     """Filters the revocation list by architecture.
 
     Args:
@@ -361,7 +370,7 @@ def filter_revocation_list_by_arch(revocations, filter_by_arch=None) -> dict:
 class FirmwareVariables(object):
     """Class to interact with firmware variables."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Constructor."""
         # enable required SeSystemEnvironmentPrivilege privilege
         privilege = win32security.LookupPrivilegeValue(
@@ -394,7 +403,7 @@ class FirmwareVariables(object):
             self._GetFirmwareEnvironmentVariable = None
             logger.warning("Get function doesn't exist")
 
-    def get_variable(self, name, guid):
+    def get_variable(self, name: str, guid: str) -> bytes:
         """Gets a firmware variable.
 
         Args:
@@ -429,11 +438,11 @@ class FirmwareVariables(object):
 ###################################################################################################
 
 
-def get_secureboot_files(args):
+def get_secureboot_files(args: argparse.Namespace) -> int:
     """Gets the DBX from the system.
 
     Args:
-        args (ArgumentParser.namespace): the namespace from the ArgumentParser
+        args (argparse.Namespace): the namespace from the ArgumentParser
 
     Returns:
         0 on success
@@ -463,11 +472,11 @@ def get_secureboot_files(args):
     return 0
 
 
-def parse_dbx(args):
+def parse_dbx(args: argparse.Namespace) -> int:
     """Parses the DBX.
 
     Args:
-        args (ArgumentParser.namespace): the namespace from the ArgumentParser
+        args (argparse.Namespace): the namespace from the ArgumentParser
 
     Returns:
         0 on success
@@ -493,7 +502,7 @@ def parse_dbx(args):
 # Command Line Parsing Functions
 ###################################################################################################
 
-def valid_file(param, valid_extensions=(".csv", ".xlsx")):
+def valid_file(param: str, valid_extensions: tuple=(".csv", ".xlsx")) -> str:
     """Checks if a file is valid.
 
     Args:
@@ -509,14 +518,14 @@ def valid_file(param, valid_extensions=(".csv", ".xlsx")):
     return param
 
 
-def setup_parse_dbx(subparsers):
+def setup_parse_dbx(subparsers: argparse._SubParsersAction) -> argparse._SubParsersAction:
     """Setup the parse_dbx subparser.
 
     Args:
-        subparsers (ArgumentParser): the subparsers object from the ArgumentParser
+        subparsers (argparse._SubParsersAction): the subparsers object from the ArgumentParser
 
     Returns:
-        subparsers (ArgumentParser): the subparsers object from the ArgumentParser
+        subparsers (argparse._SubParsersAction): the subparsers object from the ArgumentParser
     """
     parser = subparsers.add_parser("parse_dbx")
     parser.set_defaults(function=parse_dbx)
@@ -551,14 +560,14 @@ def setup_parse_dbx(subparsers):
 
     return subparsers
 
-def setup_parse_uefi_org_files(subparsers):
+def setup_parse_uefi_org_files(subparsers: argparse._SubParsersAction) -> argparse._SubParsersAction:
     """Setup the parse_uefi_org_files subparser.
 
     Args:
-        subparsers (ArgumentParser): the subparsers object from the ArgumentParser
+        subparsers (argparse._SubParsersAction): the subparsers object from the ArgumentParser
 
     Returns:
-        subparsers (ArgumentParser): the subparsers object from the ArgumentParser
+        subparsers (argparse._SubParsersAction): the subparsers object from the ArgumentParser
     """
     parser = subparsers.add_parser("convert_file")
     parser.set_defaults(function=convert_uefi_org_file)
@@ -578,14 +587,14 @@ def setup_parse_uefi_org_files(subparsers):
     return subparsers
 
 
-def setup_get_secureboot_files(subparsers):
+def setup_get_secureboot_files(subparsers: argparse._SubParsersAction) -> argparse._SubParsersAction:
     """Setup the get_dbx subparser.
 
     Args:
-        subparsers (ArgumentParser): the subparsers object from the ArgumentParser
+        subparsers (argparse._SubParsersAction): the subparsers object from the ArgumentParser
 
     Returns:
-        subparsers (ArgumentParser): the subparsers object from the ArgumentParser
+        subparsers (argparse._SubParsersAction): the subparsers object from the ArgumentParser
     """
     parser = subparsers.add_parser("get")
     parser.set_defaults(function=get_secureboot_files)
@@ -605,7 +614,7 @@ def setup_get_secureboot_files(subparsers):
     return subparsers
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     """Parses arguments from the command line."""
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers()
@@ -622,12 +631,12 @@ def parse_args():
     return args
 
 
-def main():
+def main() -> None:
     """Main function."""
     args = parse_args()
 
-    # Return the exit code from the function
-    return sys.exit(args.function(args))
+    # Raise a SystemExit exception with the exit status
+    sys.exit(args.function(args))
 
 
 if __name__ == "__main__":

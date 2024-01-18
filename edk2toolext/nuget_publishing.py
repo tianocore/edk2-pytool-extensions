@@ -15,6 +15,7 @@ import shutil
 import sys
 import xml.etree.ElementTree as etree
 from io import StringIO
+from typing import Optional
 
 import yaml
 from edk2toollib.utility_functions import RunCmd
@@ -62,7 +63,7 @@ class NugetSupport(object):
 
     RELEASE_NOTE_SHORT_STRING_MAX_LENGTH = 500
 
-    def __init__(self, Name=None, ConfigFile=None):
+    def __init__(self, Name: Optional[str]=None, ConfigFile: Optional[str]=None) -> None:
         """Inits a new NugetSupport object.
 
         for new instances without existing config provide the Name parameter.
@@ -82,13 +83,13 @@ class NugetSupport(object):
             self.ConfigData = {"name": Name}
             self.Config = None
 
-    def CleanUp(self):
+    def CleanUp(self) -> None:
         """Remove all temporary files."""
         logging.debug("CleanUp Called.  Deleting all Temp Files")
         for a in self.TempFileToDelete:
             os.remove(a)
 
-    def ToConfigFile(self, filepath=None):
+    def ToConfigFile(self, filepath: Optional[str]=None) -> int:
         """Save config to a yaml file."""
         if (not self.ConfigChanged):
             logging.debug("No Config Changes.  Skip Writing config file")
@@ -110,15 +111,25 @@ class NugetSupport(object):
         self.ConfigChanged = False
         return 0
 
-    def FromConfigfile(self, filepath):
+    def FromConfigfile(self, filepath: str) -> None:
         """Load config from a yaml file."""
         self.Config = filepath
         with open(self.Config, "r") as c:
             self.ConfigData = yaml.safe_load(c)
 
-    def SetBasicData(self, authors, license, project, description, server, copyright,
-                     repositoryType=None, repositoryUrl=None, repositoryBranch=None,
-                     repositoryCommit=None):
+    def SetBasicData(
+            self,
+            authors: str,
+            license: str,
+            project: str,
+            description: str,
+            server: str,
+            copyright: str,
+            repositoryType: Optional[str]=None,
+            repositoryUrl: Optional[str]=None,
+            repositoryBranch: Optional[str]=None,
+            repositoryCommit: Optional[str]=None
+        ) -> None:
         """Set basic data in the config data."""
         self.ConfigData["author_string"] = authors
         if license:
@@ -142,7 +153,7 @@ class NugetSupport(object):
 
         self.ConfigChanged = True
 
-    def UpdateLicensePath(self, licensepath):
+    def UpdateLicensePath(self, licensepath: str) -> None:
         """Update license in the config data.
 
         Update license in the config data with an absolute path to a license
@@ -150,7 +161,7 @@ class NugetSupport(object):
         """
         self.ConfigData["license"] = licensepath
 
-    def IsValidLicense(self):
+    def IsValidLicense(self) -> bool:
         """Returns whether the License is valid."""
         if "license" not in self.ConfigData:
             return False
@@ -168,20 +179,28 @@ class NugetSupport(object):
 
         return True
 
-    def UpdateCopyright(self, copyright):
+    def UpdateCopyright(self, copyright: str) -> None:
         """Update copyright in the config data."""
         self.ConfigData["copyright_string"] = copyright
         self.ConfigChanged = True
 
-    def UpdateTags(self, tags=[]):
+    def UpdateTags(self, tags: list[str]=None) -> None:
         """Update tags in the config data."""
+        if tags is None:
+            tags = []
         self.ConfigData["tags_string"] = " ".join(tags)
         self.ConfigChanged = True
 
-    def UpdateRepositoryInfo(self, type=None, url=None, branch=None, commit=None):
+    def UpdateRepositoryInfo(
+            self,
+            r_type: Optional[str]=None,
+            url: Optional[str]=None,
+            branch:Optional[str]=None,
+            commit:Optional[str]=None
+        ) -> None:
         """Update repository information."""
-        if type:
-            self.ConfigData["repository_type"] = type
+        if r_type:
+            self.ConfigData["repository_type"] = r_type
             self.ConfigChanged = True
         if url:
             self.ConfigData["repository_url"] = url
@@ -193,7 +212,7 @@ class NugetSupport(object):
             self.ConfigData["repository_commit"] = commit
             self.ConfigChanged = True
 
-    def Print(self):
+    def Print(self) -> str:
         """Print info about the Nuget Object."""
         print("=======================================")
         print(" Name:        " + self.Name)
@@ -212,7 +231,7 @@ class NugetSupport(object):
         print("-----------------------------------------")
         print("=======================================")
 
-    def LogObject(self):
+    def LogObject(self) -> None:
         """Logs info about Nuget Object to the logger."""
         logging.debug("=======================================")
         logging.debug(" Name:        " + self.Name)
@@ -236,7 +255,7 @@ class NugetSupport(object):
     # create a nuspec file for packing
     #
 
-    def _MakeNuspecXml(self, ContentDir, ReleaseNotesText=None):
+    def _MakeNuspecXml(self, ContentDir: str, ReleaseNotesText: Optional[str]=None) ->str:
         package = etree.fromstring(NugetSupport.NUSPEC_TEMPLATE_XML)
         package.attrib["xmlns"] = "http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd"
         meta = package.find("./metadata")
@@ -299,7 +318,7 @@ class NugetSupport(object):
 
         return etree.tostring(package)
 
-    def _GetNuPkgFileName(self, version):
+    def _GetNuPkgFileName(self, version: str) -> str:
         # Nuget removes leading zeros so to match we must do the same
         s = self.Name + "."
         append_tag = None
@@ -318,7 +337,7 @@ class NugetSupport(object):
         s += ".nupkg"
         return s
 
-    def Pack(self, version, OutputDirectory, ContentDir, RelNotesText=None):
+    def Pack(self, version: str, OutputDir: str, ContentDir:str, RelNotes: Optional[str]=None) -> int:
         """Pack the current contents into Nupkg."""
         self.NewVersion = version
 
@@ -327,8 +346,8 @@ class NugetSupport(object):
         cdir = os.path.abspath(ContentDir)
 
         # make nuspec file
-        xmlstring = self._MakeNuspecXml(cdir, RelNotesText)
-        nuspec = os.path.join(OutputDirectory, self.Name + ".nuspec")
+        xmlstring = self._MakeNuspecXml(cdir, RelNotes)
+        nuspec = os.path.join(OutputDir, self.Name + ".nuspec")
         self.TempFileToDelete.append(nuspec)
         f = open(nuspec, "wb")
         f.write(xmlstring)
@@ -337,7 +356,7 @@ class NugetSupport(object):
         # run nuget
         cmd = NugetDependency.GetNugetCmd()
         cmd += ["pack", nuspec]
-        cmd += ["-OutputDirectory", '"' + OutputDirectory + '"']
+        cmd += ["-OutputDirectory", '"' + OutputDir + '"']
         cmd += ["-Verbosity", "detailed"]
         # cmd += ["-NonInteractive"]
         ret = RunCmd(cmd[0], " ".join(cmd[1:]))
@@ -346,11 +365,11 @@ class NugetSupport(object):
             logging.error("Failed on nuget command.  RC = 0x%x" % ret)
             return ret
 
-        self.NuPackageFile = os.path.join(OutputDirectory, self._GetNuPkgFileName(self.NewVersion))
+        self.NuPackageFile = os.path.join(OutputDir, self._GetNuPkgFileName(self.NewVersion))
         self.TempFileToDelete.append(self.NuPackageFile)
         return ret
 
-    def Push(self, nuPackage, apikey):
+    def Push(self, nuPackage: str, apikey: str) -> int:
         """Push nuget package to the server.
 
         Raises:
@@ -384,7 +403,7 @@ class NugetSupport(object):
         return ret
 
 
-def GatherArguments():
+def GatherArguments() -> argparse.Namespace:
     """Adds CLI arguments for controlling the nuget_publishing tool."""
     tempparser = argparse.ArgumentParser(
         description='Nuget Helper Script for creating, packing, and pushing packages', add_help=False)
@@ -474,7 +493,7 @@ def GatherArguments():
     return parser.parse_args()
 
 
-def main():
+def main() -> int:
     """Entry point into nuget_publishing after initial configuration."""
     args = GatherArguments()
     ret = 0
@@ -635,7 +654,7 @@ def main():
     return ret
 
 
-def go():
+def go() -> None:
     """Main entry into the nuget publishing tool."""
     # setup main console as logger
     logger = logging.getLogger('')

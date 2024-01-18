@@ -44,7 +44,7 @@ def CreatePolicyFromParameters(filename: str, manufacturer: str, product: str,
         policy.Print()
 
 
-def main():
+def main() -> None:
     """Parses command-line parameters using ArgumentParser, passing them to helper functions to perform the requests."""
     parser = argparse.ArgumentParser(description='Firmware Policy Tool')
     subparsers = parser.add_subparsers(required=True, dest='action')

@@ -18,6 +18,7 @@ File is slightly modified from Edk2 BaseTools/Source/Python/Common/MultipleWorks
 
 import os
 import warnings
+from typing import Optional
 
 
 class MultipleWorkspace(object):
@@ -31,11 +32,11 @@ class MultipleWorkspace(object):
     PACKAGES_PATH = None
 
     @classmethod
-    def convertPackagePath(cls, Ws, Path):
+    def convertPackagePath(cls: 'MultipleWorkspace', Ws: str, Path: str) -> str:
         """Convert path to match workspace.
 
         Args:
-            cls (obj): The class pointer
+            cls (MultipleWorkspace): The class pointer
             Ws (str): The current WORKSPACE
             Path (str): Path to be converted to match workspace
 
@@ -47,11 +48,11 @@ class MultipleWorkspace(object):
         return Path
 
     @classmethod
-    def setWs(cls, Ws, PackagesPath=None):
+    def setWs(cls: 'MultipleWorkspace', Ws: str, PackagesPath: Optional[list[str]]=None) -> None:
         """Set WORKSPACE and PACKAGES_PATH environment.
 
         Args:
-            cls (obj): The class pointer
+            cls (MultipleWorkspace): The class pointer
             Ws (str): initialize WORKSPACE variable
             PackagesPath (str): initialize PackagesPath variable
         """
@@ -63,11 +64,11 @@ class MultipleWorkspace(object):
             cls.PACKAGES_PATH = []
 
     @classmethod
-    def join(cls, Ws, *p):
+    def join(cls: 'MultipleWorkspace', Ws: str, *p: str) -> str:
         """Rewrite os.path.join.
 
         Args:
-            cls (obj): The class pointer
+            cls (MultipleWorkspace): The class pointer
             Ws (str): the current WORKSPACE
             *p (str): path of the inf/dec/dsc/fdf/conf file
 
@@ -87,11 +88,11 @@ class MultipleWorkspace(object):
         return Path
 
     @classmethod
-    def relpath(cls, Path, Ws):
+    def relpath(cls: 'MultipleWorkspace', Path: str, Ws: str) -> str:
         """Rewrite os.path.relpath.
 
         Args:
-            cls (obj): The class pointer
+            cls (MultipleWorkspace): The class pointer
             Path (str): path of the inf/dec/dsc/fdf/conf file
             Ws (str): the current WORKSPACE
 
@@ -110,11 +111,11 @@ class MultipleWorkspace(object):
         return Path
 
     @classmethod
-    def getWs(cls, Ws, Path):
+    def getWs(cls: 'MultipleWorkspace', Ws: str, Path: str) -> str:
         """Get valid workspace for the path.
 
         Args:
-            cls (obj): The class pointer
+            cls (MultipleWorkspace): The class pointer
             Ws (str): the current WORKSPACE
             Path (str): path of the inf/dec/dsc/fdf/conf file
 
@@ -130,13 +131,13 @@ class MultipleWorkspace(object):
         return Ws
 
     @classmethod
-    def handleWsMacro(cls, PathStr):
+    def handleWsMacro(cls: 'MultipleWorkspace', PathStr: str) -> str:
         """Handle the $(WORKSPACE) tag.
 
         If current workspace is an invalid path relative to the tool, replace it.
 
         Args:
-            cls (obj): The class pointer
+            cls (MultipleWorkspace): The class pointer
             PathStr (str): The path string
 
         Returns:
@@ -164,14 +165,14 @@ class MultipleWorkspace(object):
         return PathStr
 
     @classmethod
-    def getPkgPath(cls):
+    def getPkgPath(cls: 'MultipleWorkspace') -> list[str]:
         """Get all package paths.
 
         Args:
-            cls (obj): class pointer
+            cls (MultipleWorkspace): class pointer
 
         Returns:
-            (obj): Packages Path
+            (list[str]): Packages Path
 
         """
         return cls.PACKAGES_PATH

@@ -13,6 +13,7 @@ file, along with a UefiBuilder subclass. This provides platform specific
 information to the Edk2PlatformBuild invocable while allowing the invocable
 itself to remain platform agnostic.
 """
+import argparse
 import logging
 import os
 import sys
@@ -58,7 +59,7 @@ class BuildSettingsManager(Edk2InvocableSettingsInterface):
 class Edk2PlatformBuild(Edk2Invocable):
     """Invocable that performs some environment setup,Imports UefiBuilder and calls go."""
 
-    def AddCommandLineOptions(self, parserObj):
+    def AddCommandLineOptions(self, parserObj: argparse.ArgumentParser) -> None:
         """Adds command line options to the argparser."""
         # PlatformSettings could also be a subclass of UefiBuilder, who knows!
         if isinstance(self.PlatformSettings, UefiBuilder):
@@ -72,7 +73,7 @@ class Edk2PlatformBuild(Edk2Invocable):
 
         self.PlatformBuilder.AddPlatformCommandLineOptions(parserObj)
 
-    def RetrieveCommandLineOptions(self, args):
+    def RetrieveCommandLineOptions(self, args: argparse.Namespace) -> None:
         """Retrieve command line options from the argparser."""
         self.PlatformBuilder.RetrievePlatformCommandLineOptions(args)
 
@@ -104,7 +105,7 @@ class Edk2PlatformBuild(Edk2Invocable):
 
         return custom_epilog + epilog
 
-    def GetSettingsClass(self):
+    def GetSettingsClass(self) -> type:
         """Returns the BuildSettingsManager class.
 
         !!! warning
@@ -112,14 +113,14 @@ class Edk2PlatformBuild(Edk2Invocable):
         """
         return BuildSettingsManager
 
-    def GetLoggingFileName(self, loggerType):
+    def GetLoggingFileName(self, loggerType: str) -> str:
         """Returns the filename of where the logs for the Edk2PlatformBuild invocable are stored in."""
         name = self.PlatformSettings.GetName()
         if name is not None:
             return f"BUILDLOG_{name}"
         return "BUILDLOG"
 
-    def Go(self):
+    def Go(self) -> int:
         """Executes the core functionality of the Edk2PlatformBuild invocable."""
         logging.info("Running Python version: " + str(sys.version_info))
 
@@ -171,6 +172,6 @@ class Edk2PlatformBuild(Edk2Invocable):
         return ret
 
 
-def main():
+def main() -> None:
     """Entry point invoke Edk2PlatformBuild."""
     Edk2PlatformBuild().Invoke()

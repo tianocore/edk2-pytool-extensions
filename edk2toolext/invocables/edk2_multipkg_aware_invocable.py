@@ -20,6 +20,9 @@ Edk2MultiPkgAwareInvocable should be platform agnostic and work for any
 platform. Platform specific data is provided via the
 MultiPkgAwareSettingsInterface
 """
+import argparse
+from typing import Iterable
+
 from edk2toolext.edk2_invocable import Edk2Invocable, Edk2InvocableSettingsInterface
 
 
@@ -71,7 +74,7 @@ class MultiPkgAwareSettingsInterface(Edk2InvocableSettingsInterface):
     # ####################################################################################### #
     #                           Supported Values and Defaults                                 #
     # ####################################################################################### #
-    def GetPackagesSupported(self):
+    def GetPackagesSupported(self) -> Iterable[str]:
         """Returns an iterable of edk2 packages supported by this build.
 
         !!! tip
@@ -85,7 +88,7 @@ class MultiPkgAwareSettingsInterface(Edk2InvocableSettingsInterface):
         """
         raise NotImplementedError()
 
-    def GetArchitecturesSupported(self):
+    def GetArchitecturesSupported(self) -> Iterable[str]:
         """Returns an iterable of edk2 architectures supported by this build.
 
         !!! tip
@@ -96,7 +99,7 @@ class MultiPkgAwareSettingsInterface(Edk2InvocableSettingsInterface):
         """
         raise NotImplementedError()
 
-    def GetTargetsSupported(self):
+    def GetTargetsSupported(self) -> Iterable[str]:
         """Returns an iterable of edk2 target tags supported by this build.
 
         !!! tip
@@ -110,7 +113,7 @@ class MultiPkgAwareSettingsInterface(Edk2InvocableSettingsInterface):
     # ####################################################################################### #
     #                     Verify and Save requested Config                                    #
     # ####################################################################################### #
-    def SetPackages(self, list_of_requested_packages):
+    def SetPackages(self, list_of_requested_packages: list) -> None:
         """Confirms the requested package list is valid.
 
         !!! tip
@@ -123,7 +126,7 @@ class MultiPkgAwareSettingsInterface(Edk2InvocableSettingsInterface):
             Exception: A requested package is not supported
         """
 
-    def SetArchitectures(self, list_of_requested_architectures):
+    def SetArchitectures(self, list_of_requested_architectures: list) -> None:
         """Confirms the requested architecture list is valid.
 
         !!! tip
@@ -136,7 +139,7 @@ class MultiPkgAwareSettingsInterface(Edk2InvocableSettingsInterface):
             Exception: A requested architecture is not supported
         """
 
-    def SetTargets(self, list_of_requested_target):
+    def SetTargets(self, list_of_requested_target: list) -> None:
         """Confirms the requested target list is valid.
 
         !!! tip
@@ -165,14 +168,14 @@ class Edk2MultiPkgAwareInvocable(Edk2Invocable):
         This invocable should only be subclassed if creating a new invocable
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initializes the Invocable."""
         self.requested_architecture_list = []
         self.requested_package_list = []
         self.requested_target_list = []
         super().__init__()
 
-    def AddCommandLineOptions(self, parserObj):
+    def AddCommandLineOptions(self, parserObj: argparse.ArgumentParser) -> None:
         """Adds command line options to the argparser."""
         # This will parse the packages that we are going to update
         parserObj.add_argument('-p', '--pkg', '--pkg-dir', dest='packageList', type=str,
@@ -184,7 +187,7 @@ class Edk2MultiPkgAwareInvocable(Edk2Invocable):
         parserObj.add_argument('-t', '--target', dest='requested_target', type=str, default=None,
                                help="Optional - CSV of targets requested to update.  Example: -t DEBUG,NOOPT")
 
-    def RetrieveCommandLineOptions(self, args):
+    def RetrieveCommandLineOptions(self, args: argparse.Namespace) -> None:
         """Retrieve command line options from the argparser ."""
         packageListSet = set()
         for item in args.packageList:  # Parse out the individual packages
@@ -205,7 +208,7 @@ class Edk2MultiPkgAwareInvocable(Edk2Invocable):
         else:
             self.requested_target_list = []
 
-    def InputParametersConfiguredCallback(self):
+    def InputParametersConfiguredCallback(self) -> None:
         """Initializes the environment once input parameters are collected."""
         if (len(self.requested_package_list) == 0):
             self.requested_package_list = list(self.PlatformSettings.GetPackagesSupported())

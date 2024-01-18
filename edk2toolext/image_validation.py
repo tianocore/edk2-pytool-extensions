@@ -15,6 +15,7 @@ import argparse
 import logging
 import os
 import sys
+from typing import Optional, Sequence
 
 from pefile import MACHINE_TYPE, PE, SECTION_CHARACTERISTICS, SUBSYSTEM_TYPE
 
@@ -25,22 +26,22 @@ from edk2toolext import edk2_logging
 ########################
 
 
-def has_characteristic(data, mask):
+def has_characteristic(data: int, mask: int) -> bool:
     """Checks if data has a specific mask."""
     return ((data & mask) == mask)
 
 
-def set_bit(data, bit):
+def set_bit(data: int, bit: int) -> int:
     """Sets a specific bit."""
     return data | (1 << bit)
 
 
-def clear_bit(data, bit):
+def clear_bit(data: int, bit: int) -> int:
     """Clears a specific bit."""
     return data & ~(1 << bit)
 
 
-def set_nx_compat_flag(pe):
+def set_nx_compat_flag(pe: PE) -> PE:
     """Sets the nx_compat flag to 1 in the PE/COFF file."""
     dllchar = pe.OPTIONAL_HEADER.DllCharacteristics
     dllchar = set_bit(dllchar, 8)  # 8th bit is the nx_compat_flag
@@ -49,7 +50,7 @@ def set_nx_compat_flag(pe):
     return pe
 
 
-def get_nx_compat_flag(pe):
+def get_nx_compat_flag(pe: PE) -> PE:
     """Reads the nx_compat flag of the PE/COFF file."""
     dllchar = pe.OPTIONAL_HEADER.DllCharacteristics
 
@@ -61,7 +62,7 @@ def get_nx_compat_flag(pe):
         return 0
 
 
-def clear_nx_compat_flag(pe):
+def clear_nx_compat_flag(pe: PE) -> PE:
     """Sets the nx_compat flag to 0 in the PE/COFF file."""
     dllchar = pe.OPTIONAL_HEADER.DllCharacteristics
     dllchar = clear_bit(dllchar, 8)  # 8th bit is the nx_compat_flag
@@ -70,7 +71,7 @@ def clear_nx_compat_flag(pe):
     return pe
 
 
-def fill_missing_requirements(default, target):
+def fill_missing_requirements(default: dict, target: dict) -> dict:
     """Fills missing requirements for a specific test config with default config.
 
     As an example, If there are specific requirements for an APP PE/COFF, those
@@ -93,18 +94,18 @@ class Result:
 
 class TestInterface:
     """Interface for creating tests to execute on parsed PE/COFF files."""
-    def name(self):
+    def name(self) -> str:
         """Returns the name of the test.
 
         "WARNING: Implement in a subclass.
         """
         raise NotImplementedError("Must Override Test Interface")
 
-    def execute(self, pe, config_data):
+    def execute(self, pe: PE, config_data: dict) -> Result:
         """Executes the test on the pefile.
 
         Arguments:
-            pe (pefile): a parsed PE/COFF image file
+            pe (PE): a parsed PE/COFF image file
             config_data (dict): config data for the test
 
         Returns:
@@ -117,7 +118,7 @@ class TestInterface:
 
 class TestManager(object):
     """Manager responsible for executing all tests on all parsed PE/COFF files."""
-    def __init__(self, config_data=None):
+    def __init__(self, config_data: Optional[dict]=None) -> None:
         """Inits the TestManager with configuration data.
 
         Args:
@@ -244,7 +245,7 @@ class TestManager(object):
                 }
             }
 
-    def add_test(self, test):
+    def add_test(self, test: TestInterface) -> None:
         """Adds a test to the test manager.
 
         Will be executed in the order added.
@@ -254,7 +255,7 @@ class TestManager(object):
         """
         self.tests.append(test)
 
-    def add_tests(self, tests):
+    def add_tests(self, tests: list[TestInterface]) -> None:
         """Adds multiple test to the test manager.
 
         Tests will be executed in the order added.
@@ -264,13 +265,13 @@ class TestManager(object):
         """
         self.tests.extend(tests)
 
-    def run_tests(self, pe, profile="DEFAULT"):
+    def run_tests(self, pe: PE, profile: str="DEFAULT") -> Result:
         """Runs all tests that have been added to the test manager.
 
         Tests will be executed in the order added
 
         Args:
-            pe (pefile): The parsed pe
+            pe (PE): The parsed pe
             profile (str):  profile to lookup in the config data
 
         Returns:
@@ -342,15 +343,15 @@ class TestWriteExecuteFlags(TestInterface):
         Write-able or Read-able, but not both.
     """
 
-    def name(self):
+    def name(self) -> str:
         """Returns the name of the test."""
         return 'Section data / code separation verification'
 
-    def execute(self, pe, config_data):
+    def execute(self, pe: PE, config_data: dict) -> Result:
         """Executes the test on the pefile.
 
         Arguments:
-            pe (pefile): a parsed PE/COFF image file
+            pe (PE): a parsed PE/COFF image file
             config_data (dict): config data for the test
 
         Returns:
@@ -392,15 +393,15 @@ class TestSectionAlignment(TestInterface):
         requirements specified in the config file
     """
 
-    def name(self):
+    def name(self) -> str:
         """Returns the name of the test."""
         return 'Section alignment verification'
 
-    def execute(self, pe, config_data):
+    def execute(self, pe: PE, config_data: dict) -> Result:
         """Executes the test on the pefile.
 
         Arguments:
-            pe (pefile): a parsed PE/COFF image file
+            pe (PE): a parsed PE/COFF image file
             config_data (dict): config data for the test
 
         Returns:
@@ -471,15 +472,15 @@ class TestSubsystemValue(TestInterface):
         Update the subsystem type in the source code.
     """
 
-    def name(self):
+    def name(self) -> str:
         """Returns the name of the test."""
         return 'Subsystem type verification'
 
-    def execute(self, pe, config_data):
+    def execute(self, pe: PE, config_data: dict) -> Result:
         """Executes the test on the pefile.
 
         Arguments:
-            pe (pefile): a parsed PE/COFF image file
+            pe (PE): a parsed PE/COFF image file
             config_data (dict): config data for the test
 
         Returns:
@@ -517,7 +518,7 @@ class TestSubsystemValue(TestInterface):
 ###########################
 
 
-def get_cli_args(args):
+def get_cli_args(args: Sequence[str]) -> argparse.Namespace:
     """Adds CLI arguments for using the image validation tool."""
     parser = argparse.ArgumentParser(description='A Image validation tool for memory mitigation')
 
@@ -555,7 +556,7 @@ def get_cli_args(args):
     return parser.parse_args(args)
 
 
-def main():
+def main() -> None:
     """Main entry point into the image validation tool."""
     # setup main console as logger
     logger = logging.getLogger('')

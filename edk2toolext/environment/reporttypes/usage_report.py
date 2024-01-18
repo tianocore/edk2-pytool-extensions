@@ -12,6 +12,8 @@ import io
 import logging
 import pathlib
 from argparse import ArgumentParser, Namespace
+from sqlite3 import Connection
+from typing import Tuple
 
 from edk2toollib.database import Edk2DB
 
@@ -80,7 +82,7 @@ COLORS = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e3
 
 class UsageReport(Report):
     """A report that generates a INF usage report for a specific build."""
-    def report_info(self):
+    def report_info(self) -> Tuple(str, str):
         """Returns the report standard information.
 
         Returns:
@@ -88,7 +90,7 @@ class UsageReport(Report):
         """
         return ("usage", "Generates a report of INF usage for a specific build.")
 
-    def add_cli_options(self, parserobj: ArgumentParser):
+    def add_cli_options(self, parserobj: ArgumentParser) -> None:
         """Configure command line arguments for this report."""
         parserobj.add_argument("-e", "-env", dest="env_id", action="store",
                                help = "The environment id to generate the report for. Defaults to the latest "
@@ -96,7 +98,7 @@ class UsageReport(Report):
         parserobj.add_argument("-o", "-output", dest="output", action="store", default=None,
                                help = "The output file to write the report to. Defaults to 'usage_report.html'.")
 
-    def run_report(self, db: Edk2DB, args: Namespace):
+    def run_report(self, db: Edk2DB, args: Namespace) -> None:
         """Generate the Usage report."""
         try:
             import plotly.graph_objects as go
@@ -152,7 +154,7 @@ class UsageReport(Report):
             f.write(html_output)
         logging.info(f"Report written to {path_out}.")
 
-    def generate_data(self, env_id, db) -> tuple[dict, set]:
+    def generate_data(self, env_id: int, db: Edk2DB) -> tuple[dict, set]:
         """Generates a list of pie chart data.
 
         Args:
@@ -199,14 +201,14 @@ class UsageReport(Report):
         ]
         return (reports, set(inf_dict.values()))
 
-    def _get_env_vars(self, connection, env_id):
+    def _get_env_vars(self, connection: Connection, env_id: int) -> dict:
         env_vars = {}
         results = connection.execute("SELECT key, value FROM environment_values WHERE id = ?;", (env_id,)).fetchall()
         for key, value in results:
             env_vars[key] = value
         return env_vars
 
-    def _merge_dicts(self, dict1, dict2) -> dict:
+    def _merge_dicts(self, dict1: dict, dict2: dict) -> dict:
         return_dict = {}
         for key in dict1:
             if key in dict2:

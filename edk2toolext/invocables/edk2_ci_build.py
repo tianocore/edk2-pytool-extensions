@@ -17,7 +17,7 @@ import logging
 import os
 import sys
 import traceback
-from typing import Any, Dict
+from typing import Any, Optional
 
 import yaml
 from edk2toollib.log.junit_report_format import JunitTestReport
@@ -62,7 +62,7 @@ class CiBuildSettingsManager(MultiPkgAwareSettingsInterface):
         """
         raise NotImplementedError()
 
-    def GetPluginSettings(self) -> Dict[str, Any]:
+    def GetPluginSettings(self) -> dict[str, Any]:
         """Provide a dictionary of global settings for individual plugins.
 
         !!! tip
@@ -84,7 +84,7 @@ class CiBuildSettingsManager(MultiPkgAwareSettingsInterface):
 class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
     """Invocable supporting an iterative multi-package build and test process leveraging CI build plugins."""
 
-    def GetSettingsClass(self):
+    def GetSettingsClass(self) -> type:
         """Returns the CiBuildSettingsManager class.
 
         !!! warning
@@ -92,11 +92,11 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
         """
         return CiBuildSettingsManager
 
-    def GetLoggingFileName(self, loggerType):
+    def GetLoggingFileName(self, loggerType: str) -> str:
         """Returns the filename (CI_BUILDLOG) of where the logs for the Edk2CiBuild invocable are stored in."""
         return "CI_BUILDLOG"
 
-    def Go(self):
+    def Go(self) -> int:
         """Executes the core functionality of the Edk2CiBuild invocable."""
         log_directory = os.path.join(self.GetWorkspaceRoot(), self.GetLoggingFolderRelativeToRoot())
 
@@ -269,7 +269,7 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
         return failure_num
 
     @staticmethod
-    def merge_config(gbl_config, pkg_config, descriptor={}):
+    def merge_config(gbl_config: dict, pkg_config: dict, descriptor: Optional[dict]=None) -> dict:
         """Merge two configurations.
 
         One global and one specificto the package to create the proper config
@@ -278,8 +278,10 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
         Returns:
             (dict): Dictionary of config settings
         """
+        if descriptor is None:
+            descriptor = {}
         plugin_name = ""
-        config = dict()
+        config = {}
         if "module" in descriptor:
             plugin_name = descriptor["module"]
         if "config_name" in descriptor:
@@ -297,6 +299,6 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
         return config
 
 
-def main():
+def main() -> None:
     """Entry point to invoke Edk2CiBuild."""
     Edk2CiBuild().Invoke()

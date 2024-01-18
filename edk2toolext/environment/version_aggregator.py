@@ -14,6 +14,7 @@ binaries, submodule configuration used in a build.
 import copy
 import logging
 from enum import Enum
+from typing import Optional
 
 VERSION_AGGREGATOR = None
 
@@ -24,13 +25,13 @@ class version_aggregator(object):
     Used to facilitate the collection of information regarding the tools,
     binaries, submodule configuration used in a build.
     """
-    def __init__(self):
+    def __init__(self) -> None:
         """Inits an empty verion aggregator."""
         super(version_aggregator, self).__init__()
         self._Versions = {}
         self._logger = logging.getLogger("version_aggregator")
 
-    def ReportVersion(self, key, value, versionType, path=None):
+    def ReportVersion(self, key: str, value: str, versionType:str, path:Optional[str]=None) -> None:
         """Report the version of something.
 
         Args:
@@ -59,7 +60,7 @@ class version_aggregator(object):
         }
         self._logger.debug("version_aggregator logging version: {0}".format(str(self._Versions[key])))
 
-    def Print(self):
+    def Print(self) -> None:
         """Prints out the current information from the version aggregator."""
         for version_key in self._Versions:
             version = self._Versions[version_key]
@@ -67,11 +68,11 @@ class version_aggregator(object):
         if len(self._Versions) == 0:
             print("VERSION AGGREGATOR IS EMPTY")
 
-    def GetAggregatedVersionInformation(self):
+    def GetAggregatedVersionInformation(self) -> 'version_aggregator':
         """Returns a copy of the aggregated information."""
         return copy.deepcopy(self._Versions)
 
-    def Reset(self):
+    def Reset(self) -> None:
         """Resets all versions."""
         self._Versions = {}
 
@@ -93,7 +94,7 @@ class VersionTypes(Enum):
     PIP = 5
 
 
-def GetVersionAggregator():
+def GetVersionAggregator() -> version_aggregator:
     """Returns a singleton instance of this class for global use."""
     global VERSION_AGGREGATOR
 
@@ -104,6 +105,6 @@ def GetVersionAggregator():
     return VERSION_AGGREGATOR
 
 
-def ResetVersionAggregator():
+def ResetVersionAggregator() -> None:
     """Resets the version Aggregator singleton."""
     GetVersionAggregator().Reset()

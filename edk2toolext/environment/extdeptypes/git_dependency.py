@@ -29,7 +29,7 @@ class GitDependency(ExternalDependency):
     """
     TypeString = "git"
 
-    def __init__(self, descriptor):
+    def __init__(self, descriptor: dict) -> None:
         """Inits a git dependency based off the provided descriptor."""
         super().__init__(descriptor)
 
@@ -58,11 +58,11 @@ class GitDependency(ExternalDependency):
         # valid_attributes = ["Path", "Url", "Branch", "Commit", "ReferencePath", "Full"]
         self._repo_resolver_dep_obj = {"Path": self.name, "Url": self.repo_url, "Commit": self.commit}
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation."""
         return f"GitDependecy: {self.repo_url}@{self.commit}"
 
-    def fetch(self):
+    def fetch(self) -> None:
         """Fetches the dependency using internal state from the init."""
         try:
             repo_resolver.resolve(self._local_repo_root_path, self._repo_resolver_dep_obj, update_ok=True)
@@ -73,7 +73,7 @@ class GitDependency(ExternalDependency):
         # Add a file to track the state of the dependency.
         self.update_state_file()
 
-    def clean(self):
+    def clean(self) -> None:
         """Removes the local clone of the repo."""
         self.logger.debug("Cleaning git dependency directory for '%s'..." % self.name)
 
@@ -84,7 +84,7 @@ class GitDependency(ExternalDependency):
         # Let super class clean up common dependency stuff
         super().clean()
 
-    def verify(self):
+    def verify(self) -> bool:
         """Verifies the clone was successful."""
         result = True
         details = repo_resolver.repo_details(self._local_repo_root_path)
@@ -112,6 +112,6 @@ class GitDependency(ExternalDependency):
         self.logger.debug("Verify '%s' returning '%s'." % (self.name, result))
         return result
 
-    def compute_published_path(self):
+    def compute_published_path(self) -> str:
         """Override to include the repository name in the published path."""
         return os.path.join(super().compute_published_path(), self.name)

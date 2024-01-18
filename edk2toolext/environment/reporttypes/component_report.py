@@ -53,7 +53,7 @@ DESC LIMIT 1;
 
 class ComponentDumpReport:
     """A report to print information about a component that could be compiled."""
-    def report_info(self):
+    def report_info(self) -> Tuple[str, str]:
         """Returns the report standard information.
 
         Returns:
@@ -61,7 +61,7 @@ class ComponentDumpReport:
         """
         return ("component-libs", "Dumps the library instances used by  component.")
 
-    def add_cli_options(self, parserobj: ArgumentParser):
+    def add_cli_options(self, parserobj: ArgumentParser) -> None:
         """Configure command line arguments for this report."""
         parserobj.add_argument(dest="component", action="store", help="The component to query.")
         parserobj.add_argument("-o", "--out", dest="file", default=sys.stdout, help="The file, to write the report to."
@@ -107,7 +107,7 @@ class ComponentDumpReport:
         for library in libraries:
             self.print_libraries_recursive(library, [])
 
-    def print_libraries_recursive(self, library: Tuple[str, str], visited: list, depth: int = 0):
+    def print_libraries_recursive(self, library: Tuple[str, str], visited: list, depth: int = 0) -> None:
         """Prints the libraries used in a provided library / component."""
         library_class, library_instance = library
         if depth >= self.depth:
@@ -129,7 +129,7 @@ class ComponentDumpReport:
             self.print_libraries_recursive( library, visited.copy(), depth=depth+1)
         return
 
-    def print_libraries_flat(self, component):
+    def print_libraries_flat(self, component: str) -> None:
         """Prints the libraries used in a provided component."""
         libraries = self.conn.execute(FLAT_LIBRARY_QUERY, (component,self.env_id)).fetchall()
 
