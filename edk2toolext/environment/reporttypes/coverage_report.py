@@ -16,84 +16,13 @@ from argparse import Action, ArgumentParser, Namespace
 from pathlib import Path
 from typing import Optional, Sequence, Tuple
 
-from edk2toollib.database import Edk2DB
+from edk2toollib.database import Edk2DB, Environment, Fv, Inf, InstancedInf, Package, Session, Source, Value
 from edk2toollib.uefi.edk2.path_utilities import Edk2Path
+from sqlalchemy import func
+from sqlalchemy.orm import aliased
 
 from edk2toolext.environment.reporttypes.base_report import Report
 
-SOURCE_QUERY = """
-SELECT inf.path, junction.key2 as source
-FROM
-    inf
-    LEFT JOIN junction ON inf.path = junction.key1
-WHERE
-    junction.table1 = 'inf'
-    AND junction.table2 = 'source'
-    AND UPPER(SUBSTR(junction.key2, -2)) = '.C'
-    AND junction.env = ?;
-"""
-
-INSTANCED_SOURCE_QUERY = """
-WITH variable AS (
-    SELECT
-        ? AS env -- VARIABLE: Change this to the environment parse you care about
-)
-SELECT
-    inf_list.path,
-    junction.key2
-FROM
-    (
-        SELECT
-            DISTINCT instanced_inf.path
-        FROM
-            variable,
-            instanced_fv
-            JOIN junction ON instanced_fv.env = junction.env
-                AND junction.table1 = 'instanced_fv'
-                AND junction.table2 = 'inf'
-            JOIN instanced_inf ON instanced_inf.env = junction.env
-                AND instanced_inf.component = junction.key2
-        WHERE
-            instanced_fv.env = variable.env
-    ) inf_list,
-    variable
-    JOIN junction ON junction.key1 = inf_list.path
-    AND junction.table2 = 'source'
-    AND UPPER(SUBSTR(junction.key2, -2)) = '.C'
-    AND junction.env = variable.env
-"""
-
-PACKAGE_PATH_QUERY = """
-SELECT value
-FROM environment_values
-WHERE
-    key = 'PACKAGES_PATH'
-    AND id = ?;
-"""
-
-PACKAGE_LIST_QUERY = """
-SELECT name
-FROM package;
-"""
-
-ID_QUERY = """
-SELECT id
-FROM environment
-ORDER BY date
-DESC LIMIT 1;
-"""
-
-ID_QUERY_BY_PACKAGE = """
-SELECT environment.id
-FROM
-    environment
-    LEFT JOIN environment_values ON environment.id = environment_values.id
-WHERE
-    environment_values.key = 'ACTIVE_PLATFORM'
-    AND environment_values.value = ?
-ORDER BY environment.date DESC
-LIMIT 1;
-"""
 
 class SplitCommaAction(Action):
     """A Custom action similar to append, but will split the input string on commas first."""
@@ -167,21 +96,25 @@ class CoverageReport(Report):
 
         self.update_excluded_files()
 
-        if args.by_package:
-            logging.info("Organizing coverage report by Package.")
-            return self.run_by_package(db)
-        if args.by_platform:
-            logging.info("Organizing coverage report by Platform.")
-            return self.run_by_platform(db)
+        with db.session() as session:
+            if args.by_package:
+                logging.info("Organizing coverage report by Package.")
+                return self.run_by_package(session)
+            if args.by_platform:
+                logging.info("Organizing coverage report by Platform.")
+                return self.run_by_platform(session)
 
         logging.error("No report type specified via command line or configuration file.")
         return -1
 
-    def run_by_platform(self, db: Edk2DB) -> None:
+    def run_by_platform(self, session: Session) -> None:
         """Runs the report, only adding coverage data for source files used to build the platform.
 
         Args:
-            db (Edk2DB): The database containing the necessary data
+            session (Session): The session associated with the database
+
+        Returns:
+            (bool): True if the report was successful, False otherwise.
         """
         # Verify valid ACTIVE_PLATFORM
         dsc = self.args.dsc
@@ -190,46 +123,80 @@ class CoverageReport(Report):
             return -1
         logging.info(f"ACTIVE_PLATFORM requested: {dsc}")
 
-        # Get env_id
-        result = db.connection.execute(ID_QUERY_BY_PACKAGE, (dsc,)).fetchone()
+        result = (
+            session
+                .query(Environment)
+                .filter(Environment.values.any(key="ACTIVE_PLATFORM", value=dsc))
+                .order_by(Environment.date.desc())
+                .first()
+        )
+
         if result is None:
             logging.error(f"Could not locate an ACTIVE_PLATFORM containing the provided package: {dsc}")
             return -1
-        env_id, = result
+        env_id = result.id
 
-        package_list = [pkg for pkg, in db.connection.execute(PACKAGE_LIST_QUERY).fetchall()]
+        package_list = [pkg.name for pkg in session.query(Package).all()]
 
         # Build source / coverage association dictionary
         coverage_files = self.build_source_coverage_dictionary(self.args.xml, package_list)
 
         # Build inf / source association dictionary
-        package_files = self.build_inf_source_dictionary(db, env_id, INSTANCED_SOURCE_QUERY, package_list)
+        inf_alias = aliased(InstancedInf)
+        inf_list = (
+            session
+                .query(inf_alias)
+                .join(Fv.infs)
+                .join(inf_alias, InstancedInf.path == inf_alias.component)
+                .filter(Fv.env == env_id)
+                .filter(inf_alias.env == env_id)
+                .filter(InstancedInf.env == env_id)
+                .group_by(inf_alias.path)
+                .distinct(inf_alias.path)
+                .all()
+        )
+        data = [
+            (inf.path, source.path) for inf in inf_list for source in inf.sources if source.path.lower().endswith(".c")
+        ]
+
+        package_files = self.build_inf_source_dictionary(data, package_list)
 
         # Build the report
-        self.build_report(db, env_id, coverage_files, package_files)
+        return self.build_report(session, env_id, coverage_files, package_files)
 
-    def run_by_package(self, db: Edk2DB) -> None:
+    def run_by_package(self, session: Session) -> bool:
         """Runs the report, only adding coverage data for source files in the specified packages.
 
         Args:
-            db (Edk2DB): The database containing the necessary data
+            session (Session): The session associated with the database
+
+        Returns:
+            (bool): True if the report was successful, False otherwise.
         """
         # Get package_list
-        package_list = self.args.package_list or \
-            [pkg for pkg, in db.connection.execute(PACKAGE_LIST_QUERY).fetchall()]
+        package_list = self.args.package_list or [pkg.name for pkg in session.query(Package).all()]
         logging.info(f"Packages requested: {', '.join(package_list)}")
 
         # Get env_id
-        env_id, = db.connection.execute(ID_QUERY).fetchone()
+        env_id, = session.query(Environment.id).order_by(Environment.date.desc()).first()
 
         # Build source / coverage association dictionary
         coverage_files = self.build_source_coverage_dictionary(self.args.xml, package_list)
 
         # Build inf / source association dictionary
-        package_files = self.build_inf_source_dictionary(db, env_id, SOURCE_QUERY, package_list)
+        data = (
+            session
+                .query(Inf.path, Source.path)
+                .join(Inf.sources)
+                .filter(func.lower(Source.path).endswith('.c'))
+                .group_by(Inf.path, Source.path)
+                .distinct(Inf.path, Source.path)
+                .all()
+        )
+        package_files = self.build_inf_source_dictionary(data, package_list)
 
         # Build the report
-        return self.build_report(db, env_id, coverage_files, package_files)
+        return self.build_report(session, env_id, coverage_files, package_files)
 
     def build_source_coverage_dictionary(self, xml_path: str, package_list: list) -> dict:
         """Builds a dictionary of source files and their coverage data.
@@ -272,39 +239,35 @@ class CoverageReport(Report):
                     match.set("hits", str(int(match.attrib.get("hits")) + int(line.attrib.get("hits"))))
         return file_dict
 
-    def build_inf_source_dictionary(self, db: Edk2DB, env_id: int, query: str, package_list: list) -> dict:
+    def build_inf_source_dictionary(self, data: dict, package_list: list) -> dict:
         """Builds a dictionary of INFs and the source files they use.
 
         Args:
-            db (Edk2DB): The database containing the necessary data
-            env_id (int): The environment id to query
-            query (str): The query to use to get the data
+            data (dict): The data to build the dictionary from
             package_list (list): The packages to filter the results by
 
         Returns:
             dict[str, list[str]]: A dictionary of INFs and the source files they use.
         """
         entry_dict = {}
-        results = db.connection.execute(query, (env_id,)).fetchall()
 
-        for inf, source in results:
+        for inf, source in data:
             if not any(inf.startswith(pkg) for pkg in package_list):
                 continue
-            inf
             if inf not in entry_dict:
                 entry_dict[inf] = [source]
             else:
                 entry_dict[inf].append(source)
         return entry_dict
 
-    def build_report(self, db: Edk2DB, env_id: int, source_coverage_dict: dict, inf_source_dict: dict) -> None:
+    def build_report(self, session: Session, env_id: int, source_coverage_dict: dict, inf_source_dict: dict) -> None:
         """Builds the report.
 
         For each source file in each INF in the inf_source dictionary, look to see if there is coverage data for it in
         the source_coverage dictionary. If it exists, insert it into the new report. Writes the final report to the
         specified file.
         """
-        pp_list, = db.connection.execute(PACKAGE_PATH_QUERY, (env_id,)).fetchone()
+        pp_list = session.query(Value).filter_by(env_id=env_id, key="PACKAGES_PATH").one().value
         pp_list = pp_list.split(os.pathsep)
         edk2path = Edk2Path(self.args.workspace, pp_list)
 

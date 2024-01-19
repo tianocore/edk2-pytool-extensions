@@ -9,9 +9,7 @@
 import glob
 import logging
 import pathlib
-import sqlite3
 import sys
-import tempfile
 from argparse import ArgumentParser, Namespace
 from datetime import datetime
 
@@ -81,39 +79,19 @@ def main() -> int:
         logging.info(f"Single Database file found at: {to_merge[0]}")
         db_path = to_merge[0]
     else:
-        logging.info("Multiple Database files found...")
-        db_path = merge_databases(to_merge).name
+        logging.error("Multiple Databases not Currently Supported.")
+        return -1
 
     del args.database
     cmd = args.cmd
     del args.cmd
 
-    with Edk2DB(db_path = db_path) as db:
-        for report in REPORTS:
-            name, _ = report.report_info()
-            if name == cmd:
-                return report.run_report(db, args)
+    db = Edk2DB(db_path = db_path)
+    for report in REPORTS:
+        name, _ = report.report_info()
+        if name == cmd:
+            return report.run_report(db, args)
     return -1
-
-def merge_databases(databases: list[str]) -> str:
-    """Performs an in-memory merge of databases and provides a string path to the temporary file."""
-    logging.info(f"Merging database: {databases[0]}")
-    db = pathlib.Path(databases[0])
-    temp_db = tempfile.NamedTemporaryFile(delete=False)
-    temp_db.write(db.read_bytes())
-
-    conn = sqlite3.connect(temp_db.name)
-    tables = conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
-    for database in databases[1:]:
-        logging.info(f"Merging database: {database}")
-        conn.execute(f"ATTACH DATABASE '{database}' AS temp_db")
-        for table, in tables:
-            conn.execute(f"INSERT OR REPLACE INTO main.{table} SELECT * FROM temp_db.{table};")
-        conn.commit()
-        conn.execute("DETACH DATABASE temp_db;")
-        conn.commit()
-
-    return temp_db
 
 
 def go() -> None:
