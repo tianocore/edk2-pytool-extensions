@@ -13,7 +13,7 @@ import logging
 import pathlib
 from argparse import ArgumentParser, Namespace
 from typing import Tuple
-from pygount import SourceAnalysis
+
 from edk2toollib.database import Edk2DB, Fv, InstancedInf, Session
 from edk2toollib.database import Environment as Env
 from sqlalchemy import desc
