@@ -13,7 +13,7 @@ import logging
 import pathlib
 from argparse import ArgumentParser, Namespace
 from typing import Tuple
-
+from pygount import SourceAnalysis
 from edk2toollib.database import Edk2DB, Fv, InstancedInf, Session
 from edk2toollib.database import Environment as Env
 from sqlalchemy import desc
@@ -34,7 +34,8 @@ class UsageReport(Report):
         Returns:
             (str, str): A tuple of (name, description)
         """
-        return ("usage", "Generates a report of INF usage for a specific build.")
+        return ("usage", "Generates a report of INF usage for a specific build. For accurate line counts, run "
+                "stuart_parse with the -S flag.")
 
     def add_cli_options(self, parserobj: ArgumentParser) -> None:
         """Configure command line arguments for this report."""
@@ -153,7 +154,7 @@ class UsageReport(Report):
                     package_name,
                     inf.path,
                     source.path,
-                    source.total_lines,
+                    source.code_lines,
                     inf.path == inf.component,
                 ))
 
