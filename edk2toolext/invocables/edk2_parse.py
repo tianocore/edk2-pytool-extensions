@@ -37,15 +37,6 @@ from edk2toolext.invocables.edk2_multipkg_aware_invocable import (
 
 DB_NAME = "DATABASE.db"
 
-TABLES = [
-    EnvironmentTable(),
-    PackageTable(),
-    SourceTable(),
-    InfTable(),
-    InstancedInfTable(),
-    InstancedFvTable(),
-]
-
 
 class AppendSplitAction(argparse.Action):
     """An argparse action to split a comma separated list and append it to a list.
@@ -119,6 +110,9 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
         super().AddCommandLineOptions(parserObj) # Adds the CI Settings File options
         parserObj.add_argument('--clear', '--Clear', "--CLEAR", dest='clear', action='store_true',
                                help="Deletes the database before parsing the environment.")
+        parserObj.add_argument('--source-stats', '-S', dest='source_stats', action='store_true', default=False,
+                               help="Uses pygount to generate code statistics for each parsed source file, including "
+                               "lines of code, comments, and blank lines. Greatly increases parse time.")
         parserObj.add_argument('-l', '--load-table', '--Load-Table', '--LOAD-TABLE', dest='extra_tables',
                                action=AppendSplitAction, default=[], metavar='<path>',
                                help="Comma separated path to a python file containing a `TableParser`(s). "
@@ -130,6 +124,7 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
         self.clear = args.clear
         self.is_uefi_builder = locate_class_in_module(self.PlatformModule, UefiBuilder) is not None
         self.extra_tables = args.extra_tables
+        self.source_stats = args.source_stats
 
     def GetLoggingFileName(self, loggerType: str) -> str:
         """Returns the logging file name for this invocation."""
@@ -142,6 +137,15 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
         db_path = Path(self.GetWorkspaceRoot()) / self.GetLoggingFolderRelativeToRoot() / DB_NAME
         pathobj = Edk2Path(self.GetWorkspaceRoot(), self.GetPackagesPath())
         env = shell_environment.GetBuildVars()
+
+        TABLES = [
+            EnvironmentTable(),
+            PackageTable(),
+            SourceTable(source_stats=self.source_stats),
+            InfTable(),
+            InstancedInfTable(),
+            InstancedFvTable(),
+        ]
 
         if self.clear:
             db_path.unlink(missing_ok=True)
