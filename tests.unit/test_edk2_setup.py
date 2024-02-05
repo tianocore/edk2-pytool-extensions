@@ -288,7 +288,7 @@ def test_parse_command_line_options(tree: pathlib.Path):
     assert env.GetValue("BLD_*_TEST_VAR2") == "TEST"
 
     # Test invalid command line options
-    for arg in ["BLD_*_VAR=5=10", "BLD_DEBUG_VAR2=5=5", "BLD_RELEASE_VAR3=5=5", "VAR=10=10"]:
+    for arg in ["BLD_*_VAR=5=10", "BLD_DEBUG_VAR2=5=5", "BLD_RELEASE_VAR3=5=5", "VAR=10=10", "--UnexpectdArg"]:
         sys.argv = [
             "stuart_setup",
             "-c", str(empty_build_file),
