@@ -112,6 +112,7 @@ class CoverageReport(Report):
 
         Args:
             session (Session): The session associated with the database
+            package_list (list): The list of packages to filter the results by
 
         Returns:
             (bool): True if the report was successful, False otherwise.
@@ -167,6 +168,7 @@ class CoverageReport(Report):
 
         Args:
             session (Session): The session associated with the database
+            package_list (list): The list of packages to filter the results by
 
         Returns:
             (bool): True if the report was successful, False otherwise.
