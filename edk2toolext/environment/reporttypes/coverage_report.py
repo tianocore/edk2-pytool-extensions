@@ -53,14 +53,6 @@ class CoverageReport(Report):
 
     def add_cli_options(self, parserobj: ArgumentParser) -> None:
         """Configure command line arguments for this report."""
-        # Group 1 - Calculate coverage only for files in a specific package
-        group = parserobj.add_argument_group("Coverage by package options")
-        group.add_argument("--by-package", action="store_true", dest="by_package", default=False,
-                           help="Filters test coverage to only files in the specified packages(s)")
-        group.add_argument("-p", "--package", "--Package", "--PACKAGE", dest="package_list",
-                           action=SplitCommaAction, default=[],
-                           help="The package to include in the report. Can be specified multiple times.")
-
         # Group 2 - Calculate coverage only on files used by a specific platform
         group = parserobj.add_argument_group("Coverage by platform options")
         group.add_argument("--by-platform", action="store_true", dest="by_platform", default=False,
@@ -83,9 +75,15 @@ class CoverageReport(Report):
                                action=SplitCommaAction, default=[],
                                help="Package path relative paths or file (.txt). Globbing is supported. Can be "
                                "specified multiple times")
+        parserobj.add_argument("-p", "--package", "--Package", "--PACKAGE", dest="package_list",
+                           action=SplitCommaAction, default=[],
+                           help="The package to include in the report. Can be specified multiple times.")
         parserobj.add_argument("--flatten", action="store_true", dest="flatten", default=False,
                               help="Flatten the report to only source files. This removes duplicate files that are in "
                               "multiple INFs.")
+        group = parserobj.add_argument_group("Deprecated Options")
+        group.add_argument("--by-package", action="store_true", dest="by_package", default=False,
+                           help="Filters test coverage to only files in the specified packages(s)")
 
     def run_report(self, db: Edk2DB, args: Namespace) -> None:
         """Generate the Coverage report."""
@@ -97,17 +95,19 @@ class CoverageReport(Report):
         self.update_excluded_files()
 
         with db.session() as session:
-            if args.by_package:
-                logging.info("Organizing coverage report by Package.")
-                return self.run_by_package(session)
+            package_list = self.args.package_list or [pkg.name for pkg in session.query(Package).all()]
+            logging.info(f"Packages requested: {', '.join(package_list)}")
             if args.by_platform:
                 logging.info("Organizing coverage report by Platform.")
-                return self.run_by_platform(session)
+                return self.run_by_platform(session, package_list)
+            if args.by_package:
+                logging.warning(
+                    "The --by-package flag is deprecated and will be removed in a future release."
+                    " by-package is now the default behavior and overriden with by-platform."
+                )
+            return self.run_by_package(session, package_list)
 
-        logging.error("No report type specified via command line or configuration file.")
-        return -1
-
-    def run_by_platform(self, session: Session) -> None:
+    def run_by_platform(self, session: Session, package_list: list) -> None:
         """Runs the report, only adding coverage data for source files used to build the platform.
 
         Args:
@@ -136,8 +136,6 @@ class CoverageReport(Report):
             return -1
         env_id = result.id
 
-        package_list = [pkg.name for pkg in session.query(Package).all()]
-
         # Build source / coverage association dictionary
         coverage_files = self.build_source_coverage_dictionary(self.args.xml, package_list)
 
@@ -164,7 +162,7 @@ class CoverageReport(Report):
         # Build the report
         return self.build_report(session, env_id, coverage_files, package_files)
 
-    def run_by_package(self, session: Session) -> bool:
+    def run_by_package(self, session: Session, package_list: list) -> bool:
         """Runs the report, only adding coverage data for source files in the specified packages.
 
         Args:
@@ -173,10 +171,6 @@ class CoverageReport(Report):
         Returns:
             (bool): True if the report was successful, False otherwise.
         """
-        # Get package_list
-        package_list = self.args.package_list or [pkg.name for pkg in session.query(Package).all()]
-        logging.info(f"Packages requested: {', '.join(package_list)}")
-
         # Get env_id
         env_id, = session.query(Environment.id).order_by(Environment.date.desc()).first()
 
