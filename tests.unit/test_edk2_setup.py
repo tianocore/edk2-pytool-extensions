@@ -5,14 +5,14 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
-import pytest
-import git
+import logging
 import pathlib
 import sys
-import logging
 
-from edk2toolext.invocables import edk2_setup
+import git
+import pytest
 from edk2toolext.environment import shell_environment
+from edk2toolext.invocables import edk2_setup
 
 MIN_BUILD_FILE = r"""
 from edk2toolext.invocables.edk2_setup import SetupSettingsManager, RequiredSubmodule
@@ -296,8 +296,8 @@ def test_parse_command_line_options(tree: pathlib.Path):
         ]
         try:
             edk2_setup.main()
-        except RuntimeError as e:
-            assert str(e).startswith(f"Unknown variable passed in via CLI: {arg}")
+        except SystemExit as e:
+            assert e.code == -1
 
 
 def test_conf_file(tree: pathlib.Path):
@@ -341,8 +341,8 @@ def test_conf_file(tree: pathlib.Path):
         ]
         try:
             edk2_setup.main()
-        except RuntimeError as e:
-            assert str(e).startswith(f"Unknown variable passed in via CLI: {arg}")
+        except SystemExit as e:
+            assert e.code == -1
 
 
 @pytest.mark.skipif(sys.platform.startswith("win"), reason="Linux only")
