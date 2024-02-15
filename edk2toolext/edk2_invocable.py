@@ -185,6 +185,10 @@ class Edk2Invocable(BaseAbstractInvocable):
     !!! warning
         This Invocable should only be subclassed if creating a new invocable
     """
+    def __init__(self) -> None:
+        """Init the Invocable."""
+        super().__init__()
+        self.PlatformSettings = None
 
     @classmethod
     def collect_python_pip_info(cls: 'Edk2Invocable') -> None:
@@ -389,7 +393,11 @@ class Edk2Invocable(BaseAbstractInvocable):
         Finally, parses all known args and then reads the unknown args in to build vars.
         """
         # first argparser will only get settings manager and help will be disabled
-        settingsParserObj = argparse.ArgumentParser(add_help=False)
+        settingsParserObj = argparse.ArgumentParser(
+            add_help=False,
+            formatter_class=argparse.RawDescriptionHelpFormatter,
+            epilog=self.AddParserEpilog(),
+        )
 
         settingsParserObj.add_argument('-h', '--help', dest="help", action="store_true",
                                        help='show this help message and exit')
@@ -431,8 +439,8 @@ class Edk2Invocable(BaseAbstractInvocable):
         except (FileNotFoundError):
             if settingsArg.help:
                 try:
-                    print("WARNING: Some command line arguments may be missing. Provide a PLATFORM_MODULE file to "
-                          "ensure all command line arguments are present.\n")
+                    print("WARNING: Some command line arguments and possible values for arguments may be missing. "
+                          "Provide a PLATFORM_MODULE file to ensure all command line arguments are present.\n")
                     self.AddCommandLineOptions(settingsParserObj)
                 except Exception:
                     pass
