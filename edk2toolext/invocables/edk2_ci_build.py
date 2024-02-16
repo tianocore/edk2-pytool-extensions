@@ -87,7 +87,7 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
     def AddCommandLineOptions(self, parser: argparse.ArgumentParser) -> None:
         """Adds command line arguments to Edk2CiBuild."""
         parser.add_argument('-d', '--disable-all', dest="disable", action="store_true", default=False,
-                            help="Disable all plugins. Use <PluginName> to re-enable specific plugins")
+                            help="Disable all plugins. Use <PluginName>=run to re-enable specific plugins")
         super().AddCommandLineOptions(parser)
 
     def RetrieveCommandLineOptions(self, args: argparse.Namespace) -> None:
