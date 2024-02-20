@@ -493,12 +493,13 @@ class Edk2Invocable(BaseAbstractInvocable):
             if argument.count("=") == 1:
                 tokens = argument.strip().split("=")
                 env.SetValue(tokens[0].strip().upper(), tokens[1].strip(), "From CmdLine")
-            elif argument.count("=") == 0 and not argument.startswith("-"):
+            elif argument.count("=") == 0 and not argument.startswith(("-", "/")):
                 env.SetValue(argument.strip().upper(),
                              ''.join(choice(ascii_letters) for _ in range(20)),
                              "Non valued variable set From cmdLine")
             else:
-                raise RuntimeError(f"Unknown variable passed in via CLI: {argument}")
+                print(f"error: unexpected argument: [{argument}]. Pass --help for command information.")
+                sys.exit(-1)
 
         unknown_args.clear()  # remove the arguments we've already consumed
 
