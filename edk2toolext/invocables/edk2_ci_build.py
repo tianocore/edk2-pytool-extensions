@@ -13,6 +13,7 @@ Contains a CIBuildSettingsManager that must be subclassed in a build settings
 file. This provides platform specific information to Edk2CiBuild invocable
 while allowing the invocable itself to remain platform agnostic.
 """
+import argparse
 import logging
 import os
 import sys
@@ -83,6 +84,16 @@ class CiBuildSettingsManager(MultiPkgAwareSettingsInterface):
 
 class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
     """Invocable supporting an iterative multi-package build and test process leveraging CI build plugins."""
+    def AddCommandLineOptions(self, parser: argparse.ArgumentParser) -> None:
+        """Adds command line arguments to Edk2CiBuild."""
+        parser.add_argument('-d', '--disable-all', dest="disable", action="store_true", default=False,
+                            help="Disable all plugins. Use <PluginName>=run to re-enable specific plugins")
+        super().AddCommandLineOptions(parser)
+
+    def RetrieveCommandLineOptions(self, args: argparse.Namespace) -> None:
+        """Retrieve command line options from the argparser."""
+        self.disable_plugins = args.disable
+        super().RetrieveCommandLineOptions(args)
 
     def GetSettingsClass(self) -> type:
         """Returns the CiBuildSettingsManager class.
@@ -192,6 +203,13 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
                     shell_environment.CheckpointBuildVars()
                     env = shell_environment.GetBuildVars()
 
+                    # Skip all plugins not marked as "run" if disable is set
+                    if self.disable_plugins and env.GetValue(Descriptor.Module.upper(), "skip") != "run":
+                        edk2_logging.log_progress("--->Test Disabled due to disable-all flag!"
+                                                  f" {Descriptor.Module} {target}")
+                        edk2_logging.log_progress(f"--->Set {Descriptor.Module}=run on the command line to run anyway.")
+                        continue
+
                     env.SetValue("TARGET", target, "Edk2CiBuild.py before RunBuildPlugin")
                     (testcasename, testclassname) = Descriptor.Obj.GetTestName(package_class_name, env)
                     tc = ts.create_new_testcase(testcasename, testclassname)
@@ -208,7 +226,6 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
                             "skip" in pkg_plugin_configuration and pkg_plugin_configuration["skip"]:
                         tc.SetSkipped()
                         edk2_logging.log_progress("--->Test Skipped by package! %s" % Descriptor.Name)
-
                     else:
                         try:
                             #   - package is the edk2 path to package.  This means workspace/package path relative.

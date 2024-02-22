@@ -55,12 +55,31 @@ stuart_update -c path/to/CISettingsFile.py
 ## stuart_ci_build
 
 Stuart_ci_build is responsible for executing all CI tasks and placing any
-artifacts in the /Build/ directory.
+artifacts in the /Build/ directory. By default, stuart_ci_build will run
+all tests on all packages as specified by the configuration file passed
+to it with the `-c` command.
 
 ```cmd
 stuart_ci_build -c path/to/CISettingsFile.py
 ```
 
+You can filter the package's you want to test with the `-p` command and the
+type of test to execute with the `-t` command. To determine available packages
+and test targets available, use the help command (note you'll only see the
+available options if you provide the configuration file):
+
+```cmd
+stuart_ci_build -c path/to/CISettingsFile.py --h`
+```
+
 ## FAQ
 
-N/A
+Q: Is there a way for me to skip a CI test?
+A: Yes! You have two ways to skip a CI tests. You can permanently skip a
+   specific CI test for a package by adding the configuration `{"skip": true}`
+   in the package's ci.yaml file. If you just need to skip a specific CI test
+   once, you can add `<TestName>=skip` to the command line.
+
+Q: Is there a way for me to only run a single test?
+A: Yes! You can turn off all tests with the `-d, --disable-all` command line
+   argument, then turn the test(s) back on with `<TestName>=run`
