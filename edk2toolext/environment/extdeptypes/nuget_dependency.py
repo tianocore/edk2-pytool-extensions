@@ -169,7 +169,7 @@ class NugetDependency(ExternalDependency):
                 # Seek to the beginning of the output buffer and capture the output.
                 return_buffer.seek(0)
                 return_string = return_buffer.read()
-                self.nuget_cache_path = return_string.strip().strip("global-packages: ")
+                self.nuget_cache_path = return_string.strip().replace("global-packages: ", "")
 
         if self.nuget_cache_path is None:
             logging.info("Nuget was unable to provide global packages cache location.")
