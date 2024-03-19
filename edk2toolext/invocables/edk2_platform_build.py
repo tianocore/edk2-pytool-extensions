@@ -59,6 +59,11 @@ class BuildSettingsManager(Edk2InvocableSettingsInterface):
 class Edk2PlatformBuild(Edk2Invocable):
     """Invocable that performs some environment setup,Imports UefiBuilder and calls go."""
 
+    def __init__(self) -> None:
+        """Init the Invocable."""
+        super().__init__()
+        self.PlatformBuilder = None
+
     def AddCommandLineOptions(self, parserObj: argparse.ArgumentParser) -> None:
         """Adds command line options to the argparser."""
         # PlatformSettings could also be a subclass of UefiBuilder, who knows!
@@ -86,22 +91,23 @@ class Edk2PlatformBuild(Edk2Invocable):
         epilog = super().AddParserEpilog()
         custom_epilog = ""
 
-        variables = self.PlatformBuilder.SetPlatformDefaultEnv()
-        if any(variables):
-            max_name_len = max(len(var.name) for var in variables)
-            max_desc_len = min(max(len(var.description) for var in variables), 55)
+        if self.PlatformBuilder:
+            variables = self.PlatformBuilder.SetPlatformDefaultEnv()
+            if any(variables):
+                max_name_len = max(len(var.name) for var in variables)
+                max_desc_len = min(max(len(var.description) for var in variables), 55)
 
-            custom_epilog += "CLI Env Variables:"
-            for v in variables:
-                # Setup wrap and print first portion of description
-                desc = wrap(v.description, max_desc_len,
-                            drop_whitespace=True, break_on_hyphens=True, break_long_words=True)
-                custom_epilog += f"\n  {v.name:<{max_name_len}} - {desc[0]:<{max_desc_len}}  [{v.default}]"
+                custom_epilog += "CLI Env Variables:"
+                for v in variables:
+                    # Setup wrap and print first portion of description
+                    desc = wrap(v.description, max_desc_len,
+                                drop_whitespace=True, break_on_hyphens=True, break_long_words=True)
+                    custom_epilog += f"\n  {v.name:<{max_name_len}} - {desc[0]:<{max_desc_len}}  [{v.default}]"
 
-                # If the line actually wrapped, we can print the rest of the lines here
-                for d in desc[1:]:
-                    custom_epilog += f"\n  {'':<{max_name_len}}   {d:{max_desc_len}}"
-            custom_epilog += '\n\n'
+                    # If the line actually wrapped, we can print the rest of the lines here
+                    for d in desc[1:]:
+                        custom_epilog += f"\n  {'':<{max_name_len}}   {d:{max_desc_len}}"
+                custom_epilog += '\n\n'
 
         return custom_epilog + epilog
 
