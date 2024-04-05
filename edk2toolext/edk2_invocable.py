@@ -89,10 +89,11 @@ class Edk2InvocableSettingsInterface():
         raise NotImplementedError()
 
     def GetPackagesPath(self) -> Iterable[os.PathLike]:
-        """Provides an iterable of paths should should be mapped as edk2 PackagePaths.
+        """Provides an iterable of paths should should be mapped as edk2 PACKAGES_PATH.
 
         !!! tip
             Optional Override in a subclass
+            https://github.com/tianocore/tianocore.github.io/wiki/Multiple_Workspace
 
         Returns:
             (Iterable[os.PathLike]): paths
