@@ -95,9 +95,9 @@ class Edk2InvocableSettingsInterface():
             Optional Override in a subclass
 
         Path can be,
-            Absolute path 
-            Relative to WORKSPACE
-            Relative to current working dir
+            (a) Absolute path 
+            (b) Relative to WORKSPACE
+            (c) Relative to current working dir
         
         See Also,
             https://github.com/tianocore/tianocore.github.io/wiki/Multiple_Workspace
