@@ -76,7 +76,7 @@ class Edk2InvocableSettingsInterface():
     """
 
     def GetWorkspaceRoot(self) -> str:
-        """Return the workspace root for initializing the SDE.
+        """Return the workspace root for initializing the SDE, will be mapped as edk2 WORKSPACE.
 
         !!! tip
             Required Override in a subclass
@@ -89,10 +89,18 @@ class Edk2InvocableSettingsInterface():
         raise NotImplementedError()
 
     def GetPackagesPath(self) -> Iterable[os.PathLike]:
-        """Provides an iterable of paths should should be mapped as edk2 PackagePaths.
+        """Provides an iterable of paths which will be mapped as edk2 PACKAGES_PATH.
 
         !!! tip
             Optional Override in a subclass
+
+        Path can be,
+            1. Absolute or
+            2. Relative to WORKSPACE or
+            3. Relative to current working dir
+
+        See Also,
+            https://github.com/tianocore/tianocore.github.io/wiki/Multiple_Workspace
 
         Returns:
             (Iterable[os.PathLike]): paths
