@@ -96,7 +96,7 @@ class AzureCliUniversalDependency(ExternalDependency):
         self.project = descriptor.get('project', None)
         self.file_filter = descriptor.get('file-filter', None)
         self.compression_type = descriptor.get('compression_type', None)
-        self.internal_path = descriptor.get('internal_path', None)
+        self.internal_path = descriptor.get('internal_path', "/")
         if self.internal_path:
             self.internal_path = os.path.normpath(self.internal_path)
             self.internal_path = self.internal_path.strip(os.path.sep)
