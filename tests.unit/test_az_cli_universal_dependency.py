@@ -13,13 +13,14 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
-import os
-import unittest
 import logging
+import os
 import tempfile
+import unittest
+
 from edk2toolext.environment import environment_descriptor_files as EDF
-from edk2toolext.environment.extdeptypes.az_cli_universal_dependency import AzureCliUniversalDependency
 from edk2toolext.environment import version_aggregator
+from edk2toolext.environment.extdeptypes.az_cli_universal_dependency import AzureCliUniversalDependency
 from edk2toollib.utility_functions import RemoveTree
 
 test_dir = None
@@ -60,6 +61,21 @@ file_filter_json_template = '''
   "version": "0.2.1",
   "feed": "ext_dep_unit_test_feed",
   "file-filter": "folder2/*.txt",
+  "pat_var": "PAT_FOR_UNIVERSAL_ORG_TIANOCORE"
+}
+'''
+
+zip_json_template = '''
+{
+  "scope": "global",
+  "type": "az-universal",
+  "name": "hello-world-zip",
+  "source": "https://dev.azure.com/tianocore",
+  "project": "edk2-pytool-extensions",
+  "version": "%s",
+  "feed": "ext_dep_unit_test_feed",
+  "compression_type": "zip",
+  "internal_path": "hello-world-zip"
   "pat_var": "PAT_FOR_UNIVERSAL_ORG_TIANOCORE"
 }
 '''
@@ -199,6 +215,31 @@ class TestAzCliUniversalDependency(unittest.TestCase):
         with self.assertRaises(Exception):
             ext_dep.fetch()
         self.assertFalse(ext_dep.verify())
+
+    @unittest.skipIf("PAT_FOR_UNIVERSAL_ORG_TIANOCORE" not in os.environ.keys(),
+                     "PAT not defined therefore universal packages tests will fail")
+    def test_download_and_unzip(self):
+        version = "0.0.1"
+        ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
+        with open(ext_dep_file_path, "w+") as ext_dep_file:
+            ext_dep_file.write(zip_json_template % version)
+
+        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep = AzureCliUniversalDependency(ext_dep_descriptor)
+        ext_dep.fetch()
+        self.assertTrue(ext_dep.verify())
+        self.assertEqual(ext_dep.version, version)
+
+        files = 0
+        folders = 0
+        for (_, dirs, file_names) in os.walk(ext_dep.contents_dir):
+            files += len(file_names)
+            folders += len(dirs)
+
+        self.assertEqual(files, 2) # yaml file and moved files.
+        self.assertEqual(folders, 0)
+
+        ext_dep.clean()
 
     def test_az_tool_environment(self):
         AzureCliUniversalDependency.VerifyToolDependencies()
