@@ -75,7 +75,22 @@ zip_json_template = '''
   "version": "%s",
   "feed": "ext_dep_unit_test_feed",
   "compression_type": "zip",
-  "internal_path": "hello-world-zip"
+  "internal_path": "hello-world-zip",
+  "pat_var": "PAT_FOR_UNIVERSAL_ORG_TIANOCORE"
+}
+'''
+
+zip_json_template2 = '''
+{
+  "scope": "global",
+  "type": "az-universal",
+  "name": "hello-world-zip",
+  "source": "https://dev.azure.com/tianocore",
+  "project": "edk2-pytool-extensions",
+  "version": "%s",
+  "feed": "ext_dep_unit_test_feed",
+  "compression_type": "zip",
+  "internal_path": "/",
   "pat_var": "PAT_FOR_UNIVERSAL_ORG_TIANOCORE"
 }
 '''
@@ -233,11 +248,41 @@ class TestAzCliUniversalDependency(unittest.TestCase):
         files = 0
         folders = 0
         for (_, dirs, file_names) in os.walk(ext_dep.contents_dir):
+            for file in file_names:
+                assert file in ['extdep_state.yaml', 'helloworld.txt']
+
             files += len(file_names)
             folders += len(dirs)
 
         self.assertEqual(files, 2) # yaml file and moved files.
         self.assertEqual(folders, 0)
+
+        ext_dep.clean()
+
+    @unittest.skipIf("PAT_FOR_UNIVERSAL_ORG_TIANOCORE" not in os.environ.keys(),
+                     "PAT not defined therefore universal packages tests will fail")
+    def test_download_and_unzip2(self):
+        version = "0.0.1"
+        ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
+        with open(ext_dep_file_path, "w+") as ext_dep_file:
+            ext_dep_file.write(zip_json_template2 % version)
+
+        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep = AzureCliUniversalDependency(ext_dep_descriptor)
+        ext_dep.fetch()
+        self.assertTrue(ext_dep.verify())
+        self.assertEqual(ext_dep.version, version)
+
+        files = 0
+        folders = 0
+        for (_, dirs, file_names) in os.walk(ext_dep.contents_dir):
+            for file in file_names:
+                assert file in ['extdep_state.yaml', 'helloworld.txt']
+            files += len(file_names)
+            folders += len(dirs)
+
+        self.assertEqual(files, 2) # yaml file and moved files.
+        self.assertEqual(folders, 1) # helloworld.txt is in a folder, because the internal path is "/"
 
         ext_dep.clean()
 
