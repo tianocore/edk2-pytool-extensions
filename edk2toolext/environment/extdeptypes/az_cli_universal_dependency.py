@@ -182,6 +182,7 @@ class AzureCliUniversalDependency(ExternalDependency):
                 raise Exception("Expected only 1 file in the downloaded directory")
             tmp_file_path = files[0]
             WebDependency.unpack(tmp_file_path, temp_directory, self.internal_path, self.compression_type)
+            tmp_file_path.unlink()
 
             source_dir = os.path.join(temp_directory, self.internal_path)
         else:
