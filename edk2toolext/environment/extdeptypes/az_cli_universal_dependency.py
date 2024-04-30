@@ -14,10 +14,12 @@ import logging
 import os
 import shutil
 from io import StringIO
+from pathlib import Path
 
 from edk2toollib.utility_functions import RemoveTree, RunCmd
 
 from edk2toolext.environment import shell_environment, version_aggregator
+from edk2toolext.environment.extdeptypes.web_dependency import WebDependency
 from edk2toolext.environment.external_dependency import ExternalDependency
 
 
@@ -31,6 +33,8 @@ class AzureCliUniversalDependency(ExternalDependency):
         project (str): <name of project for project scoped feed.  If missing assume organization scoped>
         name (str): name of artifact
         file-filter (str): <optional> filter for folders and files.
+        compression_type (str): <optional> Compression type used, if compressed.
+        internal_path (str): <optional> Path inside the compressed file, if the ext_dep is compressed
         pat_var (str): shell_var name for PAT for this ext_dep
 
     !!! tip
@@ -91,6 +95,11 @@ class AzureCliUniversalDependency(ExternalDependency):
         self.feed = descriptor.get('feed')
         self.project = descriptor.get('project', None)
         self.file_filter = descriptor.get('file-filter', None)
+        self.compression_type = descriptor.get('compression_type', None)
+        self.internal_path = descriptor.get('internal_path', "/")
+        if self.internal_path:
+            self.internal_path = os.path.normpath(self.internal_path)
+            self.internal_path = self.internal_path.strip(os.path.sep)
         _pat_var = descriptor.get('pat_var', None)
         self._pat = None
 
@@ -163,13 +172,28 @@ class AzureCliUniversalDependency(ExternalDependency):
         self._attempt_universal_install(temp_directory)
 
         #
+        # if there is a compression type, the only thing downloaded must be the compressed
+        # file. If this is true, we will unpack it directly into the the contents
+        # directory and delete the temp directory.
+        #
+        if self.compression_type:
+            files = list(Path(temp_directory).iterdir())
+            if len(files) != 1:
+                raise Exception("Expected only 1 file in the downloaded directory")
+            tmp_file_path = files[0]
+            WebDependency.unpack(tmp_file_path, temp_directory, self.internal_path, self.compression_type)
+            tmp_file_path.unlink()
+
+            source_dir = os.path.join(temp_directory, self.internal_path)
+        else:
+            source_dir = temp_directory
+        #
         # Next, copy the contents of the package to the
         # final resting place.
         #
-        source_dir = temp_directory
         shutil.copytree(source_dir, self.contents_dir)
 
-        RemoveTree(source_dir)
+        RemoveTree(temp_directory)
 
         #
         # Add a file to track the state of the dependency.
