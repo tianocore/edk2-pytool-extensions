@@ -45,7 +45,7 @@ dev = [
     "pytest == 8.1.1",
     "coverage == 7.4.4",
     "robotframework == 7.0",
-    "regex == 2024.4.16",
+    "regex == 2024.5.10",
     "pre-commit == 3.7.0",
 ]
 publish = [
