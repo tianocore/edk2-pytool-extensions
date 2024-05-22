@@ -300,7 +300,9 @@ class CoverageReport(Report):
                 if match is not None:
                     classes.append(source_coverage_dict[match])
                 elif self.args.full:
-                    classes.append(self.create_source_xml(source, edk2path))
+                    xml = self.create_source_xml(source, edk2path)
+                    if xml is not None:
+                        classes.append(self.create_source_xml(source, edk2path))
 
         # Flaten the report to only source files, removing duplicates from INFs.
         if self.args.flatten:
@@ -328,15 +330,14 @@ class CoverageReport(Report):
                 temporary_list.append(pattern)
         self.args.exclude = temporary_list
 
-    def create_source_xml(self, source_path: str, edk2path: Edk2Path) -> ET:
+    def create_source_xml(self, source_path: str, edk2path: Edk2Path) -> Optional[ET.Element]:
         """Parses the source file and creates a coverage 'lines' xml element for it."""
         from pygount import SourceAnalysis
         full_path = edk2path.GetAbsolutePathOnThisSystemFromEdk2RelativePath(source_path)
         if full_path is None:
             logging.warning(f"Could not find {source_path} in the workspace. Skipping...")
-            code_count = 0
-        else:
-            code_count = SourceAnalysis.from_file(full_path, "_").code_count
+            return None
+        code_count = SourceAnalysis.from_file(full_path, "_").code_count
         file_xml = ET.Element("class", name="\\".join(Path(source_path).parts), filename=source_path)
         lines_xml = ET.Element("lines")
 
