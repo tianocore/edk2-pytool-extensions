@@ -332,7 +332,11 @@ class CoverageReport(Report):
         """Parses the source file and creates a coverage 'lines' xml element for it."""
         from pygount import SourceAnalysis
         full_path = edk2path.GetAbsolutePathOnThisSystemFromEdk2RelativePath(source_path)
-        code_count = SourceAnalysis.from_file(full_path, "_").code_count
+        if full_path is None:
+            logging.warning(f"Could not find {source_path} in the workspace. Skipping...")
+            code_count = 0
+        else:
+            code_count = SourceAnalysis.from_file(full_path, "_").code_count
         file_xml = ET.Element("class", name="\\".join(Path(source_path).parts), filename=source_path)
         lines_xml = ET.Element("lines")
 
