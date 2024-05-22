@@ -302,7 +302,7 @@ class CoverageReport(Report):
                 elif self.args.full:
                     xml = self.create_source_xml(source, edk2path)
                     if xml is not None:
-                        classes.append(self.create_source_xml(source, edk2path))
+                        classes.append(xml)
 
         # Flaten the report to only source files, removing duplicates from INFs.
         if self.args.flatten:
