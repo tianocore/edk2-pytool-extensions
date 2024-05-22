@@ -8,13 +8,13 @@
 ##
 import logging
 import os
+import pathlib
+import tempfile
 import unittest
+
+import pytest
 from edk2toolext.environment import repo_resolver
 from edk2toollib.utility_functions import RemoveTree
-import tempfile
-import pathlib
-import pytest
-
 
 branch_dependency = {
     "Url": "https://github.com/microsoft/mu",
@@ -326,7 +326,7 @@ class test_repo_resolver(unittest.TestCase):
                 self.recursive = recursive
 
         temp_folder = tempfile.mkdtemp()
-        submodule_path = "Common/MU_TIANO"
+        submodule_path = "Common/MU"
         deps = {"Url": "https://github.com/microsoft/mu_tiano_platforms"}
         repo_resolver.clone_repo(temp_folder, deps)
 
