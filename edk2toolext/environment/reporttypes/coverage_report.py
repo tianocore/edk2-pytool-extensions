@@ -333,7 +333,7 @@ class CoverageReport(Report):
     def create_source_xml(self, source_path: str, edk2path: Edk2Path) -> Optional[ET.Element]:
         """Parses the source file and creates a coverage 'lines' xml element for it."""
         from pygount import SourceAnalysis
-        full_path = edk2path.GetAbsolutePathOnThisSystemFromEdk2RelativePath(source_path)
+        full_path = edk2path.GetAbsolutePathOnThisSystemFromEdk2RelativePath(source_path, log_errors=False)
         if full_path is None:
             logging.warning(f"Could not find {source_path} in the workspace. Skipping...")
             return None
