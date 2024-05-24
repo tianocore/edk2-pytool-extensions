@@ -125,6 +125,7 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
         self.is_uefi_builder = locate_class_in_module(self.PlatformModule, UefiBuilder) is not None
         self.extra_tables = args.extra_tables
         self.source_stats = args.source_stats
+        self.args = args
 
     def GetLoggingFileName(self, loggerType: str) -> str:
         """Returns the logging file name for this invocation."""
@@ -172,6 +173,7 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
         try:
             platform_module = locate_class_in_module(self.PlatformModule, UefiBuilder)
             build_settings = platform_module()
+            build_settings.RetrieveCommandLineOptions(self.args)
             build_settings.Clean = False
             build_settings.SkipPreBuild = True
             build_settings.SkipBuild = True
