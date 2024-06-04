@@ -7,11 +7,11 @@
 ##
 """This module contains code that supports Build Plugins."""
 
+import importlib.util
 import logging
 import os
 import sys
 import warnings
-from importlib import util
 
 from edk2toolext.environment import shell_environment
 
@@ -97,9 +97,9 @@ class PluginManager(object):
         logging.debug("Loading Plugin from %s", py_module_path)
 
         try:
-            spec = util.spec_from_file_location(
+            spec = importlib.util.spec_from_file_location(
                 py_module_name, py_module_path)
-            module = util.module_from_spec(spec)
+            module = importlib.util.module_from_spec(spec)
             sys.modules[py_module_name] = module
 
             py_module_dir = os.path.dirname(py_module_path)
