@@ -148,5 +148,10 @@
         "vsts",
         "xffd",
         "xlsxwriter",
+        "uefivariablesupport",
+        "ntdll",
+        "NTSTATUS",
+        "efivarfs",
+        "chattr"
     ]
 }
