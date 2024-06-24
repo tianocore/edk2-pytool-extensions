@@ -142,6 +142,8 @@ See the [github
 team](https://github.com/orgs/tianocore/teams/edk-ii-tool-maintainers) for more
 details.
 
+Documentation for maintainers on how to publish a release can be found [here](https://github.com/tianocore/edk2-pytool-extensions/blob/master/docs/contributor/publishing.md)
+
 ## Documentation
 
 [![docs]][_docs]
