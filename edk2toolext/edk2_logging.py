@@ -282,7 +282,7 @@ def scan_compiler_output(output_stream: TextIO) -> list[tuple]:
 
 class Edk2LogFilter(logging.Filter):
     """Subclass of logging.Filter."""
-    _allowedLoggers = ["root", "git.cmd"]
+    _allowedLoggers = ["root", "git.cmd", "edk2toolext.environment.repo_resolver"]
 
     def __init__(self) -> None:
         """Inits a filter."""
