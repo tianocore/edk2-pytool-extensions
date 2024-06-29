@@ -322,7 +322,7 @@ def clone_repo(abs_file_system_path: os.PathLike, DepObj: dict) -> tuple:
         shallow = True
         branch = DepObj["Branch"]
     if "ReferencePath" in DepObj and os.path.exists(DepObj["ReferencePath"]):
-        reference = os.path.abspath(DepObj["ReferencePath"])
+        reference = Path(DepObj["ReferencePath"])
 
     # Used to generate clone params from flags
     def _build_params_list(branch: str=None, shallow: str=None, reference: str=None) -> None:
@@ -336,9 +336,10 @@ def clone_repo(abs_file_system_path: os.PathLike, DepObj: dict) -> tuple:
             params.append('--depth=5')
         if reference:
             params.append('--reference')
-            params.append('reference')
+            params.append(reference.as_posix())
         else:
             params.append("--recurse-submodules")  # if we don't have a reference we can just recurse the submodules
+        return params
 
     # Run the command
     try:
