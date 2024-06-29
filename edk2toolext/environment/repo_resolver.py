@@ -422,8 +422,11 @@ def checkout(
                 except GitCommandError:
                     # try to fetch it and try to checkout again
                     logger.info("We failed to checkout this branch, we'll try to fetch")
-                    repo.git.fetch(branch=branch)
-                    repo.git.checkout(branch=branch)
+                    # since the repo may have been cloned with --single-branch, add a refspec for the target branch.
+                    refspec = "refs/heads/{0}:refs/remotes/origin/{0}".format(branch)
+                    repo.remotes.origin.config_writer.set_value("fetch", refspec).release()
+                    repo.git.fetch()
+                    repo.git.checkout(branch)
                 repo.git.submodule("update", "--init", "--recursive")
             else:
                 if details["Branch"] == dep["Branch"]:
