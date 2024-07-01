@@ -178,14 +178,24 @@ class Edk2MultiPkgAwareInvocable(Edk2Invocable):
     def AddCommandLineOptions(self, parserObj: argparse.ArgumentParser) -> None:
         """Adds command line options to the argparser."""
         # This will parse the packages that we are going to update
+        pkg_options = ""
+        arch_options = ""
+        target_options = ""
+        if self.PlatformSettings:
+            pkg_options = f' \n[{",".join(self.PlatformSettings.GetPackagesSupported())}]'
+            arch_options = f' \n[{",".join(self.PlatformSettings.GetArchitecturesSupported())}]'
+            target_options = f' \n[{",".join(self.PlatformSettings.GetTargetsSupported())}]'
+
         parserObj.add_argument('-p', '--pkg', '--pkg-dir', dest='packageList', type=str,
-                               help='Optional - A package or folder you want to update (workspace relative).'
-                               'Can list multiple by doing -p <pkg1>,<pkg2> or -p <pkg3> -p <pkg4>',
+                               help='CSV of EDKII packages / folder containing packages to operate on. '
+                               f'{pkg_options}',
                                action="append", default=[])
         parserObj.add_argument('-a', '--arch', dest="requested_arch", type=str, default=None,
-                               help="Optional - CSV of architecture requested to update. Example: -a X64,AARCH64")
+                               help='CSV of architectures to operate on.'
+                               f'{arch_options}')
         parserObj.add_argument('-t', '--target', dest='requested_target', type=str, default=None,
-                               help="Optional - CSV of targets requested to update.  Example: -t DEBUG,NOOPT")
+                               help='CSV of targets to operate on.'
+                               f'{target_options}')
 
     def RetrieveCommandLineOptions(self, args: argparse.Namespace) -> None:
         """Retrieve command line options from the argparser ."""
