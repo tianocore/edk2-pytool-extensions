@@ -388,6 +388,9 @@ def checkout(
     """
     details = repo_details(abs_file_system_path)
     with Repo(abs_file_system_path) as repo:
+        reference = None
+        if "ReferencePath" in dep and os.path.exists(dep["ReferencePath"]):
+            reference = Path(dep["ReferencePath"])
         if "Commit" in dep:
             commit = dep["Commit"]
             if update_ok or force:
@@ -397,7 +400,10 @@ def checkout(
                 except GitCommandError:
                     repo.git.fetch()
                     repo.git.checkout(commit)
-                repo.git.submodule("update", "--init", "--recursive")
+                if reference:
+                    repo.git.submodule("update", "--init", "--recursive", "--reference", reference.as_posix())
+                else:
+                    repo.git.submodule("update", "--init", "--recursive")
             else:
                 head = details["Head"]
                 if commit in [head["HexSha"], head["HexShaShort"]]:
@@ -427,7 +433,10 @@ def checkout(
                     repo.remotes.origin.config_writer.set_value("fetch", refspec).release()
                     repo.git.fetch()
                     repo.git.checkout(branch)
-                repo.git.submodule("update", "--init", "--recursive")
+                if reference:
+                    repo.git.submodule("update", "--init", "--recursive", "--reference", reference.as_posix())
+                else:
+                    repo.git.submodule("update", "--init", "--recursive")
             else:
                 if details["Branch"] == dep["Branch"]:
                     logger.debug(
