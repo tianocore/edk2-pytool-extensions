@@ -262,7 +262,7 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
                                 logging.error('Exiting Early due to --fail-fast flag.')
                                 JunitReport.Output(os.path.join(self.GetWorkspaceRoot(), "Build", "TestSuites.xml"))
                                 return failure_num
-                        elif (rc < 0):
+                        elif rc < 0:
                             logging.warn(f"--->Test Skipped: in plugin! {Descriptor.Name} {target}")
                         else:
                             edk2_logging.log_progress(f"--->Test Success: {Descriptor.Name} {target}")
