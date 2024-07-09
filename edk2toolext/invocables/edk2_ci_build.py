@@ -88,11 +88,14 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
         """Adds command line arguments to Edk2CiBuild."""
         parser.add_argument('-d', '--disable-all', dest="disable", action="store_true", default=False,
                             help="Disable all plugins. Use <PluginName>=run to re-enable specific plugins")
+        parser.add_argument('-f', '--fail-fast', dest="fail_fast", action="store_true", default=False,
+                            help="Exit on the first plugin failure.")
         super().AddCommandLineOptions(parser)
 
     def RetrieveCommandLineOptions(self, args: argparse.Namespace) -> None:
         """Retrieve command line options from the argparser."""
         self.disable_plugins = args.disable
+        self.fail_fast = args.fail_fast
         super().RetrieveCommandLineOptions(args)
 
     def GetSettingsClass(self) -> type:
@@ -242,7 +245,7 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
                                                                env, self.plugin_manager, self.helper,
                                                                tc, plugin_output_stream)
                         except Exception as exp:
-                            exc_type, exc_value, exc_traceback = sys.exc_info()
+                            _, _, exc_traceback = sys.exc_info()
                             logging.critical("EXCEPTION: {0}".format(exp))
                             exceptionPrint = traceback.format_exception(type(exp), exp, exc_traceback)
                             logging.critical(" ".join(exceptionPrint))
@@ -250,14 +253,18 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
                                 exp), "UNEXPECTED EXCEPTION")
                             rc = 1
 
-                        if (rc > 0):
+                        if rc is None or rc > 0:
                             failure_num += 1
-                            if (rc is None):
+                            if rc is None:
                                 logging.error(
                                     f"--->Test Failed: {Descriptor.Name} {target} returned NoneType")
                             else:
                                 logging.error(
                                     f"--->Test Failed: {Descriptor.Name} {target} returned {rc}")
+                            if self.fail_fast:
+                                logging.error('Exiting Early due to --fail-fast flag.')
+                                JunitReport.Output(os.path.join(self.GetWorkspaceRoot(), "Build", "TestSuites.xml"))
+                                return failure_num
                         elif (rc < 0):
                             logging.warn(f"--->Test Skipped: in plugin! {Descriptor.Name} {target}")
                         else:
