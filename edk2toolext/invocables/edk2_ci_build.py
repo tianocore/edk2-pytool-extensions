@@ -255,12 +255,9 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
 
                         if rc is None or rc > 0:
                             failure_num += 1
-                            if rc is None:
-                                logging.error(
-                                    f"--->Test Failed: {Descriptor.Name} {target} returned NoneType")
-                            else:
-                                logging.error(
-                                    f"--->Test Failed: {Descriptor.Name} {target} returned {rc}")
+                            logging.error(
+                                f"--->Test Failed: {Descriptor.Name} {target} returned \"{rc}\"")
+
                             if self.fail_fast:
                                 logging.error('Exiting Early due to --fail-fast flag.')
                                 JunitReport.Output(os.path.join(self.GetWorkspaceRoot(), "Build", "TestSuites.xml"))
