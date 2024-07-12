@@ -1,32 +1,32 @@
 # @file rust_environment.py
 #
-# Helpers to check that Rust tools are present needed to compile Rust code
-# during firmare build.
-#
-# This functionality can be used to provide faster, direct feedback to a
-# developer about the changes they may need to make to successfully build Rust
-# code. Otherwise, the build will fail much later during firmware code
-# compilation when Rust tools are invoked with messages that are ambiguous or
-# difficult to find.
-#
-# Note:
-#   - Individual tools can be opted out by setting the environment variable
-#     `RUST_ENV_CHECK_TOOL_EXCLUSIONS` with a comma separated list of the tools
-#     to exclude. For example, "rustup, cargo tarpaulin" would not require that
-#     those tools be installed.
+# Functions to help check that a build environment is ready to build Rust code.
 #
 # Copyright (c) Microsoft Corporation.
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 """Rust Environment Helper Functions.
 
-Functions to help check that a build environment is ready to build Rust code.
+Helpers to check that Rust tools are present needed to compile Rust code
+during firmare build.
+
+This functionality can be used to provide faster, direct feedback to a
+developer about the changes they may need to make to successfully build Rust
+code. Otherwise, the build will fail much later during firmware code
+compilation when Rust tools are invoked with messages that are ambiguous or
+difficult to find.
+
+Note:
+  - Individual tools can be opted out by setting the environment variable
+    `RUST_ENV_CHECK_TOOL_EXCLUSIONS` with a comma separated list of the tools
+    to exclude. For example, "rustup, cargo tarpaulin" would not require that
+    those tools be installed.
 """
 
 import logging
 import re
 from io import StringIO
-from typing import Callable, List, NamedTuple
+from typing import Callable, Dict, List, NamedTuple
 
 from edk2toollib.utility_functions import RunCmd
 
@@ -148,11 +148,11 @@ def _verify_cmd(tool: RustToolInfo, custom_filters: List[CustomToolFilter]) -> i
     return 0
 
 
-def _get_required_tool_versions() -> dict[str, str]:
+def _get_required_tool_versions() -> Dict[str, str]:
     """Returns any tools and their required versions from the workspace toolchain file.
 
     Returns:
-        dict[str,str]: dict where the key is the tool name and the
+        Dict[str,str]: dict where the key is the tool name and the
         value is the version
     """
     tool_ver = {}
@@ -234,13 +234,14 @@ def _verify_rust_src_component_is_installed() -> bool:
 def verify_workspace_rust_toolchain_is_installed() -> RustToolChainInfo:
     """Verifies the rust toolchain used in the workspace is available.
 
-    Note: This function does not use the toml library to parse the toml
-    file since the file is very simple and its not desirable to add the
-    toml module as a dependency.
+    !!! note
+        This function does not use the toml library to parse the toml
+        file since the file is very simple and its not desirable to add the
+        toml module as a dependency.
 
     Returns:
         RustToolChainInfo: A tuple that indicates if the toolchain is
-        available and any the toolchain version if found.
+            available and includes the toolchain version if found.
     """
     toolchain_version = get_workspace_toolchain_version()
     if toolchain_version.error or not toolchain_version:
@@ -277,7 +278,7 @@ def get_workspace_toolchain_version() -> RustToolChainInfo:
 
     Returns:
         RustToolChainInfo: The rust toolchain information. If an error
-        occurs, the error field will be True with no toolchain info.
+            occurs, the error field will be True with no toolchain info.
     """
     toolchain_version = None
     try:
@@ -293,11 +294,17 @@ def get_workspace_toolchain_version() -> RustToolChainInfo:
 
 
 def run(
-    custom_tool_checks: dict[str, RustToolInfo] = {},
+    custom_tool_checks: Dict[str, RustToolInfo] = {},
     custom_tool_filters: List[CustomToolFilter] = [],
-) -> None:
+) -> int:
     """Checks the current environment for Rust build support.
 
+    Args:
+        custom_tool_checks (Dict[str, RustToolInfo], optional): A dictionary
+            of custom tools to check. The key is the tool name and the value
+            is a `RustToolInfo` object. Defaults to {}.
+        custom_tool_filters (List[CustomToolFilter], optional): A list of
+            custom tool filters. Defaults to [].
     Returns:
         int: Then number of errors discovered. 0 indicates success.
     """

@@ -14,11 +14,11 @@ public functions may be used in other contexts as well. The following functions 
 - `run()` - Checks the current environment for Rust build support.
   - The checks can be customized with the `custom_tool_checks` and `custom_tool_filters` parameters.
 - `get_workspace_toolchain_version()` - Returns the rust toolchain version specified in the workspace toolchain file.
-- `verify_workspace_rust_toolchain_is_installed()` - RVerifies the rust toolchain used in the workspace is available.
+- `verify_workspace_rust_toolchain_is_installed()` - Verifies the rust toolchain used in the workspace is available.
 
 ### Integration Examples
 
-This section provides examples of how to use the functions available in `edk2toolext/codeql.py`.
+This section provides examples of how to use the functions available in `edk2toolext/rust_environment.py`.
 
 #### `run()`
 
@@ -28,7 +28,8 @@ Call to check the environment for Rust build support:
     import edk2toolext.rust_environment as rust_env
 
     def Run(self):
-        rust_env.run()
+        error_count = rust_env.run()
+        print(f"{error_count} errors found.")
 ```
 
 #### `get_workspace_toolchain_version()`
