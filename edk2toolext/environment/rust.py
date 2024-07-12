@@ -1,4 +1,4 @@
-# @file rust_environment.py
+# @file rust.py
 #
 # Functions to help check that a build environment is ready to build Rust code.
 #

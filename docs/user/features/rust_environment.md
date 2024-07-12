@@ -8,8 +8,8 @@ Rust code using the tools commonly used in the firmware build process.
 
 ## Usage
 
-The primary purpose of the functionality in `rust_environment` is to be used in a build plugin wrapper. However, the
-public functions may be used in other contexts as well. The following functions are available:
+The primary purpose of this functionality is to be used in a build plugin wrapper. However, the public functions may be
+used in other contexts as well. The following functions are available:
 
 - `run()` - Checks the current environment for Rust build support.
   - The checks can be customized with the `custom_tool_checks` and `custom_tool_filters` parameters.
@@ -18,14 +18,14 @@ public functions may be used in other contexts as well. The following functions 
 
 ### Integration Examples
 
-This section provides examples of how to use the functions available in `edk2toolext/rust_environment.py`.
+This section provides examples of how to use the functions available in `edk2toolext.environment.rust`.
 
 #### `run()`
 
 Call to check the environment for Rust build support:
 
 ```python
-    import edk2toolext.rust_environment as rust_env
+    import edk2toolext.environment.rust as rust_env
 
     def Run(self):
         error_count = rust_env.run()
@@ -37,7 +37,7 @@ Call to check the environment for Rust build support:
 Call to get Rust toolchain info:
 
 ```python
-    import edk2toolext.rust_environment as rust_env
+    import edk2toolext.environment.rust as rust_env
 
     def GetWorkspaceToolchainVersion(self):
         toolchain = rust_env.get_workspace_toolchain_version()
@@ -49,7 +49,7 @@ Call to get Rust toolchain info:
 Call to verify the workspace specified toolchain is installed:
 
 ```python
-    import edk2toolext.rust_environment as rust_env
+    import edk2toolext.environment.rust as rust_env
 
     def VerifyWorkspaceRustToolchainIsInstalled(self):
         rust_toolchain_info = verify_workspace_rust_toolchain_is_installed()

@@ -4,7 +4,7 @@
 import unittest
 from unittest.mock import mock_open, patch, MagicMock
 
-from edk2toolext.rust_environment import (
+from edk2toolext.environment.rust import (
     RustToolChainInfo,
     RustToolInfo,
     CustomToolFilter,
@@ -213,7 +213,7 @@ class RustEnvironmentTests(unittest.TestCase):
         cmd_output = "rustc 1.76.0 (c560aa0e2e 2024-04-12) "
         self.assertFalse(_is_corrupted_component(tool, cmd_output))
 
-    @patch("edk2toolext.rust_environment.RunCmd")
+    @patch("edk2toolext.environment.rust.RunCmd")
     def test_verify_cmd(self, mock_run_cmd: MagicMock):
         working_tool = RustToolInfo(
             presence_cmd=("rustc", "--version"),
@@ -299,8 +299,8 @@ class RustEnvironmentTests(unittest.TestCase):
         self.assertIsInstance(versions, dict)
         self.assertEqual(len(versions), 0)
 
-    @patch("edk2toolext.rust_environment.RunCmd")
-    @patch("edk2toolext.rust_environment.get_workspace_toolchain_version")
+    @patch("edk2toolext.environment.rust.RunCmd")
+    @patch("edk2toolext.environment.rust.get_workspace_toolchain_version")
     def test_verify_rust_src_component_is_installed(
         self,
         mock_get_workspace_toolchain_version: MagicMock,
@@ -332,7 +332,7 @@ class RustEnvironmentTests(unittest.TestCase):
             tool_versions = _get_required_tool_versions()
             assert tool_versions == {}
 
-    @patch("edk2toolext.rust_environment.RunCmd")
+    @patch("edk2toolext.environment.rust.RunCmd")
     def test_verify_workspace_rust_toolchain_is_installed(
         self, mock_run_cmd: MagicMock
     ):
@@ -358,8 +358,8 @@ class RustEnvironmentTests(unittest.TestCase):
             assert not toolchain_info.error
             assert toolchain_info.toolchain is None
 
-    @patch("edk2toolext.rust_environment.logging")
-    @patch("edk2toolext.rust_environment.RunCmd")
+    @patch("edk2toolext.environment.rust.logging")
+    @patch("edk2toolext.environment.rust.RunCmd")
     def test_run_success(self, mock_run_cmd, mock_logging):
         mock_run_cmd.return_value = 0
         custom_tool_checks = {
@@ -381,8 +381,8 @@ class RustEnvironmentTests(unittest.TestCase):
         self.assertEqual(result, 0)
         mock_logging.error.assert_not_called()
 
-    @patch("edk2toolext.rust_environment.logging")
-    @patch("edk2toolext.rust_environment.RunCmd")
+    @patch("edk2toolext.environment.rust.logging")
+    @patch("edk2toolext.environment.rust.RunCmd")
     def test_run_missing_tool(self, mock_run_cmd, mock_logging):
         mock_run_cmd.return_value = 1
         custom_tool_checks = {
