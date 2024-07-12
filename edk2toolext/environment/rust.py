@@ -305,6 +305,7 @@ def run(
             is a `RustToolInfo` object. Defaults to {}.
         custom_tool_filters (List[CustomToolFilter], optional): A list of
             custom tool filters. Defaults to [].
+
     Returns:
         int: Then number of errors discovered. 0 indicates success.
     """
