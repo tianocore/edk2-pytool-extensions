@@ -53,7 +53,7 @@ executed.
 
 ## Writing your own
 
-See [Creating a Plugin](/features/creating_plugins)
+See [Creating a Plugin](/features/creating_plugins.md)
 
 For IUefiBuildPlugin type the plugin will simply be called during the pre and
 post build steps after the platform builder object runs its step. The

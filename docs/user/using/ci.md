@@ -6,7 +6,7 @@ defined by you or your team. Stuart provides an easy to use interface that
 automates this process.
 
 To take your firmware code tree from freshly cloned to fully tested, you only
-need to execute three commands. If you've properly [installed](/using/install)
+need to execute three commands. If you've properly [installed](/using/install.md)
 edk2-pytool-extensions, then these commands will be available to execute as
 seen below:
 

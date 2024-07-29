@@ -17,7 +17,7 @@ This variable, if present, will enable the Stuart tools that clone or update Git
 to use the local Omnicache rather than having to fetch everything from the server. This can
 greatly improve the performance of CI processes that have to clone many dependencies.
 
-For more info, see [the Omnicache docs](/tools/using_omnicache_tool/).
+For more info, see [the Omnicache docs](/tools/using_omnicache_tool.md).
 
 ## STUART_EXTDEP_CACHE_PATH
 
