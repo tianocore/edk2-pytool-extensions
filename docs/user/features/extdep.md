@@ -197,7 +197,7 @@ Ext_Dep Example json file
 ```
 
 If you wish to create a new ext_dep type other then those mentioned in
-[Supported Types](#supported-types), See [Creating an Extdep Type](features/creating_extdep)
+[Supported Types](#supported-types), See [Creating an Extdep Type](/features/creating_extdep.md)
 
 ## The base schema
 

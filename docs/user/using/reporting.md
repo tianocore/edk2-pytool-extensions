@@ -1,7 +1,7 @@
 # Reporting
 
 Top take your EDK2 workspace from freshly cloned, to parsed and ready to be reported on, you only need to execute three
-commands. If you've properly [installed](/using/install) edk2-pytool-extensions, then these commands will be available
+commands. If you've properly [installed](/using/install.md) edk2-pytool-extensions, then these commands will be available
 to execute as seen below:
 
 ```cmd

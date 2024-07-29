@@ -1,7 +1,7 @@
 # Building a Platform using Stuart
 
 To take your firmware code tree from freshly cloned to fully built, you only
-need to execute three commands. If you've properly [installed](/using/install)
+need to execute three commands. If you've properly [installed](/using/install.md)
 edk2-pytool-extensions, then these commands will be available to execute as
 seen below:
 
@@ -80,7 +80,7 @@ stuart_build -c path/to/SettingsFile.py --help
 
 Yes! Build values can be set and passed to the build command via the command
 line or from within your platform build file
-[Read More](/integrate/build#setting-getting-environment-variables).
+[Read More](/integrate/build.md#setting-getting-environment-variables).
 You define a build value via `BLD_*_<VAR>=<VALUE>` for all builds,
 `BLD_DEBUG_<VAR>=VALUE` for debug builds, and `BLD_RELEASE_<VAR>=VALUE` for release
 builds.

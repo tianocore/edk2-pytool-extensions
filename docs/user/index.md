@@ -13,8 +13,8 @@ Firmware code tree.
 !!! note
     If stuart is already integrated into your platform and you're looking for a
     tutorial on how to install and use stuart, please see
-    [Installation](/using/install), [Building](/using/build), and
-    [Core CI](/using/ci) Instructions.
+    [Installation](/using/install.md), [Building](/using/build.md), and
+    [Core CI](/using/ci.md) Instructions.
 
 As UEFI developers, we found the process of building firmware to be extremely
 rigid and hard to customize without the use of disjointed scripts that would
@@ -53,7 +53,7 @@ be passed in. This way, the invocable script gets all the information it needs
 without needing to carry the overhead of command line parsing and loading the
 class.
 
-[Settings Manager documentation](features/settings_manager)
+[Settings Manager documentation](features/settings_manager.md)
 
 ### Scopes
 
@@ -76,7 +76,7 @@ be implemented.
 3. `UefiHelperPlugin` - Registers one or
    more functions that can called by any part of the build system.
 
-[Plugin Manager Documentation](features/plugin_manager)
+[Plugin Manager Documentation](features/plugin_manager.md)
 
 ### External Dependencies
 
@@ -87,7 +87,7 @@ the rest! When you call stuart_update, Stuart will collect, download, and store
 the ext_deps pertaining to your scope. Stuart will make sure these ext_deps are
 available to the rest of the environment.
 
-[External Dependency Documentation](features/extdep)
+[External Dependency Documentation](features/extdep.md)
 
 ### Environment Variables
 
@@ -97,7 +97,7 @@ and ensures a variable defined in one is available to all others. This means
 if a variable is set in the build script, it can then be used in your FDF, DSC,
 etc (and vise versa).
 
-[Environment Variable Documentation](features/environment_variables)
+[Environment Variable Documentation](features/environment_variables.md)
 
 ## What can I ask Stuart to do
 

@@ -30,7 +30,7 @@ installed on your system.
 ## Installing on Linux
 
 If using WSL, review
-[Getting Started with WSL](/features/using_linux#getting-started-with-wsl).
+[Getting Started with WSL](/features/using_linux.md#getting-started-with-wsl).
 
 1. Ensure the latest version of
 [Python3](https://www.python.org/downloads/) is installed on your system.
@@ -57,6 +57,6 @@ If using WSL, review
 
 That's it, you are ready to go!
 
-[Click Here](/using/build) to learn how to build a platform with Stuart.
+[Click Here](/using/build.md) to learn how to build a platform with Stuart.
 
-[Click Here](/using/ci) to learn how to perform platform CI with Stuart.
+[Click Here](/using/ci.md) to learn how to perform platform CI with Stuart.

@@ -4,17 +4,17 @@ Stuart provides both a library implementation and an invocable for parsing an ED
 running generic reports against the database. Reporting is supported both on regular packages (built with
 `stuart_ci_build`) and platform packages (built with `stuart_build`).
 
-There are three [stuart commands](/#what-can-i-ask-stuart-to-do) to create a database, then a fourth command to run
+There are three [stuart commands](/index.md#what-can-i-ask-stuart-to-do) to create a database, then a fourth command to run
 reports against the database: `stuart_setup`/`stuart_ci_setup`, `stuart_update`, and `stuart_parse`. From there, a
 developer can directly query the sqlite3 database or call `stuart_report <report>` to run a pre-build report.
 
 ## Getting Started
 
-Similar to [building with stuart](/integrate/build/), it needs a settings file to configure itself. This settings file
+Similar to [building with stuart](/integrate/build.md), it needs a settings file to configure itself. This settings file
 must provide a settings manager subclass for each of the commands mentioned above. Please review the steps provided in
-[building with stuart](/integrate/build/) on the steps necessary for integrate the above mentioned commands.
+[building with stuart](/integrate/build.md) on the steps necessary for integrate the above mentioned commands.
 
-The only additional integration is to integrate `stuart_parse`, which needs the [`ParseSettingsManager`](/api/invocables/edk2_parse/#edk2toolext.invocables.edk2_parse.ParseSettingsManager)
+The only additional integration is to integrate `stuart_parse`, which needs the [`ParseSettingsManager`](/api/invocables/edk2_parse.md#edk2toolext.invocables.edk2_parse.ParseSettingsManager)
 to work. No additional methods need to be implemented, `ParseSettingsManager` just needs to be present.
 
 ## Stuart Parse
@@ -29,12 +29,12 @@ regular packages. Similar to when running `stuart_ci_build`, you can filter on p
 (`-a <arch>`). When `stuart_parse` executes in this method, it parses the environment once per package, and all reports
 allow you to generatea report given a specific environment.
 
-1. Subclass the [ParseSettingsManager](/api/invocables/edk2_parse/#edk2toolext.invocables.edk2_parse.ParseSettingsManager)
-   to the same python object as the [UefiBuilder](/api/environment/uefi_build/#edk2toolext.environment.uefi_build.UefiBuilder)
+1. Subclass the [ParseSettingsManager](/api/invocables/edk2_parse.md#edk2toolext.invocables.edk2_parse.ParseSettingsManager)
+   to the same python object as the [UefiBuilder](/api/environment/uefi_build.md#edk2toolext.environment.uefi_build.UefiBuilder)
    is subclassed to. This scenario is used to parse the workspace in terms of platform packages.
 
-2. Associate the [ParseSettingsManager](/api/invocables/edk2_parse/#edk2toolext.invocables.edk2_parse.ParseSettingsManager)
-   to the same python object as the [CiBuildSettingsManager](/api/invocables/edk2_ci_build/#edk2toolext.invocables.edk2_ci_build.CiBuildSettingsManager)
+2. Associate the [ParseSettingsManager](/api/invocables/edk2_parse.md#edk2toolext.invocables.edk2_parse.ParseSettingsManager)
+   to the same python object as the [CiBuildSettingsManager](/api/invocables/edk2_ci_build.md#edk2toolext.invocables.edk2_ci_build.CiBuildSettingsManager)
    is subclassed to. This scenario is used to parse the workspace in terms of non-platform packages.
 
 ```python
@@ -68,4 +68,4 @@ parser conflicts between platform added arguments and default arguments, that wi
 `Stuart_report` is a standalone command line tool that is not need to be associated with a python settings file. It
 only needs access to the database. Out of convenience, it assumes the database exists where `stuart_report` generates
 it in the workspace, however you can override that with the `-db` command line argument. Simply run `stuart_report -h`
-to view all reports, or review [Using Reports](/using/reporting/)
+to view all reports, or review [Using Reports](/using/reporting.md)

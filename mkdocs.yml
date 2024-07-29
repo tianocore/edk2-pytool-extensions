@@ -3,6 +3,12 @@ repo_url: https://github.com/tianocore/edk2-pytool-extensions
 copyright: Copyright (c) Microsoft.  All rights reserved
 site_description: edk2toolext package documentation
 
+validation:
+  links:
+    absolute_links: relative_to_docs
+    anchors: warn
+    unrecognized_links: warn
+
 theme:
   name: material
   features:
