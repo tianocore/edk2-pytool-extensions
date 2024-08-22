@@ -38,6 +38,7 @@ class NugetDependency(ExternalDependency):
     def __init__(self, descriptor: dict) -> None:
         """Inits a nuget dependency based off the provided descriptor."""
         super().__init__(descriptor)
+        self.package = descriptor.get("package", self.name)
         self.nuget_cache_path = None
 
     @classmethod
@@ -187,7 +188,7 @@ class NugetDependency(ExternalDependency):
         try:
             nuget_version = NugetDependency.normalize_version(self.version)
         except ValueError:
-            logging.error(f"NuGet dependency {self.name} has an invalid "
+            logging.error(f"NuGet dependency {self.package} has an invalid "
                           f"version string: {self.version}")
 
         cache_search_path = os.path.join(
@@ -210,15 +211,15 @@ class NugetDependency(ExternalDependency):
 
     def __str__(self) -> str:
         """Return a string representation."""
-        return f"NugetDependecy: {self.name}@{self.version}"
+        return f"NugetDependecy: {self.package}@{self.version}"
 
     def _attempt_nuget_install(self, install_dir: str, non_interactive: Optional[bool]=True) -> None:
         #
         # fetch the contents of the package.
         #
-        package_name = self.name
+        package_name = self.package
         cmd = NugetDependency.GetNugetCmd()
-        cmd += ["install", self.name]
+        cmd += ["install", package_name]
         cmd += ["-Source", self.source]
         cmd += ["-ExcludeVersion"]
         if non_interactive:
@@ -260,7 +261,7 @@ class NugetDependency(ExternalDependency):
 
     def fetch(self) -> None:
         """Fetches the dependency using internal state from the init."""
-        package_name = self.name
+        package_name = self.package
 
         # First, check the global cache to see if it's present.
         if super().fetch():
