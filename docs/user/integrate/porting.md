@@ -101,18 +101,16 @@ To be clear, **don't use EDK2 and MU_BASECORE in the same tree**. They overlap
 since MU_BASECORE has EDK2 as an upstream.
 
 We'll want to make sure we have the same commit so for each of the submodules,
-we'll checkout a specific commit hash and update any embedded submodules.
+we'll checkout a specific commit hash.  Don't worry about submodules within
+the submodules, those will be pulled in a later step to demonstrate stuart_update.
 
 ```bash
 cd ~/rpi/edk2
 git checkout edk2-stable201911
-git submodule update --init --recursive
 cd ../platforms
 git checkout 0e6e3fc4af678d5241b4e8f8c14c126212ff2522
-git submodule update --init --recursive
 cd ../non-osi
 git checkout d580026dbbe87c081dce26b1872df83fa79cd740
-git submodule update --init --recursive
 cd ..
 ```
 
