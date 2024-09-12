@@ -388,21 +388,25 @@ PROGRESS - Success
 
 ### Build
 
-If you were to try a platform build, it would fail saying `RuntimeError:
-UefiBuild Not Found`. Stuart provides a helper class that scaffolds out the
-build step. There's a few ways to implement the UefiBuilder. It can be a
-separate class in your `PlatformBuild.py`, it can be the same class as your
-SettingsManager, or it can be a separate file all together. For the sake of
-simplicity, we're going to have it as a separate class in the same file.
+If you were to try a platform build running `stuart_build -c RpiPlatformBuild.py`,
+it would fail saying `RuntimeError: UefiBuild Not Found`. Stuart provides a helper
+class that scaffolds out the build step. There's a few ways to implement the
+UefiBuilder. It can be a separate class in your `PlatformBuild.py`, it can be
+the same class as your SettingsManager, or it can be a separate file all together.
+For the sake of simplicity, we're going to have it as a separate class in the same file.
 
 ```python
-...
-
-class SettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSettingsManager):
+#
+#==========================================================================
+# PLATFORM BUILD ENVIRONMENT CONFIGURATION
+#
+class RpiSettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSettingsManager):
     def __init__(self):
-      ....
-
-#--------------------------------------------------------------------------------------------------------
+...
+...
+...
+#
+#==========================================================================
 # Subclass the UEFI builder and add platform specific functionality.
 #
 class PlatformBuilder(UefiBuilder):
@@ -417,12 +421,15 @@ provide the paths to the EDK2 system. We need to provide absolute paths, so we
 join each path to our workspace root.
 
 ```python
-class SettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSettingsManager):
+#
+#==========================================================================
+# PLATFORM BUILD ENVIRONMENT CONFIGURATION
+#
+class RpiSettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSettingsManager):
     def __init__(self):
-      ....
-      def GetTargetsSupported(self):
-        ....
-
+        ...
+        ...
+        ...
     def GetPackagesPath(self):
         ''' get module packages path '''
         pp = ['edk2', "non-osi", 'platforms']
