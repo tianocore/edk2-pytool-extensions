@@ -32,7 +32,7 @@ First we will start by creating our workspace.
 ```bash
 mkdir rpi
 cd rpi
-git init
+git init --initial-branch=main
 ```
 
 We'll add a `.gitignore` to keep things sensible.
@@ -101,18 +101,27 @@ To be clear, **don't use EDK2 and MU_BASECORE in the same tree**. They overlap
 since MU_BASECORE has EDK2 as an upstream.
 
 We'll want to make sure we have the same commit so for each of the submodules,
-we'll checkout a specific commit hash.
+we'll checkout a specific commit hash and update any embedded submodules.
 
 ```bash
-cd ~/rpi
-cd edk2
+cd ~/rpi/edk2
 git checkout edk2-stable201911
-cd ..
-cd platforms
+git submodule update --init --recursive
+cd ../platforms
 git checkout 0e6e3fc4af678d5241b4e8f8c14c126212ff2522
-cd ..
-cd non-osi
+git submodule update --init --recursive
+cd ../non-osi
 git checkout d580026dbbe87c081dce26b1872df83fa79cd740
+git submodule update --init --recursive
+cd ..
+```
+
+And the current scripts require at least one entry in the Git repository history,
+so commit all changes so far to your local repo.
+
+```bash
+git add -A
+git commit -m "Initial commit"
 ```
 
 At this point, we're almost ready. Our tree should look like this:
@@ -126,16 +135,17 @@ rpi
 |---edk2
 |   |...
 |
-|---platform
-|   |
+|---platforms
 |   |---Drivers
 |   |---Platform
 |   |---Silicon
+|   |...
 |
 |---non-osi
 |   |---Emulator
 |   |---Platform
 |   |---Silicon
+|   |...
 |
 ```
 
