@@ -439,7 +439,7 @@ Now when we run it, we'll see that we get an error from our UefiBuild itself.
 (Replace your toolchain tag with whatever toolchain you are using.)
 
 ```log
-~/rpi$ stuart_build -c  Platform/RaspberryPi/RPi3/PlatformBuild.py TOOL_CHAIN_TAG=******
+~/rpi$ stuart_build -c RpiPlatformBuild.py TOOL_CHAIN_TAG=******
 SECTION - Init SDE
 SECTION - Loading Plugins
 SECTION - Start Invocable Tool
