@@ -32,7 +32,7 @@ First we will start by creating our workspace.
 ```bash
 mkdir rpi
 cd rpi
-git init
+git init --initial-branch=main
 ```
 
 We'll add a `.gitignore` to keep things sensible.
@@ -101,18 +101,25 @@ To be clear, **don't use EDK2 and MU_BASECORE in the same tree**. They overlap
 since MU_BASECORE has EDK2 as an upstream.
 
 We'll want to make sure we have the same commit so for each of the submodules,
-we'll checkout a specific commit hash.
+we'll checkout a specific commit hash.  Don't worry about submodules within
+the submodules, those will be pulled in a later step to demonstrate stuart_update.
 
 ```bash
-cd ~/rpi
-cd edk2
+cd ~/rpi/edk2
 git checkout edk2-stable201911
-cd ..
-cd platforms
+cd ../platforms
 git checkout 0e6e3fc4af678d5241b4e8f8c14c126212ff2522
-cd ..
-cd non-osi
+cd ../non-osi
 git checkout d580026dbbe87c081dce26b1872df83fa79cd740
+cd ..
+```
+
+And the current scripts require at least one entry in the Git repository history,
+so commit all changes so far to your local repo.
+
+```bash
+git add -A
+git commit -m "Initial commit"
 ```
 
 At this point, we're almost ready. Our tree should look like this:
@@ -126,16 +133,17 @@ rpi
 |---edk2
 |   |...
 |
-|---platform
-|   |
+|---platforms
 |   |---Drivers
 |   |---Platform
 |   |---Silicon
+|   |...
 |
 |---non-osi
 |   |---Emulator
 |   |---Platform
 |   |---Silicon
+|   |...
 |
 ```
 
@@ -232,11 +240,9 @@ class RpiSettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSetti
         If no RequiredSubmodules return an empty iterable
         '''
         return [
-            RequiredSubmodule("MU_BASECORE"),
-            RequiredSubmodule("Common/MU_OEM"),
-            RequiredSubmodule("Common/MU"),
-            RequiredSubmodule("Common/TIANO"),
-            RequiredSubmodule("Silicon/ARM/MU_TIANO"),
+            RequiredSubmodule("edk2"),
+            RequiredSubmodule("non-osi"),
+            RequiredSubmodule("platforms"),
         ]
 
     def GetArchitecturesSupported(self):
@@ -380,21 +386,25 @@ PROGRESS - Success
 
 ### Build
 
-If you were to try a platform build, it would fail saying `RuntimeError:
-UefiBuild Not Found`. Stuart provides a helper class that scaffolds out the
-build step. There's a few ways to implement the UefiBuilder. It can be a
-separate class in your `PlatformBuild.py`, it can be the same class as your
-SettingsManager, or it can be a separate file all together. For the sake of
-simplicity, we're going to have it as a separate class in the same file.
+If you were to try a platform build running `stuart_build -c RpiPlatformBuild.py`,
+it would fail saying `RuntimeError: UefiBuild Not Found`. Stuart provides a helper
+class that scaffolds out the build step. There's a few ways to implement the
+UefiBuilder. It can be a separate class in your `PlatformBuild.py`, it can be
+the same class as your SettingsManager, or it can be a separate file all together.
+For the sake of simplicity, we're going to have it as a separate class in the same file.
 
 ```python
-...
-
-class SettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSettingsManager):
+#
+#==========================================================================
+# PLATFORM BUILD ENVIRONMENT CONFIGURATION
+#
+class RpiSettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSettingsManager):
     def __init__(self):
-      ....
-
-#--------------------------------------------------------------------------------------------------------
+...
+...
+...
+#
+#==========================================================================
 # Subclass the UEFI builder and add platform specific functionality.
 #
 class PlatformBuilder(UefiBuilder):
@@ -409,12 +419,15 @@ provide the paths to the EDK2 system. We need to provide absolute paths, so we
 join each path to our workspace root.
 
 ```python
-class SettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSettingsManager):
+#
+#==========================================================================
+# PLATFORM BUILD ENVIRONMENT CONFIGURATION
+#
+class RpiSettingsManager(UpdateSettingsManager, SetupSettingsManager, BuildSettingsManager):
     def __init__(self):
-      ....
-      def GetTargetsSupported(self):
-        ....
-
+        ...
+        ...
+        ...
     def GetPackagesPath(self):
         ''' get module packages path '''
         pp = ['edk2', "non-osi", 'platforms']
@@ -426,7 +439,7 @@ Now when we run it, we'll see that we get an error from our UefiBuild itself.
 (Replace your toolchain tag with whatever toolchain you are using.)
 
 ```log
-~/rpi$ stuart_build -c  Platform/RaspberryPi/RPi3/PlatformBuild.py TOOL_CHAIN_TAG=******
+~/rpi$ stuart_build -c RpiPlatformBuild.py TOOL_CHAIN_TAG=******
 SECTION - Init SDE
 SECTION - Loading Plugins
 SECTION - Start Invocable Tool
