@@ -7,7 +7,7 @@ set, and clear the NX_COMPAT flag found in OPTIONAL_HEADER.DllCharacteristics.
 
 ## Synopsis
 
-image_validation.py [-h] -i FILE [-d] [-p PROFILE] [--set-nx-compat | --clear-nx-compat | --get-nx-compat]
+`image_validation.py [-h] -i FILE [-d] [-p PROFILE] [--set-nx-compat | --clear-nx-compat | --get-nx-compat]`
 
 ## Options
 
