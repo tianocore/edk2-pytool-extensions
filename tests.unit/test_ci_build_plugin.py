@@ -14,7 +14,6 @@ from edk2toolext.environment.plugintypes.ci_build_plugin import ICiBuildPlugin
 
 
 class TestICiBuildPlugin(unittest.TestCase):
-
     def __init__(self, *args, **kwargs):
         self.test_dir = None
         super().__init__(*args, **kwargs)

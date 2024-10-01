@@ -16,6 +16,7 @@ perform tasks associated with the EDK2 build system. Any Edk2Invocable subclass
 should be platform agnostic and work for any platform. Platform specific data
 is provided via the Edk2InvocableSettingsInterface.
 """
+
 import argparse
 import inspect
 import logging
@@ -34,7 +35,7 @@ from edk2toolext.base_abstract_invocable import BaseAbstractInvocable
 from edk2toolext.environment import shell_environment, version_aggregator
 
 
-class Edk2InvocableSettingsInterface():
+class Edk2InvocableSettingsInterface:
     """Settings APIs to support an Edk2Invocable.
 
     This is an interface definition only to show which functions are
@@ -185,13 +186,14 @@ class Edk2Invocable(BaseAbstractInvocable):
     !!! warning
         This Invocable should only be subclassed if creating a new invocable
     """
+
     def __init__(self) -> None:
         """Init the Invocable."""
         super().__init__()
         self.PlatformSettings = None
 
     @classmethod
-    def collect_python_pip_info(cls: 'Edk2Invocable') -> None:
+    def collect_python_pip_info(cls: "Edk2Invocable") -> None:
         """Class method to collect all pip packages names and versions.
 
         Reports them to the global version_aggregator as well as print them to the screen.
@@ -209,7 +211,7 @@ class Edk2Invocable(BaseAbstractInvocable):
             ver_agg.ReportVersion(package.project_name, version, version_aggregator.VersionTypes.PIP)
 
     @classmethod
-    def collect_rust_info(cls: 'Edk2Invocable') -> None:
+    def collect_rust_info(cls: "Edk2Invocable") -> None:
         """Class method to collect Rust tool versions.
 
         Reports them to the global version_aggregator as well as print them to the screen.
@@ -225,20 +227,17 @@ class Edk2Invocable(BaseAbstractInvocable):
             else:
                 return "N/A"
 
-        tools = {
-            "cargo": ("cargo",),
-            "cargo make": ("cargo", "make --version"),
-            "rustc": ("rustc",)
-        }
+        tools = {"cargo": ("cargo",), "cargo make": ("cargo", "make --version"), "rustc": ("rustc",)}
 
         for tool_name, tool_cmd in tools.items():
             ver = get_rust_tool_version(*tool_cmd)
-            match = re.search(r'(\d+\.\d+\.\d+)', ver)
+            match = re.search(r"(\d+\.\d+\.\d+)", ver)
             if match:
                 ver = match.group(1)
             elif ver != "N/A":
-                raise Exception("A Rust tool is installed, but its version "
-                                "format is unexpected and cannot be parsed.")
+                raise Exception(
+                    "A Rust tool is installed, but its version " "format is unexpected and cannot be parsed."
+                )
 
             logging.info(f"{tool_name} version: {ver}")
             ver_agg = version_aggregator.GetVersionAggregator()
@@ -290,11 +289,11 @@ class Edk2Invocable(BaseAbstractInvocable):
 
         # Add any OS-specific scope.
         if GetHostInfo().os == "Windows":
-            scopes += ('global-win',)
+            scopes += ("global-win",)
         elif GetHostInfo().os == "Linux":
-            scopes += ('global-nix',)
+            scopes += ("global-nix",)
         # Add the global scope. To be deprecated.
-        scopes += ('global',)
+        scopes += ("global",)
         return scopes
 
     def GetLoggingLevel(self, loggerType: str) -> int:
@@ -372,7 +371,7 @@ class Edk2Invocable(BaseAbstractInvocable):
         Returns:
             (str): The string to be added to the end of the argument parser.
         """
-        epilog = dedent('''\
+        epilog = dedent("""\
             CLI Env Guide:
               <key>=<value>              - Set an env variable for the pre/post build process
               <key>                      - Set a non-valued env variable for the pre/post build process
@@ -382,7 +381,7 @@ class Edk2Invocable(BaseAbstractInvocable):
               BLD_<TARGET>_<key>=<value> - Set a build flag for build type of <target>
                                            (key=value will get passed to build process for given build type)
               BLD_<TARGET>_<key>         - Set a non-valued build flag for a build type of <target>
-            ''')
+            """)
         return epilog
 
     def ParseCommandLineOptions(self) -> None:
@@ -399,20 +398,25 @@ class Edk2Invocable(BaseAbstractInvocable):
             epilog=self.AddParserEpilog(),
         )
 
-        settingsParserObj.add_argument('-h', '--help', dest="help", action="store_true",
-                                       help='show this help message and exit')
-        settingsParserObj.add_argument('-c', '--platform_module', dest='platform_module',
-                                       default="PlatformBuild.py", type=str,
-                                       help='Provide the Platform Module relative to the current working directory.'
-                                            f'This should contain a {self.GetSettingsClass().__name__} instance.')
+        settingsParserObj.add_argument(
+            "-h", "--help", dest="help", action="store_true", help="show this help message and exit"
+        )
+        settingsParserObj.add_argument(
+            "-c",
+            "--platform_module",
+            dest="platform_module",
+            default="PlatformBuild.py",
+            type=str,
+            help="Provide the Platform Module relative to the current working directory."
+            f"This should contain a {self.GetSettingsClass().__name__} instance.",
+        )
 
         # get the settings manager from the provided file and load an instance
         settingsArg, unknown_args = settingsParserObj.parse_known_args()
         try:
             self.PlatformModule = import_module_by_file_name(os.path.abspath(settingsArg.platform_module))
-            self.PlatformSettings = locate_class_in_module(
-                self.PlatformModule, self.GetSettingsClass())()
-        except (TypeError):
+            self.PlatformSettings = locate_class_in_module(self.PlatformModule, self.GetSettingsClass())()
+        except TypeError:
             # Gracefully exit if the file we loaded isn't the right type
             class_name = self.GetSettingsClass().__name__
             print(f"Unable to use {settingsArg.platform_module} as a {class_name}")
@@ -436,11 +440,13 @@ class Edk2Invocable(BaseAbstractInvocable):
             settingsParserObj.print_help()
             sys.exit(1)
 
-        except (FileNotFoundError):
+        except FileNotFoundError:
             if settingsArg.help:
                 try:
-                    print("WARNING: Some command line arguments and possible values for arguments may be missing. "
-                          "Provide a PLATFORM_MODULE file to ensure all command line arguments are present.\n")
+                    print(
+                        "WARNING: Some command line arguments and possible values for arguments may be missing. "
+                        "Provide a PLATFORM_MODULE file to ensure all command line arguments are present.\n"
+                    )
                     self.AddCommandLineOptions(settingsParserObj)
                 except Exception:
                     pass
@@ -461,7 +467,9 @@ class Edk2Invocable(BaseAbstractInvocable):
         warnings.filterwarnings("default", category=DeprecationWarning, module=self.PlatformModule.__name__)
 
         # instantiate the second argparser that will get passed around
-        parserObj = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,)
+        parserObj = argparse.ArgumentParser(
+            formatter_class=argparse.RawDescriptionHelpFormatter,
+        )
 
         # first pass it to the subclass
         self.AddCommandLineOptions(parserObj)
@@ -472,10 +480,22 @@ class Edk2Invocable(BaseAbstractInvocable):
         default_build_config_path = os.path.join(self.GetWorkspaceRoot(), "BuildConfig.conf")
 
         # add the common stuff that everyone will need
-        parserObj.add_argument('--build-config', dest='build_config', default=default_build_config_path, type=str,
-                               help='Provide shell variables in a file')
-        parserObj.add_argument('--verbose', '--VERBOSE', '-v', dest="verbose", action='store_true', default=False,
-                               help='Overrides platform settings and sets all loggers to verbose (logging.DEBUG).')
+        parserObj.add_argument(
+            "--build-config",
+            dest="build_config",
+            default=default_build_config_path,
+            type=str,
+            help="Provide shell variables in a file",
+        )
+        parserObj.add_argument(
+            "--verbose",
+            "--VERBOSE",
+            "-v",
+            dest="verbose",
+            action="store_true",
+            default=False,
+            help="Overrides platform settings and sets all loggers to verbose (logging.DEBUG).",
+        )
 
         # set the epilog to display with --help, -h
         parserObj.epilog = self.AddParserEpilog()
@@ -510,9 +530,11 @@ class Edk2Invocable(BaseAbstractInvocable):
                 tokens = argument.strip().split("=")
                 env.SetValue(tokens[0].strip().upper(), tokens[1].strip(), "From CmdLine")
             elif argument.count("=") == 0 and not argument.startswith(("-", "/")):
-                env.SetValue(argument.strip().upper(),
-                             ''.join(choice(ascii_letters) for _ in range(20)),
-                             "Non valued variable set From cmdLine")
+                env.SetValue(
+                    argument.strip().upper(),
+                    "".join(choice(ascii_letters) for _ in range(20)),
+                    "Non valued variable set From cmdLine",
+                )
             else:
                 print(f"error: unexpected argument: [{argument}]. Pass --help for command information.")
                 sys.exit(-1)
@@ -532,8 +554,10 @@ class Edk2Invocable(BaseAbstractInvocable):
                 tokens = argument.strip().split("=")
                 env.SetValue(tokens[0].strip().upper(), tokens[1].strip(), "From BuildConf")
             elif argument.count("=") == 0:
-                env.SetValue(argument.strip().upper(),
-                             ''.join(choice(ascii_letters) for _ in range(20)),
-                             "Non valued variable set from BuildConfig")
+                env.SetValue(
+                    argument.strip().upper(),
+                    "".join(choice(ascii_letters) for _ in range(20)),
+                    "Non valued variable set from BuildConfig",
+                )
             else:
                 raise RuntimeError(f"Unknown variable passed in via BuildConfig: {argument}")

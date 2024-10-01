@@ -20,7 +20,6 @@ from edk2toolext.environment import version_aggregator
 
 
 class TestEdk2Update(unittest.TestCase):
-
     temp_folders = []
 
     def tearDown(self):
@@ -76,7 +75,7 @@ class TestEdk2Update(unittest.TestCase):
         self.assertIsNotNone(builder)
 
     def test_one_level_recursive(self):
-        ''' makes sure we can do a recursive update '''
+        """makes sure we can do a recursive update"""
         WORKSPACE = self.get_temp_folder()
         tree = uefi_tree(WORKSPACE)
         logging.getLogger().setLevel(logging.WARNING)
@@ -84,8 +83,11 @@ class TestEdk2Update(unittest.TestCase):
         # Do the update
         updater = self.invoke_update(tree.get_settings_provider_path())
         # make sure it worked
-        self.assertTrue(os.path.exists(os.path.join(WORKSPACE, "Edk2TestUpdate_extdep",
-                                                    "NuGet.CommandLine_extdep", "extdep_state.yaml")))
+        self.assertTrue(
+            os.path.exists(
+                os.path.join(WORKSPACE, "Edk2TestUpdate_extdep", "NuGet.CommandLine_extdep", "extdep_state.yaml")
+            )
+        )
         build_env, shell_env, failure = updater.PerformUpdate()
         # we should have no failures
         self.assertEqual(failure, 0)
@@ -93,7 +95,7 @@ class TestEdk2Update(unittest.TestCase):
         self.assertEqual(len(build_env.extdeps), 2)
 
     def test_multiple_extdeps(self):
-        ''' makes sure we can do multiple ext_deps at the same time '''
+        """makes sure we can do multiple ext_deps at the same time"""
         WORKSPACE = self.get_temp_folder()
         tree = uefi_tree(WORKSPACE)
         num_of_ext_deps = 5
@@ -112,55 +114,48 @@ class TestEdk2Update(unittest.TestCase):
         self.assertEqual(len(build_env.extdeps), num_of_ext_deps)
 
     def test_duplicate_ext_deps(self):
-        ''' verifies redundant ext_deps fail '''
+        """verifies redundant ext_deps fail"""
         WORKSPACE = self.get_temp_folder()
         tree = uefi_tree(WORKSPACE)
 
         logging.getLogger().setLevel(logging.WARNING)
 
-        tree.create_ext_dep(dep_type="nuget",
-                            name="NuGet.CommandLine",
-                            version="5.2.0",
-                            dir_path="1",
-                            extra_data={"id:": "CmdLine1"})
-        tree.create_ext_dep(dep_type="nuget",
-                            name="NuGet.CommandLine",
-                            version="5.2.0",
-                            dir_path="2",
-                            extra_data={"id:": "CmdLine1"})
+        tree.create_ext_dep(
+            dep_type="nuget", name="NuGet.CommandLine", version="5.2.0", dir_path="1", extra_data={"id:": "CmdLine1"}
+        )
+        tree.create_ext_dep(
+            dep_type="nuget", name="NuGet.CommandLine", version="5.2.0", dir_path="2", extra_data={"id:": "CmdLine1"}
+        )
 
         # Do the update. Expect a ValueError from the version aggregator.
         with self.assertRaises(ValueError):
             self.invoke_update(tree.get_settings_provider_path(), failure_expected=True)
 
     def test_duplicate_ext_deps_skip_dir(self):
-        ''' verifies redundant ext_deps pass if one is skipped '''
+        """verifies redundant ext_deps pass if one is skipped"""
         WORKSPACE = self.get_temp_folder()
         tree = uefi_tree(WORKSPACE)
         num_of_ext_deps = 1
 
         logging.getLogger().setLevel(logging.WARNING)
 
-        tree.create_ext_dep(dep_type="nuget",
-                            name="NuGet.CommandLine",
-                            version="5.2.0",
-                            dir_path="1",
-                            extra_data={"id:": "CmdLine1"})
-        tree.create_ext_dep(dep_type="nuget",
-                            name="NuGet.CommandLine",
-                            version="5.2.0",
-                            dir_path="2",
-                            extra_data={"id:": "CmdLine1"})
+        tree.create_ext_dep(
+            dep_type="nuget", name="NuGet.CommandLine", version="5.2.0", dir_path="1", extra_data={"id:": "CmdLine1"}
+        )
+        tree.create_ext_dep(
+            dep_type="nuget", name="NuGet.CommandLine", version="5.2.0", dir_path="2", extra_data={"id:": "CmdLine1"}
+        )
 
         # Update GetSkippedDirectories() implementation
-        with open(tree.get_settings_provider_path(), 'r') as s:
+        with open(tree.get_settings_provider_path(), "r") as s:
             settings_text = s.read()
 
         settings_text = settings_text.replace(
-            'def GetSkippedDirectories(self):\n        return ()',
-            'def GetSkippedDirectories(self):\n        return (\"2\",)')
+            "def GetSkippedDirectories(self):\n        return ()",
+            'def GetSkippedDirectories(self):\n        return ("2",)',
+        )
 
-        with open(tree.get_settings_provider_path(), 'w') as s:
+        with open(tree.get_settings_provider_path(), "w") as s:
             s.write(settings_text)
 
         # Do the update
@@ -172,38 +167,45 @@ class TestEdk2Update(unittest.TestCase):
         self.assertEqual(failure, 0)
 
     def test_multiple_duplicate_ext_deps_skip_dir(self):
-        ''' verifies multiple ext_deps in sub dirs are skipped'''
+        """verifies multiple ext_deps in sub dirs are skipped"""
         WORKSPACE = self.get_temp_folder()
         tree = uefi_tree(WORKSPACE)
         num_of_ext_deps = 1
 
         logging.getLogger().setLevel(logging.WARNING)
 
-        tree.create_ext_dep(dep_type="nuget",
-                            name="NuGet.CommandLine",
-                            version="5.2.0",
-                            dir_path="first/second",
-                            extra_data={"id:": "CmdLine1"})
-        tree.create_ext_dep(dep_type="nuget",
-                            name="NuGet.CommandLine",
-                            version="5.2.0",
-                            dir_path="third/fourth/fifth",
-                            extra_data={"id:": "CmdLine1"})
-        tree.create_ext_dep(dep_type="nuget",
-                            name="NuGet.CommandLine",
-                            version="5.2.0",
-                            dir_path="sixth/seventh/eighth",
-                            extra_data={"id:": "CmdLine1"})
+        tree.create_ext_dep(
+            dep_type="nuget",
+            name="NuGet.CommandLine",
+            version="5.2.0",
+            dir_path="first/second",
+            extra_data={"id:": "CmdLine1"},
+        )
+        tree.create_ext_dep(
+            dep_type="nuget",
+            name="NuGet.CommandLine",
+            version="5.2.0",
+            dir_path="third/fourth/fifth",
+            extra_data={"id:": "CmdLine1"},
+        )
+        tree.create_ext_dep(
+            dep_type="nuget",
+            name="NuGet.CommandLine",
+            version="5.2.0",
+            dir_path="sixth/seventh/eighth",
+            extra_data={"id:": "CmdLine1"},
+        )
 
         # Update GetSkippedDirectories() implementation
-        with open(tree.get_settings_provider_path(), 'r') as s:
+        with open(tree.get_settings_provider_path(), "r") as s:
             settings_text = s.read()
 
         settings_text = settings_text.replace(
-            'def GetSkippedDirectories(self):\n        return ()',
-            'def GetSkippedDirectories(self):\n        return (\"third\",\"sixth\")')
+            "def GetSkippedDirectories(self):\n        return ()",
+            'def GetSkippedDirectories(self):\n        return ("third","sixth")',
+        )
 
-        with open(tree.get_settings_provider_path(), 'w') as s:
+        with open(tree.get_settings_provider_path(), "w") as s:
             s.write(settings_text)
 
         # Do the update
@@ -215,7 +217,7 @@ class TestEdk2Update(unittest.TestCase):
         self.assertEqual(failure, 0)
 
     def test_bad_ext_dep(self):
-        ''' makes sure we can do an update that will fail '''
+        """makes sure we can do an update that will fail"""
         WORKSPACE = self.get_temp_folder()
         tree = uefi_tree(WORKSPACE)
         logging.getLogger().setLevel(logging.WARNING)
@@ -226,18 +228,19 @@ class TestEdk2Update(unittest.TestCase):
         build_env, shell_env, failure = updater.PerformUpdate()
         # we should have no failures
         self.assertEqual(failure, 1)
-    
+
+
 def test_log_error_on_missing_host_specific_folder(caplog, tmpdir):
-    ''' make sure we can update host_specific extdeps '''
+    """make sure we can update host_specific extdeps"""
     caplog.set_level(logging.ERROR)
     tree = uefi_tree(tmpdir)
     tree.create_ext_dep(
-        dep_type = 'nuget',
-        name = 'mu_nasm',
-        version = '20016.1.1',
-        source = "https://pkgs.dev.azure.com/projectmu/mu/_packaging/Basetools-Binary/nuget/v3/index.json",
-        dir_path = "first/",
-        extra_data={"flags": ['host_specific']}
+        dep_type="nuget",
+        name="mu_nasm",
+        version="20016.1.1",
+        source="https://pkgs.dev.azure.com/projectmu/mu/_packaging/Basetools-Binary/nuget/v3/index.json",
+        dir_path="first/",
+        extra_data={"flags": ["host_specific"]},
     )
     # Should download everything fine.
     sys.argv = ["stuart_update", "-c", tree.get_settings_provider_path()]
@@ -246,12 +249,12 @@ def test_log_error_on_missing_host_specific_folder(caplog, tmpdir):
         builder.Invoke()
     except SystemExit as e:
         assert e.code == 0
-    
+
     extdep_base = Path(tmpdir, "first", "mu_nasm_extdep")
     assert 6 == len(list(extdep_base.iterdir()))
 
     # Delete one of the supported hosts
-    if os.name == 'nt':
+    if os.name == "nt":
         host = extdep_base / "Windows-x86-64"
     else:
         host = extdep_base / "Linux-x86-64"

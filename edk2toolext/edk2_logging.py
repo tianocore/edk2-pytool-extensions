@@ -15,6 +15,7 @@ of these exists and and are set to TRUE, filtering will occur.
 
 Splits logs into a master log and per package log.
 """
+
 import logging
 import os
 import re
@@ -47,7 +48,7 @@ PROGRESS = logging.CRITICAL - 1  # just below critical
 
 
 # sub_directory is relative to ws argument
-def clean_build_logs(ws: str, sub_directory: Optional[str]=None) -> None:
+def clean_build_logs(ws: str, sub_directory: Optional[str] = None) -> None:
     """Removes all build logs."""
     # Make sure that we have a clean environment.
     if sub_directory is None:
@@ -71,7 +72,7 @@ def get_progress_level() -> int:
     return PROGRESS
 
 
-def get_edk2_filter(verbose: bool=False) -> logging.Filter:
+def get_edk2_filter(verbose: bool = False) -> logging.Filter:
     """Returns an edk2 filter."""
     gEdk2Filter = Edk2LogFilter()
     if verbose:
@@ -102,11 +103,11 @@ def setup_section_level() -> None:
 # creates the the plaintext logger
 def setup_txt_logger(
     directory: str,
-    filename: str="log",
-    logging_level: int=logging.INFO,
-    formatter: Optional[logging.Formatter]=None,
-    logging_namespace: Optional[str]='',
-    isVerbose: bool=False
+    filename: str = "log",
+    logging_level: int = logging.INFO,
+    formatter: Optional[logging.Formatter] = None,
+    logging_namespace: Optional[str] = "",
+    isVerbose: bool = False,
 ) -> tuple:
     """Configures a text logger."""
     logger = logging.getLogger(logging_namespace)
@@ -124,7 +125,7 @@ def setup_txt_logger(
         os.remove(logfile_path)
 
     # Create file logger
-    filelogger = file_handler.FileHandler(filename=(logfile_path), mode='a')
+    filelogger = file_handler.FileHandler(filename=(logfile_path), mode="a")
     filelogger.setLevel(logging_level)
     filelogger.setFormatter(log_formatter)
     logger.addHandler(filelogger)
@@ -136,12 +137,12 @@ def setup_txt_logger(
 
 # sets up a colored console logger
 def setup_console_logging(
-    logging_level: int=logging.INFO,
-    formatter: Optional[logging.Formatter]=None,
-    logging_namespace: Optional[str]='',
-    isVerbose: bool=False,
-    use_azure_colors: bool=False,
-    use_color: bool=True
+    logging_level: int = logging.INFO,
+    formatter: Optional[logging.Formatter] = None,
+    logging_namespace: Optional[str] = "",
+    isVerbose: bool = False,
+    use_azure_colors: bool = False,
+    use_color: bool = True,
 ) -> logging.Handler:
     """Configures a console logger.
 
@@ -180,7 +181,9 @@ def setup_console_logging(
     return safeHandler
 
 
-def stop_logging(loghandle: Union[list[logging.Handler], logging.Handler], logging_namespace: Optional[str]='') -> None:
+def stop_logging(
+    loghandle: Union[list[logging.Handler], logging.Handler], logging_namespace: Optional[str] = ""
+) -> None:
     """Stops logging on a log handle."""
     logger = logging.getLogger(logging_namespace)
     if loghandle is None:
@@ -195,7 +198,7 @@ def stop_logging(loghandle: Union[list[logging.Handler], logging.Handler], loggi
         logger.removeHandler(loghandle)
 
 
-def create_output_stream(level: int=logging.INFO, logging_namespace: Optional[str]='') -> logging.Handler:
+def create_output_stream(level: int = logging.INFO, logging_namespace: Optional[str] = "") -> logging.Handler:
     """Creates an output stream to log to."""
     # creates an output stream that is in memory
     if string_handler:
@@ -208,7 +211,7 @@ def create_output_stream(level: int=logging.INFO, logging_namespace: Optional[st
     return handler
 
 
-def remove_output_stream(handler: logging.Handler, logging_namespace: Optional[str]='') -> None:
+def remove_output_stream(handler: logging.Handler, logging_namespace: Optional[str] = "") -> None:
     """Removes an output stream to log to."""
     logger = logging.getLogger(logging_namespace)
     if isinstance(handler, list):
@@ -225,13 +228,15 @@ def scan_compiler_output(output_stream: TextIO) -> list[tuple]:
         (list[tuple[logging.Type, str]]): list of tuples containing the type
             of issue (Error, warning) and the description.
     """
+
     # seek to the start of the output stream
-    def output_compiler_error(match: re.Match, line: str, start_txt:str="Compiler") ->str:
+    def output_compiler_error(match: re.Match, line: str, start_txt: str = "Compiler") -> str:
         start, end = match.span()
         source = line[:start].strip()
         error = line[end:].strip()
         num = match.group(1)
         return f"{start_txt} #{num} from {source} {error}"
+
     problems = []
     output_stream.seek(0, 0)
     error_exp = re.compile(r"error [A-EG-Z]?(\d+):")
@@ -282,6 +287,7 @@ def scan_compiler_output(output_stream: TextIO) -> list[tuple]:
 
 class Edk2LogFilter(logging.Filter):
     """Subclass of logging.Filter."""
+
     _allowedLoggers = ["root", "git.cmd", "edk2toolext.environment.repo_resolver"]
 
     def __init__(self) -> None:
@@ -303,7 +309,7 @@ class Edk2LogFilter(logging.Filter):
 
         self.secrets_regex = re.compile(r"{}".format("|".join(secrets_regex_strings)), re.IGNORECASE)
 
-    def setVerbose(self, isVerbose: bool=True) -> None:
+    def setVerbose(self, isVerbose: bool = True) -> None:
         """Sets the filter verbosity."""
         self._verbose = isVerbose
 

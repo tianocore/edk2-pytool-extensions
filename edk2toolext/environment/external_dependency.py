@@ -53,25 +53,22 @@ class ExternalDependency(object):
         #
         # Set the data for this object.
         #
-        self.scope = descriptor['scope']
-        self.type = descriptor['type']
-        self.name = descriptor['name']
-        self.source = descriptor['source']
-        self.version = descriptor['version']
-        self.flags = descriptor.get('flags', None)
-        self.var_name = descriptor.get('var_name', None)
-        self.error_msg = descriptor.get('error_msg', None)
+        self.scope = descriptor["scope"]
+        self.type = descriptor["type"]
+        self.name = descriptor["name"]
+        self.source = descriptor["source"]
+        self.version = descriptor["version"]
+        self.flags = descriptor.get("flags", None)
+        self.var_name = descriptor.get("var_name", None)
+        self.error_msg = descriptor.get("error_msg", None)
         self.global_cache_path = None
 
-        self.descriptor_location = os.path.dirname(
-            descriptor['descriptor_file'])
-        self.contents_dir = os.path.join(
-            self.descriptor_location, self.name + "_extdep")
-        self.state_file_path = os.path.join(
-            self.contents_dir, "extdep_state.yaml")
+        self.descriptor_location = os.path.dirname(descriptor["descriptor_file"])
+        self.contents_dir = os.path.join(self.descriptor_location, self.name + "_extdep")
+        self.state_file_path = os.path.join(self.contents_dir, "extdep_state.yaml")
         self.published_path = self.compute_published_path()
 
-    def set_global_cache_path(self, global_cache_path: str) -> 'ExternalDependency':
+    def set_global_cache_path(self, global_cache_path: str) -> "ExternalDependency":
         """Sets the global cache path to locate already downloaded dependencies.
 
         Arguments:
@@ -87,9 +84,7 @@ class ExternalDependency(object):
         if self.flags and "host_specific" in self.flags and self.verify():
             host = GetHostInfo()
 
-            logging.info("Computing path for {0} located at {1} on {2}".format(self.name,
-                                                                               self.contents_dir,
-                                                                               str(host)))
+            logging.info("Computing path for {0} located at {1} on {2}".format(self.name, self.contents_dir, str(host)))
 
             acceptable_names = []
 
@@ -115,8 +110,9 @@ class ExternalDependency(object):
 
             if new_published_path is None:
                 logging.error(f"{self.name} is host specific, but does not appear to have support for {str(host)}.")
-                logging.error(f"Verify support for detected host: {str(host)} and contact dependency provider to add "\
-                              "support.")
+                logging.error(
+                    f"Verify support for detected host: {str(host)} and contact dependency provider to add " "support."
+                )
                 logging.error("Otherwise, delete the external dependency directory to reset.")
 
                 new_published_path = self.contents_dir
@@ -137,8 +133,8 @@ class ExternalDependency(object):
         result = None
         if self.global_cache_path is not None and os.path.isdir(self.global_cache_path):
             subpath_calc = hashlib.sha1()
-            subpath_calc.update(self.version.encode('utf-8'))
-            subpath_calc.update(self.source.encode('utf-8'))
+            subpath_calc.update(self.version.encode("utf-8"))
+            subpath_calc.update(self.source.encode("utf-8"))
             subpath = subpath_calc.hexdigest()
             result = os.path.join(self.global_cache_path, self.type, self.name, subpath)
         return result
@@ -192,7 +188,7 @@ class ExternalDependency(object):
 
         # Attempt to load the state file.
         if result:
-            with open(self.state_file_path, 'r') as file:
+            with open(self.state_file_path, "r") as file:
                 try:
                     state_data = yaml.safe_load(file)
                 except Exception:
@@ -201,7 +197,7 @@ class ExternalDependency(object):
             result = False
 
         # If loaded, check the version.
-        if result and state_data['version'] != self.version:
+        if result and state_data["version"] != self.version:
             result = False
 
         logging.debug("Verify '%s' returning '%s'." % (self.name, result))
@@ -209,18 +205,17 @@ class ExternalDependency(object):
 
     def report_version(self) -> None:
         """Reports the version of the external dependency."""
-        version_aggregator.GetVersionAggregator().ReportVersion(self.name,
-                                                                self.version,
-                                                                version_aggregator.VersionTypes.INFO,
-                                                                self.descriptor_location)
+        version_aggregator.GetVersionAggregator().ReportVersion(
+            self.name, self.version, version_aggregator.VersionTypes.INFO, self.descriptor_location
+        )
 
     def update_state_file(self) -> None:
         """Updates the file representing the state of the dependency."""
-        with open(self.state_file_path, 'w+') as file:
-            yaml.dump({'version': self.version}, file)
+        with open(self.state_file_path, "w+") as file:
+            yaml.dump({"version": self.version}, file)
 
 
-def ExtDepFactory(descriptor: dict) -> 'ExternalDependency':
+def ExtDepFactory(descriptor: dict) -> "ExternalDependency":
     """External Dependency Factory capable of generating each type of dependency.
 
     !!! Note
@@ -230,14 +225,15 @@ def ExtDepFactory(descriptor: dict) -> 'ExternalDependency':
     from edk2toolext.environment.extdeptypes.git_dependency import GitDependency
     from edk2toolext.environment.extdeptypes.nuget_dependency import NugetDependency
     from edk2toolext.environment.extdeptypes.web_dependency import WebDependency
-    if descriptor['type'] == NugetDependency.TypeString:
+
+    if descriptor["type"] == NugetDependency.TypeString:
         return NugetDependency(descriptor)
-    elif descriptor['type'] == WebDependency.TypeString:
+    elif descriptor["type"] == WebDependency.TypeString:
         return WebDependency(descriptor)
-    elif descriptor['type'] == GitDependency.TypeString:
+    elif descriptor["type"] == GitDependency.TypeString:
         return GitDependency(descriptor)
-    elif descriptor['type'] == AzureCliUniversalDependency.TypeString:
+    elif descriptor["type"] == AzureCliUniversalDependency.TypeString:
         AzureCliUniversalDependency.VerifyToolDependencies()
         return AzureCliUniversalDependency(descriptor)
 
-    raise ValueError("Unknown extdep type '%s' requested!" % descriptor['type'])
+    raise ValueError("Unknown extdep type '%s' requested!" % descriptor["type"])

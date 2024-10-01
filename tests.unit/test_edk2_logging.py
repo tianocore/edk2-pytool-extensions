@@ -15,7 +15,6 @@ from edk2toolext import edk2_logging
 
 
 class Test_edk2_logging(unittest.TestCase):
-
     def test_can_create_console_logger(self):
         console_logger = edk2_logging.setup_console_logging(False, False)
         self.assertIsNot(console_logger, None, "We created a console logger")
@@ -50,16 +49,20 @@ class Test_edk2_logging(unittest.TestCase):
 
     def test_scan_compiler_output_generic(self):
         # Input with compiler errors and warnings
-        output_stream = io.StringIO("<source_file>error A1: error 1 details\n"
-                                    "<source_file>warning B2: warning 2 details\n"
-                                    "<source_file>error C3: error 3 details\n"
-                                    "<source_file>warning D4: warning 4 details\n"
-                                    "<source_file>fatal error: details\n")
-        expected_output = [(logging.ERROR, "Compiler #1 from <source_file> error 1 details"),
-                           (logging.WARNING, "Compiler #2 from <source_file> warning 2 details"),
-                           (logging.ERROR, "Compiler #3 from <source_file> error 3 details"),
-                           (logging.WARNING, "Compiler #4 from <source_file> warning 4 details"),
-                           (logging.ERROR, "<source_file>fatal error: details")]
+        output_stream = io.StringIO(
+            "<source_file>error A1: error 1 details\n"
+            "<source_file>warning B2: warning 2 details\n"
+            "<source_file>error C3: error 3 details\n"
+            "<source_file>warning D4: warning 4 details\n"
+            "<source_file>fatal error: details\n"
+        )
+        expected_output = [
+            (logging.ERROR, "Compiler #1 from <source_file> error 1 details"),
+            (logging.WARNING, "Compiler #2 from <source_file> warning 2 details"),
+            (logging.ERROR, "Compiler #3 from <source_file> error 3 details"),
+            (logging.WARNING, "Compiler #4 from <source_file> warning 4 details"),
+            (logging.ERROR, "<source_file>fatal error: details"),
+        ]
         self.assertEqual(edk2_logging.scan_compiler_output(output_stream), expected_output)
 
         # Input with no issue (empty string)
@@ -78,40 +81,53 @@ class Test_edk2_logging(unittest.TestCase):
         self.assertEqual(edk2_logging.scan_compiler_output(output_stream), expected_output)
 
         # Input with only compiler warnings
-        output_stream = io.StringIO("<source_file.c>warning C8: warning details...\n"
-                                    "<source_file.h>warning D10: info about the issue\n")
-        expected_output = [(logging.WARNING, "Compiler #8 from <source_file.c> warning details..."),
-                           (logging.WARNING, "Compiler #10 from <source_file.h> info about the issue")]
+        output_stream = io.StringIO(
+            "<source_file.c>warning C8: warning details...\n" "<source_file.h>warning D10: info about the issue\n"
+        )
+        expected_output = [
+            (logging.WARNING, "Compiler #8 from <source_file.c> warning details..."),
+            (logging.WARNING, "Compiler #10 from <source_file.h> info about the issue"),
+        ]
         self.assertEqual(edk2_logging.scan_compiler_output(output_stream), expected_output)
 
         # Input with only compiler errors
-        output_stream = io.StringIO("dir/file.c error T4: uninitialized variable c...\n"
-                                    "dir1/dir2/file1.c error B2: duplicate symbol xyz.\n"
-                                    "dir1/file_2.h error 5: header file problem")
-        expected_output = [(logging.ERROR, "Compiler #4 from dir/file.c uninitialized variable c..."),
-                           (logging.ERROR, "Compiler #2 from dir1/dir2/file1.c duplicate symbol xyz."),
-                           (logging.ERROR, "Compiler #5 from dir1/file_2.h header file problem")]
+        output_stream = io.StringIO(
+            "dir/file.c error T4: uninitialized variable c...\n"
+            "dir1/dir2/file1.c error B2: duplicate symbol xyz.\n"
+            "dir1/file_2.h error 5: header file problem"
+        )
+        expected_output = [
+            (logging.ERROR, "Compiler #4 from dir/file.c uninitialized variable c..."),
+            (logging.ERROR, "Compiler #2 from dir1/dir2/file1.c duplicate symbol xyz."),
+            (logging.ERROR, "Compiler #5 from dir1/file_2.h header file problem"),
+        ]
         self.assertEqual(edk2_logging.scan_compiler_output(output_stream), expected_output)
 
         # Input with near matches that should not match
-        output_stream = io.StringIO("source.c error A1 error 1 details.\n"
-                                    "source warning D6 warning 6 details\n"
-                                    "source.obj LNK4: linker 4 details\n"
-                                    "script.py 5E: build 5 details\n")
+        output_stream = io.StringIO(
+            "source.c error A1 error 1 details.\n"
+            "source warning D6 warning 6 details\n"
+            "source.obj LNK4: linker 4 details\n"
+            "script.py 5E: build 5 details\n"
+        )
         expected_output = []
         self.assertEqual(edk2_logging.scan_compiler_output(output_stream), expected_output)
 
         # Test input with different error types
-        output_stream = io.StringIO("source.c error A1: error 1 details\n"
-                                    "source.c warning B2: warning 2 details\n"
-                                    "source.dsc error F3: error 3 details\n"
-                                    "source.obj error LNK4: linker 4 details\n"
-                                    "script.py error 5E: build 5 details\n")
-        expected_output = [(logging.ERROR, "Compiler #1 from source.c error 1 details"),
-                           (logging.WARNING, "Compiler #2 from source.c warning 2 details"),
-                           (logging.ERROR, "EDK2 #3 from source.dsc error 3 details"),
-                           (logging.ERROR, "Linker #4 from source.obj linker 4 details"),
-                           (logging.ERROR, "Build.py #5 from script.py build 5 details")]
+        output_stream = io.StringIO(
+            "source.c error A1: error 1 details\n"
+            "source.c warning B2: warning 2 details\n"
+            "source.dsc error F3: error 3 details\n"
+            "source.obj error LNK4: linker 4 details\n"
+            "script.py error 5E: build 5 details\n"
+        )
+        expected_output = [
+            (logging.ERROR, "Compiler #1 from source.c error 1 details"),
+            (logging.WARNING, "Compiler #2 from source.c warning 2 details"),
+            (logging.ERROR, "EDK2 #3 from source.dsc error 3 details"),
+            (logging.ERROR, "Linker #4 from source.obj linker 4 details"),
+            (logging.ERROR, "Build.py #5 from script.py build 5 details"),
+        ]
         self.assertEqual(edk2_logging.scan_compiler_output(output_stream), expected_output)
 
     def test_scan_compiler_output_vs_actual(self):
@@ -135,14 +151,28 @@ class Test_edk2_logging(unittest.TestCase):
             build.py...
             : error F002: Failed to build module
                 d:\\a\\1\\s\\SetupDataPkg\\ConfApp\\ConfApp.inf [X64, VS2022, DEBUG]
-            """)    # noqa: E501
+            """)  # noqa: E501
 
-        expected_output = [(logging.ERROR, "Linker #2001 from UefiApplicationEntryPoint.lib(ApplicationEntryPoint.obj) : unresolved external symbol __security_check_cookie"),  # noqa: E501
-                           (logging.ERROR, "Linker #2001 from ConfApp.lib(SetupConf.obj) : unresolved external symbol __report_rangecheckfailure"),  # noqa: E501
-                           (logging.ERROR, "Linker #1120 from d:\\a\\1\\s\\Build\\SetupDataPkg\\DEBUG_VS2022\\X64\\SetupDataPkg\\ConfApp\\ConfApp\\DEBUG\\ConfApp.dll : fatal 2 unresolved externals"),  # noqa: E501
-                           (logging.ERROR, "Compiler #1077 from NMAKE : fatal \'\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\VC\\Tools\\MSVC\\14.34.31933\\bin\\Hostx86\\x64\\link.exe\"\' : return code \'0x460\'"),  # noqa: E501
-                           (logging.ERROR, "Compiler #7000 from : Failed to execute command"),  # noqa: E501
-                           (logging.ERROR, "EDK2 #002 from : Failed to build module")]
+        expected_output = [
+            (
+                logging.ERROR,
+                "Linker #2001 from UefiApplicationEntryPoint.lib(ApplicationEntryPoint.obj) : unresolved external symbol __security_check_cookie",
+            ),  # noqa: E501
+            (
+                logging.ERROR,
+                "Linker #2001 from ConfApp.lib(SetupConf.obj) : unresolved external symbol __report_rangecheckfailure",
+            ),  # noqa: E501
+            (
+                logging.ERROR,
+                "Linker #1120 from d:\\a\\1\\s\\Build\\SetupDataPkg\\DEBUG_VS2022\\X64\\SetupDataPkg\\ConfApp\\ConfApp\\DEBUG\\ConfApp.dll : fatal 2 unresolved externals",
+            ),  # noqa: E501
+            (
+                logging.ERROR,
+                "Compiler #1077 from NMAKE : fatal '\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\VC\\Tools\\MSVC\\14.34.31933\\bin\\Hostx86\\x64\\link.exe\"' : return code '0x460'",
+            ),  # noqa: E501
+            (logging.ERROR, "Compiler #7000 from : Failed to execute command"),  # noqa: E501
+            (logging.ERROR, "EDK2 #002 from : Failed to build module"),
+        ]
         self.assertEqual(edk2_logging.scan_compiler_output(output_stream), expected_output)
 
     def test_scan_compiler_output_vs_linker_actual(self):
@@ -154,11 +184,22 @@ class Test_edk2_logging(unittest.TestCase):
                     1 file(s) copied.
                 copy /y d:/a/1/s/Build/MdeModule/RELEASE_VS2022/IA32/MdeModulePkg/Universal/LegacyRegion2Dxe/LegacyRegion2Dxe/DEBUG/*.pdb d:/a/1/s/Build/MdeModule/RELEASE_VS2022/IA32/MdeModulePkg/Universal/LegacyRegion2Dxe/LegacyRegion2Dxe/OUTPUT
             NMAKE : fatal error U1077: '"C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.34.31933/bin/Hostx86/x86/link.exe"' : return code '0x460'
-            """)    # noqa: E501
+            """)  # noqa: E501
 
-        expected_output = [(logging.ERROR, "Linker #2001 from SdMmcPciHcPei.lib(SdMmcPciHcPei.obj) : unresolved external symbol _SafeUint8Add"),  # noqa: E501
-                           (logging.ERROR, "Linker #1120 from d:/a/1/s/Build/MdeModule/RELEASE_VS2022/IA32/MdeModulePkg/Bus/Pci/SdMmcPciHcPei/SdMmcPciHcPei/DEBUG/SdMmcPciHcPei.dll : fatal 1 unresolved externals"),  # noqa: E501
-                           (logging.ERROR, "Compiler #1077 from NMAKE : fatal \'\"C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.34.31933/bin/Hostx86/x86/link.exe\"\' : return code \'0x460\'")]  # noqa: E501
+        expected_output = [
+            (
+                logging.ERROR,
+                "Linker #2001 from SdMmcPciHcPei.lib(SdMmcPciHcPei.obj) : unresolved external symbol _SafeUint8Add",
+            ),  # noqa: E501
+            (
+                logging.ERROR,
+                "Linker #1120 from d:/a/1/s/Build/MdeModule/RELEASE_VS2022/IA32/MdeModulePkg/Bus/Pci/SdMmcPciHcPei/SdMmcPciHcPei/DEBUG/SdMmcPciHcPei.dll : fatal 1 unresolved externals",
+            ),  # noqa: E501
+            (
+                logging.ERROR,
+                "Compiler #1077 from NMAKE : fatal '\"C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.34.31933/bin/Hostx86/x86/link.exe\"' : return code '0x460'",
+            ),
+        ]  # noqa: E501
         self.assertEqual(edk2_logging.scan_compiler_output(output_stream), expected_output)
 
     def test_scan_compiler_output_gcc_mixed_actual(self):
@@ -185,12 +226,18 @@ class Test_edk2_logging(unittest.TestCase):
             build.py...
             : error F002: Failed to build module
                 /__w/1/s/SetupDataPkg/Library/ConfigVariableListLib/ConfigVariableListLib.inf [AARCH64, GCC5, DEBUG]
-        """)    # noqa: E501
+        """)  # noqa: E501
 
-        expected_output = [(logging.ERROR, "Compiler #error from /__w/1/s/SetupDataPkg/Library/ConfigVariableListLib/ConfigVariableListLib.c conflicting types for `ConvertVariableListToVariableEntry`; have `EFI_STATUS(const void *, UINTN *, CONFIG_VAR_LIST_ENTRY *)` {aka `long long unsigned int(const void *, long long unsigned int *, CONFIG_VAR_LIST_ENTRY *)`}"),  # noqa: E501
-                           (logging.ERROR, "Compiler #7000 from : Failed to execute command"),
-                           (logging.ERROR, "EDK2 #002 from : Failed to build module")]
+        expected_output = [
+            (
+                logging.ERROR,
+                "Compiler #error from /__w/1/s/SetupDataPkg/Library/ConfigVariableListLib/ConfigVariableListLib.c conflicting types for `ConvertVariableListToVariableEntry`; have `EFI_STATUS(const void *, UINTN *, CONFIG_VAR_LIST_ENTRY *)` {aka `long long unsigned int(const void *, long long unsigned int *, CONFIG_VAR_LIST_ENTRY *)`}",
+            ),  # noqa: E501
+            (logging.ERROR, "Compiler #7000 from : Failed to execute command"),
+            (logging.ERROR, "EDK2 #002 from : Failed to build module"),
+        ]
         self.assertEqual(edk2_logging.scan_compiler_output(output_stream), expected_output)
+
 
 def test_NO_secret_filter(caplog):
     end_list = [" ", ",", ";", ":", " "]
@@ -202,9 +249,10 @@ def test_NO_secret_filter(caplog):
     for start, end in zip(start_list, end_list):
         logging.debug(f"This is a secret{start}{fake_secret}{end}to be caught")
 
-    for (record, start, end) in zip(caplog.records, start_list, end_list):
+    for record, start, end in zip(caplog.records, start_list, end_list):
         assert record.msg == f"This is a secret{start}{fake_secret}{end}to be caught"
     caplog.clear()
+
 
 def test_CI_secret_filter(caplog):
     caplog.set_level(logging.DEBUG)
@@ -220,9 +268,10 @@ def test_CI_secret_filter(caplog):
     for start, end in zip(start_list, end_list):
         logging.debug(f"This is a secret{start}{fake_secret}{end}to be caught")
 
-    for (record, start, end) in zip(caplog.records, start_list, end_list):
+    for record, start, end in zip(caplog.records, start_list, end_list):
         assert record.msg == f"This is a secret{start}*******{end}to be caught"
     caplog.clear()
+
 
 def test_TF_BUILD_secret_filter(caplog):
     caplog.set_level(logging.DEBUG)
@@ -238,9 +287,10 @@ def test_TF_BUILD_secret_filter(caplog):
     for start, end in zip(start_list, end_list):
         logging.debug(f"This is a secret{start}{fake_secret}{end}to be caught")
 
-    for (record, start, end) in zip(caplog.records, start_list, end_list):
+    for record, start, end in zip(caplog.records, start_list, end_list):
         assert record.msg == f"This is a secret{start}*******{end}to be caught"
     caplog.clear()
+
 
 # caplog is a pytest fixture that captures log messages
 def test_catch_secrets_filter(caplog):
@@ -257,7 +307,7 @@ def test_catch_secrets_filter(caplog):
     for start, end in zip(start_list, end_list):
         logging.debug(f"This is a secret{start}{fake_secret}{end}to be caught")
 
-    for (record, start, end) in zip(caplog.records, start_list, end_list):
+    for record, start, end in zip(caplog.records, start_list, end_list):
         assert record.msg == f"This is a secret{start}*******{end}to be caught"
     caplog.clear()
 
@@ -266,7 +316,7 @@ def test_catch_secrets_filter(caplog):
     for start, end in zip(start_list, end_list):
         logging.debug(f"This is a secret{start}{fake_secret}{end}to be caught")
 
-    for (record, start, end) in zip(caplog.records, start_list, end_list):
+    for record, start, end in zip(caplog.records, start_list, end_list):
         assert record.msg == f"This is a secret{start}{fake_secret}{end}to be caught"
     caplog.clear()
 
@@ -275,7 +325,7 @@ def test_catch_secrets_filter(caplog):
     for start, end in zip(start_list, end_list):
         logging.debug(f"This is a secret{start}{fake_secret}{end}to be caught")
 
-    for (record, start, end) in zip(caplog.records, start_list, end_list):
+    for record, start, end in zip(caplog.records, start_list, end_list):
         assert record.msg == f"This is a secret{start}*******{end}to be caught"
     caplog.clear()
 
@@ -284,9 +334,10 @@ def test_catch_secrets_filter(caplog):
     for start, end in zip(start_list, end_list):
         logging.debug(f"This is a secret{start}{fake_secret}{end}to be caught")
 
-    for (record, start, end) in zip(caplog.records, start_list, end_list):
+    for record, start, end in zip(caplog.records, start_list, end_list):
         assert record.msg == f"This is a secret{start}{fake_secret}{end}to be caught"
     caplog.clear()
+
 
 def test_scan_compiler_output_rust_scenarios():
     output_stream = io.StringIO(r"""
@@ -300,11 +351,12 @@ catch this error: This should not be caught
 catch this error --> This should not be caught
     """)
     expected_output = [
-        (logging.ERROR, 'error: This should be caught'),
-        (logging.ERROR, 'error[E0605]: This should be caught'),
-        (logging.ERROR, '--> This should be caught'),
+        (logging.ERROR, "error: This should be caught"),
+        (logging.ERROR, "error[E0605]: This should be caught"),
+        (logging.ERROR, "--> This should be caught"),
     ]
     assert edk2_logging.scan_compiler_output(output_stream) == expected_output
+
 
 def test_scan_compiler_output_rust_actual():
     output_stream = io.StringIO(r"""
@@ -335,7 +387,9 @@ error: could not compile `RustCrate` (bin "RustCrate") due to previous error
 [cargo-make] ERROR - Error while executing command, exit code: 101
 [cargo-make] WARN - Build Failed.
     """)
-    expected_output = [(logging.ERROR, 'error[E0605]: non-primitive cast: `MemorySpaceDescriptor` as `*mut MemorySpaceDescriptor`'),
-                        (logging.ERROR, r'--> RustCrate\\src/main.rs:248:66'),
-                        (logging.ERROR, 'error: could not compile `RustCrate` (bin "RustCrate") due to previous error')]
+    expected_output = [
+        (logging.ERROR, "error[E0605]: non-primitive cast: `MemorySpaceDescriptor` as `*mut MemorySpaceDescriptor`"),
+        (logging.ERROR, r"--> RustCrate\\src/main.rs:248:66"),
+        (logging.ERROR, 'error: could not compile `RustCrate` (bin "RustCrate") due to previous error'),
+    ]
     assert edk2_logging.scan_compiler_output(output_stream) == expected_output

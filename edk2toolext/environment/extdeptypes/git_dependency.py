@@ -8,6 +8,7 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 """An ExternalDependency subclass able to clone from git."""
+
 import logging
 import os
 from urllib.parse import urlsplit, urlunsplit
@@ -27,6 +28,7 @@ class GitDependency(ExternalDependency):
     !!! tip
         The attributes are what must be described in the ext_dep yaml file!
     """
+
     TypeString = "git"
 
     def __init__(self, descriptor: dict) -> None:
@@ -34,7 +36,7 @@ class GitDependency(ExternalDependency):
         super().__init__(descriptor)
 
         # Check to see whether this URL should be patched.
-        url_creds_var = descriptor.get('url_creds_var', None)
+        url_creds_var = descriptor.get("url_creds_var", None)
         if url_creds_var is not None:
             env = shell_environment.GetEnvironment()
             url_creds = env.get_shell_var(url_creds_var)
@@ -42,11 +44,13 @@ class GitDependency(ExternalDependency):
                 # Break things up.
                 source_parts = urlsplit(self.source)
                 # Modify the URL host with the creds.
-                new_parts = (source_parts.scheme,
-                             url_creds + '@' + source_parts.netloc,
-                             source_parts.path,
-                             source_parts.query,
-                             source_parts.fragment)
+                new_parts = (
+                    source_parts.scheme,
+                    url_creds + "@" + source_parts.netloc,
+                    source_parts.path,
+                    source_parts.query,
+                    source_parts.fragment,
+                )
                 # Put things back together.
                 self.source = urlunsplit(new_parts)
 
@@ -67,7 +71,7 @@ class GitDependency(ExternalDependency):
         try:
             repo_resolver.resolve(self._local_repo_root_path, self._repo_resolver_dep_obj, update_ok=True)
         except repo_resolver.GitCommandError as e:
-            logging.debug(f'Cmd failed for git dependency: {self._local_repo_root_path}')
+            logging.debug(f"Cmd failed for git dependency: {self._local_repo_root_path}")
             logging.debug(e)
 
         # Add a file to track the state of the dependency.
@@ -89,23 +93,23 @@ class GitDependency(ExternalDependency):
         result = True
         details = repo_resolver.repo_details(self._local_repo_root_path)
 
-        if not details['Path'].is_dir():
-            self.logger.info('Not a directory')
+        if not details["Path"].is_dir():
+            self.logger.info("Not a directory")
             result = False
 
-        elif not any(details['Path'].iterdir()):
-            self.logger.info('No files in directory')
+        elif not any(details["Path"].iterdir()):
+            self.logger.info("No files in directory")
             result = False
 
-        elif not details['Initialized']:
-            self.logger.info('Not Initialized')
+        elif not details["Initialized"]:
+            self.logger.info("Not Initialized")
             result = False
 
-        elif details['Dirty']:
-            self.logger.info('Dirty')
+        elif details["Dirty"]:
+            self.logger.info("Dirty")
             result = False
 
-        elif self.version.lower() not in [details['Head']['HexSha'], details['Head']['HexShaShort']]:
+        elif self.version.lower() not in [details["Head"]["HexSha"], details["Head"]["HexShaShort"]]:
             self.logger.info(f'Mismatched sha: [head: {details["Head"]["HexSha"]}], [expected: {self.version}]')
             result = False
 

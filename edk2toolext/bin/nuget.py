@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 """This module contains code that knows how to download nuget."""
+
 import logging
 import os
 import urllib.error
@@ -36,7 +37,7 @@ def DownloadNuget(unpack_folder: str = None) -> str:
         (RuntimeError): Sha256 did not match
     """
     if unpack_folder is None:
-        unpack_folder = resources.files('edk2toolext.bin')
+        unpack_folder = resources.files("edk2toolext.bin")
 
     out_file_name = Path(unpack_folder) / "NuGet.exe"
     # check if we have the nuget file already downloaded
@@ -44,7 +45,7 @@ def DownloadNuget(unpack_folder: str = None) -> str:
         logging.debug(f"Attempting to download NuGet to: {out_file_name}")
         try:
             # Download the file and save it locally under `temp_file_name`
-            with urllib.request.urlopen(URL) as response, open(out_file_name, 'wb') as out_file:
+            with urllib.request.urlopen(URL) as response, open(out_file_name, "wb") as out_file:
                 out_file.write(response.read())
         except urllib.error.HTTPError as e:
             logging.error("We ran into an issue when getting NuGet")
@@ -53,6 +54,7 @@ def DownloadNuget(unpack_folder: str = None) -> str:
     # do the hash to make sure the file is good
     with open(out_file_name, "rb") as file:
         import hashlib
+
         temp_file_sha256 = hashlib.sha256(file.read()).hexdigest()
     if temp_file_sha256.lower() != SHA256.lower():
         os.remove(out_file_name)

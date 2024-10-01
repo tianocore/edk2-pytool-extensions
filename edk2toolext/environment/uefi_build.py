@@ -82,28 +82,87 @@ class UefiBuilder(object):
         Args:
             parserObj (argparser): argparser object
         """
-        parserObj.add_argument("--SKIPBUILD", "--skipbuild", "--SkipBuild", dest="SKIPBUILD",
-                               action='store_true', default=False, help="Skip the build process")
-        parserObj.add_argument("--SKIPPREBUILD", "--skipprebuild", "--SkipPrebuild", dest="SKIPPREBUILD",
-                               action='store_true', default=False, help="Skip prebuild process")
-        parserObj.add_argument("--SKIPPOSTBUILD", "--skippostbuild", "--SkipPostBuild", dest="SKIPPOSTBUILD",
-                               action='store_true', default=False, help="Skip postbuild process")
-        parserObj.add_argument("--FLASHONLY", "--flashonly", "--FlashOnly", dest="FLASHONLY",
-                               action='store_true', default=False, help="Flash rom after build.")
-        parserObj.add_argument("--FLASHROM", "--flashrom", "--FlashRom", dest="FLASHROM",
-                               action='store_true', default=False, help="Flash rom.  Rom must be built previously.")
-        parserObj.add_argument("--UPDATECONF", "--updateconf", "--UpdateConf",
-                               dest="UPDATECONF", action='store_true', default=False,
-                               help="Update Conf. Builders Conf files will be replaced with latest template files")
-        parserObj.add_argument("--CLEAN", "--clean", "--CLEAN", dest="CLEAN",
-                               action='store_true', default=False,
-                               help="Clean. Remove all old build artifacts and intermediate files")
-        parserObj.add_argument("--CLEANONLY", "--cleanonly", "--CleanOnly", dest="CLEANONLY",
-                               action='store_true', default=False,
-                               help="Clean Only. Do clean operation and don't build just exit.")
-        parserObj.add_argument("--OUTPUTCONFIG", "--outputconfig", "--OutputConfig",
-                               dest='OutputConfig', required=False, type=str,
-                               help='Provide shell variables in a file')
+        parserObj.add_argument(
+            "--SKIPBUILD",
+            "--skipbuild",
+            "--SkipBuild",
+            dest="SKIPBUILD",
+            action="store_true",
+            default=False,
+            help="Skip the build process",
+        )
+        parserObj.add_argument(
+            "--SKIPPREBUILD",
+            "--skipprebuild",
+            "--SkipPrebuild",
+            dest="SKIPPREBUILD",
+            action="store_true",
+            default=False,
+            help="Skip prebuild process",
+        )
+        parserObj.add_argument(
+            "--SKIPPOSTBUILD",
+            "--skippostbuild",
+            "--SkipPostBuild",
+            dest="SKIPPOSTBUILD",
+            action="store_true",
+            default=False,
+            help="Skip postbuild process",
+        )
+        parserObj.add_argument(
+            "--FLASHONLY",
+            "--flashonly",
+            "--FlashOnly",
+            dest="FLASHONLY",
+            action="store_true",
+            default=False,
+            help="Flash rom after build.",
+        )
+        parserObj.add_argument(
+            "--FLASHROM",
+            "--flashrom",
+            "--FlashRom",
+            dest="FLASHROM",
+            action="store_true",
+            default=False,
+            help="Flash rom.  Rom must be built previously.",
+        )
+        parserObj.add_argument(
+            "--UPDATECONF",
+            "--updateconf",
+            "--UpdateConf",
+            dest="UPDATECONF",
+            action="store_true",
+            default=False,
+            help="Update Conf. Builders Conf files will be replaced with latest template files",
+        )
+        parserObj.add_argument(
+            "--CLEAN",
+            "--clean",
+            "--CLEAN",
+            dest="CLEAN",
+            action="store_true",
+            default=False,
+            help="Clean. Remove all old build artifacts and intermediate files",
+        )
+        parserObj.add_argument(
+            "--CLEANONLY",
+            "--cleanonly",
+            "--CleanOnly",
+            dest="CLEANONLY",
+            action="store_true",
+            default=False,
+            help="Clean Only. Do clean operation and don't build just exit.",
+        )
+        parserObj.add_argument(
+            "--OUTPUTCONFIG",
+            "--outputconfig",
+            "--OutputConfig",
+            dest="OutputConfig",
+            required=False,
+            type=str,
+            help="Provide shell variables in a file",
+        )
 
     def RetrievePlatformCommandLineOptions(self, args: argparse.Namespace) -> None:
         """Retrieve command line options from the argparser.
@@ -120,12 +179,12 @@ class UefiBuilder(object):
         self.FlashImage = args.FLASHROM
         self.UpdateConf = args.UPDATECONF
 
-        if (args.FLASHONLY):
+        if args.FLASHONLY:
             self.SkipPostBuild = True
             self.SkipBuild = True
             self.SkipPreBuild = True
             self.FlashImage = True
-        elif (args.CLEANONLY):
+        elif args.CLEANONLY:
             self.Clean = True
             self.SkipBuild = True
             self.SkipPreBuild = True
@@ -150,67 +209,66 @@ class UefiBuilder(object):
             self.Helper.DebugLogRegisteredFunctions()
 
             ret = self.SetEnv()
-            if (ret != 0):
+            if ret != 0:
                 logging.critical("SetEnv failed")
                 return ret
 
             # clean
-            if (self.Clean):
+            if self.Clean:
                 edk2_logging.log_progress("Cleaning")
                 ret = self.CleanTree()
-                if (ret != 0):
+                if ret != 0:
                     logging.critical("Clean failed")
                     return ret
 
             # prebuild
-            if (self.SkipPreBuild):
+            if self.SkipPreBuild:
                 edk2_logging.log_progress("Skipping Pre Build")
             else:
                 ret = self.PreBuild()
-                if (ret != 0):
+                if ret != 0:
                     logging.critical("Pre Build failed")
                     return ret
 
             # Output Build Environment to File - this is mostly for debug of build
             # issues or adding other build features using existing variables
-            if (self.OutputConfig is not None):
+            if self.OutputConfig is not None:
                 edk2_logging.log_progress("Writing Build Env Info out to File")
                 logging.debug("Found an Output Build Env File: " + self.OutputConfig)
                 self.env.PrintAll(self.OutputConfig)
 
             if (self.env.GetValue("GATEDBUILD") is not None) and (self.env.GetValue("GATEDBUILD").upper() == "TRUE"):
                 ShouldGatedBuildRun = self.PlatformGatedBuildShouldHappen()
-                logging.debug("Platform Gated Build Should Run returned: %s" % str(
-                    ShouldGatedBuildRun))
-                if (not self.SkipBuild):
+                logging.debug("Platform Gated Build Should Run returned: %s" % str(ShouldGatedBuildRun))
+                if not self.SkipBuild:
                     self.SkipBuild = not ShouldGatedBuildRun
-                if (not self.SkipPostBuild):
+                if not self.SkipPostBuild:
                     self.SkipPostBuild = not ShouldGatedBuildRun
 
             # build
-            if (self.SkipBuild):
+            if self.SkipBuild:
                 edk2_logging.log_progress("Skipping Build")
             else:
                 ret = self.Build()
 
-                if (ret != 0):
+                if ret != 0:
                     logging.critical("Build failed")
                     return ret
 
             # postbuild
-            if (self.SkipPostBuild):
+            if self.SkipPostBuild:
                 edk2_logging.log_progress("Skipping Post Build")
             else:
                 ret = self.PostBuild()
-                if (ret != 0):
+                if ret != 0:
                     logging.critical("Post Build failed")
                     return ret
 
             # flash
-            if (self.FlashImage):
+            if self.FlashImage:
                 edk2_logging.log_progress("Flashing Image")
                 ret = self.FlashRomImage()
-                if (ret != 0):
+                if ret != 0:
                     logging.critical("Flash Image failed")
                     return ret
 
@@ -231,12 +289,15 @@ class UefiBuilder(object):
         finally:
             end_time = time.perf_counter()
             elapsed_time_s = int((end_time - start_time))
-            edk2_logging.log_progress("End time: {0}\t Total time Elapsed: {1}".format(
-                datetime.datetime.now(), datetime.timedelta(seconds=elapsed_time_s)))
+            edk2_logging.log_progress(
+                "End time: {0}\t Total time Elapsed: {1}".format(
+                    datetime.datetime.now(), datetime.timedelta(seconds=elapsed_time_s)
+                )
+            )
 
         return 0
 
-    def CleanTree(self, RemoveConfTemplateFilesToo: bool=False) -> int:
+    def CleanTree(self, RemoveConfTemplateFilesToo: bool = False) -> int:
         """Cleans the build directory.
 
         Args:
@@ -247,7 +308,7 @@ class UefiBuilder(object):
         edk2_logging.log_progress("Cleaning All Output for Build")
 
         d = self.env.GetValue("BUILD_OUTPUT_BASE")
-        if (os.path.isdir(d)):
+        if os.path.isdir(d):
             logging.debug("Removing [%s]", d)
             # if the folder is opened in Explorer do not fail the entire Rebuild
             try:
@@ -261,14 +322,14 @@ class UefiBuilder(object):
         # delete the conf .dbcache
         # this needs to be removed in case build flags changed
         d = os.path.join(self.ws, "Conf", ".cache")
-        if (os.path.isdir(d)):
+        if os.path.isdir(d):
             logging.debug("Removing [%s]" % d)
             RemoveTree(d)
 
-        if (RemoveConfTemplateFilesToo):
+        if RemoveConfTemplateFilesToo:
             for a in ["target.txt", "build_rule.txt", "tools_def.txt"]:
                 d = os.path.join(self.ws, "Conf", a)
-                if (os.path.isfile(d)):
+                if os.path.isfile(d):
                     logging.debug("Removing [%s]" % d)
                     os.remove(d)
 
@@ -293,7 +354,7 @@ class UefiBuilder(object):
             params += " -a " + t
 
         # get the report options and setup the build command
-        if (self.env.GetValue("BUILDREPORTING") == "TRUE"):
+        if self.env.GetValue("BUILDREPORTING") == "TRUE":
             params += " -y " + self.env.GetValue("BUILDREPORT_FILE")
             rt = self.env.GetValue("BUILDREPORT_TYPES").split(" ")
             for t in rt:
@@ -301,7 +362,7 @@ class UefiBuilder(object):
 
         # add special processing to handle building a single module
         mod = self.env.GetValue("BUILDMODULE")
-        if (mod is not None and len(mod.strip()) > 0):
+        if mod is not None and len(mod.strip()) > 0:
             params += " -m " + mod
             edk2_logging.log_progress("Single Module Build: " + mod)
             self.SkipPostBuild = True
@@ -317,7 +378,7 @@ class UefiBuilder(object):
         # WORKAROUND - Pin the PYTHONHASHSEED so that TianoCore build tools
         #               have consistent ordering. Addresses incremental builds.
         pre_build_env_chk = env.checkpoint()
-        env.set_shell_var('PYTHONHASHSEED', '0')
+        env.set_shell_var("PYTHONHASHSEED", "0")
         env.log_environment()
 
         edk2_build_cmd = self.env.GetValue("EDK_BUILD_CMD")
@@ -339,7 +400,7 @@ class UefiBuilder(object):
         for level, problem in problems:
             logging.log(level, problem)
 
-        if (ret != 0):
+        if ret != 0:
             return ret
 
         return 0
@@ -355,7 +416,7 @@ class UefiBuilder(object):
         #
         ret = self.PlatformPreBuild()
 
-        if (ret != 0):
+        if ret != 0:
             logging.critical("PlatformPreBuild failed %d" % ret)
             return ret
         #
@@ -363,14 +424,12 @@ class UefiBuilder(object):
         #
         for Descriptor in self.pm.GetPluginsOfClass(IUefiBuildPlugin):
             rc = Descriptor.Obj.do_pre_build(self)
-            if (rc != 0):
-                if (rc is None):
-                    logging.error(
-                        "Plugin Failed: %s returned NoneType" % Descriptor.Name)
+            if rc != 0:
+                if rc is None:
+                    logging.error("Plugin Failed: %s returned NoneType" % Descriptor.Name)
                     ret = -1
                 else:
-                    logging.error("Plugin Failed: %s returned %d" %
-                                  (Descriptor.Name, rc))
+                    logging.error("Plugin Failed: %s returned %d" % (Descriptor.Name, rc))
                     ret = rc
                 break  # fail on plugin error
             else:
@@ -388,7 +447,7 @@ class UefiBuilder(object):
         #
         ret = self.PlatformPostBuild()
 
-        if (ret != 0):
+        if ret != 0:
             logging.critical("PlatformPostBuild failed %d" % ret)
             return ret
 
@@ -397,14 +456,12 @@ class UefiBuilder(object):
         #
         for Descriptor in self.pm.GetPluginsOfClass(IUefiBuildPlugin):
             rc = Descriptor.Obj.do_post_build(self)
-            if (rc != 0):
-                if (rc is None):
-                    logging.error(
-                        "Plugin Failed: %s returned NoneType" % Descriptor.Name)
+            if rc != 0:
+                if rc is None:
+                    logging.error("Plugin Failed: %s returned NoneType" % Descriptor.Name)
                     ret = -1
                 else:
-                    logging.error("Plugin Failed: %s returned %d" %
-                                  (Descriptor.Name, rc))
+                    logging.error("Plugin Failed: %s returned %d" % (Descriptor.Name, rc))
                     ret = rc
                 break  # fail on plugin error
             else:
@@ -421,14 +478,13 @@ class UefiBuilder(object):
         shell_environment.GetEnvironment().set_shell_var("WORKSPACE", self.ws)
         shell_environment.GetBuildVars().SetValue("WORKSPACE", self.ws, "Set in SetEnv")
 
-        if (self.pp is not None):
+        if self.pp is not None:
             shell_environment.GetEnvironment().set_shell_var("PACKAGES_PATH", self.pp)
-            shell_environment.GetBuildVars().SetValue(
-                "PACKAGES_PATH", self.pp, "Set in SetEnv")
+            shell_environment.GetBuildVars().SetValue("PACKAGES_PATH", self.pp, "Set in SetEnv")
 
         # process platform parameters defined in platform build file
         ret = self.SetPlatformEnv()
-        if (ret != 0):
+        if ret != 0:
             logging.critical("Set Platform Env failed")
             return ret
 
@@ -438,7 +494,7 @@ class UefiBuilder(object):
         # Handle all the template files for workspace/conf/ Allow override
         TemplateDirList = [self.env.GetValue("EDK_TOOLS_PATH")]  # set to edk2 BaseTools
         PlatTemplatesForConf = self.env.GetValue("CONF_TEMPLATE_DIR")  # get platform defined additional path
-        if (PlatTemplatesForConf is not None):
+        if PlatTemplatesForConf is not None:
             PlatTemplatesForConf = self.edk2path.GetAbsolutePathOnThisSystemFromEdk2RelativePath(PlatTemplatesForConf)
             TemplateDirList.insert(0, PlatTemplatesForConf)
             logging.debug(f"Platform defined override for Template Conf Files: {PlatTemplatesForConf}")
@@ -448,25 +504,25 @@ class UefiBuilder(object):
 
         # parse target file
         ret = self.ParseTargetFile()
-        if (ret != 0):
+        if ret != 0:
             logging.critical("ParseTargetFile failed")
             return ret
 
         # parse tools_def file
         ret = self.ParseToolsDefFile()
-        if (ret != 0):
+        if ret != 0:
             logging.critical("ParseToolsDefFile failed")
             return ret
 
         # parse DSC file
         ret = self.ParseDscFile()
-        if (ret != 0):
+        if ret != 0:
             logging.critical("ParseDscFile failed")
             return ret
 
         # parse FDF file
         ret = self.ParseFdfFile()
-        if (ret != 0):
+        if ret != 0:
             logging.critical("ParseFdfFile failed")
             return ret
 
@@ -476,29 +532,34 @@ class UefiBuilder(object):
             self.env.SetValue("OUTPUT_DIRECTORY", "Build", "default from uefi_build", True)
 
         # BUILD_OUT_TEMP is a path so the value should use native directory separators
-        self.env.SetValue("BUILD_OUT_TEMP",
-                          os.path.normpath(os.path.join(self.ws, self.env.GetValue("OUTPUT_DIRECTORY"))),
-                          "Computed in SetEnv")
+        self.env.SetValue(
+            "BUILD_OUT_TEMP",
+            os.path.normpath(os.path.join(self.ws, self.env.GetValue("OUTPUT_DIRECTORY"))),
+            "Computed in SetEnv",
+        )
 
         target = self.env.GetValue("TARGET", None)
         if target is None:
             logging.error("Environment variable TARGET must be set to a build target.")
-            logging.error("Review the 'CLI Env Guide' section provided when using stuart_build "\
-                          "with the -help flag.")
+            logging.error("Review the 'CLI Env Guide' section provided when using stuart_build " "with the -help flag.")
             return -1
 
-        self.env.SetValue("BUILD_OUTPUT_BASE", os.path.join(self.env.GetValue(
-            "BUILD_OUT_TEMP"), target + "_" + self.env.GetValue("TOOL_CHAIN_TAG")), "Computed in SetEnv")
+        self.env.SetValue(
+            "BUILD_OUTPUT_BASE",
+            os.path.join(self.env.GetValue("BUILD_OUT_TEMP"), target + "_" + self.env.GetValue("TOOL_CHAIN_TAG")),
+            "Computed in SetEnv",
+        )
 
         # We have our build target now.  Give platform build one more chance for target specific settings.
         ret = self.SetPlatformEnvAfterTarget()
-        if (ret != 0):
+        if ret != 0:
             logging.critical("SetPlatformEnvAfterTarget failed")
             return ret
 
         # set the build report file
-        self.env.SetValue("BUILDREPORT_FILE", os.path.join(
-            self.env.GetValue("BUILD_OUTPUT_BASE"), "BUILD_REPORT.TXT"), True)
+        self.env.SetValue(
+            "BUILDREPORT_FILE", os.path.join(self.env.GetValue("BUILD_OUTPUT_BASE"), "BUILD_REPORT.TXT"), True
+        )
 
         # set environment variables for the build process
         os.environ["EFI_SOURCE"] = self.ws
@@ -518,7 +579,7 @@ class UefiBuilder(object):
     # -----------------------------------------------------------------------
 
     @classmethod
-    def PlatformPreBuild(self: 'UefiBuilder') -> int:
+    def PlatformPreBuild(self: "UefiBuilder") -> int:
         """Perform Platform PreBuild Steps.
 
         Returns:
@@ -527,7 +588,7 @@ class UefiBuilder(object):
         return 0
 
     @classmethod
-    def PlatformPostBuild(self: 'UefiBuilder') -> int:
+    def PlatformPostBuild(self: "UefiBuilder") -> int:
         """Perform Platform PostBuild Steps.
 
         Returns:
@@ -536,7 +597,7 @@ class UefiBuilder(object):
         return 0
 
     @classmethod
-    def SetPlatformEnv(self: 'UefiBuilder') -> int:
+    def SetPlatformEnv(self: "UefiBuilder") -> int:
         """Set and read Platform Env variables.
 
         This is performed before platform files like the DSC and FDF have been parsed.
@@ -552,7 +613,7 @@ class UefiBuilder(object):
         return 0
 
     @classmethod
-    def SetPlatformEnvAfterTarget(self: 'UefiBuilder') -> int:
+    def SetPlatformEnvAfterTarget(self: "UefiBuilder") -> int:
         """Set and read Platform Env variables after platform files have been parsed.
 
         Returns:
@@ -561,7 +622,7 @@ class UefiBuilder(object):
         return 0
 
     @classmethod
-    def SetPlatformDefaultEnv(self: 'UefiBuilder') -> list[namedtuple]:
+    def SetPlatformDefaultEnv(self: "UefiBuilder") -> list[namedtuple]:
         """Sets platform default environment variables by returning them as a list.
 
         Variables returned from this method are printed to the command line when
@@ -579,7 +640,7 @@ class UefiBuilder(object):
         return []
 
     @classmethod
-    def PlatformBuildRom(self: 'UefiBuilder') -> int:
+    def PlatformBuildRom(self: "UefiBuilder") -> int:
         """Build the platform Rom.
 
         !!! tip
@@ -589,7 +650,7 @@ class UefiBuilder(object):
         return 0
 
     @classmethod
-    def PlatformFlashImage(self: 'UefiBuilder') -> int:
+    def PlatformFlashImage(self: "UefiBuilder") -> int:
         """Flashes the image to the system.
 
         Returns:
@@ -598,7 +659,7 @@ class UefiBuilder(object):
         return 0
 
     @classmethod
-    def PlatformGatedBuildShouldHappen(self: 'UefiBuilder') -> bool:
+    def PlatformGatedBuildShouldHappen(self: "UefiBuilder") -> bool:
         """Specifies if a gated build should happen.
 
         Returns:
@@ -615,8 +676,7 @@ class UefiBuilder(object):
 
         "Sets them so they can be overriden.
         """
-        conf_file_path = self.edk2path.GetAbsolutePathOnThisSystemFromEdk2RelativePath(
-            "Conf", "target.txt")
+        conf_file_path = self.edk2path.GetAbsolutePathOnThisSystemFromEdk2RelativePath("Conf", "target.txt")
         if os.path.isfile(conf_file_path):
             # parse TargetTxt File
             logging.debug("Parse Target.txt file")
@@ -628,8 +688,9 @@ class UefiBuilder(object):
 
             # Set the two additional edk2 common macros.  These will be resolved by now as
             # target.txt will set them if they aren't already set.
-            self.env.SetValue("TOOLCHAIN", self.env.GetValue("TOOL_CHAIN_TAG"),
-                              "DSC Spec macro - set based on tool_Chain_tag")
+            self.env.SetValue(
+                "TOOLCHAIN", self.env.GetValue("TOOL_CHAIN_TAG"), "DSC Spec macro - set based on tool_Chain_tag"
+            )
             # need to check how multiple arch are handled
             self.env.SetValue("ARCH", self.env.GetValue("TARGET_ARCH"), "DSC Spec macro - set based on target_arch")
 
@@ -644,8 +705,7 @@ class UefiBuilder(object):
 
         "Sets them so they can be overriden.
         """
-        toolsdef_file_path = self.edk2path.GetAbsolutePathOnThisSystemFromEdk2RelativePath(
-            "Conf", "tools_def.txt")
+        toolsdef_file_path = self.edk2path.GetAbsolutePathOnThisSystemFromEdk2RelativePath("Conf", "tools_def.txt")
         if os.path.isfile(toolsdef_file_path):
             # parse ToolsdefTxt File
             logging.debug("Parse tools_def.txt file")
@@ -658,8 +718,9 @@ class UefiBuilder(object):
             tool_chain = self.env.GetValue("TOOL_CHAIN_TAG", None)
             if tool_chain is None:
                 logging.error("Environment variable TOOL_CHAIN_TAG must be set to a tool chain.")
-                logging.error("Review the 'CLI Env Guide' section provided when using stuart_build "\
-                              "with the -help flag.")
+                logging.error(
+                    "Review the 'CLI Env Guide' section provided when using stuart_build " "with the -help flag."
+                )
                 return -1
             tag = "*_" + tool_chain + "_*_*_FAMILY"
             tool_chain_family = tdp.Dict.get(tag, "UNKNOWN")
@@ -681,7 +742,8 @@ class UefiBuilder(object):
             logging.error("The DSC file was not set. Please set ACTIVE_PLATFORM")
             return -1
         dsc_file_path = self.edk2path.GetAbsolutePathOnThisSystemFromEdk2RelativePath(
-            self.env.GetValue("ACTIVE_PLATFORM"))
+            self.env.GetValue("ACTIVE_PLATFORM")
+        )
         if os.path.isfile(dsc_file_path):
             # parse DSC File
             logging.debug("Parse Active Platform DSC file: {0}".format(dsc_file_path))
@@ -708,11 +770,12 @@ class UefiBuilder(object):
         it so we don't have to define things twice the FDF file usually comes
         from the Active Platform DSC file so it needs to be parsed first.
         """
-        if (self.env.GetValue("FLASH_DEFINITION") is None):
+        if self.env.GetValue("FLASH_DEFINITION") is None:
             logging.debug("No flash definition set")
             return 0
         fdf_file_path = self.edk2path.GetAbsolutePathOnThisSystemFromEdk2RelativePath(
-            self.env.GetValue("FLASH_DEFINITION"))
+            self.env.GetValue("FLASH_DEFINITION")
+        )
         if os.path.isfile(fdf_file_path):
             # parse the FDF file- fdf files have similar syntax to DSC and therefore parser works for both.
             logging.debug("Parse Active Flash Definition (FDF) file")
@@ -735,6 +798,6 @@ class UefiBuilder(object):
     def SetBasicDefaults(self) -> int:
         """Sets default values for numerous build control flow variables."""
         self.env.SetValue("WORKSPACE", self.ws, "DEFAULT")
-        if (self.pp is not None):
+        if self.pp is not None:
             self.env.SetValue("PACKAGES_PATH", self.pp, "DEFAULT")
         return 0

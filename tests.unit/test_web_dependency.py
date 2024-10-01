@@ -25,7 +25,7 @@ from edk2toolext.environment.extdeptypes.web_dependency import WebDependency
 from edk2toollib.utility_functions import RemoveTree
 
 test_dir = None
-bad_json_file = '''
+bad_json_file = """
 {
   "scope": "global",
   "type": "web",
@@ -37,7 +37,7 @@ bad_json_file = '''
   "compression_type":"tar",
   "sha256":"68f2335344c3f7689f8d69125d182404a3515b8daa53a9c330f115739889f998"
 }
-'''
+"""
 # JSON file that describes a single file to download from the internet
 # bing.com was choosen as it's probably not going anywhere soon and it's small file to download
 single_file_extdep = {
@@ -47,7 +47,7 @@ single_file_extdep = {
     "source": "https://www.bing.com/",
     "version": "20190805",
     "flags": [],
-    "internal_path": "test.txt"
+    "internal_path": "test.txt",
 }
 # Use the github release
 zip_directory_extdep = {
@@ -58,7 +58,7 @@ zip_directory_extdep = {
     "source": "https://github.com/lexxmark/winflexbison/releases/download/v2.4.7/win_flex_bison-2.4.7.zip",
     "version": "2.4.7",
     "sha256": "7553a2d6738c799e101ec38a6ad073885ead892826f87bc1a24e78bcd7ac2a8c",
-    "internal_path": "/."
+    "internal_path": "/.",
 }
 # Use the GNU FTP
 tar_directory_extdep = {
@@ -80,20 +80,20 @@ jquery_json_file = {
     "version": "3.4.1",
     "flags": [],
     "sha256": "5A93A88493AA32AAB228BF4571C01207D3B42B0002409A454D404B4D8395BD55",
-    "internal_path": "jquery.js"
+    "internal_path": "jquery.js",
 }
 
 basetools_json_file = {
-  "scope": "global",
-  "type": "web",
-  "name": "Mu-Basetools",
-  "source": "https://github.com/microsoft/mu_basecore/releases/download/v2023020002.0.3/basetools-v2023020002.0.3.zip",
-  "version": "v2023020002.0.3",
-  "sha256": "6eaf5dc61690592e441c92c3150167c40315efb24a3805a05642d5b4f875b008",
-  "internal_path": "/basetools/",
-  "compression_type": "zip",
-  "flags": ["set_shell_var", "set_path", "host_specific"],
-  "var_name": "EDK_TOOLS_BIN"
+    "scope": "global",
+    "type": "web",
+    "name": "Mu-Basetools",
+    "source": "https://github.com/microsoft/mu_basecore/releases/download/v2023020002.0.3/basetools-v2023020002.0.3.zip",
+    "version": "v2023020002.0.3",
+    "sha256": "6eaf5dc61690592e441c92c3150167c40315efb24a3805a05642d5b4f875b008",
+    "internal_path": "/basetools/",
+    "compression_type": "zip",
+    "flags": ["set_shell_var", "set_path", "host_specific"],
+    "var_name": "EDK_TOOLS_BIN",
 }
 
 
@@ -124,7 +124,7 @@ class TestWebDependency(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        logger = logging.getLogger('')
+        logger = logging.getLogger("")
         logger.addHandler(logging.NullHandler())
         unittest.installHandler()
 
@@ -154,8 +154,8 @@ class TestWebDependency(unittest.TestCase):
         ext_dep = WebDependency(ext_dep_descriptor)
         ext_dep.fetch()
 
-        ext_dep_name = single_file_extdep['name'] + "_extdep"
-        file_path = os.path.join(test_dir, ext_dep_name, single_file_extdep['internal_path'])
+        ext_dep_name = single_file_extdep["name"] + "_extdep"
+        file_path = os.path.join(test_dir, ext_dep_name, single_file_extdep["internal_path"])
         if not os.path.isfile(file_path):
             self.fail("The downloaded file isn't there")
 
@@ -170,7 +170,7 @@ class TestWebDependency(unittest.TestCase):
         ext_dep = WebDependency(ext_dep_descriptor)
         ext_dep.fetch()
 
-        ext_dep_name = zip_directory_extdep['name'] + "_extdep"
+        ext_dep_name = zip_directory_extdep["name"] + "_extdep"
         folder_path = os.path.join(test_dir, ext_dep_name)
         if not os.path.exists(os.path.join(folder_path, "README.txt")):
             logging.warning(folder_path)
@@ -187,7 +187,7 @@ class TestWebDependency(unittest.TestCase):
         ext_dep = WebDependency(ext_dep_descriptor)
         ext_dep.fetch()
 
-        ext_dep_name = tar_directory_extdep['name'] + "_extdep"
+        ext_dep_name = tar_directory_extdep["name"] + "_extdep"
         folder_path = os.path.join(test_dir, ext_dep_name)
         if not os.path.exists(os.path.join(folder_path, "README")):
             logging.warning(folder_path)
@@ -207,8 +207,8 @@ class TestWebDependency(unittest.TestCase):
         ext_dep = WebDependency(ext_dep_descriptor)
         ext_dep.fetch()
 
-        ext_dep_name = jquery_json['name'] + "_extdep"
-        file_path = os.path.join(test_dir, ext_dep_name, jquery_json['internal_path'])
+        ext_dep_name = jquery_json["name"] + "_extdep"
+        file_path = os.path.join(test_dir, ext_dep_name, jquery_json["internal_path"])
         if not os.path.isfile(file_path):
             self.fail("The downloaded file isn't there")
 
@@ -224,8 +224,8 @@ class TestWebDependency(unittest.TestCase):
         ext_dep = WebDependency(ext_dep_descriptor)
         ext_dep.fetch()
 
-        ext_dep_name = jquery_json['name'] + "_extdep"
-        file_path = os.path.join(test_dir, ext_dep_name, jquery_json['internal_path'])
+        ext_dep_name = jquery_json["name"] + "_extdep"
+        file_path = os.path.join(test_dir, ext_dep_name, jquery_json["internal_path"])
         if not os.path.isfile(file_path):
             self.fail("The downloaded file isn't there")
 
@@ -241,7 +241,7 @@ class TestWebDependency(unittest.TestCase):
         with open(file_path, "w+") as ext_dep_file:
             ext_dep_file.write(bad_json_file)
 
-        with zipfile.ZipFile(compressed_file_path, 'w') as _zip:
+        with zipfile.ZipFile(compressed_file_path, "w") as _zip:
             _zip.write(file_path, arcname=os.path.basename(file_path))
 
         os.remove(file_path)
@@ -276,7 +276,6 @@ class TestWebDependency(unittest.TestCase):
     # Files in test_dir\first_dir\second_dir should be located.
     # Files in test_dir\first_dir should not be unpacked.
     def test_unpack_zip_directory(self):
-
         first_level_dir_name = "first_dir"
         second_level_dir_name = "second_dir"
         first_level_path = os.path.join(test_dir, first_level_dir_name)
@@ -290,14 +289,16 @@ class TestWebDependency(unittest.TestCase):
 
         # only files inside internal_path should be there after unpack
         # (file path, is this file expected to be unpacked?)
-        test_files = [(os.path.join(test_dir, internal_path, "bad_json_file.json"), True),
-                      (os.path.join(test_dir, first_level_dir_name, "json_file.json"), False)]
+        test_files = [
+            (os.path.join(test_dir, internal_path, "bad_json_file.json"), True),
+            (os.path.join(test_dir, first_level_dir_name, "json_file.json"), False),
+        ]
 
         for test_file in test_files:
             with open(test_file[0], "w+") as ext_dep_file:
                 ext_dep_file.write(bad_json_file)
 
-        with zipfile.ZipFile(compressed_file_path, 'w') as _zip:
+        with zipfile.ZipFile(compressed_file_path, "w") as _zip:
             for test_file in test_files:
                 _zip.write(test_file[0], arcname=test_file[0].split(test_dir)[1])
 
@@ -330,8 +331,10 @@ class TestWebDependency(unittest.TestCase):
 
         # only files inside internal_path should be there after unpack
         # (file path, is this file expected to be unpacked?)
-        test_files = [(os.path.join(test_dir, internal_path, "bad_json_file.json"), True),
-                      (os.path.join(test_dir, first_level_dir_name, "json_file.json"), False)]
+        test_files = [
+            (os.path.join(test_dir, internal_path, "bad_json_file.json"), True),
+            (os.path.join(test_dir, first_level_dir_name, "json_file.json"), False),
+        ]
 
         for test_file in test_files:
             with open(test_file[0], "w+") as ext_dep_file:
@@ -371,7 +374,7 @@ class TestWebDependency(unittest.TestCase):
         #           >>> testtesttest/
         #            >>>> testtesttesttest/
         for i in range(1, number_of_layers):
-            internal_path = (directory_name * i)
+            internal_path = directory_name * i
             if i - 1 > 0:
                 internal_path = os.path.join(internal_paths[i - 1], internal_path)
             internal_paths.insert(i, internal_path)
@@ -388,8 +391,10 @@ class TestWebDependency(unittest.TestCase):
             # create files in each folder
             files = [""]
             for file_list_counter in range(1, number_of_layers):
-                files.insert(file_list_counter,
-                             os.path.join(test_dir, internal_paths[file_list_counter], file_name * file_list_counter))
+                files.insert(
+                    file_list_counter,
+                    os.path.join(test_dir, internal_paths[file_list_counter], file_name * file_list_counter),
+                )
                 with open(files[file_list_counter], "w+") as ext_dep_file:
                     ext_dep_file.write(bad_json_file)
 
@@ -435,10 +440,10 @@ class TestWebDependency(unittest.TestCase):
         with open(test_file, "w+") as ext_dep_file:
             ext_dep_file.write(bad_json_file)
 
-        with zipfile.ZipFile(compressed_file_path, 'w') as _zip:
+        with zipfile.ZipFile(compressed_file_path, "w") as _zip:
             _zip.write(test_file, arcname=test_file.split(test_dir)[1])
 
-        with zipfile.ZipFile(compressed_file_path, 'r') as _zip:
+        with zipfile.ZipFile(compressed_file_path, "r") as _zip:
             namelist = _zip.namelist()
 
         self.assertTrue(len(namelist) == 1)
@@ -498,5 +503,6 @@ class TestWebDependency(unittest.TestCase):
         for file in [path for path in extdep_dir.rglob("*") if "Linux" in str(path) and path.is_file()]:
             assert file.stat().st_mode & OWNER_EXE
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

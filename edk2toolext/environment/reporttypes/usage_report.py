@@ -8,6 +8,7 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 """A report that generates an html report about which repositories INFs originate from."""
+
 import io
 import logging
 import pathlib
@@ -22,28 +23,57 @@ from sqlalchemy.orm import aliased
 from edk2toolext.environment.reporttypes import templates
 from edk2toolext.environment.reporttypes.base_report import Report
 
-COLORS = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f','#bcbd22', '#17becf',
-          '#aec7e8', '#ffbb78', '#98df8a', '#ff9896', '#c5b0d5',]
+COLORS = [
+    "#1f77b4",
+    "#ff7f0e",
+    "#2ca02c",
+    "#d62728",
+    "#9467bd",
+    "#8c564b",
+    "#e377c2",
+    "#7f7f7f",
+    "#bcbd22",
+    "#17becf",
+    "#aec7e8",
+    "#ffbb78",
+    "#98df8a",
+    "#ff9896",
+    "#c5b0d5",
+]
 
 
 class UsageReport(Report):
     """A report that generates a INF usage report for a specific build."""
+
     def report_info(self) -> Tuple[str, str]:
         """Returns the report standard information.
 
         Returns:
             (str, str): A tuple of (name, description)
         """
-        return ("usage", "Generates a report of INF usage for a specific build. For accurate line counts, run "
-                "stuart_parse with the -S flag.")
+        return (
+            "usage",
+            "Generates a report of INF usage for a specific build. For accurate line counts, run "
+            "stuart_parse with the -S flag.",
+        )
 
     def add_cli_options(self, parserobj: ArgumentParser) -> None:
         """Configure command line arguments for this report."""
-        parserobj.add_argument("-e", "-env", dest="env_id", action="store",
-                               help = "The environment id to generate the report for. Defaults to the latest "
-                               "environment.")
-        parserobj.add_argument("-o", "-output", dest="output", action="store", default=None,
-                               help = "The output file to write the report to. Defaults to 'usage_report.html'.")
+        parserobj.add_argument(
+            "-e",
+            "-env",
+            dest="env_id",
+            action="store",
+            help="The environment id to generate the report for. Defaults to the latest " "environment.",
+        )
+        parserobj.add_argument(
+            "-o",
+            "-output",
+            dest="output",
+            action="store",
+            default=None,
+            help="The output file to write the report to. Defaults to 'usage_report.html'.",
+        )
 
     def run_report(self, db: Edk2DB, args: Namespace) -> None:
         """Generate the Usage report."""
@@ -74,7 +104,7 @@ class UsageReport(Report):
         report_data = {
             "version": version,
             "env": env_vars,
-            "inf_list":  inf_list,
+            "inf_list": inf_list,
         }
 
         # Build the pie charts and save them in report_data
@@ -84,7 +114,7 @@ class UsageReport(Report):
                 values = [len(set(value)) for value in value.values()]
             else:
                 values = [value[key] for key in value.keys()]
-            fig = go.Figure(go.Pie(labels=labels, values=values, hole = .3, title=title, titleposition="top center"))
+            fig = go.Figure(go.Pie(labels=labels, values=values, hole=0.3, title=title, titleposition="top center"))
             fig.update_traces(marker=dict(colors=[color_map[key] for key in value.keys()]))
             # Write the html
             html = io.StringIO()
@@ -101,7 +131,7 @@ class UsageReport(Report):
             path_out += ".html"
 
         pathlib.Path(path_out).parent.mkdir(exist_ok=True, parents=True)
-        with open(path_out, 'w') as f:
+        with open(path_out, "w") as f:
             f.write(html_output)
         logging.info(f"Report written to {path_out}.")
 
@@ -130,14 +160,14 @@ class UsageReport(Report):
         inf_alias = aliased(InstancedInf)
         inf_list = (
             session.query(inf_alias)
-                .join(Fv.infs)
-                .join(inf_alias, InstancedInf.path == inf_alias.component)
-                .filter(Fv.env == env_id)
-                .filter(inf_alias.env == env_id)
-                .filter(InstancedInf.env == env_id)
-                .group_by(inf_alias.path)
-                .distinct(inf_alias.path)
-                .all()
+            .join(Fv.infs)
+            .join(inf_alias, InstancedInf.path == inf_alias.component)
+            .filter(Fv.env == env_id)
+            .filter(inf_alias.env == env_id)
+            .filter(InstancedInf.env == env_id)
+            .group_by(inf_alias.path)
+            .distinct(inf_alias.path)
+            .all()
         )
         final_data = []
 
@@ -149,14 +179,16 @@ class UsageReport(Report):
                 else:
                     package_name = inf.package.name
 
-                final_data.append((
-                    inf.repository.name,
-                    package_name,
-                    inf.path,
-                    source.path,
-                    source.code_lines,
-                    inf.path == inf.component,
-                ))
+                final_data.append(
+                    (
+                        inf.repository.name,
+                        package_name,
+                        inf.path,
+                        source.path,
+                        source.code_lines,
+                        inf.path == inf.component,
+                    )
+                )
 
         for repo, package, inf, _src, line_count, is_component in final_data:
             key = (repo, package, inf)

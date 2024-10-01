@@ -8,7 +8,6 @@
 ##
 import unittest
 import logging
-import pytest
 from edk2toolext.environment import uefi_build
 from edk2toolext.environment.plugintypes import uefi_helper_plugin
 from edk2toolext.environment.plugin_manager import PluginManager
@@ -22,7 +21,6 @@ from edk2toolext.environment import shell_environment
 
 
 class TestUefiBuild(unittest.TestCase):
-
     def setUp(self):
         self.WORKSPACE = tempfile.mkdtemp()
         TestUefiBuild.create_min_uefi_build_tree(self.WORKSPACE)
@@ -56,16 +54,15 @@ class TestUefiBuild(unittest.TestCase):
         conf_folder = os.path.join(root, "Conf")
         os.makedirs(conf_folder)
         target_path = os.path.join(conf_folder, "target.template")
-        TestUefiBuild.write_to_file(target_path, ["ACTIVE_PLATFORM = Test.dsc\n",
-                                                  "TOOL_CHAIN_TAG = test\n",
-                                                  "TARGET = DEBUG\n"])
+        TestUefiBuild.write_to_file(
+            target_path, ["ACTIVE_PLATFORM = Test.dsc\n", "TOOL_CHAIN_TAG = test\n", "TARGET = DEBUG\n"]
+        )
         tools_path = os.path.join(conf_folder, "tools_def.template")
         TestUefiBuild.write_to_file(tools_path, ["*_VS2022_*_*_FAMILY        = MSFT"])
         build_path = os.path.join(conf_folder, "build_rule.template")
         TestUefiBuild.write_to_file(build_path, ["hello"])
         platform_path = os.path.join(root, "Test.dsc")
-        TestUefiBuild.write_to_file(platform_path, ["[Defines]\n",
-                                                    "OUTPUT_DIRECTORY = Build"])
+        TestUefiBuild.write_to_file(platform_path, ["[Defines]\n", "OUTPUT_DIRECTORY = Build"])
 
     def test_commandline_options(self):
         builder = uefi_build.UefiBuilder()
@@ -79,7 +76,7 @@ class TestUefiBuild(unittest.TestCase):
             ["--UPDATECONF"],
             ["--FLASHONLY"],
             ["--SKIPPREBUILD"],
-            ["--SKIPPOSTBUILD"]
+            ["--SKIPPOSTBUILD"],
         ]
         for argpart in args:
             results = parserObj.parse_args(argpart)
@@ -105,12 +102,8 @@ class TestUefiBuild(unittest.TestCase):
 
         # Some basic build variables need to be set to make it through
         # the build preamble to the point the wrapper gets called.
-        shell_environment.GetBuildVars().SetValue("TARGET_ARCH",
-                                                  "IA32",
-                                                  "Set in build wrapper test")
-        shell_environment.GetBuildVars().SetValue("EDK_TOOLS_PATH",
-                                                  self.WORKSPACE,
-                                                  "Set in build wrapper test")
+        shell_environment.GetBuildVars().SetValue("TARGET_ARCH", "IA32", "Set in build wrapper test")
+        shell_environment.GetBuildVars().SetValue("EDK_TOOLS_PATH", self.WORKSPACE, "Set in build wrapper test")
 
         # "build_wrapper" -> The actual build_wrapper script
         # "test_file" -> An empty file written by build_wrapper
@@ -135,21 +128,16 @@ class TestUefiBuild(unittest.TestCase):
         build_wrapper_cmd = "python"
         build_wrapper_params = os.path.normpath(build_wrapper_path)
 
-        TestUefiBuild.write_to_file(
-            build_wrapper_path,
-            cleandoc(build_wrapper_file_content))
+        TestUefiBuild.write_to_file(build_wrapper_path, cleandoc(build_wrapper_file_content))
 
         if GetHostInfo().os == "Linux":
-            os.chmod(build_wrapper_path,
-                     os.stat(build_wrapper_path).st_mode | stat.S_IEXEC)
+            os.chmod(build_wrapper_path, os.stat(build_wrapper_path).st_mode | stat.S_IEXEC)
 
         # This is the main point of this test. The wrapper file should be
         # executed instead of the build command. In real scenarios, the wrapper
         # script would subsequently call the build command.
-        shell_environment.GetBuildVars().SetValue(
-            "EDK_BUILD_CMD", build_wrapper_cmd, "Set in build wrapper test")
-        shell_environment.GetBuildVars().SetValue(
-            "EDK_BUILD_PARAMS", build_wrapper_params, "Set in build wrapper test")
+        shell_environment.GetBuildVars().SetValue("EDK_BUILD_CMD", build_wrapper_cmd, "Set in build wrapper test")
+        shell_environment.GetBuildVars().SetValue("EDK_BUILD_PARAMS", build_wrapper_params, "Set in build wrapper test")
 
         manager = PluginManager()
         helper = uefi_helper_plugin.HelperFunctions()
@@ -164,6 +152,7 @@ class TestUefiBuild(unittest.TestCase):
 
     # TODO finish unit test
 
+
 def test_missing_ENV_variables(tmp_path, caplog):
     with caplog.at_level(logging.ERROR):
         TestUefiBuild().create_min_uefi_build_tree(tmp_path)
@@ -171,13 +160,11 @@ def test_missing_ENV_variables(tmp_path, caplog):
         builder = uefi_build.UefiBuilder()
         manager = PluginManager()
         helper = uefi_helper_plugin.HelperFunctions()
-        
+
         #
         # 1. Make sure we error and log a clean message when TOOL_CHAIN_TAG is missing
         #
-        shell_environment.GetBuildVars().SetValue("EDK_TOOLS_PATH",
-                                                  str(tmp_path),
-                                                  "Set in build wrapper test")
+        shell_environment.GetBuildVars().SetValue("EDK_TOOLS_PATH", str(tmp_path), "Set in build wrapper test")
         os.remove(target_template)
         TestUefiBuild.write_to_file(target_template, ["ACTIVE_PLATFORM = Test.dsc\n"])
         ret = builder.Go(str(tmp_path), "", helper, manager)
@@ -193,13 +180,12 @@ def test_missing_ENV_variables(tmp_path, caplog):
         for file in (tmp_path / "Conf").glob("**/*.txt"):
             file.unlink()
         caplog.clear()
-        
+
         #
         # 3. Make sure we error and log a clean message when TARGET is missing
         #
         os.remove(target_template)
-        TestUefiBuild.write_to_file(target_template, ["ACTIVE_PLATFORM = Test.dsc\n",
-                                                      "TOOL_CHAIN_TAG = VS2022\n"])
+        TestUefiBuild.write_to_file(target_template, ["ACTIVE_PLATFORM = Test.dsc\n", "TOOL_CHAIN_TAG = VS2022\n"])
         ret = builder.Go(str(tmp_path), "", helper, manager)
 
         # two error messages are logged when the environment variable is missing
@@ -208,5 +194,5 @@ def test_missing_ENV_variables(tmp_path, caplog):
         assert len(list(filter(lambda r: "TARGET" in r.message, caplog.records))) == 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

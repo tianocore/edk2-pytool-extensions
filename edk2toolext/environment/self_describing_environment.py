@@ -11,6 +11,7 @@
 Scans the environment for files that describe the source and dependencies
 and then acts upon those files.
 """
+
 import logging
 import os
 import time
@@ -31,11 +32,9 @@ class self_describing_environment(object):
     Scans the environment for files that describe the source and dependencies
     and then acts upon those files.
     """
+
     def __init__(
-        self,
-        workspace_path: str,
-        scopes: Optional[tuple]=None,
-        skipped_dirs: Optional[tuple]=None
+        self, workspace_path: str, scopes: Optional[tuple] = None, skipped_dirs: Optional[tuple] = None
     ) -> None:
         """Inits an empty self describing environment."""
         logging.debug("--- self_describing_environment.__init__()")
@@ -60,9 +59,11 @@ class self_describing_environment(object):
         details = repo_resolver.repo_details(self.workspace)
         if details["Valid"]:
             for worktree_path in details["Worktrees"]:
-                if (worktree_path.is_dir()
-                        and Path(self.workspace) != worktree_path
-                        and worktree_path not in skipped_dirs):
+                if (
+                    worktree_path.is_dir()
+                    and Path(self.workspace) != worktree_path
+                    and worktree_path not in skipped_dirs
+                ):
                     self.skipped_dirs += (worktree_path,)
 
         # Validate that all scopes are unique.
@@ -83,32 +84,27 @@ class self_describing_environment(object):
         matches = {}
         for root, dirs, files in os.walk(base_path, topdown=True):
             # Check to see whether any of these directories should be skipped..
-            dirs[:] = [d
-                       for d
-                       in dirs
-                       if Path(root, d) not in self.skipped_dirs
-                       and Path(root, d).name != '.git']
+            dirs[:] = [d for d in dirs if Path(root, d) not in self.skipped_dirs and Path(root, d).name != ".git"]
 
             # Check for any files that match the extensions we're looking for.
             for file in files:
                 for search_file in search_files:
                     if file.lower().endswith(search_file + ".json") or file.lower().endswith(search_file + ".yaml"):
                         if search_file in matches:
-                            matches[search_file].append(
-                                os.path.join(root, file))
+                            matches[search_file].append(os.path.join(root, file))
                         else:
                             matches[search_file] = [os.path.join(root, file)]
 
         return matches
 
-    def load_workspace(self) ->'self_describing_environment':
+    def load_workspace(self) -> "self_describing_environment":
         """Loads the workspace."""
         logging.debug("--- self_describing_environment.load_workspace()")
         logging.debug("Loading workspace: %s" % self.workspace)
-        logging.debug("  Including scopes: %s" % ', '.join(self.scopes))
+        logging.debug("  Including scopes: %s" % ", ".join(self.scopes))
 
         # First, we need to get all of the files that describe our environment.
-        env_files = self._gather_env_files(('path_env', 'ext_dep', 'plug_in'), self.workspace)
+        env_files = self._gather_env_files(("path_env", "ext_dep", "plug_in"), self.workspace)
 
         # Next, get a list of all our scopes
         all_scopes_lower = [x.lower() for x in self.scopes]
@@ -120,22 +116,22 @@ class self_describing_environment(object):
         all_descriptors = list()
 
         # helper function to get all the descriptors of a type and cast them
-        def _get_all_descriptors_of_type(key: str, class_type: type) ->tuple:
+        def _get_all_descriptors_of_type(key: str, class_type: type) -> tuple:
             if key not in env_files:
                 return tuple()
             return tuple(class_type(desc_file) for desc_file in env_files[key])
 
         # Collect all the descriptors of each type
-        all_descriptors.extend(_get_all_descriptors_of_type('path_env', EDF.PathEnvDescriptor))
-        all_descriptors.extend(_get_all_descriptors_of_type('ext_dep', EDF.ExternDepDescriptor))
-        all_descriptors.extend(_get_all_descriptors_of_type('plug_in', EDF.PluginDescriptor))
+        all_descriptors.extend(_get_all_descriptors_of_type("path_env", EDF.PathEnvDescriptor))
+        all_descriptors.extend(_get_all_descriptors_of_type("ext_dep", EDF.ExternDepDescriptor))
+        all_descriptors.extend(_get_all_descriptors_of_type("plug_in", EDF.PluginDescriptor))
 
         # Get the properly scoped descriptors by checking if the scope is in the list of all the scopes
-        scoped_desc_gen = [x for x in all_descriptors if x.descriptor_contents['scope'].lower() in all_scopes_lower]
+        scoped_desc_gen = [x for x in all_descriptors if x.descriptor_contents["scope"].lower() in all_scopes_lower]
         scoped_descriptors = list(scoped_desc_gen)
 
         # Check that each found item has a unique ID, that's an error if it isn't
-        allids_gen = [x.descriptor_contents['id'].lower() for x in scoped_descriptors if 'id' in x.descriptor_contents]
+        allids_gen = [x.descriptor_contents["id"].lower() for x in scoped_descriptors if "id" in x.descriptor_contents]
         all_ids = list(allids_gen)
         all_unique_ids = set(all_ids)
         if len(all_ids) != len(all_unique_ids):
@@ -149,8 +145,9 @@ class self_describing_environment(object):
                     continue
                 # get the descriptors
                 desc_of_id = [
-                    x for x in scoped_descriptors
-                    if 'id' in x.descriptor_contents and x.descriptor_contents['id'].lower() == desc_id
+                    x
+                    for x in scoped_descriptors
+                    if "id" in x.descriptor_contents and x.descriptor_contents["id"].lower() == desc_id
                 ]
                 paths_of_desc_of_id = [x.file_path for x in desc_of_id]
                 invalid_desc_paths = f"{os.pathsep} ".join(paths_of_desc_of_id)
@@ -176,8 +173,8 @@ class self_describing_environment(object):
         final_descriptors = []
         for desc in scoped_descriptors:
             desc_file = desc.file_path
-            if 'id' in desc.descriptor_contents:
-                desc_id = desc.descriptor_contents['id'].lower()
+            if "id" in desc.descriptor_contents:
+                desc_id = desc.descriptor_contents["id"].lower()
                 if desc_id in overriden_ids:
                     override = active_overrides[desc_id]
                     desc_name = f"{desc_file}:{desc_id}"
@@ -185,14 +182,15 @@ class self_describing_environment(object):
                     logging.debug(f"Skipping descriptor {desc_name} as it is being overridden by {override_name}.")
                     continue
             # add them to the final list
-            desc_scope = desc.descriptor_contents['scope']
+            desc_scope = desc.descriptor_contents["scope"]
             logging.debug(f"Adding descriptor {desc_file} to the environment with scope {desc_scope}")
             final_descriptors.append(desc)
 
         # Finally, sort them back in the right categories
         self.paths = list([x.descriptor_contents for x in final_descriptors if isinstance(x, EDF.PathEnvDescriptor)])
         self.extdeps = list(
-            [x.descriptor_contents for x in final_descriptors if isinstance(x, EDF.ExternDepDescriptor)])
+            [x.descriptor_contents for x in final_descriptors if isinstance(x, EDF.ExternDepDescriptor)]
+        )
         self.plugins = list([x.descriptor_contents for x in final_descriptors if isinstance(x, EDF.PluginDescriptor)])
 
         return self
@@ -207,10 +205,7 @@ class self_describing_environment(object):
                 yield EDF.PathEnv(path_descriptor)
 
     # This is a generator to reduce code duplication when wrapping the extdep objects.
-    def _get_extdeps(
-        self,
-        env_object: shell_environment.ShellEnvironment
-    ) -> external_dependency.ExternalDependency:
+    def _get_extdeps(self, env_object: shell_environment.ShellEnvironment) -> external_dependency.ExternalDependency:
         if self.extdeps is not None:
             global_cache_path = env_object.get_shell_var("STUART_EXTDEP_CACHE_PATH")
             # Apply in reverse order to get the expected hierarchy.
@@ -223,23 +218,19 @@ class self_describing_environment(object):
                 yield extdep
 
     def _apply_descriptor_object_to_env(
-        self,
-        desc_object: external_dependency.ExtDepFactory,
-        env_object: shell_environment.ShellEnvironment
+        self, desc_object: external_dependency.ExtDepFactory, env_object: shell_environment.ShellEnvironment
     ) -> None:
         # Walk through each possible environment modification
         # and apply to the environment as required.
 
-        if 'set_path' in desc_object.flags:
+        if "set_path" in desc_object.flags:
             env_object.insert_path(desc_object.published_path)
-        if 'set_pypath' in desc_object.flags:
+        if "set_pypath" in desc_object.flags:
             env_object.insert_pypath(desc_object.published_path)
-        if 'set_build_var' in desc_object.flags:
-            env_object.set_build_var(
-                desc_object.var_name, desc_object.published_path)
-        if 'set_shell_var' in desc_object.flags:
-            env_object.set_shell_var(
-                desc_object.var_name, desc_object.published_path)
+        if "set_build_var" in desc_object.flags:
+            env_object.set_build_var(desc_object.var_name, desc_object.published_path)
+        if "set_shell_var" in desc_object.flags:
+            env_object.set_shell_var(desc_object.var_name, desc_object.published_path)
 
     def update_simple_paths(self, env_object: shell_environment.ShellEnvironment) -> None:
         """Updates simple paths."""
@@ -268,15 +259,15 @@ class self_describing_environment(object):
         logging.debug("--- self_describing_environment.update_extdeps()")
         # This function is called by our thread pool
 
-        def update_extdep(self: 'self_describing_environment', extdep: external_dependency.ExternalDependency) -> bool:
+        def update_extdep(self: "self_describing_environment", extdep: external_dependency.ExternalDependency) -> bool:
             # Check to see whether it's necessary to fetch the files.
             try:
                 if not extdep.verify():
                     # Get rid of extdep published path since it could get changed
                     # during the fetch routine.
-                    if 'set_path' in extdep.flags:
+                    if "set_path" in extdep.flags:
                         env_object.remove_path_element(extdep.published_path)
-                    if 'set_pypath' in extdep.flags:
+                    if "set_pypath" in extdep.flags:
                         env_object.remove_pypath_element(extdep.published_path)
                     extdep.clean()
                     extdep.fetch()
@@ -293,6 +284,7 @@ class self_describing_environment(object):
                 if extdep.error_msg is not None:
                     logging.warning(extdep.error_msg)
                 return False
+
         # prep the worker pool
         all_extdeps = self._get_extdeps(env_object)
         self_extdeps = [(self, x) for x in all_extdeps]
@@ -313,7 +305,7 @@ class self_describing_environment(object):
         old_count = num_extdeps
         # wait for the pool_handle (MapResult) to finish
         while pool_handle._number_left != 0:
-            while (old_count != pool_handle._number_left and old_count > 0):
+            while old_count != pool_handle._number_left and old_count > 0:
                 print(".", end="", flush=True)
                 old_count -= 1
             time.sleep(0.1)  # wait 100 ms
@@ -354,7 +346,7 @@ def DestroyEnvironment() -> None:
     ENV_STATE = None
 
 
-def BootstrapEnvironment(workspace: str, scopes: Optional[tuple]=None, skipped_dirs: Optional[tuple]=None) -> tuple:
+def BootstrapEnvironment(workspace: str, scopes: Optional[tuple] = None, skipped_dirs: Optional[tuple] = None) -> tuple:
     """Performs a multistage bootstrap of the environment.
 
     1. Locate and load all environment description files
@@ -386,8 +378,7 @@ def BootstrapEnvironment(workspace: str, scopes: Optional[tuple]=None, skipped_d
         # ENVIRONMENT BOOTSTRAP STAGE 1
         # Locate and load all environment description files.
         #
-        build_env = self_describing_environment(
-            workspace, scopes, skipped_dirs).load_workspace()
+        build_env = self_describing_environment(workspace, scopes, skipped_dirs).load_workspace()
 
         #
         # ENVIRONMENT BOOTSTRAP STAGE 2
@@ -419,7 +410,7 @@ def BootstrapEnvironment(workspace: str, scopes: Optional[tuple]=None, skipped_d
     return ENV_STATE
 
 
-def CleanEnvironment(workspace: str, scopes: Optional[tuple]=None, skipped_dirs: Optional[tuple]=None) -> None:
+def CleanEnvironment(workspace: str, scopes: Optional[tuple] = None, skipped_dirs: Optional[tuple] = None) -> None:
     """Cleans all external dependencies based on environment.
 
     Environment is bootstrapped from provided arguments and all dependencies
@@ -445,7 +436,7 @@ def CleanEnvironment(workspace: str, scopes: Optional[tuple]=None, skipped_dirs:
     build_env.clean_extdeps(shell_env)
 
 
-def UpdateDependencies(workspace: str, scopes: Optional[tuple]=None, skipped_dirs: Optional[tuple]=None) -> tuple:
+def UpdateDependencies(workspace: str, scopes: Optional[tuple] = None, skipped_dirs: Optional[tuple] = None) -> tuple:
     """Updates all external dependencies based on environment.
 
     Environment is bootstrapped from provided arguments and all dependencies
@@ -474,7 +465,7 @@ def UpdateDependencies(workspace: str, scopes: Optional[tuple]=None, skipped_dir
     return build_env.update_extdeps(shell_env)
 
 
-def VerifyEnvironment(workspace: str, scopes: Optional[tuple]=None, skipped_dirs: Optional[tuple]=None) -> bool:
+def VerifyEnvironment(workspace: str, scopes: Optional[tuple] = None, skipped_dirs: Optional[tuple] = None) -> bool:
     """Verifies all external dependencies based on environment.
 
     Environment is bootstrapped from provided arguments and all dependencies

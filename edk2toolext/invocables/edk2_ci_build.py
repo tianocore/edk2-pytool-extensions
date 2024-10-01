@@ -13,6 +13,7 @@ Contains a CIBuildSettingsManager that must be subclassed in a build settings
 file. This provides platform specific information to Edk2CiBuild invocable
 while allowing the invocable itself to remain platform agnostic.
 """
+
 import argparse
 import logging
 import os
@@ -84,12 +85,25 @@ class CiBuildSettingsManager(MultiPkgAwareSettingsInterface):
 
 class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
     """Invocable supporting an iterative multi-package build and test process leveraging CI build plugins."""
+
     def AddCommandLineOptions(self, parser: argparse.ArgumentParser) -> None:
         """Adds command line arguments to Edk2CiBuild."""
-        parser.add_argument('-d', '--disable-all', dest="disable", action="store_true", default=False,
-                            help="Disable all plugins. Use <PluginName>=run to re-enable specific plugins")
-        parser.add_argument('-f', '--fail-fast', dest="fail_fast", action="store_true", default=False,
-                            help="Exit on the first plugin failure.")
+        parser.add_argument(
+            "-d",
+            "--disable-all",
+            dest="disable",
+            action="store_true",
+            default=False,
+            help="Disable all plugins. Use <PluginName>=run to re-enable specific plugins",
+        )
+        parser.add_argument(
+            "-f",
+            "--fail-fast",
+            dest="fail_fast",
+            action="store_true",
+            default=False,
+            help="Exit on the first plugin failure.",
+        )
         super().AddCommandLineOptions(parser)
 
     def RetrieveCommandLineOptions(self, args: argparse.Namespace) -> None:
@@ -130,7 +144,8 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
         # Bring up the common minimum environment.
         logging.log(edk2_logging.SECTION, "Getting Environment")
         (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(
-            self.GetWorkspaceRoot(), self.GetActiveScopes(), self.GetSkippedDirectories())
+            self.GetWorkspaceRoot(), self.GetActiveScopes(), self.GetSkippedDirectories()
+        )
         env = shell_environment.GetBuildVars()
 
         # Bind our current execution environment into the shell vars.
@@ -172,16 +187,18 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
             ts = JunitReport.create_new_testsuite(pkgToRunOn, package_class_name)
             packagebuildlog_path = os.path.join(log_directory, pkgToRunOn)
             _, txt_handle = edk2_logging.setup_txt_logger(
-                packagebuildlog_path, f"BUILDLOG_{pkgToRunOn}", logging_level=logging.DEBUG, isVerbose=True)
+                packagebuildlog_path, f"BUILDLOG_{pkgToRunOn}", logging_level=logging.DEBUG, isVerbose=True
+            )
             loghandle = [txt_handle]
             shell_environment.CheckpointBuildVars()
             env = shell_environment.GetBuildVars()
 
             # load the package level .ci.yaml
             pkg_config_file = edk2path.GetAbsolutePathOnThisSystemFromEdk2RelativePath(
-                os.path.join(pkgToRunOn, pkgToRunOn + ".ci.yaml"))
-            if (pkg_config_file):
-                with open(pkg_config_file, 'r') as f:
+                os.path.join(pkgToRunOn, pkgToRunOn + ".ci.yaml")
+            )
+            if pkg_config_file:
+                with open(pkg_config_file, "r") as f:
                     pkg_config = yaml.safe_load(f)
             else:
                 logging.info(f"No Pkg Config file for {pkgToRunOn}")
@@ -197,8 +214,7 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
             for Descriptor in pluginList:
                 # For each target
                 for target in self.requested_target_list:
-
-                    if (target not in Descriptor.Obj.RunsOnTargetList()):
+                    if target not in Descriptor.Obj.RunsOnTargetList():
                         continue
 
                     edk2_logging.log_progress(f"--Running {pkgToRunOn}: {Descriptor.Name} {target} --")
@@ -208,8 +224,9 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
 
                     # Skip all plugins not marked as "run" if disable is set
                     if self.disable_plugins and env.GetValue(Descriptor.Module.upper(), "skip") != "run":
-                        edk2_logging.log_progress("--->Test Disabled due to disable-all flag!"
-                                                  f" {Descriptor.Module} {target}")
+                        edk2_logging.log_progress(
+                            "--->Test Disabled due to disable-all flag!" f" {Descriptor.Module} {target}"
+                        )
                         edk2_logging.log_progress(f"--->Set {Descriptor.Module}=run on the command line to run anyway.")
                         continue
 
@@ -221,12 +238,16 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
                     plugin_output_stream = edk2_logging.create_output_stream()
 
                     # merge the repo level and package level for this specific plugin
-                    pkg_plugin_configuration = Edk2CiBuild.merge_config(self.PlatformSettings.GetPluginSettings(),
-                                                                        pkg_config, Descriptor.descriptor)
+                    pkg_plugin_configuration = Edk2CiBuild.merge_config(
+                        self.PlatformSettings.GetPluginSettings(), pkg_config, Descriptor.descriptor
+                    )
 
                     # Still need to see if the package decided this should be skipped
-                    if pkg_plugin_configuration is None or\
-                            "skip" in pkg_plugin_configuration and pkg_plugin_configuration["skip"]:
+                    if (
+                        pkg_plugin_configuration is None
+                        or "skip" in pkg_plugin_configuration
+                        and pkg_plugin_configuration["skip"]
+                    ):
                         tc.SetSkipped()
                         edk2_logging.log_progress("--->Test Skipped by package! %s" % Descriptor.Name)
                     else:
@@ -241,25 +262,30 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
                             #   - Plugin Helper Obj Instance
                             #   - testcase Object used for outputing junit results
                             #   - output_stream the StringIO output stream from this plugin
-                            rc = Descriptor.Obj.RunBuildPlugin(pkgToRunOn, edk2path, pkg_plugin_configuration,
-                                                               env, self.plugin_manager, self.helper,
-                                                               tc, plugin_output_stream)
+                            rc = Descriptor.Obj.RunBuildPlugin(
+                                pkgToRunOn,
+                                edk2path,
+                                pkg_plugin_configuration,
+                                env,
+                                self.plugin_manager,
+                                self.helper,
+                                tc,
+                                plugin_output_stream,
+                            )
                         except Exception as exp:
                             _, _, exc_traceback = sys.exc_info()
                             logging.critical("EXCEPTION: {0}".format(exp))
                             exceptionPrint = traceback.format_exception(type(exp), exp, exc_traceback)
                             logging.critical(" ".join(exceptionPrint))
-                            tc.SetError("Exception: {0}".format(
-                                exp), "UNEXPECTED EXCEPTION")
+                            tc.SetError("Exception: {0}".format(exp), "UNEXPECTED EXCEPTION")
                             rc = 1
 
                         if rc is None or rc > 0:
                             failure_num += 1
-                            logging.error(
-                                f"--->Test Failed: {Descriptor.Name} {target} returned \"{rc}\"")
+                            logging.error(f'--->Test Failed: {Descriptor.Name} {target} returned "{rc}"')
 
                             if self.fail_fast:
-                                logging.error('Exiting Early due to --fail-fast flag.')
+                                logging.error("Exiting Early due to --fail-fast flag.")
                                 JunitReport.Output(os.path.join(self.GetWorkspaceRoot(), "Build", "TestSuites.xml"))
                                 return failure_num
                         elif rc < 0:
@@ -281,7 +307,7 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
         JunitReport.Output(os.path.join(self.GetWorkspaceRoot(), "Build", "TestSuites.xml"))
 
         # Print Overall Success
-        if (failure_num != 0):
+        if failure_num != 0:
             logging.error("Overall Build Status: Error")
             edk2_logging.log_progress(f"There were {failure_num} failures out of {total_num} attempts")
         else:
@@ -290,7 +316,7 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
         return failure_num
 
     @staticmethod
-    def merge_config(gbl_config: dict, pkg_config: dict, descriptor: Optional[dict]=None) -> dict:
+    def merge_config(gbl_config: dict, pkg_config: dict, descriptor: Optional[dict] = None) -> dict:
         """Merge two configurations.
 
         One global and one specificto the package to create the proper config

@@ -50,9 +50,9 @@ class WebDependency(ExternalDependency):
     def __init__(self, descriptor: dict) -> None:
         """Inits a web dependency based off the provided descriptor."""
         super().__init__(descriptor)
-        self.internal_path = os.path.normpath(descriptor['internal_path'])
-        self.compression_type = descriptor.get('compression_type', None)
-        self.sha256 = descriptor.get('sha256', None)
+        self.internal_path = os.path.normpath(descriptor["internal_path"])
+        self.compression_type = descriptor.get("compression_type", None)
+        self.sha256 = descriptor.get("sha256", None)
 
         # If the internal path starts with a / that means we are downloading a directory
         self.download_is_directory = self.internal_path.startswith(os.path.sep)
@@ -90,7 +90,7 @@ class WebDependency(ExternalDependency):
 
         if compression_type == "zip":
             logging.info(f"{compressed_file_path} is a zip file, trying to unpack it.")
-            _ref = zipfile.ZipFile(compressed_file_path, 'r')
+            _ref = zipfile.ZipFile(compressed_file_path, "r")
             files_in_volume = _ref.namelist()
 
         elif compression_type and "tar" in compression_type:
@@ -129,7 +129,7 @@ class WebDependency(ExternalDependency):
 
         try:
             # Download the file and save it locally under `temp_file_path`
-            with urllib.request.urlopen(url) as response, open(temp_file_path, 'wb') as out_file:
+            with urllib.request.urlopen(url) as response, open(temp_file_path, "wb") as out_file:
                 out_file.write(response.read())
         except urllib.error.HTTPError as e:
             logging.error(f"ran into an issue when resolving ext_dep {self.name} at {self.source}")
@@ -139,12 +139,15 @@ class WebDependency(ExternalDependency):
         if self.sha256:
             with open(temp_file_path, "rb") as file:
                 import hashlib
+
                 temp_file_sha256 = hashlib.sha256(file.read()).hexdigest()
 
             # compare sha256 hexdigests as lowercase to make case insensitive
             if temp_file_sha256.lower() != self.sha256.lower():
-                raise RuntimeError(f"{self.name} - sha256 does not match\n\tdownloaded:"
-                                   f"\t{temp_file_sha256}\n\tin json:\t{self.sha256}")
+                raise RuntimeError(
+                    f"{self.name} - sha256 does not match\n\tdownloaded:"
+                    f"\t{temp_file_sha256}\n\tin json:\t{self.sha256}"
+                )
 
         if os.path.isfile(temp_file_path) is False:
             raise RuntimeError(f"{self.name} did not download")

@@ -10,6 +10,7 @@
 
 This management includes PATH, PYTHONPATH and ENV Variables.
 """
+
 import copy
 import logging
 import os
@@ -26,10 +27,10 @@ MY_LOGGER = logging.getLogger(LOGGING_GROUP)
 # Copy the Singleton pattern from...
 #   https://stackoverflow.com/a/6798042
 #
-class Singleton(type): # noqa
+class Singleton(type):  # noqa
     _instances = {}
 
-    def __call__(cls, *args, **kwargs): # noqa
+    def __call__(cls, *args, **kwargs):  # noqa
         if cls not in cls._instances:
             cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[cls]
@@ -42,6 +43,7 @@ class ShellEnvironment(metaclass=Singleton):
     screenshots (checkpoints) that are stored and can be accessed
     later.
     """
+
     # Easy definition for the very first checkpoint
     # when the environment is first created.
     INITIAL_CHECKPOINT = 0
@@ -76,7 +78,7 @@ class ShellEnvironment(metaclass=Singleton):
             self.active_environ[key] = value
 
         # Record the PATH elements of the current environment.
-        path = self.active_environ.get('PATH', "")
+        path = self.active_environ.get("PATH", "")
 
         # Filter removes empty elements.
         # List creates an actual list rather than a generator.
@@ -132,12 +134,14 @@ class ShellEnvironment(metaclass=Singleton):
         4. active_buildvars
         """
         new_index = len(self.checkpoints)
-        self.checkpoints.append({
-            'environ': copy.copy(self.active_environ),
-            'path': self.active_path,
-            'pypath': self.active_pypath,
-            'buildvars': copy.copy(self.active_buildvars)
-        })
+        self.checkpoints.append(
+            {
+                "environ": copy.copy(self.active_environ),
+                "path": self.active_path,
+                "pypath": self.active_pypath,
+                "buildvars": copy.copy(self.active_buildvars),
+            }
+        )
 
         return new_index
 
@@ -145,10 +149,10 @@ class ShellEnvironment(metaclass=Singleton):
         """Restore a specific checkpoint."""
         if index < len(self.checkpoints):
             check_point = self.checkpoints[index]
-            self.active_environ = copy.copy(check_point['environ'])
-            self.active_path = check_point['path']
-            self.active_pypath = check_point['pypath']
-            self.active_buildvars = copy.copy(check_point['buildvars'])
+            self.active_environ = copy.copy(check_point["environ"])
+            self.active_path = check_point["path"]
+            self.active_pypath = check_point["pypath"]
+            self.active_buildvars = copy.copy(check_point["buildvars"])
 
             self.export_environment()
 
@@ -335,9 +339,8 @@ class ShellEnvironment(metaclass=Singleton):
             var_name (str): variable to set the value for
             var_data (obj): data to set
         """
-        self.logger.debug(
-            "Updating BUILD VAR element '%s': '%s'." % (var_name, var_data))
-        self.active_buildvars.SetValue(var_name, var_data, '', overridable=True)
+        self.logger.debug("Updating BUILD VAR element '%s': '%s'." % (var_name, var_data))
+        self.active_buildvars.SetValue(var_name, var_data, "", overridable=True)
 
     def get_shell_var(self, var_name: str) -> str:
         """Gets the shell variable.
@@ -363,13 +366,12 @@ class ShellEnvironment(metaclass=Singleton):
         # Check for the "special" shell vars.
         if var_data is None:
             raise ValueError("Unexpected var_data: None")
-        if var_name.upper() == 'PATH':
+        if var_name.upper() == "PATH":
             self.set_path(var_data)
-        elif var_name.upper() == 'PYTHONPATH':
+        elif var_name.upper() == "PYTHONPATH":
             self.set_pypath(var_data)
         else:
-            self.logger.debug(
-                "Updating SHELL VAR element '%s': '%s'." % (var_name, var_data))
+            self.logger.debug("Updating SHELL VAR element '%s': '%s'." % (var_name, var_data))
             self.active_environ[var_name] = var_data
             os.environ[var_name] = var_data
 
@@ -389,6 +391,7 @@ def GetBuildVars() -> var_dict.VarDict:
     Returns:
         (VarDict): A special dictionary containing build vars
     """
+
     #
     # Tricky!
     # Define a wrapper class that always forwards commands to the
@@ -400,7 +403,7 @@ def GetBuildVars() -> var_dict.VarDict:
         def __init__(self) -> None:
             self.internal_shell_env = ShellEnvironment()
 
-        def __getattr__(self, attrname: str) -> Any: # noqa: ANN401
+        def __getattr__(self, attrname: str) -> Any:  # noqa: ANN401
             # Instead, invoke on the active BuildVars object.
             return getattr(self.internal_shell_env.active_buildvars, attrname)
 

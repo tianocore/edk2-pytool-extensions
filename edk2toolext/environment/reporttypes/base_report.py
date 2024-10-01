@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 """An interface to create custom reports with."""
+
 from argparse import ArgumentParser, Namespace
 from typing import Tuple
 
@@ -14,6 +15,7 @@ from edk2toollib.database import Edk2DB
 
 class Report:
     """The interface to create custom reports."""
+
     def report_info(self) -> Tuple[str, str]:
         """Returns the report standard information.
 

@@ -14,6 +14,7 @@ Contains a PrEvalSettingsManager that must be subclassed in a build settings
 file. This provides platform specific information to Edk2PrEval invocable
 while allowing the invocable itself to remain platform agnostic.
 """
+
 import argparse
 import logging
 import os
@@ -59,11 +60,7 @@ class PrEvalSettingsManager(MultiPkgAwareSettingsInterface):
         ```
     """
 
-    def FilterPackagesToTest(
-        self,
-        changedFilesList: list,
-        potentialPackagesList: list
-    ) -> list:
+    def FilterPackagesToTest(self, changedFilesList: list, potentialPackagesList: list) -> list:
         """Filter potential packages to test based on changed files.
 
         !!! tip
@@ -107,18 +104,34 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
 
     def AddCommandLineOptions(self, parserObj: argparse.ArgumentParser) -> None:
         """Adds command line options to the argparser."""
-        parserObj.add_argument("--pr-target", dest='pr_target', type=str, default=None,
-                               help="PR Branch Target.  Allows build optimizations for pull request"
-                               " validation based on files changed. If a package doesn't need testing then it will"
-                               " be skipped. Example --pr-target origin/master", required=True)
-        parserObj.add_argument("--output-csv-format-string", dest='output_csv_format_string', type=str, default=None,
-                               help="Provide format string that will be output to stdout a full csv of packages"
-                               " to be tested.  Valid Tokens: {pkgcsv}"
-                               " Example --output-csv-format-string test={pkgcsv}")
-        parserObj.add_argument("--output-count-format-string", dest='output_count_format_string', type=str,
-                               default=None, help="Provide format string that will be output to stdout the count of"
-                               " packages to be tested.  Valid Tokens: {pkgcount}"
-                               " Example --output-count-format-string PackageCount={pkgcount}")
+        parserObj.add_argument(
+            "--pr-target",
+            dest="pr_target",
+            type=str,
+            default=None,
+            help="PR Branch Target.  Allows build optimizations for pull request"
+            " validation based on files changed. If a package doesn't need testing then it will"
+            " be skipped. Example --pr-target origin/master",
+            required=True,
+        )
+        parserObj.add_argument(
+            "--output-csv-format-string",
+            dest="output_csv_format_string",
+            type=str,
+            default=None,
+            help="Provide format string that will be output to stdout a full csv of packages"
+            " to be tested.  Valid Tokens: {pkgcsv}"
+            " Example --output-csv-format-string test={pkgcsv}",
+        )
+        parserObj.add_argument(
+            "--output-count-format-string",
+            dest="output_count_format_string",
+            type=str,
+            default=None,
+            help="Provide format string that will be output to stdout the count of"
+            " packages to be tested.  Valid Tokens: {pkgcount}"
+            " Example --output-count-format-string PackageCount={pkgcount}",
+        )
         super().AddCommandLineOptions(parserObj)
 
     def RetrieveCommandLineOptions(self, args: argparse.Namespace) -> None:
@@ -152,7 +165,8 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         # A packages path is ok to drop for this because if it isn't populated it is assumed outside
         # the repository and thus will not trigger the build.
         self.edk2_path_obj = path_utilities.Edk2Path(
-            self.GetWorkspaceRoot(), self.GetPackagesPath(), error_on_invalid_pp=False)
+            self.GetWorkspaceRoot(), self.GetPackagesPath(), error_on_invalid_pp=False
+        )
         self.logger = logging.getLogger("edk2_pr_eval")
         actualPackagesDict = self.get_packages_to_build(self.requested_package_list)
 
@@ -203,10 +217,9 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         #
         for f in files:
             if not self.edk2_path_obj.GetContainingPackage(os.path.abspath(f)):
-                return dict.fromkeys(possible_packages,
-                                     "Policy 0 - Build all packages if "
-                                     "a file is modified outside a "
-                                     "package.")
+                return dict.fromkeys(
+                    possible_packages, "Policy 0 - Build all packages if " "a file is modified outside a " "package."
+                )
 
         remaining_packages = possible_packages.copy()  # start with all possible packages and remove each
         # package once it is determined to be build.  This optimization
@@ -240,7 +253,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
                 # Ignore a file in which we fail to get the package
                 continue
 
-            if (pkg not in packages_to_build.keys() and pkg in remaining_packages):
+            if pkg not in packages_to_build.keys() and pkg in remaining_packages:
                 packages_to_build[pkg] = "Policy 2 - Build any package that has changed"
                 remaining_packages.remove(pkg)
 
@@ -276,7 +289,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         # NOTE: future enhancement could be to check actual file dependencies
         for a in public_package_changes:
             for p in remaining_packages[:]:  # slice so we can delete as we go
-                if (self._does_pkg_depend_on_package(p, a)):
+                if self._does_pkg_depend_on_package(p, a):
                     packages_to_build[p] = f"Policy 3 - Package depends on {a}"
                     remaining_packages.remove(p)  # remove from remaining packages
 
@@ -325,8 +338,10 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
             for p in remaining_packages[:]:
                 dsc, defines = self._get_package_ci_information(p)
                 if not dsc:
-                    logging.debug(f"Policy 5 - Package {p} skipped due to missing ci.dsc file or missing DscPath"
-                                  "section of the PrEval settings.")
+                    logging.debug(
+                        f"Policy 5 - Package {p} skipped due to missing ci.dsc file or missing DscPath"
+                        "section of the PrEval settings."
+                    )
                     continue
 
                 dsc_parser = DscParser()
@@ -395,13 +410,13 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         cmd_params = f"diff --name-only HEAD..{base_branch}"
         rc = RunCmd("git", cmd_params, outstream=output)
 
-        if (rc == 0):
+        if rc == 0:
             self.logger.debug("git diff command returned successfully!")
         else:
             self.logger.critical("git diff returned error return value: %s" % str(rc))
             return (rc, [])
 
-        if (output.getvalue() is None):
+        if output.getvalue() is None:
             self.logger.info("No files listed in diff")
             return (0, [])
 
@@ -455,7 +470,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
             return False
 
         dec = None
-        if (pkg in self.parsed_dec_cache):
+        if pkg in self.parsed_dec_cache:
             dec = self.parsed_dec_cache[pkg]
         else:
             abs_pkg_path = self.edk2_path_obj.GetAbsolutePathOnThisSystemFromEdk2RelativePath(pkg)
@@ -471,12 +486,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
 
         return False
 
-    def _walk_dir_for_filetypes(
-            self,
-            extensionlist: list,
-            directory: str,
-            ignorelist: Optional[list]=None
-    ) -> list:
+    def _walk_dir_for_filetypes(self, extensionlist: list, directory: str, ignorelist: Optional[list] = None) -> list:
         """Walks a directory for all items ending in certain extension."""
         if not isinstance(extensionlist, list):
             raise ValueError("Expected list but got " + str(type(extensionlist)))
@@ -505,9 +515,9 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
                 for Extension in extensionlist_lower:
                     if File.lower().endswith(Extension):
                         ignoreIt = False
-                        if (ignorelist is not None):
+                        if ignorelist is not None:
                             for c in ignorelist_lower:
-                                if (File.lower().startswith(c)):
+                                if File.lower().startswith(c):
                                     ignoreIt = True
                                     break
                         if not ignoreIt:
@@ -518,14 +528,14 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
 
     def _get_package_ci_information(self, pkg_name: str) -> str:
         pkg_path = Path(self.edk2_path_obj.GetAbsolutePathOnThisSystemFromEdk2RelativePath(pkg_name))
-        ci_file = pkg_path.joinpath(f'{pkg_name}.ci.yaml')
+        ci_file = pkg_path.joinpath(f"{pkg_name}.ci.yaml")
         dsc = None
         defines = None
 
         if not ci_file.exists():
             return (None, None)
 
-        with open(ci_file, 'r') as f:
+        with open(ci_file, "r") as f:
             data = yaml.safe_load(f)
             dsc = data.get("PrEval", {"DscPath": None})["DscPath"]
             dsc = str(pkg_path / dsc) if dsc else None

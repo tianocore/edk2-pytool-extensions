@@ -19,7 +19,6 @@ from edk2toolext.environment import version_aggregator
 
 
 class TestEdk2PlatBuild(unittest.TestCase):
-
     minimalTree = None
 
     def setUp(self):
@@ -40,11 +39,11 @@ class TestEdk2PlatBuild(unittest.TestCase):
 
     @classmethod
     def restart_logging(cls):
-        '''
+        """
         We restart logging as logging is closed at the end of edk2 invocables.
         We also initialize it at the start.
         Reloading is the easiest way to get fresh state
-        '''
+        """
         logging.shutdown()
         reload(logging)
 

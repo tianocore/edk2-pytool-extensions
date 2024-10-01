@@ -24,7 +24,7 @@ bad_version = "5.2.13.1.2"
 missing_version = "5.200.13"
 
 hw_package_name = "NuGet.CommandLine"
-hw_json_template = '''
+hw_json_template = """
 {
   "scope": "global",
   "type": "nuget",
@@ -32,7 +32,7 @@ hw_json_template = '''
   "source": "https://api.nuget.org/v3/index.json",
   "version": "%s"
 }
-'''
+"""
 
 
 def prep_workspace():
@@ -63,7 +63,7 @@ class TestNugetDependency(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        logger = logging.getLogger('')
+        logger = logging.getLogger("")
         logger.addHandler(logging.NullHandler())
         unittest.installHandler()
 
@@ -89,11 +89,10 @@ class TestNugetDependency(unittest.TestCase):
     def test_can_get_nuget_path(self):
         nuget_cmd = NugetDependency.GetNugetCmd()
         nuget_cmd += ["locals", "global-packages", "-list"]
-        ret = RunCmd(nuget_cmd[0], ' '.join(nuget_cmd[1:]), outstream=sys.stdout)
+        ret = RunCmd(nuget_cmd[0], " ".join(nuget_cmd[1:]), outstream=sys.stdout)
         self.assertEqual(ret, 0)  # make sure we have a zero return code
 
     def test_missing_nuget(self):
-
         if NugetDependency.NUGET_ENV_VAR_NAME in os.environ:
             del os.environ[NugetDependency.NUGET_ENV_VAR_NAME]
 
@@ -253,7 +252,7 @@ class TestNugetDependency(unittest.TestCase):
         # Create a cache with a bad cached package.
         #
         # First, create the cache.
-        cache_dir = os.path.join(test_dir, 'nuget_test_bad_cache')
+        cache_dir = os.path.join(test_dir, "nuget_test_bad_cache")
         os.mkdir(cache_dir)
         ext_dep.nuget_cache_path = cache_dir
         # Then create the directories inside the cache that should hold the contents.
@@ -279,7 +278,7 @@ class TestNugetDependency(unittest.TestCase):
         # Create a cache with a good cached package.
         #
         # First, create the cache.
-        cache_dir = os.path.join(test_dir, 'nuget_test_good_cache')
+        cache_dir = os.path.join(test_dir, "nuget_test_good_cache")
         os.mkdir(cache_dir)
         ext_dep.nuget_cache_path = cache_dir
         # Then create the directories inside the cache that should hold the contents.
@@ -298,5 +297,5 @@ class TestNugetDependency(unittest.TestCase):
         self.assertTrue(ext_dep.verify())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

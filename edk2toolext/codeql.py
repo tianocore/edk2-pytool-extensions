@@ -12,6 +12,7 @@ Contains functions are intended to ease repo integration with CodeQL, ensure
 consistent command-line usage across repos, and define standard scopes that
 other plugins and tools can depend on for CodeQL operations.
 """
+
 from argparse import ArgumentParser, Namespace
 from typing import Tuple
 
@@ -28,11 +29,12 @@ def add_command_line_option(parser: ArgumentParser) -> None:
 
     """
     parser.add_argument(
-        '--codeql',
-        dest='codeql',
-        action='store_true',
+        "--codeql",
+        dest="codeql",
+        action="store_true",
         default=False,
-        help="Optional - Produces CodeQL results from the build.")
+        help="Optional - Produces CodeQL results from the build.",
+    )
 
 
 def get_scopes(codeql_enabled: bool) -> Tuple[str]:
@@ -78,7 +80,4 @@ def set_audit_only_mode(uefi_builder: UefiBuilder) -> None:
                                     build.
 
     """
-    uefi_builder.env.SetValue(
-        "STUART_CODEQL_AUDIT_ONLY",
-        "true",
-        "Platform Defined")
+    uefi_builder.env.SetValue("STUART_CODEQL_AUDIT_ONLY", "true", "Platform Defined")

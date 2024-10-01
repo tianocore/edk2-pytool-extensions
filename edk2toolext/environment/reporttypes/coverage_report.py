@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 """A report that re-organizes a cobertura.xml by INF."""
+
 import fnmatch
 import logging
 import os
@@ -26,14 +27,17 @@ from edk2toolext.environment.reporttypes.base_report import Report
 
 class SplitCommaAction(Action):
     """A Custom action similar to append, but will split the input string on commas first."""
+
     def __call__(
-            self, parser: ArgumentParser,
-            namespace: Namespace,
-            values: str | Sequence[str],
-            option_string: Optional[str] = None,
-            ) -> None:
-       """Command entry."""
-       setattr(namespace, self.dest, getattr(namespace, self.dest, []) + values.split(','))
+        self,
+        parser: ArgumentParser,
+        namespace: Namespace,
+        values: str | Sequence[str],
+        option_string: Optional[str] = None,
+    ) -> None:
+        """Command entry."""
+        setattr(namespace, self.dest, getattr(namespace, self.dest, []) + values.split(","))
+
 
 class CoverageReport(Report):
     """A report that re-organizes a cobertura.xml by INF.
@@ -42,48 +46,99 @@ class CoverageReport(Report):
     files in the specified edk2 packages. By-platform will only include coverage data for files used to build the
     specified platform dsc.
     """
+
     def report_info(self) -> Tuple[str, str]:
         """Returns the report standard information.
 
         Returns:
             (str, str): A tuple of (name, description)
         """
-        return ("coverage", "Reorganizes an xml coverage report by INF rather than executable. Filters results based "
-                "on --by-package or --by-platform flags.")
+        return (
+            "coverage",
+            "Reorganizes an xml coverage report by INF rather than executable. Filters results based "
+            "on --by-package or --by-platform flags.",
+        )
 
     def add_cli_options(self, parserobj: ArgumentParser) -> None:
         """Configure command line arguments for this report."""
         # Group 2 - Calculate coverage only on files used by a specific platform
         group = parserobj.add_argument_group("Coverage by platform options")
-        group.add_argument("--by-platform", action="store_true", dest="by_platform", default=False,
-                           help="Filters test coverage to all files used to build the specified platform package.")
-        group.add_argument("-d", "--dsc", "--DSC", dest="dsc",
-                           help="Edk2 relative path the ACTIVE_PLATFORM DSC file.")
+        group.add_argument(
+            "--by-platform",
+            action="store_true",
+            dest="by_platform",
+            default=False,
+            help="Filters test coverage to all files used to build the specified platform package.",
+        )
+        group.add_argument("-d", "--dsc", "--DSC", dest="dsc", help="Edk2 relative path the ACTIVE_PLATFORM DSC file.")
 
         # Group 3 - Run either by-platform or by-package with a FULL report
         group = parserobj.add_argument_group("Full Report")
-        group.add_argument("--full", action="store_true", dest="full", default=False,
-                           help="Include all files in the report, not just those with coverage data. Requires pygount.")
-        group.add_argument("-ws", "--workspace", "--Workspace", "--WORKSPACE", dest="workspace",
-                               help="The Workspace root associated with the xml argument.", default=".")
+        group.add_argument(
+            "--full",
+            action="store_true",
+            dest="full",
+            default=False,
+            help="Include all files in the report, not just those with coverage data. Requires pygount.",
+        )
+        group.add_argument(
+            "-ws",
+            "--workspace",
+            "--Workspace",
+            "--WORKSPACE",
+            dest="workspace",
+            help="The Workspace root associated with the xml argument.",
+            default=".",
+        )
 
         # Other args
         parserobj.add_argument(dest="xml", action="store", help="The path to the XML file parse.")
-        parserobj.add_argument("-o", "--output", "--Output", "--OUTPUT", dest="output", default="Coverage.xml",
-                               help="The path to the output XML file.", action="store")
-        parserobj.add_argument("-e", "--exclude", "--Exclude", "--EXCLUDE", dest="exclude",
-                               action=SplitCommaAction, default=[],
-                               help="Package path relative paths or file (.txt). Globbing is supported. Can be "
-                               "specified multiple times")
-        parserobj.add_argument("-p", "--package", "--Package", "--PACKAGE", dest="package_list",
-                           action=SplitCommaAction, default=[],
-                           help="The package to include in the report. Can be specified multiple times.")
-        parserobj.add_argument("--flatten", action="store_true", dest="flatten", default=False,
-                              help="Flatten the report to only source files. This removes duplicate files that are in "
-                              "multiple INFs.")
+        parserobj.add_argument(
+            "-o",
+            "--output",
+            "--Output",
+            "--OUTPUT",
+            dest="output",
+            default="Coverage.xml",
+            help="The path to the output XML file.",
+            action="store",
+        )
+        parserobj.add_argument(
+            "-e",
+            "--exclude",
+            "--Exclude",
+            "--EXCLUDE",
+            dest="exclude",
+            action=SplitCommaAction,
+            default=[],
+            help="Package path relative paths or file (.txt). Globbing is supported. Can be "
+            "specified multiple times",
+        )
+        parserobj.add_argument(
+            "-p",
+            "--package",
+            "--Package",
+            "--PACKAGE",
+            dest="package_list",
+            action=SplitCommaAction,
+            default=[],
+            help="The package to include in the report. Can be specified multiple times.",
+        )
+        parserobj.add_argument(
+            "--flatten",
+            action="store_true",
+            dest="flatten",
+            default=False,
+            help="Flatten the report to only source files. This removes duplicate files that are in " "multiple INFs.",
+        )
         group = parserobj.add_argument_group("Deprecated Options")
-        group.add_argument("--by-package", action="store_true", dest="by_package", default=False,
-                           help="Filters test coverage to only files in the specified packages(s)")
+        group.add_argument(
+            "--by-package",
+            action="store_true",
+            dest="by_package",
+            default=False,
+            help="Filters test coverage to only files in the specified packages(s)",
+        )
 
     def run_report(self, db: Edk2DB, args: Namespace) -> None:
         """Generate the Coverage report."""
@@ -125,11 +180,10 @@ class CoverageReport(Report):
         logging.info(f"ACTIVE_PLATFORM requested: {dsc}")
 
         result = (
-            session
-                .query(Environment)
-                .filter(Environment.values.any(key="ACTIVE_PLATFORM", value=dsc))
-                .order_by(Environment.date.desc())
-                .first()
+            session.query(Environment)
+            .filter(Environment.values.any(key="ACTIVE_PLATFORM", value=dsc))
+            .order_by(Environment.date.desc())
+            .first()
         )
 
         if result is None:
@@ -143,16 +197,15 @@ class CoverageReport(Report):
         # Build inf / source association dictionary
         inf_alias = aliased(InstancedInf)
         inf_list = (
-            session
-                .query(inf_alias)
-                .join(Fv.infs)
-                .join(inf_alias, InstancedInf.path == inf_alias.component)
-                .filter(Fv.env == env_id)
-                .filter(inf_alias.env == env_id)
-                .filter(InstancedInf.env == env_id)
-                .group_by(inf_alias.path)
-                .distinct(inf_alias.path)
-                .all()
+            session.query(inf_alias)
+            .join(Fv.infs)
+            .join(inf_alias, InstancedInf.path == inf_alias.component)
+            .filter(Fv.env == env_id)
+            .filter(inf_alias.env == env_id)
+            .filter(InstancedInf.env == env_id)
+            .group_by(inf_alias.path)
+            .distinct(inf_alias.path)
+            .all()
         )
         data = [
             (inf.path, source.path) for inf in inf_list for source in inf.sources if source.path.lower().endswith(".c")
@@ -174,20 +227,19 @@ class CoverageReport(Report):
             (bool): True if the report was successful, False otherwise.
         """
         # Get env_id
-        env_id, = session.query(Environment.id).order_by(Environment.date.desc()).first()
+        (env_id,) = session.query(Environment.id).order_by(Environment.date.desc()).first()
 
         # Build source / coverage association dictionary
         coverage_files = self.build_source_coverage_dictionary(self.args.xml, package_list)
 
         # Build inf / source association dictionary
         data = (
-            session
-                .query(Inf.path, Source.path)
-                .join(Inf.sources)
-                .filter(func.lower(Source.path).endswith('.c'))
-                .group_by(Inf.path, Source.path)
-                .distinct(Inf.path, Source.path)
-                .all()
+            session.query(Inf.path, Source.path)
+            .join(Inf.sources)
+            .filter(func.lower(Source.path).endswith(".c"))
+            .group_by(Inf.path, Source.path)
+            .distinct(Inf.path, Source.path)
+            .all()
         )
         package_files = self.build_inf_source_dictionary(data, package_list)
 
@@ -205,7 +257,7 @@ class CoverageReport(Report):
             dict[str, ET.Element]: A dictionary of source files and their coverage data.
         """
         tree = ET.parse(xml_path)
-        regex = re.compile('|'.join(map(re.escape, package_list)))
+        regex = re.compile("|".join(map(re.escape, package_list)))
         file_dict = {}
         for file in tree.iter("class"):
             # Add the file results if they do not exist
@@ -216,7 +268,7 @@ class CoverageReport(Report):
             if not match:
                 continue
 
-            path = Path(filename[match.start():]).as_posix()
+            path = Path(filename[match.start() :]).as_posix()
             if path not in file_dict:
                 file.attrib["filename"] = path
                 file.attrib["name"] = "\\".join(Path(path).parts)
@@ -290,7 +342,7 @@ class CoverageReport(Report):
                 exclude_file = False
                 for pattern in self.args.exclude:
                     if fnmatch.fnmatch(source, pattern):
-                        logging.debug(f'{source} excluded due to {pattern}')
+                        logging.debug(f"{source} excluded due to {pattern}")
                         exclude_file = True
                         break
                 if exclude_file:
@@ -310,12 +362,13 @@ class CoverageReport(Report):
 
         xml_string = ET.tostring(root, "utf-8")
         dom = minidom.parseString(xml_string)
-        dt = minidom.getDOMImplementation('').createDocumentType(
-            'coverage', None, "http://cobertura.sourceforge.net/xml/coverage-04.dtd")
+        dt = minidom.getDOMImplementation("").createDocumentType(
+            "coverage", None, "http://cobertura.sourceforge.net/xml/coverage-04.dtd"
+        )
         dom.insertBefore(dt, dom.documentElement)
         p = Path(self.args.output)
         p.unlink(missing_ok=True)
-        with open(p, 'wb') as f:
+        with open(p, "wb") as f:
             f.write(dom.toprettyxml(encoding="utf-8", indent="  "))
         logging.info(f"Coverage xml data written to {p}")
 
@@ -333,6 +386,7 @@ class CoverageReport(Report):
     def create_source_xml(self, source_path: str, edk2path: Edk2Path) -> Optional[ET.Element]:
         """Parses the source file and creates a coverage 'lines' xml element for it."""
         from pygount import SourceAnalysis
+
         full_path = edk2path.GetAbsolutePathOnThisSystemFromEdk2RelativePath(source_path, log_errors=False)
         if full_path is None:
             logging.warning(f"Could not find {source_path} in the workspace. Skipping...")
@@ -352,7 +406,7 @@ class CoverageReport(Report):
 
         class_dict = {}
         for class_element in root.iter("class"):
-            filename = class_element.get('filename')
+            filename = class_element.get("filename")
             filename = "\\".join(Path(filename).parts)
             class_element.set("name", filename)
             class_dict[filename] = class_element
@@ -360,10 +414,10 @@ class CoverageReport(Report):
         for class_element in class_dict.values():
             class_list.append(class_element)
 
-        package_element = ET.Element("package", name = "All Source")
+        package_element = ET.Element("package", name="All Source")
         package_element.append(class_list)
 
-        packages = root.find('.//packages')
+        packages = root.find(".//packages")
         packages.clear()
         packages.append(package_element)
         return root
