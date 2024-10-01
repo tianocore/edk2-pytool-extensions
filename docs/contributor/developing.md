@@ -72,29 +72,34 @@ out all the different parts.
 
 ## Testing
 
-1. Run a Basic Syntax/Lint Check (using flake8) and resolve any issues
+PIP modules used in this section such as `ruff` and `pydocstyle` are installed when you run `pip install -e .[dev]`
+as described below.
+
+> See [`pyproject.toml`](../../pyproject.toml) for the full list of development dependencies
+
+1. Run a Basic Syntax/Lint Check (using ruff) and resolve any issues
+
+    * Run ruff
 
     ``` cmd
-    flake8 .
+    ruff check .
+    ruff format --check
     ```
 
-    INFO: Newer editors are very helpful in resolving source formatting errors
-    (whitespace, indentation, etc). In VSCode open the py file and use
-    ++alt+shift+f++ to auto format.
+    * Note: Newer editors are very helpful in resolving source formatting errors. For example, in VSCode, you can
+            open the Python file and use `Alt+Shift+F` to auto format. See the [Ruff VSCode extension](https://marketplace.visualstudio.com/items?itemName=charliermarsh.ruff)
+            for more information.
 
-2. Run a Basic Python docstring Check (using pydocstring) and resolve any issues
+    * Note: `ruff` is a wrapper around tools like `pydocstyle`. See [`pyproject.toml`](../../pyproject.toml) for
+            more details.
 
-    ``` cmd
-    pydocstyle edk2toolext
-    ```
-
-3. Run the `BasicDevTests.py` script to check file encoding, file naming, etc
+2. Run the `BasicDevTests.py` script to check file encoding, file naming, etc
 
     ```cmd
     BasicDevTests.py
     ```
 
-4. Run Coverage with pytest test execution
+3. Run Coverage with pytest test execution
 
     ``` cmd
     coverage run -m pytest
@@ -106,7 +111,7 @@ out all the different parts.
     Coverage is uploaded to `codecov.io`. For more information, review
     `coverage.md` in the docs folder.
 
-5. Generate and review the html report
+4. Generate and review the html report
 
     You can one run or the other.
 
@@ -115,19 +120,19 @@ out all the different parts.
     coverage html
     ```
 
-6. Run the spell checker
+5. Run the spell checker
 
     ```cmd
     cspell -c .cspell.json "**/*.py" "**/*.md"
     ```
 
-7. Run the markdown linter
+6. Run the markdown linter
 
     ```cmd
     markdownlint "**/*.md"
     ```
 
-8. Run mkdocs build
+7. Run mkdocs build
    * Fix warnings and errors
 
     ```cmd
