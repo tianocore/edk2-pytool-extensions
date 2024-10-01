@@ -307,9 +307,7 @@ class RustEnvironmentTests(unittest.TestCase):
         mock_run_cmd: MagicMock,
     ):
         mock_run_cmd.side_effect = self._mock_run_cmd
-        mock_get_workspace_toolchain_version.side_effect = (
-            self._mock_get_workspace_toolchain_version
-        )
+        mock_get_workspace_toolchain_version.side_effect = self._mock_get_workspace_toolchain_version
         result = _verify_rust_src_component_is_installed()
         self.assertTrue(result)
 
@@ -333,9 +331,7 @@ class RustEnvironmentTests(unittest.TestCase):
             assert tool_versions == {}
 
     @patch("edk2toolext.environment.rust.RunCmd")
-    def test_verify_workspace_rust_toolchain_is_installed(
-        self, mock_run_cmd: MagicMock
-    ):
+    def test_verify_workspace_rust_toolchain_is_installed(self, mock_run_cmd: MagicMock):
         mock_run_cmd.side_effect = self._mock_run_cmd
 
         # Test when the toolchain is not found
@@ -344,9 +340,7 @@ class RustEnvironmentTests(unittest.TestCase):
         assert toolchain_info.toolchain is None
 
         # Test when the toolchain is found and stable
-        with patch(
-            "builtins.open", mock_open(read_data='[toolchain]\nchannel = "stable"')
-        ):
+        with patch("builtins.open", mock_open(read_data='[toolchain]\nchannel = "stable"')):
             toolchain_info = verify_workspace_rust_toolchain_is_installed()
             assert not toolchain_info.error
             assert toolchain_info.toolchain == "stable"

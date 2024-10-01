@@ -12,7 +12,6 @@ from edk2toolext.bin import nuget
 
 
 class Test_nuget(unittest.TestCase):
-
     def test_can_download_nuget(self):
         test_dir = tempfile.mkdtemp()
         nuget_path = os.path.join(test_dir, "NuGet.exe")

@@ -24,13 +24,12 @@ from edk2toolext.windows.secureboot.secureboot_audit import (
 TEST_DATA_PARENT_DIRECTORY = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),  # Test folder is relative to the test
     "testdata",
-    "secureboot_audit"
+    "secureboot_audit",
 )
 TEST_HASH = "80B4D96931BF0D02FD91A61E19D14F1DA452E66DB2408CA8604D411F92659F0A"
 
 
 class TestSecureBootReport(unittest.TestCase):
-
     def test_parse_dbx(self):
         """Test that we can parse the dbx file"""
         dbx_file = os.path.join(TEST_DATA_PARENT_DIRECTORY, "dbx.bin")
@@ -81,7 +80,7 @@ class TestSecureBootReport(unittest.TestCase):
             for rev in filtered_revocations:
                 self.assertEqual(filtered_revocations[rev]["arch"], "arm64")
 
-    def test_convert_uefi_org_revocation_file_to_dict(self):
+    def test_convert_uefi_org_revocation_file_to_dict1(self):
         """Test that we can convert the uefi.org revocation file to a dict"""
         xlsx_file = os.path.join(TEST_DATA_PARENT_DIRECTORY, "dbx_info_2020_2023_uefiorg_v3.xlsx")
 
@@ -94,7 +93,7 @@ class TestSecureBootReport(unittest.TestCase):
 
             self.assertEqual(revocations, expected_revocations)
 
-    def test_convert_uefi_org_revocation_file_to_dict(self):
+    def test_convert_uefi_org_revocation_file_to_dict2(self):
         """Test that we can convert the uefi.org revocation file to a dict"""
         csv_file = os.path.join(TEST_DATA_PARENT_DIRECTORY, "dbx_info_2020_2023_uefiorg_v3.csv")
 
@@ -118,7 +117,7 @@ class TestSecureBootReport(unittest.TestCase):
             dbx_report = json.load(dbx_fs)
 
             with tempfile.TemporaryDirectory() as td:
-                test_file = os.path.join(td, 'test.xlsx')
+                test_file = os.path.join(td, "test.xlsx")
                 write_xlsx_file(dbx_report, test_file)
 
                 self.assertEqual(os.path.exists(test_file), True)
@@ -131,7 +130,7 @@ class TestSecureBootReport(unittest.TestCase):
             dbx_report = json.load(dbx_fs)
 
             with tempfile.TemporaryDirectory() as td:
-                test_file = os.path.join(td, 'test.json')
+                test_file = os.path.join(td, "test.json")
                 write_json_file(dbx_report, test_file)
 
                 self.assertEqual(os.path.exists(test_file), True)
@@ -142,5 +141,5 @@ class TestSecureBootReport(unittest.TestCase):
                     self.assertEqual(test_report, dbx_report)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

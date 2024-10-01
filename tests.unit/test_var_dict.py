@@ -210,5 +210,5 @@ class TestVarDict(unittest.TestCase):
         self.assertTrue(v.GetValue("var2"), "Should return True")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -44,11 +44,11 @@ DEFAULT_OUTPUT_FOLDER = os.path.join(".", "SecureBootFiles")
 
 # The supported files to retrieve from UEFI and their guids, additional files can be added here
 SECUREBOOT_FILES = {
-    "dbx": "{d719b2cb-3d3a-4596-a3bc-dad00e67656f}", # EFI_IMAGE_SECURITY_DATABASE_GUID
-    "db":  "{d719b2cb-3d3a-4596-a3bc-dad00e67656f}", # EFI_IMAGE_SECURITY_DATABASE_GUID
-    "dbt": "{d719b2cb-3d3a-4596-a3bc-dad00e67656f}", # EFI_IMAGE_SECURITY_DATABASE_GUID
-    "KEK": "{8BE4DF61-93CA-11d2-AA0D-00E098032B8C}", # EFI_GLOBAL_VARIABLE
-    "PK":  "{8BE4DF61-93CA-11d2-AA0D-00E098032B8C}"  # EFI_GLOBAL_VARIABLE
+    "dbx": "{d719b2cb-3d3a-4596-a3bc-dad00e67656f}",  # EFI_IMAGE_SECURITY_DATABASE_GUID
+    "db": "{d719b2cb-3d3a-4596-a3bc-dad00e67656f}",  # EFI_IMAGE_SECURITY_DATABASE_GUID
+    "dbt": "{d719b2cb-3d3a-4596-a3bc-dad00e67656f}",  # EFI_IMAGE_SECURITY_DATABASE_GUID
+    "KEK": "{8BE4DF61-93CA-11d2-AA0D-00E098032B8C}",  # EFI_GLOBAL_VARIABLE
+    "PK": "{8BE4DF61-93CA-11d2-AA0D-00E098032B8C}",  # EFI_GLOBAL_VARIABLE
 }
 
 KNOWN_CERTIFICATES = [
@@ -150,6 +150,7 @@ def write_xlsx_file(report: dict, output_file: str) -> None:
 
     logger.info("Wrote report to %s", output_file)
 
+
 def convert_row_to_metadata(row: list) -> dict:
     """Converts a row from the csv to a metadata dictionary.
 
@@ -172,7 +173,7 @@ def convert_row_to_metadata(row: list) -> dict:
             str: Mapped CVE
         """
         # Intentionally naive mapping of CVE's to the correct format
-        if 'CVE' in cve.upper():
+        if "CVE" in cve.upper():
             # this condition could have multiple CVE's in it
             return cve
         elif "black lotus" in cve.lower():
@@ -187,9 +188,7 @@ def convert_row_to_metadata(row: list) -> dict:
         "component": row[2] if row[2] != "" else None,
         "arch": convert_arch.get(row[3], row[3]),
         "partner": row[4],
-        "type": "certificate"
-        if authenticode_hash in KNOWN_CERTIFICATES
-        else "authenticode",
+        "type": "certificate" if authenticode_hash in KNOWN_CERTIFICATES else "authenticode",
         "cves": map_cve(row[5]),
         "date": row[6].replace("\n", ""),
         "authority": None,
@@ -302,9 +301,7 @@ def generate_dbx_report(dbx_fs: BinaryIO, revocations: dict) -> dict:
 
             # Is this in our revocation list?
             if formatted_signature in revocations:
-                report["identified"]["dict"][formatted_signature] = revocations[
-                    formatted_signature
-                ]
+                report["identified"]["dict"][formatted_signature] = revocations[formatted_signature]
                 report["identified"]["dict"][formatted_signature]["count"] = 1
 
                 # if we have identified the revocation, remove it from the list
@@ -323,9 +320,7 @@ def generate_dbx_report(dbx_fs: BinaryIO, revocations: dict) -> dict:
     # Add totals
     report["identified"]["total"] = len(report["identified"]["dict"])
     report["not_found"]["total"] = len(report["not_found"]["list"])
-    report["missing_protections"]["total"] = len(
-        report["missing_protections"]["dict"]
-    )
+    report["missing_protections"]["total"] = len(report["missing_protections"]["dict"])
 
     # Check for flat hashes
     for supposed_authenticode_hash in report["not_found"]["list"]:
@@ -334,14 +329,12 @@ def generate_dbx_report(dbx_fs: BinaryIO, revocations: dict) -> dict:
                 break
 
             if supposed_authenticode_hash == revocations[supposed_flat_hash]["flat_hash_sha256"]:
-                logger.warning(
-                    "This hash appears to be a flat sha256 hash: %s", supposed_authenticode_hash
-                )
+                logger.warning("This hash appears to be a flat sha256 hash: %s", supposed_authenticode_hash)
 
     return report
 
 
-def filter_revocation_list_by_arch(revocations: dict, filter_by_arch: str=None) -> dict:
+def filter_revocation_list_by_arch(revocations: dict, filter_by_arch: str = None) -> dict:
     """Filters the revocation list by architecture.
 
     Args:
@@ -362,6 +355,7 @@ def filter_revocation_list_by_arch(revocations: dict, filter_by_arch: str=None) 
 
     return revocations
 
+
 ###################################################################################################
 # Classes
 ###################################################################################################
@@ -373,25 +367,19 @@ class FirmwareVariables(object):
     def __init__(self) -> None:
         """Constructor."""
         # enable required SeSystemEnvironmentPrivilege privilege
-        privilege = win32security.LookupPrivilegeValue(
-            None, "SeSystemEnvironmentPrivilege"
-        )
+        privilege = win32security.LookupPrivilegeValue(None, "SeSystemEnvironmentPrivilege")
 
         token = win32security.OpenProcessToken(
             win32process.GetCurrentProcess(),
             win32security.TOKEN_READ | win32security.TOKEN_ADJUST_PRIVILEGES,
         )
 
-        win32security.AdjustTokenPrivileges(
-            token, False, [(privilege, win32security.SE_PRIVILEGE_ENABLED)]
-        )
+        win32security.AdjustTokenPrivileges(token, False, [(privilege, win32security.SE_PRIVILEGE_ENABLED)])
 
         win32api.CloseHandle(token)
 
         try:
-            self._GetFirmwareEnvironmentVariable = (
-                KERNEL32.GetFirmwareEnvironmentVariableW
-            )
+            self._GetFirmwareEnvironmentVariable = KERNEL32.GetFirmwareEnvironmentVariableW
             self._GetFirmwareEnvironmentVariable.restype = ctypes.c_int
             self._GetFirmwareEnvironmentVariable.argtypes = [
                 ctypes.c_wchar_p,
@@ -414,9 +402,7 @@ class FirmwareVariables(object):
           The value of the variable
         """
         if self._GetFirmwareEnvironmentVariable is None:
-            raise NotImplementedError(
-                "GetFirmwareEnvironmentVariable is not implemented"
-            )
+            raise NotImplementedError("GetFirmwareEnvironmentVariable is not implemented")
 
         buffer = ctypes.create_string_buffer(EFI_VAR_MAX_BUFFER_SIZE)
         buffer_size = ctypes.c_int(EFI_VAR_MAX_BUFFER_SIZE)
@@ -455,9 +441,7 @@ def get_secureboot_files(args: argparse.Namespace) -> int:
     # To make this cross platform, we need to make FirmwareVariables support other platforms
     fw_vars = FirmwareVariables()
 
-    var = fw_vars.get_variable(
-        args.secureboot_file, SECUREBOOT_FILES[args.secureboot_file]
-    )
+    var = fw_vars.get_variable(args.secureboot_file, SECUREBOOT_FILES[args.secureboot_file])
 
     output_file = os.path.join(args.output, f"{args.secureboot_file}.bin")
 
@@ -486,7 +470,6 @@ def parse_dbx(args: argparse.Namespace) -> int:
         revocations = json.loads(rev_fs.read())
 
         with open(args.dbx_file, "rb") as dbx_fs:
-
             revocations = filter_revocation_list_by_arch(revocations, args.filter_by_arch)
             report = generate_dbx_report(dbx_fs, revocations)
 
@@ -502,7 +485,8 @@ def parse_dbx(args: argparse.Namespace) -> int:
 # Command Line Parsing Functions
 ###################################################################################################
 
-def valid_file(param: str, valid_extensions: tuple=(".csv", ".xlsx")) -> str:
+
+def valid_file(param: str, valid_extensions: tuple = (".csv", ".xlsx")) -> str:
     """Checks if a file is valid.
 
     Args:
@@ -514,7 +498,7 @@ def valid_file(param: str, valid_extensions: tuple=(".csv", ".xlsx")) -> str:
     """
     base, ext = os.path.splitext(param)
     if ext.lower() not in valid_extensions:
-        raise argparse.ArgumentTypeError('File must be one of the following types: {}'.format(valid_extensions))
+        raise argparse.ArgumentTypeError("File must be one of the following types: {}".format(valid_extensions))
     return param
 
 
@@ -546,8 +530,7 @@ def setup_parse_dbx(subparsers: argparse._SubParsersAction) -> argparse._SubPars
 
     parser.add_argument(
         "--output",
-        help="Output file to write the dbx contents to"
-        + " (note: extension will be based on the format)",
+        help="Output file to write the dbx contents to" + " (note: extension will be based on the format)",
         default=os.path.join(DEFAULT_OUTPUT_FOLDER, "dbx_report"),
     )
 
@@ -559,6 +542,7 @@ def setup_parse_dbx(subparsers: argparse._SubParsersAction) -> argparse._SubPars
     )
 
     return subparsers
+
 
 def setup_parse_uefi_org_files(subparsers: argparse._SubParsersAction) -> argparse._SubParsersAction:
     """Setup the parse_uefi_org_files subparser.

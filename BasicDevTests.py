@@ -39,10 +39,11 @@ def TestFilenameLowercase(apath):
 
 def PackageAndModuleValidCharacters(apath):
     """Check pep8 recommendations for package and module names."""
-    match = re.match('^[a-z0-9_/.]+$', apath.replace("\\", "/"))
+    match = re.match("^[a-z0-9_/.]+$", apath.replace("\\", "/"))
     if match is None:
         logging.critical(
-            f"PackageAndModuleValidCharacters failure: package or module name {apath} has something invalid")
+            f"PackageAndModuleValidCharacters failure: package or module name {apath} has something invalid"
+        )
         return False
     return True
 
@@ -55,7 +56,9 @@ def TestNoSpaces(apath):
 
 
 def TestRequiredLicense(apath):
-    licenses = ["SPDX-License-Identifier: BSD-2-Clause-Patent", ]
+    licenses = [
+        "SPDX-License-Identifier: BSD-2-Clause-Patent",
+    ]
     try:
         with open(apath, "rb") as f_obj:
             contents = f_obj.read().decode()
@@ -79,15 +82,15 @@ py_files = glob.glob(os.path.join(p, "**", "*.py"), recursive=True)
 error = 0
 for a in py_files:
     aRelativePath = os.path.relpath(a, os.getcwd())
-    if (not TestEncodingOk(a, "ascii")):
+    if not TestEncodingOk(a, "ascii"):
         error += 1
-    if (not TestFilenameLowercase(aRelativePath)):
+    if not TestFilenameLowercase(aRelativePath):
         error += 1
-    if (not TestNoSpaces(aRelativePath)):
+    if not TestNoSpaces(aRelativePath):
         error += 1
-    if (not TestRequiredLicense(a)):
+    if not TestRequiredLicense(a):
         error += 1
-    if (not PackageAndModuleValidCharacters(aRelativePath)):  # use relative path so only test within package
+    if not PackageAndModuleValidCharacters(aRelativePath):  # use relative path so only test within package
         error += 1
 
 logging.critical(f"Found {error} error(s) in {len(py_files)} file(s)")

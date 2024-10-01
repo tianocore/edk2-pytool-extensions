@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 """An invocable to run workspace parsers on a workspace and generate a database."""
+
 import argparse
 import logging
 import os
@@ -43,31 +44,31 @@ class AppendSplitAction(argparse.Action):
 
     example: -p Pkg1,Pkg2 -p Pkg3 => ['Pkg1', 'Pkg2', 'Pkg3']
     """
+
     def __call__(
-            self,
-            parser: ArgumentParser,
-            namespace: Namespace,
-            values: Sequence[str],
-            option_string: Optional[str] = None
-        ) -> None:
+        self, parser: ArgumentParser, namespace: Namespace, values: Sequence[str], option_string: Optional[str] = None
+    ) -> None:
         """The command to invoke the action."""
         items = getattr(namespace, self.dest, [])
-        items.extend(values.split(','))
+        items.extend(values.split(","))
         setattr(namespace, self.dest, items)
 
 
 class ParseSettingsManager(MultiPkgAwareSettingsInterface):
     """Settings to support ReportSettingsManager functionality."""
+
     def GetPackagesSupported(self) -> Iterable[str]:
         """Returns an iterable of edk2 packages supported by this build."""
         # Re-define and return an empty list instead of raising an exception as this is only needed when parsing
         # based off of a CI Settings File.
         return []
+
     def GetArchitecturesSupported(self) -> Iterable:
         """Returns an iterable of edk2 architectures supported by this build."""
         # Re-define and return an empty list instead of raising an exception as this is only needed when parsing
         # based off of a CI Settings File.
         return []
+
     def GetTargetsSupported(self) -> Iterable:
         """Returns an iterable of edk2 target tags supported by this build."""
         # Re-define and return an empty list instead of raising an exception as this is only needed when parsing
@@ -107,20 +108,40 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
 
     def AddCommandLineOptions(self, parserObj: ArgumentParser) -> None:
         """Adds the command line options."""
-        super().AddCommandLineOptions(parserObj) # Adds the CI Settings File options
-        parserObj.add_argument('--clear', '--Clear', "--CLEAR", dest='clear', action='store_true',
-                               help="Deletes the database before parsing the environment.")
-        parserObj.add_argument('--source-stats', '-S', dest='source_stats', action='store_true', default=False,
-                               help="Uses pygount to generate code statistics for each parsed source file, including "
-                               "lines of code, comments, and blank lines. Greatly increases parse time.")
-        parserObj.add_argument('-l', '--load-table', '--Load-Table', '--LOAD-TABLE', dest='extra_tables',
-                               action=AppendSplitAction, default=[], metavar='<path>',
-                               help="Comma separated path to a python file containing a `TableParser`(s). "
-                               "Includes this table with the default tables. Can be provided multiple times")
+        super().AddCommandLineOptions(parserObj)  # Adds the CI Settings File options
+        parserObj.add_argument(
+            "--clear",
+            "--Clear",
+            "--CLEAR",
+            dest="clear",
+            action="store_true",
+            help="Deletes the database before parsing the environment.",
+        )
+        parserObj.add_argument(
+            "--source-stats",
+            "-S",
+            dest="source_stats",
+            action="store_true",
+            default=False,
+            help="Uses pygount to generate code statistics for each parsed source file, including "
+            "lines of code, comments, and blank lines. Greatly increases parse time.",
+        )
+        parserObj.add_argument(
+            "-l",
+            "--load-table",
+            "--Load-Table",
+            "--LOAD-TABLE",
+            dest="extra_tables",
+            action=AppendSplitAction,
+            default=[],
+            metavar="<path>",
+            help="Comma separated path to a python file containing a `TableParser`(s). "
+            "Includes this table with the default tables. Can be provided multiple times",
+        )
 
     def RetrieveCommandLineOptions(self, args: Namespace) -> None:
         """Retrives the command line options."""
-        super().RetrieveCommandLineOptions(args) # Stores the CI Settings File options
+        super().RetrieveCommandLineOptions(args)  # Stores the CI Settings File options
         self.clear = args.clear
         self.is_uefi_builder = locate_class_in_module(self.PlatformModule, UefiBuilder) is not None
         self.extra_tables = args.extra_tables
@@ -133,8 +154,9 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
 
     def Go(self) -> int:
         """Executes the invocable. Runs the subcommand specified by the user."""
-        logging.warning("stuart_parse is in active development. Please report any issues to the edk2-pytool-extensions "
-                        "repo.")
+        logging.warning(
+            "stuart_parse is in active development. Please report any issues to the edk2-pytool-extensions " "repo."
+        )
         db_path = Path(self.GetWorkspaceRoot()) / self.GetLoggingFolderRelativeToRoot() / DB_NAME
         pathobj = Edk2Path(self.GetWorkspaceRoot(), self.GetPackagesPath())
         env = shell_environment.GetBuildVars()
@@ -163,7 +185,7 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
         else:
             self.parse_with_ci_settings(db, pathobj, env)
 
-        logging.info(f'Database generated at {db_path}.')
+        logging.info(f"Database generated at {db_path}.")
         return 0
 
     def parse_with_builder_settings(self, db: Edk2DB, pathobj: Edk2Path, env: VarDict) -> int:
@@ -179,8 +201,9 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
             build_settings.SkipBuild = True
             build_settings.SkipPostBuild = True
             build_settings.FlashImage = False
-            build_settings.Go(self.GetWorkspaceRoot(), os.pathsep.join(self.GetPackagesPath()),
-                                self.helper, self.plugin_manager)
+            build_settings.Go(
+                self.GetWorkspaceRoot(), os.pathsep.join(self.GetPackagesPath()), self.helper, self.plugin_manager
+            )
             build_settings.PlatformPreBuild()
         except Exception as e:
             exception_msg = e
@@ -190,7 +213,7 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
             return -1
 
         env_dict = env.GetAllBuildKeyValues() | env.GetAllNonBuildKeyValues()
-         # Log the environment for debug purposes
+        # Log the environment for debug purposes
         for key, value in env_dict.items():
             logging.debug(f"  {key} = {value}")
         logging.info("Running parsers with the following settings:")
@@ -238,11 +261,9 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
 
     def _get_package_config(self, pathobj: Edk2Path, pkg: str) -> str:
         """Gets configuration information for a package from the ci.yaml file."""
-        pkg_config_file = pathobj.GetAbsolutePathOnThisSystemFromEdk2RelativePath(
-            str(Path(pkg, pkg + ".ci.yaml"))
-        )
+        pkg_config_file = pathobj.GetAbsolutePathOnThisSystemFromEdk2RelativePath(str(Path(pkg, pkg + ".ci.yaml")))
         if pkg_config_file:
-            with open(pkg_config_file, 'r') as f:
+            with open(pkg_config_file, "r") as f:
                 return yaml.safe_load(f)
         else:
             logging.debug(f"No package config file for {pkg}")
@@ -256,18 +277,19 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
         table_list = []
         for path in table_paths:
             if not Path(path).exists():
-                logging.warning(f'[{path}] does not exist; Skipping.')
+                logging.warning(f"[{path}] does not exist; Skipping.")
                 continue
             try:
                 module = import_module_by_file_name(path)
                 table_generator = locate_class_in_module(module, TableGenerator)()
                 table_list.append(table_generator)
             except TypeError:
-                logging.warning(f'[{path}] does not contain a TableGenerator class; Skipping.')
+                logging.warning(f"[{path}] does not contain a TableGenerator class; Skipping.")
             except SyntaxError as e:
-                logging.warning(f'Failed to register [{path}] due to a SyntaxError; Error:')
-                logging.warning(f'  {e}')
+                logging.warning(f"Failed to register [{path}] due to a SyntaxError; Error:")
+                logging.warning(f"  {e}")
         return table_list
+
 
 def main() -> None:
     """Entry point to invoke Edk2PlatformSetup."""

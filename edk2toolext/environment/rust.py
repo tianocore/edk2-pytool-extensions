@@ -124,9 +124,9 @@ def _verify_cmd(tool: RustToolInfo, custom_filters: List[CustomToolFilter]) -> i
 
     # Give precedence to custom filters as they may be more specialized
     for custom_filter in custom_filters:
-        if (
-            (custom_filter.error_only and ret != 0) or not custom_filter.error_only
-        ) and custom_filter.filter_fn(tool, cmd_output.getvalue()):
+        if ((custom_filter.error_only and ret != 0) or not custom_filter.error_only) and custom_filter.filter_fn(
+            tool, cmd_output.getvalue()
+        ):
             logging.error(custom_filter.error_msg)
             return 4
 
@@ -266,9 +266,7 @@ def verify_workspace_rust_toolchain_is_installed() -> RustToolChainInfo:
 
     installed_toolchains = installed_toolchains.getvalue().splitlines()
     return RustToolChainInfo(
-        error=not any(
-            toolchain_version in toolchain for toolchain in installed_toolchains
-        ),
+        error=not any(toolchain_version in toolchain for toolchain in installed_toolchains),
         toolchain=toolchain_version,
     )
 
@@ -309,9 +307,7 @@ def run(
     Returns:
         int: Then number of errors discovered. 0 indicates success.
     """
-    generic_rust_install_instructions = (
-        "Visit https://rustup.rs/ to install Rust and cargo."
-    )
+    generic_rust_install_instructions = "Visit https://rustup.rs/ to install Rust and cargo."
     tool_ver = _get_required_tool_versions()
 
     tools = {
@@ -384,14 +380,8 @@ def run(
     }
     tools.update(custom_tool_checks)
 
-    excluded_tools_in_shell = shell_environment.GetEnvironment().get_shell_var(
-        "RUST_ENV_CHECK_TOOL_EXCLUSIONS"
-    )
-    excluded_tools = (
-        [t.strip() for t in excluded_tools_in_shell.split(",")]
-        if excluded_tools_in_shell
-        else []
-    )
+    excluded_tools_in_shell = shell_environment.GetEnvironment().get_shell_var("RUST_ENV_CHECK_TOOL_EXCLUSIONS")
+    excluded_tools = [t.strip() for t in excluded_tools_in_shell.split(",")] if excluded_tools_in_shell else []
 
     errors = 0
     for tool_name, tool_info in tools.items():

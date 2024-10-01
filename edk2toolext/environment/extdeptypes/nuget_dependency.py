@@ -7,6 +7,7 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 """An ExternalDependency subclass able to download from NuGet."""
+
 import logging
 import os
 import shutil
@@ -30,6 +31,7 @@ class NugetDependency(ExternalDependency):
     !!! tip
         The attributes are what must be described in the ext_dep yaml file!
     """
+
     TypeString = "nuget"
 
     # Env variable name for path to folder containing NuGet.exe
@@ -42,7 +44,7 @@ class NugetDependency(ExternalDependency):
         self.nuget_cache_path = None
 
     @classmethod
-    def GetNugetCmd(cls: 'NugetDependency') -> list[str]:
+    def GetNugetCmd(cls: "NugetDependency") -> list[str]:
         """Appends mono to the command and resolves the full path of the exe for mono.
 
         Used to add nuget support on posix platforms.
@@ -64,7 +66,7 @@ class NugetDependency(ExternalDependency):
         if nuget_path is not None:
             nuget_path = os.path.join(nuget_path, "NuGet.exe")
             if not os.path.isfile(nuget_path):
-                logging.info(f'{cls.NUGET_ENV_VAR_NAME} set, but did not exist. Attempting to download.')
+                logging.info(f"{cls.NUGET_ENV_VAR_NAME} set, but did not exist. Attempting to download.")
                 DownloadNuget(nuget_path)
         else:
             nuget_path = DownloadNuget()
@@ -82,7 +84,7 @@ class NugetDependency(ExternalDependency):
         return cmd
 
     @staticmethod
-    def normalize_version(version: str, nuget_name: Optional[str]="") -> str:
+    def normalize_version(version: str, nuget_name: Optional[str] = "") -> str:
         """Normalizes the version as NuGet versioning diverges from Semantic Versioning.
 
         https://learn.microsoft.com/en-us/nuget/concepts/package-versioning#where-nugetversion-diverges-from-semantic-versioning
@@ -92,8 +94,7 @@ class NugetDependency(ExternalDependency):
         """
         # 1. NuGetVersion requires the major segment to be defined
         if not version:
-            raise ValueError("String is empty. At least major version is "
-                             "required.")
+            raise ValueError("String is empty. At least major version is " "required.")
 
         # 2. NuGetVersion uses case insensitive string comparisons for
         #    pre-release components
@@ -110,8 +111,7 @@ class NugetDependency(ExternalDependency):
 
         # 4. A maximum of 4 version segments are allowed
         if len(int_parts) > 4:
-            raise ValueError(f"Maximum of 4 version segments allowed: "
-                             f"'{version}'!")
+            raise ValueError(f"Maximum of 4 version segments allowed: " f"'{version}'!")
 
         # 5. Allow a fourth version segment - "Revision" normally not
         #    allowed in Semantic versions but allowed in NuGet versions.
@@ -139,19 +139,20 @@ class NugetDependency(ExternalDependency):
             nuget_ver = semantic_version.Version.coerce(reformed_ver)
 
             # A ValueError will be raised if the version string is invalid
-            major, minor, patch, prerelease, build = \
-                semantic_version.Version.parse(str(nuget_ver))
+            major, minor, patch, prerelease, build = semantic_version.Version.parse(str(nuget_ver))
         else:
             # A ValueError will be raised if the version string is invalid
             nuget_ver = semantic_version.Version(reformed_ver)
             major, minor, patch, prerelease, build = tuple(nuget_ver)
 
-        logging.info(f"NuGet version parts:\n"
-                     f"  Major Version: {major}\n"
-                     f"  Minor Version: {minor}\n"
-                     f"  Patch Version: {patch}\n"
-                     f"  Pre-Release Version {prerelease}\n"
-                     f"  Revision (Build) Version: {build}")
+        logging.info(
+            f"NuGet version parts:\n"
+            f"  Major Version: {major}\n"
+            f"  Minor Version: {minor}\n"
+            f"  Patch Version: {patch}\n"
+            f"  Pre-Release Version {prerelease}\n"
+            f"  Revision (Build) Version: {build}"
+        )
 
         return reformed_ver
 
@@ -166,7 +167,7 @@ class NugetDependency(ExternalDependency):
             cmd = NugetDependency.GetNugetCmd()
             cmd += ["locals", "global-packages", "-list"]
             return_buffer = StringIO()
-            if (RunCmd(cmd[0], " ".join(cmd[1:]), outstream=return_buffer) == 0):
+            if RunCmd(cmd[0], " ".join(cmd[1:]), outstream=return_buffer) == 0:
                 # Seek to the beginning of the output buffer and capture the output.
                 return_buffer.seek(0)
                 return_string = return_buffer.read()
@@ -188,24 +189,22 @@ class NugetDependency(ExternalDependency):
         try:
             nuget_version = NugetDependency.normalize_version(self.version)
         except ValueError:
-            logging.error(f"NuGet dependency {self.package} has an invalid "
-                          f"version string: {self.version}")
+            logging.error(f"NuGet dependency {self.package} has an invalid " f"version string: {self.version}")
 
-        cache_search_path = os.path.join(
-            self.nuget_cache_path, package_name.lower(), nuget_version)
+        cache_search_path = os.path.join(self.nuget_cache_path, package_name.lower(), nuget_version)
         inner_cache_search_path = os.path.join(cache_search_path, package_name)
         if os.path.isdir(cache_search_path):
             # If we found a cache for this version, let's use it.
             if os.path.isdir(inner_cache_search_path):
                 logging.info(self.nuget_cache_path)
-                logging.info(
-                    "Local Cache found for Nuget package '%s'. Skipping fetch.", package_name)
+                logging.info("Local Cache found for Nuget package '%s'. Skipping fetch.", package_name)
                 shutil.copytree(inner_cache_search_path, self.contents_dir)
                 result = True
             # If this cache doesn't match our heuristic, let's warn the user.
             else:
                 logging.warning(
-                    "Local Cache found for Nuget package '%s', but could not find contents. Malformed?", package_name)
+                    "Local Cache found for Nuget package '%s', but could not find contents. Malformed?", package_name
+                )
 
         return result
 
@@ -213,7 +212,7 @@ class NugetDependency(ExternalDependency):
         """Return a string representation."""
         return f"NugetDependecy: {self.package}@{self.version}"
 
-    def _attempt_nuget_install(self, install_dir: str, non_interactive: Optional[bool]=True) -> None:
+    def _attempt_nuget_install(self, install_dir: str, non_interactive: Optional[bool] = True) -> None:
         #
         # fetch the contents of the package.
         #
@@ -252,10 +251,14 @@ class NugetDependency(ExternalDependency):
             else:
                 # Only provide this error message if they are not using a credential provider, but receive a 401 error
                 if is_unauthorized and not found_cred_provider:
-                    logging.warning("[Nuget] A package requires credentials, but you do not have a credential "\
-                                    "provider installed.")
-                    logging.warning("[Nuget] Please install a credential provider and try again or run the following "\
-                                    "command in your terminal to install the package manually:")
+                    logging.warning(
+                        "[Nuget] A package requires credentials, but you do not have a credential "
+                        "provider installed."
+                    )
+                    logging.warning(
+                        "[Nuget] Please install a credential provider and try again or run the following "
+                        "command in your terminal to install the package manually:"
+                    )
                     logging.warning(f"[{' '.join(cmd).replace(' -NonInteractive', '')}]")
                 raise RuntimeError(f"[Nuget] We failed to install this version {self.version} of {package_name}")
 

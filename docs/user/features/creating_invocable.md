@@ -381,7 +381,7 @@ class SettingsManager(UpdateSettingsManager, CiSetupSettingsManager, BinaryBuild
                 logging.warning(f"Deleting {output_dir}")
                 shutil.rmtree(output_dir, ignore_errors=True)
             os.makedirs(output_dir)
-        except:
+        except Exception:
             pass
 
         self.nuget_version = self._GetNextVersion(self.nuget_version)
@@ -680,7 +680,7 @@ class SettingsManager(UpdateSettingsManager, CiSetupSettingsManager, BinaryBuild
                 logging.warning(f"Deleting {output_dir}")
                 shutil.rmtree(output_dir, ignore_errors=True)
             os.makedirs(output_dir)
-        except:
+        except Exception:
             pass
 
         self.nuget_version = self._GetNextVersion(self.nuget_version)

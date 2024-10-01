@@ -28,11 +28,12 @@ class MultipleWorkspace(object):
         WORKSPACE (str): defined the current workspace
         PACKAGES_PATH (str): defined the other WORKSPACE
     """
-    WORKSPACE = ''
+
+    WORKSPACE = ""
     PACKAGES_PATH = None
 
     @classmethod
-    def convertPackagePath(cls: 'MultipleWorkspace', Ws: str, Path: str) -> str:
+    def convertPackagePath(cls: "MultipleWorkspace", Ws: str, Path: str) -> str:
         """Convert path to match workspace.
 
         Args:
@@ -44,11 +45,11 @@ class MultipleWorkspace(object):
             (str): Converted path.
         """
         if str(os.path.normcase(Path)).startswith(Ws):
-            return os.path.join(Ws, Path[len(Ws) + 1:])
+            return os.path.join(Ws, Path[len(Ws) + 1 :])
         return Path
 
     @classmethod
-    def setWs(cls: 'MultipleWorkspace', Ws: str, PackagesPath: Optional[list[str]]=None) -> None:
+    def setWs(cls: "MultipleWorkspace", Ws: str, PackagesPath: Optional[list[str]] = None) -> None:
         """Set WORKSPACE and PACKAGES_PATH environment.
 
         Args:
@@ -58,13 +59,14 @@ class MultipleWorkspace(object):
         """
         cls.WORKSPACE = Ws
         if PackagesPath:
-            cls.PACKAGES_PATH = [cls.convertPackagePath(Ws, os.path.normpath(
-                Path.strip())) for Path in PackagesPath.split(os.pathsep)]
+            cls.PACKAGES_PATH = [
+                cls.convertPackagePath(Ws, os.path.normpath(Path.strip())) for Path in PackagesPath.split(os.pathsep)
+            ]
         else:
             cls.PACKAGES_PATH = []
 
     @classmethod
-    def join(cls: 'MultipleWorkspace', Ws: str, *p: str) -> str:
+    def join(cls: "MultipleWorkspace", Ws: str, *p: str) -> str:
         """Rewrite os.path.join.
 
         Args:
@@ -77,7 +79,9 @@ class MultipleWorkspace(object):
         """
         warnings.warn(
             "MultipleWorkspace is deprecated. Use Edk2Path.GetAbsolutePathOnThisSystemFromEdk2RelativePath().",
-            DeprecationWarning, stacklevel=2)
+            DeprecationWarning,
+            stacklevel=2,
+        )
         Path = os.path.join(Ws, *p)
         if not os.path.exists(Path):
             for Pkg in cls.PACKAGES_PATH:
@@ -88,7 +92,7 @@ class MultipleWorkspace(object):
         return Path
 
     @classmethod
-    def relpath(cls: 'MultipleWorkspace', Path: str, Ws: str) -> str:
+    def relpath(cls: "MultipleWorkspace", Path: str, Ws: str) -> str:
         """Rewrite os.path.relpath.
 
         Args:
@@ -101,7 +105,9 @@ class MultipleWorkspace(object):
         """
         warnings.warn(
             "MultipleWorkspace is deprecated. use Edk2Path.GetEdk2RelativePathOnThisSystemFromAbsolutePath().",
-            DeprecationWarning, stacklevel=2)
+            DeprecationWarning,
+            stacklevel=2,
+        )
         for Pkg in cls.PACKAGES_PATH:
             if Path.lower().startswith(Pkg.lower()):
                 Path = os.path.relpath(Path, Pkg)
@@ -111,7 +117,7 @@ class MultipleWorkspace(object):
         return Path
 
     @classmethod
-    def getWs(cls: 'MultipleWorkspace', Ws: str, Path: str) -> str:
+    def getWs(cls: "MultipleWorkspace", Ws: str, Path: str) -> str:
         """Get valid workspace for the path.
 
         Args:
@@ -131,7 +137,7 @@ class MultipleWorkspace(object):
         return Ws
 
     @classmethod
-    def handleWsMacro(cls: 'MultipleWorkspace', PathStr: str) -> str:
+    def handleWsMacro(cls: "MultipleWorkspace", PathStr: str) -> str:
         """Handle the $(WORKSPACE) tag.
 
         If current workspace is an invalid path relative to the tool, replace it.
@@ -143,10 +149,13 @@ class MultipleWorkspace(object):
         Returns:
             (Str): Path string including the $(WORKSPACE)
         """
-        warnings.warn("MultipleWorkspace is deprecated. Manually replace the $(WORKSPACE). If you believe "
-                      "this functionality needs a direct replacement, file an issue in edk2-pytool-extensions.",
-                      DeprecationWarning, stacklevel=2)
-        TAB_WORKSPACE = '$(WORKSPACE)'
+        warnings.warn(
+            "MultipleWorkspace is deprecated. Manually replace the $(WORKSPACE). If you believe "
+            "this functionality needs a direct replacement, file an issue in edk2-pytool-extensions.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        TAB_WORKSPACE = "$(WORKSPACE)"
         if TAB_WORKSPACE in PathStr:
             PathList = PathStr.split()
             if PathList:
@@ -161,11 +170,11 @@ class MultipleWorkspace(object):
                                 if os.path.exists(Path):
                                     break
                         PathList[i] = str[0:MacroStartPos] + Path
-            PathStr = ' '.join(PathList)
+            PathStr = " ".join(PathList)
         return PathStr
 
     @classmethod
-    def getPkgPath(cls: 'MultipleWorkspace') -> list[str]:
+    def getPkgPath(cls: "MultipleWorkspace") -> list[str]:
         """Get all package paths.
 
         Args:

@@ -26,6 +26,7 @@ class FileHeader:
     def __init__(self):
         self.Machine = 0x8664
 
+
 # A Dummy class to represent a PE.
 
 
@@ -40,9 +41,7 @@ class PE:
 
 
 class TestImageValidationInterface(unittest.TestCase):
-
     def test_add_test(self):
-
         test_manager = IV.TestManager()
         self.assertEqual(len(test_manager.tests), 0)
         test_manager.add_test(IV.TestSectionAlignment())
@@ -56,14 +55,8 @@ class TestImageValidationInterface(unittest.TestCase):
 
     def test_test_manager(self):
         config_data = {
-            "TARGET_ARCH": {
-                "X64": "IMAGE_FILE_MACHINE_AMD64"
-            },
-            "IMAGE_FILE_MACHINE_AMD64": {
-                "DEFAULT": {
-                    "DATA_CODE_SEPARATION": False
-                }
-            }
+            "TARGET_ARCH": {"X64": "IMAGE_FILE_MACHINE_AMD64"},
+            "IMAGE_FILE_MACHINE_AMD64": {"DEFAULT": {"DATA_CODE_SEPARATION": False}},
         }
         test_manager = IV.TestManager(config_data=config_data)
         self.assertEqual(test_manager.config_data, config_data)
@@ -82,37 +75,45 @@ class TestImageValidationInterface(unittest.TestCase):
         1. If test requirement is not specified, or equal to false, return Result.SKIP
         3. Return Result.PASS / Result.FAIL returned based on Characteristic value
         """
-        test_pe0 = PE(sections=[
-            Section("S1.1".encode("utf-8"), characteristics=0x80000000),
-            Section("S1.2".encode("utf-8"), characteristics=0x20000000),
-            Section("S1.3".encode("utf-8"), characteristics=0x00000000)])
+        test_pe0 = PE(
+            sections=[
+                Section("S1.1".encode("utf-8"), characteristics=0x80000000),
+                Section("S1.2".encode("utf-8"), characteristics=0x20000000),
+                Section("S1.3".encode("utf-8"), characteristics=0x00000000),
+            ]
+        )
 
-        test_pe1 = PE(sections=[
-            Section("S2.1".encode("utf-8"), characteristics=0xA0000000),
-            Section("S2.2".encode("utf-8"), characteristics=0x20000000),
-            Section("S2.3".encode("utf-8"), characteristics=0x00000000)])
+        test_pe1 = PE(
+            sections=[
+                Section("S2.1".encode("utf-8"), characteristics=0xA0000000),
+                Section("S2.2".encode("utf-8"), characteristics=0x20000000),
+                Section("S2.3".encode("utf-8"), characteristics=0x00000000),
+            ]
+        )
 
-        test_pe2 = PE(sections=[
-            Section("S3.1".encode("utf-8"), characteristics=0x20000000),
-            Section("S3.2".encode("utf-8"), characteristics=0x80000000),
-            Section("S3.3".encode("utf-8"), characteristics=0xC0000000)])
+        test_pe2 = PE(
+            sections=[
+                Section("S3.1".encode("utf-8"), characteristics=0x20000000),
+                Section("S3.2".encode("utf-8"), characteristics=0x80000000),
+                Section("S3.3".encode("utf-8"), characteristics=0xC0000000),
+            ]
+        )
 
-        test_pe3 = PE(sections=[
-            Section("S4.1".encode("utf-8"), characteristics=0xE0000000)])
+        test_pe3 = PE(sections=[Section("S4.1".encode("utf-8"), characteristics=0xE0000000)])
 
-        config_data1 = {
-            "TARGET_REQUIREMENTS": {"DATA_CODE_SEPARATION": False}
-        }
+        config_data1 = {"TARGET_REQUIREMENTS": {"DATA_CODE_SEPARATION": False}}
 
         config_data2 = {"TARGET_REQUIREMENTS": {}}
 
         test_write_execute_flags = IV.TestWriteExecuteFlags()
-        tests = [(test_pe0, IV.Result.PASS), (test_pe1, IV.Result.FAIL),
-                 (test_pe2, IV.Result.PASS), (test_pe3, IV.Result.FAIL)]
+        tests = [
+            (test_pe0, IV.Result.PASS),
+            (test_pe1, IV.Result.FAIL),
+            (test_pe2, IV.Result.PASS),
+            (test_pe3, IV.Result.FAIL),
+        ]
 
-        config_data0 = {
-            "TARGET_REQUIREMENTS": {"DATA_CODE_SEPARATION": True}
-        }
+        config_data0 = {"TARGET_REQUIREMENTS": {"DATA_CODE_SEPARATION": True}}
 
         # Test set 1
         for i in range(len(tests)):
@@ -140,40 +141,40 @@ class TestImageValidationInterface(unittest.TestCase):
         3. Return Result.PASS / Result.FAIL returned based on alignment requirements
         """
 
-        config_data0 = {
-            "TARGET_REQUIREMENTS": {},
-            "TARGET_INFO": {"MACHINE_TYPE": "", "PROFILE": {}}
-        }
-        config_data1 = {
-            "TARGET_REQUIREMENTS": {"ALIGNMENT": []},
-            "TARGET_INFO": {"MACHINE_TYPE": "", "PROFILE": {}}
-        }
+        config_data0 = {"TARGET_REQUIREMENTS": {}, "TARGET_INFO": {"MACHINE_TYPE": "", "PROFILE": {}}}
+        config_data1 = {"TARGET_REQUIREMENTS": {"ALIGNMENT": []}, "TARGET_INFO": {"MACHINE_TYPE": "", "PROFILE": {}}}
         config_data2 = {
             "TARGET_REQUIREMENTS": {"ALIGNMENT": [{"COMPARISON": ">=", "VALUE": 0}]},
-            "TARGET_INFO": {"MACHINE_TYPE": "", "PROFILE": {}}
+            "TARGET_INFO": {"MACHINE_TYPE": "", "PROFILE": {}},
         }
 
         config_data3 = {
             "TARGET_REQUIREMENTS": {"ALIGNMENT": [{"COMPARISON": "==", "VALUE": 1}]},
-            "TARGET_INFO": {"MACHINE_TYPE": "", "PROFILE": {}}
+            "TARGET_INFO": {"MACHINE_TYPE": "", "PROFILE": {}},
         }
 
         config_data4 = {
-            "TARGET_REQUIREMENTS": {"ALIGNMENT": [
-                {"COMPARISON": ">=", "VALUE": 0},
-                {"COMPARISON": ">=", "VALUE": 64},
-                {"COMPARISON": "<=", "VALUE": 8192}],
-                "ALIGNMENT_LOGIC_SEP": "AND"},
-            "TARGET_INFO": {}
+            "TARGET_REQUIREMENTS": {
+                "ALIGNMENT": [
+                    {"COMPARISON": ">=", "VALUE": 0},
+                    {"COMPARISON": ">=", "VALUE": 64},
+                    {"COMPARISON": "<=", "VALUE": 8192},
+                ],
+                "ALIGNMENT_LOGIC_SEP": "AND",
+            },
+            "TARGET_INFO": {},
         }
 
         config_data5 = {
-            "TARGET_REQUIREMENTS": {"ALIGNMENT": [
-                {"COMPARISON": ">=", "VALUE": 0},
-                {"COMPARISON": ">=", "VALUE": 64},
-                {"COMPARISON": "!=", "VALUE": 4096}],
-                "ALIGNMENT_LOGIC_SEP": "AND"},
-            "TARGET_INFO": {"MACHINE_TYPE": "", "PROFILE": {}}
+            "TARGET_REQUIREMENTS": {
+                "ALIGNMENT": [
+                    {"COMPARISON": ">=", "VALUE": 0},
+                    {"COMPARISON": ">=", "VALUE": 64},
+                    {"COMPARISON": "!=", "VALUE": 4096},
+                ],
+                "ALIGNMENT_LOGIC_SEP": "AND",
+            },
+            "TARGET_INFO": {"MACHINE_TYPE": "", "PROFILE": {}},
         }
 
         test_pe0 = PE(optional_header=OptionalHeader(SectionAlignment=4096))
@@ -181,9 +182,14 @@ class TestImageValidationInterface(unittest.TestCase):
         test_pe2 = PE(optional_header=None)
 
         test_section_alignment_test = IV.TestSectionAlignment()
-        tests0 = [(config_data0, IV.Result.SKIP), (config_data1, IV.Result.SKIP),
-                  (config_data2, IV.Result.PASS), (config_data3, IV.Result.FAIL),
-                  (config_data4, IV.Result.PASS), (config_data5, IV.Result.FAIL)]
+        tests0 = [
+            (config_data0, IV.Result.SKIP),
+            (config_data1, IV.Result.SKIP),
+            (config_data2, IV.Result.PASS),
+            (config_data3, IV.Result.FAIL),
+            (config_data4, IV.Result.PASS),
+            (config_data5, IV.Result.FAIL),
+        ]
 
         # Test set 1
         for i in range(len(tests0)):
@@ -191,9 +197,14 @@ class TestImageValidationInterface(unittest.TestCase):
                 config, result = tests0[i]
                 self.assertEqual(test_section_alignment_test.execute(test_pe0, config), result)
 
-        tests1 = [(config_data0, IV.Result.SKIP), (config_data1, IV.Result.SKIP),
-                  (config_data2, IV.Result.WARN), (config_data3, IV.Result.WARN),
-                  (config_data4, IV.Result.WARN), (config_data5, IV.Result.WARN)]
+        tests1 = [
+            (config_data0, IV.Result.SKIP),
+            (config_data1, IV.Result.SKIP),
+            (config_data2, IV.Result.WARN),
+            (config_data3, IV.Result.WARN),
+            (config_data4, IV.Result.WARN),
+            (config_data5, IV.Result.WARN),
+        ]
 
         # Test set 2
         for i in range(len(tests1)):
@@ -208,64 +219,63 @@ class TestImageValidationInterface(unittest.TestCase):
                 self.assertEqual(test_section_alignment_test.execute(test_pe2, config), result)
 
     def test_section_alignment_test2(self):
-
         target_config0 = {
             "TARGET_REQUIREMENTS": {
-                "ALIGNMENT": [
-                    {"COMPARISON": ">=", "VALUE": 0},
-                    {"COMPARISON": "<=", "VALUE": 8192}],
-                "ALIGNMENT_LOGIC_SEP": "AND"},
-            "TARGET_INFO": {"MACHINE_TYPE": "", "PROFILE": {}}
+                "ALIGNMENT": [{"COMPARISON": ">=", "VALUE": 0}, {"COMPARISON": "<=", "VALUE": 8192}],
+                "ALIGNMENT_LOGIC_SEP": "AND",
+            },
+            "TARGET_INFO": {"MACHINE_TYPE": "", "PROFILE": {}},
         }
 
         target_config1 = {
             "TARGET_REQUIREMENTS": {
-                "ALIGNMENT": [
-                    {"COMPARISON": "==", "VALUE": 0},
-                    {"COMPARISON": "<=", "VALUE": 8192}],
-                "ALIGNMENT_LOGIC_SEP": "AND"},
-            "TARGET_INFO": {"MACHINE_TYPE": "", "PROFILE": {}}
+                "ALIGNMENT": [{"COMPARISON": "==", "VALUE": 0}, {"COMPARISON": "<=", "VALUE": 8192}],
+                "ALIGNMENT_LOGIC_SEP": "AND",
+            },
+            "TARGET_INFO": {"MACHINE_TYPE": "", "PROFILE": {}},
         }
 
         target_config2 = {
             "TARGET_REQUIREMENTS": {
-                "ALIGNMENT": [
-                    {"COMPARISON": "==", "VALUE": 32},
-                    {"COMPARISON": "==", "VALUE": 4096}],
-                "ALIGNMENT_LOGIC_SEP": "OR"},
-            "TARGET_INFO": {"MACHINE_TYPE": "", "PROFILE": {}}
+                "ALIGNMENT": [{"COMPARISON": "==", "VALUE": 32}, {"COMPARISON": "==", "VALUE": 4096}],
+                "ALIGNMENT_LOGIC_SEP": "OR",
+            },
+            "TARGET_INFO": {"MACHINE_TYPE": "", "PROFILE": {}},
         }
 
         target_config3 = {
             "TARGET_REQUIREMENTS": {
-                "ALIGNMENT": [
-                    {"COMPARISON": "==", "VALUE": 31},
-                    {"COMPARISON": "==", "VALUE": 61}],
-                "ALIGNMENT_LOGIC_SEP": "OR"},
-            "TARGET_INFO": {"MACHINE_TYPE": "", "PROFILE": {}}
+                "ALIGNMENT": [{"COMPARISON": "==", "VALUE": 31}, {"COMPARISON": "==", "VALUE": 61}],
+                "ALIGNMENT_LOGIC_SEP": "OR",
+            },
+            "TARGET_INFO": {"MACHINE_TYPE": "", "PROFILE": {}},
         }
 
         target_config4 = {
             "TARGET_REQUIREMENTS": {
-                "ALIGNMENT": [
-                    {"COMPARISON": "==", "VALUE": 32},
-                    {"COMPARISON": "==", "VALUE": 64}]},
-            "TARGET_INFO": {"MACHINE_TYPE": "", "PROFILE": {}}
+                "ALIGNMENT": [{"COMPARISON": "==", "VALUE": 32}, {"COMPARISON": "==", "VALUE": 64}]
+            },
+            "TARGET_INFO": {"MACHINE_TYPE": "", "PROFILE": {}},
         }
 
         target_config5 = {
             "TARGET_REQUIREMENTS": {
-                "ALIGNMENT": [
-                    {"COMPARISON": "==", "VALUE": 32},
-                    {"COMPARISON": "==", "VALUE": 64}],
-                "ALIGNMENT_LOGIC_SEP": "AR"},
-            "TARGET_INFO": {"MACHINE_TYPE": "", "PROFILE": {}}
+                "ALIGNMENT": [{"COMPARISON": "==", "VALUE": 32}, {"COMPARISON": "==", "VALUE": 64}],
+                "ALIGNMENT_LOGIC_SEP": "AR",
+            },
+            "TARGET_INFO": {"MACHINE_TYPE": "", "PROFILE": {}},
         }
 
         test_section_alignment_test = IV.TestSectionAlignment()
         pe = PE(optional_header=OptionalHeader(SectionAlignment=4096))
-        tests = [(target_config0, IV.Result.PASS), (target_config1, IV.Result.FAIL), (target_config2, IV.Result.PASS),
-                 (target_config3, IV.Result.FAIL), (target_config4, IV.Result.FAIL), (target_config5, IV.Result.FAIL)]
+        tests = [
+            (target_config0, IV.Result.PASS),
+            (target_config1, IV.Result.FAIL),
+            (target_config2, IV.Result.PASS),
+            (target_config3, IV.Result.FAIL),
+            (target_config4, IV.Result.FAIL),
+            (target_config5, IV.Result.FAIL),
+        ]
 
         for i in range(len(tests)):
             with self.subTest("test_section_alignment_and_or_logic", i=i):
@@ -280,26 +290,24 @@ class TestImageValidationInterface(unittest.TestCase):
         3. If subsystem type is invalid, return Result.FAIL
         3. return Result.PASS / Result.FAIL returned based on subsystem value
         """
-        config_data0 = {
-            "TARGET_REQUIREMENTS": {}
-        }
-        config_data1 = {
-            "TARGET_REQUIREMENTS": {"ALLOWED_SUBSYSTEMS": []}
-        }
-        config_data2 = {
-            "TARGET_REQUIREMENTS": {"ALLOWED_SUBSYSTEMS": ["IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER"]}
-        }
+        config_data0 = {"TARGET_REQUIREMENTS": {}}
+        config_data1 = {"TARGET_REQUIREMENTS": {"ALLOWED_SUBSYSTEMS": []}}
+        config_data2 = {"TARGET_REQUIREMENTS": {"ALLOWED_SUBSYSTEMS": ["IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER"]}}
         config_data3 = {
-            "TARGET_REQUIREMENTS": {"ALLOWED_SUBSYSTEMS":
-                                    ["IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER",
-                                     "IMAGE_SUBSYSTEM_EFI_APPLICATION"]}
+            "TARGET_REQUIREMENTS": {
+                "ALLOWED_SUBSYSTEMS": ["IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER", "IMAGE_SUBSYSTEM_EFI_APPLICATION"]
+            }
         }
 
         test_subsystem_value_test = IV.TestSubsystemValue()
 
         TEST_PE0 = PE(optional_header=OptionalHeader(Subsystem=10))
-        tests0 = [(config_data0, IV.Result.SKIP), (config_data1, IV.Result.SKIP),
-                  (config_data2, IV.Result.FAIL), (config_data3, IV.Result.PASS)]
+        tests0 = [
+            (config_data0, IV.Result.SKIP),
+            (config_data1, IV.Result.SKIP),
+            (config_data2, IV.Result.FAIL),
+            (config_data3, IV.Result.PASS),
+        ]
 
         for i in range(len(tests0)):
             with self.subTest("test_subsystem_value0", i=i):
@@ -307,8 +315,12 @@ class TestImageValidationInterface(unittest.TestCase):
                 self.assertEqual(test_subsystem_value_test.execute(TEST_PE0, config), result)
 
         TEST_PE1 = PE(optional_header=OptionalHeader(Subsystem="UEFI_"))
-        tests1 = [(config_data0, IV.Result.SKIP), (config_data1, IV.Result.SKIP),
-                  (config_data2, IV.Result.FAIL), (config_data3, IV.Result.FAIL)]
+        tests1 = [
+            (config_data0, IV.Result.SKIP),
+            (config_data1, IV.Result.SKIP),
+            (config_data2, IV.Result.FAIL),
+            (config_data3, IV.Result.FAIL),
+        ]
 
         for i in range(len(tests1)):
             with self.subTest("test_subsystem_value1", i=i):
@@ -316,8 +328,12 @@ class TestImageValidationInterface(unittest.TestCase):
                 self.assertEqual(test_subsystem_value_test.execute(TEST_PE1, config), result)
 
         TEST_PE2 = PE(optional_header=OptionalHeader(Subsystem=None))
-        tests2 = [(config_data0, IV.Result.SKIP), (config_data1, IV.Result.SKIP),
-                  (config_data2, IV.Result.WARN), (config_data3, IV.Result.WARN)]
+        tests2 = [
+            (config_data0, IV.Result.SKIP),
+            (config_data1, IV.Result.SKIP),
+            (config_data2, IV.Result.WARN),
+            (config_data3, IV.Result.WARN),
+        ]
 
         for i in range(len(tests2)):
             with self.subTest("test_subsystem_value2", i=i):
@@ -325,7 +341,6 @@ class TestImageValidationInterface(unittest.TestCase):
                 self.assertEqual(test_subsystem_value_test.execute(TEST_PE2, config), result)
 
     def test_helper_functions(self):
-
         data = 0b00000000
         results = [1, 2, 4, 8, 16, 32, 64]
 
@@ -366,14 +381,8 @@ class TestImageValidationInterface(unittest.TestCase):
             "T2": "T",
             "T3": "T",
         }
-        target_config = {
-            "T2": "F"
-        }
-        final_config = {
-            "T1": "T",
-            "T2": "F",
-            "T3": "T"
-        }
+        target_config = {"T2": "F"}
+        final_config = {"T1": "T", "T2": "F", "T3": "T"}
 
         self.assertEqual(IV.fill_missing_requirements(default_config, target_config), final_config)
 
@@ -386,7 +395,6 @@ class TestImageValidationInterface(unittest.TestCase):
             c.execute(1, 2)
 
     def test_get_cli_args(self):
-
         test1 = ["-i", "file.efi"]
         test2 = ["-i", "file.efi", "-d"]
         test3 = ["-i", "file.efi", "-p", "APP"]

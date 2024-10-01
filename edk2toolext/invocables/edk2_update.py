@@ -12,6 +12,7 @@ Contains a UpdateSettingsManager that must be subclassed in a build settings
 file. This provides platform specific information to Edk2Update invocable
 while allowing the invocable itself to remain platform agnostic.
 """
+
 import argparse
 import logging
 
@@ -35,13 +36,15 @@ class UpdateSettingsManager(MultiPkgAwareSettingsInterface):
 
 
 def build_env_changed(
-        build_env: self_describing_environment.self_describing_environment,
-        build_env_2: self_describing_environment.self_describing_environment
-    ) -> bool:
+    build_env: self_describing_environment.self_describing_environment,
+    build_env_2: self_describing_environment.self_describing_environment,
+) -> bool:
     """Return True if build_env has changed."""
-    return (build_env.paths != build_env_2.paths) or \
-           (build_env.extdeps != build_env_2.extdeps) or \
-           (build_env.plugins != build_env_2.plugins)
+    return (
+        (build_env.paths != build_env_2.paths)
+        or (build_env.extdeps != build_env_2.extdeps)
+        or (build_env.plugins != build_env_2.plugins)
+    )
 
 
 class Edk2Update(Edk2MultiPkgAwareInvocable):
@@ -104,8 +107,10 @@ class Edk2Update(Edk2MultiPkgAwareInvocable):
                 break
             # if the environment has changed, increment the retry count and notify user
             RetryCount += 1
-            logging.log(edk2_logging.SECTION,
-                        f"Something in the environment changed. Updating environment again. Pass {RetryCount}")
+            logging.log(
+                edk2_logging.SECTION,
+                f"Something in the environment changed. Updating environment again. Pass {RetryCount}",
+            )
 
             build_env_old = build_env
             self_describing_environment.DestroyEnvironment()

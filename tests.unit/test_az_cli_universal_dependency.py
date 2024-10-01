@@ -25,7 +25,7 @@ from edk2toollib.utility_functions import RemoveTree
 
 test_dir = None
 
-single_file_json_template = '''
+single_file_json_template = """
 {
   "scope": "global",
   "type": "az-universal",
@@ -36,9 +36,9 @@ single_file_json_template = '''
   "feed": "ext_dep_unit_test_feed",
   "pat_var": "PAT_FOR_UNIVERSAL_ORG_TIANOCORE"
 }
-'''
+"""
 
-folders_json_template = '''
+folders_json_template = """
 {
   "scope": "global",
   "type": "az-universal",
@@ -49,9 +49,9 @@ folders_json_template = '''
   "feed": "ext_dep_unit_test_feed",
   "pat_var": "PAT_FOR_UNIVERSAL_ORG_TIANOCORE"
 }
-'''
+"""
 
-file_filter_json_template = '''
+file_filter_json_template = """
 {
   "scope": "global",
   "type": "az-universal",
@@ -63,9 +63,9 @@ file_filter_json_template = '''
   "file-filter": "folder2/*.txt",
   "pat_var": "PAT_FOR_UNIVERSAL_ORG_TIANOCORE"
 }
-'''
+"""
 
-zip_json_template = '''
+zip_json_template = """
 {
   "scope": "global",
   "type": "az-universal",
@@ -78,9 +78,9 @@ zip_json_template = '''
   "internal_path": "hello-world-zip",
   "pat_var": "PAT_FOR_UNIVERSAL_ORG_TIANOCORE"
 }
-'''
+"""
 
-zip_json_template2 = '''
+zip_json_template2 = """
 {
   "scope": "global",
   "type": "az-universal",
@@ -93,7 +93,7 @@ zip_json_template2 = '''
   "internal_path": "/",
   "pat_var": "PAT_FOR_UNIVERSAL_ORG_TIANOCORE"
 }
-'''
+"""
 
 
 def prep_workspace():
@@ -123,7 +123,7 @@ class TestAzCliUniversalDependency(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        logger = logging.getLogger('')
+        logger = logging.getLogger("")
         logger.addHandler(logging.NullHandler())
         unittest.installHandler()
 
@@ -136,8 +136,10 @@ class TestAzCliUniversalDependency(unittest.TestCase):
         version_aggregator.GetVersionAggregator().Reset()
 
     # good case
-    @unittest.skipIf("PAT_FOR_UNIVERSAL_ORG_TIANOCORE" not in os.environ.keys(),
-                     "PAT not defined therefore universal packages tests will fail")
+    @unittest.skipIf(
+        "PAT_FOR_UNIVERSAL_ORG_TIANOCORE" not in os.environ.keys(),
+        "PAT not defined therefore universal packages tests will fail",
+    )
     def test_download_good_universal_dependency_single_file(self):
         version = "0.0.1"
         ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
@@ -153,8 +155,10 @@ class TestAzCliUniversalDependency(unittest.TestCase):
         ext_dep.clean()
 
     # good case
-    @unittest.skipIf("PAT_FOR_UNIVERSAL_ORG_TIANOCORE" not in os.environ.keys(),
-                     "PAT not defined therefore universal packages tests will fail")
+    @unittest.skipIf(
+        "PAT_FOR_UNIVERSAL_ORG_TIANOCORE" not in os.environ.keys(),
+        "PAT not defined therefore universal packages tests will fail",
+    )
     def test_download_good_universal_dependency_folders_pinned_old_version(self):
         version = "0.2.0"
         ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
@@ -170,8 +174,10 @@ class TestAzCliUniversalDependency(unittest.TestCase):
         ext_dep.clean()
 
     # good case
-    @unittest.skipIf("PAT_FOR_UNIVERSAL_ORG_TIANOCORE" not in os.environ.keys(),
-                     "PAT not defined therefore universal packages tests will fail")
+    @unittest.skipIf(
+        "PAT_FOR_UNIVERSAL_ORG_TIANOCORE" not in os.environ.keys(),
+        "PAT not defined therefore universal packages tests will fail",
+    )
     def test_download_good_universal_dependency_folders_newer_version(self):
         version = "0.2.1"
         ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
@@ -187,8 +193,10 @@ class TestAzCliUniversalDependency(unittest.TestCase):
         ext_dep.clean()
 
     # good case
-    @unittest.skipIf("PAT_FOR_UNIVERSAL_ORG_TIANOCORE" not in os.environ.keys(),
-                     "PAT not defined therefore universal packages tests will fail")
+    @unittest.skipIf(
+        "PAT_FOR_UNIVERSAL_ORG_TIANOCORE" not in os.environ.keys(),
+        "PAT not defined therefore universal packages tests will fail",
+    )
     def test_download_good_universal_dependency_folders_file_filter(self):
         version = "0.2.1"
         ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
@@ -206,7 +214,7 @@ class TestAzCliUniversalDependency(unittest.TestCase):
         files = 0
         folders = 0
 
-        for (dirpath, dirs, file_names) in os.walk(ext_dep.contents_dir):
+        for dirpath, dirs, file_names in os.walk(ext_dep.contents_dir):
             files += len(file_names)
             folders += len(dirs)
 
@@ -217,8 +225,10 @@ class TestAzCliUniversalDependency(unittest.TestCase):
         ext_dep.clean()
 
     # bad case
-    @unittest.skipIf("PAT_FOR_UNIVERSAL_ORG_TIANOCORE" not in os.environ.keys(),
-                     "PAT not defined therefore universal packages tests will fail")
+    @unittest.skipIf(
+        "PAT_FOR_UNIVERSAL_ORG_TIANOCORE" not in os.environ.keys(),
+        "PAT not defined therefore universal packages tests will fail",
+    )
     def test_download_bad_universal_dependency(self):
         non_existing_version = "0.1.0"
         ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
@@ -231,8 +241,10 @@ class TestAzCliUniversalDependency(unittest.TestCase):
             ext_dep.fetch()
         self.assertFalse(ext_dep.verify())
 
-    @unittest.skipIf("PAT_FOR_UNIVERSAL_ORG_TIANOCORE" not in os.environ.keys(),
-                     "PAT not defined therefore universal packages tests will fail")
+    @unittest.skipIf(
+        "PAT_FOR_UNIVERSAL_ORG_TIANOCORE" not in os.environ.keys(),
+        "PAT not defined therefore universal packages tests will fail",
+    )
     def test_download_and_unzip(self):
         version = "0.0.1"
         ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
@@ -247,20 +259,22 @@ class TestAzCliUniversalDependency(unittest.TestCase):
 
         files = 0
         folders = 0
-        for (_, dirs, file_names) in os.walk(ext_dep.contents_dir):
+        for _, dirs, file_names in os.walk(ext_dep.contents_dir):
             for file in file_names:
-                assert file in ['extdep_state.yaml', 'helloworld.txt']
+                assert file in ["extdep_state.yaml", "helloworld.txt"]
 
             files += len(file_names)
             folders += len(dirs)
 
-        self.assertEqual(files, 2) # yaml file and moved files.
+        self.assertEqual(files, 2)  # yaml file and moved files.
         self.assertEqual(folders, 0)
 
         ext_dep.clean()
 
-    @unittest.skipIf("PAT_FOR_UNIVERSAL_ORG_TIANOCORE" not in os.environ.keys(),
-                     "PAT not defined therefore universal packages tests will fail")
+    @unittest.skipIf(
+        "PAT_FOR_UNIVERSAL_ORG_TIANOCORE" not in os.environ.keys(),
+        "PAT not defined therefore universal packages tests will fail",
+    )
     def test_download_and_unzip2(self):
         version = "0.0.1"
         ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
@@ -275,14 +289,14 @@ class TestAzCliUniversalDependency(unittest.TestCase):
 
         files = 0
         folders = 0
-        for (_, dirs, file_names) in os.walk(ext_dep.contents_dir):
+        for _, dirs, file_names in os.walk(ext_dep.contents_dir):
             for file in file_names:
-                assert file in ['extdep_state.yaml', 'helloworld.txt']
+                assert file in ["extdep_state.yaml", "helloworld.txt"]
             files += len(file_names)
             folders += len(dirs)
 
-        self.assertEqual(files, 2) # yaml file and moved files.
-        self.assertEqual(folders, 1) # helloworld.txt is in a folder, because the internal path is "/"
+        self.assertEqual(files, 2)  # yaml file and moved files.
+        self.assertEqual(folders, 1)  # helloworld.txt is in a folder, because the internal path is "/"
 
         ext_dep.clean()
 
@@ -290,5 +304,5 @@ class TestAzCliUniversalDependency(unittest.TestCase):
         AzureCliUniversalDependency.VerifyToolDependencies()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

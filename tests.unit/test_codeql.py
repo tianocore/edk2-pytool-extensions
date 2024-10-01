@@ -28,28 +28,26 @@ class CodeQlTests(unittest.TestCase):
         self.assertFalse(args.codeql)
 
         # Test that the option sets the value to True
-        args_with_option = parser.parse_args(['--codeql'])
+        args_with_option = parser.parse_args(["--codeql"])
         self.assertTrue(args_with_option.codeql)
 
-    @patch('edk2toolext.codeql.GetHostInfo')
+    @patch("edk2toolext.codeql.GetHostInfo")
     def test_codeql_enabled_linux(self, mock_host_info):
         """Tests that the proper scope is returned on a Linux host."""
         mock_host_info.return_value.os = "Linux"
         result = codeql.get_scopes(codeql_enabled=True)
-        expected_result = ("codeql-linux-ext-dep", "codeql-build",
-                           "codeql-analyze")
+        expected_result = ("codeql-linux-ext-dep", "codeql-build", "codeql-analyze")
         self.assertEqual(result, expected_result)
 
-    @patch('edk2toolext.codeql.GetHostInfo')
+    @patch("edk2toolext.codeql.GetHostInfo")
     def test_codeql_enabled_windows(self, mock_host_info):
         """Tests that the proper scope is returned on a Windows host."""
         mock_host_info.return_value.os = "Windows"
         result = codeql.get_scopes(codeql_enabled=True)
-        expected_result = ("codeql-windows-ext-dep", "codeql-build",
-                           "codeql-analyze")
+        expected_result = ("codeql-windows-ext-dep", "codeql-build", "codeql-analyze")
         self.assertEqual(result, expected_result)
 
-    @patch('edk2toolext.codeql.GetHostInfo')
+    @patch("edk2toolext.codeql.GetHostInfo")
     def test_codeql_disabled(self, mock_host_info):
         """Tests that the proper scopes are returned if CodeQL is disabled."""
         result = codeql.get_scopes(codeql_enabled=False)
@@ -72,7 +70,4 @@ class CodeQlTests(unittest.TestCase):
         """Tests that CodeQL audit mode is enabled as expected."""
         mock_uefi_builder = Mock()
         codeql.set_audit_only_mode(mock_uefi_builder)
-        mock_uefi_builder.env.SetValue.assert_called_once_with(
-            "STUART_CODEQL_AUDIT_ONLY",
-            "true",
-            "Platform Defined")
+        mock_uefi_builder.env.SetValue.assert_called_once_with("STUART_CODEQL_AUDIT_ONLY", "true", "Platform Defined")

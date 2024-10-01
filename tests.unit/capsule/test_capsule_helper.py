@@ -18,23 +18,20 @@ from edk2toollib.uefi.fmp_capsule_header import FmpCapsuleHeaderClass, FmpCapsul
 from edk2toolext.capsule import capsule_helper
 
 DUMMY_OPTIONS = {
-    'capsule': {
-        'fw_version': '0xDEADBEEF',
-        'lsv_version': '0xFEEDF00D',
-        'esrt_guid': '00112233-4455-6677-8899-aabbccddeeff',
-        'fw_name': 'TEST_FW',
-        'fw_version_string': '1.2.3',  # deliberately use 3-part version to exercise version normalization.
-        'provider_name': 'TESTER',
-        'fw_description': 'TEST FW',
-        'fw_integrity_file': "IntegrityFile.bin"
+    "capsule": {
+        "fw_version": "0xDEADBEEF",
+        "lsv_version": "0xFEEDF00D",
+        "esrt_guid": "00112233-4455-6677-8899-aabbccddeeff",
+        "fw_name": "TEST_FW",
+        "fw_version_string": "1.2.3",  # deliberately use 3-part version to exercise version normalization.
+        "provider_name": "TESTER",
+        "fw_description": "TEST FW",
+        "fw_integrity_file": "IntegrityFile.bin",
     },
-    'signer': {
-        'option2': 'value2',
-        'option_not': 'orig_value'
-    }
+    "signer": {"option2": "value2", "option_not": "orig_value"},
 }
-DUMMY_OPTIONS_FILE_NAME = 'dummy_options_file'
-DUMMY_PAYLOAD_FILE_NAME = 'dummy_payload'
+DUMMY_OPTIONS_FILE_NAME = "dummy_options_file"
+DUMMY_PAYLOAD_FILE_NAME = "dummy_payload"
 
 
 class CapsuleSignerTest(unittest.TestCase):
@@ -45,26 +42,26 @@ class CapsuleSignerTest(unittest.TestCase):
         cls.temp_dir = tempfile.mkdtemp()
         cls.dummy_payload = os.path.join(cls.temp_dir, DUMMY_PAYLOAD_FILE_NAME + ".bin")
 
-        with open(cls.dummy_payload, 'wb') as dummy_file:
-            dummy_file.write(b'DEADBEEF')
+        with open(cls.dummy_payload, "wb") as dummy_file:
+            dummy_file.write(b"DEADBEEF")
 
     def test_should_pass_wrapped_blob_to_signing_module(self):
-        dummy_payload = b'This_Is_My_Sample_Payload,ThereAreManyLikeIt;This One Is Mine'
+        dummy_payload = b"This_Is_My_Sample_Payload,ThereAreManyLikeIt;This One Is Mine"
 
         class DummySigner(object):
             @classmethod
             def sign(cls, data, signature_options, signer_options):
                 self.assertTrue(dummy_payload in data)
 
-        capsule_helper.build_capsule(dummy_payload, DUMMY_OPTIONS['capsule'], DummySigner, DUMMY_OPTIONS['signer'])
+        capsule_helper.build_capsule(dummy_payload, DUMMY_OPTIONS["capsule"], DummySigner, DUMMY_OPTIONS["signer"])
 
     def test_should_pass_signer_options_to_signing_module(self):
         class DummySigner(object):
             @classmethod
             def sign(cls, data, signature_options, signer_options):
-                self.assertEqual(signer_options, DUMMY_OPTIONS['signer'])
+                self.assertEqual(signer_options, DUMMY_OPTIONS["signer"])
 
-        capsule_helper.build_capsule(b'030303', DUMMY_OPTIONS['capsule'], DummySigner, DUMMY_OPTIONS['signer'])
+        capsule_helper.build_capsule(b"030303", DUMMY_OPTIONS["capsule"], DummySigner, DUMMY_OPTIONS["signer"])
 
     # def test_should_be_able_to_generate_a_production_equivalent_capsule(self):
     #     with open(BUILD_CAPSULE_BINARY_PATH, 'rb') as data_file:
@@ -129,12 +126,12 @@ class FileGenerationTest(unittest.TestCase):
         cls.temp_dir = tempfile.mkdtemp()
         cls.dummy_payload = os.path.join(cls.temp_dir, DUMMY_PAYLOAD_FILE_NAME + ".bin")
 
-        with open(cls.dummy_payload, 'wb') as dummy_file:
-            dummy_file.write(b'DEADBEEF')
+        with open(cls.dummy_payload, "wb") as dummy_file:
+            dummy_file.write(b"DEADBEEF")
 
     def test_should_be_able_to_save_a_capsule(self):
         fmp_capsule_image_header = FmpCapsuleImageHeaderClass()
-        fmp_capsule_image_header.UpdateImageTypeId = uuid.UUID(DUMMY_OPTIONS['capsule']['esrt_guid'])
+        fmp_capsule_image_header.UpdateImageTypeId = uuid.UUID(DUMMY_OPTIONS["capsule"]["esrt_guid"])
         fmp_capsule_image_header.UpdateImageIndex = 1
 
         fmp_capsule_header = FmpCapsuleHeaderClass()
@@ -145,26 +142,25 @@ class FileGenerationTest(unittest.TestCase):
         uefi_capsule_header.PersistAcrossReset = True
         uefi_capsule_header.InitiateReset = True
 
-        capsule_file_path = capsule_helper.save_capsule(uefi_capsule_header, DUMMY_OPTIONS['capsule'], self.temp_dir)
+        capsule_file_path = capsule_helper.save_capsule(uefi_capsule_header, DUMMY_OPTIONS["capsule"], self.temp_dir)
 
         # Now read the data and check for the GUID.
-        with open(capsule_file_path, 'rb') as capsule_file:
+        with open(capsule_file_path, "rb") as capsule_file:
             capsule_bytes = capsule_file.read()
 
-        self.assertTrue(uuid.UUID(DUMMY_OPTIONS['capsule']['esrt_guid']).bytes_le in capsule_bytes)
+        self.assertTrue(uuid.UUID(DUMMY_OPTIONS["capsule"]["esrt_guid"]).bytes_le in capsule_bytes)
 
     def test_should_be_able_to_generate_windows_files(self):
-        inf_file_path = capsule_helper.create_inf_file(DUMMY_OPTIONS['capsule'], self.temp_dir)
+        inf_file_path = capsule_helper.create_inf_file(DUMMY_OPTIONS["capsule"], self.temp_dir)
         self.assertTrue(os.path.isfile(inf_file_path))
 
     @unittest.skip("test fails in unittest environment. need to debug")
     def test_should_be_able_to_generate_cat(self):
-        cat_file_path = capsule_helper.create_cat_file(DUMMY_OPTIONS['capsule'], self.temp_dir)
+        cat_file_path = capsule_helper.create_cat_file(DUMMY_OPTIONS["capsule"], self.temp_dir)
         self.assertTrue(os.path.isfile(cat_file_path))
 
 
 class MultiNodeFileGenerationTest(unittest.TestCase):
-
     @staticmethod
     def buildPayload(esrt):
         fmp_capsule_image_header = FmpCapsuleImageHeaderClass()
@@ -198,7 +194,7 @@ class MultiNodeFileGenerationTest(unittest.TestCase):
                 "test1.bin",
                 uuid.UUID("ea5c13fe-cac9-4fd7-ac30-37709bd668f2"),
                 0xDEADBEEF,
-                "TEST FW"
+                "TEST FW",
             )
         )
 
@@ -208,24 +204,22 @@ class MultiNodeFileGenerationTest(unittest.TestCase):
                 "test2.bin",
                 uuid.UUID("43e67b4e-b2f1-4891-9ff2-a6acd9c74cbd"),
                 0xDEADBEEF,
-                "TEST FW"
+                "TEST FW",
             )
         )
 
     def test_should_be_able_to_save_a_multi_node_capsule(self):
-
         capsule_file_path = capsule_helper.save_multinode_capsule(self.capsule, self.temp_output_dir)
 
         # make sure all the files we expect got created
         for payload in self.capsule.payloads:
             payload_file = os.path.join(capsule_file_path, payload.payload_filename)
             self.assertTrue(os.path.isfile(payload_file))
-            with open(payload_file, 'rb') as fh:
+            with open(payload_file, "rb") as fh:
                 capsule_bytes = fh.read()
             self.assertIn(payload.esrt_guid.bytes_le, capsule_bytes)
 
     def test_should_be_able_to_save_a_multi_node_capsule_with_integrity(self):
-
         self.capsule.payloads[0].integrity_data = uuid.UUID("ea5c13fe-cac9-4fd7-ac30-37709bd668f2").bytes
         self.capsule.payloads[0].integrity_filename = "integrity1.bin"
 
@@ -237,13 +231,13 @@ class MultiNodeFileGenerationTest(unittest.TestCase):
         for payload in self.capsule.payloads:
             payload_file = os.path.join(capsule_file_path, payload.payload_filename)
             self.assertTrue(os.path.isfile(payload_file))
-            with open(payload_file, 'rb') as fh:
+            with open(payload_file, "rb") as fh:
                 capsule_bytes = fh.read()
             self.assertIn(payload.esrt_guid.bytes_le, capsule_bytes)
 
             integrityFile = os.path.join(capsule_file_path, payload.integrity_filename)
             self.assertTrue(os.path.isfile(integrityFile))
-            with open(integrityFile, 'rb') as fh:
+            with open(integrityFile, "rb") as fh:
                 integrity_bytes = fh.read()
             self.assertIn(payload.integrity_data, integrity_bytes)
 
@@ -254,10 +248,9 @@ class MultiNodeFileGenerationTest(unittest.TestCase):
         self.capsule.payloads[1].integrity_filename = None
 
     def test_should_be_able_to_generate_multi_node_inf_file(self):
-
         inf_file_path = capsule_helper.create_multinode_inf_file(self.capsule, self.temp_output_dir)
         self.assertTrue(os.path.isfile(inf_file_path))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

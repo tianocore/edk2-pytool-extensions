@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 
 """Used for creating a minimal uefi tree for testing."""
+
 import os
 import tempfile
 import json
@@ -31,7 +32,7 @@ class uefi_tree:
         if workspace is None:
             workspace = os.path.abspath(tempfile.mkdtemp())
         self.workspace = workspace
-        if (create_platform):
+        if create_platform:
             self._create_tree()
         if with_repo:
             self._create_repo()
@@ -50,12 +51,12 @@ class uefi_tree:
 
     def _create_repo(self):
         repo = git.Repo.init(self.workspace)
-        repo.create_remote('origin', 'https://github.com/username/repo.git')
-        repo.git.config('--global', 'user.email', '"johndoe@example.com"')
-        repo.git.config('--global', 'user.name', '"John Doe"')
-        repo.git.checkout('-b', "master")
-        repo.git.add('.')
-        repo.git.commit('-m', '"Initial commit"')
+        repo.create_remote("origin", "https://github.com/username/repo.git")
+        repo.git.config("--global", "user.email", '"johndoe@example.com"')
+        repo.git.config("--global", "user.name", '"John Doe"')
+        repo.git.checkout("-b", "master")
+        repo.git.add(".")
+        repo.git.commit("-m", '"Initial commit"')
 
     def _create_tree(self):
         """Creates a settings.py, test.dsc, Conf folder (with build_rule, target, and tools_def)."""
@@ -124,14 +125,7 @@ class uefi_tree:
             source = "https://api.nuget.org/v3/index.json"
         if source is None:
             raise ValueError("Source was not provided")
-        data = {
-            "scope": scope,
-            "type": dep_type,
-            "name": name,
-            "version": version,
-            "source": source,
-            "flags": []
-        }
+        data = {"scope": scope, "type": dep_type, "name": name, "version": version, "source": source, "flags": []}
         if extra_data is not None:
             data.update(extra_data)
         text = json.dumps(data)
@@ -144,7 +138,7 @@ class uefi_tree:
         uefi_tree.write_to_file(output_path, text)
         return output_path
 
-    _settings_file_text = '''
+    _settings_file_text = """
 # @file settings.py
 # This contains a settingsmanger for testing
 ##
@@ -205,16 +199,16 @@ class TestBuilder(UefiBuilder):
     def SetPlatformEnv(self):
         self.env.SetValue("EDK2_BASE_TOOLS_DIR", self.ws, "empty")
         return 0
-    '''
+    """
 
-    _dsc_file_text = '''
+    _dsc_file_text = """
 [Defines]
 OUTPUT_DIRECTORY = Build
-    '''
+    """
 
-    _target_file_text = '''
+    _target_file_text = """
 ACTIVE_PLATFORM = Test.dsc
 TOOL_CHAIN_TAG = test
 TARGET_ARCH = X64
 TARGET = DEBUG
-    '''
+    """

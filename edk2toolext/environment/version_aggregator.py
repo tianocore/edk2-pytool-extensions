@@ -11,6 +11,7 @@
 Used to facilitate the collection of information regarding the tools,
 binaries, submodule configuration used in a build.
 """
+
 import copy
 import logging
 from enum import Enum
@@ -25,13 +26,14 @@ class version_aggregator(object):
     Used to facilitate the collection of information regarding the tools,
     binaries, submodule configuration used in a build.
     """
+
     def __init__(self) -> None:
         """Inits an empty verion aggregator."""
         super(version_aggregator, self).__init__()
         self._Versions = {}
         self._logger = logging.getLogger("version_aggregator")
 
-    def ReportVersion(self, key: str, value: str, versionType:str, path:Optional[str]=None) -> None:
+    def ReportVersion(self, key: str, value: str, versionType: str, path: Optional[str] = None) -> None:
         """Report the version of something.
 
         Args:
@@ -45,19 +47,15 @@ class version_aggregator(object):
             if old_version["version"] == value and old_version["path"] == path:
                 self._logger.info(f"version_aggregator: {key} re-registered at {path}")
             else:
-                error = "version_aggregator: {0} key registered with a different value\n\t" \
-                        "Old:{1}@{3}\n\tNew:{2}@{4}\n".format(
-                            key, old_version["version"], value, old_version["path"], path)
+                error = (
+                    "version_aggregator: {0} key registered with a different value\n\t"
+                    "Old:{1}@{3}\n\tNew:{2}@{4}\n".format(key, old_version["version"], value, old_version["path"], path)
+                )
                 self._logger.error(error)
                 raise ValueError(error)
             return
 
-        self._Versions[key] = {
-            "name": key,
-            "version": value,
-            "type": versionType.name,
-            "path": path
-        }
+        self._Versions[key] = {"name": key, "version": value, "type": versionType.name, "path": path}
         self._logger.debug("version_aggregator logging version: {0}".format(str(self._Versions[key])))
 
     def Print(self) -> None:
@@ -68,7 +66,7 @@ class version_aggregator(object):
         if len(self._Versions) == 0:
             print("VERSION AGGREGATOR IS EMPTY")
 
-    def GetAggregatedVersionInformation(self) -> 'version_aggregator':
+    def GetAggregatedVersionInformation(self) -> "version_aggregator":
         """Returns a copy of the aggregated information."""
         return copy.deepcopy(self._Versions)
 
@@ -87,6 +85,7 @@ class VersionTypes(Enum):
         INFO: miscellaneous information.
         PIP: a python pip package.
     """
+
     TOOL = 1
     COMMIT = 2
     BINARY = 3

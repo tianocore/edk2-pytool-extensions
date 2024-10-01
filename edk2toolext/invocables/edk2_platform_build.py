@@ -13,6 +13,7 @@ file, along with a UefiBuilder subclass. This provides platform specific
 information to the Edk2PlatformBuild invocable while allowing the invocable
 itself to remain platform agnostic.
 """
+
 import argparse
 import logging
 import os
@@ -73,7 +74,7 @@ class Edk2PlatformBuild(Edk2Invocable):
             try:
                 # if it's not, we will try to find it in the module that was originally provided.
                 self.PlatformBuilder = locate_class_in_module(self.PlatformModule, UefiBuilder)()
-            except (TypeError):
+            except TypeError:
                 raise RuntimeError(f"UefiBuild not found in module:\n{dir(self.PlatformModule)}")
 
         self.PlatformBuilder.AddPlatformCommandLineOptions(parserObj)
@@ -100,14 +101,15 @@ class Edk2PlatformBuild(Edk2Invocable):
                 custom_epilog += "CLI Env Variables:"
                 for v in variables:
                     # Setup wrap and print first portion of description
-                    desc = wrap(v.description, max_desc_len,
-                                drop_whitespace=True, break_on_hyphens=True, break_long_words=True)
+                    desc = wrap(
+                        v.description, max_desc_len, drop_whitespace=True, break_on_hyphens=True, break_long_words=True
+                    )
                     custom_epilog += f"\n  {v.name:<{max_name_len}} - {desc[0]:<{max_desc_len}}  [{v.default}]"
 
                     # If the line actually wrapped, we can print the rest of the lines here
                     for d in desc[1:]:
                         custom_epilog += f"\n  {'':<{max_name_len}}   {d:{max_desc_len}}"
-                custom_epilog += '\n\n'
+                custom_epilog += "\n\n"
 
         return custom_epilog + epilog
 
@@ -134,7 +136,8 @@ class Edk2PlatformBuild(Edk2Invocable):
         Edk2PlatformBuild.collect_rust_info()
 
         (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(
-            self.GetWorkspaceRoot(), self.GetActiveScopes(), self.GetSkippedDirectories())
+            self.GetWorkspaceRoot(), self.GetActiveScopes(), self.GetSkippedDirectories()
+        )
 
         # Bind our current execution environment into the shell vars.
         ph = os.path.dirname(sys.executable)
@@ -151,8 +154,7 @@ class Edk2PlatformBuild(Edk2Invocable):
         # Load plugins
         logging.log(edk2_logging.SECTION, "Loading Plugins")
         pm = plugin_manager.PluginManager()
-        failedPlugins = pm.SetListOfEnvironmentDescriptors(
-            build_env.plugins)
+        failedPlugins = pm.SetListOfEnvironmentDescriptors(build_env.plugins)
         if failedPlugins:
             logging.critical("One or more plugins failed to load. Halting build.")
             for a in failedPlugins:
@@ -160,7 +162,7 @@ class Edk2PlatformBuild(Edk2Invocable):
             raise Exception("One or more plugins failed to load.")
 
         helper = HelperFunctions()
-        if (helper.LoadFromPluginManager(pm) > 0):
+        if helper.LoadFromPluginManager(pm) > 0:
             raise Exception("One or more helper plugins failed to load.")
 
         # Make a pathobj so we can normalize and validate the workspace
@@ -171,9 +173,7 @@ class Edk2PlatformBuild(Edk2Invocable):
         # Now we can actually kick off a build.
         #
         logging.log(edk2_logging.SECTION, "Kicking off build")
-        ret = self.PlatformBuilder.Go(pathobj.WorkspacePath,
-                                      os.pathsep.join(pathobj.PackagePathList),
-                                      helper, pm)
+        ret = self.PlatformBuilder.Go(pathobj.WorkspacePath, os.pathsep.join(pathobj.PackagePathList), helper, pm)
         logging.log(edk2_logging.SECTION, f"Log file is located at: {self.log_filename}")
         return ret
 

@@ -20,6 +20,7 @@ Edk2MultiPkgAwareInvocable should be platform agnostic and work for any
 platform. Platform specific data is provided via the
 MultiPkgAwareSettingsInterface
 """
+
 import argparse
 from typing import Iterable
 
@@ -186,16 +187,32 @@ class Edk2MultiPkgAwareInvocable(Edk2Invocable):
             arch_options = f' \n[{",".join(self.PlatformSettings.GetArchitecturesSupported())}]'
             target_options = f' \n[{",".join(self.PlatformSettings.GetTargetsSupported())}]'
 
-        parserObj.add_argument('-p', '--pkg', '--pkg-dir', dest='packageList', type=str,
-                               help='CSV of EDKII packages / folder containing packages to operate on. '
-                               f'{pkg_options}',
-                               action="append", default=[])
-        parserObj.add_argument('-a', '--arch', dest="requested_arch", type=str, default=None,
-                               help='CSV of architectures to operate on.'
-                               f'{arch_options}')
-        parserObj.add_argument('-t', '--target', dest='requested_target', type=str, default=None,
-                               help='CSV of targets to operate on.'
-                               f'{target_options}')
+        parserObj.add_argument(
+            "-p",
+            "--pkg",
+            "--pkg-dir",
+            dest="packageList",
+            type=str,
+            help="CSV of EDKII packages / folder containing packages to operate on. " f"{pkg_options}",
+            action="append",
+            default=[],
+        )
+        parserObj.add_argument(
+            "-a",
+            "--arch",
+            dest="requested_arch",
+            type=str,
+            default=None,
+            help="CSV of architectures to operate on." f"{arch_options}",
+        )
+        parserObj.add_argument(
+            "-t",
+            "--target",
+            dest="requested_target",
+            type=str,
+            default=None,
+            help="CSV of targets to operate on." f"{target_options}",
+        )
 
     def RetrieveCommandLineOptions(self, args: argparse.Namespace) -> None:
         """Retrieve command line options from the argparser ."""
@@ -220,14 +237,14 @@ class Edk2MultiPkgAwareInvocable(Edk2Invocable):
 
     def InputParametersConfiguredCallback(self) -> None:
         """Initializes the environment once input parameters are collected."""
-        if (len(self.requested_package_list) == 0):
+        if len(self.requested_package_list) == 0:
             self.requested_package_list = list(self.PlatformSettings.GetPackagesSupported())
         self.PlatformSettings.SetPackages(self.requested_package_list)
 
-        if (len(self.requested_architecture_list) == 0):
+        if len(self.requested_architecture_list) == 0:
             self.requested_architecture_list = list(self.PlatformSettings.GetArchitecturesSupported())
         self.PlatformSettings.SetArchitectures(self.requested_architecture_list)
 
-        if (len(self.requested_target_list) == 0):
+        if len(self.requested_target_list) == 0:
             self.requested_target_list = list(self.PlatformSettings.GetTargetsSupported())
         self.PlatformSettings.SetTargets(self.requested_target_list)

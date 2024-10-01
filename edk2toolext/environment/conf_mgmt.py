@@ -10,6 +10,7 @@
 
 Customized for edk2-pytool-extensions based build and support dynamic Visual studio support 2017++
 """
+
 import logging
 import os
 import shutil
@@ -18,8 +19,9 @@ import time
 from edk2toolext.environment import version_aggregator
 
 
-class ConfMgmt():
+class ConfMgmt:
     """Handles Edk2 Conf Management."""
+
     def __init__(self) -> None:
         """Init an empty ConfMgmt object."""
         self.Logger = logging.getLogger("ConfMgmt")
@@ -65,9 +67,8 @@ class ConfMgmt():
                     template_file_path = p
                     break
 
-            if (template_file_path is None):
-                self.Logger.critical(
-                    "Failed to find Template file for %s" % outfiles[x])
+            if template_file_path is None:
+                self.Logger.critical("Failed to find Template file for %s" % outfiles[x])
                 raise Exception("Template File Missing", outfiles[x])
             else:
                 self.Logger.debug(f"Conf file template: {template_file_path}")
@@ -76,8 +77,9 @@ class ConfMgmt():
             self._copy_conf_file_if_necessary(outfiles[x], template_file_path, override_conf)
 
             # Log Version for reporting
-            version_aggregator.GetVersionAggregator().ReportVersion(outfiles[x], self._get_version(outfiles[x]),
-                                                                    version_aggregator.VersionTypes.INFO)
+            version_aggregator.GetVersionAggregator().ReportVersion(
+                outfiles[x], self._get_version(outfiles[x]), version_aggregator.VersionTypes.INFO
+            )
 
     def _get_version(self, conf_file: str) -> str:
         """Parse the version from the conf_file.
@@ -90,7 +92,7 @@ class ConfMgmt():
         version = "0.0"
         with open(conf_file, "r") as f:
             for line in f.readlines():
-                if (line.startswith("#!VERSION=")):
+                if line.startswith("#!VERSION="):
                     try:
                         version = str(float(line.split("=")[1].split()[0].strip()))
                         break
@@ -120,7 +122,7 @@ class ConfMgmt():
         except Exception:
             logging.error("Failed to get version from file")
         finally:
-            return (conf < template)
+            return conf < template
 
     def _copy_conf_file_if_necessary(self, conf_file: str, template_file: str, override_conf: bool) -> None:
         """Copy template_file to conf_file if policy applies.
@@ -135,14 +137,14 @@ class ConfMgmt():
             self.Logger.debug(f"{conf_file} file not found.  Creating from Template file {template_file}")
             shutil.copy2(template_file, conf_file)
 
-        elif (override_conf):
+        elif override_conf:
             # caller requested override even for existing file
             self.Logger.debug(f"{conf_file} file replaced as requested")
             shutil.copy2(template_file, conf_file)
 
         else:
             # Both file exists.  Do a quick version check
-            if (self._is_older_version(conf_file, template_file)):
+            if self._is_older_version(conf_file, template_file):
                 # Conf dir file is older.  Warn user.
                 self.Logger.critical(f"{conf_file} file is out-of-date.  Please update your conf files!")
                 self.Logger.critical("Sleeping 30 seconds to encourage update....")

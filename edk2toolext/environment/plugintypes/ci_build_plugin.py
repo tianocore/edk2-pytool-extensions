@@ -21,6 +21,7 @@ from edk2toolext.environment.var_dict import VarDict
 
 class ICiBuildPlugin(object):
     """Plugin that supports adding tests or operations to the ci environment."""
+
     def RunBuildPlugin(
         self,
         packagename: str,
@@ -30,7 +31,7 @@ class ICiBuildPlugin(object):
         PLM: PluginManager,
         PLMHelper: HelperFunctions,
         tc: JunitReportTestCase,
-        output_stream: TextIO
+        output_stream: TextIO,
     ) -> int:
         """External function of plugin.
 
@@ -79,10 +80,7 @@ class ICiBuildPlugin(object):
         return ["NO-TARGET"]
 
     def WalkDirectoryForExtension(
-        self,
-        extensionlist: list[str],
-        directory: os.PathLike,
-        ignorelist: list[str] = None
+        self, extensionlist: list[str], directory: os.PathLike, ignorelist: list[str] = None
     ) -> list[os.PathLike]:
         """Walks a file directory recursively for all items ending in certain extension.
 
@@ -129,9 +127,9 @@ class ICiBuildPlugin(object):
                 for Extension in extensionlist_lower:
                     if File.lower().endswith(Extension):
                         ignoreIt = False
-                        if (ignorelist is not None):
+                        if ignorelist is not None:
                             for c in ignorelist_lower:
-                                if (File.lower().startswith(c)):
+                                if File.lower().startswith(c):
                                     ignoreIt = True
                                     break
                         if not ignoreIt:
