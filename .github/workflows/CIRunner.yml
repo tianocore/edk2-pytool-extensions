@@ -52,10 +52,14 @@ jobs:
         npm install -g markdownlint-cli@0.39.0
         npm install -g cspell@5.20.0
     
-    - name: Run ruff
+    - name: Run ruff linter
       if: success() || failure()
-      run: ruff check ${{ inputs.package-src }} --output-format=github
-    
+      run: ruff check --output-format=github .
+
+    - name: Run ruff formatter
+      if: success() || failure()
+      run: ruff format --check .
+
     - name: Run markdownlint
       if: success() || failure()
       run: markdownlint "**/*.md"

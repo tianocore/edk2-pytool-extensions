@@ -10,8 +10,12 @@ parameters:
   root_package_folder: ''
   
 steps:
-- script: ruff check ${{parameters.root_package_folder}}
-  displayName: 'Run ruff'
+- script: ruff check --output-format=azure .
+  displayName: 'Run ruff linter'
+  condition: succeededOrFailed()
+
+- script: ruff format --check .
+  displayName: 'Run ruff formatter'
   condition: succeededOrFailed()
 
 # Only capture and archive the lint log on failures.
