@@ -94,6 +94,10 @@ include = ["edk2toolext/*"]
 
 [tool.ruff]
 src = ["edk2toolext"]
+line-length = 120
+
+[lint]
+ignore = ["ANN101"]
 select = [
     "E", # Pycodestyle errors
     "W", # Pycodestyle warnings
@@ -103,13 +107,11 @@ select = [
     "PIE", # flake8 - PIE
     "ANN", # function annotations
 ]
-line-length = 120
-ignore = ["ANN101"]
 
-[tool.ruff.pydocstyle]
+[lint.pydocstyle]
 convention = "google"
 
-[tool.ruff.flake8-annotations]
+[lint.flake8-annotations]
 allow-star-arg-any = true
 
 [tool.pytest.ini_options]
