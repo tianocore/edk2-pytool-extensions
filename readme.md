@@ -44,13 +44,13 @@ coverage of those unit tests. We require 100% unit test success
 | Windows Server 2019 | Python 3.11 | Edk2       | [![ewt1]][_it]
 | Windows Server 2019 | Python 3.12 | Edk2       | [![ewt2]][_it]
 | Windows Server 2019 | Python 3.13 | Edk2       | [![ewt3]][_it]
-| Linux Ubuntu 20.04  | Python 3.11 | Edk2       | [![eut1]][_i359]
+| Linux Ubuntu 20.04  | Python 3.11 | Edk2       | [![eut1]][_it]
 | Linux Ubuntu 20.04  | Python 3.12 | Edk2       | [![eut2]][_it]
 | Linux Ubuntu 20.04  | Python 3.13 | Edk2       | [![eut3]][_it]
 | Windows Server 2022 | Python 3.11 | Project Mu | [![mwt1]][_it]
 | Windows Server 2022 | Python 3.12 | Project Mu | [![mwt2]][_it]
 | Windows Server 2022 | Python 3.13 | Project Mu | [![mwt3]][_it]
-| Linux Ubuntu 22.04  | Python 3.11 | Project Mu | [![mut1]][_i359]
+| Linux Ubuntu 22.04  | Python 3.11 | Project Mu | [![mut1]][_it]
 | Linux Ubuntu 22.04  | Python 3.12 | Project Mu | [![mut2]][_it]
 | Linux Ubuntu 22.04  | Python 3.13 | Project Mu | [![mut3]][_it]
 
@@ -174,7 +174,6 @@ contributing to the edk2-pytool-extensions repository.
 [_ci]: https://github.com/tianocore/edk2-pytool-extensions/actions/workflows/run-ci.yml
 
 [_it]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_build?definitionId=52&_a=summary&repositoryFilter=2&branchFilter=14
-[_i359]: https://github.com/tianocore/edk2-pytool-extensions/issues/359
 [ewt1]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Integration%20Tests?branchName=master&configuration=Edk2_Windows_Python311
 [ewt2]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Integration%20Tests?branchName=master&configuration=Edk2_Windows_Python312
 [ewt3]: https://dev.azure.com/tianocore/edk2-pytool-extensions/_apis/build/status/Integration%20Tests?branchName=master&configuration=Edk2_Windows_Python313
