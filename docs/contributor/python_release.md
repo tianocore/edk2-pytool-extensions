@@ -2,7 +2,7 @@
 
 This document provides information on the necessary steps to update the
 edk2-pytool-extensions repository when a new minor version of python has been
-release (3.9, 3.10, etc).
+release (3.12, 3.13, etc).
 
 ## Steps
 

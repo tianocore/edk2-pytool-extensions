@@ -9,7 +9,7 @@ dynamic = ["version"]
 description = "Python tools supporting UEFI EDK2 firmware development"
 readme = {file = "readme.md", content-type = "text/markdown"}
 license = {file = "LICENSE"}
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
     "edk2-pytool-library>=0.20.0",
     "pyyaml>=6.0.0",
@@ -28,9 +28,9 @@ classifiers = [
     "Operating System :: OS Independent",
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12"
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13"
 ]
 
 [project.urls]
