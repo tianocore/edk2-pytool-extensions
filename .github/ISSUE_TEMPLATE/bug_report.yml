@@ -29,9 +29,9 @@ body:
       description: "Note: Bug fixes are only supported on these Python versions."
       multiple: true
       options:
-        - Python 3.10
         - Python 3.11
         - Python 3.12
+        - Python 3.13
     validations:
       required: true
   - type: textarea
@@ -57,7 +57,7 @@ body:
     id: env
     attributes:
       label: Execution Environment
-      description: "List the OS, python micro version (e.g. 3.10.8), system environment variables, etc."
+      description: "List the OS, python micro version (e.g. 3.11), system environment variables, etc."
     validations:
       required: false
   - type: textarea

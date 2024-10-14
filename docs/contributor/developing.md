@@ -7,7 +7,7 @@ out all the different parts.
 
 ## Pre-Requisites
 
-* Make sure you have python 3.10.x or newer available on path
+* Make sure you have python 3.11.x or newer available on path
 * Make sure you have git installed and available on path
 
 1. Get the code
