@@ -17,8 +17,9 @@ dictionaries that are used by capsule_tool and capsule_helper.
 import logging
 import warnings
 
-from cryptography.hazmat.primitives.serialization.pkcs12 import load_pkcs12
-from OpenSSL import crypto
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.serialization import pkcs12
 
 
 def sign(data: bytes, signature_options: dict, signer_options: dict) -> bytes:
@@ -57,10 +58,14 @@ def sign(data: bytes, signature_options: dict, signer_options: dict) -> bytes:
         raise ValueError("Signature type options not supported")
     if signature_options["encoding"] != "binary":
         raise ValueError(f"Unsupported signature encoding: {signature_options['encoding']}")
-    if signature_options["hash_alg"] != "sha256":
-        raise ValueError(f"Unsupported hashing algorithm: {signature_options['hash_alg']}")
     if signer_options["key_file_format"] != "pkcs12":
         raise ValueError(f"Unsupported signer key file format: {signer_options['key_file_format']}")
+
+    match signature_options["hash_alg"]:
+        case "sha256":
+            algorithm = hashes.SHA256()
+        case hash_alg:
+            raise ValueError(f"Unsupported hashing algorithm: {hash_alg}")
 
     logging.debug("Executing PKCS1 Signing")
 
@@ -78,9 +83,12 @@ def sign(data: bytes, signature_options: dict, signer_options: dict) -> bytes:
         if not isinstance(password, bytes):
             password = password.encode()
 
+    private_key, _, _ = pkcs12.load_key_and_certificates(signer_options["key_data"], password)
+
+    if not private_key:
+        raise ValueError("Failed to load private key from PKCS12 data")
+
     # TODO: Figure out OIDs.
     # TODO: Figure out EKU.
 
-    pkcs12 = load_pkcs12(signer_options["key_data"], password)
-    pkey = crypto.PKey.from_cryptography_key(pkcs12.key)
-    return crypto.sign(pkey, data, signature_options["hash_alg"])
+    return private_key.sign(data, padding.PKCS1v15(), algorithm)
