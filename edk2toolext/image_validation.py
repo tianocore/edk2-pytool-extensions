@@ -316,8 +316,10 @@ class TestWriteExecuteFlags(TestInterface):
             if has_characteristic(
                 section.Characteristics, SECTION_CHARACTERISTICS["IMAGE_SCN_MEM_EXECUTE"]
             ) and has_characteristic(section.Characteristics, SECTION_CHARACTERISTICS["IMAGE_SCN_MEM_WRITE"]):
-                logging.error(f"[{Result.FAIL}]: Section [{section.Name.decode().strip()}] \
-                              should not be both Write and Execute")
+                logging.error(
+                    f"[{Result.FAIL}]: Section [{section.Name.decode().strip()}] \
+                              should not be both Write and Execute"
+                )
                 return Result.FAIL
         return Result.PASS
 
@@ -394,10 +396,12 @@ class TestSectionAlignment(TestInterface):
             req = alignments[0]
             result = eval(f'{alignment} {req["COMPARISON"]} {req["VALUE"]}')
         if result is False:
-            logging.error(f'[{Result.FAIL}: Section Alignment Required: \
+            logging.error(
+                f'[{Result.FAIL}]: Section Alignment Required: \
                             [{target_info["MACHINE_TYPE"]}] \
                             [{target_info["PROFILE"]}]: \
-                            [(Detected): {alignment}]')
+                            [(Detected): {alignment}]'
+            )
             return Result.FAIL
 
         return Result.PASS
