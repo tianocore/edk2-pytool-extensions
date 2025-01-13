@@ -46,7 +46,7 @@ dev = [
     "coverage == 7.6.10",
     "robotframework == 7.1.1",
     "regex == 2024.9.11",
-    "pre-commit == 3.8.0",
+    "pre-commit == 4.0.1",
 ]
 publish = [
     "setuptools == 75.1.0",
