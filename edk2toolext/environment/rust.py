@@ -358,9 +358,8 @@ def run(
             install_help=(
                 "  cargo binstall cargo-make "
                 f"{('--version ' + tool_ver.get('cargo-make', '')) if 'cargo-make' in tool_ver else ''}"
-                "\nOR\n"
-                "  cargo install cargo-make "
-                f"{('--version ' + tool_ver.get('cargo-make', '')) if 'cargo-make' in tool_ver else ''}\n"
+                "\n\n"
+                "  Need to install cargo-binstall? Visit: https://github.com/cargo-bins/cargo-binstall?tab=readme-ov-file#installation\n"
             ),
             required_version=tool_ver.get("cargo-make"),
             regex=r"\d+\.\d+\.\d+",
@@ -370,9 +369,8 @@ def run(
             install_help=(
                 "  cargo binstall cargo-tarpaulin "
                 f"{('--version ' + tool_ver.get('cargo-tarpaulin', '')) if 'cargo-tarpaulin' in tool_ver else ''}"
-                "\nOR\n"
-                "  cargo install cargo-tarpaulin "
-                f"{('--version ' + tool_ver.get('cargo-tarpaulin', '')) if 'cargo-tarpaulin' in tool_ver else ''}\n"
+                "\n\n"
+                "  Need to install cargo-binstall? Visit: https://github.com/cargo-bins/cargo-binstall?tab=readme-ov-file#installation\n"
             ),
             required_version=tool_ver.get("cargo-tarpaulin"),
             regex=r"\d+\.\d+\.\d+",
