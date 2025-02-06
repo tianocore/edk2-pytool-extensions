@@ -159,7 +159,7 @@ def _get_required_tool_versions() -> Dict[str, str]:
     try:
         with open(WORKSPACE_TOOLCHAIN_FILE, "r") as toml_file:
             content = toml_file.read()
-            match = re.search(r"\[tool\]\n((?:.+\s*=\s*.+\n?)*)", content)
+            match = re.search(r"\[tool(?:s)?\]\n((?:.+\s*=\s*.+\n?)*)", content)
             if match:
                 for line in match.group(1).splitlines():
                     (tool, version) = line.split("=", maxsplit=1)

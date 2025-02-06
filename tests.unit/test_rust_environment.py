@@ -312,18 +312,18 @@ class RustEnvironmentTests(unittest.TestCase):
         self.assertTrue(result)
 
     def test_get_required_tool_versions(self):
-        # Test when the workspace toolchain file exists and contains valid tool versions
-        with patch(
-            "builtins.open",
-            mock_open(
-                read_data='[toolchain]\nchannel = "1.76.0"\n\n[tool]\ncargo-make = "0.37.9"\ncargo-tarpaulin = "0.27.3"'
-            ),
-        ):
-            tool_versions = _get_required_tool_versions()
-            assert tool_versions == {
-                "cargo-make": "0.37.9",
-                "cargo-tarpaulin": "0.27.3",
-            }
+        test_data = [
+            '[toolchain]\nchannel = "1.76.0"\n\n[tool]\ncargo-make = "0.37.9"\ncargo-tarpaulin = "0.27.3"',
+            '[toolchain]\nchannel = "1.76.0"\n\n[tools]\ncargo-make = "0.37.9"\ncargo-tarpaulin = "0.27.3"',
+        ]
+
+        for data in test_data:
+            with patch("builtins.open", mock_open(read_data=data)):
+                tool_versions = _get_required_tool_versions()
+                assert tool_versions == {
+                    "cargo-make": "0.37.9",
+                    "cargo-tarpaulin": "0.27.3",
+                }
 
         # Test when the workspace toolchain file does not exist
         with patch("builtins.open", side_effect=FileNotFoundError):
