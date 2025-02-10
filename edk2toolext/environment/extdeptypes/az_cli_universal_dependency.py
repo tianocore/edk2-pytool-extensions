@@ -84,7 +84,10 @@ class AzureCliUniversalDependency(ExternalDependency):
 
         # 2 - Check for azure-devops extension
         if "azure-devops" not in found.keys():
-            logging.critical("Missing required Azure-cli extension azure-devops")
+            logging.critical(
+                "Missing required Azure-cli extension azure-devops.\n"
+                "Installation instructions: https://learn.microsoft.com/azure/devops/cli"
+            )
             raise EnvironmentError("Missing required Azure-cli extension azure-devops")
 
         cls.VersionLogged = True
@@ -141,7 +144,11 @@ class AzureCliUniversalDependency(ExternalDependency):
             e[self.AZURE_CLI_DEVOPS_ENV_VAR] = self._pat
 
         results = StringIO()
-        RunCmd(cmd[0], " ".join(cmd[1:]), outstream=results, environ=e, raise_exception_on_nonzero=True)
+        ret = RunCmd(cmd[0], " ".join(cmd[1:]), outstream=results, environ=e)
+        if ret != 0:
+            results.seek(0)
+            raise Exception(f"\nCommand \"{' '.join(cmd)}\" failed with {ret}.\n\n" f"{results.getvalue()}")
+
         # az tool returns json data that includes the downloaded version
         # lets check it to double confirm
         result_data = json.loads(results.getvalue())
