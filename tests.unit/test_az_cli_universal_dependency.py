@@ -22,6 +22,7 @@ from edk2toolext.environment import environment_descriptor_files as EDF
 from edk2toolext.environment import version_aggregator
 from edk2toolext.environment.extdeptypes.az_cli_universal_dependency import AzureCliUniversalDependency
 from edk2toollib.utility_functions import RemoveTree
+from unittest.mock import MagicMock, patch
 
 test_dir = None
 
@@ -223,6 +224,22 @@ class TestAzCliUniversalDependency(unittest.TestCase):
 
         # make sure we clean up after ourselves
         ext_dep.clean()
+
+    # bad case
+    # note: similar to `test_download_bad_universal_dependency()` but more
+    #       generally tests the non-zero return from `RunCmd()` behavior
+    #       without depending on a PAT or other assumptions about the feed.
+    @patch("edk2toolext.environment.extdeptypes.az_cli_universal_dependency.RunCmd", return_value=1)
+    def test_cmd_run_non_zero(self, mock_run_cmd: MagicMock):
+        version = "0.0.1"
+        ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
+        with open(ext_dep_file_path, "w+") as ext_dep_file:
+            ext_dep_file.write(single_file_json_template % version)
+
+        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep = AzureCliUniversalDependency(ext_dep_descriptor)
+        with self.assertRaises(Exception):
+            ext_dep.fetch()
 
     # bad case
     @unittest.skipIf(
