@@ -514,7 +514,7 @@ class Edk2Invocable(BaseAbstractInvocable):
         self.PlatformSettings.RetrieveCommandLineOptions(args)
 
         env = shell_environment.GetBuildVars()
-        
+
         # Override the verbose settings if the command line option is set
         if self.Verbose:
             env.SetValue("EDK2_BUILD_VERBOSE", "TRUE", "From CmdLine")
