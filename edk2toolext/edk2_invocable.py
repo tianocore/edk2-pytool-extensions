@@ -410,9 +410,21 @@ class Edk2Invocable(BaseAbstractInvocable):
             help="Provide the Platform Module relative to the current working directory."
             f"This should contain a {self.GetSettingsClass().__name__} instance.",
         )
+        settingsParserObj.add_argument(
+            "--verbose",
+            "--VERBOSE",
+            "-v",
+            dest="verbose",
+            action="store_true",
+            default=False,
+            help="Overrides platform module settings and sets all loggers to to the highest verbosity, including EDKII build command if applicable.",
+        )
 
         # get the settings manager from the provided file and load an instance
         settingsArg, unknown_args = settingsParserObj.parse_known_args()
+
+        self.Verbose = settingsArg.verbose
+
         try:
             self.PlatformModule = import_module_by_file_name(os.path.abspath(settingsArg.platform_module))
             self.PlatformSettings = locate_class_in_module(self.PlatformModule, self.GetSettingsClass())()
@@ -487,15 +499,6 @@ class Edk2Invocable(BaseAbstractInvocable):
             type=str,
             help="Provide shell variables in a file",
         )
-        parserObj.add_argument(
-            "--verbose",
-            "--VERBOSE",
-            "-v",
-            dest="verbose",
-            action="store_true",
-            default=False,
-            help="Overrides platform settings and sets all loggers to verbose (logging.DEBUG).",
-        )
 
         # set the epilog to display with --help, -h
         parserObj.epilog = self.AddParserEpilog()
@@ -503,13 +506,18 @@ class Edk2Invocable(BaseAbstractInvocable):
         # setup sys.argv and argparse round 2
         sys.argv = [sys.argv[0]] + (["--help"] if settingsArg.help else unknown_args)
         args, unknown_args = parserObj.parse_known_args()
-        self.Verbose = args.verbose
 
         # give the parsed args to the subclass
         self.RetrieveCommandLineOptions(args)
 
         # give the parsed args to platform settings manager
         self.PlatformSettings.RetrieveCommandLineOptions(args)
+
+        env = shell_environment.GetBuildVars()
+
+        # Override the verbose settings if the command line option is set
+        if self.Verbose:
+            env.SetValue("EDK2_BUILD_VERBOSE", "TRUE", "From CmdLine")
 
         #
         # Look through unknown_args and BuildConfig for strings that are:
@@ -522,7 +530,6 @@ class Edk2Invocable(BaseAbstractInvocable):
         # check for the existence of the build variable rather then the value
         # of the variable. This is to have parity between edk2's build -D
         # flag and stuart.
-        env = shell_environment.GetBuildVars()
         BuildConfig = os.path.abspath(args.build_config)
 
         for argument in unknown_args:

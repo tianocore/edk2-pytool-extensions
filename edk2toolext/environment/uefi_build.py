@@ -75,6 +75,7 @@ class UefiBuilder(object):
         self.Clean = False
         self.UpdateConf = False
         self.OutputConfig = None
+        self.Verbose = False
 
     def AddPlatformCommandLineOptions(self, parserObj: argparse.ArgumentParser) -> None:
         """Adds command line options to the argparser.
@@ -344,6 +345,10 @@ class UefiBuilder(object):
         params = "-p " + self.env.GetValue("ACTIVE_PLATFORM")
         params += " -b " + BuildType
         params += " -t " + self.env.GetValue("TOOL_CHAIN_TAG")
+
+        if self.env.GetValue("EDK2_BUILD_VERBOSE") == "TRUE":
+            params += " --verbose"
+
         # Thread number is now optional and not set in default tianocore target.txt
         if self.env.GetValue("MAX_CONCURRENT_THREAD_NUMBER") is not None:
             params += " -n " + self.env.GetValue("MAX_CONCURRENT_THREAD_NUMBER")
