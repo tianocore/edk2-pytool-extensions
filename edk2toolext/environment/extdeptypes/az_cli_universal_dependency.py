@@ -151,7 +151,20 @@ class AzureCliUniversalDependency(ExternalDependency):
 
         # az tool returns json data that includes the downloaded version
         # lets check it to double confirm
-        result_data = json.loads(results.getvalue())
+        try:
+            result_data = json.loads(results.getvalue())
+        except Exception as e:
+            logging.info("Failed to parse json data from az command output: %s", e)
+        
+            # Search results to find the json data
+            index_start = results.getvalue().find("{")
+            index_end = results.getvalue().rfind("}") + 1
+            
+            if index_start == -1 or index_end == -1:
+                raise Exception("Failed to find valid json data in az command output")
+            results.seek(index_start)
+            result_data = json.loads(results.read(index_end - index_start))
+
         results.close()
         downloaded_version = result_data["Version"]
         if self.version != downloaded_version:
