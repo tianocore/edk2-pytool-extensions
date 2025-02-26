@@ -17,7 +17,6 @@ import logging
 import os
 import tempfile
 import unittest
-from io import StringIO
 
 from edk2toolext.environment import environment_descriptor_files as EDF
 from edk2toolext.environment import version_aggregator
@@ -117,6 +116,30 @@ def clean_workspace():
     if os.path.isdir(test_dir):
         RemoveTree(test_dir)
         test_dir = None
+
+class MockRunCmd(MagicMock):
+    out_string = ""
+
+    def __init__() -> None:
+        super().__init__()
+    
+    @staticmethod
+    def mock_RunCmd_outstream(
+        cmd: str,
+        parameters: str,
+        capture: bool = True,
+        workingdir: str = None,
+        outfile: str | None = None,
+        outstream: str | None = None,
+        environ: dict | None = None,
+        logging_level: int = logging.INFO,
+        raise_exception_on_nonzero: bool = False,
+        encodingErrors: str = "strict",
+        close_fds: bool = True,
+    ) -> int:
+        """Mock of RunCmd that allows testcases to simulate output in the outstream."""
+        outstream.write(MockRunCmd.out_string)
+        return 0
 
 
 class TestAzCliUniversalDependency(unittest.TestCase):
@@ -260,30 +283,10 @@ class TestAzCliUniversalDependency(unittest.TestCase):
         self.assertFalse(ext_dep.verify())
 
     # good case
-    # @patch(
-    #     "edk2toolext.environment.extdeptypes.az_cli_universal_dependency.RunCmd",
-    #     return_value=0,
-    #     outstream=StringIO('Test extra prints\n{"Version": "0.0.1"}'),
-    # )
-    # def test_download_bad_results(self, mock_run_cmd: MagicMock):
-    #     version = "0.0.1"
-    #     ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
-    #     with open(ext_dep_file_path, "w+") as ext_dep_file:
-    #         ext_dep_file.write(single_file_json_template % version)
+    @patch("edk2toolext.environment.extdeptypes.az_cli_universal_dependency.RunCmd", MockRunCmd.mock_RunCmd_outstream)
+    def test_download_bad_results(self):
+        MockRunCmd.out_string = 'Properly handle this output!\n{"Version":"0.0.1"}'
 
-    #     ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
-    #     ext_dep = AzureCliUniversalDependency(ext_dep_descriptor)
-    #     ext_dep.fetch()
-    #     self.assertTrue(ext_dep.verify())
-    #     self.assertEqual(ext_dep.version, version)
-
-    # bad case
-    @patch(
-        "edk2toolext.environment.extdeptypes.az_cli_universal_dependency.RunCmd",
-        return_value=0,
-        outstream=StringIO("Test!"),
-    )
-    def test_download_bad_results_assert(self, mock_run_cmd: MagicMock):
         version = "0.0.1"
         ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
         with open(ext_dep_file_path, "w+") as ext_dep_file:
@@ -291,7 +294,23 @@ class TestAzCliUniversalDependency(unittest.TestCase):
 
         ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
         ext_dep = AzureCliUniversalDependency(ext_dep_descriptor)
-        with self.assertRaises(Exception):
+        ext_dep.fetch()
+        self.assertTrue(ext_dep.verify())
+        self.assertEqual(ext_dep.version, version)
+
+    # bad case
+    @patch("edk2toolext.environment.extdeptypes.az_cli_universal_dependency.RunCmd", MockRunCmd.mock_RunCmd_outstream)
+    def test_download_bad_results_assert(self):
+        MockRunCmd.out_string = 'TEST! No json data here!'
+
+        version = "0.0.1"
+        ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
+        with open(ext_dep_file_path, "w+") as ext_dep_file:
+            ext_dep_file.write(single_file_json_template % version)
+
+        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep = AzureCliUniversalDependency(ext_dep_descriptor)
+        with self.assertRaises(ValueError):
             ext_dep.fetch()
         self.assertFalse(ext_dep.verify())
 
