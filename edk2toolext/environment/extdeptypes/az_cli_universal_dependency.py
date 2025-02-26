@@ -147,7 +147,7 @@ class AzureCliUniversalDependency(ExternalDependency):
         ret = RunCmd(cmd[0], " ".join(cmd[1:]), outstream=results, environ=e)
         if ret != 0:
             results.seek(0)
-            raise Exception(f"\nCommand \"{' '.join(cmd)}\" failed with {ret}.\n\n" f"{results.getvalue()}")
+            raise Exception(f'\nCommand "{" ".join(cmd)}" failed with {ret}.\n\n{results.getvalue()}')
 
         # az tool returns json data that includes the downloaded version
         # lets check it to double confirm
@@ -155,11 +155,11 @@ class AzureCliUniversalDependency(ExternalDependency):
             result_data = json.loads(results.getvalue())
         except Exception as e:
             logging.info("Failed to parse json data from az command output: %s", e)
-        
+
             # Search results to find the json data
             index_start = results.getvalue().find("{")
             index_end = results.getvalue().rfind("}")
-            
+
             if index_start == -1 or index_end == -1:
                 raise Exception("Failed to find valid json data in az command output")
             results.seek(index_start)
