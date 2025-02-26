@@ -273,9 +273,9 @@ class TestAzCliUniversalDependency(unittest.TestCase):
 
         ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
         ext_dep = AzureCliUniversalDependency(ext_dep_descriptor)
-        with self.assertRaises(Exception):
-            ext_dep.fetch()
-        self.assertFalse(ext_dep.verify())
+        ext_dep.fetch()
+        self.assertTrue(ext_dep.verify())
+        self.assertEqual(ext_dep.version, version)
 
     # bad case
     @patch(
@@ -283,7 +283,7 @@ class TestAzCliUniversalDependency(unittest.TestCase):
         return_value=0,
         outstream=StringIO("Test!"),
     )
-    def test_download_bad_results(self, mock_run_cmd: MagicMock):
+    def test_download_bad_results_assert(self, mock_run_cmd: MagicMock):
         version = "0.0.1"
         ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
         with open(ext_dep_file_path, "w+") as ext_dep_file:
