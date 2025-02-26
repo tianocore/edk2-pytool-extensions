@@ -117,12 +117,13 @@ def clean_workspace():
         RemoveTree(test_dir)
         test_dir = None
 
+
 class MockRunCmd(MagicMock):
     out_string = ""
 
     def __init__() -> None:
         super().__init__()
-    
+
     @staticmethod
     def mock_RunCmd_outstream(
         cmd: str,
@@ -301,7 +302,7 @@ class TestAzCliUniversalDependency(unittest.TestCase):
     # bad case
     @patch("edk2toolext.environment.extdeptypes.az_cli_universal_dependency.RunCmd", MockRunCmd.mock_RunCmd_outstream)
     def test_download_bad_results_assert(self):
-        MockRunCmd.out_string = 'TEST! No json data here!'
+        MockRunCmd.out_string = "TEST! No json data here!"
 
         version = "0.0.1"
         ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
