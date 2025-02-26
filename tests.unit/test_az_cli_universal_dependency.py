@@ -17,6 +17,7 @@ import logging
 import os
 import tempfile
 import unittest
+from io import StringIO
 
 from edk2toolext.environment import environment_descriptor_files as EDF
 from edk2toolext.environment import version_aggregator
@@ -251,6 +252,42 @@ class TestAzCliUniversalDependency(unittest.TestCase):
         ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
         with open(ext_dep_file_path, "w+") as ext_dep_file:
             ext_dep_file.write(single_file_json_template % non_existing_version)
+
+        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep = AzureCliUniversalDependency(ext_dep_descriptor)
+        with self.assertRaises(Exception):
+            ext_dep.fetch()
+        self.assertFalse(ext_dep.verify())
+
+    # good case
+    @patch(
+        "edk2toolext.environment.extdeptypes.az_cli_universal_dependency.RunCmd",
+        return_value=0,
+        outstream=StringIO('Test extra prints\n{"Version": "0.0.1"}'),
+    )
+    def test_download_bad_results(self, mock_run_cmd: MagicMock):
+        version = "0.0.1"
+        ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
+        with open(ext_dep_file_path, "w+") as ext_dep_file:
+            ext_dep_file.write(single_file_json_template % version)
+
+        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep = AzureCliUniversalDependency(ext_dep_descriptor)
+        with self.assertRaises(Exception):
+            ext_dep.fetch()
+        self.assertFalse(ext_dep.verify())
+
+    # bad case
+    @patch(
+        "edk2toolext.environment.extdeptypes.az_cli_universal_dependency.RunCmd",
+        return_value=0,
+        outstream=StringIO("Test!"),
+    )
+    def test_download_bad_results(self, mock_run_cmd: MagicMock):
+        version = "0.0.1"
+        ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
+        with open(ext_dep_file_path, "w+") as ext_dep_file:
+            ext_dep_file.write(single_file_json_template % version)
 
         ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
         ext_dep = AzureCliUniversalDependency(ext_dep_descriptor)
