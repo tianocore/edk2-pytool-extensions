@@ -21,7 +21,7 @@ import unittest
 from edk2toolext.environment import environment_descriptor_files as EDF
 from edk2toolext.environment import version_aggregator
 from edk2toolext.environment.extdeptypes.az_cli_universal_dependency import AzureCliUniversalDependency
-from edk2toollib.utility_functions import RemoveTree, RunCmd
+from edk2toollib.utility_functions import RemoveTree
 from unittest.mock import MagicMock, patch
 
 test_dir = None
@@ -139,23 +139,8 @@ class MockRunCmd(MagicMock):
         close_fds: bool = True,
     ) -> int:
         """Mock of RunCmd that allows testcases to simulate output in the outstream."""
-
-        ret = RunCmd(
-            cmd,
-            parameters,
-            capture=capture,
-            workingdir=workingdir,
-            outfile=outfile,
-            outstream=None,
-            environ=environ,
-            logging_level=logging_level,
-            raise_exception_on_nonzero=raise_exception_on_nonzero,
-            encodingErrors=encodingErrors,
-            close_fds=close_fds,
-        )
-
         outstream.write(MockRunCmd.out_string)
-        return ret
+        return 0
 
 
 class TestAzCliUniversalDependency(unittest.TestCase):
@@ -298,47 +283,25 @@ class TestAzCliUniversalDependency(unittest.TestCase):
             ext_dep.fetch()
         self.assertFalse(ext_dep.verify())
 
-    # good case
-    @unittest.skipIf(
-        "PAT_FOR_UNIVERSAL_ORG_TIANOCORE" not in os.environ.keys(),
-        "PAT not defined therefore universal packages tests will fail",
-    )
     @patch("edk2toolext.environment.extdeptypes.az_cli_universal_dependency.RunCmd", MockRunCmd.mock_RunCmd_outstream)
     def test_download_bad_results(self):
-        MockRunCmd.out_string = 'Properly handle this output!\n{"Version":"0.0.1"}'
-
         version = "0.0.1"
         ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
         with open(ext_dep_file_path, "w+") as ext_dep_file:
             ext_dep_file.write(single_file_json_template % version)
-
         ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
         ext_dep = AzureCliUniversalDependency(ext_dep_descriptor)
-        ext_dep.fetch()
-        self.assertTrue(ext_dep.verify())
-        self.assertEqual(ext_dep.version, version)
+
+        MockRunCmd.out_string = 'Properly handle this output!\n{"Version":"0.0.1"}'
+        ext_dep._attempt_universal_install(ext_dep.get_temp_dir())
         # make sure we clean up after ourselves
         ext_dep.clean()
 
-    # bad case
-    @unittest.skipIf(
-        "PAT_FOR_UNIVERSAL_ORG_TIANOCORE" not in os.environ.keys(),
-        "PAT not defined therefore universal packages tests will fail",
-    )
-    @patch("edk2toolext.environment.extdeptypes.az_cli_universal_dependency.RunCmd", MockRunCmd.mock_RunCmd_outstream)
-    def test_download_bad_results_assert(self):
         MockRunCmd.out_string = "TEST! No json data here!"
-
-        version = "0.0.1"
-        ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
-        with open(ext_dep_file_path, "w+") as ext_dep_file:
-            ext_dep_file.write(single_file_json_template % version)
-
-        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
-        ext_dep = AzureCliUniversalDependency(ext_dep_descriptor)
         with self.assertRaises(ValueError):
-            ext_dep.fetch()
-        self.assertFalse(ext_dep.verify())
+            ext_dep._attempt_universal_install(ext_dep.get_temp_dir())
+        # make sure we clean up after ourselves
+        ext_dep.clean()
 
     @unittest.skipIf(
         "PAT_FOR_UNIVERSAL_ORG_TIANOCORE" not in os.environ.keys(),
