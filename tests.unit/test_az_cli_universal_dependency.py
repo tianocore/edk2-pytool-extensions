@@ -118,6 +118,28 @@ def clean_workspace():
         test_dir = None
 
 
+class MockRunCmd(MagicMock):
+    out_string = ""
+
+    @staticmethod
+    def mock_RunCmd_outstream(
+        cmd: str,
+        parameters: str,
+        capture: bool = True,
+        workingdir: str = None,
+        outfile: str | None = None,
+        outstream: str | None = None,
+        environ: dict | None = None,
+        logging_level: int = logging.INFO,
+        raise_exception_on_nonzero: bool = False,
+        encodingErrors: str = "strict",
+        close_fds: bool = True,
+    ) -> int:
+        """Mock of RunCmd that allows testcases to simulate output in the outstream."""
+        outstream.write(MockRunCmd.out_string)
+        return 0
+
+
 class TestAzCliUniversalDependency(unittest.TestCase):
     def setUp(self):
         prep_workspace()
@@ -257,6 +279,26 @@ class TestAzCliUniversalDependency(unittest.TestCase):
         with self.assertRaises(Exception):
             ext_dep.fetch()
         self.assertFalse(ext_dep.verify())
+
+    @patch("edk2toolext.environment.extdeptypes.az_cli_universal_dependency.RunCmd", MockRunCmd.mock_RunCmd_outstream)
+    def test_download_bad_results(self):
+        version = "0.0.1"
+        ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
+        with open(ext_dep_file_path, "w+") as ext_dep_file:
+            ext_dep_file.write(single_file_json_template % version)
+        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep = AzureCliUniversalDependency(ext_dep_descriptor)
+
+        MockRunCmd.out_string = 'Properly handle this output!\n{"Version":"0.0.1"}'
+        ext_dep._attempt_universal_install(ext_dep.get_temp_dir())
+        # make sure we clean up after ourselves
+        ext_dep.clean()
+
+        MockRunCmd.out_string = "TEST! No json data here!"
+        with self.assertRaises(ValueError):
+            ext_dep._attempt_universal_install(ext_dep.get_temp_dir())
+        # make sure we clean up after ourselves
+        ext_dep.clean()
 
     @unittest.skipIf(
         "PAT_FOR_UNIVERSAL_ORG_TIANOCORE" not in os.environ.keys(),
