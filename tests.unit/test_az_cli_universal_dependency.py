@@ -305,7 +305,7 @@ class TestAzCliUniversalDependency(unittest.TestCase):
     )
     @patch("edk2toolext.environment.extdeptypes.az_cli_universal_dependency.RunCmd", MockRunCmd.mock_RunCmd_outstream)
     def test_download_bad_results(self):
-        #MockRunCmd.out_string = 'Properly handle this output!\n{"Version":"0.0.1"}'
+        MockRunCmd.out_string = 'Properly handle this output!\n{"Version":"0.0.1"}'
 
         version = "0.0.1"
         ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
