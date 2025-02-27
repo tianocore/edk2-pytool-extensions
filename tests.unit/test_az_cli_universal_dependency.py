@@ -121,9 +121,6 @@ def clean_workspace():
 class MockRunCmd(MagicMock):
     out_string = ""
 
-    def __init__() -> None:
-        super().__init__()
-
     @staticmethod
     def mock_RunCmd_outstream(
         cmd: str,
