@@ -154,7 +154,7 @@ class AzureCliUniversalDependency(ExternalDependency):
         try:
             result_data = json.loads(results.getvalue())
         except Exception as e:
-            logging.error(f"Failed to parse json data from az command output: {e}")
+            logging.info(f"Failed to parse json data from az command output: {e}")
 
             # Search results to find the json data
             index_start = results.getvalue().find("{")
