@@ -11,24 +11,15 @@ specific file that must be updated.
 
 ### pyproject.toml
 
-This file is responsible for the release process to pypi. We want to make sure
-we keep the required version for our pypi releases up to date. Update
-`requires-python` to the minimum required python.
-
-We typically support the last three minor versions; barring any special
-exceptions, if the newest minor version is 3.11, then overall, we will
-support 3.9, 3.10, and 3.11. Therefore you should update the line to
-`python-requires = ">=3.9.0"`.
-
-Additionally, we must update the classifiers section to show the three
-supported python versions:
+We must update the classifiers section to show the new supported python version:
 
 ```cmd
 classifiers=[
         ...
-        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11"
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13"
     ]
 ```
 

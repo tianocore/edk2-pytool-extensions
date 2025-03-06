@@ -27,6 +27,13 @@ jobs:
       node-version: ${{ fromJson(needs.variables.outputs.node-versions)[0] }}
       package-src: edk2toolext
   
+  msv:
+    needs: [variables,ci]
+    name: MSV Validation
+    uses: ./.github/workflows/UnitTestRunner.yml
+    with:
+      python-versions: ${{ needs.variables.outputs.python-msv }}
+  
   unit-test:
     needs: [variables,ci]
     name: Unit Test
