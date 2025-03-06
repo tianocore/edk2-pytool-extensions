@@ -12,8 +12,12 @@ on:
       node-versions: 
         description: 'Node Versions'
         value: ${{ jobs.produce.outputs.node-versions }}
+      python-msv:
+        description: 'Minimum Supported Python Version'
+        value: ${{ jobs.produce.outputs.python-msv }}
 
 env:
+  msv: "['3.10']"
   pythonversions: "['3.13', '3.12', '3.11']" # Keep Python Versions in descending order
   nodeversions: "['19']"
 
@@ -26,6 +30,7 @@ jobs:
     outputs:
       python-versions: ${{ steps.set-python-versions.outputs.VERSION }}
       node-versions: ${{ steps.set-node-versions.outputs.VERSION }}
+      python-msv: ${{ steps.set-python-msv.outputs.VERSION }}
 
     steps:
     - name: Produce Python Version
@@ -35,3 +40,7 @@ jobs:
     - name: Produce Node Version
       id: set-node-versions
       run: echo "VERSION=$nodeversions" >> $GITHUB_OUTPUT
+
+    - name: Produce Minimum Supported Python Version
+      id: set-python-msv
+      run: echo "VERSION=$msv" >> $GITHUB_OUTPUT

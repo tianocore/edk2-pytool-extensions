@@ -39,6 +39,8 @@ The code coverage and CI badges represent unit test status and the code
 coverage of those unit tests. We require 100% unit test success
 (Hence the pass / fail) and that code coverage percentage does not lower.
 
+Maintained Versions
+
 | Host Type           | Toolchain   | Project    | Integration Tests
 | :------------------ | :---------  | :--------- | :----------------
 | Windows Server 2019 | Python 3.11 | Edk2       | [![ewt1]][_it]
@@ -53,6 +55,13 @@ coverage of those unit tests. We require 100% unit test success
 | Linux Ubuntu 22.04  | Python 3.11 | Project Mu | [![mut1]][_it]
 | Linux Ubuntu 22.04  | Python 3.12 | Project Mu | [![mut2]][_it]
 | Linux Ubuntu 22.04  | Python 3.13 | Project Mu | [![mut3]][_it]
+
+Minimum Supported Version
+
+|  Host Type         |  Toolchain    |  Status
+|  :---------------  |  :----------  |  :-----------
+|  [Windows-Latest]  |  Python 3.10  |  [![ci]][_ci]
+|  [Ubuntu-Latest]   |  Python 3.10  |  [![ci]][_ci]
 
 ### Current Release
 
