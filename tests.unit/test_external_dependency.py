@@ -6,13 +6,16 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
-import os
-import unittest
-import logging
-import tempfile
+"""Unit test suite for the GitDependency class."""
+
 import copy
-from edk2toollib.utility_functions import RemoveTree
+import logging
+import os
+import tempfile
+import unittest
+
 from edk2toolext.environment.external_dependency import ExternalDependency as ExtDep
+from edk2toollib.utility_functions import RemoveTree
 
 TEST_DIR = None
 GOOD_VERSION = "5.2.0"
@@ -34,7 +37,8 @@ WEB_TEMPLATE = {
 }
 
 
-def prep_workspace():
+def prep_workspace() -> None:
+    """Prepare the workspace."""
     global TEST_DIR
     # if test temp dir doesn't exist
     if TEST_DIR is None or not os.path.isdir(TEST_DIR):
@@ -45,7 +49,8 @@ def prep_workspace():
         TEST_DIR = tempfile.mkdtemp()
 
 
-def clean_workspace():
+def clean_workspace() -> None:
+    """Clean up the workspace."""
     global TEST_DIR
     if TEST_DIR is None:
         return
@@ -56,20 +61,26 @@ def clean_workspace():
 
 
 class TestExternalDependency(unittest.TestCase):
-    def setUp(self):
+    """Unit test for the ExternalDependency class."""
+
+    def setUp(self) -> None:
+        """Set up the test environment."""
         prep_workspace()
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
+        """Set up the test environment."""
         logger = logging.getLogger("")
         logger.addHandler(logging.NullHandler())
         unittest.installHandler()
 
     @classmethod
-    def tearDownClass(cls):
+    def tearDownClass(cls) -> None:
+        """Clean up the workspace."""
         clean_workspace()
 
-    def test_determine_cache_path(self):
+    def test_determine_cache_path(self) -> None:
+        """Test that the cache path is determined correctly."""
         nuget_desc = copy.copy(NUGET_TEMPLATE)
         nuget_desc["version"] = GOOD_VERSION
         nuget_desc["descriptor_file"] = os.path.join(TEST_DIR, "non_file.yaml")
@@ -92,7 +103,8 @@ class TestExternalDependency(unittest.TestCase):
         ext_dep.set_global_cache_path(cache_path)
         self.assertTrue(ext_dep.determine_cache_path().startswith(os.path.join(cache_path, "web")))
 
-    def test_different_versions_have_different_caches(self):
+    def test_different_versions_have_different_caches(self) -> None:
+        """Test that different versions have different cache paths."""
         cache_path = os.path.join(TEST_DIR, "stuart_cache")
         os.makedirs(cache_path)
 
@@ -111,7 +123,8 @@ class TestExternalDependency(unittest.TestCase):
 
         self.assertNotEqual(ext_dep1.determine_cache_path(), ext_dep2.determine_cache_path())
 
-    def test_different_sources_have_different_caches(self):
+    def test_different_sources_have_different_caches(self) -> None:
+        """Test that different sources have different cache paths."""
         cache_path = os.path.join(TEST_DIR, "stuart_cache")
         os.makedirs(cache_path)
 
@@ -131,7 +144,8 @@ class TestExternalDependency(unittest.TestCase):
 
         self.assertNotEqual(ext_dep1.determine_cache_path(), ext_dep2.determine_cache_path())
 
-    def test_can_copy_to_cache(self):
+    def test_can_copy_to_cache(self) -> None:
+        """Test that files can be copied to the cache."""
         cache_path = os.path.join(TEST_DIR, "stuart_cache")
         os.makedirs(cache_path)
 
@@ -161,7 +175,8 @@ class TestExternalDependency(unittest.TestCase):
             file_contents = fp.read()
         self.assertTrue("DEADBEEF" in file_contents)
 
-    def test_can_copy_from_cache(self):
+    def test_can_copy_from_cache(self) -> None:
+        """Test that files can be copied from the cache."""
         cache_path = os.path.join(TEST_DIR, "stuart_cache")
         os.makedirs(cache_path)
 

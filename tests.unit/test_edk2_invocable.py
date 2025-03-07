@@ -18,7 +18,7 @@ class TestEdk2Invocable(unittest.TestCase):
     """Tests for the Edk2Invocable module."""
 
     @classmethod
-    def _mock_rust_tool_run_cmd_valid(cls, tool_name: str, tool_params: str, **kwargs: dict[str, any]):
+    def _mock_rust_tool_run_cmd_valid(cls, tool_name: str, tool_params: str, **kwargs: dict[str, any]) -> int:
         """Returns a set of expected Rust tool versions.
 
         Args:
@@ -41,7 +41,7 @@ class TestEdk2Invocable(unittest.TestCase):
         return 1
 
     @classmethod
-    def _mock_rust_tool_run_cmd_invalid(cls, tool_name: str, tool_params: str, **kwargs: dict[str, any]):
+    def _mock_rust_tool_run_cmd_invalid(cls, tool_name: str, tool_params: str, **kwargs: dict[str, any]) -> int:
         """Returns an unexpected tool version.
 
         Args:
@@ -56,7 +56,7 @@ class TestEdk2Invocable(unittest.TestCase):
         return 0
 
     @classmethod
-    def _mock_rust_tool_run_cmd_missing(cls, tool_name: str, tool_params: str, **kwargs: dict[str, any]):
+    def _mock_rust_tool_run_cmd_missing(cls, tool_name: str, tool_params: str, **kwargs: dict[str, any]) -> int:
         """Returns an unexpected tool version.
 
         Args:
@@ -71,7 +71,7 @@ class TestEdk2Invocable(unittest.TestCase):
         return 1
 
     @patch("edk2toolext.edk2_invocable.RunCmd")
-    def test_collect_rust_info_unknown_ver(self, mock_run_cmd: MagicMock):
+    def test_collect_rust_info_unknown_ver(self, mock_run_cmd: MagicMock) -> None:
         """Verifies a Rust tool with an unknown format raises an exception.
 
         Args:
@@ -89,7 +89,9 @@ class TestEdk2Invocable(unittest.TestCase):
 
     @patch("edk2toolext.edk2_invocable.RunCmd")
     @patch("edk2toolext.edk2_invocable.version_aggregator.GetVersionAggregator")
-    def test_collect_rust_info_missing_tool(self, mock_get_version_aggregator: MagicMock, mock_run_cmd: MagicMock):
+    def test_collect_rust_info_missing_tool(
+        self, mock_get_version_aggregator: MagicMock, mock_run_cmd: MagicMock
+    ) -> None:
         """Verifies a missing Rust tool returns N/A.
 
         Some repos may not use the Rust and the users of those repos do not
@@ -118,7 +120,7 @@ class TestEdk2Invocable(unittest.TestCase):
 
     @patch("edk2toolext.edk2_invocable.RunCmd")
     @patch("edk2toolext.edk2_invocable.version_aggregator.GetVersionAggregator")
-    def test_collect_rust_info_known_ver(self, mock_get_version_aggregator: MagicMock, mock_run_cmd: MagicMock):
+    def test_collect_rust_info_known_ver(self, mock_get_version_aggregator: MagicMock, mock_run_cmd: MagicMock) -> None:
         """Verifies Rust tools with an expected format are successful.
 
         Verifies the tool information is passed to the version aggregator as

@@ -6,51 +6,51 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
-import unittest
-import logging
-from edk2toolext.environment import uefi_build
-from edk2toolext.environment.plugintypes import uefi_helper_plugin
-from edk2toolext.environment.plugin_manager import PluginManager
-from edk2toollib.utility_functions import GetHostInfo
+"""Unit test for the UefiBuilder class."""
+
 import argparse
-import tempfile
+import logging
 import os
 import stat
+import tempfile
+import unittest
 from inspect import cleandoc
-from edk2toolext.environment import shell_environment
+
+import pytest
+from edk2toolext.environment import shell_environment, uefi_build
+from edk2toolext.environment.plugin_manager import PluginManager
+from edk2toolext.environment.plugintypes import uefi_helper_plugin
+from edk2toollib.utility_functions import GetHostInfo
 
 
 class TestUefiBuild(unittest.TestCase):
-    def setUp(self):
+    """Unit test for the UefiBuilder class."""
+
+    def setUp(self) -> None:
+        """Create a temporary workspace and a minimal UEFI build tree."""
         self.WORKSPACE = tempfile.mkdtemp()
         TestUefiBuild.create_min_uefi_build_tree(self.WORKSPACE)
-        pass
 
-    def tearDown(self):
+    def tearDown(self) -> None:
+        """Restore the initial checkpoint."""
         shell_environment.GetEnvironment().restore_initial_checkpoint()
-        pass
 
-    @classmethod
-    def setUpClass(cls):
-        pass
-
-    @classmethod
-    def tearDownClass(cls):
-        pass
-
-    def test_init(self):
+    def test_init(self) -> None:
+        """Test that the UefiBuilder can be initialized."""
         builder = uefi_build.UefiBuilder()
         self.assertIsNotNone(builder)
 
     @classmethod
-    def write_to_file(cls, path, contents, close=True):
+    def write_to_file(cls, path: str, contents: str, close: bool = True) -> None:
+        """Write contents to a file."""
         f = open(path, "w")
         f.writelines(contents)
         if close:
             f.close()
 
     @classmethod
-    def create_min_uefi_build_tree(cls, root):
+    def create_min_uefi_build_tree(cls, root: str) -> None:
+        """Create a minimal UEFI build tree."""
         conf_folder = os.path.join(root, "Conf")
         os.makedirs(conf_folder)
         target_path = os.path.join(conf_folder, "target.template")
@@ -64,7 +64,8 @@ class TestUefiBuild(unittest.TestCase):
         platform_path = os.path.join(root, "Test.dsc")
         TestUefiBuild.write_to_file(platform_path, ["[Defines]\n", "OUTPUT_DIRECTORY = Build"])
 
-    def test_commandline_options(self):
+    def test_commandline_options(self) -> None:
+        """Test that command line options can be added and retrieved."""
         builder = uefi_build.UefiBuilder()
         parserObj = argparse.ArgumentParser()
         builder.AddPlatformCommandLineOptions(parserObj)
@@ -82,7 +83,8 @@ class TestUefiBuild(unittest.TestCase):
             results = parserObj.parse_args(argpart)
             builder.RetrievePlatformCommandLineOptions(results)
 
-    def test_go_skip_building(self):
+    def test_go_skip_building(self) -> None:
+        """Test that building can be skipped."""
         builder = uefi_build.UefiBuilder()
         builder.SkipPostBuild = True
         builder.SkipBuild = True
@@ -93,7 +95,7 @@ class TestUefiBuild(unittest.TestCase):
         ret = builder.Go(self.WORKSPACE, "", helper, manager)
         self.assertEqual(ret, 0)
 
-    def test_build_wrapper(self):
+    def test_build_wrapper(self) -> None:
         """Tests that a build wrapper can be used."""
         builder = uefi_build.UefiBuilder()
 
@@ -153,7 +155,8 @@ class TestUefiBuild(unittest.TestCase):
     # TODO finish unit test
 
 
-def test_missing_ENV_variables(tmp_path, caplog):
+def test_missing_ENV_variables(tmp_path: str, caplog: pytest.LogCaptureFixture) -> None:
+    """Test that the build fails and logs a clean message when environment variables are missing."""
     with caplog.at_level(logging.ERROR):
         TestUefiBuild().create_min_uefi_build_tree(tmp_path)
         target_template = os.path.join(tmp_path, "Conf", "target.template")

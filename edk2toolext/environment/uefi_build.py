@@ -546,7 +546,7 @@ class UefiBuilder(object):
         target = self.env.GetValue("TARGET", None)
         if target is None:
             logging.error("Environment variable TARGET must be set to a build target.")
-            logging.error("Review the 'CLI Env Guide' section provided when using stuart_build " "with the -help flag.")
+            logging.error("Review the 'CLI Env Guide' section provided when using stuart_build with the -help flag.")
             return -1
 
         self.env.SetValue(
@@ -724,7 +724,7 @@ class UefiBuilder(object):
             if tool_chain is None:
                 logging.error("Environment variable TOOL_CHAIN_TAG must be set to a tool chain.")
                 logging.error(
-                    "Review the 'CLI Env Guide' section provided when using stuart_build " "with the -help flag."
+                    "Review the 'CLI Env Guide' section provided when using stuart_build with the -help flag."
                 )
                 return -1
             tag = "*_" + tool_chain + "_*_*_FAMILY"

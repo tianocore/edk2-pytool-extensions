@@ -6,6 +6,7 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""Unit test suite for the WebDependency class."""
 
 import json
 import logging
@@ -97,7 +98,8 @@ basetools_json_file = {
 }
 
 
-def prep_workspace():
+def prep_workspace() -> None:
+    """Prepare the workspace for testing."""
     global test_dir
     # if test temp dir doesn't exist
     if test_dir is None or not os.path.isdir(test_dir):
@@ -108,7 +110,8 @@ def prep_workspace():
         test_dir = tempfile.mkdtemp()
 
 
-def clean_workspace():
+def clean_workspace() -> None:
+    """Clean up the workspace."""
     global test_dir
     if test_dir is None:
         return
@@ -119,21 +122,26 @@ def clean_workspace():
 
 
 class TestWebDependency(unittest.TestCase):
-    def setUp(self):
+    """Test the WebDependency class."""
+
+    def setUp(self) -> None:
+        """TestCase Function override."""
         prep_workspace()
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
+        """TestCase Function override."""
         logger = logging.getLogger("")
         logger.addHandler(logging.NullHandler())
         unittest.installHandler()
 
     @classmethod
-    def tearDownClass(cls):
+    def tearDownClass(cls) -> None:
+        """TestCase Function override."""
         clean_workspace()
 
-    # throw in a bad url and test that it throws an exception.
-    def test_fail_with_bad_url(self):
+    def test_fail_with_bad_url(self) -> None:
+        """Throw in a bad url and test that it throws an exception."""
         ext_dep_file_path = os.path.join(test_dir, "bad_ext_dep.json")
         with open(ext_dep_file_path, "w+") as ext_dep_file:
             ext_dep_file.write(bad_json_file)
@@ -144,8 +152,8 @@ class TestWebDependency(unittest.TestCase):
             ext_dep.fetch()
             self.fail("should have thrown an Exception")
 
-    # try to download a single file from the internet
-    def test_single_file(self):
+    def test_single_file(self) -> None:
+        """Try to download a single file from the internet."""
         ext_dep_file_path = os.path.join(test_dir, "good_ext_dep.json")
         with open(ext_dep_file_path, "w+") as ext_dep_file:
             ext_dep_file.write(json.dumps(single_file_extdep))  # dump to a file
@@ -159,8 +167,8 @@ class TestWebDependency(unittest.TestCase):
         if not os.path.isfile(file_path):
             self.fail("The downloaded file isn't there")
 
-    # try to download a whole zip directory and test sha256 comparison
-    def test_sha256_whole_zip_directory(self):
+    def test_sha256_whole_zip_directory(self) -> None:
+        """Try to download a whole zip directory and test sha256 comparison."""
         ext_dep_file_path = os.path.join(test_dir, "good_ext_dep.json")
 
         with open(ext_dep_file_path, "w+") as ext_dep_file:
@@ -176,8 +184,8 @@ class TestWebDependency(unittest.TestCase):
             logging.warning(folder_path)
             self.fail()
 
-    # try to download a whole zip directory and test sha256 comparison
-    def test_sha256_whole_tar_directory(self):
+    def test_sha256_whole_tar_directory(self) -> None:
+        """Try to download a whole zip directory and test sha256 comparison."""
         ext_dep_file_path = os.path.join(test_dir, "good_ext_dep.json")
 
         with open(ext_dep_file_path, "w+") as ext_dep_file:
@@ -193,8 +201,8 @@ class TestWebDependency(unittest.TestCase):
             logging.warning(folder_path)
             self.fail()
 
-    # try to download a single file and test sha256 comparison
-    def test_sha256_uppercase_single_file(self):
+    def test_sha256_uppercase_single_file(self) -> None:
+        """Try to download a single file and test sha256 comparison."""
         ext_dep_file_path = os.path.join(test_dir, "good_ext_dep.json")
         # force hash to upper case
         jquery_json = jquery_json_file.copy()
@@ -212,8 +220,8 @@ class TestWebDependency(unittest.TestCase):
         if not os.path.isfile(file_path):
             self.fail("The downloaded file isn't there")
 
-    # try to download a single file and test sha256 comparison
-    def test_sha256_lowercase_single_file(self):
+    def test_sha256_lowercase_single_file(self) -> None:
+        """Try to download a single file and test sha256 comparison."""
         ext_dep_file_path = os.path.join(test_dir, "good_ext_dep.json")
         jquery_json = jquery_json_file.copy()
         jquery_json["sha256"] = jquery_json["sha256"].lower()
@@ -229,8 +237,8 @@ class TestWebDependency(unittest.TestCase):
         if not os.path.isfile(file_path):
             self.fail("The downloaded file isn't there")
 
-    # Test that a single file zipped is able to be processed by unpack.
-    def test_unpack_zip_file(self):
+    def test_unpack_zip_file(self) -> None:
+        """Test that a single file zipped is able to be processed by unpack."""
         compressed_file_path = os.path.join(test_dir, "bad_ext_dep_zip.zip")
         destination = test_dir
         internal_path = "bad_ext_dep.json"
@@ -250,8 +258,8 @@ class TestWebDependency(unittest.TestCase):
         WebDependency.unpack(compressed_file_path, destination, internal_path, compression_type)
         self.assertTrue(os.path.isfile(file_path))
 
-    # Test that a single file tar volume is able to be processed by unpack.
-    def test_unpack_tar_file(self):
+    def test_unpack_tar_file(self) -> None:
+        """Test that a single file tar volume is able to be processed by unpack."""
         compressed_file_path = os.path.join(test_dir, "bad_ext_dep_zip.tar.gz")
         destination = test_dir
         internal_path = "bad_ext_dep.json"
@@ -271,11 +279,13 @@ class TestWebDependency(unittest.TestCase):
         WebDependency.unpack(compressed_file_path, destination, internal_path, compression_type)
         self.assertTrue(os.path.isfile(file_path))
 
-    # Test that a zipped directory is processed correctly by unpack.
-    # If internal_path is first_dir\second_dir...
-    # Files in test_dir\first_dir\second_dir should be located.
-    # Files in test_dir\first_dir should not be unpacked.
-    def test_unpack_zip_directory(self):
+    def test_unpack_zip_directory(self) -> None:
+        r"""Test that a zipped directory is processed correctly by unpack.
+
+        If internal_path is first_dir\second_dir...
+        Files in test_dir\first_dir\second_dir should be located.
+        Files in test_dir\first_dir should not be unpacked.
+        """
         first_level_dir_name = "first_dir"
         second_level_dir_name = "second_dir"
         first_level_path = os.path.join(test_dir, first_level_dir_name)
@@ -313,11 +323,13 @@ class TestWebDependency(unittest.TestCase):
             else:
                 self.assertFalse(os.path.isfile(test_file[0]))
 
-    # Test that a tar directory is processed correctly by unpack.
-    # If internal_path is first_dir\second_dir...
-    # Files in test_dir\first_dir\second_dir should be located.
-    # Files in test_dir\first_dir should not be unpacked.
-    def test_unpack_tar_directory(self):
+    def test_unpack_tar_directory(self) -> None:
+        r"""Test that a tar directory is processed correctly by unpack.
+
+        If internal_path is first_dir\\second_dir...
+        Files in test_dir\first_dir\\second_dir should be located.
+        Files in test_dir\first_dir should not be unpacked.
+        """
         first_level_dir_name = "first_dir"
         second_level_dir_name = "second_dir"
         first_level_path = os.path.join(test_dir, first_level_dir_name)
@@ -355,8 +367,8 @@ class TestWebDependency(unittest.TestCase):
             else:
                 self.assertFalse(os.path.isfile(test_file[0]))
 
-    # Test that three levels of internal path all work properly
-    def test_multi_level_directory(self):
+    def test_multi_level_directory(self) -> None:
+        """Test that three levels of internal path all work properly."""
         global test_dir
         number_of_layers = 5
         directory_name = "test"
@@ -421,10 +433,12 @@ class TestWebDependency(unittest.TestCase):
             clean_workspace()
             prep_workspace()
 
-    # Test that zipfile uses / internally and not os.sep.
-    # This is not exactly a test of WebDependency, more an assertion of an assumption
-    # the code is making concerning the functionality of zipfile.
-    def test_zip_uses_linux_path_sep(self):
+    def test_zip_uses_linux_path_sep(self) -> None:
+        """Test that zipfile uses / internally and not os.sep.
+
+        This is not exactly a test of WebDependency, more an assertion of an assumption
+        the code is making concerning the functionality of zipfile.
+        """
         first_level_dir_name = "first_dir"
         second_level_dir_name = "second_dir"
         first_level_path = os.path.join(test_dir, first_level_dir_name)
@@ -450,10 +464,12 @@ class TestWebDependency(unittest.TestCase):
         self.assertFalse(internal_path_win in namelist[0])
         self.assertTrue(WebDependency.linuxize_path(internal_path_win) in namelist[0])
 
-    # Test that tarfile uses / internally and not os.sep.
-    # This is not exactly a test of WebDependency, more an assertion of an assumption
-    # the code is making concerning the functionality of tarfile.
-    def test_tar_uses_linux_path_sep(self):
+    def test_tar_uses_linux_path_sep(self) -> None:
+        """Test that tarfile uses / internally and not os.sep.
+
+        This is not exactly a test of WebDependency, more an assertion of an assumption
+        the code is making concerning the functionality of tarfile.
+        """
         first_level_dir_name = "first_dir"
         second_level_dir_name = "second_dir"
         first_level_path = os.path.join(test_dir, first_level_dir_name)
@@ -480,7 +496,7 @@ class TestWebDependency(unittest.TestCase):
         self.assertTrue(WebDependency.linuxize_path(internal_path_win) in namelist[0])
 
     @pytest.mark.skipif(platform == "win32", reason="Only Linux care about file attributes.")
-    def test_unpack_zip_file_attr(self):
+    def test_unpack_zip_file_attr(self) -> None:
         """Test that unpacked zip files keep their file attributes.
 
         This is done by downloading the Basetools extdep where we know for a fact that each

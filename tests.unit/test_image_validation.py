@@ -5,55 +5,78 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""Unit test for the image validation tool."""
+
 import unittest
+from typing import Optional
+
 import edk2toolext.image_validation as IV
 
 
 class Section:
-    def __init__(self, name, characteristics=None):
+    """Dummy class to represent a Section."""
+
+    def __init__(self, name: str, characteristics: Optional[int] = None) -> None:
+        """Dummy class to represent a Section."""
         self.Characteristics = characteristics
         self.Name = name
 
 
 class OptionalHeader:
-    def __init__(self, SectionAlignment=None, Subsystem=None, DllCharacteristics=None):
+    """Dummy class to represent an OptionalHeader."""
+
+    def __init__(
+        self,
+        SectionAlignment: Optional[int] = None,
+        Subsystem: Optional[int] = None,
+        DllCharacteristics: Optional[int] = None,
+    ) -> None:
+        """Dummy class to represent an OptionalHeader."""
         self.SectionAlignment = SectionAlignment
         self.Subsystem = Subsystem
         self.DllCharacteristics = DllCharacteristics
 
 
 class FileHeader:
-    def __init__(self):
+    """Dummy class to represent a FileHeader."""
+
+    def __init__(self) -> None:
+        """Dummy class to represent a FileHeader."""
         self.Machine = 0x8664
 
 
-# A Dummy class to represent a PE.
-
-
 class PE:
-    def __init__(self, sections=None, optional_header=None):
+    """Dummy class to represent a PE."""
+
+    def __init__(self, sections: Optional[Section] = None, optional_header: Optional[OptionalHeader] = None) -> None:
+        """Dummy class to represent a PE."""
         self.sections = sections
         self.OPTIONAL_HEADER = optional_header
         self.FILE_HEADER = FileHeader()
 
-    def merge_modified_section_data(self):
-        pass
+    def merge_modified_section_data(self) -> None:
+        """Dummy function to merge modified section data."""
 
 
 class TestImageValidationInterface(unittest.TestCase):
-    def test_add_test(self):
+    """Unit test for the image validation tool."""
+
+    def test_add_test(self) -> None:
+        """Test the add_test function in the image validation tool."""
         test_manager = IV.TestManager()
         self.assertEqual(len(test_manager.tests), 0)
         test_manager.add_test(IV.TestSectionAlignment())
         self.assertEqual(len(test_manager.tests), 1)
 
-    def test_add_tests(self):
+    def test_add_tests(self) -> None:
+        """Test the add_tests function in the image validation tool."""
         test_manager = IV.TestManager()
         self.assertEqual(len(test_manager.tests), 0)
         test_manager.add_tests([IV.TestSectionAlignment(), IV.TestSubsystemValue()])
         self.assertEqual(len(test_manager.tests), 2)
 
-    def test_test_manager(self):
+    def test_test_manager(self) -> None:
+        """Test the TestManager class in the image validation tool."""
         config_data = {
             "TARGET_ARCH": {"X64": "IMAGE_FILE_MACHINE_AMD64"},
             "IMAGE_FILE_MACHINE_AMD64": {"DEFAULT": {"DATA_CODE_SEPARATION": False}},
@@ -69,9 +92,9 @@ class TestImageValidationInterface(unittest.TestCase):
         result = test_manager.run_tests(pe)
         self.assertEqual(result, IV.Result.PASS)
 
-    def test_write_execute_flags_test(self):
-        """
-        TestWriteExecuteFlags follows the following logic:
+    def test_write_execute_flags_test(self) -> None:
+        """TestWriteExecuteFlags follows the following logic.
+
         1. If test requirement is not specified, or equal to false, return Result.SKIP
         3. Return Result.PASS / Result.FAIL returned based on Characteristic value
         """
@@ -133,14 +156,13 @@ class TestImageValidationInterface(unittest.TestCase):
                 pe, _ = tests[i]
                 self.assertEqual(test_write_execute_flags.execute(pe, config_data2), IV.Result.SKIP)
 
-    def test_section_alignment_test(self):
-        """
-        TestSectionAlignment follows the following logic:
+    def test_section_alignment_test(self) -> None:
+        """TestSectionAlignment follows the following logic.
+
         1. If requirements are not specified, or is empty, return Result.SKIP
         2. If SectionAlignment is not present, or is 0, return Result.WARN
         3. Return Result.PASS / Result.FAIL returned based on alignment requirements
         """
-
         config_data0 = {"TARGET_REQUIREMENTS": {}, "TARGET_INFO": {"MACHINE_TYPE": "", "PROFILE": {}}}
         config_data1 = {"TARGET_REQUIREMENTS": {"ALIGNMENT": []}, "TARGET_INFO": {"MACHINE_TYPE": "", "PROFILE": {}}}
         config_data2 = {
@@ -218,7 +240,8 @@ class TestImageValidationInterface(unittest.TestCase):
                 config, result = tests1[i]
                 self.assertEqual(test_section_alignment_test.execute(test_pe2, config), result)
 
-    def test_section_alignment_test2(self):
+    def test_section_alignment_test2(self) -> None:
+        """Test section algnment."""
         target_config0 = {
             "TARGET_REQUIREMENTS": {
                 "ALIGNMENT": [{"COMPARISON": ">=", "VALUE": 0}, {"COMPARISON": "<=", "VALUE": 8192}],
@@ -282,9 +305,9 @@ class TestImageValidationInterface(unittest.TestCase):
                 config, result = tests[i]
                 self.assertEqual(test_section_alignment_test.execute(pe, config), result)
 
-    def test_subsystem_value_test(self):
-        """
-        TestSubsystemValue follows the following logic:
+    def test_subsystem_value_test(self) -> None:
+        """TestSubsystemValue follows the following logic.
+
         1. If Allowed Subsystems are not specified, or empty, return Result.SKIP
         2. If subsystem type is not present, return Result.WARN
         3. If subsystem type is invalid, return Result.FAIL
@@ -340,7 +363,8 @@ class TestImageValidationInterface(unittest.TestCase):
                 config, result = tests2[i]
                 self.assertEqual(test_subsystem_value_test.execute(TEST_PE2, config), result)
 
-    def test_helper_functions(self):
+    def test_helper_functions(self) -> None:
+        """Test the helper functions in the image validation tool."""
         data = 0b00000000
         results = [1, 2, 4, 8, 16, 32, 64]
 
@@ -386,7 +410,8 @@ class TestImageValidationInterface(unittest.TestCase):
 
         self.assertEqual(IV.fill_missing_requirements(default_config, target_config), final_config)
 
-    def test_test_interface(self):
+    def test_test_interface(self) -> None:
+        """Test that the TestInterface class raises NotImplementedError."""
         c = IV.TestInterface()
 
         with self.assertRaises(NotImplementedError):
@@ -394,7 +419,8 @@ class TestImageValidationInterface(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             c.execute(1, 2)
 
-    def test_get_cli_args(self):
+    def test_get_cli_args(self) -> None:
+        """Test that we can parse CLI arguments."""
         test1 = ["-i", "file.efi"]
         test2 = ["-i", "file.efi", "-d"]
         test3 = ["-i", "file.efi", "-p", "APP"]
@@ -435,7 +461,8 @@ class TestImageValidationInterface(unittest.TestCase):
         self.assertEqual(args.get_nx_compat, False)
         self.assertEqual(args.clear_nx_compat, True)
 
-    def test_nx_flag_commands(self):
+    def test_nx_flag_commands(self) -> None:
+        """Test that we can set, get, and clear the NX compatibility flag."""
         pe = PE(optional_header=OptionalHeader(DllCharacteristics=0x0100))
         pe = IV.clear_nx_compat_flag(pe)
         self.assertEqual(pe.OPTIONAL_HEADER.DllCharacteristics, 0x0)

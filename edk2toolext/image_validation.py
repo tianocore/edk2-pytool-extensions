@@ -149,7 +149,7 @@ class TestManager(object):
                     "DRIVER": {
                         "ALLOWED_SUBSYSTEMS": [
                             "IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER",
-                            "IMAGE_SUBSYSTEM_EFI_RUNTIME_DRIVER" "IMAGE_SUBSYSTEM_EFI_ROM",
+                            "IMAGE_SUBSYSTEM_EFI_RUNTIME_DRIVERIMAGE_SUBSYSTEM_EFI_ROM",
                         ]
                     },
                 },
@@ -195,7 +195,7 @@ class TestManager(object):
                     "DRIVER": {
                         "ALLOWED_SUBSYSTEMS": [
                             "IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER",
-                            "IMAGE_SUBSYSTEM_EFI_RUNTIME_DRIVER" "IMAGE_SUBSYSTEM_EFI_ROM",
+                            "IMAGE_SUBSYSTEM_EFI_RUNTIME_DRIVERIMAGE_SUBSYSTEM_EFI_ROM",
                         ]
                     },
                 },
@@ -384,23 +384,23 @@ class TestSectionAlignment(TestInterface):
             elif logical_separator == "AND":
                 result = True
                 for reqs in alignments:
-                    result = result and eval(f'{alignment} {reqs["COMPARISON"]} {reqs["VALUE"]}')
+                    result = result and eval(f"{alignment} {reqs['COMPARISON']} {reqs['VALUE']}")
             elif logical_separator == "OR":
                 result = False
                 for reqs in alignments:
-                    result = result or eval(f'{alignment} {reqs["COMPARISON"]} {reqs["VALUE"]}')
+                    result = result or eval(f"{alignment} {reqs['COMPARISON']} {reqs['VALUE']}")
             else:
                 logging.error("Invalid logical separator provided")
                 return Result.FAIL
         else:
             req = alignments[0]
-            result = eval(f'{alignment} {req["COMPARISON"]} {req["VALUE"]}')
+            result = eval(f"{alignment} {req['COMPARISON']} {req['VALUE']}")
         if result is False:
             logging.error(
-                f'[{Result.FAIL}]: Section Alignment Required: \
-                            [{target_info["MACHINE_TYPE"]}] \
-                            [{target_info["PROFILE"]}]: \
-                            [(Detected): {alignment}]'
+                f"[{Result.FAIL}]: Section Alignment Required: \
+                            [{target_info['MACHINE_TYPE']}] \
+                            [{target_info['PROFILE']}]: \
+                            [(Detected): {alignment}]"
             )
             return Result.FAIL
 

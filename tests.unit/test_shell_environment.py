@@ -6,24 +6,30 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""Unit test suite for the ShellEnvironment class."""
 
 import os
 import sys
 import unittest
+
 import edk2toolext.environment.shell_environment as SE
 
 
 class TestShellEnvironmentAssumptions(unittest.TestCase):
-    def test_shell_should_be_a_singleton(self):
+    """Unit test suite for the basic assumptions of the ShellEnvironment class."""
+
+    def test_shell_should_be_a_singleton(self) -> None:
+        """ShellEnvironment should be a singleton."""
         shell_a = SE.ShellEnvironment()
         shell_b = SE.ShellEnvironment()
         self.assertIs(shell_a, shell_b, "two instances of ShellEnvironment should be identical")
 
-    def test_shell_tests_need_to_be_able_to_clear_singleton(self):
+    def test_shell_tests_need_to_be_able_to_clear_singleton(self) -> None:
+        """ShellEnvironment singleton should be clearable for testing purposes."""
         # This is not currently achievable, and may never be achievable.
-        pass
 
-    def test_shell_should_always_have_an_initial_checkpoint(self):
+    def test_shell_should_always_have_an_initial_checkpoint(self) -> None:
+        """A new instance of ShellEnvironment should always have an initial checkpoint."""
         shell_env = SE.ShellEnvironment()
         self.assertTrue(
             (len(shell_env.checkpoints) > 0), "a new instance of ShellEnvironment should have at least one checkpoint"
@@ -31,7 +37,10 @@ class TestShellEnvironmentAssumptions(unittest.TestCase):
 
 
 class TestBasicEnvironmentManipulation(unittest.TestCase):
-    def test_can_set_os_vars(self):
+    """Unit test suite for basic environment manipulation in the ShellEnvironment class."""
+
+    def test_can_set_os_vars(self) -> None:
+        """OS vars should be settable."""
         shell_env = SE.ShellEnvironment()
         # Remove the test var, if it exists.
         os.environ.pop("SE-TEST-VAR-1", None)
@@ -43,13 +52,15 @@ class TestBasicEnvironmentManipulation(unittest.TestCase):
         with self.assertRaises(ValueError):
             shell_env.set_shell_var("SE-TEST-VAR-FAIL", None)
 
-    def test_can_get_os_vars(self):
+    def test_can_get_os_vars(self) -> None:
+        """OS vars should be retrievable."""
         shell_env = SE.ShellEnvironment()
         new_value = "Dummy2"
         shell_env.set_shell_var("SE-TEST-VAR-2", new_value)
         self.assertEqual(shell_env.get_shell_var("SE-TEST-VAR-2"), new_value)
 
-    def test_set_path_string(self):
+    def test_set_path_string(self) -> None:
+        """Set PATH with a string."""
         shell_env = SE.ShellEnvironment()
 
         # Test pass 1.
@@ -68,7 +79,8 @@ class TestBasicEnvironmentManipulation(unittest.TestCase):
         for elem in testpath_elems:
             self.assertIn(elem, shell_env.active_path, "the active path should contain all elements")
 
-    def test_set_path_elements(self):
+    def test_set_path_elements(self) -> None:
+        """Set PATH with a list of elements."""
         shell_env = SE.ShellEnvironment()
 
         # Test pass 1.
@@ -87,7 +99,8 @@ class TestBasicEnvironmentManipulation(unittest.TestCase):
         for elem in testpath_elems:
             self.assertIn(elem, shell_env.active_path, "the active path should contain all elements")
 
-    def test_set_pypath_string(self):
+    def test_set_pypath_string(self) -> None:
+        """Set PYTHONPATH with a string."""
         shell_env = SE.ShellEnvironment()
 
         # Test pass 1.
@@ -108,7 +121,8 @@ class TestBasicEnvironmentManipulation(unittest.TestCase):
             self.assertIn(elem, shell_env.active_pypath, "the active path should contain all elements")
             self.assertIn(elem, sys.path, "the sys path should contain all elements")
 
-    def test_set_pypath_elements(self):
+    def test_set_pypath_elements(self) -> None:
+        """Set PYTHONPATH with a list of elements."""
         shell_env = SE.ShellEnvironment()
 
         # Test pass 1.
@@ -129,7 +143,8 @@ class TestBasicEnvironmentManipulation(unittest.TestCase):
             self.assertIn(elem, shell_env.active_pypath, "the active path should contain all elements")
             self.assertIn(elem, sys.path, "the sys path should contain all elements")
 
-    def test_insert_append_remove_replace_path(self):
+    def test_insert_append_remove_replace_path(self) -> None:
+        """Insert, append, remove, and replace tests for the PATH."""
         shell_env = SE.ShellEnvironment()
 
         # Start with a known PATH
@@ -188,7 +203,8 @@ class TestBasicEnvironmentManipulation(unittest.TestCase):
         shell_env.set_shell_var("pAtH", "c" + os.pathsep + "d" + os.pathsep + "e")
         self.assertEqual(len(os.environ["PATH"].split(os.pathsep)), 3)
 
-    def test_insert_append_remove_replace_pypath(self):
+    def test_insert_append_remove_replace_pypath(self) -> None:
+        """Insert, append, remove, and replace tests for the PYTHONPATH."""
         shell_env = SE.ShellEnvironment()
 
         # Start with a known PATH
@@ -226,7 +242,8 @@ class TestBasicEnvironmentManipulation(unittest.TestCase):
         shell_env.remove_pypath_element(new_mid_elem)
         self.assertNotIn(new_mid_elem, shell_env.active_pypath)
 
-    def test_can_set_and_get_build_vars(self):
+    def test_can_set_and_get_build_vars(self) -> None:
+        """Build vars should be settable and retrievable."""
         shell_env = SE.ShellEnvironment()
 
         var_name = "SE-TEST-VAR-3"
@@ -236,7 +253,8 @@ class TestBasicEnvironmentManipulation(unittest.TestCase):
         shell_env.set_build_var(var_name, var_data)
         self.assertEqual(shell_env.get_build_var(var_name), var_data, "get var data should match set var data")
 
-    def test_set_build_vars_should_default_overrideable(self):
+    def test_set_build_vars_should_default_overrideable(self) -> None:
+        """Build vars should default to overrideable."""
         shell_env = SE.ShellEnvironment()
 
         var_name = "SE_TEST_VAR_4"
@@ -251,14 +269,18 @@ class TestBasicEnvironmentManipulation(unittest.TestCase):
 
 
 class TestShellEnvironmenCheckpoints(unittest.TestCase):
-    def setUp(self):
+    """Unit test suite for the checkpointing system in the ShellEnvironment class."""
+
+    def setUp(self) -> None:
+        """Set up the test environment."""
         # Grab the singleton and restore the initial checkpoint.
         shell_env = SE.ShellEnvironment()
         shell_env.restore_initial_checkpoint()
         # For testing, purge all checkpoints each time.
         shell_env.checkpoints = [shell_env.checkpoints[SE.ShellEnvironment.INITIAL_CHECKPOINT]]
 
-    def test_restore_initial_checkpoint_should_erase_changes(self):
+    def test_restore_initial_checkpoint_should_erase_changes(self) -> None:
+        """Restoring the initial checkpoint should erase all changes."""
         shell_env = SE.ShellEnvironment()
 
         # Check to make sure the change doesn't exist.
@@ -279,7 +301,8 @@ class TestShellEnvironmenCheckpoints(unittest.TestCase):
         self.assertNotIn(test_path_change, shell_env.active_path, "restoring checkpoint should remove test change")
         self.assertEqual(shell_env.get_shell_var("i_should_not_exist"), None)
 
-    def test_checkpoint_indices_should_be_unique(self):
+    def test_checkpoint_indices_should_be_unique(self) -> None:
+        """Checkpoint indices should be unique."""
         shell_env = SE.ShellEnvironment()
         shell_env.append_path("/SE/TEST/PATH/1")
         check_point1 = shell_env.checkpoint()
@@ -290,7 +313,8 @@ class TestShellEnvironmenCheckpoints(unittest.TestCase):
         self.assertNotEqual(check_point2, SE.ShellEnvironment.INITIAL_CHECKPOINT)
         self.assertNotEqual(check_point1, check_point2)
 
-    def test_restore_new_checkpoint_should_contain_new_changes(self):
+    def test_restore_new_checkpoint_should_contain_new_changes(self) -> None:
+        """Restoring a new checkpoint should contain the changes made after the checkpoint."""
         shell_env = SE.ShellEnvironment()
 
         # Check to make sure the change doesn't exist.
@@ -312,7 +336,8 @@ class TestShellEnvironmenCheckpoints(unittest.TestCase):
         shell_env.restore_checkpoint(check_point1)
         self.assertIn(test_path_change, shell_env.active_path, "restoring new checkpoint should restore test change")
 
-    def test_checkpointed_objects_should_behave_correctly(self):
+    def test_checkpointed_objects_should_behave_correctly(self) -> None:
+        """Checkpointed objects should behave correctly."""
         shell_env = SE.ShellEnvironment()
 
         # This test is to make sure that pass-by-reference elements don't persist unexpectedly.
@@ -353,14 +378,18 @@ class TestShellEnvironmenCheckpoints(unittest.TestCase):
 
 
 class TestShellEnvironmenSpecialBuildVars(unittest.TestCase):
-    def setUp(self):
+    """Unit test suite for the special build vars in the ShellEnvironment class."""
+
+    def setUp(self) -> None:
+        """Set up the test environment."""
         # Grab the singleton and restore the initial checkpoint.
         shell_env = SE.ShellEnvironment()
         shell_env.restore_initial_checkpoint()
         # For testing, purge all checkpoints each time.
         shell_env.checkpoints = [shell_env.checkpoints[SE.ShellEnvironment.INITIAL_CHECKPOINT]]
 
-    def test_get_build_vars_should_update_vars(self):
+    def test_get_build_vars_should_update_vars(self) -> None:
+        """Special build vars should be updated when queried."""
         shell_env = SE.ShellEnvironment()
         build_vars = SE.GetBuildVars()
 
@@ -371,7 +400,8 @@ class TestShellEnvironmenSpecialBuildVars(unittest.TestCase):
 
         self.assertEqual(shell_env.get_build_var(test_var_name), test_var_data)
 
-    def test_special_build_vars_should_default_non_overrideable(self):
+    def test_special_build_vars_should_default_non_overrideable(self) -> None:
+        """Special build vars should default to non-overrideable."""
         shell_env = SE.ShellEnvironment()
         build_vars = SE.GetBuildVars()
 
@@ -384,7 +414,8 @@ class TestShellEnvironmenSpecialBuildVars(unittest.TestCase):
 
         self.assertEqual(shell_env.get_build_var(test_var_name), test_var_data)
 
-    def test_special_build_vars_should_always_update_current(self):
+    def test_special_build_vars_should_always_update_current(self) -> None:
+        """Special build vars should always update the current value, even after restoring a checkpoint."""
         shell_env = SE.ShellEnvironment()
         build_vars = SE.GetBuildVars()
 
@@ -407,7 +438,8 @@ class TestShellEnvironmenSpecialBuildVars(unittest.TestCase):
         self.assertEqual(shell_env.get_build_var(test_var1_name), test_var1_data2)
         self.assertEqual(shell_env.get_build_var(test_var2_name), test_var2_data)
 
-    def test_special_build_vars_should_be_checkpointable(self):
+    def test_special_build_vars_should_be_checkpointable(self) -> None:
+        """Special build vars should be checkpointed and restored correctly."""
         shell_env = SE.ShellEnvironment()
         build_vars = SE.GetBuildVars()
 

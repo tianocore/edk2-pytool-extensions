@@ -6,14 +6,14 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""Tests for the capsule_tool module."""
 
-
-import os
-import unittest
-import tempfile
 import json
-import yaml
+import os
+import tempfile
+import unittest
 
+import yaml
 from edk2toolext.capsule import capsule_tool
 
 DUMMY_OPTIONS = {"capsule": {"option1": "value1"}, "signer": {"option2": "value2", "option_not": "orig_value"}}
@@ -22,8 +22,12 @@ DUMMY_PAYLOAD_FILE_NAME = "dummy_payload"
 
 
 class ParameterParsingTest(unittest.TestCase):
+    """Tests for the capsule_tool module and CLI routines."""
+
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
+        """Set up the test class."""
+        # This is a one-time setup for the entire test class.
         # We'll use the one-time setup to create
         # any temporary test files we'll need.
         cls.temp_dir = tempfile.mkdtemp()
@@ -39,10 +43,11 @@ class ParameterParsingTest(unittest.TestCase):
             dummy_file.write(b"DEADBEEF")
 
     @unittest.skip("test is incomplete")
-    def test_should_require_a_signer_option(self):
-        pass
+    def test_should_require_a_signer_option(self) -> None:
+        """Test that a signer option is required."""
 
-    def test_capsule_options_should_be_passable(self):
+    def test_capsule_options_should_be_passable(self) -> None:
+        """Test that capsule options can be passed."""
         cli_params = ["--builtin_signer", "pyopenssl"]
         parsed_args = capsule_tool.get_cli_options(cli_params + [self.dummy_payload, self.temp_dir])
         self.assertEqual(len(parsed_args.capsule_options), 0)
@@ -53,7 +58,8 @@ class ParameterParsingTest(unittest.TestCase):
         parsed_args = capsule_tool.get_cli_options(cli_params)
         self.assertEqual(len(parsed_args.capsule_options), 2)
 
-    def test_signer_options_should_be_passable(self):
+    def test_signer_options_should_be_passable(self) -> None:
+        """Test that signer options can be passed."""
         cli_params = ["--builtin_signer", "pyopenssl"]
         parsed_args = capsule_tool.get_cli_options(cli_params + [self.dummy_payload, self.temp_dir])
         self.assertEqual(len(parsed_args.signer_options), 0)
@@ -64,26 +70,30 @@ class ParameterParsingTest(unittest.TestCase):
         parsed_args = capsule_tool.get_cli_options(cli_params)
         self.assertEqual(len(parsed_args.signer_options), 2)
 
-    def test_should_not_accept_an_invalid_path(self):
+    def test_should_not_accept_an_invalid_path(self) -> None:
+        """Test that an invalid path is not accepted."""
         cli_params = ["--builtin_signer", "pyopenssl"]
         cli_params += ["-o", "not_a_path.bin"]
         cli_params += [self.dummy_payload]
         with self.assertRaises(SystemExit):
             capsule_tool.get_cli_options(cli_params)
 
-    def test_should_not_load_an_invalid_path(self):
+    def test_should_not_load_an_invalid_path(self) -> None:
+        """Test that an invalid path is not loaded."""
         bad_path = "not_a_path.bin"
         loaded_options = capsule_tool.load_options_file(bad_path)
         self.assertEqual(loaded_options, None)
 
-    def test_options_file_should_load_json(self):
+    def test_options_file_should_load_json(self) -> None:
+        """Test that the options file can be loaded from a JSON file."""
         with open(self.dummy_json_options, "r") as options_file:
             loaded_options = capsule_tool.load_options_file(options_file)
 
         self.assertEqual(loaded_options["capsule"]["option1"], "value1")
         self.assertEqual(loaded_options["signer"]["option2"], "value2")
 
-    def test_options_file_should_load_yaml(self):
+    def test_options_file_should_load_yaml(self) -> None:
+        """Test that the options file can be loaded from a YAML file."""
         with open(self.dummy_yaml_options, "r") as options_file:
             loaded_options = capsule_tool.load_options_file(options_file)
 
@@ -91,7 +101,8 @@ class ParameterParsingTest(unittest.TestCase):
         self.assertEqual(loaded_options["signer"]["option2"], "value2")
 
     # @pytest.mark.skip(reason="test is incomplete")
-    def test_cli_options_should_override_file_options(self):
+    def test_cli_options_should_override_file_options(self) -> None:
+        """Test that CLI options override file options."""
         capsule_cli_options = ["option1=value2", "new_option=value3"]
         signer_cli_options = ["option2=value7", "option2=value8"]
 
@@ -102,7 +113,8 @@ class ParameterParsingTest(unittest.TestCase):
         self.assertEqual(final_options["signer"]["option2"], "value8")
         self.assertEqual(final_options["signer"]["option_not"], "orig_value")
 
-    def test_full_options_path_should_work(self):
+    def test_full_options_path_should_work(self) -> None:
+        """Test that the full options path works."""
         # Parse the command parameters.
         cli_params = ["--builtin_signer", "pyopenssl"]
         cli_params += ["-o", self.dummy_json_options]

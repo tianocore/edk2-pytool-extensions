@@ -5,22 +5,29 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""Unit test for the edk2_logging module."""
+
 import io
 import logging
 import os
 import tempfile
 import unittest
 
+import pytest
 from edk2toolext import edk2_logging
 
 
 class Test_edk2_logging(unittest.TestCase):
-    def test_can_create_console_logger(self):
+    """Unit test for the edk2_logging module."""
+
+    def test_can_create_console_logger(self) -> None:
+        """Test that the console logger can be created."""
         console_logger = edk2_logging.setup_console_logging(False, False)
         self.assertIsNot(console_logger, None, "We created a console logger")
         edk2_logging.stop_logging(console_logger)
 
-    def test_can_create_txt_logger(self):
+    def test_can_create_txt_logger(self) -> None:
+        """Test that the txt logger can be created."""
         test_dir = tempfile.mkdtemp()
         location, txt_logger = edk2_logging.setup_txt_logger(test_dir, "test_txt")
         logging.info("Testing")
@@ -28,10 +35,12 @@ class Test_edk2_logging(unittest.TestCase):
         self.assertIsNot(txt_logger, None, "We created a txt logger")
         edk2_logging.stop_logging(txt_logger)
 
-    def test_none_to_close(self):
+    def test_none_to_close(self) -> None:
+        """Test that closing a None logger does not throw an error."""
         edk2_logging.stop_logging(None)
 
-    def test_can_close_logger(self):
+    def test_can_close_logger(self) -> None:
+        """Test that the logger can be closed."""
         test_dir = tempfile.mkdtemp()
         location, txt_logger = edk2_logging.setup_txt_logger(test_dir, "test_close")
         logging.critical("Testing")
@@ -47,7 +56,8 @@ class Test_edk2_logging(unittest.TestCase):
         file.close()
         self.assertEqual(num_lines, num_lines2, "We should only have one line")
 
-    def test_scan_compiler_output_generic(self):
+    def test_scan_compiler_output_generic(self) -> None:
+        """Test the scan_compiler_output function with generic compiler output."""
         # Input with compiler errors and warnings
         output_stream = io.StringIO(
             "<source_file>error A1: error 1 details\n"
@@ -82,7 +92,7 @@ class Test_edk2_logging(unittest.TestCase):
 
         # Input with only compiler warnings
         output_stream = io.StringIO(
-            "<source_file.c>warning C8: warning details...\n" "<source_file.h>warning D10: info about the issue\n"
+            "<source_file.c>warning C8: warning details...\n<source_file.h>warning D10: info about the issue\n"
         )
         expected_output = [
             (logging.WARNING, "Compiler #8 from <source_file.c> warning details..."),
@@ -130,7 +140,8 @@ class Test_edk2_logging(unittest.TestCase):
         ]
         self.assertEqual(edk2_logging.scan_compiler_output(output_stream), expected_output)
 
-    def test_scan_compiler_output_vs_actual(self):
+    def test_scan_compiler_output_vs_actual(self) -> None:
+        """Test the scan_compiler_output function with Visual Studio compiler output."""
         output_stream = io.StringIO("""
             "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\VC\\Tools\\MSVC\\14.34.31933\\bin\\Hostx86\\x64\\cl.exe" /Fod:\\a\\1\\s\\Build\\SetupDataPkg\\DEBUG_VS2022\\X64\\SetupDataPkg\\ConfApp\\ConfApp\\OUTPUT\\SvdUsb\\ /showIncludes /nologo /c /WX /GS /W4 /Gs32768 /D UNICODE /O1b2s /GL /Gy /FIAutoGen.h /EHs-c- /GR- /GF /Z7 /Gw -D DISABLE_NEW_DEPRECATED_INTERFACES /Id:\\a\\1\\s\\SetupDataPkg\\ConfApp\\SvdUsb  /Id:\\a\\1\\s\\SetupDataPkg\\ConfApp  /Id:\\a\\1\\s\\Build\\SetupDataPkg\\DEBUG_VS2022\\X64\\SetupDataPkg\\ConfApp\\ConfApp\\DEBUG  /Id:\\a\\1\\s\\MU_BASECORE\\MdePkg  /Id:\\a\\1\\s\\MU_BASECORE\\MdePkg\\Include  /Id:\\a\\1\\s\\MU_BASECORE\\MdePkg\\Test\\UnitTest\\Include  /Id:\\a\\1\\s\\MU_BASECORE\\MdePkg\\Include\\X64  /Id:\\a\\1\\s\\MU_BASECORE\\MdeModulePkg  /Id:\\a\\1\\s\\MU_BASECORE\\MdeModulePkg\\Include  /Id:\\a\\1\\s\\SetupDataPkg  /Id:\\a\\1\\s\\SetupDataPkg\\Include  /Id:\\a\\1\\s\\SetupDataPkg\\Test\\Include  /Id:\\a\\1\\s\\Common\\MU_PLUS\\PcBdsPkg  /Id:\\a\\1\\s\\Common\\MU_PLUS\\PcBdsPkg\\Include  /Id:\\a\\1\\s\\Common\\MU_PLUS\\MsCorePkg  /Id:\\a\\1\\s\\Common\\MU_PLUS\\MsCorePkg\\Include  /Id:\\a\\1\\s\\Common\\MU_PLUS\\XmlSupportPkg  /Id:\\a\\1\\s\\Common\\MU_PLUS\\XmlSupportPkg\\Include  /Id:\\a\\1\\s\\Common\\MU_TIANO_PLUS\\SecurityPkg  /Id:\\a\\1\\s\\Common\\MU_TIANO_PLUS\\SecurityPkg\\Include  /Id:\\a\\1\\s\\MU_BASECORE\\PolicyServicePkg  /Id:\\a\\1\\s\\MU_BASECORE\\PolicyServicePkg\\Include d:\\a\\1\\s\\SetupDataPkg\\ConfApp\\SvdUsb\\SvdUsb.c
             SvdUsb.c
@@ -156,7 +167,7 @@ class Test_edk2_logging(unittest.TestCase):
         expected_output = [
             (
                 logging.ERROR,
-                "Linker #2001 from UefiApplicationEntryPoint.lib(ApplicationEntryPoint.obj) : unresolved external symbol __security_check_cookie",
+                "Linker #2001 from UefiApplicationEntryPoint.lib(ApplicationEntryPoint.obj) : unresolved external symbol __security_check_cookie",  # noqa: E501
             ),  # noqa: E501
             (
                 logging.ERROR,
@@ -164,18 +175,19 @@ class Test_edk2_logging(unittest.TestCase):
             ),  # noqa: E501
             (
                 logging.ERROR,
-                "Linker #1120 from d:\\a\\1\\s\\Build\\SetupDataPkg\\DEBUG_VS2022\\X64\\SetupDataPkg\\ConfApp\\ConfApp\\DEBUG\\ConfApp.dll : fatal 2 unresolved externals",
+                "Linker #1120 from d:\\a\\1\\s\\Build\\SetupDataPkg\\DEBUG_VS2022\\X64\\SetupDataPkg\\ConfApp\\ConfApp\\DEBUG\\ConfApp.dll : fatal 2 unresolved externals",  # noqa: E501
             ),  # noqa: E501
             (
                 logging.ERROR,
-                "Compiler #1077 from NMAKE : fatal '\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\VC\\Tools\\MSVC\\14.34.31933\\bin\\Hostx86\\x64\\link.exe\"' : return code '0x460'",
+                "Compiler #1077 from NMAKE : fatal '\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\VC\\Tools\\MSVC\\14.34.31933\\bin\\Hostx86\\x64\\link.exe\"' : return code '0x460'",  # noqa: E501
             ),  # noqa: E501
             (logging.ERROR, "Compiler #7000 from : Failed to execute command"),  # noqa: E501
             (logging.ERROR, "EDK2 #002 from : Failed to build module"),
         ]
         self.assertEqual(edk2_logging.scan_compiler_output(output_stream), expected_output)
 
-    def test_scan_compiler_output_vs_linker_actual(self):
+    def test_scan_compiler_output_vs_linker_actual(self) -> None:
+        """Test the scan_compiler_output function with Visual Studio linker output."""
         output_stream = io.StringIO("""
                 copy /y d:/a/1/s/Build/MdeModule/RELEASE_VS2022/IA32/MdeModulePkg/Universal/LegacyRegion2Dxe/LegacyRegion2Dxe/DEBUG/*.map d:/a/1/s/Build/MdeModule/RELEASE_VS2022/IA32/MdeModulePkg/Universal/LegacyRegion2Dxe/LegacyRegion2Dxe/OUTPUT
             SdMmcPciHcPei.lib(SdMmcPciHcPei.obj) : error LNK2001: unresolved external symbol _SafeUint8Add
@@ -193,17 +205,17 @@ class Test_edk2_logging(unittest.TestCase):
             ),  # noqa: E501
             (
                 logging.ERROR,
-                "Linker #1120 from d:/a/1/s/Build/MdeModule/RELEASE_VS2022/IA32/MdeModulePkg/Bus/Pci/SdMmcPciHcPei/SdMmcPciHcPei/DEBUG/SdMmcPciHcPei.dll : fatal 1 unresolved externals",
+                "Linker #1120 from d:/a/1/s/Build/MdeModule/RELEASE_VS2022/IA32/MdeModulePkg/Bus/Pci/SdMmcPciHcPei/SdMmcPciHcPei/DEBUG/SdMmcPciHcPei.dll : fatal 1 unresolved externals",  # noqa: E501
             ),  # noqa: E501
             (
                 logging.ERROR,
-                "Compiler #1077 from NMAKE : fatal '\"C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.34.31933/bin/Hostx86/x86/link.exe\"' : return code '0x460'",
+                "Compiler #1077 from NMAKE : fatal '\"C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.34.31933/bin/Hostx86/x86/link.exe\"' : return code '0x460'",  # noqa: E501
             ),
         ]  # noqa: E501
         self.assertEqual(edk2_logging.scan_compiler_output(output_stream), expected_output)
 
-    def test_scan_compiler_output_gcc_mixed_actual(self):
-        # Test input with all types of issues (errors and warnings)
+    def test_scan_compiler_output_gcc_mixed_actual(self) -> None:
+        """Test the scan_compiler_output function with mixed GCC compiler output."""
         output_stream = io.StringIO("""
             "/usr/bin/aarch64-linux-gnu-gcc"   -g -Os -fshort-wchar -fno-builtin -fno-strict-aliasing -Wall -Werror -Wno-array-bounds -include AutoGen.h -fno-common -ffunction-sections -fdata-sections -DSTRING_ARRAY_NAME=BaseLibStrings -g -Os -fshort-wchar -fno-builtin -fno-strict-aliasing -Wall -Werror -Wno-array-bounds -include AutoGen.h -fno-common -mlittle-endian -fno-short-enums -fverbose-asm -funsigned-char -ffunction-sections -fdata-sections -Wno-address -fno-asynchronous-unwind-tables -fno-unwind-tables -fno-pic -fno-pie -ffixed-x18 -mcmodel=small -flto -Wno-unused-but-set-variable -Wno-unused-const-variable -D DISABLE_NEW_DEPRECATED_INTERFACES -mstrict-align -mgeneral-regs-only -c -o /__w/1/s/Build/SetupDataPkg/DEBUG_GCC5/AARCH64/MdePkg/Library/BaseLib/BaseLib/OUTPUT/./FilePaths.obj -I/__w/1/s/MU_BASECORE/MdePkg/Library/BaseLib/AArch64 -I/__w/1/s/MU_BASECORE/MdePkg/Library/BaseLib/Arm -I/__w/1/s/MU_BASECORE/MdePkg/Library/BaseLib -I/__w/1/s/Build/SetupDataPkg/DEBUG_GCC5/AARCH64/MdePkg/Library/BaseLib/BaseLib/DEBUG -I/__w/1/s/MU_BASECORE/MdePkg -I/__w/1/s/MU_BASECORE/MdePkg/Include -I/__w/1/s/MU_BASECORE/MdePkg/Test/UnitTest/Include -I/__w/1/s/MU_BASECORE/MdePkg/Include/AArch64 /__w/1/s/MU_BASECORE/MdePkg/Library/BaseLib/FilePaths.c
             "/usr/bin/aarch64-linux-gnu-gcc"   -g -Os -fshort-wchar -fno-builtin -fno-strict-aliasing -Wall -Werror -Wno-array-bounds -include AutoGen.h -fno-common -ffunction-sections -fdata-sections -DSTRING_ARRAY_NAME=BaseLibStrings -g -Os -fshort-wchar -fno-builtin -fno-strict-aliasing -Wall -Werror -Wno-array-bounds -include AutoGen.h -fno-common -mlittle-endian -fno-short-enums -fverbose-asm -funsigned-char -ffunction-sections -fdata-sections -Wno-address -fno-asynchronous-unwind-tables -fno-unwind-tables -fno-pic -fno-pie -ffixed-x18 -mcmodel=small -flto -Wno-unused-but-set-variable -Wno-unused-const-variable -D DISABLE_NEW_DEPRECATED_INTERFACES -mstrict-align -mgeneral-regs-only -c -o /__w/1/s/Build/SetupDataPkg/DEBUG_GCC5/AARCH64/MdePkg/Library/BaseLib/BaseLib/OUTPUT/./GetPowerOfTwo32.obj -I/__w/1/s/MU_BASECORE/MdePkg/Library/BaseLib/AArch64 -I/__w/1/s/MU_BASECORE/MdePkg/Library/BaseLib/Arm -I/__w/1/s/MU_BASECORE/MdePkg/Library/BaseLib -I/__w/1/s/Build/SetupDataPkg/DEBUG_GCC5/AARCH64/MdePkg/Library/BaseLib/BaseLib/DEBUG -I/__w/1/s/MU_BASECORE/MdePkg -I/__w/1/s/MU_BASECORE/MdePkg/Include -I/__w/1/s/MU_BASECORE/MdePkg/Test/UnitTest/Include -I/__w/1/s/MU_BASECORE/MdePkg/Include/AArch64 /__w/1/s/MU_BASECORE/MdePkg/Library/BaseLib/GetPowerOfTwo32.c
@@ -231,7 +243,7 @@ class Test_edk2_logging(unittest.TestCase):
         expected_output = [
             (
                 logging.ERROR,
-                "Compiler #error from /__w/1/s/SetupDataPkg/Library/ConfigVariableListLib/ConfigVariableListLib.c conflicting types for `ConvertVariableListToVariableEntry`; have `EFI_STATUS(const void *, UINTN *, CONFIG_VAR_LIST_ENTRY *)` {aka `long long unsigned int(const void *, long long unsigned int *, CONFIG_VAR_LIST_ENTRY *)`}",
+                "Compiler #error from /__w/1/s/SetupDataPkg/Library/ConfigVariableListLib/ConfigVariableListLib.c conflicting types for `ConvertVariableListToVariableEntry`; have `EFI_STATUS(const void *, UINTN *, CONFIG_VAR_LIST_ENTRY *)` {aka `long long unsigned int(const void *, long long unsigned int *, CONFIG_VAR_LIST_ENTRY *)`}",  # noqa: E501
             ),  # noqa: E501
             (logging.ERROR, "Compiler #7000 from : Failed to execute command"),
             (logging.ERROR, "EDK2 #002 from : Failed to build module"),
@@ -239,7 +251,8 @@ class Test_edk2_logging(unittest.TestCase):
         self.assertEqual(edk2_logging.scan_compiler_output(output_stream), expected_output)
 
 
-def test_NO_secret_filter(caplog):
+def test_NO_secret_filter(caplog: pytest.LogCaptureFixture) -> None:
+    """Test the catch_secrets function with various scenarios."""
     end_list = [" ", ",", ";", ":", " "]
     start_list = [" ", " ", " ", " ", ":"]
 
@@ -254,7 +267,8 @@ def test_NO_secret_filter(caplog):
     caplog.clear()
 
 
-def test_CI_secret_filter(caplog):
+def test_CI_secret_filter(caplog: pytest.LogCaptureFixture) -> None:
+    """Test the catch_secrets function with various scenarios."""
     caplog.set_level(logging.DEBUG)
     end_list = [" ", ",", ";", ":", " "]
     start_list = [" ", " ", " ", " ", ":"]
@@ -273,7 +287,8 @@ def test_CI_secret_filter(caplog):
     caplog.clear()
 
 
-def test_TF_BUILD_secret_filter(caplog):
+def test_TF_BUILD_secret_filter(caplog: pytest.LogCaptureFixture) -> None:
+    """Test the catch_secrets function with various scenarios."""
     caplog.set_level(logging.DEBUG)
     end_list = [" ", ",", ";", ":", " "]
     start_list = [" ", " ", " ", " ", ":"]
@@ -293,7 +308,8 @@ def test_TF_BUILD_secret_filter(caplog):
 
 
 # caplog is a pytest fixture that captures log messages
-def test_catch_secrets_filter(caplog):
+def test_catch_secrets_filter(caplog: pytest.LogCaptureFixture) -> None:
+    """Test the catch_secrets function with various scenarios."""
     caplog.set_level(logging.DEBUG)
     os.environ["CI"] = "TRUE"
     edk2_logging.setup_console_logging(logging.DEBUG)
@@ -339,7 +355,8 @@ def test_catch_secrets_filter(caplog):
     caplog.clear()
 
 
-def test_scan_compiler_output_rust_scenarios():
+def test_scan_compiler_output_rust_scenarios() -> None:
+    """Test the scan_compiler_output function with various Rust compiler output scenarios."""
     output_stream = io.StringIO(r"""
 error: This should be caught
 error[AA500]: This should not be caught
@@ -358,7 +375,8 @@ catch this error --> This should not be caught
     assert edk2_logging.scan_compiler_output(output_stream) == expected_output
 
 
-def test_scan_compiler_output_rust_actual():
+def test_scan_compiler_output_rust_actual() -> None:
+    """Test the scan_compiler_output function with actual Rust compiler output."""
     output_stream = io.StringIO(r"""
 [cargo-make] INFO - cargo make 0.37.1
 [cargo-make] INFO - Calling cargo metadata to extract project info
@@ -386,7 +404,7 @@ error: could not compile `RustCrate` (bin "RustCrate") due to previous error
       Timing report saved to C:\\src\\RustCrate\\target\\cargo-timings\\cargo-timing-20230927T151803Z.html
 [cargo-make] ERROR - Error while executing command, exit code: 101
 [cargo-make] WARN - Build Failed.
-    """)
+    """)  # noqa: E501
     expected_output = [
         (logging.ERROR, "error[E0605]: non-primitive cast: `MemorySpaceDescriptor` as `*mut MemorySpaceDescriptor`"),
         (logging.ERROR, r"--> RustCrate\\src/main.rs:248:66"),
