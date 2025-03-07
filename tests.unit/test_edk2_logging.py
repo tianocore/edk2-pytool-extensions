@@ -82,7 +82,7 @@ class Test_edk2_logging(unittest.TestCase):
 
         # Input with only compiler warnings
         output_stream = io.StringIO(
-            "<source_file.c>warning C8: warning details...\n" "<source_file.h>warning D10: info about the issue\n"
+            "<source_file.c>warning C8: warning details...\n<source_file.h>warning D10: info about the issue\n"
         )
         expected_output = [
             (logging.WARNING, "Compiler #8 from <source_file.c> warning details..."),
