@@ -52,7 +52,7 @@ dev = [
 publish = [
     "setuptools == 75.1.0",
     "build == 1.2.2.post1",
-    "twine == 5.1.1",
+    "twine == 6.1.0",
 ]
 docs = [
     "black==24.10.0",
