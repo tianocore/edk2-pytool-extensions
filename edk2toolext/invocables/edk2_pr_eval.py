@@ -218,7 +218,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         for f in files:
             if not self.edk2_path_obj.GetContainingPackage(os.path.abspath(f)):
                 return dict.fromkeys(
-                    possible_packages, "Policy 0 - Build all packages if " "a file is modified outside a " "package."
+                    possible_packages, "Policy 0 - Build all packages if a file is modified outside a package."
                 )
 
         remaining_packages = possible_packages.copy()  # start with all possible packages and remove each

@@ -6,18 +6,19 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""Unit test for the repo_resolver class."""
 
-import os
-import unittest
 import json
+import os
 import tempfile
+import unittest
 
 from edk2toolext.windows.secureboot.secureboot_audit import (
-    generate_dbx_report,
-    filter_revocation_list_by_arch,
     convert_uefi_org_revocation_file_to_dict,
-    write_xlsx_file,
+    filter_revocation_list_by_arch,
+    generate_dbx_report,
     write_json_file,
+    write_xlsx_file,
 )
 
 # Setup the test directory path
@@ -30,8 +31,10 @@ TEST_HASH = "80B4D96931BF0D02FD91A61E19D14F1DA452E66DB2408CA8604D411F92659F0A"
 
 
 class TestSecureBootReport(unittest.TestCase):
-    def test_parse_dbx(self):
-        """Test that we can parse the dbx file"""
+    """Unit test for the SecureBootReport class."""
+
+    def test_parse_dbx(self) -> None:
+        """Test that we can parse the dbx file."""
         dbx_file = os.path.join(TEST_DATA_PARENT_DIRECTORY, "dbx.bin")
         revocations_file = os.path.join(TEST_DATA_PARENT_DIRECTORY, "uefi_org_revocations.json")
 
@@ -54,8 +57,8 @@ class TestSecureBootReport(unittest.TestCase):
                 self.assertEqual(revocation["authority"], "Microsoft Corporation UEFI CA 2011")
                 self.assertEqual(revocation["arch"], "x86_64")
 
-    def test_filter_list_by_arch(self):
-        """Test that we can filter the revocation list by architecture"""
+    def test_filter_list_by_arch(self) -> None:
+        """Test that we can filter the revocation list by architecture."""
         revocations_file = os.path.join(TEST_DATA_PARENT_DIRECTORY, "uefi_org_revocations.json")
 
         with open(revocations_file, "rb") as rev_fs:
@@ -80,8 +83,8 @@ class TestSecureBootReport(unittest.TestCase):
             for rev in filtered_revocations:
                 self.assertEqual(filtered_revocations[rev]["arch"], "arm64")
 
-    def test_convert_uefi_org_revocation_file_to_dict1(self):
-        """Test that we can convert the uefi.org revocation file to a dict"""
+    def test_convert_uefi_org_revocation_file_to_dict1(self) -> None:
+        """Test that we can convert the uefi.org revocation file to a dict."""
         xlsx_file = os.path.join(TEST_DATA_PARENT_DIRECTORY, "dbx_info_2020_2023_uefiorg_v3.xlsx")
 
         revocations = convert_uefi_org_revocation_file_to_dict(xlsx_file)
@@ -93,8 +96,8 @@ class TestSecureBootReport(unittest.TestCase):
 
             self.assertEqual(revocations, expected_revocations)
 
-    def test_convert_uefi_org_revocation_file_to_dict2(self):
-        """Test that we can convert the uefi.org revocation file to a dict"""
+    def test_convert_uefi_org_revocation_file_to_dict2(self) -> None:
+        """Test that we can convert the uefi.org revocation file to a dict."""
         csv_file = os.path.join(TEST_DATA_PARENT_DIRECTORY, "dbx_info_2020_2023_uefiorg_v3.csv")
 
         revocations = convert_uefi_org_revocation_file_to_dict(csv_file)
@@ -109,8 +112,8 @@ class TestSecureBootReport(unittest.TestCase):
 
             self.assertEqual(revocations, expected_revocations)
 
-    def test_write_xlsx_file(self):
-        """Test that we can write a xlsx file"""
+    def test_write_xlsx_file(self) -> None:
+        """Test that we can write a xlsx file."""
         dbx_report_file = os.path.join(TEST_DATA_PARENT_DIRECTORY, "dbx_report.json")
 
         with open(dbx_report_file, "rb") as dbx_fs:
@@ -122,8 +125,8 @@ class TestSecureBootReport(unittest.TestCase):
 
                 self.assertEqual(os.path.exists(test_file), True)
 
-    def test_write_json_file(self):
-        """Test that we can write a json file"""
+    def test_write_json_file(self) -> None:
+        """Test that we can write a json file."""
         dbx_report_file = os.path.join(TEST_DATA_PARENT_DIRECTORY, "dbx_report.json")
 
         with open(dbx_report_file, "rb") as dbx_fs:

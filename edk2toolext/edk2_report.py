@@ -63,7 +63,7 @@ def main() -> int:
     setup_logging(args.verbose)
 
     logging.warning(
-        "stuart_report is in active development. Please report any issues to the edk2-pytool-extensions " "repo."
+        "stuart_report is in active development. Please report any issues to the edk2-pytool-extensions repo."
     )
     # Verify arguments
     to_merge = []

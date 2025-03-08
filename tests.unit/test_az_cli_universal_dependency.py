@@ -13,16 +13,18 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""Unit test for the Azure CLI Artifacts Universal Packages Dependency class."""
+
 import logging
 import os
 import tempfile
 import unittest
+from unittest.mock import MagicMock, patch
 
 from edk2toolext.environment import environment_descriptor_files as EDF
 from edk2toolext.environment import version_aggregator
 from edk2toolext.environment.extdeptypes.az_cli_universal_dependency import AzureCliUniversalDependency
 from edk2toollib.utility_functions import RemoveTree
-from unittest.mock import MagicMock, patch
 
 test_dir = None
 
@@ -97,7 +99,8 @@ zip_json_template2 = """
 """
 
 
-def prep_workspace():
+def prep_workspace() -> None:
+    """Prepare the workspace."""
     global test_dir
     # if test temp dir doesn't exist
     if test_dir is None or not os.path.isdir(test_dir):
@@ -108,7 +111,8 @@ def prep_workspace():
         test_dir = tempfile.mkdtemp()
 
 
-def clean_workspace():
+def clean_workspace() -> None:
+    """Clean up the workspace."""
     global test_dir
     if test_dir is None:
         return
@@ -119,6 +123,8 @@ def clean_workspace():
 
 
 class MockRunCmd(MagicMock):
+    """Mock of RunCmd that allows testcases to simulate output in the outstream."""
+
     out_string = ""
 
     @staticmethod
@@ -141,20 +147,26 @@ class MockRunCmd(MagicMock):
 
 
 class TestAzCliUniversalDependency(unittest.TestCase):
-    def setUp(self):
+    """Unit test for the Azure CLI Artifacts Universal Packages Dependency class."""
+
+    def setUp(self) -> None:
+        """Set up the test environment."""
         prep_workspace()
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
+        """Set up the test environment."""
         logger = logging.getLogger("")
         logger.addHandler(logging.NullHandler())
         unittest.installHandler()
 
     @classmethod
-    def tearDownClass(cls):
+    def tearDownClass(cls) -> None:
+        """Clean up the workspace."""
         clean_workspace()
 
-    def tearDown(self):
+    def tearDown(self) -> None:
+        """Clean up the workspace."""
         # we need to reset the version aggregator each time
         version_aggregator.GetVersionAggregator().Reset()
 
@@ -163,7 +175,8 @@ class TestAzCliUniversalDependency(unittest.TestCase):
         "PAT_FOR_UNIVERSAL_ORG_TIANOCORE" not in os.environ.keys(),
         "PAT not defined therefore universal packages tests will fail",
     )
-    def test_download_good_universal_dependency_single_file(self):
+    def test_download_good_universal_dependency_single_file(self) -> None:
+        """Test that the Azure CLI is installed."""
         version = "0.0.1"
         ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
         with open(ext_dep_file_path, "w+") as ext_dep_file:
@@ -182,7 +195,8 @@ class TestAzCliUniversalDependency(unittest.TestCase):
         "PAT_FOR_UNIVERSAL_ORG_TIANOCORE" not in os.environ.keys(),
         "PAT not defined therefore universal packages tests will fail",
     )
-    def test_download_good_universal_dependency_folders_pinned_old_version(self):
+    def test_download_good_universal_dependency_folders_pinned_old_version(self) -> None:
+        """Test that the Azure CLI is installed."""
         version = "0.2.0"
         ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
         with open(ext_dep_file_path, "w+") as ext_dep_file:
@@ -201,7 +215,8 @@ class TestAzCliUniversalDependency(unittest.TestCase):
         "PAT_FOR_UNIVERSAL_ORG_TIANOCORE" not in os.environ.keys(),
         "PAT not defined therefore universal packages tests will fail",
     )
-    def test_download_good_universal_dependency_folders_newer_version(self):
+    def test_download_good_universal_dependency_folders_newer_version(self) -> None:
+        """Test that the Azure CLI is installed."""
         version = "0.2.1"
         ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
         with open(ext_dep_file_path, "w+") as ext_dep_file:
@@ -220,7 +235,8 @@ class TestAzCliUniversalDependency(unittest.TestCase):
         "PAT_FOR_UNIVERSAL_ORG_TIANOCORE" not in os.environ.keys(),
         "PAT not defined therefore universal packages tests will fail",
     )
-    def test_download_good_universal_dependency_folders_file_filter(self):
+    def test_download_good_universal_dependency_folders_file_filter(self) -> None:
+        """Test that the Azure CLI is installed."""
         version = "0.2.1"
         ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
         with open(ext_dep_file_path, "w+") as ext_dep_file:
@@ -252,7 +268,8 @@ class TestAzCliUniversalDependency(unittest.TestCase):
     #       generally tests the non-zero return from `RunCmd()` behavior
     #       without depending on a PAT or other assumptions about the feed.
     @patch("edk2toolext.environment.extdeptypes.az_cli_universal_dependency.RunCmd", return_value=1)
-    def test_cmd_run_non_zero(self, mock_run_cmd: MagicMock):
+    def test_cmd_run_non_zero(self, mock_run_cmd: MagicMock) -> None:
+        """Test that the Azure CLI is installed."""
         version = "0.0.1"
         ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
         with open(ext_dep_file_path, "w+") as ext_dep_file:
@@ -268,7 +285,8 @@ class TestAzCliUniversalDependency(unittest.TestCase):
         "PAT_FOR_UNIVERSAL_ORG_TIANOCORE" not in os.environ.keys(),
         "PAT not defined therefore universal packages tests will fail",
     )
-    def test_download_bad_universal_dependency(self):
+    def test_download_bad_universal_dependency(self) -> None:
+        """Test that the Azure CLI is installed."""
         non_existing_version = "0.1.0"
         ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
         with open(ext_dep_file_path, "w+") as ext_dep_file:
@@ -281,7 +299,8 @@ class TestAzCliUniversalDependency(unittest.TestCase):
         self.assertFalse(ext_dep.verify())
 
     @patch("edk2toolext.environment.extdeptypes.az_cli_universal_dependency.RunCmd", MockRunCmd.mock_RunCmd_outstream)
-    def test_download_bad_results(self):
+    def test_download_bad_results(self) -> None:
+        """Test that the Azure CLI is installed."""
         version = "0.0.1"
         ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
         with open(ext_dep_file_path, "w+") as ext_dep_file:
@@ -304,7 +323,8 @@ class TestAzCliUniversalDependency(unittest.TestCase):
         "PAT_FOR_UNIVERSAL_ORG_TIANOCORE" not in os.environ.keys(),
         "PAT not defined therefore universal packages tests will fail",
     )
-    def test_download_and_unzip(self):
+    def test_download_and_unzip(self) -> None:
+        """Test that the Azure CLI is installed."""
         version = "0.0.1"
         ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
         with open(ext_dep_file_path, "w+") as ext_dep_file:
@@ -334,7 +354,8 @@ class TestAzCliUniversalDependency(unittest.TestCase):
         "PAT_FOR_UNIVERSAL_ORG_TIANOCORE" not in os.environ.keys(),
         "PAT not defined therefore universal packages tests will fail",
     )
-    def test_download_and_unzip2(self):
+    def test_download_and_unzip2(self) -> None:
+        """Test that the Azure CLI is installed."""
         version = "0.0.1"
         ext_dep_file_path = os.path.join(test_dir, "unit_test_ext_dep.json")
         with open(ext_dep_file_path, "w+") as ext_dep_file:
@@ -359,7 +380,8 @@ class TestAzCliUniversalDependency(unittest.TestCase):
 
         ext_dep.clean()
 
-    def test_az_tool_environment(self):
+    def test_az_tool_environment(self) -> None:
+        """Test that the Azure CLI is installed."""
         AzureCliUniversalDependency.VerifyToolDependencies()
 
 

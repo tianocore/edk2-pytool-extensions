@@ -57,7 +57,7 @@ def get_cli_options(args: Any = None) -> argparse.Namespace:  # noqa: ANN401
         "-o",
         dest="options_file",
         type=argparse.FileType("r"),
-        help="a filesystem path to a json/yaml file to load with default options. will be overriden by any options parameters",
+        help="a filesystem path to a json/yaml file to load with default options. will be overriden by any options parameters",  # noqa
     )  # noqa
     parser.add_argument(
         "-f",
@@ -72,7 +72,7 @@ def get_cli_options(args: Any = None) -> argparse.Namespace:  # noqa: ANN401
     )
     parser.add_argument(
         "output_dir",
-        help="a filesystem path to the directory to save output files. if directory does not exist, entire directory path will be created. if directory does exist, contents will be updated based on the capsule_options",
+        help="a filesystem path to the directory to save output files. if directory does not exist, entire directory path will be created. if directory does exist, contents will be updated based on the capsule_options",  # noqa
     )  # noqa
 
     return parser.parse_args(args=args)

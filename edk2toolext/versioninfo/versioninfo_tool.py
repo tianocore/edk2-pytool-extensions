@@ -57,7 +57,7 @@ def get_cli_options(args: typing.Sequence[str] = None) -> argparse.Namespace:
     parser.add_argument(
         "output_file",
         type=str,
-        help="a filesystem path to the output file. if file does not exist, entire directory path will be created. if file does exist, contents will be overwritten",
+        help="a filesystem path to the output file. if file does not exist, entire directory path will be created. if file does exist, contents will be overwritten",  # noqa
     )  # noqa
 
     command_group = parser.add_mutually_exclusive_group()

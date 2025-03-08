@@ -235,9 +235,7 @@ class Edk2Invocable(BaseAbstractInvocable):
             if match:
                 ver = match.group(1)
             elif ver != "N/A":
-                raise Exception(
-                    "A Rust tool is installed, but its version " "format is unexpected and cannot be parsed."
-                )
+                raise Exception("A Rust tool is installed, but its version format is unexpected and cannot be parsed.")
 
             logging.info(f"{tool_name} version: {ver}")
             ver_agg = version_aggregator.GetVersionAggregator()
@@ -417,7 +415,7 @@ class Edk2Invocable(BaseAbstractInvocable):
             dest="verbose",
             action="store_true",
             default=False,
-            help="Overrides platform module settings and sets all loggers to to the highest verbosity, including EDKII build command if applicable.",
+            help="Overrides platform module settings and sets all loggers to to the highest verbosity, including EDKII build command if applicable.",  # noqa
         )
 
         # get the settings manager from the provided file and load an instance

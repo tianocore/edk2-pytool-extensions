@@ -110,7 +110,7 @@ class GitDependency(ExternalDependency):
             result = False
 
         elif self.version.lower() not in [details["Head"]["HexSha"], details["Head"]["HexShaShort"]]:
-            self.logger.info(f'Mismatched sha: [head: {details["Head"]["HexSha"]}], [expected: {self.version}]')
+            self.logger.info(f"Mismatched sha: [head: {details['Head']['HexSha']}], [expected: {self.version}]")
             result = False
 
         self.logger.debug("Verify '%s' returning '%s'." % (self.name, result))

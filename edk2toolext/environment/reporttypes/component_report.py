@@ -35,7 +35,7 @@ class ComponentDumpReport:
             "--out",
             dest="file",
             default=sys.stdout,
-            help="The file, to write the report to." " Defaults to stdout.",
+            help="The file, to write the report to. Defaults to stdout.",
         )
         parserobj.add_argument(
             "-d",
@@ -43,7 +43,7 @@ class ComponentDumpReport:
             dest="depth",
             type=int,
             default=999,
-            help="The depth to recurse when " "printing libraries used.",
+            help="The depth to recurse when printing libraries used.",
         )
         parserobj.add_argument(
             "-f",
@@ -101,7 +101,7 @@ class ComponentDumpReport:
         library_class = library.cls
         library_instance = library.path
 
-        print(f'{"  "*depth}- {library_class}| {library_instance or "NOT FOUND IN DSC"}', file=self.file)
+        print(f"{'  ' * depth}- {library_class}| {library_instance or 'NOT FOUND IN DSC'}", file=self.file)
 
         if library_instance is None:
             return

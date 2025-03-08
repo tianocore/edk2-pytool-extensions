@@ -6,10 +6,12 @@
 
 """Used for creating a minimal uefi tree for testing."""
 
-import os
-import tempfile
 import json
+import os
 import random
+import tempfile
+from typing import Optional
+
 import git
 
 
@@ -27,7 +29,7 @@ class uefi_tree:
         create_platform (bool): create the tree or use an existing
     """
 
-    def __init__(self, workspace=None, create_platform=True, with_repo=False):
+    def __init__(self, workspace: Optional[str] = None, create_platform: bool = True, with_repo: bool = False) -> None:
         """Inits uefi_tree."""
         if workspace is None:
             workspace = os.path.abspath(tempfile.mkdtemp())
@@ -38,18 +40,18 @@ class uefi_tree:
             self._create_repo()
 
     @staticmethod
-    def _get_src_folder():
+    def _get_src_folder() -> str:
         return os.path.dirname(os.path.abspath(__file__))
 
     @staticmethod
-    def _get_optional_folder():
+    def _get_optional_folder() -> str:
         return os.path.join(uefi_tree._get_src_folder(), "optional")
 
-    def get_workspace(self):
+    def get_workspace(self) -> str:
         """Returns the workspace path."""
         return self.workspace
 
-    def _create_repo(self):
+    def _create_repo(self) -> None:
         repo = git.Repo.init(self.workspace)
         repo.create_remote("origin", "https://github.com/username/repo.git")
         repo.git.config("--global", "user.email", '"johndoe@example.com"')
@@ -58,7 +60,7 @@ class uefi_tree:
         repo.git.add(".")
         repo.git.commit("-m", '"Initial commit"')
 
-    def _create_tree(self):
+    def _create_tree(self) -> None:
         """Creates a settings.py, test.dsc, Conf folder (with build_rule, target, and tools_def)."""
         settings_path = self.get_settings_provider_path()
         uefi_tree.write_to_file(settings_path, self._settings_file_text)
@@ -74,25 +76,33 @@ class uefi_tree:
         uefi_tree.write_to_file(tools_path, "hello there")
 
     @staticmethod
-    def write_to_file(path, contents, close=True):
+    def write_to_file(path: str, contents: str, close: bool = True) -> None:
         """Writes contents to a file."""
         f = open(path, "w")
         f.writelines(contents)
         if close:
             f.close()
 
-    def get_settings_provider_path(self):
+    def get_settings_provider_path(self) -> str:
         """Gets the settings provider in the workspace."""
         return os.path.join(self.workspace, "settings.py")
 
-    def get_optional_file(self, file):
+    def get_optional_file(self, file: str) -> str:
         """Gets the path of an optional file."""
         optional_path = os.path.join(uefi_tree._get_optional_folder(), file)
         if os.path.exists(optional_path):
             return os.path.abspath(optional_path)
         raise ValueError(f"Optional file not found {file}")
 
-    def create_path_env(self, id=None, flags=[], var_name=None, scope="global", dir_path="", extra_data=None):
+    def create_path_env(
+        self,
+        id: Optional[str] = None,
+        flags: list = [],
+        var_name: Optional[str] = None,
+        scope: str = "global",
+        dir_path: str = "",
+        extra_data: Optional[str] = None,
+    ) -> None:
         """Creates an ext dep in your workspace."""
         data = {
             "scope": scope,
@@ -114,11 +124,20 @@ class uefi_tree:
         output_path = os.path.join(output_dir, file_name)
         uefi_tree.write_to_file(output_path, text)
 
-    def create_Edk2TestUpdate_ext_dep(self, version="0.0.1", extra_data=None):
+    def create_Edk2TestUpdate_ext_dep(self, version: str = "0.0.1", extra_data: Optional[str] = None) -> str:
         """Creates an Edk2TestUpdate ext dep in your workspace."""
         self.create_ext_dep("nuget", "Edk2TestUpdate", version, extra_data=extra_data)
 
-    def create_ext_dep(self, dep_type, name, version, source=None, scope="global", dir_path="", extra_data=None):
+    def create_ext_dep(
+        self,
+        dep_type: str,
+        name: str,
+        version: str,
+        source: Optional[str] = None,
+        scope: str = "global",
+        dir_path: str = "",
+        extra_data: Optional[str] = None,
+    ) -> str:
         """Creates an ext dep in your workspace."""
         dep_type = dep_type.lower()
         if source is None and dep_type == "nuget":

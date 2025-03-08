@@ -92,7 +92,7 @@ def resolve(
         else:
             if ignore:
                 logger.warning(
-                    f"Folder {git_path} is not a git repo but Force parameter not used.  " "Ignore State Allowed."
+                    f"Folder {git_path} is not a git repo but Force parameter not used.  Ignore State Allowed."
                 )
                 return
             else:
@@ -113,8 +113,7 @@ def resolve(
         else:
             if ignore:
                 logger.warning(
-                    f"Folder {git_path} is a git repo but is dirty and Force parameter not used.  "
-                    "Ignore State Allowed."
+                    f"Folder {git_path} is a git repo but is dirty and Force parameter not used.  Ignore State Allowed."
                 )
                 return
             else:
@@ -129,8 +128,7 @@ def resolve(
         if force:
             clear_folder(git_path)
             logger.warning(
-                f"Folder {git_path} is a git repo but it is at a different repo and is "
-                "being overwritten as requested!"
+                f"Folder {git_path} is a git repo but it is at a different repo and is being overwritten as requested!"
             )
             clone_repo(git_path, dependency)
             checkout(git_path, dependency, True, False)
@@ -138,7 +136,7 @@ def resolve(
         else:
             if ignore:
                 logger.warning(
-                    f"Folder {git_path} is a git repo pointed at a different remote.  " "Can't checkout or sync state"
+                    f"Folder {git_path} is a git repo pointed at a different remote.  Can't checkout or sync state"
                 )
                 return
             else:

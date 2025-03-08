@@ -6,17 +6,20 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""Unit test suite for the GitDependency class."""
+
+import logging
 import os
 import sys
-import unittest
-import logging
 import tempfile
+import unittest
+
 import pkg_resources
-from edk2toollib.utility_functions import RunCmd, RemoveTree
-from edk2toolext.environment import environment_descriptor_files as EDF
-from edk2toolext.environment.extdeptypes.nuget_dependency import NugetDependency
-from edk2toolext.environment import version_aggregator
 from edk2toolext.bin import nuget
+from edk2toolext.environment import environment_descriptor_files as EDF
+from edk2toolext.environment import version_aggregator
+from edk2toolext.environment.extdeptypes.nuget_dependency import NugetDependency
+from edk2toollib.utility_functions import RemoveTree, RunCmd
 
 test_dir = None
 good_version = "5.2.0"
@@ -35,7 +38,8 @@ hw_json_template = """
 """
 
 
-def prep_workspace():
+def prep_workspace() -> None:
+    """Prepare the test environment."""
     global test_dir
     # if test temp dir doesn't exist
     if test_dir is None or not os.path.isdir(test_dir):
@@ -46,7 +50,8 @@ def prep_workspace():
         test_dir = tempfile.mkdtemp()
 
 
-def clean_workspace():
+def clean_workspace() -> None:
+    """Clean up the test environment."""
     global test_dir
     if test_dir is None:
         return
@@ -57,21 +62,27 @@ def clean_workspace():
 
 
 class TestNugetDependency(unittest.TestCase):
-    def setUp(self):
+    """Unit test for the NugetDependency class."""
+
+    def setUp(self) -> None:
+        """Set up the test environment."""
         prep_workspace()
         self.saved_nuget_path = os.getenv(NugetDependency.NUGET_ENV_VAR_NAME)
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
+        """Set up the test environment."""
         logger = logging.getLogger("")
         logger.addHandler(logging.NullHandler())
         unittest.installHandler()
 
     @classmethod
-    def tearDownClass(cls):
+    def tearDownClass(cls) -> None:
+        """Clean up the test environment."""
         clean_workspace()
 
-    def tearDown(self):
+    def tearDown(self) -> None:
+        """Clean up the test environment."""
         # we need to reset the version aggregator each time
         version_aggregator.GetVersionAggregator().Reset()
 
@@ -86,13 +97,15 @@ class TestNugetDependency(unittest.TestCase):
         if not os.path.isfile(nuget_path):
             nuget.DownloadNuget()
 
-    def test_can_get_nuget_path(self):
+    def test_can_get_nuget_path(self) -> None:
+        """Test that the NugetDependency class can get the path to nuget."""
         nuget_cmd = NugetDependency.GetNugetCmd()
         nuget_cmd += ["locals", "global-packages", "-list"]
         ret = RunCmd(nuget_cmd[0], " ".join(nuget_cmd[1:]), outstream=sys.stdout)
         self.assertEqual(ret, 0)  # make sure we have a zero return code
 
-    def test_missing_nuget(self):
+    def test_missing_nuget(self) -> None:
+        """Test that the NugetDependency class can handle a missing nuget."""
         if NugetDependency.NUGET_ENV_VAR_NAME in os.environ:
             del os.environ[NugetDependency.NUGET_ENV_VAR_NAME]
 
@@ -102,7 +115,8 @@ class TestNugetDependency(unittest.TestCase):
         path = NugetDependency.GetNugetCmd()[-1]
         self.assertTrue(os.path.isfile(path))
 
-    def test_nuget_env_var(self):
+    def test_nuget_env_var(self) -> None:
+        """Test that the NugetDependency class can handle an env var."""
         if NugetDependency.NUGET_ENV_VAR_NAME in os.environ:
             del os.environ[NugetDependency.NUGET_ENV_VAR_NAME]
 
@@ -117,7 +131,8 @@ class TestNugetDependency(unittest.TestCase):
         path_should_be = os.path.join(test_dir, "NuGet.exe")
         self.assertTrue(os.path.samefile(found_path, path_should_be))
 
-    def test_nuget_env_var_with_space(self):
+    def test_nuget_env_var_with_space(self) -> None:
+        """Test that the NugetDependency class can handle a space in the path."""
         if NugetDependency.NUGET_ENV_VAR_NAME in os.environ:
             del os.environ[NugetDependency.NUGET_ENV_VAR_NAME]
 
@@ -136,7 +151,8 @@ class TestNugetDependency(unittest.TestCase):
         self.assertTrue(os.path.samefile(found_path.strip('"'), path_should_be))
 
     # good case
-    def test_download_good_nuget(self):
+    def test_download_good_nuget(self) -> None:
+        """Test that the NugetDependency class can download a package."""
         ext_dep_file_path = os.path.join(test_dir, "hw_ext_dep.json")
         with open(ext_dep_file_path, "w+") as ext_dep_file:
             ext_dep_file.write(hw_json_template % good_version)
@@ -150,7 +166,8 @@ class TestNugetDependency(unittest.TestCase):
         ext_dep.clean()
 
     # bad case
-    def test_download_bad_nuget(self):
+    def test_download_bad_nuget(self) -> None:
+        """Test that the NugetDependency class can handle a bad version string."""
         ext_dep_file_path = os.path.join(test_dir, "hw_ext_dep.json")
         with open(ext_dep_file_path, "w+") as ext_dep_file:
             ext_dep_file.write(hw_json_template % bad_version)
@@ -162,7 +179,8 @@ class TestNugetDependency(unittest.TestCase):
             ext_dep.fetch()
         self.assertFalse(ext_dep.verify())
 
-    def test_normalize_version(self):
+    def test_normalize_version(self) -> None:
+        """Test that the NugetDependency class can normalize a version string."""
         version = "5.10.05.0"
         proper_version = "5.10.5"
         self.assertEqual(proper_version, NugetDependency.normalize_version(version))
@@ -217,7 +235,8 @@ class TestNugetDependency(unittest.TestCase):
             NugetDependency.normalize_version(bad_version)
 
     # missing case
-    def test_download_missing_nuget(self):
+    def test_download_missing_nuget(self) -> None:
+        """Test that the NugetDependency class can handle a missing package."""
         ext_dep_file_path = os.path.join(test_dir, "hw_ext_dep.json")
         with open(ext_dep_file_path, "w+") as ext_dep_file:
             ext_dep_file.write(hw_json_template % missing_version)
@@ -229,7 +248,8 @@ class TestNugetDependency(unittest.TestCase):
         self.assertFalse(ext_dep.verify())
         self.assertEqual(ext_dep.version, missing_version)
 
-    def test_cache_path_not_found(self):
+    def test_cache_path_not_found(self) -> None:
+        """Test that the cache path is not found."""
         ext_dep_file_path = os.path.join(test_dir, "hw_ext_dep.json")
         with open(ext_dep_file_path, "w+") as ext_dep_file:
             ext_dep_file.write(hw_json_template % good_version)
@@ -240,7 +260,8 @@ class TestNugetDependency(unittest.TestCase):
         ext_dep.nuget_cache_path = "not_a_real_path"
         self.assertFalse(ext_dep._fetch_from_nuget_cache(hw_package_name))
 
-    def test_bad_cached_package(self):
+    def test_bad_cached_package(self) -> None:
+        """Test that a bad cached package is not used."""
         ext_dep_file_path = os.path.join(test_dir, "hw_ext_dep.json")
         with open(ext_dep_file_path, "w+") as ext_dep_file:
             ext_dep_file.write(hw_json_template % good_version)
@@ -266,7 +287,8 @@ class TestNugetDependency(unittest.TestCase):
         os.makedirs(test_cache_contents)
         self.assertFalse(ext_dep._fetch_from_nuget_cache(hw_package_name))
 
-    def test_good_cached_package(self):
+    def test_good_cached_package(self) -> None:
+        """Test that a good cached package is copied to the contents directory."""
         ext_dep_file_path = os.path.join(test_dir, "hw_ext_dep.json")
         with open(ext_dep_file_path, "w+") as ext_dep_file:
             ext_dep_file.write(hw_json_template % good_version)

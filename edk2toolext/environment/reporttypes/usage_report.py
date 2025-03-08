@@ -64,7 +64,7 @@ class UsageReport(Report):
             "-env",
             dest="env_id",
             action="store",
-            help="The environment id to generate the report for. Defaults to the latest " "environment.",
+            help="The environment id to generate the report for. Defaults to the latest environment.",
         )
         parserobj.add_argument(
             "-o",

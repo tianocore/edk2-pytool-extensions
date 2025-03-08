@@ -146,7 +146,7 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
             try:
                 # Clean the workspace
                 edk2_logging.log_progress("## Cleaning the root repo")
-                clean(workspace_path, ignore_files=[f'Build/{self.GetLoggingFileName("txt")}.txt'])
+                clean(workspace_path, ignore_files=[f"Build/{self.GetLoggingFileName('txt')}.txt"])
                 edk2_logging.log_progress("Done.\n")
             except InvalidGitRepositoryError:
                 logging.error(f"Error when trying to clean {workspace_path}")

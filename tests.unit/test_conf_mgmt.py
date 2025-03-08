@@ -6,11 +6,14 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
-import unittest
-import tempfile
+"""Unit test suite for the ConfMgmt class."""
+
+import logging
 import os
 import shutil
-import logging
+import tempfile
+import unittest
+
 from edk2toolext.environment import conf_mgmt
 
 test_file_text = """#
@@ -43,28 +46,37 @@ DEFINE VS2008_BIN      = ENV(VS2008_PREFIX)
 
 
 class TestConfMgmt(unittest.TestCase):
-    def __init__(self, *args, **kwargs):
+    """Unit test suite for the ConfMgmt class."""
+
+    def __init__(self, *args, **kwargs) -> None:  # noqa: ANN002, ANN003
+        """Initialize the test class."""
         self.test_dir = None
         super().__init__(*args, **kwargs)
 
-    def prep_workspace(self):
+    def prep_workspace(self) -> None:
+        """Prepare the workspace."""
         self.clean_workspace()
         self.test_dir = tempfile.mkdtemp()
 
-    def clean_workspace(self):
+    def clean_workspace(self) -> None:
+        """Clean up the workspace."""
         if self.test_dir is None:
             return
         if os.path.isdir(self.test_dir):
             shutil.rmtree(self.test_dir)
             self.test_dir = None
 
-    def make_one_file(self, filepath, version):
+    def make_one_file(self, filepath: str, version: str) -> None:
+        """Make a file with the given version."""
         with open(filepath, "w") as f:
             f.write(test_file_text)
             f.write(f"#!VERSION={version}")
             logging.debug(f"Made file {filepath} with version {version}")
 
-    def make_edk2_files_dir(self, rootfolderpath, target_ver, tools_def_ver, build_rules_ver, is_template):
+    def make_edk2_files_dir(
+        self, rootfolderpath: str, target_ver: str, tools_def_ver: str, build_rules_ver: str, is_template: bool
+    ) -> None:
+        """Make the EDK2 files in the given directory."""
         file_names = ["target", "tools_def", "build_rule"]
         versions = [target_ver, tools_def_ver, build_rules_ver]
         if is_template:
@@ -74,46 +86,46 @@ class TestConfMgmt(unittest.TestCase):
             file_names = [x + ".txt" for x in file_names]
 
         os.makedirs(rootfolderpath, exist_ok=True)
-        for i in range(0, len(file_names)):
+        for i in range(len(file_names)):
             self.make_one_file(os.path.join(rootfolderpath, file_names[i]), versions[i])
 
-    def get_target_version(self, conf_folder_path):
+    def get_target_version(self, conf_folder_path: str) -> str:
+        """Get the version of the target file."""
         p = os.path.join(conf_folder_path, "target.txt")
         return conf_mgmt.ConfMgmt()._get_version(p)
 
-    def get_toolsdef_version(self, conf_folder_path):
+    def get_toolsdef_version(self, conf_folder_path: str) -> str:
+        """Get the version of the tools def file."""
         p = os.path.join(conf_folder_path, "tools_def.txt")
         return conf_mgmt.ConfMgmt()._get_version(p)
 
-    def get_buildrules_version(self, conf_folder_path):
+    def get_buildrules_version(self, conf_folder_path: str) -> str:
+        """Get the version of the build rules file."""
         p = os.path.join(conf_folder_path, "build_rule.txt")
         return conf_mgmt.ConfMgmt()._get_version(p)
 
-    def setUp(self):
+    def setUp(self) -> None:
+        """Prepare the workspace."""
         self.prep_workspace()
 
-    @classmethod
-    def setUpClass(cls):
-        pass
-
-    @classmethod
-    def tearDownClass(cls):
-        pass
-
-    def tearDown(self):
+    def tearDown(self) -> None:
+        """Clean up the workspace."""
         self.clean_workspace()
 
-    def test_init(self):
+    def test_init(self) -> None:
+        """Test that the ConfMgmt class can be initialized."""
         conf_mgmt.ConfMgmt()
 
-    def test_no_version_tag(self):
+    def test_no_version_tag(self) -> None:
+        """Test that the _get_version function works when the file has no version tag."""
         p = os.path.join(self.test_dir, "test.txt")
         with open(p, "w") as f:
             f.write(test_file_text)
         c = conf_mgmt.ConfMgmt()._get_version(p)
         self.assertEqual(c, "0.0")
 
-    def test_invalid_version(self):
+    def test_invalid_version(self) -> None:
+        """Test that the _get_version function works when the version is invalid."""
         invalid_versions = ["1.2.3.4", "1.2.3", "Hello.1", "1.jk", "", "Wow", "Unknown"]
 
         p = os.path.join(self.test_dir, "test.txt")
@@ -122,7 +134,8 @@ class TestConfMgmt(unittest.TestCase):
             c = conf_mgmt.ConfMgmt()._get_version(p)
             self.assertEqual(c, "0.0")
 
-    def test_valid_version(self):
+    def test_valid_version(self) -> None:
+        """Test that the _get_version function works when the version is valid."""
         valid_versions = ["1.2", "2.02", "0.1", "22.345", "69594.39939494"]
 
         p = os.path.join(self.test_dir, "test.txt")
@@ -131,13 +144,15 @@ class TestConfMgmt(unittest.TestCase):
             c = conf_mgmt.ConfMgmt()._get_version(p)
             self.assertEqual(c, a)
 
-    def test_zero_extend_version(self):
+    def test_zero_extend_version(self) -> None:
+        """Test that the _get_version function works when the version is zero extended."""
         p = os.path.join(self.test_dir, "test.txt")
         self.make_one_file(p, "2")
         c = conf_mgmt.ConfMgmt()._get_version(p)
         self.assertEqual(c, "2.0")
 
-    def test_is_older_version_true(self):
+    def test_is_older_version_true(self) -> None:
+        """Test that the _is_older_version function works when the conf is older than the template."""
         # first member is conf
         # second member is temp
         # make second member larger
@@ -150,7 +165,8 @@ class TestConfMgmt(unittest.TestCase):
             c = conf_mgmt.ConfMgmt()._is_older_version(conf, temp)
             self.assertTrue(c)
 
-    def test_is_older_version_false(self):
+    def test_is_older_version_false(self) -> None:
+        """Test that the _is_older_version function works when the conf is newer than the template."""
         # first member is conf
         # second member is temp
         # make second member larger
@@ -163,7 +179,8 @@ class TestConfMgmt(unittest.TestCase):
             c = conf_mgmt.ConfMgmt()._is_older_version(conf, temp)
             self.assertFalse(c)
 
-    def test_is_older_no_version_tag_conf(self):
+    def test_is_older_no_version_tag_conf(self) -> None:
+        """Test that the _is_older_version function works when the conf file has no version tag."""
         conf = os.path.join(self.test_dir, "conf.txt")
         temp = os.path.join(self.test_dir, "temp.txt")
         # make file with no version tag
@@ -173,7 +190,8 @@ class TestConfMgmt(unittest.TestCase):
         c = conf_mgmt.ConfMgmt()._is_older_version(conf, temp)
         self.assertTrue(c)
 
-    def test_is_older_no_version_tag_template(self):
+    def test_is_older_no_version_tag_template(self) -> None:
+        """Test that the _is_older_version function works when the template has no version tag."""
         conf = os.path.join(self.test_dir, "conf.txt")
         temp = os.path.join(self.test_dir, "temp.txt")
         # make file with no version tag
@@ -183,7 +201,8 @@ class TestConfMgmt(unittest.TestCase):
         c = conf_mgmt.ConfMgmt()._is_older_version(conf, temp)
         self.assertFalse(c)
 
-    def test_is_older_no_version_no_template(self):
+    def test_is_older_no_version_no_template(self) -> None:
+        """Test that the _is_older_version function works when the template has no version tag."""
         conf = os.path.join(self.test_dir, "conf.txt")
         temp = os.path.join(self.test_dir, "temp.txt")
         # make file with no version tag
@@ -191,7 +210,8 @@ class TestConfMgmt(unittest.TestCase):
         c = conf_mgmt.ConfMgmt()._is_older_version(conf, temp)
         self.assertFalse(c)
 
-    def test_populate_when_conf_empty(self):
+    def test_populate_when_conf_empty(self) -> None:
+        """Test that the populate_conf_dir function works when the conf directory is empty."""
         conf = os.path.join(self.test_dir, "Conf")
         temp = os.path.join(self.test_dir, "templates")
 
@@ -202,7 +222,8 @@ class TestConfMgmt(unittest.TestCase):
         self.assertEqual("2.0", self.get_toolsdef_version(conf))
         self.assertEqual("3.0", self.get_buildrules_version(conf))
 
-    def test_no_populate_when_conf_fully_populated(self):
+    def test_no_populate_when_conf_fully_populated(self) -> None:
+        """Test that the populate_conf_dir function does not overwrite existing files."""
         conf = os.path.join(self.test_dir, "Conf")
         temp = os.path.join(self.test_dir, "Templates")
 
@@ -214,7 +235,8 @@ class TestConfMgmt(unittest.TestCase):
         self.assertEqual("2.1", self.get_toolsdef_version(conf))
         self.assertEqual("3.1", self.get_buildrules_version(conf))
 
-    def test_populate_override_fully_populated(self):
+    def test_populate_override_fully_populated(self) -> None:
+        """Test that the populate_conf_dir function works when the override flag is set."""
         conf = os.path.join(self.test_dir, "Conf")
         temp = os.path.join(self.test_dir, "Templates")
 
@@ -226,7 +248,8 @@ class TestConfMgmt(unittest.TestCase):
         self.assertEqual("2.0", self.get_toolsdef_version(conf))
         self.assertEqual("3.0", self.get_buildrules_version(conf))
 
-    def test_conf_older_warn_fully_populated(self):
+    def test_conf_older_warn_fully_populated(self) -> None:
+        """Test that the populate_conf_dir function works when the conf is older than the templates."""
         conf = os.path.join(self.test_dir, "Conf")
         temp = os.path.join(self.test_dir, "Templates")
 
@@ -240,7 +263,8 @@ class TestConfMgmt(unittest.TestCase):
         self.assertEqual("2.1", self.get_toolsdef_version(conf))
         self.assertEqual("3.1", self.get_buildrules_version(conf))
 
-    def test_plat_template_fully_populated(self):
+    def test_plat_template_fully_populated(self) -> None:
+        """Test that the populate_conf_dir function works when a platform template is provided."""
         conf = os.path.join(self.test_dir, "Conf")
         temp = os.path.join(self.test_dir, "Templates")
         plattemp = os.path.join(self.test_dir, "TemplatesPlat")
@@ -253,7 +277,8 @@ class TestConfMgmt(unittest.TestCase):
         self.assertEqual("2.2", self.get_toolsdef_version(conf))
         self.assertEqual("3.2", self.get_buildrules_version(conf))
 
-    def test_no_templates(self):
+    def test_no_templates(self) -> None:
+        """Test that the populate_conf_dir function works when no templates are provided."""
         conf = os.path.join(self.test_dir, "Conf")
         temp = os.path.join(self.test_dir, "Templates")
 

@@ -94,7 +94,7 @@ class NugetDependency(ExternalDependency):
         """
         # 1. NuGetVersion requires the major segment to be defined
         if not version:
-            raise ValueError("String is empty. At least major version is " "required.")
+            raise ValueError("String is empty. At least major version is required.")
 
         # 2. NuGetVersion uses case insensitive string comparisons for
         #    pre-release components
@@ -111,7 +111,7 @@ class NugetDependency(ExternalDependency):
 
         # 4. A maximum of 4 version segments are allowed
         if len(int_parts) > 4:
-            raise ValueError(f"Maximum of 4 version segments allowed: " f"'{version}'!")
+            raise ValueError(f"Maximum of 4 version segments allowed: '{version}'!")
 
         # 5. Allow a fourth version segment - "Revision" normally not
         #    allowed in Semantic versions but allowed in NuGet versions.
@@ -189,7 +189,7 @@ class NugetDependency(ExternalDependency):
         try:
             nuget_version = NugetDependency.normalize_version(self.version)
         except ValueError:
-            logging.error(f"NuGet dependency {self.package} has an invalid " f"version string: {self.version}")
+            logging.error(f"NuGet dependency {self.package} has an invalid version string: {self.version}")
 
         cache_search_path = os.path.join(self.nuget_cache_path, package_name.lower(), nuget_version)
         inner_cache_search_path = os.path.join(cache_search_path, package_name)
@@ -252,8 +252,7 @@ class NugetDependency(ExternalDependency):
                 # Only provide this error message if they are not using a credential provider, but receive a 401 error
                 if is_unauthorized and not found_cred_provider:
                     logging.warning(
-                        "[Nuget] A package requires credentials, but you do not have a credential "
-                        "provider installed."
+                        "[Nuget] A package requires credentials, but you do not have a credential provider installed."
                     )
                     logging.warning(
                         "[Nuget] Please install a credential provider and try again or run the following "

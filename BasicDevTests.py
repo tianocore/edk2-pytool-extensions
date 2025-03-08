@@ -12,13 +12,14 @@
 """Check that python code in the package aligns with pep8 and file encoding."""
 
 import glob
-import os
-import sys
 import logging
+import os
 import re
+import sys
 
 
-def TestEncodingOk(apath, encodingValue):
+def TestEncodingOk(apath: str, encodingValue: str) -> bool:
+    """Check that the file encoding is correct."""
     try:
         with open(apath, "rb") as f_obj:
             f_obj.read().decode(encodingValue)
@@ -29,7 +30,8 @@ def TestEncodingOk(apath, encodingValue):
     return True
 
 
-def TestFilenameLowercase(apath):
+def TestFilenameLowercase(apath: str) -> bool:
+    """Check that the file path is lowercase."""
     if apath != apath.lower():
         logging.critical(f"Lowercase failure: file {apath} not lower case path")
         logging.error(f"\n\tLOWERCASE: {apath.lower()}\n\tINPUTPATH: {apath}")
@@ -37,7 +39,7 @@ def TestFilenameLowercase(apath):
     return True
 
 
-def PackageAndModuleValidCharacters(apath):
+def PackageAndModuleValidCharacters(apath: str) -> bool:
     """Check pep8 recommendations for package and module names."""
     match = re.match("^[a-z0-9_/.]+$", apath.replace("\\", "/"))
     if match is None:
@@ -48,14 +50,16 @@ def PackageAndModuleValidCharacters(apath):
     return True
 
 
-def TestNoSpaces(apath):
+def TestNoSpaces(apath: str) -> bool:
+    """Check that the file has no spaces in the path."""
     if " " in apath:
         logging.critical(f"NoSpaces failure: file {apath} has spaces in path")
         return False
     return True
 
 
-def TestRequiredLicense(apath):
+def TestRequiredLicense(apath: str) -> bool:
+    """Check that the file has the required license."""
     licenses = [
         "SPDX-License-Identifier: BSD-2-Clause-Patent",
     ]

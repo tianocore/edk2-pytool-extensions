@@ -5,30 +5,34 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
-import unittest
-from edk2toolext.invocables.edk2_ci_build import Edk2CiBuild
-import sys
-import os
+"""Unit test for the Edk2CiBuild class."""
+
 import logging
+import os
 import shutil
+import sys
+import unittest
 from importlib import reload
+
+from edk2toolext.environment import self_describing_environment, shell_environment, version_aggregator
+from edk2toolext.invocables.edk2_ci_build import Edk2CiBuild
 from uefi_tree import uefi_tree
-from edk2toolext.environment import shell_environment
-from edk2toolext.environment import self_describing_environment
-from edk2toolext.environment import version_aggregator
 
 
 class TestEdk2CiBuild(unittest.TestCase):
+    """Unit test for the Edk2CiBuild class."""
+
     minimalTree = None
 
-    def setUp(self):
+    def setUp(self) -> None:
+        """Set up the test environment."""
         TestEdk2CiBuild.restart_logging()
         tree = uefi_tree()
         self.minimalTree = tree.get_workspace()
         print(self.minimalTree)
-        pass
 
-    def tearDown(self):
+    def tearDown(self) -> None:
+        """Restore the initial checkpoint."""
         shell_environment.GetEnvironment().restore_initial_checkpoint()
         buildFolder = os.path.join(self.minimalTree, "Build")
         shutil.rmtree(buildFolder, ignore_errors=True)
@@ -36,31 +40,24 @@ class TestEdk2CiBuild(unittest.TestCase):
         # we need to make sure to tear down the version aggregator and the SDE
         self_describing_environment.DestroyEnvironment()
         version_aggregator.ResetVersionAggregator()
-        pass
 
     @classmethod
-    def setUpClass(cls):
-        pass
+    def restart_logging(cls) -> None:
+        """We restart logging as logging is closed at the end of edk2 invocables.
 
-    @classmethod
-    def tearDownClass(cls):
-        pass
-
-    @classmethod
-    def restart_logging(cls):
-        """
-        We restart logging as logging is closed at the end of edk2 invocables.
         We also initialize it at the start.
         Reloading is the easiest way to get fresh state
         """
         logging.shutdown()
         reload(logging)
 
-    def test_init(self):
+    def test_init(self) -> None:
+        """Test that the Edk2CiBuild can be initialized."""
         builder = Edk2CiBuild()
         self.assertIsNotNone(builder)
 
-    def test_ci_build(self):
+    def test_ci_build(self) -> None:
+        """Test that the CI build function works."""
         builder = Edk2CiBuild()
         settings_file = os.path.join(self.minimalTree, "settings.py")
         sys.argv = ["stuart_ci_build", "-c", settings_file]
@@ -68,10 +65,10 @@ class TestEdk2CiBuild(unittest.TestCase):
             builder.Invoke()
         except SystemExit as e:
             self.assertEqual(e.code, 0, "We should have a non zero error code")
-            pass
         self.assertTrue(os.path.exists(os.path.join(self.minimalTree, "Build")))
 
-    def test_merge_config(self):
+    def test_merge_config(self) -> None:
+        """Test that the merge_config function works."""
         descriptor = {
             "descriptor_file": "C:\\MyRepo\\.pytool\\Plugin\\MyPlugin1\\MyPlugin1_plug_in.yaml",
             "module": "MyPlugin1",

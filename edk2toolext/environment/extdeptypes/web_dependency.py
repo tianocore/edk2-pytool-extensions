@@ -145,8 +145,7 @@ class WebDependency(ExternalDependency):
             # compare sha256 hexdigests as lowercase to make case insensitive
             if temp_file_sha256.lower() != self.sha256.lower():
                 raise RuntimeError(
-                    f"{self.name} - sha256 does not match\n\tdownloaded:"
-                    f"\t{temp_file_sha256}\n\tin json:\t{self.sha256}"
+                    f"{self.name} - sha256 does not match\n\tdownloaded:\t{temp_file_sha256}\n\tin json:\t{self.sha256}"
                 )
 
         if os.path.isfile(temp_file_path) is False:

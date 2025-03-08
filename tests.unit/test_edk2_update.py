@@ -5,24 +5,29 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
-import unittest
-from edk2toolext.invocables.edk2_update import Edk2Update
-import tempfile
-import sys
-import os
+"""Unit test suite for the Edk2Update class."""
+
 import logging
-from pathlib import Path
+import os
+import sys
+import tempfile
+import unittest
 from importlib import reload
-from edk2toolext.environment import shell_environment
+from pathlib import Path
+
+import pytest
+from edk2toolext.environment import self_describing_environment, shell_environment, version_aggregator
+from edk2toolext.invocables.edk2_update import Edk2Update
 from uefi_tree import uefi_tree
-from edk2toolext.environment import self_describing_environment
-from edk2toolext.environment import version_aggregator
 
 
 class TestEdk2Update(unittest.TestCase):
-    temp_folders = []
+    """Unit test suite for the Edk2Update class."""
 
-    def tearDown(self):
+    temp_folders: list[str] = []
+
+    def tearDown(self) -> None:
+        """Tear down the test environment."""
         shell_environment.GetEnvironment().restore_initial_checkpoint()
         for temp_folder in TestEdk2Update.temp_folders:
             logging.info(f"Cleaning up {temp_folder}")
@@ -33,25 +38,20 @@ class TestEdk2Update(unittest.TestCase):
         version_aggregator.ResetVersionAggregator()
 
     @classmethod
-    def restart_logging(cls):
+    def restart_logging(cls) -> None:
+        """Restart logging."""
         logging.shutdown()
         reload(logging)
 
     @classmethod
-    def updateClass(cls):
-        pass
-
-    @classmethod
-    def tearDownClass(cls):
-        pass
-
-    @classmethod
-    def get_temp_folder(cls):
+    def get_temp_folder(cls) -> str:
+        """Get a temporary folder."""
         temp_folder = os.path.abspath(tempfile.mkdtemp())
         TestEdk2Update.temp_folders.append(temp_folder)
         return os.path.abspath(temp_folder)
 
-    def invoke_update(self, settings_filepath, args=[], failure_expected=False):
+    def invoke_update(self, settings_filepath: str, args: list[str] = [], failure_expected: bool = False) -> Edk2Update:
+        """Invoke the update process."""
         sys.argv = ["stuart_update", "-c", settings_filepath]
         sys.argv.extend(args)
         builder = Edk2Update()
@@ -66,7 +66,8 @@ class TestEdk2Update(unittest.TestCase):
 
     #######################################
     # Test methods
-    def test_init(self):
+    def test_init(self) -> None:
+        """Test initialization."""
         WORKSPACE = self.get_temp_folder()
         tree = uefi_tree(WORKSPACE)
         settings_filepath = tree.get_settings_provider_path()
@@ -74,8 +75,8 @@ class TestEdk2Update(unittest.TestCase):
         builder = Edk2Update()
         self.assertIsNotNone(builder)
 
-    def test_one_level_recursive(self):
-        """makes sure we can do a recursive update"""
+    def test_one_level_recursive(self) -> None:
+        """Test one level recursive update."""
         WORKSPACE = self.get_temp_folder()
         tree = uefi_tree(WORKSPACE)
         logging.getLogger().setLevel(logging.WARNING)
@@ -94,8 +95,8 @@ class TestEdk2Update(unittest.TestCase):
         # we should have found two ext deps
         self.assertEqual(len(build_env.extdeps), 2)
 
-    def test_multiple_extdeps(self):
-        """makes sure we can do multiple ext_deps at the same time"""
+    def test_multiple_extdeps(self) -> None:
+        """Test multiple external dependencies."""
         WORKSPACE = self.get_temp_folder()
         tree = uefi_tree(WORKSPACE)
         num_of_ext_deps = 5
@@ -113,8 +114,8 @@ class TestEdk2Update(unittest.TestCase):
         # we should have found two ext deps
         self.assertEqual(len(build_env.extdeps), num_of_ext_deps)
 
-    def test_duplicate_ext_deps(self):
-        """verifies redundant ext_deps fail"""
+    def test_duplicate_ext_deps(self) -> None:
+        """Test redundant external dependencies fail."""
         WORKSPACE = self.get_temp_folder()
         tree = uefi_tree(WORKSPACE)
 
@@ -131,8 +132,8 @@ class TestEdk2Update(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.invoke_update(tree.get_settings_provider_path(), failure_expected=True)
 
-    def test_duplicate_ext_deps_skip_dir(self):
-        """verifies redundant ext_deps pass if one is skipped"""
+    def test_duplicate_ext_deps_skip_dir(self) -> None:
+        """Test redundant external dependencies pass if one is skipped."""
         WORKSPACE = self.get_temp_folder()
         tree = uefi_tree(WORKSPACE)
         num_of_ext_deps = 1
@@ -166,8 +167,8 @@ class TestEdk2Update(unittest.TestCase):
         # the one ext_dep should be valid
         self.assertEqual(failure, 0)
 
-    def test_multiple_duplicate_ext_deps_skip_dir(self):
-        """verifies multiple ext_deps in sub dirs are skipped"""
+    def test_multiple_duplicate_ext_deps_skip_dir(self) -> None:
+        """Test multiple external dependencies in subdirectories are skipped."""
         WORKSPACE = self.get_temp_folder()
         tree = uefi_tree(WORKSPACE)
         num_of_ext_deps = 1
@@ -216,8 +217,8 @@ class TestEdk2Update(unittest.TestCase):
         # the one ext_dep should be valid
         self.assertEqual(failure, 0)
 
-    def test_bad_ext_dep(self):
-        """makes sure we can do an update that will fail"""
+    def test_bad_ext_dep(self) -> None:
+        """Test update with a bad external dependency."""
         WORKSPACE = self.get_temp_folder()
         tree = uefi_tree(WORKSPACE)
         logging.getLogger().setLevel(logging.WARNING)
@@ -230,8 +231,10 @@ class TestEdk2Update(unittest.TestCase):
         self.assertEqual(failure, 1)
 
 
-def test_log_error_on_missing_host_specific_folder(caplog, tmpdir):
-    """make sure we can update host_specific extdeps"""
+def test_log_error_on_missing_host_specific_folder(
+    caplog: pytest.LogCaptureFixture, tmpdir: pytest.TempdirFactory
+) -> None:
+    """Test update with missing host-specific folder."""
     caplog.set_level(logging.ERROR)
     tree = uefi_tree(tmpdir)
     tree.create_ext_dep(
@@ -267,3 +270,7 @@ def test_log_error_on_missing_host_specific_folder(caplog, tmpdir):
     _, _, failure = builder.PerformUpdate()
     assert failure == 0
     assert len(caplog.records) > 0
+
+
+if __name__ == "__main__":
+    unittest.main()

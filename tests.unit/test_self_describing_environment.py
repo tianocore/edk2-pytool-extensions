@@ -6,34 +6,40 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""Unit test for the self_describing_environment class."""
+
 import pathlib
-import unittest
 import tempfile
+import unittest
+
 import git
-from edk2toolext.environment import self_describing_environment
+from edk2toolext.environment import self_describing_environment, version_aggregator
 from uefi_tree import uefi_tree
-from edk2toolext.environment import version_aggregator
 
 
 class Testself_describing_environment(unittest.TestCase):
-    def setUp(self):
+    """Unit test for the self_describing_environment class."""
+
+    def setUp(self) -> None:
+        """Create a temporary workspace and reset the version aggregator."""
         self.workspace = pathlib.Path(tempfile.mkdtemp()).resolve()
         # we need to make sure to tear down the version aggregator and the SDE
         self_describing_environment.DestroyEnvironment()
         version_aggregator.ResetVersionAggregator()
 
-    def test_null_init(self):
+    def test_null_init(self) -> None:
+        """Make sure the SDE can be initialized with no args."""
         sde = self_describing_environment.self_describing_environment(self.workspace)
         self.assertIsNotNone(sde)
 
-    def test_unique_scopes_required(self):
-        """make sure the sde will throw exception if duplicate scopes are specified"""
+    def test_unique_scopes_required(self) -> None:
+        """Make sure the sde will throw exception if duplicate scopes are specified."""
         scopes = ("corebuild", "corebuild", "testing", "CoreBuild")
         with self.assertRaises(ValueError):
             self_describing_environment.self_describing_environment(self.workspace, scopes)
 
-    def test_collect_path_env(self):
-        """makes sure the SDE can collect path env"""
+    def test_collect_path_env(self) -> None:
+        """Makes sure the SDE can collect path env."""
         scopes = ("global",)
         tree = uefi_tree(self.workspace, create_platform=False)
         tree.create_path_env(
@@ -67,8 +73,8 @@ class Testself_describing_environment(unittest.TestCase):
         build_env, shell_env = self_describing_environment.BootstrapEnvironment(self.workspace, scopes)
         self.assertEqual(len(build_env.paths), 4)
 
-    def test_collect_path_env_scoped(self):
-        """makes sure the SDE can collect path env with the right scopes"""
+    def test_collect_path_env_scoped(self) -> None:
+        """Makes sure the SDE can collect path env with the right scopes."""
         scopes = ("global", "testing")
         tree = uefi_tree(self.workspace, create_platform=False)
         tree.create_path_env("testing_corebuild", scope="testing")
@@ -76,8 +82,8 @@ class Testself_describing_environment(unittest.TestCase):
         build_env, shell_env = self_describing_environment.BootstrapEnvironment(self.workspace, scopes)
         self.assertEqual(len(build_env.paths), 1)
 
-    def test_override_path_env(self):
-        """checks the SDE descriptor override system"""
+    def test_override_path_env(self) -> None:
+        """Checks the SDE descriptor override system."""
         custom_scope = "global"
         scopes = (custom_scope,)
         tree = uefi_tree(self.workspace, create_platform=False)
@@ -88,8 +94,8 @@ class Testself_describing_environment(unittest.TestCase):
         build_env, shell_env = self_describing_environment.BootstrapEnvironment(self.workspace, scopes)
         self.assertEqual(len(build_env.paths), 1)
 
-    def test_multiple_override_path_env(self):
-        """checks the SDE descriptor override system will throw an error on multiple overrides"""
+    def test_multiple_override_path_env(self) -> None:
+        """Checks the SDE descriptor override system will throw an error on multiple overrides."""
         custom_scope = "global"
         scopes = (custom_scope,)
         tree = uefi_tree(self.workspace, create_platform=False)
@@ -105,8 +111,8 @@ class Testself_describing_environment(unittest.TestCase):
             build_env, shell_env = self_describing_environment.BootstrapEnvironment(self.workspace, scopes)
             self.fail()
 
-    def test_override_path_env_swapped_order(self):
-        """checks the SDE descriptor override system with reversed paths so they are discovered in opposite order"""
+    def test_override_path_env_swapped_order(self) -> None:
+        """Checks the SDE descriptor override system with reversed paths so they are discovered in opposite order."""
         custom_scope = "global"
         scopes = (custom_scope,)
         tree = uefi_tree(self.workspace, create_platform=False)
@@ -117,8 +123,8 @@ class Testself_describing_environment(unittest.TestCase):
         build_env, shell_env = self_describing_environment.BootstrapEnvironment(self.workspace, scopes)
         self.assertEqual(len(build_env.paths), 1)
 
-    def test_duplicate_id_path_env(self):
-        """check that the SDE will throw an exception if path_env have duplicate id's"""
+    def test_duplicate_id_path_env(self) -> None:
+        """Check that the SDE will throw an exception if path_env have duplicate id's."""
         custom_scope = "global"
         scopes = (custom_scope,)
         tree = uefi_tree(self.workspace, create_platform=False)
@@ -128,10 +134,12 @@ class Testself_describing_environment(unittest.TestCase):
             self_describing_environment.BootstrapEnvironment(self.workspace, scopes)
             self.fail()
 
-    def test_duplicate_id_path_env_2(self):
-        """check that the SDE will throw an exception if path env have duplicate id's.
+    def test_duplicate_id_path_env_2(self) -> None:
+        """Check that the SDE will throw an exception if path env have duplicate id's.
+
         Since id is not a required member of path env make sure it can handle case where one of the path
-        env files doesn't define an id"""
+        env files doesn't define an id
+        """
         custom_scope = "global"
         scopes = (custom_scope,)
         tree = uefi_tree(self.workspace, create_platform=False)
@@ -142,7 +150,8 @@ class Testself_describing_environment(unittest.TestCase):
             self_describing_environment.BootstrapEnvironment(self.workspace, scopes)
             self.fail()
 
-    def test_git_worktree(self):
+    def test_git_worktree(self) -> None:
+        """Test that the SDE can handle a git worktree."""
         repo = git.Repo.init(self.workspace)
         repo.create_remote("origin", "https://github.com/username/repo.git")
 

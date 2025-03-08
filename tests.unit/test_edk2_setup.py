@@ -5,6 +5,8 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""Unit test for the edk2_setup module."""
+
 import logging
 import pathlib
 import sys
@@ -135,14 +137,14 @@ class Settings(SetupSettingsManager):
 
 
 @pytest.fixture(scope="function")
-def tree(tmpdir):
+def tree(tmpdir: pytest.TempPathFactory) -> pathlib.Path:
     """A fixture that provides a temporary directory containing the mu_tiano_platforms repo."""
     git.Repo.clone_from("https://github.com/microsoft/mu_tiano_platforms.git", tmpdir)
     tmpdir = pathlib.Path(tmpdir)
     return pathlib.Path(tmpdir)
 
 
-def write_build_file(tree, file):
+def write_build_file(tree: pathlib.Path, file: str) -> pathlib.Path:
     """Writes the requested build file to the base of the tree."""
     build_file = tree / "BuildFile.py"
     with open(build_file, "x") as f:
@@ -150,7 +152,7 @@ def write_build_file(tree, file):
     return build_file
 
 
-def test_setup_simple_repo(tree: pathlib.Path):
+def test_setup_simple_repo(tree: pathlib.Path) -> None:
     """Tests that edk2_setup can successfuly clone a submodule."""
     #############################################
     # Perform Initial Setup and verify it works #
@@ -216,7 +218,7 @@ def test_setup_simple_repo(tree: pathlib.Path):
         assert repo.is_dirty(untracked_files=True) is False
 
 
-def test_setup_bad_omnicache(caplog, tree: pathlib.Path):
+def test_setup_bad_omnicache(caplog: pytest.LogCaptureFixture, tree: pathlib.Path) -> None:
     """Tests that edk2_setup catches a bad omnicache path."""
     caplog.at_level(logging.WARNING)  # Capture only warnings
     empty_build_file = write_build_file(tree, EMPTY_BUILD_FILE)
@@ -235,7 +237,7 @@ def test_setup_bad_omnicache(caplog, tree: pathlib.Path):
         pytest.fail("Did not find a warning about the omnicache path being invalid.")
 
 
-def test_setup_invalid_repo(tree: pathlib.Path):
+def test_setup_invalid_repo(tree: pathlib.Path) -> None:
     """Tests that edk2_setup catches a bad omnicache path."""
     invalid_build_file = write_build_file(tree, INVALID_REPO_BUILD_FILE)
     sys.argv = ["stuart_setup", "-c", str(invalid_build_file), "-v", "--FORCE"]
@@ -245,7 +247,7 @@ def test_setup_invalid_repo(tree: pathlib.Path):
         assert e.code == -1
 
 
-def test_setup_invalid_submodule(tree: pathlib.Path):
+def test_setup_invalid_submodule(tree: pathlib.Path) -> None:
     """Tests that edk2_setup catches a bad submodule path."""
     invalid_build_file = write_build_file(tree, INVALID_SUBMODULE_BUILD_FILE)
     sys.argv = ["stuart_setup", "-c", str(invalid_build_file), "-v"]
@@ -261,7 +263,7 @@ def test_setup_invalid_submodule(tree: pathlib.Path):
         assert e.code == -1
 
 
-def test_parse_command_line_options(tree: pathlib.Path):
+def test_parse_command_line_options(tree: pathlib.Path) -> None:
     """Tests that the command line parser works correctly."""
     # Test valid command line options
     empty_build_file = write_build_file(tree, EMPTY_BUILD_FILE)
@@ -298,7 +300,7 @@ def test_parse_command_line_options(tree: pathlib.Path):
             assert e.code == -1
 
 
-def test_conf_file(tree: pathlib.Path):
+def test_conf_file(tree: pathlib.Path) -> None:
     """Tests that the config file parser works correctly."""
     empty_build_file = write_build_file(tree, EMPTY_BUILD_FILE)
     build_conf = tree / "BuildConfig.conf"
@@ -342,7 +344,7 @@ def test_conf_file(tree: pathlib.Path):
 
 
 @pytest.mark.skipif(sys.platform.startswith("win"), reason="Linux only")
-def test_backslash_linux(tree: pathlib.Path, caplog):
+def test_backslash_linux(tree: pathlib.Path, caplog: pytest.LogCaptureFixture) -> None:
     """Test setup with force flag before submodules are initialized."""
     caplog.at_level(logging.ERROR)  # Capture only warnings
 
@@ -367,7 +369,8 @@ def test_backslash_linux(tree: pathlib.Path, caplog):
 
 
 @pytest.mark.skipif(not sys.platform.startswith("win"), reason="Windows only")
-def test_backslash_windows(tree: pathlib.Path):
+def test_backslash_windows(tree: pathlib.Path) -> None:
+    """Test setup with force flag before submodules are initialized."""
     build_file = write_build_file(tree, MIN_BUILD_FILE_BACKSLASH)
     sys.argv = [
         "stuart_setup",

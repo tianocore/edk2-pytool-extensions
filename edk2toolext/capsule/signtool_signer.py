@@ -120,7 +120,7 @@ def sign(data: bytes, signature_options: dict, signer_options: dict) -> bytes:
     else:
         raise ValueError("For pkcs7, type_options must include either embedded or detachedSignedData")
     signtool_params += ["/p7", f'"{temp_folder}"']
-    signtool_params += ["/f", f"\"{signer_options['key_file']}\""]
+    signtool_params += ["/f", f'"{signer_options["key_file"]}"']
     if "oid" in signer_options:
         signtool_params += ["/p7co", signer_options["oid"]]
     if "eku" in signer_options:
@@ -172,7 +172,7 @@ def sign_in_place(sign_file_path: str, signature_options: dict, signer_options: 
     # Start building the parameters for the call.
     signtool_params = ["sign", "/a"]
     signtool_params += ["/fd", signature_options["hash_alg"]]
-    signtool_params += ["/f", f"\"{signer_options['key_file']}\""]
+    signtool_params += ["/f", f'"{signer_options["key_file"]}"']
     # if 'oid' in signer_options:
     #     signtool_params += ['/p7co', signer_options['oid']]
     # if 'eku' in signer_options:

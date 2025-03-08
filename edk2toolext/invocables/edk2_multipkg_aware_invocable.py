@@ -183,9 +183,9 @@ class Edk2MultiPkgAwareInvocable(Edk2Invocable):
         arch_options = ""
         target_options = ""
         if self.PlatformSettings:
-            pkg_options = f' \n[{",".join(self.PlatformSettings.GetPackagesSupported())}]'
-            arch_options = f' \n[{",".join(self.PlatformSettings.GetArchitecturesSupported())}]'
-            target_options = f' \n[{",".join(self.PlatformSettings.GetTargetsSupported())}]'
+            pkg_options = f" \n[{','.join(self.PlatformSettings.GetPackagesSupported())}]"
+            arch_options = f" \n[{','.join(self.PlatformSettings.GetArchitecturesSupported())}]"
+            target_options = f" \n[{','.join(self.PlatformSettings.GetTargetsSupported())}]"
 
         parserObj.add_argument(
             "-p",
@@ -193,7 +193,7 @@ class Edk2MultiPkgAwareInvocable(Edk2Invocable):
             "--pkg-dir",
             dest="packageList",
             type=str,
-            help="CSV of EDKII packages / folder containing packages to operate on. " f"{pkg_options}",
+            help=f"CSV of EDKII packages / folder containing packages to operate on. {pkg_options}",
             action="append",
             default=[],
         )
@@ -203,7 +203,7 @@ class Edk2MultiPkgAwareInvocable(Edk2Invocable):
             dest="requested_arch",
             type=str,
             default=None,
-            help="CSV of architectures to operate on." f"{arch_options}",
+            help=f"CSV of architectures to operate on.{arch_options}",
         )
         parserObj.add_argument(
             "-t",
@@ -211,7 +211,7 @@ class Edk2MultiPkgAwareInvocable(Edk2Invocable):
             dest="requested_target",
             type=str,
             default=None,
-            help="CSV of targets to operate on." f"{target_options}",
+            help=f"CSV of targets to operate on.{target_options}",
         )
 
     def RetrieveCommandLineOptions(self, args: argparse.Namespace) -> None:

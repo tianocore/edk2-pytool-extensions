@@ -56,7 +56,7 @@ def main() -> None:
     parser_create.add_argument(
         "PolicyFilename",
         type=str,
-        help="The name of the new binary policy file to create " "- will not overwrite existing files",
+        help="The name of the new binary policy file to create - will not overwrite existing files",
     )
     parser_create.add_argument(
         "Manufacturer",
@@ -79,7 +79,7 @@ def main() -> None:
     parser_create.add_argument(
         "DevicePolicyHex",
         type=str,
-        help="The device policy in hexadecimal," " for example to clear the TPM and delete Secure Boot keys: 0x3",
+        help="The device policy in hexadecimal, for example to clear the TPM and delete Secure Boot keys: 0x3",
     )
 
     parser_print = subparsers.add_parser("parse", help="Parse a firmware policy and print in human readable form")

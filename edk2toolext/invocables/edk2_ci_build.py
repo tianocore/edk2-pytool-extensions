@@ -225,7 +225,7 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
                     # Skip all plugins not marked as "run" if disable is set
                     if self.disable_plugins and env.GetValue(Descriptor.Module.upper(), "skip") != "run":
                         edk2_logging.log_progress(
-                            "--->Test Disabled due to disable-all flag!" f" {Descriptor.Module} {target}"
+                            f"--->Test Disabled due to disable-all flag! {Descriptor.Module} {target}"
                         )
                         edk2_logging.log_progress(f"--->Set {Descriptor.Module}=run on the command line to run anyway.")
                         continue
