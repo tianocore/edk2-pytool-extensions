@@ -6,23 +6,26 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
-import os
-import unittest
+"""Unit test for the omnicache class."""
+
 import logging
-import tempfile
+import os
 import shutil
-import yaml
 import sys
+import tempfile
+import unittest
 from io import StringIO
+
+import yaml
 from edk2toolext import omnicache
 from edk2toollib import utility_functions
-
 
 test_dir = None
 current_dir = None
 
 
-def prep_workspace():
+def prep_workspace() -> None:
+    """Prepare the workspace."""
     global test_dir, current_dir
     # if test temp dir doesn't exist
     if test_dir is None or not os.path.isdir(test_dir):
@@ -40,7 +43,8 @@ def prep_workspace():
     current_dir = os.path.abspath(os.getcwd())
 
 
-def clean_workspace():
+def clean_workspace() -> None:
+    """Clean up the workspace."""
     global test_dir, current_dir
     os.chdir(current_dir)
     if test_dir is None:
@@ -58,20 +62,26 @@ def clean_workspace():
 
 
 class TestOmniCache(unittest.TestCase):
-    def setUp(self):
+    """Unit test for the omnicache class."""
+
+    def setUp(self) -> None:
+        """Set up the workspace."""
         prep_workspace()
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
+        """Set up the workspace."""
         logger = logging.getLogger("")
         logger.addHandler(logging.NullHandler())
         unittest.installHandler()
 
     @classmethod
-    def tearDownClass(cls):
+    def tearDownClass(cls) -> None:
+        """Clean up the workspace."""
         clean_workspace()
 
-    def test_omnicache_new(self):
+    def test_omnicache_new(self) -> None:
+        """Test the creation of a new omnicache."""
         testcache = os.path.join(os.path.abspath(os.getcwd()), test_dir, "testcache")
 
         # create a new cache
@@ -152,7 +162,8 @@ class TestOmniCache(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             oc = omnicache.Omnicache(testcache, create=False, convert=False)
 
-    def test_omnicache_convert(self):
+    def test_omnicache_convert(self) -> None:
+        """Test the conversion of an existing git repo to an omnicache."""
         testcache = os.path.join(os.path.abspath(os.getcwd()), test_dir, "testcache")
 
         # create a new cache
@@ -251,7 +262,8 @@ class TestOmniCache(unittest.TestCase):
         assert not valid
         assert convertible
 
-    def test_omnicache_add_remove(self):
+    def test_omnicache_add_remove(self) -> None:
+        """Test the adding and removing of remotes."""
         testcache = os.path.join(os.path.abspath(os.getcwd()), test_dir, "testcache")
 
         # create a new cache
@@ -333,7 +345,8 @@ class TestOmniCache(unittest.TestCase):
         ret = oc.RemoveRemote("http://thisisnot.com/good.git")
         assert ret != 0
 
-    def test_omnicache_update(self):
+    def test_omnicache_update(self) -> None:
+        """Test the updating of remotes."""
         testcache = os.path.join(os.path.abspath(os.getcwd()), test_dir, "testcache")
 
         # create a new cache
@@ -383,7 +396,8 @@ class TestOmniCache(unittest.TestCase):
         ret = oc.UpdateRemote("https://not.a.real.url.com/git")
         assert ret != 0
 
-    def test_omnicache_fetch(self):
+    def test_omnicache_fetch(self) -> None:
+        """Test the fetching of remotes."""
         testcache = os.path.join(os.path.abspath(os.getcwd()), test_dir, "testcache")
 
         # create a new cache
@@ -414,7 +428,8 @@ class TestOmniCache(unittest.TestCase):
         # verify that tags were fetched into the omnicache
         assert len(os.listdir(os.path.join(testcache, "refs", "rtags", remoteName))) != 0
 
-    def test_omnicache_list(self):
+    def test_omnicache_list(self) -> None:
+        """Test the list command of omnicache."""
         testcache = os.path.join(os.path.abspath(os.getcwd()), test_dir, "testcache")
 
         # create a new cache
@@ -431,7 +446,8 @@ class TestOmniCache(unittest.TestCase):
 
         oc.List()
 
-    def test_config_files(self):
+    def test_config_files(self) -> None:
+        """Test the import/export of omnicache configuration."""
         testcache = os.path.join(os.path.abspath(os.getcwd()), test_dir, "testcache")
         testyaml = os.path.join(os.path.abspath(os.getcwd()), test_dir, "cfg.yaml")
 
@@ -497,7 +513,8 @@ class TestOmniCache(unittest.TestCase):
                 # not one of the URLs we populated above = bad.
                 assert remote["url"] not in remote.values()
 
-    def test_omnicache_main(self):
+    def test_omnicache_main(self) -> None:
+        """Test the main entry point of omnicache."""
         testcache = os.path.join(os.path.abspath(os.getcwd()), test_dir, "testcache")
         # shameless code coverage play
         oldargs = sys.argv

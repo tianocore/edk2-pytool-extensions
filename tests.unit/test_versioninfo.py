@@ -6,15 +6,17 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""Test the versioninfo_tool module."""
 
-import os
-import unittest
-import tempfile
-import json
 import copy
+import json
 import logging
+import os
 import shutil
+import tempfile
+import unittest
 from io import StringIO
+
 from edk2toolext.versioninfo import versioninfo_tool
 from edk2toollib.utility_functions import RunCmd
 
@@ -60,7 +62,10 @@ DUMMY_MINIMAL_DECODED = {
 }
 
 
-def check_for_err_helper(cls, temp_dir, json_input, err_msg, decode=False):
+def check_for_err_helper(
+    cls: unittest.TestCase, temp_dir: str, json_input: dict, err_msg: str, decode: bool = False
+) -> None:
+    """Check for an error message in the log stream."""
     with StringIO() as log_stream:
         log_handler = logging.StreamHandler(log_stream)
         log_handler.setLevel(logging.DEBUG)  # set the logger to get everything
@@ -78,7 +83,8 @@ def check_for_err_helper(cls, temp_dir, json_input, err_msg, decode=False):
         cls.assertTrue(returned_error)
 
 
-def compared_decoded_version_info(self, json_file_path, reference):
+def compared_decoded_version_info(self: unittest.TestCase, json_file_path: str, reference: dict) -> None:
+    """Compare the decoded JSON file to the reference dictionary."""
     try:
         generated_json = open(json_file_path)
         generated_dict = json.load(generated_json)
@@ -101,7 +107,10 @@ def compared_decoded_version_info(self, json_file_path, reference):
 
 
 class TestVersioninfo(unittest.TestCase):
-    def test_encode_decode_full(self):
+    """Test the versioninfo_tool module."""
+
+    def test_encode_decode_full(self) -> None:
+        """Test encode and decode works."""
         temp_dir = tempfile.mkdtemp()
         # Create the EXE file
         versioned_exe_path = os.path.join(temp_dir, DUMMY_EXE_FILE_NAME) + ".exe"
@@ -114,7 +123,8 @@ class TestVersioninfo(unittest.TestCase):
         # then we compare to make sure it matches what it should be
         compared_decoded_version_info(self, version_info_output_path, DUMMY_VALID_JSON)
 
-    def test_encode_decode_minimal(self):
+    def test_encode_decode_minimal(self) -> None:
+        """Test encode and decode works."""
         temp_dir = tempfile.mkdtemp()
         # Create the EXE file
         versioned_exe_path = os.path.join(temp_dir, DUMMY_EXE_FILE_NAME) + ".exe"
@@ -127,7 +137,8 @@ class TestVersioninfo(unittest.TestCase):
         # then we compare to make sure it matches what it should be
         compared_decoded_version_info(self, version_info_output_path, DUMMY_MINIMAL_DECODED)
 
-    def test_encode_minimal(self):
+    def test_encode_minimal(self) -> None:
+        """Test encode works."""
         temp_dir = tempfile.mkdtemp()
         # Create the parameters that will go to the service request function
         version_info_input_path = os.path.join(temp_dir, "in.json")
@@ -136,7 +147,8 @@ class TestVersioninfo(unittest.TestCase):
         obj = versioninfo_tool.encode_version_info(version_info_input_path)
         self.assertTrue(obj.validate_minimal())
 
-    def test_missing_varinfo(self):
+    def test_missing_varinfo(self) -> None:
+        """Test that the JSON file is validated correctly."""
         temp_dir = tempfile.mkdtemp()
         bad_json_file = os.path.join(temp_dir, BAD_JSON_FILE_NAME + ".json")
         bad_json = copy.deepcopy(DUMMY_VALID_JSON)
@@ -146,7 +158,8 @@ class TestVersioninfo(unittest.TestCase):
 
         check_for_err_helper(self, temp_dir, bad_json_file, "Missing required parameter: VARFILEINFO")
 
-    def test_missing_translation(self):
+    def test_missing_translation(self) -> None:
+        """Test that the JSON file is validated correctly."""
         temp_dir = tempfile.mkdtemp()
         bad_json_file = os.path.join(temp_dir, BAD_JSON_FILE_NAME + ".json")
         bad_json = copy.deepcopy(DUMMY_VALID_JSON)
@@ -156,7 +169,8 @@ class TestVersioninfo(unittest.TestCase):
 
         check_for_err_helper(self, temp_dir, bad_json_file, "Missing required parameter in VarFileInfo: Translation")
 
-    def test_invalid_varfileinfo(self):
+    def test_invalid_varfileinfo(self) -> None:
+        """Test that the JSON file is validated correctly."""
         temp_dir = tempfile.mkdtemp()
         bad_json_file = os.path.join(temp_dir, BAD_JSON_FILE_NAME + ".json")
         bad_json = copy.deepcopy(DUMMY_VALID_JSON)
@@ -166,7 +180,8 @@ class TestVersioninfo(unittest.TestCase):
 
         check_for_err_helper(self, temp_dir, bad_json_file, "Invalid VarFileInfo parameter: FileVersion")
 
-    def test_missing_companyname(self):
+    def test_missing_companyname(self) -> None:
+        """Test that the JSON file is validated correctly."""
         temp_dir = tempfile.mkdtemp()
         bad_json_file = os.path.join(temp_dir, BAD_JSON_FILE_NAME + ".json")
         bad_json = copy.deepcopy(DUMMY_VALID_JSON)
@@ -176,7 +191,8 @@ class TestVersioninfo(unittest.TestCase):
 
         check_for_err_helper(self, temp_dir, bad_json_file, "Missing required StringFileInfo parameter: CompanyName")
 
-    def test_version_overflow(self):
+    def test_version_overflow(self) -> None:
+        """Test that the JSON file is validated correctly."""
         temp_dir = tempfile.mkdtemp()
         bad_json_file = os.path.join(temp_dir, BAD_JSON_FILE_NAME + ".json")
         bad_json = copy.deepcopy(DUMMY_VALID_JSON)
@@ -186,7 +202,8 @@ class TestVersioninfo(unittest.TestCase):
 
         check_for_err_helper(self, temp_dir, bad_json_file, "Integer overflow in version string")
 
-    def test_invalid_version(self):
+    def test_invalid_version(self) -> None:
+        """Test that the JSON file is validated correctly."""
         temp_dir = tempfile.mkdtemp()
         bad_json_file = os.path.join(temp_dir, BAD_JSON_FILE_NAME + ".json")
         bad_json = copy.deepcopy(DUMMY_VALID_JSON)
@@ -198,7 +215,8 @@ class TestVersioninfo(unittest.TestCase):
             self, temp_dir, bad_json_file, 'Version must be in form " INTEGER.INTEGER.INTEGER.INTEGER"'
         )  # noqa
 
-    def test_bad_version_format(self):
+    def test_bad_version_format(self) -> None:
+        """Test that the JSON file is validated correctly."""
         temp_dir = tempfile.mkdtemp()
         bad_json_file = os.path.join(temp_dir, BAD_JSON_FILE_NAME + ".json")
         bad_json = copy.deepcopy(DUMMY_VALID_JSON)
@@ -208,7 +226,8 @@ class TestVersioninfo(unittest.TestCase):
 
         check_for_err_helper(self, temp_dir, bad_json_file, 'Version must be in form "INTEGER.INTEGER.INTEGER.INTEGER"')  # noqa
 
-    def test_invalid_language_code_value(self):
+    def test_invalid_language_code_value(self) -> None:
+        """Test that the JSON file is validated correctly."""
         temp_dir = tempfile.mkdtemp()
         bad_json_file = os.path.join(temp_dir, BAD_JSON_FILE_NAME + ".json")
         bad_json = copy.deepcopy(DUMMY_VALID_JSON)
@@ -220,7 +239,8 @@ class TestVersioninfo(unittest.TestCase):
             self, temp_dir, bad_json_file, f"Invalid language code: {bad_json['VarFileInfo']['Translation']}"
         )
 
-    def test_invalid_language_code_string(self):
+    def test_invalid_language_code_string(self) -> None:
+        """Test that the JSON file is validated correctly."""
         temp_dir = tempfile.mkdtemp()
         bad_json_file = os.path.join(temp_dir, BAD_JSON_FILE_NAME + ".json")
         bad_json = copy.deepcopy(DUMMY_VALID_JSON)
@@ -232,7 +252,8 @@ class TestVersioninfo(unittest.TestCase):
             self, temp_dir, bad_json_file, f"Invalid language code: {bad_json['VarFileInfo']['Translation']}"
         )
 
-    def test_invalid_language_code_format(self):
+    def test_invalid_language_code_format(self) -> None:
+        """Test that the JSON file is validated correctly."""
         temp_dir = tempfile.mkdtemp()
         bad_json_file = os.path.join(temp_dir, BAD_JSON_FILE_NAME + ".json")
         bad_json = copy.deepcopy(DUMMY_VALID_JSON)
@@ -244,7 +265,8 @@ class TestVersioninfo(unittest.TestCase):
             self, temp_dir, bad_json_file, "Translation field must contain 2 space delimited hexidecimal bytes"
         )  # noqa
 
-    def test_invalid_language_code_no_hex(self):
+    def test_invalid_language_code_no_hex(self) -> None:
+        """Test that the JSON file is validated correctly."""
         temp_dir = tempfile.mkdtemp()
         bad_json_file = os.path.join(temp_dir, BAD_JSON_FILE_NAME + ".json")
         bad_json = copy.deepcopy(DUMMY_VALID_JSON)
@@ -256,7 +278,8 @@ class TestVersioninfo(unittest.TestCase):
             self, temp_dir, bad_json_file, "Invalid language code: " + bad_json["VarFileInfo"]["Translation"]
         )
 
-    def test_invalid_fileos_hex(self):
+    def test_invalid_fileos_hex(self) -> None:
+        """Test that the JSON file is validated correctly."""
         temp_dir = tempfile.mkdtemp()
         bad_json_file = os.path.join(temp_dir, BAD_JSON_FILE_NAME + ".json")
         bad_json = copy.deepcopy(DUMMY_VALID_JSON)
@@ -266,7 +289,8 @@ class TestVersioninfo(unittest.TestCase):
 
         check_for_err_helper(self, temp_dir, bad_json_file, "Invalid FILEOS value: " + bad_json["FileOS"])
 
-    def test_invalid_fileos_string(self):
+    def test_invalid_fileos_string(self) -> None:
+        """Test that the JSON file is validated correctly."""
         temp_dir = tempfile.mkdtemp()
         bad_json_file = os.path.join(temp_dir, BAD_JSON_FILE_NAME + ".json")
         bad_json = copy.deepcopy(DUMMY_VALID_JSON)
@@ -276,7 +300,8 @@ class TestVersioninfo(unittest.TestCase):
 
         check_for_err_helper(self, temp_dir, bad_json_file, "Invalid FILEOS value: " + bad_json["FileOS"])
 
-    def test_invalid_filetype_hex(self):
+    def test_invalid_filetype_hex(self) -> None:
+        """Test that the JSON file is validated correctly."""
         temp_dir = tempfile.mkdtemp()
         bad_json_file = os.path.join(temp_dir, BAD_JSON_FILE_NAME + ".json")
         bad_json = copy.deepcopy(DUMMY_VALID_JSON)
@@ -288,7 +313,8 @@ class TestVersioninfo(unittest.TestCase):
             self, temp_dir, bad_json_file, "Invalid FILESUBTYPE value for FILETYPE " + bad_json["FileType"]
         )  # noqa
 
-    def test_invalid_filetype_string(self):
+    def test_invalid_filetype_string(self) -> None:
+        """Test that the JSON file is validated correctly."""
         temp_dir = tempfile.mkdtemp()
         bad_json_file = os.path.join(temp_dir, BAD_JSON_FILE_NAME + ".json")
         bad_json = copy.deepcopy(DUMMY_VALID_JSON)
@@ -300,7 +326,8 @@ class TestVersioninfo(unittest.TestCase):
             self, temp_dir, bad_json_file, "Invalid FILESUBTYPE value for FILETYPE " + bad_json["FileType"]
         )  # noqa
 
-    def test_invalid_filesubtype_drv(self):
+    def test_invalid_filesubtype_drv(self) -> None:
+        """Test that the JSON file is validated correctly."""
         temp_dir = tempfile.mkdtemp()
         bad_json_file = os.path.join(temp_dir, BAD_JSON_FILE_NAME + ".json")
         bad_json = copy.deepcopy(DUMMY_VALID_JSON)
@@ -313,7 +340,8 @@ class TestVersioninfo(unittest.TestCase):
             self, temp_dir, bad_json_file, "Invalid FILESUBTYPE value for FILETYPE VFT_DRV: VFT2_FONT_RASTER"
         )  # noqa
 
-    def test_invalid_filesubtype_font(self):
+    def test_invalid_filesubtype_font(self) -> None:
+        """Test that the JSON file is validated correctly."""
         temp_dir = tempfile.mkdtemp()
         bad_json_file = os.path.join(temp_dir, BAD_JSON_FILE_NAME + ".json")
         bad_json = copy.deepcopy(DUMMY_VALID_JSON)
@@ -326,7 +354,8 @@ class TestVersioninfo(unittest.TestCase):
             self, temp_dir, bad_json_file, "Invalid FILESUBTYPE value for FILETYPE VFT_FONT: VFT2_DRV_SOUND"
         )  # noqa
 
-    def test_missing_filetype(self):
+    def test_missing_filetype(self) -> None:
+        """Test that the JSON file is validated correctly."""
         temp_dir = tempfile.mkdtemp()
         bad_json_file = os.path.join(temp_dir, BAD_JSON_FILE_NAME + ".json")
         bad_json = copy.deepcopy(DUMMY_VALID_JSON)
@@ -338,7 +367,8 @@ class TestVersioninfo(unittest.TestCase):
             self, temp_dir, bad_json_file, "Missing parameter: must have FileType if FileSubtype defined"
         )
 
-    def test_no_stringinfo_header(self):
+    def test_no_stringinfo_header(self) -> None:
+        """Test that the JSON file is validated correctly."""
         temp_dir = tempfile.mkdtemp()
         bad_json_file = os.path.join(temp_dir, BAD_JSON_FILE_NAME + ".json")
         bad_json = copy.deepcopy(DUMMY_VALID_JSON)
@@ -357,20 +387,21 @@ class TestVersioninfo(unittest.TestCase):
 
         check_for_err_helper(self, temp_dir, bad_json_file, err_str)
 
-    def test_bad_input_path(self):
-        """check to make sure we throw an exception"""
+    def test_bad_input_path(self) -> None:
+        """Check to make sure we throw an exception."""
         try:
             check_for_err_helper(self, ".", "bad/path/to/file.json", "Could not find bad/path/to/file.json\n")
             self.fail("We shouldn't have found the file")
         except FileNotFoundError:
             pass
 
-    def test_command_line_interface(self):
-        """makes sure the command line interface is working correctly"""
+    def test_command_line_interface(self) -> None:
+        """Makes sure the command line interface is working correctly."""
         ret = RunCmd("versioninfo_tool", "-h", logging_level=logging.ERROR)
         self.assertEqual(ret, 0)
 
-    def test_non_pe_file(self):
+    def test_non_pe_file(self) -> None:
+        """Test that the JSON file is validated correctly."""
         temp_dir = tempfile.mkdtemp()
         bad_pe = os.path.join(temp_dir, DUMMY_JSON_FILE_NAME + ".bad")
 
@@ -379,7 +410,8 @@ class TestVersioninfo(unittest.TestCase):
 
         check_for_err_helper(self, temp_dir, bad_pe, "DOS Header magic not found", True)
 
-    def test_invalid_json_format1(self):
+    def test_invalid_json_format1(self) -> None:
+        """Test that the JSON file is validated correctly."""
         temp_dir = tempfile.mkdtemp()
         bad_json_file = os.path.join(temp_dir, BAD_JSON_FILE_NAME + ".json")
         bad_json = """
@@ -410,7 +442,8 @@ class TestVersioninfo(unittest.TestCase):
 
         check_for_err_helper(self, temp_dir, bad_json_file, "Invalid JSON format, Extra data")
 
-    def test_invalid_json_format2(self):
+    def test_invalid_json_format2(self) -> None:
+        """Test that the JSON file is validated correctly."""
         temp_dir = tempfile.mkdtemp()
         bad_json_file = os.path.join(temp_dir, BAD_JSON_FILE_NAME + ".json")
         bad_json = """ {
@@ -444,7 +477,8 @@ class TestVersioninfo(unittest.TestCase):
             self, temp_dir, bad_json_file, "Invalid JSON format, Expecting property name enclosed in double quotes"
         )  # noqa
 
-    def test_invalid_json_format3(self):
+    def test_invalid_json_format3(self) -> None:
+        """Test that the JSON file is validated correctly."""
         temp_dir = tempfile.mkdtemp()
         bad_json_file = os.path.join(temp_dir, BAD_JSON_FILE_NAME + ".json")
         bad_json = """ {
@@ -476,7 +510,8 @@ class TestVersioninfo(unittest.TestCase):
 
         check_for_err_helper(self, temp_dir, bad_json_file, "Invalid JSON format, Expecting ',' delimiter")  # noqa
 
-    def test_invalid_minimal_fields(self):
+    def test_invalid_minimal_fields(self) -> None:
+        """Test that the minimal fields are validated correctly."""
         temp_dir = tempfile.mkdtemp()
         bad_json_file = os.path.join(temp_dir, BAD_JSON_FILE_NAME + ".json")
         bad_json = {
@@ -490,7 +525,8 @@ class TestVersioninfo(unittest.TestCase):
 
         check_for_err_helper(self, temp_dir, bad_json_file, "Invalid minimal parameter: FILETYPE")
 
-    def test_invalid_minimal_value(self):
+    def test_invalid_minimal_value(self) -> None:
+        """Tests that the minimal parameter must be a boolean."""
         temp_dir = tempfile.mkdtemp()
         bad_json_file = os.path.join(temp_dir, BAD_JSON_FILE_NAME + ".json")
         bad_json = {

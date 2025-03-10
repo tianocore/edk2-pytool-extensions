@@ -6,42 +6,54 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
-import unittest
+"""Unit test for the ICiBuildPlugin class."""
+
 import os
-import tempfile
 import shutil
+import tempfile
+import unittest
+
 from edk2toolext.environment.plugintypes.ci_build_plugin import ICiBuildPlugin
 
 
 class TestICiBuildPlugin(unittest.TestCase):
-    def __init__(self, *args, **kwargs):
+    """Unit test for the ICiBuildPlugin class."""
+
+    def __init__(self, *args, **kwargs) -> None:  # noqa: ANN002, ANN003
+        """Initialize the TestICiBuildPlugin class."""
         self.test_dir = None
         super().__init__(*args, **kwargs)
 
-    def prep_workspace(self):
+    def prep_workspace(self) -> None:
+        """Prepare a temporary workspace."""
         self.clean_workspace()
         self.test_dir = tempfile.mkdtemp()
 
-    def clean_workspace(self):
+    def clean_workspace(self) -> None:
+        """Clean up the workspace."""
         if self.test_dir is None:
             return
         if os.path.isdir(self.test_dir):
             shutil.rmtree(self.test_dir)
             self.test_dir = None
 
-    def setUp(self):
+    def setUp(self) -> None:
+        """Create a temporary workspace."""
         self.prep_workspace()
 
-    def tearDown(self):
+    def tearDown(self) -> None:
+        """Restore the initial checkpoint."""
         self.clean_workspace()
 
-    def test_basic_api(self):
+    def test_basic_api(self) -> None:
+        """Test that the ICiBuildPlugin class has the expected API."""
         plugin = ICiBuildPlugin()
         self.assertIsNone(plugin.GetTestName("", ""))
         self.assertIsNone(plugin.RunBuildPlugin("", "", "", "", "", "", "", ""))
         self.assertIn("NO-TARGET", plugin.RunsOnTargetList())
 
-    def test_invalid_parameters_WalkDirectoryForExtension(self):
+    def test_invalid_parameters_WalkDirectoryForExtension(self) -> None:
+        """Test that the WalkDirectoryForExtension function can handle invalid parameters."""
         plugin = ICiBuildPlugin()
 
         with self.assertRaises(TypeError) as context:
@@ -64,7 +76,8 @@ class TestICiBuildPlugin(unittest.TestCase):
             plugin.WalkDirectoryForExtension([".py"], self.test_dir, "")
         self.assertTrue("ignorelist must be a list" in str(context.exception))
 
-    def test_valid_parameters_WalkDirectoryForExtension(self):
+    def test_valid_parameters_WalkDirectoryForExtension(self) -> None:
+        """Test that the WalkDirectoryForExtension function can find files."""
         plugin = ICiBuildPlugin()
 
         with open(os.path.join(self.test_dir, "junk.txt"), "w") as the_file:
@@ -91,7 +104,8 @@ class TestICiBuildPlugin(unittest.TestCase):
         result = plugin.WalkDirectoryForExtension([".tXt", ".PY"], self.test_dir)
         self.assertEqual(len(result), 2)
 
-    def test_valid_parameters_ignore_WalkDirectoryForExtension(self):
+    def test_valid_parameters_ignore_WalkDirectoryForExtension(self) -> None:
+        """Test that the WalkDirectoryForExtension function can ignore files."""
         plugin = ICiBuildPlugin()
 
         # setup test dir with a few files
@@ -112,7 +126,8 @@ class TestICiBuildPlugin(unittest.TestCase):
         result = plugin.WalkDirectoryForExtension([".txt", ".py"], self.test_dir, ["junk", "file2"])
         self.assertEqual(len(result), 0)
 
-    def test_valid_parameters_ignore_caseinsensitive_WalkDirectoryForExtension(self):
+    def test_valid_parameters_ignore_caseinsensitive_WalkDirectoryForExtension(self) -> None:
+        """Test that the WalkDirectoryForExtension function can ignore files in a case insensitive manner."""
         plugin = ICiBuildPlugin()
 
         # setup test dir with a few files

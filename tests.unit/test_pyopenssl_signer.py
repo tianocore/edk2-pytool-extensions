@@ -5,8 +5,11 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
+"""Unit test for the pyopenssl_signer module."""
+
 import unittest
 from base64 import b64decode
+
 from edk2toolext.capsule import pyopenssl_signer
 
 r"""
@@ -169,11 +172,15 @@ R7oStX6AVc66qjoj9/dgAPJTqLBwICB9A="
 
 
 class Test_pyopenssl_signer(unittest.TestCase):
-    def test_empty(self):
+    """Unit test for the pyopenssl_signer module."""
+
+    def test_empty(self) -> None:
+        """Test that the sign function raises an error with bad options."""
         with self.assertRaises((KeyError, ValueError)):
             pyopenssl_signer.sign(None, {}, {})
 
-    def test_proper_options_good_key_no_pass(self):
+    def test_proper_options_good_key_no_pass(self) -> None:
+        """Test that the sign function works with good options."""
         signer = {"key_file_format": "pkcs12", "key_data": b64decode(TESTCERT1)}
         signature = {
             "type": "bare",
@@ -183,7 +190,8 @@ class Test_pyopenssl_signer(unittest.TestCase):
         data = "Data for testing signer".encode()
         pyopenssl_signer.sign(data, signature, signer)
 
-    def test_proper_options_good_key_pass(self):
+    def test_proper_options_good_key_pass(self) -> None:
+        """Test that the sign function works with good options."""
         signer = {"key_file_format": "pkcs12", "key_data": b64decode(TESTCERT2), "key_file_password": "password"}
         signature = {
             "type": "bare",
@@ -193,7 +201,8 @@ class Test_pyopenssl_signer(unittest.TestCase):
         data = "Data for testing signer".encode()
         pyopenssl_signer.sign(data, signature, signer)
 
-    def test_proper_options_bad_key(self):
+    def test_proper_options_bad_key(self) -> None:
+        """Test that the sign function raises an error with bad options."""
         # we're going to assume that we're
         with self.assertRaises(ValueError):
             signer = {"key_file_format": "pkcs12", "key_data": "hello there"}
@@ -204,7 +213,8 @@ class Test_pyopenssl_signer(unittest.TestCase):
             }
             pyopenssl_signer.sign(None, signature, signer)
 
-    def test_invalid_type(self):
+    def test_invalid_type(self) -> None:
+        """Test that the sign function raises an error with bad options."""
         # we're going to assume that we're
         with self.assertRaises(ValueError):
             signature = {
@@ -212,7 +222,8 @@ class Test_pyopenssl_signer(unittest.TestCase):
             }
             pyopenssl_signer.sign(None, signature, {})
 
-    def test_invalid_type_options(self):
+    def test_invalid_type_options(self) -> None:
+        """Test that the sign function raises an error with bad options."""
         # we're going to assume that we're
         with self.assertRaises(ValueError):
             signature = {"type": "bare", "type_options": "not allowed"}

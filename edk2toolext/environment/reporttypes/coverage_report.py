@@ -111,8 +111,7 @@ class CoverageReport(Report):
             dest="exclude",
             action=SplitCommaAction,
             default=[],
-            help="Package path relative paths or file (.txt). Globbing is supported. Can be "
-            "specified multiple times",
+            help="Package path relative paths or file (.txt). Globbing is supported. Can be specified multiple times",
         )
         parserobj.add_argument(
             "-p",
@@ -129,7 +128,7 @@ class CoverageReport(Report):
             action="store_true",
             dest="flatten",
             default=False,
-            help="Flatten the report to only source files. This removes duplicate files that are in " "multiple INFs.",
+            help="Flatten the report to only source files. This removes duplicate files that are in multiple INFs.",
         )
         group = parserobj.add_argument_group("Deprecated Options")
         group.add_argument(

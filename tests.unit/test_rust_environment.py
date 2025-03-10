@@ -2,15 +2,15 @@
 """Rust Environment module unit tests."""
 
 import unittest
-from unittest.mock import mock_open, patch, MagicMock
+from unittest.mock import MagicMock, mock_open, patch
 
 from edk2toolext.environment.rust import (
+    CustomToolFilter,
     RustToolChainInfo,
     RustToolInfo,
-    CustomToolFilter,
+    _get_required_tool_versions,
     _is_corrupted_component,
     _verify_cmd,
-    _get_required_tool_versions,
     _verify_rust_src_component_is_installed,
     run,
     verify_workspace_rust_toolchain_is_installed,
@@ -21,7 +21,8 @@ class RustEnvironmentTests(unittest.TestCase):
     """Rust Environment unit tests."""
 
     @classmethod
-    def _mock_run_cmd(cls, tool_name: str, tool_params: str, **kwargs: dict[str, any]):
+    def _mock_run_cmd(cls, tool_name: str, tool_params: str, **kwargs: dict[str, any]) -> None:
+        """Mock RunCmd function for testing."""
         if tool_name == "rustc":
             if any(p in tool_params for p in ["--version", "-V"]):
                 if any(p in tool_params for p in ["--verbose", "-v"]):
@@ -196,7 +197,8 @@ class RustEnvironmentTests(unittest.TestCase):
     def _mock_get_workspace_toolchain_version(cls) -> RustToolChainInfo:
         return RustToolChainInfo(error=False, toolchain="1.76.0")
 
-    def test_is_corrupted_component(self):
+    def test_is_corrupted_component(self) -> None:
+        """Test that _is_corrupted_component() works as expected."""
         tool = RustToolInfo(
             presence_cmd=("rustc", "--version"),
             install_help="Install Rust compiler using rustup",
@@ -214,7 +216,8 @@ class RustEnvironmentTests(unittest.TestCase):
         self.assertFalse(_is_corrupted_component(tool, cmd_output))
 
     @patch("edk2toolext.environment.rust.RunCmd")
-    def test_verify_cmd(self, mock_run_cmd: MagicMock):
+    def test_verify_cmd(self, mock_run_cmd: MagicMock) -> None:
+        """Test that _verify_cmd() works as expected."""
         working_tool = RustToolInfo(
             presence_cmd=("rustc", "--version"),
             install_help="Install Rust compiler using rustup",
@@ -294,7 +297,8 @@ class RustEnvironmentTests(unittest.TestCase):
         result = _verify_cmd(filter_no_error_test_tool, custom_filters)
         self.assertEqual(result, 0)
 
-    def test_get_required_tool_versions_empty(self):
+    def test_get_required_tool_versions_empty(self) -> None:
+        """Test that _get_required_tool_versions() returns an empty dict when the toolchain file is empty."""
         versions = _get_required_tool_versions()
         self.assertIsInstance(versions, dict)
         self.assertEqual(len(versions), 0)
@@ -305,13 +309,15 @@ class RustEnvironmentTests(unittest.TestCase):
         self,
         mock_get_workspace_toolchain_version: MagicMock,
         mock_run_cmd: MagicMock,
-    ):
+    ) -> None:
+        """Test that _verify_rust_src_component_is_installed() works as expected."""
         mock_run_cmd.side_effect = self._mock_run_cmd
         mock_get_workspace_toolchain_version.side_effect = self._mock_get_workspace_toolchain_version
         result = _verify_rust_src_component_is_installed()
         self.assertTrue(result)
 
-    def test_get_required_tool_versions(self):
+    def test_get_required_tool_versions(self) -> None:
+        """Test that _get_required_tool_versions() works as expected."""
         test_data = [
             '[toolchain]\nchannel = "1.76.0"\n\n[tool]\ncargo-make = "0.37.9"\ncargo-tarpaulin = "0.27.3"',
             '[toolchain]\nchannel = "1.76.0"\n\n[tools]\ncargo-make = "0.37.9"\ncargo-tarpaulin = "0.27.3"',
@@ -331,7 +337,8 @@ class RustEnvironmentTests(unittest.TestCase):
             assert tool_versions == {}
 
     @patch("edk2toolext.environment.rust.RunCmd")
-    def test_verify_workspace_rust_toolchain_is_installed(self, mock_run_cmd: MagicMock):
+    def test_verify_workspace_rust_toolchain_is_installed(self, mock_run_cmd: MagicMock) -> None:
+        """Test that verify_workspace_rust_toolchain_is_installed() works as expected."""
         mock_run_cmd.side_effect = self._mock_run_cmd
 
         # Test when the toolchain is not found
@@ -354,7 +361,8 @@ class RustEnvironmentTests(unittest.TestCase):
 
     @patch("edk2toolext.environment.rust.logging")
     @patch("edk2toolext.environment.rust.RunCmd")
-    def test_run_success(self, mock_run_cmd, mock_logging):
+    def test_run_success(self, mock_run_cmd: MagicMock, mock_logging: MagicMock) -> None:
+        """Test that run() returns 0 when all tools are present and no filters match."""
         mock_run_cmd.return_value = 0
         custom_tool_checks = {
             "custom_tool": RustToolInfo(
@@ -377,7 +385,8 @@ class RustEnvironmentTests(unittest.TestCase):
 
     @patch("edk2toolext.environment.rust.logging")
     @patch("edk2toolext.environment.rust.RunCmd")
-    def test_run_missing_tool(self, mock_run_cmd, mock_logging):
+    def test_run_missing_tool(self, mock_run_cmd: MagicMock, mock_logging: MagicMock) -> None:
+        """Test that run() returns 1 and logs an error when a tool is missing."""
         mock_run_cmd.return_value = 1
         custom_tool_checks = {
             "custom_tool": RustToolInfo(

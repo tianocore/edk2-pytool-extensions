@@ -11,12 +11,13 @@ Used in conjunction with mkdocs to generate static markdown files for each
 file inside the edk2toolext package for ReadTheDocs hosting.
 """
 
-import mkdocs_gen_files
 import glob
 import os
 
+import mkdocs_gen_files
 
-def main():
+
+def main() -> None:
     """Entry into script that is executed."""
     files = glob.glob("**/*.py", recursive=True, root_dir="edk2toolext")
 

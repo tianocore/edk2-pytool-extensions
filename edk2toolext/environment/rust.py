@@ -390,7 +390,7 @@ def run(
                     f"Rust Environment Failure: {tool_name} is not installed "
                     "or not on the system path.\n\n"
                     f"Instructions:\n{tool_info.install_help}\n\n"
-                    f"Ensure \"{' '.join(tool_info.presence_cmd)}\" can "
+                    f'Ensure "{" ".join(tool_info.presence_cmd)}" can '
                     "successfully be run from a terminal before trying again."
                 )
                 errors += 1
