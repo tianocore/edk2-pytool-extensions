@@ -55,7 +55,7 @@ publish = [
     "twine == 6.1.0",
 ]
 docs = [
-    "black==24.10.0",
+    "black==25.1.0",
     "mkdocs==1.6.1",
     "mkdocs-material==9.5.40",
     "mkdocstrings[python]==0.27.0",
