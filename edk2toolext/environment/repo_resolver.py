@@ -17,8 +17,9 @@ edk2_setup.py, and git_dependency.py use this module to perform git operations.
 
 import logging
 import os
+import time
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 
 from edk2toollib.utility_functions import version_compare
 from git import GitCommandError, InvalidGitRepositoryError, NoSuchPathError, Repo
@@ -261,7 +262,7 @@ def repo_details(abs_file_system_path: os.PathLike) -> dict:
             details["Head"] = {"HexSha": str(repo.head.commit.hexsha), "HexShaShort": str(repo.head.commit.hexsha[:7])}
             details["Valid"] = True
             details["Bare"] = repo.bare
-            details["Dirty"] = repo.is_dirty(untracked_files=True)
+            details["Dirty"] = git_retry(5, repo.is_dirty, untracked_files=True)
             details["Initialized"] = True
             details["Submodules"] = [submodule.name for submodule in repo.submodules]
             details["Remotes"] = [remote.name for remote in repo.remotes]
@@ -530,3 +531,32 @@ def submodule_resolve(
 
     with Repo(Path(abs_file_system_path, submodule.path)) as _:
         logger.debug(f"{submodule.path} is valid and resolved.")
+
+
+def git_retry(attempts: int, func: Callable, *args: str, **kwargs: dict[str, any]) -> any:
+    """Retry a function a given number of times before failing.
+
+    Args:
+        attempts (int): The number of times to retry the function
+        func (Callable): The function to call
+        *args (str): Arguments to pass to the function
+        **kwargs (dict[str, any]): Keyword arguments to pass to the function
+
+    Returns:
+        The result of the function
+
+    Raises:
+        (Exception): If the function fails after multiple retries
+    """
+    for attempt in range(attempts):
+        try:
+            return func(*args, **kwargs)
+        except GitCommandError as gce:
+            if attempt < attempts - 1:
+                logger.warning(
+                    f"WARNING: An error occurred ({gce.status}) when running a git operation ({str(func)}). "
+                    f"Retrying {attempts - attempt - 1} more times."
+                )
+                time.sleep(1)
+            else:
+                raise
