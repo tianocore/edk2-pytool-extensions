@@ -191,7 +191,7 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
         logging.info(f"Database generated at {db_path}.")
 
         full_end_time = timeit.default_timer()
-        logging.info(f"Time to Complete Parse: {full_end_time - full_start_time}")
+        logging.info(f"Time to Complete Parse: {(full_end_time - full_start_time):.3f} s")
 
         return 0
 

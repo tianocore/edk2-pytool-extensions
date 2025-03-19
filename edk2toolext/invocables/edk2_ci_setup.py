@@ -151,7 +151,7 @@ class Edk2CiBuildSetup(Edk2MultiPkgAwareInvocable):
         logging.info(f"Repo resolver resolved {repos}")
 
         full_end_time = timeit.default_timer()
-        logging.info(f"Time to Complete CI Setup: {full_end_time - full_start_time}")
+        logging.info(f"Time to Complete CI Setup: {(full_end_time - full_start_time):.3f} s")
 
         return 0 if None not in repos else -1
 

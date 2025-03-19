@@ -229,7 +229,7 @@ def repo_details(abs_file_system_path: os.PathLike) -> dict:
     start_time = timeit.default_timer()
     git_version = ".".join(map(str, Git().version_info))
     end_time = timeit.default_timer()
-    logging.debug(f"Time to Get Git Version: {end_time - start_time}")
+    logging.debug(f"Time to Get Git Version: {(end_time - start_time):.3f} s")
     if version_compare(git_version, MIN_GIT_VERSION) < 0:
         e = f"Upgrade Git! Current version is {git_version}. Minimum is {MIN_GIT_VERSION}"
         logging.error(e)

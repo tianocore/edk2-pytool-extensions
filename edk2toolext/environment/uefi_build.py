@@ -409,7 +409,7 @@ class UefiBuilder(object):
             logging.log(level, problem)
 
         build_end_time = timeit.default_timer()
-        logging.debug(f"Time to Build: {build_end_time - build_start_time}")
+        logging.debug(f"Time to Build: {(build_end_time - build_start_time):.3f} s")
 
         if ret != 0:
             return ret
@@ -430,7 +430,9 @@ class UefiBuilder(object):
         platform_pre_build_start_time = timeit.default_timer()
         ret = self.PlatformPreBuild()
         platform_pre_build_end_time = timeit.default_timer()
-        logging.debug(f"Time to run PlatformPreBuild: {platform_pre_build_end_time - platform_pre_build_start_time}")
+        logging.debug(
+            f"Time to run PlatformPreBuild: {(platform_pre_build_end_time - platform_pre_build_start_time):.3f} s"
+        )
 
         if ret != 0:
             logging.critical("PlatformPreBuild failed %d" % ret)
@@ -442,7 +444,10 @@ class UefiBuilder(object):
             plugin_start_time = timeit.default_timer()
             rc = Descriptor.Obj.do_pre_build(self)
             plugin_end_time = timeit.default_timer()
-            logging.debug(f"Time to run do_pre_build() for {Descriptor.Name}: {plugin_end_time - plugin_start_time}")
+            logging.debug(
+                f"Time to run do_pre_build() for {Descriptor.Name}: "
+                f"{((plugin_end_time - plugin_start_time) * 1000):.3f} ms"
+            )
             if rc != 0:
                 if rc is None:
                     logging.error("Plugin Failed: %s returned NoneType" % Descriptor.Name)
@@ -455,7 +460,7 @@ class UefiBuilder(object):
                 logging.debug("Plugin Success: %s" % Descriptor.Name)
 
         prebuild_end_time = timeit.default_timer()
-        logging.debug(f"Time to PreBuild: {prebuild_end_time - prebuild_start_time}")
+        logging.debug(f"Time to PreBuild: {(prebuild_end_time - prebuild_start_time):.3f} s")
 
         return ret
 
@@ -473,7 +478,9 @@ class UefiBuilder(object):
         platform_post_build_start_time = timeit.default_timer()
         ret = self.PlatformPostBuild()
         platform_post_build_end_time = timeit.default_timer()
-        logging.debug(f"Time to run PlatformPostBuild: {platform_post_build_end_time - platform_post_build_start_time}")
+        logging.debug(
+            f"Time to run PlatformPostBuild: {(platform_post_build_end_time - platform_post_build_start_time):.3f} s"
+        )
 
         if ret != 0:
             logging.critical("PlatformPostBuild failed %d" % ret)
@@ -486,7 +493,10 @@ class UefiBuilder(object):
             plugin_start_time = timeit.default_timer()
             rc = Descriptor.Obj.do_post_build(self)
             plugin_end_time = timeit.default_timer()
-            logging.debug(f"Time to run do_post_build() for {Descriptor.Name}: {plugin_end_time - plugin_start_time}")
+            logging.debug(
+                f"Time to run do_post_build() for {Descriptor.Name}: "
+                f"{((plugin_end_time - plugin_start_time) * 1000):.3f} ms"
+            )
             if rc != 0:
                 if rc is None:
                     logging.error("Plugin Failed: %s returned NoneType" % Descriptor.Name)
@@ -499,7 +509,7 @@ class UefiBuilder(object):
                 logging.debug("Plugin Success: %s" % Descriptor.Name)
 
         postbuild_end_time = timeit.default_timer()
-        logging.debug(f"Time to PostBuild: {postbuild_end_time - postbuild_start_time}")
+        logging.debug(f"Time to PostBuild: {(postbuild_end_time - postbuild_start_time):.3f} s")
 
         return ret
 
@@ -605,7 +615,7 @@ class UefiBuilder(object):
             self.env.SetValue(env_var.name, env_var.default, "Default Critical Platform Env Value.")
 
         setenv_end_time = timeit.default_timer()
-        logging.debug(f"Time to SetEnv: {setenv_end_time - setenv_start_time}")
+        logging.debug(f"Time to SetEnv: {(setenv_end_time - setenv_start_time):.3f} s")
 
         return 0
 
@@ -740,7 +750,7 @@ class UefiBuilder(object):
             return -1
 
         parse_target_file_end_time = timeit.default_timer()
-        logging.debug(f"Time to ParseTargetFile: {parse_target_file_end_time - parse_target_file_start_time}")
+        logging.debug(f"Time to ParseTargetFile: {(parse_target_file_end_time - parse_target_file_start_time):.3f} s")
 
         return 0
 
@@ -777,7 +787,9 @@ class UefiBuilder(object):
             return -1
 
         parse_toolsdef_file_end_time = timeit.default_timer()
-        logging.debug(f"Time to ParseToolsDefFile: {parse_toolsdef_file_end_time - parse_toolsdef_file_start_time}")
+        logging.debug(
+            f"Time to ParseToolsDefFile: {(parse_toolsdef_file_end_time - parse_toolsdef_file_start_time):.3f} s"
+        )
 
         return 0
 
@@ -813,7 +825,7 @@ class UefiBuilder(object):
             return -1
 
         parse_dsc_file_end_time = timeit.default_timer()
-        logging.debug(f"Time to ParseDscFile: {parse_dsc_file_end_time - parse_dsc_file_start_time}")
+        logging.debug(f"Time to ParseDscFile: {(parse_dsc_file_end_time - parse_dsc_file_start_time):.3f} s")
 
         return 0
 
@@ -850,7 +862,7 @@ class UefiBuilder(object):
             return -2
 
         parse_fdf_file_end_time = timeit.default_timer()
-        logging.debug(f"Time to ParseFdfFile: {parse_fdf_file_end_time - parse_fdf_file_start_time}")
+        logging.debug(f"Time to ParseFdfFile: {(parse_fdf_file_end_time - parse_fdf_file_start_time):.3f} s")
 
         return 0
 

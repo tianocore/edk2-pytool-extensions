@@ -317,7 +317,7 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
             edk2_logging.log_progress("Overall Build Status: Success")
 
         full_end_time = timeit.default_timer()
-        logging.debug(f"Time to Complete CI Build: {full_end_time - full_start_time}")
+        logging.debug(f"Time to Complete CI Build: {(full_end_time - full_start_time):.3f} s")
 
         return failure_num
 

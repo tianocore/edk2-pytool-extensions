@@ -216,7 +216,7 @@ class BaseAbstractInvocable(object):
             self.GetWorkspaceRoot(), self.GetActiveScopes(), self.GetSkippedDirectories()
         )
         end_time = timeit.default_timer()
-        logging.debug(f"Time to Bootstrap Environment: {end_time - start_time}")
+        logging.debug(f"Time to Bootstrap Environment: {(end_time - start_time):.3f} s")
 
         start_time = timeit.default_timer()
         # Make sure the environment verifies IF it is required for this invocation
@@ -228,7 +228,7 @@ class BaseAbstractInvocable(object):
                 "Consider running stuart_update to possibly resolve this issue."
             )
         end_time = timeit.default_timer()
-        logging.debug(f"Time to Verify Environment: {end_time - start_time}")
+        logging.debug(f"Time to Verify Environment: {(end_time - start_time):.3f} s")
 
         start_time = timeit.default_timer()
 
@@ -248,11 +248,11 @@ class BaseAbstractInvocable(object):
             raise Exception("One or more helper plugins failed to load.")
 
         end_time = timeit.default_timer()
-        logging.debug(f"Time to Load Plugins: {end_time - start_time}")
+        logging.debug(f"Time to Load Plugins: {(end_time - start_time):.3f} s")
 
         logging.log(edk2_logging.SECTION, "Start Invocable Tool")
         overall_end_time = timeit.default_timer()
-        logging.debug(f"Time to Start Invocable: {overall_end_time - overall_start_time}")
+        logging.debug(f"Time to Start Invocable: {(overall_end_time - overall_start_time):.3f} s")
         retcode = self.Go()
         logging.log(edk2_logging.SECTION, "Summary")
         if retcode != 0:

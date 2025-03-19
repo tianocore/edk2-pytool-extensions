@@ -175,7 +175,7 @@ class Edk2PlatformBuild(Edk2Invocable):
         # Now we can actually kick off a build.
         #
         full_end_time = timeit.default_timer()
-        logging.debug(f"Time to Kick Off Platform Build: {full_end_time - full_start_time}")
+        logging.debug(f"Time to Kick Off Platform Build: {(full_end_time - full_start_time):.3f} s")
 
         logging.log(edk2_logging.SECTION, "Kicking off build")
         ret = self.PlatformBuilder.Go(pathobj.WorkspacePath, os.pathsep.join(pathobj.PackagePathList), helper, pm)

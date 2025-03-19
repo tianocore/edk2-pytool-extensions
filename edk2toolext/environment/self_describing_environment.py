@@ -68,7 +68,7 @@ class self_describing_environment(object):
                 ):
                     self.skipped_dirs += (worktree_path,)
         end_time = timeit.default_timer()
-        logging.debug(f"Time to Check for Worktrees: {end_time - start_time}")
+        logging.debug(f"Time to Check for Worktrees: {(end_time - start_time):.3f} s")
 
         # Validate that all scopes are unique.
         if len(self.scopes) != len(set(self.scopes)):
@@ -111,7 +111,7 @@ class self_describing_environment(object):
         start_time = timeit.default_timer()
         env_files = self._gather_env_files(("path_env", "ext_dep", "plug_in"), self.workspace)
         end_time = timeit.default_timer()
-        logging.debug(f"Time to Gather Env Files: {end_time - start_time}")
+        logging.debug(f"Time to Gather Env Files: {(end_time - start_time):.3f} s")
 
         # Next, get a list of all our scopes
         all_scopes_lower = [x.lower() for x in self.scopes]
