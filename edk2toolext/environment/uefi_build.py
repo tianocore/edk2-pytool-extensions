@@ -427,7 +427,10 @@ class UefiBuilder(object):
         #
         # Run the platform pre-build steps.
         #
+        platform_pre_build_start_time = timeit.default_timer()
         ret = self.PlatformPreBuild()
+        platform_pre_build_end_time = timeit.default_timer()
+        logging.debug(f"Time to run PlatformPreBuild: {platform_pre_build_end_time - platform_pre_build_start_time}")
 
         if ret != 0:
             logging.critical("PlatformPreBuild failed %d" % ret)
@@ -436,7 +439,10 @@ class UefiBuilder(object):
         # run all loaded UefiBuild Plugins
         #
         for Descriptor in self.pm.GetPluginsOfClass(IUefiBuildPlugin):
+            plugin_start_time = timeit.default_timer()
             rc = Descriptor.Obj.do_pre_build(self)
+            plugin_end_time = timeit.default_timer()
+            logging.debug(f"Time to run do_pre_build() for {Descriptor.Name}: {plugin_end_time - plugin_start_time}")
             if rc != 0:
                 if rc is None:
                     logging.error("Plugin Failed: %s returned NoneType" % Descriptor.Name)
@@ -464,7 +470,10 @@ class UefiBuilder(object):
         #
         # Run the platform post-build steps.
         #
+        platform_post_build_start_time = timeit.default_timer()
         ret = self.PlatformPostBuild()
+        platform_post_build_end_time = timeit.default_timer()
+        logging.debug(f"Time to run PlatformPostBuild: {platform_post_build_end_time - platform_post_build_start_time}")
 
         if ret != 0:
             logging.critical("PlatformPostBuild failed %d" % ret)
@@ -474,7 +483,10 @@ class UefiBuilder(object):
         # run all loaded UefiBuild Plugins
         #
         for Descriptor in self.pm.GetPluginsOfClass(IUefiBuildPlugin):
+            plugin_start_time = timeit.default_timer()
             rc = Descriptor.Obj.do_post_build(self)
+            plugin_end_time = timeit.default_timer()
+            logging.debug(f"Time to run do_post_build() for {Descriptor.Name}: {plugin_end_time - plugin_start_time}")
             if rc != 0:
                 if rc is None:
                     logging.error("Plugin Failed: %s returned NoneType" % Descriptor.Name)
