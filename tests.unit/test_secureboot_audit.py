@@ -102,9 +102,6 @@ class TestSecureBootReport(unittest.TestCase):
 
         revocations = convert_uefi_org_revocation_file_to_dict(csv_file)
 
-        with open("uefi_org_revocations2.json", "w") as rev_fs:
-            json.dump(revocations, rev_fs)
-
         revocations_file = os.path.join(TEST_DATA_PARENT_DIRECTORY, "uefi_org_revocations.json")
 
         with open(revocations_file, "rb") as rev_fs:
