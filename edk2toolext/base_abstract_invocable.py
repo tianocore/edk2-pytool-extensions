@@ -198,6 +198,10 @@ class BaseAbstractInvocable(object):
         !!! danger
             Do not override this method
         """
+        import timeit
+
+        overall_start_time = timeit.default_timer()
+
         self.ParseCommandLineOptions()
         self.ConfigureLogging()
         self.InputParametersConfiguredCallback()
@@ -207,10 +211,14 @@ class BaseAbstractInvocable(object):
         #
         # Next, get the environment set up.
         #
+        start_time = timeit.default_timer()
         (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(
             self.GetWorkspaceRoot(), self.GetActiveScopes(), self.GetSkippedDirectories()
         )
+        end_time = timeit.default_timer()
+        logging.debug(f"Time to Bootstrap Environment: {end_time - start_time}")
 
+        start_time = timeit.default_timer()
         # Make sure the environment verifies IF it is required for this invocation
         if self.GetVerifyCheckRequired() and not self_describing_environment.VerifyEnvironment(
             self.GetWorkspaceRoot(), self.GetActiveScopes(), self.GetSkippedDirectories()
@@ -219,6 +227,10 @@ class BaseAbstractInvocable(object):
                 "External Dependencies in the environment are out of date. "
                 "Consider running stuart_update to possibly resolve this issue."
             )
+        end_time = timeit.default_timer()
+        logging.debug(f"Time to Verify Environment: {end_time - start_time}")
+
+        start_time = timeit.default_timer()
 
         # Load plugins
         logging.log(edk2_logging.SECTION, "Loading Plugins")
@@ -235,7 +247,12 @@ class BaseAbstractInvocable(object):
         if self.helper.LoadFromPluginManager(self.plugin_manager) > 0:
             raise Exception("One or more helper plugins failed to load.")
 
+        end_time = timeit.default_timer()
+        logging.debug(f"Time to Load Plugins: {end_time - start_time}")
+
         logging.log(edk2_logging.SECTION, "Start Invocable Tool")
+        overall_end_time = timeit.default_timer()
+        logging.debug(f"Time to Start Invocable: {overall_end_time - overall_start_time}")
         retcode = self.Go()
         logging.log(edk2_logging.SECTION, "Summary")
         if retcode != 0:

@@ -18,6 +18,7 @@ edk2_setup.py, and git_dependency.py use this module to perform git operations.
 import logging
 import os
 import time
+import timeit
 from pathlib import Path
 from typing import Callable, Optional
 
@@ -225,7 +226,10 @@ def repo_details(abs_file_system_path: os.PathLike) -> dict:
     Returns:
         (dict): dict containing details about the repository
     """
+    start_time = timeit.default_timer()
     git_version = ".".join(map(str, Git().version_info))
+    end_time = timeit.default_timer()
+    logging.debug(f"Time to Get Git Version: {end_time - start_time}")
     if version_compare(git_version, MIN_GIT_VERSION) < 0:
         e = f"Upgrade Git! Current version is {git_version}. Minimum is {MIN_GIT_VERSION}"
         logging.error(e)
@@ -262,7 +266,9 @@ def repo_details(abs_file_system_path: os.PathLike) -> dict:
             details["Head"] = {"HexSha": str(repo.head.commit.hexsha), "HexShaShort": str(repo.head.commit.hexsha[:7])}
             details["Valid"] = True
             details["Bare"] = repo.bare
+            start_time = timeit.default_timer()
             details["Dirty"] = git_retry(5, repo.is_dirty, untracked_files=True)
+            logging.debug(f"Time to Check If Repo is Dirty: {timeit.default_timer() - start_time}")
             details["Initialized"] = True
             details["Submodules"] = [submodule.name for submodule in repo.submodules]
             details["Remotes"] = [remote.name for remote in repo.remotes]

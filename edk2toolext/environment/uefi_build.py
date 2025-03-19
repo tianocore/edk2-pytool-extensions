@@ -19,6 +19,7 @@ import datetime
 import logging
 import os
 import time
+import timeit
 import traceback
 from collections import namedtuple
 
@@ -338,6 +339,8 @@ class UefiBuilder(object):
 
     def Build(self) -> int:
         """Adds all arguments to the build command and runs it."""
+        build_start_time = timeit.default_timer()
+
         BuildType = self.env.GetValue("TARGET")
         edk2_logging.log_progress("Running Build %s" % BuildType)
 
@@ -405,6 +408,9 @@ class UefiBuilder(object):
         for level, problem in problems:
             logging.log(level, problem)
 
+        build_end_time = timeit.default_timer()
+        logging.debug(f"Time to Build: {build_end_time - build_start_time}")
+
         if ret != 0:
             return ret
 
@@ -415,6 +421,8 @@ class UefiBuilder(object):
 
         This includes calling the platform overridable `PlatformPreBuild()`
         """
+        prebuild_start_time = timeit.default_timer()
+
         edk2_logging.log_progress("Running Pre Build")
         #
         # Run the platform pre-build steps.
@@ -439,6 +447,10 @@ class UefiBuilder(object):
                 break  # fail on plugin error
             else:
                 logging.debug("Plugin Success: %s" % Descriptor.Name)
+
+        prebuild_end_time = timeit.default_timer()
+        logging.debug(f"Time to PreBuild: {prebuild_end_time - prebuild_start_time}")
+
         return ret
 
     def PostBuild(self) -> int:
@@ -446,6 +458,8 @@ class UefiBuilder(object):
 
         This includes calling the platform overridable `PlatformPostBuild()`.
         """
+        postbuild_start_time = timeit.default_timer()
+
         edk2_logging.log_progress("Running Post Build")
         #
         # Run the platform post-build steps.
@@ -472,6 +486,9 @@ class UefiBuilder(object):
             else:
                 logging.debug("Plugin Success: %s" % Descriptor.Name)
 
+        postbuild_end_time = timeit.default_timer()
+        logging.debug(f"Time to PostBuild: {postbuild_end_time - postbuild_start_time}")
+
         return ret
 
     def SetEnv(self) -> int:
@@ -479,6 +496,8 @@ class UefiBuilder(object):
 
         This includes platform overridable `SetPlatformEnv()` and `SetPlatformEnvAfterTarget().
         """
+        setenv_start_time = timeit.default_timer()
+
         edk2_logging.log_progress("Setting up the Environment")
         shell_environment.GetEnvironment().set_shell_var("WORKSPACE", self.ws)
         shell_environment.GetBuildVars().SetValue("WORKSPACE", self.ws, "Set in SetEnv")
@@ -572,6 +591,9 @@ class UefiBuilder(object):
         # set critical platform Env Defaults if not set anywhere else in the build.
         for env_var in self.SetPlatformDefaultEnv():
             self.env.SetValue(env_var.name, env_var.default, "Default Critical Platform Env Value.")
+
+        setenv_end_time = timeit.default_timer()
+        logging.debug(f"Time to SetEnv: {setenv_end_time - setenv_start_time}")
 
         return 0
 
@@ -681,6 +703,8 @@ class UefiBuilder(object):
 
         "Sets them so they can be overriden.
         """
+        parse_target_file_start_time = timeit.default_timer()
+
         conf_file_path = self.edk2path.GetAbsolutePathOnThisSystemFromEdk2RelativePath("Conf", "target.txt")
         if os.path.isfile(conf_file_path):
             # parse TargetTxt File
@@ -703,6 +727,9 @@ class UefiBuilder(object):
             logging.error("Failed to find target.txt file")
             return -1
 
+        parse_target_file_end_time = timeit.default_timer()
+        logging.debug(f"Time to ParseTargetFile: {parse_target_file_end_time - parse_target_file_start_time}")
+
         return 0
 
     def ParseToolsDefFile(self) -> int:
@@ -710,6 +737,8 @@ class UefiBuilder(object):
 
         "Sets them so they can be overriden.
         """
+        parse_toolsdef_file_start_time = timeit.default_timer()
+
         toolsdef_file_path = self.edk2path.GetAbsolutePathOnThisSystemFromEdk2RelativePath("Conf", "tools_def.txt")
         if os.path.isfile(toolsdef_file_path):
             # parse ToolsdefTxt File
@@ -735,6 +764,9 @@ class UefiBuilder(object):
             logging.error("Failed to find tools_def.txt file")
             return -1
 
+        parse_toolsdef_file_end_time = timeit.default_timer()
+        logging.debug(f"Time to ParseToolsDefFile: {parse_toolsdef_file_end_time - parse_toolsdef_file_start_time}")
+
         return 0
 
     def ParseDscFile(self) -> int:
@@ -743,6 +775,8 @@ class UefiBuilder(object):
         This will get lots of variable info to be used in the build. This
         makes it so we don't have to define things twice.
         """
+        parse_dsc_file_start_time = timeit.default_timer()
+
         if self.env.GetValue("ACTIVE_PLATFORM") is None:
             logging.error("The DSC file was not set. Please set ACTIVE_PLATFORM")
             return -1
@@ -766,6 +800,9 @@ class UefiBuilder(object):
             logging.error("Failed to find DSC file")
             return -1
 
+        parse_dsc_file_end_time = timeit.default_timer()
+        logging.debug(f"Time to ParseDscFile: {parse_dsc_file_end_time - parse_dsc_file_start_time}")
+
         return 0
 
     def ParseFdfFile(self) -> int:
@@ -775,6 +812,8 @@ class UefiBuilder(object):
         it so we don't have to define things twice the FDF file usually comes
         from the Active Platform DSC file so it needs to be parsed first.
         """
+        parse_fdf_file_start_time = timeit.default_timer()
+
         if self.env.GetValue("FLASH_DEFINITION") is None:
             logging.debug("No flash definition set")
             return 0
@@ -797,6 +836,9 @@ class UefiBuilder(object):
         else:
             logging.error("Failed to find FDF file")
             return -2
+
+        parse_fdf_file_end_time = timeit.default_timer()
+        logging.debug(f"Time to ParseFdfFile: {parse_fdf_file_end_time - parse_fdf_file_start_time}")
 
         return 0
 

@@ -15,6 +15,7 @@ while allowing the invocable itself to remain platform agnostic.
 import argparse
 import logging
 import os
+import timeit
 from typing import Iterable
 
 from edk2toollib.utility_functions import GetHostInfo
@@ -120,6 +121,8 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
 
     def Go(self) -> int:
         """Executes the core functionality of the Edk2PlatformSetup invocable."""
+        full_start_time = timeit.default_timer()
+
         required_submodules = self.PlatformSettings.GetRequiredSubmodules()
 
         # Return clear error if submodules are a windows format on a non-windows system
@@ -192,6 +195,9 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
                 logging.error(f"Error when trying to resolve {submodule.path}")
                 logging.error(e)
                 return -1
+
+        full_end_time = timeit.default_timer()
+        logging.info(f"Time to Complete Setup: {full_end_time - full_start_time}")
 
         return 0
 

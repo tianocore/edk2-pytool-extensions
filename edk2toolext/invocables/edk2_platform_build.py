@@ -18,6 +18,7 @@ import argparse
 import logging
 import os
 import sys
+import timeit
 from textwrap import wrap
 
 from edk2toollib.uefi.edk2.path_utilities import Edk2Path
@@ -130,6 +131,7 @@ class Edk2PlatformBuild(Edk2Invocable):
 
     def Go(self) -> int:
         """Executes the core functionality of the Edk2PlatformBuild invocable."""
+        full_start_time = timeit.default_timer()
         logging.info("Running Python version: " + str(sys.version_info))
 
         Edk2PlatformBuild.collect_python_pip_info()
@@ -172,6 +174,9 @@ class Edk2PlatformBuild(Edk2Invocable):
         #
         # Now we can actually kick off a build.
         #
+        full_end_time = timeit.default_timer()
+        logging.debug(f"Time to Kick Off Platform Build: {full_end_time - full_start_time}")
+
         logging.log(edk2_logging.SECTION, "Kicking off build")
         ret = self.PlatformBuilder.Go(pathobj.WorkspacePath, os.pathsep.join(pathobj.PackagePathList), helper, pm)
         logging.log(edk2_logging.SECTION, f"Log file is located at: {self.log_filename}")
