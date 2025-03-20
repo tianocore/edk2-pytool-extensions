@@ -428,9 +428,7 @@ class UefiBuilder(object):
         #
         platform_pre_build_start_time = timeit.default_timer()
         ret = self.PlatformPreBuild()
-        edk2_logging.perf_measurement(
-            "PlatformPreBuild", timeit.default_timer() - platform_pre_build_start_time
-        )
+        edk2_logging.perf_measurement("PlatformPreBuild", timeit.default_timer() - platform_pre_build_start_time)
 
         if ret != 0:
             logging.critical("PlatformPreBuild failed %d" % ret)
@@ -442,8 +440,7 @@ class UefiBuilder(object):
             plugin_start_time = timeit.default_timer()
             rc = Descriptor.Obj.do_pre_build(self)
             edk2_logging.perf_measurement(
-                f"do_pre_build()[{Descriptor.Name}]",
-                timeit.default_timer() - plugin_start_time
+                f"do_pre_build()[{Descriptor.Name}]", timeit.default_timer() - plugin_start_time
             )
             if rc != 0:
                 if rc is None:
@@ -473,9 +470,7 @@ class UefiBuilder(object):
         #
         platform_post_build_start_time = timeit.default_timer()
         ret = self.PlatformPostBuild()
-        edk2_logging.perf_measurement(
-            "PlatformPostBuild", timeit.default_timer() - platform_post_build_start_time
-        )
+        edk2_logging.perf_measurement("PlatformPostBuild", timeit.default_timer() - platform_post_build_start_time)
 
         if ret != 0:
             logging.critical("PlatformPostBuild failed %d" % ret)
@@ -488,8 +483,7 @@ class UefiBuilder(object):
             plugin_start_time = timeit.default_timer()
             rc = Descriptor.Obj.do_post_build(self)
             edk2_logging.perf_measurement(
-                f"do_post_build()[{Descriptor.Name}]",
-                timeit.default_timer() - plugin_start_time
+                f"do_post_build()[{Descriptor.Name}]", timeit.default_timer() - plugin_start_time
             )
             if rc != 0:
                 if rc is None:
@@ -777,9 +771,7 @@ class UefiBuilder(object):
             logging.error("Failed to find tools_def.txt file")
             return -1
 
-        edk2_logging.perf_measurement(
-            "ParseToolsDefFile", timeit.default_timer() - parse_toolsdef_file_start_time
-        )
+        edk2_logging.perf_measurement("ParseToolsDefFile", timeit.default_timer() - parse_toolsdef_file_start_time)
 
         return 0
 

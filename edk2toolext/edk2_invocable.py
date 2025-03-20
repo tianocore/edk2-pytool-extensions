@@ -420,9 +420,9 @@ class Edk2Invocable(BaseAbstractInvocable):
         settingsParserObj.add_argument(
             "--log-perf",
             dest="log_perf_measurements",
-            default = False,
+            default=False,
             action="store_true",
-            help="Enable performance measurements of this command."
+            help="Enable performance measurements of this command.",
         )
 
         # get the settings manager from the provided file and load an instance

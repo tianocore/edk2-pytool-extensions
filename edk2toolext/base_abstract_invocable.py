@@ -193,9 +193,7 @@ class BaseAbstractInvocable(object):
             self.log_filename = logfile
 
         edk2_logging.setup_performance_logger(
-            self.log_perf_measurements,
-            log_directory,
-            f'{self.GetLoggingFileName("txt")}_PERF'
+            self.log_perf_measurements, log_directory, f"{self.GetLoggingFileName('txt')}_PERF"
         )
 
         logging.info("Log Started: " + datetime.strftime(datetime.now(), "%A, %B %d, %Y %I:%M%p"))
