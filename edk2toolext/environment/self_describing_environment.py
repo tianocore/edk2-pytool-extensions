@@ -15,6 +15,7 @@ and then acts upon those files.
 import logging
 import os
 import time
+import timeit
 from multiprocessing import dummy
 from pathlib import Path
 from typing import Optional
@@ -56,6 +57,7 @@ class self_describing_environment(object):
         self.skipped_dirs = tuple(map(Path, (os.path.join(self.workspace, d) for d in skipped_dirs)))
 
         # Respect git worktrees
+        start_time = timeit.default_timer()
         details = repo_resolver.repo_details(self.workspace)
         if details["Valid"]:
             for worktree_path in details["Worktrees"]:
@@ -65,6 +67,8 @@ class self_describing_environment(object):
                     and worktree_path not in skipped_dirs
                 ):
                     self.skipped_dirs += (worktree_path,)
+        end_time = timeit.default_timer()
+        logging.debug(f"Time to Check for Worktrees: {(end_time - start_time):.3f} s")
 
         # Validate that all scopes are unique.
         if len(self.scopes) != len(set(self.scopes)):
@@ -104,7 +108,10 @@ class self_describing_environment(object):
         logging.debug("  Including scopes: %s" % ", ".join(self.scopes))
 
         # First, we need to get all of the files that describe our environment.
+        start_time = timeit.default_timer()
         env_files = self._gather_env_files(("path_env", "ext_dep", "plug_in"), self.workspace)
+        end_time = timeit.default_timer()
+        logging.debug(f"Time to Gather Env Files: {(end_time - start_time):.3f} s")
 
         # Next, get a list of all our scopes
         all_scopes_lower = [x.lower() for x in self.scopes]

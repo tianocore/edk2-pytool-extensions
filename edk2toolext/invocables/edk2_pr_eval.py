@@ -18,6 +18,7 @@ while allowing the invocable itself to remain platform agnostic.
 import argparse
 import logging
 import os
+import timeit
 from io import StringIO
 from pathlib import Path
 from typing import Optional
@@ -159,6 +160,8 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
 
     def Go(self) -> int:
         """Executes the core functionality of the Edk2CiBuild invocable."""
+        full_start_time = timeit.default_timer()
+
         # create path obj for resolving paths.  Since PR eval is run early to determine if a build is
         # impacted by the changes of a PR we must ignore any packages path that are not valid due to
         # not having their submodule or folder populated.
@@ -193,6 +196,9 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
         if self.output_count_format_string is not None:
             pkgcount = len(actualPackagesDict.keys())
             print(self.output_count_format_string.format(pkgcount=pkgcount))
+
+        full_end_time = timeit.default_timer()
+        self.logger.info(f"Time to Complete PR Eval: {(full_end_time - full_start_time):.3f} s")
 
         return 0
 

@@ -15,6 +15,7 @@ while allowing the invocable itself to remain platform agnostic.
 
 import argparse
 import logging
+import timeit
 
 from edk2toolext import edk2_logging
 from edk2toolext.environment import self_describing_environment
@@ -89,6 +90,8 @@ class Edk2Update(Edk2MultiPkgAwareInvocable):
 
     def Go(self) -> int:
         """Executes the core functionality of the Edk2Update invocable."""
+        full_start_time = timeit.default_timer()
+
         RetryCount = 0
         failure_count = 0
         logging.log(edk2_logging.SECTION, "Initial update of environment")
@@ -114,6 +117,9 @@ class Edk2Update(Edk2MultiPkgAwareInvocable):
 
             build_env_old = build_env
             self_describing_environment.DestroyEnvironment()
+
+        full_end_time = timeit.default_timer()
+        logging.info(f"Time to Complete Update: {(full_end_time - full_start_time):.3f} s")
 
         if failure_count != 0:
             logging.error(f"We were unable to successfully update {failure_count} dependencies in environment")

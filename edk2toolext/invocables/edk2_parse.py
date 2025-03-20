@@ -10,6 +10,7 @@
 import argparse
 import logging
 import os
+import timeit
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 from typing import Iterable, Optional, Sequence
@@ -154,6 +155,8 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
 
     def Go(self) -> int:
         """Executes the invocable. Runs the subcommand specified by the user."""
+        full_start_time = timeit.default_timer()
+
         logging.warning(
             "stuart_parse is in active development. Please report any issues to the edk2-pytool-extensions repo."
         )
@@ -186,6 +189,10 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
             self.parse_with_ci_settings(db, pathobj, env)
 
         logging.info(f"Database generated at {db_path}.")
+
+        full_end_time = timeit.default_timer()
+        logging.info(f"Time to Complete Parse: {(full_end_time - full_start_time):.3f} s")
+
         return 0
 
     def parse_with_builder_settings(self, db: Edk2DB, pathobj: Edk2Path, env: VarDict) -> int:

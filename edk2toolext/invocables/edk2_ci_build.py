@@ -18,6 +18,7 @@ import argparse
 import logging
 import os
 import sys
+import timeit
 import traceback
 from typing import Any, Optional
 
@@ -126,6 +127,8 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
 
     def Go(self) -> int:
         """Executes the core functionality of the Edk2CiBuild invocable."""
+        full_start_time = timeit.default_timer()
+
         log_directory = os.path.join(self.GetWorkspaceRoot(), self.GetLoggingFolderRelativeToRoot())
 
         Edk2CiBuild.collect_python_pip_info()
@@ -312,6 +315,9 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
             edk2_logging.log_progress(f"There were {failure_num} failures out of {total_num} attempts")
         else:
             edk2_logging.log_progress("Overall Build Status: Success")
+
+        full_end_time = timeit.default_timer()
+        logging.debug(f"Time to Complete CI Build: {(full_end_time - full_start_time):.3f} s")
 
         return failure_num
 

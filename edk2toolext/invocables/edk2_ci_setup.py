@@ -16,6 +16,7 @@ while allowing the invocable itself to remain platform agnostic.
 import argparse
 import logging
 import os
+import timeit
 from typing import Iterable
 
 from edk2toolext.environment import repo_resolver
@@ -134,6 +135,8 @@ class Edk2CiBuildSetup(Edk2MultiPkgAwareInvocable):
 
     def Go(self) -> int:
         """Executes the core functionality of the Edk2CiSetup invocable."""
+        full_start_time = timeit.default_timer()
+
         setup_dependencies = self.PlatformSettings.GetDependencies()
         logging.debug(f"Dependencies list {setup_dependencies}")
         repos = repo_resolver.resolve_all(
@@ -146,6 +149,9 @@ class Edk2CiBuildSetup(Edk2MultiPkgAwareInvocable):
         )
 
         logging.info(f"Repo resolver resolved {repos}")
+
+        full_end_time = timeit.default_timer()
+        logging.info(f"Time to Complete CI Setup: {(full_end_time - full_start_time):.3f} s")
 
         return 0 if None not in repos else -1
 
