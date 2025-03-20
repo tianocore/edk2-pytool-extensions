@@ -14,6 +14,7 @@ import pathlib
 import tempfile
 import unittest
 from typing import Optional
+from unittest.mock import MagicMock, patch
 
 import pytest
 from edk2toolext.environment import repo_resolver
@@ -327,6 +328,31 @@ class test_repo_resolver(unittest.TestCase):
         details = repo_resolver.repo_details(folder_path)
         self.assertEqual(details["Url"], branch_dependency["Url"])
         self.assertEqual(details["Branch"], sub_branch_dependency["Branch"])
+
+    @patch("git.Repo.is_dirty")
+    def test_repo_details_is_dirty(self, mock_is_dirty: MagicMock) -> None:
+        """Test that we can get details from a dirty repo that fails then succeeds."""
+        _RAISE_GIT_EXCEPTION_COUNT = 3
+        _side_effect_call_count = 0
+
+        def _side_effect(*_args: str, **_kwargs: dict[str, any]) -> bool:
+            nonlocal _side_effect_call_count
+            if _side_effect_call_count < _RAISE_GIT_EXCEPTION_COUNT:
+                _side_effect_call_count += 1
+                raise repo_resolver.GitCommandError("mock_cmd", 128, "stderr_value", "stdout_value")
+            else:
+                return False
+
+        mock_is_dirty.side_effect = _side_effect
+
+        repo_resolver.resolve(test_dir, branch_dependency)
+        folder_path = os.path.join(test_dir, branch_dependency["Path"])
+        try:
+            details = repo_resolver.repo_details(folder_path)
+            self.assertEqual(details["Url"], branch_dependency["Url"])
+            self.assertEqual(details["Branch"], branch_dependency["Branch"])
+        except repo_resolver.GitCommandError:
+            self.fail("GitCommandError was raised")
 
     def test_submodule(self) -> None:
         """Test that we can resolve a submodule."""
