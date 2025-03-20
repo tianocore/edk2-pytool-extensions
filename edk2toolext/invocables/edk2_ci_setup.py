@@ -19,6 +19,7 @@ import os
 import timeit
 from typing import Iterable
 
+from edk2toolext import edk2_logging
 from edk2toolext.environment import repo_resolver
 from edk2toolext.invocables.edk2_multipkg_aware_invocable import (
     Edk2MultiPkgAwareInvocable,
@@ -150,8 +151,7 @@ class Edk2CiBuildSetup(Edk2MultiPkgAwareInvocable):
 
         logging.info(f"Repo resolver resolved {repos}")
 
-        full_end_time = timeit.default_timer()
-        logging.info(f"Time to Complete CI Setup: {(full_end_time - full_start_time):.3f} s")
+        edk2_logging.perf_measurement("Complete CI Setup", timeit.default_timer() - full_start_time)
 
         return 0 if None not in repos else -1
 

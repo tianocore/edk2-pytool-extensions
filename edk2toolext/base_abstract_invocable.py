@@ -27,6 +27,7 @@ class BaseAbstractInvocable(object):
 
     Attributes:
         log_filename (str): logfile path
+        log_perf_measurements (bool): whether to measure and log invocable command performance or not
         plugin_manager (plugin_manager.PluginManager): the plugin manager
         helper (HelperFunctions): container for all helper functions
     """
@@ -34,6 +35,7 @@ class BaseAbstractInvocable(object):
     def __init__(self) -> None:
         """Init the Invocable."""
         self.log_filename = None
+        self.log_perf_measurements = False
         return
 
     def ParseCommandLineOptions(self) -> None:
@@ -190,6 +192,12 @@ class BaseAbstractInvocable(object):
             )
             self.log_filename = logfile
 
+        edk2_logging.setup_performance_logger(
+            self.log_perf_measurements,
+            log_directory,
+            f'{self.GetLoggingFileName("txt")}_PERF'
+        )
+
         logging.info("Log Started: " + datetime.strftime(datetime.now(), "%A, %B %d, %Y %I:%M%p"))
 
     def Invoke(self) -> None:
@@ -215,8 +223,7 @@ class BaseAbstractInvocable(object):
         (build_env, shell_env) = self_describing_environment.BootstrapEnvironment(
             self.GetWorkspaceRoot(), self.GetActiveScopes(), self.GetSkippedDirectories()
         )
-        end_time = timeit.default_timer()
-        logging.debug(f"Time to Bootstrap Environment: {(end_time - start_time):.3f} s")
+        edk2_logging.perf_measurement("Bootstrap Environment", timeit.default_timer() - start_time)
 
         start_time = timeit.default_timer()
         # Make sure the environment verifies IF it is required for this invocation
@@ -227,8 +234,7 @@ class BaseAbstractInvocable(object):
                 "External Dependencies in the environment are out of date. "
                 "Consider running stuart_update to possibly resolve this issue."
             )
-        end_time = timeit.default_timer()
-        logging.debug(f"Time to Verify Environment: {(end_time - start_time):.3f} s")
+        edk2_logging.perf_measurement("Verify Environment", timeit.default_timer() - start_time)
 
         start_time = timeit.default_timer()
 
@@ -247,12 +253,10 @@ class BaseAbstractInvocable(object):
         if self.helper.LoadFromPluginManager(self.plugin_manager) > 0:
             raise Exception("One or more helper plugins failed to load.")
 
-        end_time = timeit.default_timer()
-        logging.debug(f"Time to Load Plugins: {(end_time - start_time):.3f} s")
+        edk2_logging.perf_measurement("Plugin Load", timeit.default_timer() - start_time)
 
         logging.log(edk2_logging.SECTION, "Start Invocable Tool")
-        overall_end_time = timeit.default_timer()
-        logging.debug(f"Time to Start Invocable: {(overall_end_time - overall_start_time):.3f} s")
+        edk2_logging.perf_measurement("Start Invocable", timeit.default_timer() - overall_start_time)
         retcode = self.Go()
         logging.log(edk2_logging.SECTION, "Summary")
         if retcode != 0:

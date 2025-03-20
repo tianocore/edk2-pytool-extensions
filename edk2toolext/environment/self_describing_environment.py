@@ -20,6 +20,7 @@ from multiprocessing import dummy
 from pathlib import Path
 from typing import Optional
 
+from edk2toolext import edk2_logging
 from edk2toolext.environment import environment_descriptor_files as EDF
 from edk2toolext.environment import external_dependency, repo_resolver, shell_environment
 
@@ -67,8 +68,7 @@ class self_describing_environment(object):
                     and worktree_path not in skipped_dirs
                 ):
                     self.skipped_dirs += (worktree_path,)
-        end_time = timeit.default_timer()
-        logging.debug(f"Time to Check for Worktrees: {(end_time - start_time):.3f} s")
+        edk2_logging.perf_measurement("Check for Worktrees", timeit.default_timer() - start_time)
 
         # Validate that all scopes are unique.
         if len(self.scopes) != len(set(self.scopes)):
@@ -110,8 +110,7 @@ class self_describing_environment(object):
         # First, we need to get all of the files that describe our environment.
         start_time = timeit.default_timer()
         env_files = self._gather_env_files(("path_env", "ext_dep", "plug_in"), self.workspace)
-        end_time = timeit.default_timer()
-        logging.debug(f"Time to Gather Env Files: {(end_time - start_time):.3f} s")
+        edk2_logging.perf_measurement("Gather Env Files", timeit.default_timer() - start_time)
 
         # Next, get a list of all our scopes
         all_scopes_lower = [x.lower() for x in self.scopes]

@@ -284,11 +284,23 @@ def scan_compiler_output(output_stream: TextIO) -> list[tuple]:
             problems.append((logging.ERROR, line))
     return problems
 
+def setup_performance_logger(enabled: bool, directory: str, file: str) -> None:
+    """Sets up a performance logger."""
+    if not enabled:
+        logging.getLogger("performance").disabled = True
+        return
+
+    logfile, filelogger = setup_txt_logger(directory, file, logging.DEBUG, logging_namespace="performance")
+    logging.getLogger("performance").propagate = False
+
+def perf_measurement(task: str, time: float) -> None:
+    """Logs a performance measurement."""
+    logging.getLogger("performance").info(f"{task} took {time:.3f} s")
 
 class Edk2LogFilter(logging.Filter):
     """Subclass of logging.Filter."""
 
-    _allowedLoggers = ["root", "git.cmd", "edk2toolext.environment.repo_resolver"]
+    _allowedLoggers = ["root", "performance", "git.cmd", "edk2toolext.environment.repo_resolver"]
 
     def __init__(self) -> None:
         """Inits a filter."""

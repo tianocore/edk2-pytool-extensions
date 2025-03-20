@@ -118,8 +118,7 @@ class Edk2Update(Edk2MultiPkgAwareInvocable):
             build_env_old = build_env
             self_describing_environment.DestroyEnvironment()
 
-        full_end_time = timeit.default_timer()
-        logging.info(f"Time to Complete Update: {(full_end_time - full_start_time):.3f} s")
+        edk2_logging.perf_measurement("Complete Update", timeit.default_timer() - full_start_time)
 
         if failure_count != 0:
             logging.error(f"We were unable to successfully update {failure_count} dependencies in environment")

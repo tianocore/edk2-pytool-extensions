@@ -417,11 +417,19 @@ class Edk2Invocable(BaseAbstractInvocable):
             default=False,
             help="Overrides platform module settings and sets all loggers to to the highest verbosity, including EDKII build command if applicable.",  # noqa
         )
+        settingsParserObj.add_argument(
+            "--log-perf",
+            dest="log_perf_measurements",
+            default = False,
+            action="store_true",
+            help="Enable performance measurements of this command."
+        )
 
         # get the settings manager from the provided file and load an instance
         settingsArg, unknown_args = settingsParserObj.parse_known_args()
 
         self.Verbose = settingsArg.verbose
+        self.log_perf_measurements = settingsArg.log_perf_measurements
 
         try:
             self.PlatformModule = import_module_by_file_name(os.path.abspath(settingsArg.platform_module))
