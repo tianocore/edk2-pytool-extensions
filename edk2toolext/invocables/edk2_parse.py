@@ -29,6 +29,7 @@ from edk2toollib.database.tables import (
 from edk2toollib.uefi.edk2.path_utilities import Edk2Path
 from edk2toollib.utility_functions import import_module_by_file_name, locate_class_in_module
 
+from edk2toolext import edk2_logging
 from edk2toolext.environment import shell_environment
 from edk2toolext.environment.uefi_build import UefiBuilder
 from edk2toolext.environment.var_dict import VarDict
@@ -190,8 +191,7 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
 
         logging.info(f"Database generated at {db_path}.")
 
-        full_end_time = timeit.default_timer()
-        logging.info(f"Time to Complete Parse: {(full_end_time - full_start_time):.3f} s")
+        edk2_logging.perf_measurement("Complete Parse", timeit.default_timer() - full_start_time)
 
         return 0
 

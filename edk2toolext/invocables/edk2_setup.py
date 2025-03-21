@@ -196,8 +196,7 @@ class Edk2PlatformSetup(Edk2MultiPkgAwareInvocable):
                 logging.error(e)
                 return -1
 
-        full_end_time = timeit.default_timer()
-        logging.info(f"Time to Complete Setup: {(full_end_time - full_start_time):.3f} s")
+        edk2_logging.perf_measurement("Complete Setup", timeit.default_timer() - full_start_time)
 
         return 0
 

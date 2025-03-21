@@ -197,8 +197,7 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
             pkgcount = len(actualPackagesDict.keys())
             print(self.output_count_format_string.format(pkgcount=pkgcount))
 
-        full_end_time = timeit.default_timer()
-        self.logger.info(f"Time to Complete PR Eval: {(full_end_time - full_start_time):.3f} s")
+        edk2_logging.perf_measurement("Complete PR Eval", timeit.default_timer() - full_start_time)
 
         return 0
 
