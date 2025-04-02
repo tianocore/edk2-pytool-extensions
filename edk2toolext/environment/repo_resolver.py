@@ -372,13 +372,10 @@ def clone_repo(abs_file_system_path: os.PathLike, DepObj: dict) -> tuple:
         branch = DepObj["Branch"]
     if "ReferencePath" in DepObj and os.path.exists(DepObj["ReferencePath"]):
         reference = Path(DepObj["ReferencePath"])
-    if "Recurse" in DepObj:
-        if type(DepObj["Recurse"]) is not dict:
-            recurse = DepObj["Recurse"]
-        else:
-            recurse = False
+    if type(DepObj["Recurse"]) is not dict:
+        recurse = DepObj["Recurse"]
     else:
-        recurse = True
+        recurse = False
 
     # Used to generate clone params from flags
     def _build_params_list(branch: str = None, shallow: str = None, reference: str = None, recurse: str = None) -> None:
@@ -451,17 +448,14 @@ def checkout(
         ci_file = None
         if "ReferencePath" in dep and os.path.exists(dep["ReferencePath"]):
             reference = Path(dep["ReferencePath"])
-        if "Recurse" in dep:
-            if type(dep["Recurse"]) is not dict:
-                recurse = dep["Recurse"]
-            else:
-                recurse = False
-                try:
-                    ci_file = dep["Recurse"]["CIFile"]
-                except KeyError:
-                    logging.error(f"Failed to find 'CIFile' 'Recurse' section {dep['Recurse']}")
+        if type(dep["Recurse"]) is not dict:
+            recurse = dep["Recurse"]
         else:
-            recurse = True
+            recurse = False
+            try:
+                ci_file = dep["Recurse"]["CIFile"]
+            except KeyError:
+                logging.error(f"Failed to find 'CIFile' 'Recurse' section {dep['Recurse']}")
 
         if "Commit" in dep:
             commit = dep["Commit"]

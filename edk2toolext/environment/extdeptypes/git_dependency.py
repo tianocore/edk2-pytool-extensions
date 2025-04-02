@@ -60,7 +60,12 @@ class GitDependency(ExternalDependency):
         self.logger = logging.getLogger("git-dependency")
 
         # valid_attributes = ["Path", "Url", "Branch", "Commit", "ReferencePath", "Full"]
-        self._repo_resolver_dep_obj = {"Path": self.name, "Url": self.repo_url, "Commit": self.commit}
+        self._repo_resolver_dep_obj = {
+            "Path": self.name,
+            "Url": self.repo_url,
+            "Commit": self.commit,
+            "Recurse": True,
+        }
 
     def __str__(self) -> str:
         """Return a string representation."""
