@@ -15,6 +15,7 @@ The intent is to keep all git functionality consolidated in this module. Current
 edk2_setup.py, and git_dependency.py use this module to perform git operations.
 """
 
+import importlib
 import logging
 import os
 import time
@@ -298,6 +299,48 @@ def clear_folder(abs_file_system_path: os.PathLike) -> None:
     rmtree(abs_file_system_path)
 
 
+def process_submodules_from_ci_file(
+    abs_file_system_path: os.PathLike,
+    ci_file: str,
+) -> None:
+    """Processes the submodules of the repo.
+
+    Args:
+        abs_file_system_path (os.PathLike): Directory toplevel repo cloned in.
+        ci_file (str): str of path to the CI file relative to repo.
+    """
+    CISettingFile = Path(abs_file_system_path, ci_file)
+    if CISettingFile.is_file():
+        try:
+            module_name = "Settings"
+            CiSettingsInstance = importlib.util.spec_from_file_location(module_name, CISettingFile)
+            Settings = importlib.util.module_from_spec(CiSettingsInstance)
+            CiSettingsInstance.loader.exec_module(Settings)
+            workspace_path = Settings.Settings().GetWorkspaceRoot()
+            submodule_list = Settings.Settings().GetRequiredSubmodules()
+
+            for submodule in submodule_list:
+                try:
+                    submodule_resolve(workspace_path, submodule)
+                except InvalidGitRepositoryError:
+                    logging.error(f"Error when trying to resolve {submodule.path}")
+                    logging.error(f"Invalid Git Repository at {submodule.path}")
+                except GitCommandError as e:
+                    logging.error(f"Error when trying to resolve {submodule.path}")
+                    logging.error(e)
+
+        except NameError:
+            logging.error(f"Failed to find {ci_file}")
+        except ImportError:
+            logging.error(f"Failed to load {ci_file}, missing import")
+        except ReferenceError:
+            logging.error(f"Failed to load {ci_file}, missing reference")
+        else:
+            logging.warning(f"Failed to load {ci_file}, unknown error")
+    else:
+        logging.error(f"Failed to find {ci_file} in the repo.  Skipping submodule processing.")
+
+
 def clone_repo(abs_file_system_path: os.PathLike, DepObj: dict) -> tuple:
     """Clones the repo in the folder using the dependency object.
 
@@ -318,6 +361,7 @@ def clone_repo(abs_file_system_path: os.PathLike, DepObj: dict) -> tuple:
     shallow = False
     branch = None
     reference = None
+    recurse = True
 
     if "Commit" in DepObj:
         shallow = False
@@ -328,9 +372,16 @@ def clone_repo(abs_file_system_path: os.PathLike, DepObj: dict) -> tuple:
         branch = DepObj["Branch"]
     if "ReferencePath" in DepObj and os.path.exists(DepObj["ReferencePath"]):
         reference = Path(DepObj["ReferencePath"])
+    if "Recurse" in DepObj:
+        if type(DepObj["Recurse"]) is not dict:
+            recurse = DepObj["Recurse"]
+        else:
+            recurse = False
+    else:
+        recurse = True
 
     # Used to generate clone params from flags
-    def _build_params_list(branch: str = None, shallow: str = None, reference: str = None) -> None:
+    def _build_params_list(branch: str = None, shallow: str = None, reference: str = None, recurse: str = None) -> None:
         params = []
         if branch:
             shallow = True
@@ -342,13 +393,16 @@ def clone_repo(abs_file_system_path: os.PathLike, DepObj: dict) -> tuple:
         if reference:
             params.append("--reference")
             params.append(reference.as_posix())
-        else:
+        if reference and recurse:
             params.append("--recurse-submodules")  # if we don't have a reference we can just recurse the submodules
+
         return params
 
     # Run the command
     try:
-        repo = Repo.clone_from(DepObj["Url"], dest, multi_options=_build_params_list(branch, shallow, reference))
+        repo = Repo.clone_from(
+            DepObj["Url"], dest, multi_options=_build_params_list(branch, shallow, reference, recurse)
+        )
     except GitCommandError:
         repo = None
 
@@ -365,7 +419,7 @@ def clone_repo(abs_file_system_path: os.PathLike, DepObj: dict) -> tuple:
             return (dest, False)
 
     # Repo cloned, perform submodule update if necessary
-    if reference:
+    if reference and recurse:
         repo.git.submodule("update", "--init", "--recursive", "--reference", reference)
     repo.close()
     return (dest, True)
@@ -394,8 +448,21 @@ def checkout(
     details = repo_details(abs_file_system_path)
     with Repo(abs_file_system_path) as repo:
         reference = None
+        ci_file = None
         if "ReferencePath" in dep and os.path.exists(dep["ReferencePath"]):
             reference = Path(dep["ReferencePath"])
+        if "Recurse" in dep:
+            if type(dep["Recurse"]) is not dict:
+                recurse = dep["Recurse"]
+            else:
+                recurse = False
+                try:
+                    ci_file = dep["Recurse"]["CIFile"]
+                except KeyError:
+                    logging.error(f"Failed to find 'CIFile' 'Recurse' section {dep['Recurse']}")
+        else:
+            recurse = True
+
         if "Commit" in dep:
             commit = dep["Commit"]
             if update_ok or force:
@@ -406,9 +473,11 @@ def checkout(
                     repo.git.fetch()
                     repo.git.checkout(commit)
                 if reference:
-                    repo.git.submodule("update", "--init", "--recursive", "--reference", reference.as_posix())
+                    if recurse:
+                        repo.git.submodule("update", "--init", "--recursive", "--reference", reference.as_posix())
                 else:
-                    repo.git.submodule("update", "--init", "--recursive")
+                    if recurse:
+                        repo.git.submodule("update", "--init", "--recursive")
             else:
                 head = details["Head"]
                 if commit in [head["HexSha"], head["HexShaShort"]]:
@@ -420,6 +489,9 @@ def checkout(
                 else:
                     logger.critical(f"Dependency {dep['Path']} is not in sync with requested commit.  Fail.")
                     raise Exception(f"Dependency {dep['Path']} is not in sync with requested commit.  Fail.")
+
+            if ci_file:
+                process_submodules_from_ci_file(abs_file_system_path, ci_file)
             return
 
         elif "Branch" in dep:
@@ -437,9 +509,11 @@ def checkout(
                     repo.git.fetch()
                     repo.git.checkout(branch)
                 if reference:
-                    repo.git.submodule("update", "--init", "--recursive", "--reference", reference.as_posix())
+                    if recurse:
+                        repo.git.submodule("update", "--init", "--recursive", "--reference", reference.as_posix())
                 else:
-                    repo.git.submodule("update", "--init", "--recursive")
+                    if recurse:
+                        repo.git.submodule("update", "--init", "--recursive")
             else:
                 if details["Branch"] == dep["Branch"]:
                     logger.debug(f"Dependency {dep['Path']} state ok without update")
@@ -453,6 +527,9 @@ def checkout(
                     )
                     logger.critical(error)
                     raise Exception(error)
+
+            if ci_file:
+                process_submodules_from_ci_file(abs_file_system_path, ci_file)
             return
 
         else:
