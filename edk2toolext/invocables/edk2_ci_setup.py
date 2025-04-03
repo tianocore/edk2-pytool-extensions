@@ -139,6 +139,9 @@ class Edk2CiBuildSetup(Edk2MultiPkgAwareInvocable):
         full_start_time = timeit.default_timer()
 
         setup_dependencies = self.PlatformSettings.GetDependencies()
+        for dependency in setup_dependencies:
+            if "Recurse" not in dependency:
+                dependency["Recurse"] = True
         logging.debug(f"Dependencies list {setup_dependencies}")
         repos = repo_resolver.resolve_all(
             self.GetWorkspaceRoot(),

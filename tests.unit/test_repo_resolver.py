@@ -20,33 +20,52 @@ import pytest
 from edk2toolext.environment import repo_resolver
 from edk2toollib.utility_functions import RemoveTree
 
-branch_dependency = {"Url": "https://github.com/microsoft/mu", "Path": "test_repo", "Branch": "master"}
+branch_dependency = {
+    "Url": "https://github.com/microsoft/mu",
+    "Path": "test_repo",
+    "Branch": "master",
+    "Recurse": True,
+}
 
-sub_branch_dependency = {"Url": "https://github.com/microsoft/mu", "Path": "test_repo", "Branch": "gh-pages"}
+sub_branch_dependency = {
+    "Url": "https://github.com/microsoft/mu",
+    "Path": "test_repo",
+    "Branch": "gh-pages",
+    "Recurse": True,
+}
 
 commit_dependency = {
     "Url": "https://github.com/microsoft/mu",
     "Path": "test_repo",
     "Commit": "b1e35a5d2bf05fb7f58f5b641a702c70d6b32a98",
+    "Recurse": True,
 }
 
-short_commit_dependency = {"Url": "https://github.com/microsoft/mu", "Path": "test_repo", "Commit": "b1e35a5"}
+short_commit_dependency = {
+    "Url": "https://github.com/microsoft/mu",
+    "Path": "test_repo",
+    "Commit": "b1e35a5",
+    "Recurse": True,
+}
 
 commit_later_dependency = {
     "Url": "https://github.com/microsoft/mu",
     "Path": "test_repo",
     "Commit": "e28910950c52256eb620e35d111945cdf5d002d1",
+    "Recurse": True,
 }
 
 microsoft_commit_dependency = {
     "Url": "https://github.com/Microsoft/microsoft.github.io",
     "Path": "test_repo",
     "Commit": "e9153e69c82068b45609359f86554a93569d76f1",
+    "Recurse": True,
 }
 microsoft_branch_dependency = {
     "Url": "https://github.com/Microsoft/microsoft.github.io",
     "Path": "test_repo",
     "Commit": "e9153e69c82068b45609359f86554a93569d76f1",
+    "Recurse": True,
 }
 
 test_dir = None
@@ -365,7 +384,10 @@ class test_repo_resolver(unittest.TestCase):
 
         temp_folder = tempfile.mkdtemp()
         submodule_path = "Common/MU"
-        deps = {"Url": "https://github.com/microsoft/mu_tiano_platforms"}
+        deps = {
+            "Url": "https://github.com/microsoft/mu_tiano_platforms",
+            "Recurse": True,
+        }
         repo_resolver.clone_repo(temp_folder, deps)
 
         os.mkdir(os.path.join(temp_folder, "Build"))
@@ -392,16 +414,19 @@ def test_resolve_all(tmpdir: pathlib.Path) -> None:
             "Url": "https://github.com/octocat/Spoon-Knife",
             "Path": "repo1",
             "Commit": "a30c19e3f13765a3b48829788bc1cb8b4e95cee4",
+            "Recurse": True,
         },
         {
             "Url": "https://github.com/octocat/Spoon-Knife",
             "Path": "repo2",
             "Commit": "bb4cc8d3b2e14b3af5df699876dd4ff3acd00b7f",
+            "Recurse": True,
         },
         {
             "Url": "https://github.com/octocat/Spoon-Knife",
             "Path": "repo3",
             "Commit": "d0dd1f61b33d64e29d8bc1372a94ef6a2fee76a9",
+            "Recurse": False,
         },
     ]
 
@@ -415,20 +440,31 @@ def test_clone_from_with_reference(tmpdir: pathlib.Path) -> None:
     """Test that we can clone a repo from a reference repo."""
     # Clone the reference repo
     ref_path = pathlib.Path(tmpdir / "ref")
-    dep = {"Url": "https://github.com/octocat/Spoon-Knife"}
+    dep = {
+        "Url": "https://github.com/octocat/Spoon-Knife",
+        "Recurse": True,
+    }
     repo_resolver.clone_repo(ref_path, dep)
     assert len(list(ref_path.iterdir())) > 0
 
     # Clone the repo from the reference
     repo_path1 = pathlib.Path(tmpdir / "repo1")
-    dep = {"Url": "https://github.com/octocat/Spoon-Knife", "ReferencePath": ref_path}
+    dep = {
+        "Url": "https://github.com/octocat/Spoon-Knife",
+        "ReferencePath": ref_path,
+        "Recurse": True,
+    }
     repo_resolver.clone_repo(repo_path1, dep)
     assert len(list(repo_path1.iterdir())) > 0
 
     # Clone the repo from a bad reference
     repo_path2 = pathlib.Path(tmpdir / "repo2")
     bad_repo_path = pathlib.Path(tmpdir / "bad_repo")
-    dep = {"Url": "https://github.com/octocat/Spoon-Knife", "ReferencePath": bad_repo_path}
+    dep = {
+        "Url": "https://github.com/octocat/Spoon-Knife",
+        "ReferencePath": bad_repo_path,
+        "Recurse": True,
+    }
     repo_resolver.clone_repo(repo_path2, dep)
     assert len(list(repo_path2.iterdir())) > 0
 
@@ -436,7 +472,12 @@ def test_clone_from_with_reference(tmpdir: pathlib.Path) -> None:
 def test_checkout_branch(tmpdir: pathlib.Path) -> None:
     """Test that we can checkout a branch."""
     # Clone the repo
-    dep = {"Url": "https://github.com/octocat/Spoon-Knife", "Path": tmpdir, "Branch": "main"}
+    dep = {
+        "Url": "https://github.com/octocat/Spoon-Knife",
+        "Path": tmpdir,
+        "Branch": "main",
+        "Recurse": True,
+    }
     repo_resolver.clone_repo(tmpdir, dep)
     details = repo_resolver.repo_details(tmpdir)
     assert details["Branch"] == "main"
@@ -447,7 +488,12 @@ def test_checkout_branch(tmpdir: pathlib.Path) -> None:
     assert details["Branch"] == "main"
 
     # Dep for the rest of the tests
-    dep = {"Url": "https://github.com/octocat/Spoon-Knife", "Path": tmpdir, "Branch": "test-branch"}
+    dep = {
+        "Url": "https://github.com/octocat/Spoon-Knife",
+        "Path": tmpdir,
+        "Branch": "test-branch",
+        "Recurse": True,
+    }
 
     # Checkout different branch with ignore_dep_state_mismatch
     repo_resolver.checkout(tmpdir, dep, ignore_dep_state_mismatch=True)
@@ -467,13 +513,23 @@ def test_checkout_branch(tmpdir: pathlib.Path) -> None:
 def test_checkout_bad_branch(tmpdir: pathlib.Path) -> None:
     """Test that the checkout function works with bad branches."""
     # Clone the repo
-    dep = {"Url": "https://github.com/octocat/Spoon-Knife", "Path": tmpdir, "Branch": "main"}
+    dep = {
+        "Url": "https://github.com/octocat/Spoon-Knife",
+        "Path": tmpdir,
+        "Branch": "main",
+        "Recurse": True,
+    }
     repo_resolver.clone_repo(tmpdir, dep)
     details = repo_resolver.repo_details(tmpdir)
     assert details["Branch"] == "main"
 
     # Checkout bad branch without forcing
-    dep = {"Url": "https://github.com/octocat/Spoon-Knife", "Path": tmpdir, "Branch": "does not exist"}
+    dep = {
+        "Url": "https://github.com/octocat/Spoon-Knife",
+        "Path": tmpdir,
+        "Branch": "does not exist",
+        "Recurse": True,
+    }
     with pytest.raises(Exception):
         repo_resolver.checkout(tmpdir, dep)
 

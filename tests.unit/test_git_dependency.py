@@ -33,7 +33,8 @@ hw_json_template = """
   "name": "HelloWorld",
   "source": "https://github.com/octocat/Hello-World.git",
   "version": "%s",
-  "flags": []
+  "flags": [],
+  "Recurse": True,
 }
 """
 
@@ -288,6 +289,7 @@ class TestGitDependencyUrlPatching(unittest.TestCase):
         "source": "https://github.com/octocat/Hello-World.git",
         "version": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d",
         "flags": [],
+        "Recurse": True,
     }
 
     def tearDown(self) -> None:
