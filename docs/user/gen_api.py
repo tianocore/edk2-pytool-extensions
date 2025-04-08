@@ -34,6 +34,7 @@ def main() -> None:
         "nuget_publishing.py",
         "omnicache.py",
         "nuget.py",
+        "patch_var_store.py",
         "versioninfo_tool.py",
         "versioninfo_helper.py",
         "secureboot_audit.py",
