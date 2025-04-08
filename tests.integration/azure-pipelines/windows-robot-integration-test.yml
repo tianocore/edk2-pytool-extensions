@@ -35,7 +35,7 @@ jobs:
           ToolChain: 'VS2019'
         Edk2_Ubuntu_Python${{ replace(PyVer, '.','') }}:
           Tag: 'Edk2NOTQEMU'
-          Image: 'ubuntu-20.04'
+          Image: 'ubuntu-22.04'
           ToolChain: 'GCC5'
           PythonVersion: '${{PyVer}}'
 
@@ -57,7 +57,7 @@ jobs:
   - powershell: choco install qemu --version=2023.4.24; Write-Host "##vso[task.prependpath]c:\Program Files\qemu"
     displayName: Install QEMU and Set QEMU on path # friendly name displayed in the UI
     condition: and(contains(variables.Image, 'windows'), succeeded())
-  
+
   - script: |
       sudo apt-get update
       sudo apt-get install gcc g++ make uuid-dev qemu
