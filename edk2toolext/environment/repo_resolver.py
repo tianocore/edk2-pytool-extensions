@@ -390,8 +390,10 @@ def clone_repo(abs_file_system_path: os.PathLike, DepObj: dict) -> tuple:
         if reference:
             params.append("--reference")
             params.append(reference.as_posix())
-        if reference and recurse:
-            params.append("--recurse-submodules")  # if we don't have a reference we can just recurse the submodules
+        elif recurse:
+            params.append("--recurse-submodules")
+
+        return params
 
         return params
 
