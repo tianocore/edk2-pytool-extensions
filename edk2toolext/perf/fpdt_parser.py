@@ -1390,16 +1390,15 @@ def get_uefi_version() -> str:
     Logs:
         Logs an error message if the UEFI version cannot be retrieved.
     """
-    command = [
-        "powershell",
-        "-c",
-        "(Get-CimInstance -ClassName Win32_BIOS).SMBIOSBIOSVersion",
-    ]
-    p = subprocess.Popen(command, stdout=subprocess.PIPE)
-    p.wait()
-    uefiVersion = p.stdout.read().decode("utf-8").strip()
+    import wmi
 
-    return uefiVersion
+    try:
+        c = wmi.WMI()
+        bios_info = c.Win32_BIOS()[0]
+        return bios_info.SMBIOSBIOSVersion
+    except Exception as e:
+        logging.error(f"Failed to retrieve UEFI version: {e}")
+        return "Unknown"
 
 
 def get_model() -> str:
@@ -1409,16 +1408,15 @@ def get_model() -> str:
         str: The model name of the computer system. If an error occurs during retrieval,
         "Unknown" is returned and the error is logged.
     """
-    command = [
-        "powershell",
-        "-c",
-        "(Get-CimInstance -ClassName Win32_ComputerSystem).Model",
-    ]
-    p = subprocess.Popen(command, stdout=subprocess.PIPE)
-    p.wait()
-    model = p.stdout.read().decode("utf-8").strip()
+    import wmi
 
-    return model
+    try:
+        c = wmi.WMI()
+        computer_system = c.Win32_ComputerSystem()[0]
+        return computer_system.Model
+    except Exception as e:
+        logging.error(f"Failed to retrieve model: {e}")
+        return "Unknown"
 
 
 def main() -> None:
