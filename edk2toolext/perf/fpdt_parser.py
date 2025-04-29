@@ -643,8 +643,8 @@ class DynamicStringEventRecord(object):
         ) = struct.unpack_from(DynamicStringEventRecord.struct_format, contents_byte_array)
         try:
             self.string = self.string[: self.string.index(b"\x00")]
-        except:
-            logging.critical(r"String in a Dynamic String Record does not contain a null terminator")
+        except ValueError:
+            logging.critical("String in a Dynamic String Record does not contain a null terminator")
         self.string = "".join(
             [i if ((ord(i) == 0) or ((ord(i) > 31) and (ord(i) < 127))) else "?" for i in self.string.decode("ascii")]
         )
@@ -780,8 +780,8 @@ class DualGuidStringEventRecord(object):
         ) = struct.unpack_from(DualGuidStringEventRecord.struct_format, contents_byte_array)
         try:
             self.string = self.string[: self.string.index(b"\x00")]
-        except:
-            logging.critical(r"String in a Dual GUID String Record does not contain a null terminator")
+        except ValueError:
+            logging.critical("String in a Dual GUID String Record does not contain a null terminator")
         self.string = "".join(
             [i if ((ord(i) == 0) or ((ord(i) > 31) and (ord(i) < 127))) else "?" for i in self.string.decode("ascii")]
         )
