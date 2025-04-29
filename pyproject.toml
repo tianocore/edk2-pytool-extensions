@@ -68,6 +68,9 @@ openssl = [
     "pyopenssl",
     "cryptography >= 39.0.1",
 ]
+perf = [
+    "wmi>=1.5.0; sys_platform=='win32'",
+]
 
 [project.scripts]
 stuart_setup = "edk2toolext.invocables.edk2_setup:main"
@@ -86,6 +89,8 @@ firmware_policy_tool = "edk2toolext.windows.policy.firmware_policy_tool:main"
 edk2_capsule_tool = "edk2toolext.capsule.capsule_tool:main"
 versioninfo_tool = "edk2toolext.versioninfo.versioninfo_tool:main"
 validate_image_tool = "edk2toolext.image_validation:main"
+fpdt_parser = "edk2toolext.perf.fpdt_parser:main"
+perf_report_generator = "edk2toolext.perf.perf_report_generator:main"
 secureboot_audit = "edk2toolext.windows.secureboot.secureboot_audit:main"
 
 [tool.setuptools]
