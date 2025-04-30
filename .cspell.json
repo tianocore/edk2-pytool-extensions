@@ -55,7 +55,8 @@
         "executables",
         "extdep",
         "fdfp",
-        "FileFlagsMask",
+        "FileFlagsMask"
+        "fileversionms",
         "gitattributes",
         "gitbash",
         "gitignore",
@@ -106,6 +107,7 @@
         "ppis",
         "prebuild",
         "prepended",
+        "productversionms",
         "pygit",
         "pygount",
         "pymodule",
