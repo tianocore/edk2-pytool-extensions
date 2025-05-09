@@ -1,8 +1,15 @@
 """Tests for FBPT record parsing from bytes."""
 
+import sys
+
+import pytest
+
+# fpdt_parser only support Windows at this time
+if sys.platform != "win32":
+    pytest.skip("Skipping test_fpdt_parser tests: not running on Windows", allow_module_level=True)
+
 import os
 import struct
-import sys
 import types
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -11,7 +18,6 @@ from unittest import mock
 from unittest.mock import MagicMock, Mock, patch
 
 import edk2toolext
-import pytest
 from edk2toolext.perf.fpdt_parser import (
     DUAL_GUID_STRING_EVENT_TYPE,
     DYNAMIC_STRING_EVENT_TYPE,
@@ -1041,6 +1047,11 @@ class TestGetUefiVersionGetModel:
 class TestParser:
     """Tests parsing a input FBPT."""
 
+    @pytest.fixture(scope="function", autouse=True)
+    def setup_temp_directory(self, tmp_path: Path) -> None:
+        """Sets up a temporary directory for testing."""
+        self.temp_dir = tmp_path
+
     def mock_parser_app(
         self,
         mock_handle_output_file: Optional[Callable[[str], None]] = None,
@@ -1048,8 +1059,8 @@ class TestParser:
         mock_get_uefi_version_model: Optional[Callable[[str], None]] = None,
         mock_write_text_header: Optional[Callable[[str], None]] = None,
         mock_write_xml_header: Optional[Callable[[str], None]] = None,
-        output_text_file: str = "test_output.txt",
-        output_xml_file: str = "test_output.xml",
+        output_text_file: str = None,
+        output_xml_file: str = None,
         input_fbpt_bin: str = "FBPT_TestModel_TestUEFI.bin",
     ) -> ParserApp:
         """Mocks parsing functionality. If any of the function arguments are None, they will default to a no-op mock."""
@@ -1063,7 +1074,10 @@ class TestParser:
             mock_write_text_header = mock.Mock()
         if not mock_write_xml_header:
             mock_write_xml_header = mock.Mock(spec=["append"])
-
+        if not output_text_file:
+            output_text_file = os.path.join(self.temp_dir, "test_output.txt")
+        if not output_xml_file:
+            output_xml_file = os.path.join(self.temp_dir, "test_output.xml")
         mock_parse_args = mock.Mock(
             return_value=mock.Mock(
                 output_text_file=output_text_file,
@@ -1261,7 +1275,7 @@ class TestParser:
         mock_app = self.mock_parser_app()
         mock_fbpt_file = mock.Mock()
 
-        def mock_parsing_factory_side_effect(fbpt_file: Mock, fbpt_records_list: List[Mock]) -> int:
+        def mock_parsing_factory_side_effect(_: Mock, fbpt_records_list: List[Mock]) -> int:
             mock_record = mock.Mock()
             fbpt_records_list.append(mock_record)
             return 0
