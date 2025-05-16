@@ -274,9 +274,14 @@ def repo_details(abs_file_system_path: os.PathLike) -> dict:
             details["Remotes"] = [remote.name for remote in repo.remotes]
 
             # 1. Use the remote associated with the branch if on a branch and it exists
-            if not repo.head.is_detached and repo.branches[repo.head.ref.name].tracking_branch():
-                remote_name = repo.branches[repo.head.ref.name].tracking_branch().remote_name
-                details["Url"] = repo.remotes[remote_name].url
+            if not repo.head.is_detached:
+                tracking_branch = repo.branches[repo.head.ref.name].tracking_branch()
+                if tracking_branch:
+                    remote_name = tracking_branch.remote_name
+                    if remote_name in repo.remotes:
+                        details["Url"] = repo.remotes[remote_name].url
+                    else:
+                        details["Url"] = str(tracking_branch).removesuffix("/" + details["Branch"])
             # 2. Use the origin url if it exists
             elif "origin" in repo.remotes:
                 details["Url"] = repo.remotes.origin.url
