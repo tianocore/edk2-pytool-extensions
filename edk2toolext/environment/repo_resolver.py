@@ -316,6 +316,7 @@ def process_submodules_from_ci_file(
             CiSettingsInstance = importlib.util.spec_from_file_location(module_name, CISettingFile)
             Settings = importlib.util.module_from_spec(CiSettingsInstance)
             CiSettingsInstance.loader.exec_module(Settings)
+
             workspace_path = Settings.Settings().GetWorkspaceRoot()
             submodule_list = Settings.Settings().GetRequiredSubmodules()
 
@@ -330,15 +331,15 @@ def process_submodules_from_ci_file(
                     logging.error(e)
 
         except NameError:
-            logging.error(f"Failed to find {ci_file}")
+            logging.error(f"Failed to find {CISettingFile.as_posix()}")
         except ImportError:
-            logging.error(f"Failed to load {ci_file}, missing import")
+            logging.error(f"Failed to load {CISettingFile.as_posix()}, missing import")
         except ReferenceError:
-            logging.error(f"Failed to load {ci_file}, missing reference")
-        else:
-            logging.warning(f"Failed to load {ci_file}, unknown error")
+            logging.error(f"Failed to load {CISettingFile.as_posix()}, missing reference")
+        except Exception as e:
+            logging.warning(f"Failed to load {CISettingFile.as_posix()}, unknown exception {e}")
     else:
-        logging.error(f"Failed to find {ci_file} in the repo.  Skipping submodule processing.")
+        logging.error(f"Failed to find {CISettingFile.as_posix()} in the repo. Skipping submodule processing.")
 
 
 def clone_repo(abs_file_system_path: os.PathLike, DepObj: dict) -> tuple:
@@ -577,7 +578,7 @@ def submodule_clean(abs_file_system_path: os.PathLike, submodule: dict) -> None:
 
 
 def submodule_resolve(
-    abs_file_system_path: os.PathLike, submodule: dict, omnicache_path: Optional[os.PathLike] = None
+    abs_file_system_path: os.PathLike, submodule: object, omnicache_path: Optional[os.PathLike] = None
 ) -> None:
     """Resolves a submodule to the specified branch and commit in .gitmodules.
 
@@ -585,7 +586,8 @@ def submodule_resolve(
 
     Args:
         abs_file_system_path (os.PathLike): repo directory
-        submodule (dict): object containing attributes: path (relative) and recursive
+        submodule (class RequiredSubmodule): object containing attributes: path (relative) and
+            recursive and configuration_file
         omnicache_path (PathLike | None): absolute path to the omnicache, if used
 
     Raises:
@@ -598,14 +600,17 @@ def submodule_resolve(
         repo.git.submodule("sync", "--", submodule.path)
 
         params = ["update", "--init"]
-        if submodule.recursive:
+        if submodule.recursive and not submodule.configuration_file:
             params.append("--recursive")
         if omnicache_path:
             params.append("--reference")
             params.append(omnicache_path)
         params.append(submodule.path)
-        logger.debug(f"Updating {submodule.path}")
+        logger.debug(f"Updating {submodule.path} {params}")
         repo.git.submodule(*params)
+
+        if submodule.configuration_file:
+            process_submodules_from_ci_file(Path(abs_file_system_path, submodule.path), submodule.configuration_file)
 
     with Repo(Path(abs_file_system_path, submodule.path)) as _:
         logger.debug(f"{submodule.path} is valid and resolved.")
