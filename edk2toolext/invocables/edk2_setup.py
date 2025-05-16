@@ -39,16 +39,18 @@ from edk2toolext.invocables.edk2_multipkg_aware_invocable import (
 class RequiredSubmodule:
     """A class containing information about a git submodule."""
 
-    def __init__(self, path: str, recursive: bool = True) -> None:
+    def __init__(self, path: str, recursive: bool = True, configuration_file: str = None) -> None:
         """Object to hold necessary information for resolving submodules.
 
         Args:
             path (str): workspace relative path to submodule that must be
                 synchronized and updated
             recursive (bool): if recursion should be used in this submodule
+            configuration_file: path to file containing CiSettingsManager instance
         """
         self.path = path
         self.recursive = recursive
+        self.configuration_file = configuration_file
 
 
 class SetupSettingsManager(MultiPkgAwareSettingsInterface):

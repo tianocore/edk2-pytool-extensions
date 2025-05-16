@@ -378,9 +378,13 @@ class test_repo_resolver(unittest.TestCase):
 
         class Submodule:
             def __init__(self, path: str, recursive: bool) -> None:
-                """Inits Submodule."""
+                """Inits Submodule.
+
+                Mimics RequiredSubmodule from edk2_setup.py.
+                """
                 self.path = path
                 self.recursive = recursive
+                self.configuration_file = None
 
         temp_folder = tempfile.mkdtemp()
         submodule_path = "Common/MU"
