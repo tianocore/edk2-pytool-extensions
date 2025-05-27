@@ -8,13 +8,13 @@
 ##
 """Unit test suite for the GitDependency class."""
 
+import importlib.resources
 import logging
 import os
 import sys
 import tempfile
 import unittest
 
-import pkg_resources
 from edk2toolext.bin import nuget
 from edk2toolext.environment import environment_descriptor_files as EDF
 from edk2toolext.environment import version_aggregator
@@ -90,11 +90,12 @@ class TestNugetDependency(unittest.TestCase):
             os.environ[NugetDependency.NUGET_ENV_VAR_NAME] = self.saved_nuget_path
 
         # Fix the nuget.exe is missing....download again
-        requirement = pkg_resources.Requirement.parse("edk2-pytool-extensions")
-        nuget_file_path = os.path.join("edk2toolext", "bin", "NuGet.exe")
-        nuget_path = pkg_resources.resource_filename(requirement, nuget_file_path)
-
-        if not os.path.isfile(nuget_path):
+        try:
+            with importlib.resources.path("edk2toolext.bin", "NuGet.exe") as nuget_path:
+                if not os.path.isfile(nuget_path):
+                    nuget.DownloadNuget()
+        except Exception:
+            # fallback for older Python or importlib.resources issues
             nuget.DownloadNuget()
 
     def test_can_get_nuget_path(self) -> None:

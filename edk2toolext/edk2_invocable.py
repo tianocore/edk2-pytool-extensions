@@ -18,6 +18,7 @@ is provided via the Edk2InvocableSettingsInterface.
 """
 
 import argparse
+import importlib.metadata
 import inspect
 import logging
 import os
@@ -28,7 +29,6 @@ from string import ascii_letters
 from textwrap import dedent
 from typing import Iterable
 
-import pkg_resources
 from edk2toollib.utility_functions import GetHostInfo, RunCmd, import_module_by_file_name, locate_class_in_module
 
 from edk2toolext.base_abstract_invocable import BaseAbstractInvocable
@@ -203,12 +203,21 @@ class Edk2Invocable(BaseAbstractInvocable):
         ver_agg = version_aggregator.GetVersionAggregator()
         ver_agg.ReportVersion("Python", cur_py, version_aggregator.VersionTypes.TOOL)
         # Get a list of all the packages currently installed in pip
-        pip_packages = [p for p in pkg_resources.working_set]
+        try:
+            pip_packages = importlib.metadata.distributions()
+        except Exception:
+            pip_packages = []
         # go through all installed pip versions
         for package in pip_packages:
-            version = pkg_resources.get_distribution(package).version
-            logging.info("{0} version: {1}".format(package.project_name, version))
-            ver_agg.ReportVersion(package.project_name, version, version_aggregator.VersionTypes.PIP)
+            try:
+                version = package.version
+                name = package.metadata["Name"] if "Name" in package.metadata else package.metadata.get("name", None)
+                if not name:
+                    name = package.metadata.get("Summary", "unknown")
+            except Exception:
+                continue
+            logging.info("{0} version: {1}".format(name, version))
+            ver_agg.ReportVersion(name, version, version_aggregator.VersionTypes.PIP)
 
     @classmethod
     def collect_rust_info(cls: "Edk2Invocable") -> None:
