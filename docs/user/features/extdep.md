@@ -73,6 +73,10 @@ This package has a version of the NuGet.exe binary or a user can configure their
 environment to use a defined version by setting `NUGET_PATH` to the folder containing
 the NuGet.exe that should be used.
 
+For enviroments with restricted network access it's possible to override
+dependencies' sources with a single local mirror by setting the value of
+the `NUGET_PKG_SOURCE` env variable to the mirror's location.
+
 ### Web Dependency
 
 Web dependency is used to describe a dependency on an asset that can be

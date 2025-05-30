@@ -36,6 +36,8 @@ class NugetDependency(ExternalDependency):
 
     # Env variable name for path to folder containing NuGet.exe
     NUGET_ENV_VAR_NAME = "NUGET_PATH"
+    # Env variable name for path to NuGet packages (e.g. local mirror)
+    NUGET_SOURCE_VAR_NAME = "NUGET_PKG_SOURCE"
 
     def __init__(self, descriptor: dict) -> None:
         """Inits a nuget dependency based off the provided descriptor."""
@@ -217,9 +219,14 @@ class NugetDependency(ExternalDependency):
         # fetch the contents of the package.
         #
         package_name = self.package
+        source = self.source
+        # Check if the package's source is overriden by an env variable
+        source = os.getenv(self.NUGET_SOURCE_VAR_NAME)
+        if source is None:
+          source = self.source
         cmd = NugetDependency.GetNugetCmd()
         cmd += ["install", package_name]
-        cmd += ["-Source", self.source]
+        cmd += ["-Source", source]
         cmd += ["-ExcludeVersion"]
         if non_interactive:
             cmd += ["-NonInteractive"]
