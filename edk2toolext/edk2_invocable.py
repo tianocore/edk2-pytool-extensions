@@ -208,11 +208,13 @@ class Edk2Invocable(BaseAbstractInvocable):
         except Exception:
             pip_packages = []
         # go through all installed pip versions
+        filtered = set()
         for package in pip_packages:
             name = package.metadata.get("Name", None) or package.metadata.get("Summary", None)
-            if name is None:
-                continue
+            if name:
+                filtered.add(name)
 
+        for name in filtered:
             # Always grab the version of the first instance of the package on the PATH. pipenv inserts its
             # path first, so we can assume that the first instance is the one actually used.
             version = importlib.metadata.version(name)
