@@ -329,7 +329,8 @@ class CoverageReport(Report):
 
         packages = ET.SubElement(root, "packages")
         for path, source_list in inf_source_dict.items():
-            if fnmatch.fnmatch(path, "*Test*"):
+            # Exclude sources file that exists under a Test or UnitTest folder
+            if fnmatch.fnmatch(path, "*/Test/*") or fnmatch.fnmatch(path, "*/UnitTest/*"):
                 continue
             if not source_list:
                 continue
