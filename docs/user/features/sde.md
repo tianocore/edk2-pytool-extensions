@@ -42,67 +42,39 @@ differentiate a given descriptor from another descriptor, should it show up in a
 
 The following path_env fields are required:
 
-- scope
-
-  - Identifies which build environments this descriptor contributes to, and what level of precedence it should take
-    within that environment.
-
-- flags
-
-  - We'll see that flags are common to both path_env and ext_dep descriptors, but they are required for path_env (and
-    only optional for ext_dep). This is because it doesn't make any sense to create a path_env descriptor without
-    specifying what part of the environment should be updated.
+<!-- markdownlint-disable MD013 -->
+| Field | Description |
+|-------|-------------|
+| scope | Identifies which build environments this descriptor contributes to, and what level of precedence it should take within that environment. |
+| flags | We'll see that flags are common to both path_env and ext_dep descriptors, but they are required for path_env (and only optional for ext_dep). This is because it doesn't make any sense to create a path_env descriptor without specifying what part of the environment should be updated. |
+<!-- markdownlint-enable MD013 -->
 
 Currently supported flags are:
 
-- host_specific
+<!-- markdownlint-disable MD013 -->
+| Field | Description |
+|-------|-------------|
+| host_specific     | Allows a nuget package to specify that the contents of the package are organized by host OS or architecture. The SDE will determine what folder is relevant for the host OS and product being built and add that to the path. |
+| set_path          | Adds the NuGet unpacked folder to the front of PATH. |
+| set_pypath        | Adds the NuGet unpacked folder to the front of PYTHONPATH. Also adds it to sys.path. |
+| set_build_var     | Sets a build* variable with the key being the name of the ext_dep and the value being the path of the nuget unpacked folder. User must also set `var_name` |
+| set_shell_var     | Sets a shell** variable with the key being the name of the ext_dep and the value being the path of the nuget unpacked folder. User must also set `var_name` |
+| include_separator | Includes a path separated at the end of the path we set in variables. |
+<!-- markdownlint-enable MD013 -->
 
-  - Allows a nuget package to specify that the contents of the package are organized by host OS or architecture. The SDE
-    will determine what folder is relevant for the host OS and product being built and add that to the path.
+\* A `build` variable is specific to stuart and accessible via `self.env.GetValue()` in the platform's build file.
 
-- set_path
-
-  - Adds the NuGet unpacked folder to the front of PATH
-
-- set_pypath
-
-  - Adds the NuGet unpacked folder to the front of PYTHONPATH. Also adds it to sys.path.
-
-- set_build_var
-
-  - Sets a build variable with the key being the name of the ext_dep and the value being the path of the nuget unpacked folder
-  - If you include this attribute you must include a var_name
-  - (a var that exists internally to the build system that is retrieved with with env.GetValue())
-
-- set_shell_var
-
-  - Sets a shell variable with the key being the name of the ext_dep and the value being the path of the nuget unpacked folder
-  - If you include this attribute you must include a var_name
-  - (a var that exists in the command-line environment via "set" or "os.environ" or "env")
-
-- include_separator
-
-  - Includes a path separated at the end of the path we set in variables
+** A `shell` variable is are host system environment variables typically accessed via `os.environ`.
 
 The following path_env fields are optional or conditional:
 
-- var_name
-
-  - If either the "set_shell_var" or "set_build_var" are in the flags, this field will be required. It defines the name
-    of the var being set.
-
-- id
-
-  - Part of the Override System, this field defines the name that this file will be referred to as by any override_id fields.
-  It is an error for there to be multiple files with the same id in the same set of scopes.
-  The SDE will throw an exception in this case.
-  You are welcome to have the same id if they're on separate scopes that won't overlap.
-
-- override_id
-
-  - This file will override any descriptor files.
-  Override can apply to any type of descriptor (a path env can override an ext_dep for example).
-  If two descriptors override the same file, this is considered an error and the SDE will throw an exception.
+<!-- markdownlint-disable MD013 -->
+| Field | Description |
+|-------|-------------|
+| var_name | If either the "set_shell_var" or "set_build_var" are in the flags, this field will be required. It defines the name of the var being. |
+| id | Part of the Override System, this field defines the name that this file will be referred to as by any override_id fields. It is an error for there to be multiple files with the same id in the same set of scopes. The SDE will throw an exception in this case. You are welcome to have the same id if they're on separate scopes that won't overlap. |
+| override_id | This file will override any descriptor files. Override can apply to any type of descriptor (a path env can override an ext_dep for example). If two descriptors override the same file, this is considered an error and the SDE will throw an exception. |
+<!-- markdownlint-enable MD013 -->
 
 ## The Belly of the Beast
 
