@@ -31,6 +31,7 @@ from edk2toollib.uefi.edk2.parsers.inf_parser import InfParser
 from edk2toollib.utility_functions import RunCmd
 
 from edk2toolext import edk2_logging
+from edk2toolext.environment import shell_environment
 from edk2toolext.invocables.edk2_multipkg_aware_invocable import (
     Edk2MultiPkgAwareInvocable,
     MultiPkgAwareSettingsInterface,
@@ -311,29 +312,46 @@ class Edk2PrEval(Edk2MultiPkgAwareInvocable):
             if len(remaining_packages) != 1:
                 raise Exception("Policy 4 can only be used by builds for a single package")
 
-            # files are all the files changed edk2 workspace root relative path
-            changed_modules = self._get_unique_module_infs_changed(files)
-            changed_modules = [Path(m) for m in changed_modules]
+            if self.requested_target_list is None:
+                raise ValueError("Policy 4 requires a target to be set.")
 
-            # now check DSC
-            dsc = DscParser().SetEdk2Path(self.edk2_path_obj)
-            # given that PR eval runs before dependencies are downloaded we must tolerate errors
-            dsc.SetNoFailMode()
-            dsc.SetInputVars(PlatformDscInfo[1])
-            dsc.ParseFile(PlatformDscInfo[0])
-            allinfs = dsc.OtherMods + dsc.ThreeMods + dsc.SixMods + dsc.Libs  # get list of all INF files
-            allinfs = [Path(i) for i in allinfs]
+            for target in self.requested_target_list:
+                if target not in self.PlatformSettings.GetTargetsSupported():
+                    raise ValueError(f"Target {target} is not supported by this platform.")
 
-            #
-            # Note: for now we assume that remaining_packages has only 1 package and that it corresponds
-            # to the DSC file provided.
-            #
-            for p in remaining_packages[:]:  # slice so we can delete as we go
-                for cm in changed_modules:
-                    if cm in allinfs:  # is the changed module listed in the DSC file?
-                        packages_to_build[p] = f"Policy 4 - Package Dsc depends on {str(cm)}"
-                        remaining_packages.remove(p)  # remove from remaining packages
-                        break
+                # files are all the files changed edk2 workspace root relative path
+                changed_modules = self._get_unique_module_infs_changed(files)
+                changed_modules = [Path(m) for m in changed_modules]
+
+                # now check the DSC
+                dsc = DscParser().SetEdk2Path(self.edk2_path_obj)
+                # given that PR eval runs before dependencies are downloaded we must tolerate errors
+                dsc.SetNoFailMode()
+
+                # start with any default values explicitly passed by the GetPlatformDscAndConfig() implementation
+                input_vars = {}
+                if PlatformDscInfo[1] is not None:
+                    input_vars.update(PlatformDscInfo[1])
+
+                # update with build variables resolved against the current target
+                input_vars.update(shell_environment.GetBuildVars().GetAllBuildKeyValues(target))
+
+                dsc.SetInputVars(input_vars)
+                dsc.ParseFile(PlatformDscInfo[0])
+
+                allinfs = dsc.OtherMods + dsc.ThreeMods + dsc.SixMods + dsc.Libs  # get list of all INF files
+                allinfs = [Path(i) for i in allinfs]
+
+                #
+                # Note: for now we assume that remaining_packages has only 1 package and that it corresponds
+                # to the DSC file provided.
+                #
+                for p in remaining_packages[:]:  # slice so we can delete as we go
+                    for cm in changed_modules:
+                        if cm in allinfs:  # is the changed module listed in the DSC file?
+                            packages_to_build[p] = f"Policy 4 - Package Dsc depends on {str(cm)}"
+                            remaining_packages.remove(p)  # remove from remaining packages
+                            break
 
         #
         # Policy 5: If a file changed is a Library INF file, then build all packages that depend on that Library
