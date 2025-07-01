@@ -12,34 +12,37 @@ dependencies and path descriptors.
 
 Types of plugins are defined by the class they inherit from
 
-- UefiBuildPlugin
+### UefiBuildPlugin
 
-  - Contains two methods, Pre and Post Build. These methods are called on Pre
-    and Post Build steps in UefiBuild (not CiBuild). There is no guarantee on
-    ordering between different plugins (Pre will always come before Post). Post
-    is will not run if there is a critical error in the build process.
-  - The idea here is to allow for custom, self-contained build functionality to
-    be added without required UEFI build changes or inline code modifications.
+- Contains two methods, Pre and Post Build. These methods are called on Pre
+  and Post Build steps in UefiBuild (not CiBuild). There is no guarantee on
+  ordering between different plugins (Pre will always come before Post). Post
+  is will not run if there is a critical error in the build process.
 
-- DscProcessorPlugin (in-progress)
+- The idea here is to allow for custom, self-contained build functionality to
+  be added without required UEFI build changes or inline code modifications.
 
-  - This is a plugin type that can apply transformations to the active DSC that
-    will then be used to build the system.
-  - This is not production ready and _not enabled in_ any builds currently.
+### DscProcessorPlugin (in-progress)
 
-- UefiHelperPlugin
+- This is a plugin type that can apply transformations to the active DSC that
+  will then be used to build the system.
 
-  - This is a helper plugin that publishes a function that can be used by other
-    parts of the system. An example of this would be the Capsule signing system.
-  - This really is less about plugin design and more about keeping the UEFI
-    build and platform builder python files minimal and getting the desired code
-    reuse.
+- This is not production ready and _not enabled in_ any builds currently.
 
-- CiBuildPlugin
+### UefiHelperPlugin
 
-  - A plugin that runs during the main stage of CiBuild. The build step is
-    actually a plugin so as ordering is not guaranteed so you don't have any
-    assurance that the build is successful or that the build has started
+- This is a helper plugin that publishes a function that can be used by other
+  parts of the system. An example of this would be the Capsule signing system.
+
+- This really is less about plugin design and more about keeping the UEFI
+  build and platform builder python files minimal and getting the desired code
+  reuse.
+
+### CiBuildPlugin
+
+- A plugin that runs during the main stage of CiBuild. The build step is
+  actually a plugin so as ordering is not guaranteed so you don't have any
+  assurance that the build is successful or that the build has started
 
 ## How it works
 
