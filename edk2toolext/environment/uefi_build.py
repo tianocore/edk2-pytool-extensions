@@ -569,6 +569,7 @@ class UefiBuilder(object):
             "BUILD_OUT_TEMP",
             os.path.normpath(os.path.join(self.ws, self.env.GetValue("OUTPUT_DIRECTORY"))),
             "Computed in SetEnv",
+            True
         )
 
         target = self.env.GetValue("TARGET", None)
@@ -581,6 +582,7 @@ class UefiBuilder(object):
             "BUILD_OUTPUT_BASE",
             os.path.join(self.env.GetValue("BUILD_OUT_TEMP"), target + "_" + self.env.GetValue("TOOL_CHAIN_TAG")),
             "Computed in SetEnv",
+            True
         )
 
         # We have our build target now.  Give platform build one more chance for target specific settings.
@@ -591,7 +593,7 @@ class UefiBuilder(object):
 
         # set the build report file
         self.env.SetValue(
-            "BUILDREPORT_FILE", os.path.join(self.env.GetValue("BUILD_OUTPUT_BASE"), "BUILD_REPORT.TXT"), True
+            "BUILDREPORT_FILE", os.path.join(self.env.GetValue("BUILD_OUTPUT_BASE"), "BUILD_REPORT.TXT"),"Computed in SetEnv",True
         )
 
         # set environment variables for the build process
