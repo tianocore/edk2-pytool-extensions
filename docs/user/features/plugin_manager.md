@@ -17,7 +17,7 @@ Types of plugins are defined by the class they inherit from
 - Contains two methods, Pre and Post Build. These methods are called on Pre
   and Post Build steps in UefiBuild (not CiBuild). There is no guarantee on
   ordering between different plugins (Pre will always come before Post). Post
-  is will not run if there is a critical error in the build process.
+  will not run if there is a critical error in the build process.
 
 - The idea here is to allow for custom, self-contained build functionality to
   be added without required UEFI build changes or inline code modifications.
