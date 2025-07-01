@@ -83,16 +83,22 @@ class PrEvalSettingsManager(MultiPkgAwareSettingsInterface):
         return potentialPackagesList
 
     def GetPlatformDscAndConfig(self) -> tuple:
-        """Provide a platform dsc and config.
+        """Provide a platform DSC and build variable configuration.
 
-        If a platform desires to provide its DSC then Policy 4 will evaluate if
-        any of the changes will be built in the dsc.
+        If a platform provides the workspace relative path for its DSC file to this function, then
+        Policy 4 will be evaluated. This is used to determine if a change occurred in a module that
+        is used in the DSC file.
+
+        Returning the dictionary of build key value pairs is optional but allows those variables to
+        be considered when evaluating the DSC file. These variable values will override any values
+        set directly in build files such as the DSC files. These variable values will be overridden
+        by any values set on the command line for the current target.
 
         !!! tip
-            Optional Override in a subclass
+            Optional override in a subclass
 
         Returns:
-            (tuple): (workspace relative path to dsc file, input dictionary of dsc key value pairs)
+            (tuple): (workspace relative path to DSC file, input dictionary of build variable key value pairs)
         """
         return None
 
