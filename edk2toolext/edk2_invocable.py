@@ -463,11 +463,11 @@ class Edk2Invocable(BaseAbstractInvocable):
                 classNameList = [obj.__name__ for obj in classList]
                 # TODO improve filter to no longer catch imports as well as declared classes
                 imported_classes = ", ".join(classNameList)  # Join the classes together
-                print(f"The module you imported contains {imported_classes}")
+                print(f"The module you imported contains {imported_classes}\n")
             except Exception:
                 raise
 
-            settingsParserObj.print_help()
+            print("Use --help to see available options.\n")
             sys.exit(1)
 
         except FileNotFoundError:
@@ -480,17 +480,23 @@ class Edk2Invocable(BaseAbstractInvocable):
                     self.AddCommandLineOptions(settingsParserObj)
                 except Exception:
                     pass
+                finally:
+                    settingsParserObj.print_help()
             else:
                 # Gracefully exit if we can't find the file
-                print(f"We weren't able to find {settingsArg.platform_module}")
-            settingsParserObj.print_help()
+                print(
+                    f"We weren't able to find {settingsArg.platform_module}. An existing Platform Module is required to"
+                    " execute any stuart commands.\n\nUse --help to see available options."
+                )
             sys.exit(2)
 
         except Exception as e:
-            print(f"Error: We had trouble loading {settingsArg.platform_module}. Is the path correct?")
+            print(
+                f"Error: We had trouble loading {settingsArg.platform_module}. Is the path correct?. A loadable"
+                " Platform Module is required to execute any stuart commands.\n\nUse --help to see available options.\n"
+            )
             # Gracefully exit if setup doesn't go well.
-            settingsParserObj.print_help()
-            print(e)
+            print(f"Load Error: {e}")
             sys.exit(2)
 
         # Turn on Deprecation warnings for code in the module
