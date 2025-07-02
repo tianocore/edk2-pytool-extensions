@@ -17,6 +17,7 @@ while allowing the invocable itself to remain platform agnostic.
 import argparse
 import logging
 import os
+import pathlib
 import sys
 import timeit
 import traceback
@@ -105,12 +106,20 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
             default=False,
             help="Exit on the first plugin failure.",
         )
+        parser.add_argument(
+            "-l",
+            "--list",
+            action="store_true",
+            default=False,
+            help="List all available plugins for the current configuration file and exit."
+        )
         super().AddCommandLineOptions(parser)
 
     def RetrieveCommandLineOptions(self, args: argparse.Namespace) -> None:
         """Retrieve command line options from the argparser."""
         self.disable_plugins = args.disable
         self.fail_fast = args.fail_fast
+        self.list_plugins = args.list
         super().RetrieveCommandLineOptions(args)
 
     def GetSettingsClass(self) -> type:
@@ -125,8 +134,41 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
         """Returns the filename (CI_BUILDLOG) of where the logs for the Edk2CiBuild invocable are stored in."""
         return "CI_BUILDLOG"
 
+    def ListPlugins(self) -> None:
+        """List all available plugins for the current configuration file and exit."""
+        pluginList = self.plugin_manager.GetPluginsOfClass(ICiBuildPlugin)
+
+        data = [
+            (entry.Module, str(pathlib.Path(entry.descriptor.get("descriptor_file", "unknown")).parent))
+            for entry in pluginList
+        ]
+
+        name_width = max(len("Plugin Name"), max(len(entry[0]) for entry in data))
+        dir_width = max(len("Plugin Directory (Code, Documentation)"), max(len(entry[1]) for entry in data))
+
+        header = f"{'Plugin Name'.ljust(name_width)} | {'Plugin Directory (Code, Documentation)'.ljust(dir_width)}"
+        separator = f"{'-' * name_width}-+-{'-' * dir_width}"
+
+        rows = []
+        for entry in data:
+            rows.append(f"{entry[0].ljust(name_width)} | {entry[1].ljust(dir_width)}")
+
+        table = "\n".join([header, separator] + rows)
+
+        print(table)
+
+        print("\nNOTE: You can disable any plugin with PluginName=skip.")
+        print(
+            "NOTE: You can disable all plugins with the --disable-all option, then enable specific plugins with "
+            "<PluginName>=run"
+        )
+
     def Go(self) -> int:
         """Executes the core functionality of the Edk2CiBuild invocable."""
+        if self.list_plugins:
+            self.ListPlugins()
+            return 0
+
         full_start_time = timeit.default_timer()
 
         log_directory = os.path.join(self.GetWorkspaceRoot(), self.GetLoggingFolderRelativeToRoot())
