@@ -111,7 +111,7 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
             "--list",
             action="store_true",
             default=False,
-            help="List all available plugins for the current configuration file and exit."
+            help="List all available plugins for the current configuration file and exit.",
         )
         super().AddCommandLineOptions(parser)
 
