@@ -32,6 +32,7 @@ class PluginDescriptor(object):
         self.Obj = None
         self.Name = t["name"]
         self.Module = t["module"]
+        self.Order = t.get("order", 0)
 
     def __str__(self) -> str:
         """String representation of the plugin descriptor."""
@@ -65,6 +66,7 @@ class PluginManager(object):
                 self.Descriptors.append(b)
             else:
                 failed.append(a)
+        self._sortPlugins()
         return failed
 
     def GetPluginsOfClass(self, classobj: type) -> list[object]:
@@ -83,6 +85,10 @@ class PluginManager(object):
         """Return list of all plugins."""
         return self.Descriptors
 
+    def _sortPlugins(self) -> None:
+        """Sort the plugins by their order attribute."""
+        self.Descriptors.sort(key=lambda x: x.Order)
+    
     def _load(self, PluginDescriptor: "PluginDescriptor") -> int:
         """Load and instantiate the plugin.
 
