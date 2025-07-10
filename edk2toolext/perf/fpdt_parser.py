@@ -1643,7 +1643,7 @@ class ParserApp:
             # Add all records to the FBPT container element
             for record in fbpt_records_list:
                 self.fbpt_tree.append(record.to_xml())
-            
+
             # Now append the complete FBPT container to the main XML tree
             self.xml_tree.append(self.fbpt_tree)
 
@@ -1651,7 +1651,7 @@ class ParserApp:
             rough_string = ET.tostring(self.xml_tree, encoding='unicode')
             reparsed = minidom.parseString(rough_string)
             formatted_xml = reparsed.toprettyxml(indent="    ")
-            
+
             with open(self.options.output_xml_file, "w", encoding='utf-8') as xml_file:
                 xml_file.write(formatted_xml)
 
