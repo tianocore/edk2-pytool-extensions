@@ -1648,11 +1648,11 @@ class ParserApp:
             self.xml_tree.append(self.fbpt_tree)
 
             # Format XML properly with indentation
-            rough_string = ET.tostring(self.xml_tree, encoding='unicode')
+            rough_string = ET.tostring(self.xml_tree, encoding="unicode")
             reparsed = minidom.parseString(rough_string)
             formatted_xml = reparsed.toprettyxml(indent="    ")
 
-            with open(self.options.output_xml_file, "w", encoding='utf-8') as xml_file:
+            with open(self.options.output_xml_file, "w", encoding="utf-8") as xml_file:
                 xml_file.write(formatted_xml)
 
         if self.options.output_text_file:
