@@ -119,7 +119,7 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
         """Retrieve command line options from the argparser."""
         self.disable_plugins = args.disable
         self.fail_fast = args.fail_fast
-        self.list_plugins = args.list
+        self.list_plugins = args.plugin_list
         super().RetrieveCommandLineOptions(args)
 
     def GetSettingsClass(self) -> type:
