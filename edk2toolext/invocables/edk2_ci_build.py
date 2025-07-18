@@ -108,7 +108,7 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
         )
         parser.add_argument(
             "-l",
-            "--list",
+            "--plugin-list",
             action="store_true",
             default=False,
             help="List all available plugins for the current configuration file and exit.",
@@ -158,6 +158,7 @@ class Edk2CiBuild(Edk2MultiPkgAwareInvocable):
         print(table)
 
         print("\nNOTE: You can disable any plugin with PluginName=skip.")
+        print("NOTE: CI plugins are not guaranteed to to run in any particular order and may change at any time.")
         print(
             "NOTE: You can disable all plugins with the --disable-all option, then enable specific plugins with "
             "<PluginName>=run"
