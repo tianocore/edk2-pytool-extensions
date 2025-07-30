@@ -96,6 +96,12 @@ class NugetDependency(ExternalDependency):
         if not version:
             raise ValueError("String is empty. At least major version is required.")
 
+        # If NuGetVersion is marked as wildcard '*'
+        # It means the version looking for is the latest available version on the Nuget Feed
+        # In that case, skip the normalisation
+        if version == '*':
+            return version
+
         # 2. NuGetVersion uses case insensitive string comparisons for
         #    pre-release components
         reformed_ver = version.strip().lower()
@@ -223,7 +229,11 @@ class NugetDependency(ExternalDependency):
         cmd += ["-ExcludeVersion"]
         if non_interactive:
             cmd += ["-NonInteractive"]
-        cmd += ["-Version", self.version]
+        # If NuGetVersion is marked as wildcard '*'
+        # It means the version looking for is the latest available version on the Nuget Feed
+        # In that case, hardcoded version need not to be passed.
+        if self.version != '*':
+            cmd += ["-Version", self.version]
         cmd += ["-Verbosity", "detailed"]
         cmd += ["-OutputDirectory", '"' + install_dir + '"']
         # make sure to capture our output
