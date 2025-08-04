@@ -77,6 +77,7 @@ from ctypes import (
 )
 from io import TextIOWrapper
 from typing import BinaryIO
+from xml.dom import minidom
 
 FPDT_PARSER_VER = "3.00"
 
@@ -576,7 +577,7 @@ class GuidEventRecord(object):
         guid_xml = ET.SubElement(xml_repr, "GUID")
         guid_xml.set(
             "Value",
-            "%08X-%04X-%04X-%02X%02X-%02X%02X-%02X%02X-%02X%02X"
+            "%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X"
             % (
                 self.guid_uint32,
                 self.guid_uint16_0,
@@ -705,7 +706,7 @@ class DynamicStringEventRecord(object):
         guid_xml = ET.SubElement(xml_repr, "GUID")
         guid_xml.set(
             "Value",
-            "%08X-%04X-%04X-%02X%02X-%02X%02X-%02X%02X-%02X%02X"
+            "%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X"
             % (
                 self.guid_uint32,
                 self.guid_uint16_0,
@@ -873,7 +874,7 @@ class DualGuidStringEventRecord(object):
         guid1_xml.set(
             "Value",
             f"{self.guid1_uint32:08X}-{self.guid1_uint16_0:04X}-{self.guid1_uint16_1:04X}-"
-            f"{self.guid1_uint8_0:02X}{self.guid1_uint8_1:02X}{self.guid1_uint8_2:02X}{self.guid1_uint8_3:02X}"
+            f"{self.guid1_uint8_0:02X}{self.guid1_uint8_1:02X}-{self.guid1_uint8_2:02X}{self.guid1_uint8_3:02X}"
             f"{self.guid1_uint8_4:02X}{self.guid1_uint8_5:02X}{self.guid1_uint8_6:02X}{self.guid1_uint8_7:02X}",
         )
 
@@ -881,7 +882,7 @@ class DualGuidStringEventRecord(object):
         guid2_xml.set(
             "Value",
             f"{self.guid2_uint32:08X}-{self.guid2_uint16_0:04X}-{self.guid2_uint16_1:04X}-"
-            f"{self.guid2_uint8_0:02X}{self.guid2_uint8_1:02X}{self.guid2_uint8_2:02X}{self.guid2_uint8_3:02X}"
+            f"{self.guid2_uint8_0:02X}{self.guid2_uint8_1:02X}-{self.guid2_uint8_2:02X}{self.guid2_uint8_3:02X}"
             f"{self.guid2_uint8_4:02X}{self.guid2_uint8_5:02X}{self.guid2_uint8_6:02X}{self.guid2_uint8_7:02X}",
         )
 
@@ -1473,6 +1474,7 @@ class ParserApp:
         self.text_log = self.handle_output_file()
         self.handle_input_file()
         self.uefi_version, self.model = self.get_uefi_version_model()
+        self.fbpt_tree = None  # Initialize FBPT container element
 
         self.write_text_header()
         self.xml_tree = self.write_xml_header()
@@ -1612,9 +1614,9 @@ class ParserApp:
         if self.options.output_text_file:
             self.text_log.write(str(fbpt_header))
         if self.options.output_xml_file:
-            # Store FBPT header and records under a separate element under FPDT
-            fbpt_tree = fbpt_header.to_xml()
-            self.xml_tree.append(fbpt_tree)
+            # Store FBPT header as a container element that will hold all records
+            self.fbpt_tree = fbpt_header.to_xml()
+            # Don't append to xml_tree yet - we'll do that after adding all records
 
     def gather_fbpt_records(self, fbpt_file: BinaryIO) -> list:
         """Collects FBPT records from an input file."""
@@ -1638,11 +1640,20 @@ class ParserApp:
     def write_records(self, fbpt_records_list: list) -> int:
         """Writes FBPT records to an output file."""
         if self.options.output_xml_file:
+            # Add all records to the FBPT container element
             for record in fbpt_records_list:
-                self.xml_tree.append(record.to_xml())
+                self.fbpt_tree.append(record.to_xml())
 
-            with open(self.options.output_xml_file, "wb") as xml_file:
-                xml_file.write(ET.tostring(self.xml_tree))
+            # Now append the complete FBPT container to the main XML tree
+            self.xml_tree.append(self.fbpt_tree)
+
+            # Format XML properly with indentation
+            rough_string = ET.tostring(self.xml_tree, encoding="unicode")
+            reparsed = minidom.parseString(rough_string)
+            formatted_xml = reparsed.toprettyxml(indent="    ")
+
+            with open(self.options.output_xml_file, "w", encoding="utf-8") as xml_file:
+                xml_file.write(formatted_xml)
 
         if self.options.output_text_file:
             for record in fbpt_records_list:

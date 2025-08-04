@@ -342,7 +342,7 @@ class TestGuidEventRecord:
         assert xml_elem.find("ApicID").get("Value") == "0x56789ABC"
         assert xml_elem.find("Timestamp").get("RawValue") == "0xABCDEF0123456789"
         assert xml_elem.find("Timestamp").get("ValueInMilliseconds") == "12379813738877.119141"
-        assert xml_elem.find("GUID").get("Value") == "DEADBEEF-BEEF-FEED-DEAD-BEEF-0123-4567"
+        assert xml_elem.find("GUID").get("Value") == "DEADBEEF-BEEF-FEED-DEAD-BEEF01234567"
 
 
 class TestDynamicStringEventRecord:
@@ -614,8 +614,8 @@ class TestDualGuidStringEventRecord:
         assert xml.find("ApicID").attrib["Value"] == "0x2"
         assert xml.find("Timestamp").attrib["RawValue"] == "0x3"
         assert xml.find("Timestamp").attrib["ValueInMilliseconds"] == "0.000003"
-        assert xml.find("GUID1").attrib["Value"] == "00000004-0005-0006-0708090A0B0C0D0E"
-        assert xml.find("GUID2").attrib["Value"] == "0000000F-0010-0011-1213141516171819"
+        assert xml.find("GUID1").attrib["Value"] == "00000004-0005-0006-0708-090A0B0C0D0E"
+        assert xml.find("GUID2").attrib["Value"] == "0000000F-0010-0011-1213-141516171819"
         assert xml.find("String").attrib["Value"] == "BootMsg"
 
 
@@ -1115,6 +1115,7 @@ class TestParser:
 
             app.text_log = mock.Mock(spec=["write", "close"])
             app.xml_tree = mock.Mock(spec=["append"])
+            app.fbpt_tree = mock.Mock(spec=["append"])
 
             return app
 
@@ -1268,7 +1269,7 @@ class TestParser:
         with mock.patch.object(FwBasicBootPerformanceTableHeader, "__new__", return_value=mock_header):
             mock_app.write_fbpt(mock_fbpt_file)
             mock_app.text_log.write.assert_called_once_with("Fake FBPT Header String")
-            mock_app.xml_tree.append.assert_called_once_with("<fbpt_header_xml>fake_xml</fbpt_header_xml>")
+            assert mock_app.fbpt_tree == "<fbpt_header_xml>fake_xml</fbpt_header_xml>"
 
     def test_gather_fbpt_records_parse_failure(self) -> None:
         """Tests error handling when a FBPT record has an invalid format."""
@@ -1297,10 +1298,12 @@ class TestParser:
         with (
             mock.patch("builtins.open", mock.mock_open()),
             mock.patch("xml.etree.ElementTree.tostring"),
+            mock.patch("xml.dom.minidom.parseString"),
         ):
             result = mock_app.write_records(fbpt_records_list)
             assert result == 1
-            mock_app.xml_tree.append.assert_any_call("<Record1></Record1>")
+            mock_app.fbpt_tree.append.assert_any_call("<Record1></Record1>")
+            mock_app.xml_tree.append.assert_any_call(mock_app.fbpt_tree)
             mock_app.text_log.write.assert_any_call("Record1")
 
 
