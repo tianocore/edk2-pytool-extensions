@@ -613,8 +613,7 @@ class UefiBuilder(object):
     # Methods that will be overridden by child class
     # -----------------------------------------------------------------------
 
-    @classmethod
-    def PlatformPreBuild(self: "UefiBuilder") -> int:
+    def PlatformPreBuild(self) -> int:
         """Perform Platform PreBuild Steps.
 
         Returns:
@@ -622,8 +621,7 @@ class UefiBuilder(object):
         """
         return 0
 
-    @classmethod
-    def PlatformPostBuild(self: "UefiBuilder") -> int:
+    def PlatformPostBuild(self) -> int:
         """Perform Platform PostBuild Steps.
 
         Returns:
@@ -631,8 +629,7 @@ class UefiBuilder(object):
         """
         return 0
 
-    @classmethod
-    def SetPlatformEnv(self: "UefiBuilder") -> int:
+    def SetPlatformEnv(self) -> int:
         """Set and read Platform Env variables.
 
         This is performed before platform files like the DSC and FDF have been parsed.
@@ -647,8 +644,7 @@ class UefiBuilder(object):
         """
         return 0
 
-    @classmethod
-    def SetPlatformEnvAfterTarget(self: "UefiBuilder") -> int:
+    def SetPlatformEnvAfterTarget(self) -> int:
         """Set and read Platform Env variables after platform files have been parsed.
 
         Returns:
@@ -656,8 +652,7 @@ class UefiBuilder(object):
         """
         return 0
 
-    @classmethod
-    def SetPlatformDefaultEnv(self: "UefiBuilder") -> list[namedtuple]:
+    def SetPlatformDefaultEnv(self) -> list[namedtuple]:
         """Sets platform default environment variables by returning them as a list.
 
         Variables returned from this method are printed to the command line when
@@ -674,8 +669,7 @@ class UefiBuilder(object):
         """
         return []
 
-    @classmethod
-    def PlatformBuildRom(self: "UefiBuilder") -> int:
+    def PlatformBuildRom(self) -> int:
         """Build the platform Rom.
 
         !!! tip
@@ -684,8 +678,7 @@ class UefiBuilder(object):
         """
         return 0
 
-    @classmethod
-    def PlatformFlashImage(self: "UefiBuilder") -> int:
+    def PlatformFlashImage(self) -> int:
         """Flashes the image to the system.
 
         Returns:
@@ -693,8 +686,7 @@ class UefiBuilder(object):
         """
         return 0
 
-    @classmethod
-    def PlatformGatedBuildShouldHappen(self: "UefiBuilder") -> bool:
+    def PlatformGatedBuildShouldHappen(self) -> bool:
         """Specifies if a gated build should happen.
 
         Returns:
