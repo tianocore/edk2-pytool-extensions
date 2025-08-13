@@ -68,7 +68,8 @@ class Capsule:
         name (str): the name of the capsule package
         provider_name (str): the name of the capsule provider
         arch (str): the architecture targeted by the capsule
-        os (str): the OS targeted by the capsule.
+        os (str): the OS string targeted by the capsule.
+        target_os_ver: the target OS version for the capsule, if applicable.
         manufacturer_name (str): name of the capsule manufacturer. optional, defaults to provider_name if None.
         date (datetime.date): when the capsule was built. optional, defaults to datetime.date.today().
         payloads (List[CapsulePayload]): a list of capsule payloads. optional, defaults to empty list
@@ -79,6 +80,7 @@ class Capsule:
     provider_name: str
     arch: str = None
     os: str = None
+    target_os_ver: str = None
     manufacturer_name: str = None
     date: datetime.date = datetime.date.today()
     payloads: List[CapsulePayload] = field(default_factory=list)
@@ -252,6 +254,7 @@ def create_inf_file(capsule_options: dict, save_path: str) -> str:
         capsule_options["provider_name"],
         capsule_options["mfg_name"],
         capsule_options["arch"],
+        TargetOsVersion=capsule_options.get("target_os_ver", None),
     )
 
     inf_file.AddFirmware(
@@ -299,6 +302,7 @@ def create_multinode_inf_file(capsule: Capsule, save_path: str) -> str:
         capsule.provider_name,
         capsule.manufacturer_name,
         capsule.arch,
+        TargetOsVersion=capsule.target_os_ver,
     )
 
     idx = 0

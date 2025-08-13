@@ -272,6 +272,20 @@ class MultiNodeFileGenerationTest(unittest.TestCase):
         inf_file_path = capsule_helper.create_multinode_inf_file(self.capsule, self.temp_output_dir)
         self.assertTrue(os.path.isfile(inf_file_path))
 
+    def test_default_and_custom_target_os_version_str(self) -> None:
+        """Test that the target OS version string is set correctly."""
+        # Default case
+        self.assertIsNone(self.capsule.target_os_ver)
+
+        DUMMY_OPTIONS["capsule"]["target_os_ver"] = "10.0.22222"
+        inf_file_path = capsule_helper.create_inf_file(DUMMY_OPTIONS["capsule"], self.temp_dir)
+
+        self.assertTrue(os.path.isfile(inf_file_path))
+        with open(inf_file_path, "r") as inf_file:
+            content = inf_file.read()
+            self.assertIn("[Manufacturer]\n%MfgName% = Firmware,NTamd64.10.0.22222\n", content)
+            self.assertIn("[Firmware.NTamd64.10.0.22222]\n", content)
+
 
 if __name__ == "__main__":
     unittest.main()
