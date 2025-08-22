@@ -58,7 +58,7 @@ class AzureCliUniversalDependency(ExternalDependency):
         if cls.VersionLogged:
             return
         results = StringIO()
-        RunCmd("az", "--version", outstream=results, raise_exception_on_nonzero=True)
+        RunCmd("az", "version", outstream=results, raise_exception_on_nonzero=True)
         results.seek(0)
 
         to_find = ["azure-cli", "azure-devops"]  # find these keys in the version output
@@ -80,7 +80,7 @@ class AzureCliUniversalDependency(ExternalDependency):
 
         # Check requirements
 
-        # 1 - az cli tool missing will raise exception on call to az --version earlier in function
+        # 1 - az cli tool missing will raise exception on call to az version earlier in function
 
         # 2 - Check for azure-devops extension
         if "azure-devops" not in found.keys():
