@@ -40,7 +40,7 @@ jobs:
           mkdocs build --strict
       
       - name: Upload Github Pages Site Artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           name: "github-pages"
           path: "site/"
