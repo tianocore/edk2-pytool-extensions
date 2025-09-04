@@ -58,32 +58,36 @@ class AzureCliUniversalDependency(ExternalDependency):
         if cls.VersionLogged:
             return
         results = StringIO()
-        RunCmd("az", "--version", outstream=results, raise_exception_on_nonzero=True)
+
+        # Running "az --version" will query the server every time and may be slow
+        # Running "az version" is local and fast
+        RunCmd("az", "version", outstream=results, raise_exception_on_nonzero=True)
         results.seek(0)
 
-        to_find = ["azure-cli", "azure-devops"]  # find these keys in the version output
-        found = dict()
-
-        for line in results.readlines():
-            if len(to_find) == 0:
-                break
-
-            for f in to_find:
-                if f in line:
-                    found[f] = line.split()[1]
-                    to_find.remove(f)
-                    break
+        # Parse the JSON output
+        data = json.loads(results.read())
 
         # Log the versions found
-        for k, v in found.items():
-            version_aggregator.GetVersionAggregator().ReportVersion(k, v, version_aggregator.VersionTypes.TOOL)
+        for k, v in data.items():
+            if isinstance(v, str):
+                version_aggregator.GetVersionAggregator().ReportVersion(k, v, version_aggregator.VersionTypes.TOOL)
+
+        for k, v in data.get("extensions", {}).items():
+            if isinstance(v, str):
+                version_aggregator.GetVersionAggregator().ReportVersion(k, v, version_aggregator.VersionTypes.TOOL)
 
         # Check requirements
 
-        # 1 - az cli tool missing will raise exception on call to az --version earlier in function
+        # 1 - az cli tool missing will raise exception on call to az version earlier in function
+        if "azure-cli" not in data.keys():
+            logging.critical(
+                "Missing required Azure-cli tool azure-cli.\n"
+                "Installation instructions: https://learn.microsoft.com/azure/devops/cli"
+            )
+            raise EnvironmentError("Missing required Azure-cli tool azure-cli")
 
         # 2 - Check for azure-devops extension
-        if "azure-devops" not in found.keys():
+        if "azure-devops" not in data["extensions"].keys():
             logging.critical(
                 "Missing required Azure-cli extension azure-devops.\n"
                 "Installation instructions: https://learn.microsoft.com/azure/devops/cli"
