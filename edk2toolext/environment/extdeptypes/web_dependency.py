@@ -113,7 +113,10 @@ class WebDependency(ExternalDependency):
             path = pathlib.Path(destination, file)
             if path.is_file() and compression_type == "zip" and not platform.system().startswith("Win"):
                 expected_mode = _ref.getinfo(file).external_attr >> 16
-                path.chmod(expected_mode)
+                # If expected_mode is 0, then setting file permissions to all zeros can cause real issues depending on
+                # The distribution
+                if expected_mode:
+                    path.chmod(expected_mode)
 
         _ref.close()
 
