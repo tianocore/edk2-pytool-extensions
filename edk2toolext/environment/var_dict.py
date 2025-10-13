@@ -249,7 +249,7 @@ class VarDict(object):
             etc
 
         Args:
-            BuildType (:obj:`str`, optional): DEBUG/RELEASE
+            BuildType (`str`, optional): DEBUG/RELEASE
 
         Returns:
             (dict): all keys, values in the environment which are build keys
