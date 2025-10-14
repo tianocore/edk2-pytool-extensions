@@ -105,6 +105,10 @@ class WebDependency(ExternalDependency):
         # Filter the files inside to only the ones that are inside the important folder
         files_to_extract = [name for name in files_in_volume if linux_internal_path in name]
 
+        if compression_type == "zip" and not platform.system().startswith("Win"):
+            current_umask = os.umask(0) # get old umask, temporarily set to 0
+            os.umask(current_umask)     # restore old umask immediately
+
         for file in files_to_extract:
             _ref.extract(member=file, path=destination)
 
@@ -112,7 +116,14 @@ class WebDependency(ExternalDependency):
             # if using a non-windows machine.
             path = pathlib.Path(destination, file)
             if path.is_file() and compression_type == "zip" and not platform.system().startswith("Win"):
-                expected_mode = _ref.getinfo(file).external_attr >> 16
+                expected_mode = (_ref.getinfo(file).external_attr >> 16) & 0o777
+
+                # zip files created on Windows may have external_attr set to 0,
+                # so calling chmod(0) has no effect. Use the system umask to
+                # determine a sensible default file permission instead.
+                if expected_mode == 0:
+                    expected_mode = 0o666 & (~current_umask)
+
                 path.chmod(expected_mode)
 
         _ref.close()
