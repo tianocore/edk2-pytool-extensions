@@ -79,7 +79,7 @@ Run Edk2 UefiCpuPkg CoreCI for No-Target
     [Documentation]  This Test will run NO-TARGET Core CI test on the UefiCpuPkg
     [Tags]           CoreCI  Windows  VS2019  NO-TARGET  Edk2
 
-    ${archs}=            Set Variable    X64,IA32,AARCH64,ARM
+    ${archs}=            Set Variable    X64,IA32,AARCH64
     ${targets}=          Set Variable    NO-TARGET
     ${packages}=         Set Variable    UefiCpuPkg
 

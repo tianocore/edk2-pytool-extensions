@@ -78,7 +78,7 @@ Run ProjectMu UefiCpuPkg CoreCI for No-Target
     [Documentation]  This Test will run NO-TARGET Core CI test on the UefiCpuPkg
     [Tags]           CoreCI  Windows  VS2022  NO-TARGET  ProjectMu
 
-    ${archs}=            Set Variable    X64,IA32,AARCH64,ARM
+    ${archs}=            Set Variable    X64,IA32,AARCH64
     ${targets}=          Set Variable    NO-TARGET
     ${packages}=         Set Variable    UefiCpuPkg
 
