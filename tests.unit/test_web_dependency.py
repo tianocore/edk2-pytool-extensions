@@ -184,6 +184,9 @@ class TestWebDependency(unittest.TestCase):
             logging.warning(folder_path)
             self.fail()
 
+    @unittest.skip("GNU FTP connection dropping")
+    # This test fails consistently in CI with an UNEXPECTED_EOF_WHILE_READING error. This is
+    # happening with urllib and requests. It appears to be a server side issue (configuration).
     def test_sha256_whole_tar_directory(self) -> None:
         """Try to download a whole zip directory and test sha256 comparison."""
         ext_dep_file_path = os.path.join(test_dir, "good_ext_dep.json")
