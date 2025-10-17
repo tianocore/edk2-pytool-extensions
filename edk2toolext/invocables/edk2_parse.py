@@ -202,7 +202,16 @@ class Edk2Parse(Edk2MultiPkgAwareInvocable):
         try:
             platform_module = locate_class_in_module(self.PlatformModule, UefiBuilder)
             build_settings = platform_module()
-            build_settings.RetrieveCommandLineOptions(self.args)
+
+            # Setup a simple parser so we can parse the build options expected by the UefiBuilder.
+            # We then merge the args we already have with the newly parsed args to ensure all
+            # options are preserved. Then pass that to the UefiBuilder to retrieve the options.
+            temp_parser = argparse.ArgumentParser()
+            build_settings.AddCommandLineOptions(temp_parser)
+            args, _ = temp_parser.parse_known_args()
+            combined_args = Namespace(**{**vars(self.args), **vars(args)})
+            build_settings.RetrieveCommandLineOptions(combined_args)
+
             build_settings.Clean = False
             build_settings.SkipPreBuild = True
             build_settings.SkipBuild = True
