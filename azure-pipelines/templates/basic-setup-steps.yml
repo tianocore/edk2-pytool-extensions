@@ -15,7 +15,7 @@ steps:
 
 - task: UsePythonVersion@0
   inputs:
-    versionSpec: '3.12.x'
+    versionSpec: '3.14.x'
     architecture: 'x64'
 
 - script: pip install --upgrade -e .[dev]
