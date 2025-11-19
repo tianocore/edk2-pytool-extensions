@@ -958,7 +958,7 @@ class GuidQwordEventRecord(object):
   Apic ID     : 0x{self.apic_id:08X}
   Timestamp   : 0x{self.timestamp:016X}
   GUID        : {self.guid_uint32:08X}-{self.guid_uint16_0:04X}-{self.guid_uint16_1:04X}-"""
-            f"""{self.guid_uint8_0:02X}{self.guid_uint8_1:02X}{self.guid_uint8_2:02X}{self.guid_uint8_3:02X}"""
+            f"""{self.guid_uint8_0:02X}{self.guid_uint8_1:02X}-{self.guid_uint8_2:02X}{self.guid_uint8_3:02X}"""
             f"""{self.guid_uint8_4:02X}{self.guid_uint8_5:02X}{self.guid_uint8_6:02X}{self.guid_uint8_7:02X}
   Qword       : 0x{self.qword:016X}
 """
@@ -986,7 +986,7 @@ class GuidQwordEventRecord(object):
         guid_xml.set(
             "Value",
             f"{self.guid_uint32:08X}-{self.guid_uint16_0:04X}-{self.guid_uint16_1:04X}-"
-            f"{self.guid_uint8_0:02X}{self.guid_uint8_1:02X}{self.guid_uint8_2:02X}{self.guid_uint8_3:02X}"
+            f"{self.guid_uint8_0:02X}{self.guid_uint8_1:02X}-{self.guid_uint8_2:02X}{self.guid_uint8_3:02X}"
             f"{self.guid_uint8_4:02X}{self.guid_uint8_5:02X}{self.guid_uint8_6:02X}{self.guid_uint8_7:02X}",
         )
 
@@ -1083,7 +1083,7 @@ class GuidQwordStringEventRecord(object):
   Apic ID     : 0x{self.apic_id:08X}
   Timestamp   : 0x{self.timestamp:016X}
   GUID        : {self.guid_uint32:08X}-{self.guid_uint16_0:04X}-{self.guid_uint16_1:04X}-"""
-            f"""{self.guid_uint8_0:02X}{self.guid_uint8_1:02X}{self.guid_uint8_2:02X}{self.guid_uint8_3:02X}"""
+            f"""{self.guid_uint8_0:02X}{self.guid_uint8_1:02X}-{self.guid_uint8_2:02X}{self.guid_uint8_3:02X}"""
             f"""{self.guid_uint8_4:02X}{self.guid_uint8_5:02X}{self.guid_uint8_6:02X}{self.guid_uint8_7:02X}
   Qword       : 0x{self.qword:016X}
   String      : {string}
@@ -1112,7 +1112,7 @@ class GuidQwordStringEventRecord(object):
         guid_xml.set(
             "Value",
             f"{self.guid_uint32:08X}-{self.guid_uint16_0:04X}-{self.guid_uint16_1:04X}-"
-            f"{self.guid_uint8_0:02X}{self.guid_uint8_1:02X}{self.guid_uint8_2:02X}{self.guid_uint8_3:02X}"
+            f"{self.guid_uint8_0:02X}{self.guid_uint8_1:02X}-{self.guid_uint8_2:02X}{self.guid_uint8_3:02X}"
             f"{self.guid_uint8_4:02X}{self.guid_uint8_5:02X}{self.guid_uint8_6:02X}{self.guid_uint8_7:02X}",
         )
 
