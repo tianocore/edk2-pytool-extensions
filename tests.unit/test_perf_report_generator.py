@@ -967,7 +967,7 @@ class TestParseFdptRecords(unittest.TestCase):
         """Test parsing GUIDs from FDPT records."""
         mock_walk.return_value = [(self.test_dir, [], ["test.inf", "test.dec"])]
 
-        def mock_file_open(file: str, mode: str = "r") -> io.StringIO:
+        def mock_file_open(file: str, mode: str = "r", encoding: str = None) -> io.StringIO:
             if file.endswith(".inf"):
                 return io.StringIO(BASE_LIB_INF_CONTENTS)
             elif file.endswith(".dec"):
