@@ -673,7 +673,7 @@ class TestGuidQwordEventRecord:
         assert "Progress ID : 0x1234" in result
         assert "Apic ID     : 0x56789ABC" in result
         assert "Timestamp   : 0x123456789ABCDEF0" in result
-        assert "GUID        : DEADBEEF-CAFE-BABE-0102030405060708" in result
+        assert "GUID        : DEADBEEF-CAFE-BABE-0102-030405060708" in result
         assert "Qword       : 0x0FEDCBA987654321" in result
         assert "MockHeader" in result
 
@@ -701,7 +701,7 @@ class TestGuidQwordEventRecord:
 
         guid = xml.find("GUID")
         assert guid is not None
-        assert guid.attrib["Value"] == "DEADBEEF-CAFE-BABE-0102030405060708"
+        assert guid.attrib["Value"] == "DEADBEEF-CAFE-BABE-0102-030405060708"
 
         qword = xml.find("Qword")
         assert qword is not None
@@ -799,7 +799,7 @@ class TestGuidQwordStringEventRecord:
         assert "Progress ID : 0xABCD" in output
         assert "Apic ID     : 0x12345678" in output
         assert "Timestamp   : 0x0A0B0C0D0E0F1011" in output
-        assert "GUID        : 11112222-3333-4444-AABBCCDDEEFF0011" in output
+        assert "GUID        : 11112222-3333-4444-AABB-CCDDEEFF0011" in output
         assert "Qword       : 0xDEADBEEFCAFEBABE" in output
         assert "String      : BootStage" in output
 
@@ -833,7 +833,7 @@ class TestGuidQwordStringEventRecord:
         assert xml.find("ApicID").attrib["Value"] == "0x2"
         assert xml.find("Timestamp").attrib["RawValue"] == "0x3"
         assert xml.find("Timestamp").attrib["ValueInMilliseconds"] == "0.000003"
-        assert xml.find("GUID").attrib["Value"] == "00000004-0005-0006-0708090A0B0C0D0E"
+        assert xml.find("GUID").attrib["Value"] == "00000004-0005-0006-0708-090A0B0C0D0E"
         assert xml.find("Qword").attrib["Value"] == "0xF0F0F0F0F0F0F0F0"
         assert xml.find("String").attrib["Value"] == "Phase"
 
