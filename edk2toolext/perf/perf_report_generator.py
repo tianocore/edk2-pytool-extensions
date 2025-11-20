@@ -173,7 +173,7 @@ def _parse_file(
         is_fdf (bool): Whether the file is an FDF file.
     """
     logging.debug(f"Parsing file {file_path}:")
-    with open(file_path, "r") as file:
+    with open(file_path, "r", encoding="utf-8") as file:
         for regex in regexes:
             if is_dec:
                 pattern = re.compile(regex)
