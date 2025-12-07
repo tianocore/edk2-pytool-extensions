@@ -54,9 +54,9 @@ class ShellEnvironment(metaclass=Singleton):
         self.logger = logging.getLogger(LOGGING_GROUP)
 
         # Initialize all other things.
-        self.active_environ = None
-        self.active_path = None
-        self.active_pypath = None
+        self.active_environ : dict[str, str] = None
+        self.active_path : list[str] = None
+        self.active_pypath : list[str] = None
         self.active_buildvars = var_dict.VarDict()
         self.checkpoints = []
 
