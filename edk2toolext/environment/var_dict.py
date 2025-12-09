@@ -91,7 +91,7 @@ class VarDict(object):
     def __init__(self) -> None:
         """Inits an empty VarDict."""
         self.Logger = logging.getLogger("EnvDict")
-        self.Dstore = {}  # a set of envs
+        self.Dstore: dict[str, EnvEntry] = {}  # a dictionary of envs
 
     def GetEntry(self, key: str) -> Optional[EnvEntry]:
         """Returns an entry in the Dstore Dict."""
