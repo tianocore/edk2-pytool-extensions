@@ -93,7 +93,7 @@ validate_image_tool = "edk2toolext.image_validation:main"
 fpdt_parser = "edk2toolext.perf.fpdt_parser:main"
 perf_report_generator = "edk2toolext.perf.perf_report_generator:main"
 secureboot_audit = "edk2toolext.windows.secureboot.secureboot_audit:main"
-statuscode_processor = "edk2toolext.StatusCodeProcessor.StatusCodeprocessor:main"
+statuscode_processor = "edk2toolext.statuscodeprocessor.StatusCodeprocessor:main"
 
 [tool.setuptools]
 packages = ["edk2toolext"]
