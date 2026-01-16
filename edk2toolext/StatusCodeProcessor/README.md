@@ -107,11 +107,27 @@ statuscode_processor -e "ERROR: C40000002:V03040002 I0 12345678-ABCD-1234-5678-1
 
 | Argument | Description |
 | ---------- | ------------- |
-| `-s PATH`, `--search PATH` | Path to search for module GUID definitions (.inf/.dec/.fdf files). When provided, automatically discovers and loads platform-specific status code headers (unless `--no-auto-discover` is used). |
-| `-c HEADER [HEADER ...]`, `--platform-codes HEADER [HEADER ...]` | Explicitly specify additional platform-specific status code header file(s). Works together with auto-discovery. Use for files that don't match the auto-discovery pattern or to add extra headers. |
-| `--no-auto-discover` | Disable automatic discovery of `*StatusCode*.h` headers. Use this flag to parse only standard PI specification codes even when a search path is provided. |
-| `--debug` | Enable verbose debug output (DEBUG level logging). By default, logging is set to CRITICAL to minimize output. |
+| `-s PATH`, `--search PATH` | Path to search for module GUID definitions and auto-discover status code headers. |
+| `-c HEADER`, `--platform-codes HEADER` | Explicitly specify platform-specific status code header files. |
+| `--no-auto-discover` | Disable automatic discovery of `*StatusCode*.h` headers. |
+| `--debug` | Enable verbose debug output (DEBUG level logging). |
 | `-h`, `--help` | Show help message and exit |
+
+**Detailed Descriptions:**
+
+- **`-s PATH`, `--search PATH`**: Path to search for module GUID definitions (.inf/.dec/.fdf files).
+  When provided, automatically discovers and loads platform-specific status code headers
+  (unless `--no-auto-discover` is used).
+
+- **`-c HEADER [HEADER ...]`, `--platform-codes HEADER [HEADER ...]`**: Explicitly specify additional
+  platform-specific status code header file(s). Works together with auto-discovery. Use for files
+  that don't match the auto-discovery pattern or to add extra headers.
+
+- **`--no-auto-discover`**: Disable automatic discovery of `*StatusCode*.h` headers. Use this flag
+  to parse only standard PI specification codes even when a search path is provided.
+
+- **`--debug`**: Enable verbose debug output (DEBUG level logging). By default, logging is set to
+  CRITICAL to minimize output.
 
 ---
 
