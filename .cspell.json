@@ -153,6 +153,7 @@
         "sharednetworking",
         "shutil",
         "smbios",
+        "smbus",
         "spdx",
         "submodule",
         "submodules",
