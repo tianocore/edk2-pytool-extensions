@@ -20,23 +20,23 @@ jobs:
       ${{each PyVer in parameters.PythonVersionList}}:
         ProjectMu_Windows_Python${{ replace(PyVer, '.','') }}:
           Tag: 'ProjectMu'
-          Image: 'windows-2022'
+          Image: 'windows-2025'
           PythonVersion: '${{PyVer}}'
           ToolChain: 'VS2022'
         ProjectMu_Ubuntu_Python${{ replace(PyVer, '.','') }}:
           Tag: 'ProjectMu'
-          Image: 'ubuntu-22.04'
+          Image: 'ubuntu-24.04'
           PythonVersion: '${{PyVer}}'
-          ToolChain: 'GCC5'
+          ToolChain: 'GCC'
         Edk2_Windows_Python${{ replace(PyVer, '.','') }}:
           Tag: 'Edk2ANDQEMU'
-          Image: 'windows-2019'
+          Image: 'windows-2025'
           PythonVersion: '${{PyVer}}'
-          ToolChain: 'VS2019'
+          ToolChain: 'VS2022'
         Edk2_Ubuntu_Python${{ replace(PyVer, '.','') }}:
           Tag: 'Edk2NOTQEMU'
-          Image: 'ubuntu-22.04'
-          ToolChain: 'GCC5'
+          Image: 'ubuntu-24.04'
+          ToolChain: 'GCC'
           PythonVersion: '${{PyVer}}'
 
   workspace:
@@ -60,7 +60,7 @@ jobs:
 
   - script: |
       sudo apt-get update
-      sudo apt-get install gcc g++ make uuid-dev qemu
+      sudo apt-get install gcc g++ make uuid-dev qemu-utils qemu-system-x86 qemu-system-aarch64 mono-complete libx11-dev libxext-dev -y
     displayName: Install packages for ubuntu
     condition: and(contains(variables.Image, 'ubuntu'), succeeded())
 
