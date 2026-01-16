@@ -60,7 +60,7 @@ jobs:
 
   - script: |
       sudo apt-get update
-      sudo apt-get install gcc g++ make uuid-dev qemu
+      sudo apt-get install gcc g++ make uuid-dev qemu-utils qemu-system-x86 qemu-system-aarch64 -y
     displayName: Install packages for ubuntu
     condition: and(contains(variables.Image, 'ubuntu'), succeeded())
 
