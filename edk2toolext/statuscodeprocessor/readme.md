@@ -34,7 +34,7 @@ statuscode_processor -e "ERROR: C40000002:V03040002 I0 12345678-ABCD-1234-5678-1
 Alternatively, you can run it as a Python script directly:
 
 ```bash
-python StatusCodeprocessor.py -e "ERROR: C40000002:V03040002 I0 12345678-ABCD-1234-5678-123456789ABC 00000001"
+python statuscodeprocessor.py -e "ERROR: C40000002:V03040002 I0 12345678-ABCD-1234-5678-123456789ABC 00000001"
 ```
 
 ## Features
@@ -62,8 +62,8 @@ statuscode_processor -e "ERROR: C40000002:V03040002 I0 12345678-ABCD-1234-5678-1
 statuscode_processor -p "PROGRESS CODE: V03041001 I0"
 
 # Or run as a Python script directly
-python StatusCodeprocessor.py -e "ERROR: C40000002:V03040002 I0 12345678-ABCD-1234-5678-123456789ABC 00000001"
-python StatusCodeprocessor.py -p "PROGRESS CODE: V03041001 I0"
+python statuscodeprocessor.py -e "ERROR: C40000002:V03040002 I0 12345678-ABCD-1234-5678-123456789ABC 00000001"
+python statuscodeprocessor.py -p "PROGRESS CODE: V03041001 I0"
 ```
 
 ### With Platform-Specific Codes (Auto-Discovery Enabled by Default)
@@ -185,7 +185,7 @@ PROGRESS CODE: V03041001 I0
 **Command:**
 
 ```bash
-python StatusCodeprocessor.py -p "PROGRESS CODE: V03041001 I0"
+python statuscodeprocessor.py -p "PROGRESS CODE: V03041001 I0"
 ```
 
 **Output:**
@@ -214,7 +214,7 @@ Operation: PC_HANDOFF_TO_NEXT (0x1001)
 **Command:**
 
 ```bash
-python StatusCodeprocessor.py \
+python statuscodeprocessor.py \
   -e "ERROR: C40000002:VDEADBEEF I0 12345678-ABCD-1234-5678-123456789ABC 00ABCDEF" \
   -s /path/to/workspace
 ```
@@ -262,7 +262,7 @@ Extended Data: 0x00ABCDEF
 **Command:**
 
 ```bash
-python StatusCodeprocessor.py \
+python statuscodeprocessor.py \
   -e "ERROR: C40000002:V03040005 I0 ABCDEF01-2345-6789-ABCD-EF0123456789 00000001" \
   -s /path/to/workspace \
   -c /path/to/platform/CustomErrorCodes.h /path/to/platform/DebugCodes.h
@@ -282,7 +282,7 @@ python StatusCodeprocessor.py \
 **Command:**
 
 ```bash
-python StatusCodeprocessor.py \
+python statuscodeprocessor.py \
   -e "ERROR: C40000002:VDEADBEEF I0 12345678-ABCD-1234-5678-123456789ABC 00ABCDEF" \
   -s /path/to/workspace \
   --debug
@@ -429,7 +429,7 @@ matching these patterns:
 Use `--no-auto-discover` to use only standard PI codes even when a search path is provided:
 
 ```bash
-python StatusCodeprocessor.py -e "ERROR: ..." \
+python statuscodeprocessor.py -e "ERROR: ..." \
   -s /path/to/workspace \
   --no-auto-discover
 ```
@@ -439,7 +439,7 @@ python StatusCodeprocessor.py -e "ERROR: ..." \
 Use `-c` to add headers that don't match the auto-discovery pattern (works together with auto-discovery):
 
 ```bash
-python StatusCodeprocessor.py -e "ERROR: ..." \
+python statuscodeprocessor.py -e "ERROR: ..." \
   -c /path/to/MyErrors.h /path/to/CustomCodes.h
 ```
 
@@ -482,14 +482,14 @@ The tool uses Python's logging module with different verbosity levels:
 **Example - Default Output (Clean):**
 
 ```bash
-python StatusCodeprocessor.py -e "ERROR: ..." -s /path
+python statuscodeprocessor.py -e "ERROR: ..." -s /path
 # Output: Only the final "=== Error Code Analysis ===" section
 ```
 
 **Example - Debug Output (Verbose):**
 
 ```bash
-python StatusCodeprocessor.py -e "ERROR: ..." -s /path --debug
+python statuscodeprocessor.py -e "ERROR: ..." -s /path --debug
 # Output: Discovery messages, parsing details, macro resolution, GUID search, then analysis
 ```
 
@@ -551,7 +551,7 @@ python StatusCodeprocessor.py -e "ERROR: ..." -s /path --debug
 ```bash
 # Extract error codes and parse them
 grep "ERROR: C" build.log | while read line; do
-    python StatusCodeprocessor.py -e "$line" -s /path/to/workspace
+    python statuscodeprocessor.py -e "$line" -s /path/to/workspace
     echo "---"
 done
 ```
@@ -560,7 +560,7 @@ done
 
 ```bash
 # Parse and save to file
-python StatusCodeprocessor.py \
+python statuscodeprocessor.py \
   -e "ERROR: C40000002:VDEADBEEF I0 12345678-ABCD-1234-5678-123456789ABC 00ABCDEF" \
   -s /path/to/workspace > error_analysis.txt
 ```

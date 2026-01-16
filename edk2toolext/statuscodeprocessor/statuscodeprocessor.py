@@ -1,6 +1,7 @@
-"""Copyright (c) 2026 Microsoft Corporation. All rights reserved.
+"""Status Code Processor.
 
-StatusCodeprocessor.py
+Copyright (c) Microsoft Corporation
+SPDX-License-Identifier: BSD-2-Clause-Patent
 
 A tool for parsing and decoding UEFI/EDK2 status codes from debug logs.
 Supports both standard PI specification codes and platform-specific custom codes,
