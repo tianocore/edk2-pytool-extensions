@@ -16,6 +16,27 @@ This tool analyzes UEFI status codes to help you understand:
 provided with `-s`. You can disable auto-discovery with `--no-auto-discover` if you only want standard PI
 specification codes.**
 
+## Installation
+
+This tool is part of the `edk2-pytool-extensions` package. After installing the package, the tool is
+available as a command-line utility:
+
+```bash
+pip install edk2-pytool-extensions
+```
+
+You can then run it directly from the command line using `statuscode_processor`:
+
+```bash
+statuscode_processor -e "ERROR: C40000002:V03040002 I0 12345678-ABCD-1234-5678-123456789ABC 00000001"
+```
+
+Alternatively, you can run it as a Python script directly:
+
+```bash
+python StatusCodeprocessor.py -e "ERROR: C40000002:V03040002 I0 12345678-ABCD-1234-5678-123456789ABC 00000001"
+```
+
 ## Features
 
 ✅ Parses both **Progress Codes** and **Error Codes**  
@@ -33,10 +54,15 @@ specification codes.**
 ### Basic Usage (Standard PI Codes Only)
 
 ```bash
+# Using the command-line utility (after pip install)
 # Parse an error code - uses only PiStatusCode.h definitions (no search path)
-python StatusCodeprocessor.py -e "ERROR: C40000002:V03040002 I0 12345678-ABCD-1234-5678-123456789ABC 00000001"
+statuscode_processor -e "ERROR: C40000002:V03040002 I0 12345678-ABCD-1234-5678-123456789ABC 00000001"
 
 # Parse a progress code - uses only PiStatusCode.h definitions (no search path)
+statuscode_processor -p "PROGRESS CODE: V03041001 I0"
+
+# Or run as a Python script directly
+python StatusCodeprocessor.py -e "ERROR: C40000002:V03040002 I0 12345678-ABCD-1234-5678-123456789ABC 00000001"
 python StatusCodeprocessor.py -p "PROGRESS CODE: V03041001 I0"
 ```
 
@@ -44,7 +70,7 @@ python StatusCodeprocessor.py -p "PROGRESS CODE: V03041001 I0"
 
 ```bash
 # Auto-discovers platform-specific status codes when search path is provided
-python StatusCodeprocessor.py -e "ERROR: C40000002:VDEADBEEF I0 12345678-ABCD-1234-5678-123456789ABC 00ABCDEF" \
+statuscode_processor -e "ERROR: C40000002:VDEADBEEF I0 12345678-ABCD-1234-5678-123456789ABC 00ABCDEF" \
   -s /path/to/workspace
 ```
 
@@ -52,7 +78,7 @@ python StatusCodeprocessor.py -e "ERROR: C40000002:VDEADBEEF I0 12345678-ABCD-12
 
 ```bash
 # Enable verbose logging to see header discovery and parsing details
-python StatusCodeprocessor.py -e "ERROR: C40000002:VDEADBEEF I0 12345678-ABCD-1234-5678-123456789ABC 00ABCDEF" \
+statuscode_processor -e "ERROR: C40000002:VDEADBEEF I0 12345678-ABCD-1234-5678-123456789ABC 00ABCDEF" \
   -s /path/to/workspace \
   --debug
 ```
@@ -61,7 +87,7 @@ python StatusCodeprocessor.py -e "ERROR: C40000002:VDEADBEEF I0 12345678-ABCD-12
 
 ```bash
 # Disable auto-discovery to use only standard PI specification codes
-python StatusCodeprocessor.py -e "ERROR: C40000002:V03040002 I0 12345678-ABCD-1234-5678-123456789ABC 00000001" \
+statuscode_processor -e "ERROR: C40000002:V03040002 I0 12345678-ABCD-1234-5678-123456789ABC 00000001" \
   -s /path/to/workspace \
   --no-auto-discover
 ```
