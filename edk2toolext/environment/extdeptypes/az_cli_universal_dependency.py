@@ -46,6 +46,7 @@ class AzureCliUniversalDependency(ExternalDependency):
 
     # https://docs.microsoft.com/en-us/azure/devops/cli/log-in-via-pat?view=azure-devops&tabs=windows
     AZURE_CLI_DEVOPS_ENV_VAR = "AZURE_DEVOPS_EXT_PAT"
+    AZURE_CLI_DEVOPS_EXT_DEBUG_ENV_VAR = "AZURE_DEVOPS_EXT_DEBUG"
 
     VersionLogged = False
 
@@ -111,6 +112,7 @@ class AzureCliUniversalDependency(ExternalDependency):
             self.internal_path = self.internal_path.strip(os.path.sep)
         _pat_var = descriptor.get("pat_var", None)
         self._pat = None
+        self.debug = "1" == os.environ.get(self.AZURE_CLI_DEVOPS_EXT_DEBUG_ENV_VAR, False)
 
         if _pat_var is not None:
             # Get the PAT or if not defined in shell_var it will return None
@@ -128,8 +130,14 @@ class AzureCliUniversalDependency(ExternalDependency):
         #
         # fetch the contents of the package.
         #
+
+        # get the shell environment
+        e = os.environ.copy()
+
         cmd = ["az"]
         cmd += ["artifacts", "universal", "download"]
+        if self.debug is True:
+            cmd += ["--debug"]
         cmd += ["--organization", self.organization]
         cmd += ["--feed", self.feed]
         cmd += ["--name", self.name]
@@ -141,8 +149,6 @@ class AzureCliUniversalDependency(ExternalDependency):
             cmd += ["--file-filter", self.file_filter]
         cmd += ["--path", '"' + install_dir + '"']
 
-        # get the shell environment
-        e = os.environ.copy()
         # if PAT then add the PAT as special variable
         if self._pat is not None:
             e[self.AZURE_CLI_DEVOPS_ENV_VAR] = self._pat
@@ -161,7 +167,7 @@ class AzureCliUniversalDependency(ExternalDependency):
             logging.info(f"Failed to parse json data from az command output: {e}")
 
             # Search results to find the json data
-            index_start = results.getvalue().find("{")
+            index_start = results.getvalue().rfind("{")
             index_end = results.getvalue().rfind("}")
 
             if index_start == -1 or index_end == -1:
