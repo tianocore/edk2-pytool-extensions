@@ -44,7 +44,7 @@ dev = [
     "edk2-pytool-extensions[openssl]",
     "ruff == 0.14.1",
     "pytest == 8.4.2",
-    "coverage == 7.11.0",
+    "coverage == 7.13.3",
     "robotframework == 7.3.2",
     "regex == 2026.1.15",
     "pre-commit == 4.5.1",
