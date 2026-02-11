@@ -213,8 +213,11 @@ class BaseAbstractInvocable(object):
         self.ConfigureLogging()
         self.InputParametersConfiguredCallback()
 
-        invocable = pathlib.Path(sys.argv[0]).stem
-        logging.info(f"Cmd to run is: {invocable} {' '.join(sys.argv[1:])}")
+        try:
+            invocable = pathlib.Path(sys.argv[0]).stem
+            logging.info(f"Cmd to run is: {invocable} {' '.join(sys.argv[1:])}")
+        except Exception:
+            pass
         logging.log(edk2_logging.SECTION, "Init Self Describing Environment")
 
         #
