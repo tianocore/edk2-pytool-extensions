@@ -204,6 +204,7 @@ class BaseAbstractInvocable(object):
         !!! danger
             Do not override this method
         """
+        import pathlib
         import timeit
 
         overall_start_time = timeit.default_timer()
@@ -212,6 +213,8 @@ class BaseAbstractInvocable(object):
         self.ConfigureLogging()
         self.InputParametersConfiguredCallback()
 
+        invocable = pathlib.Path(sys.argv[0]).stem
+        logging.info(f"Cmd to run is: {invocable} {' '.join(sys.argv[1:])}")
         logging.log(edk2_logging.SECTION, "Init Self Describing Environment")
 
         #
