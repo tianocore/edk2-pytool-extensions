@@ -29,7 +29,11 @@ class ComponentDumpReport:
 
     def add_cli_options(self, parserobj: ArgumentParser) -> None:
         """Configure command line arguments for this report."""
-        parserobj.add_argument(dest="component", action="store", help="The component to query.")
+        parserobj.add_argument(
+            dest="component",
+            action="store",
+            help="The component to query. Use `list` to instead list all components in the database.",
+        )
         parserobj.add_argument(
             "-o",
             "--out",
@@ -75,12 +79,23 @@ class ComponentDumpReport:
 
         with db.session() as session:
             self.env_id = args.env_id or session.query(Environment).order_by(desc(Environment.date)).first().id
-            component = (
-                session.query(InstancedInf)
-                .filter_by(env=self.env_id, cls=None)
-                .filter(InstancedInf.path.like(f"%{self.component}%"))
-                .one()
-            )
+
+            if self.component.lower() == "list":
+                return self.print_components(session)
+
+            try:
+                component = (
+                    session.query(InstancedInf)
+                    .filter_by(env=self.env_id, cls=None)
+                    .filter(InstancedInf.path.like(f"%{self.component}%"))
+                    .one()
+                )
+            except Exception:
+                import logging
+
+                logging.error(f"Component [{self.component}] not found in the database for the specific environment.")
+                logging.error("  Is the component path correct? All paths are EDK II package relative.")
+                return
 
             if args.flatten:
                 return self.print_libraries_flat(component.path, session)
@@ -132,3 +147,9 @@ class ComponentDumpReport:
 
         for library in libraries:
             print(f"- {library.cls:{length}}| {library.path}", file=self.file)
+
+    def print_components(self, session: Session) -> None:
+        """Prints all components in the database."""
+        components = session.query(InstancedInf).filter_by(env=self.env_id, cls=None).all()
+        for component in components:
+            print(component.path, file=self.file)
