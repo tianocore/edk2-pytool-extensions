@@ -8,6 +8,7 @@
 ##
 """Unit test suite for the WebDependency class."""
 
+import http.client
 import json
 import logging
 import os
@@ -16,9 +17,10 @@ import shutil
 import tarfile
 import tempfile
 import unittest
-import urllib.request
+import urllib.error
 import zipfile
 from sys import platform
+from unittest.mock import patch
 
 import pytest
 from edk2toolext.environment import environment_descriptor_files as EDF
@@ -148,7 +150,7 @@ class TestWebDependency(unittest.TestCase):
 
         ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
         ext_dep = WebDependency(ext_dep_descriptor)
-        with self.assertRaises(urllib.error.HTTPError):
+        with self.assertRaises(RuntimeError):
             ext_dep.fetch()
             self.fail("should have thrown an Exception")
 
@@ -497,6 +499,83 @@ class TestWebDependency(unittest.TestCase):
         self.assertTrue(len(namelist) == 1)
         self.assertFalse(internal_path_win in namelist[0])
         self.assertTrue(WebDependency.linuxize_path(internal_path_win) in namelist[0])
+
+    def test_remote_disconnected_raises_clean_runtime_error(self) -> None:
+        """Verify RemoteDisconnected during download raises RuntimeError with a clean message.
+
+        What occurs if a remote server drops the connection mid-download.
+        """
+        ext_dep_file_path = os.path.join(test_dir, "remote_disconnect_ext_dep.json")
+        with open(ext_dep_file_path, "w+") as ext_dep_file:
+            ext_dep_file.write(json.dumps(single_file_extdep))
+
+        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep = WebDependency(ext_dep_descriptor)
+
+        with patch("edk2toolext.environment.extdeptypes.web_dependency.urllib.request.urlopen") as mock_urlopen:
+            mock_urlopen.side_effect = http.client.RemoteDisconnected("Remote end closed connection without response")
+            with self.assertRaises(RuntimeError) as ctx:
+                ext_dep.fetch()
+
+            self.assertIn(ext_dep.name, str(ctx.exception))
+            self.assertIn(ext_dep.source, str(ctx.exception))
+            self.assertIn("Remote end closed connection without response", str(ctx.exception))
+
+    def test_url_error_raises_clean_runtime_error(self) -> None:
+        """Verify URLError, like a DNS failure, during download raises RuntimeError."""
+        ext_dep_file_path = os.path.join(test_dir, "url_error_ext_dep.json")
+        with open(ext_dep_file_path, "w+") as ext_dep_file:
+            ext_dep_file.write(json.dumps(single_file_extdep))
+
+        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep = WebDependency(ext_dep_descriptor)
+
+        with patch("edk2toolext.environment.extdeptypes.web_dependency.urllib.request.urlopen") as mock_urlopen:
+            mock_urlopen.side_effect = urllib.error.URLError("Name or service not known")
+            with self.assertRaises(RuntimeError) as ctx:
+                ext_dep.fetch()
+
+            self.assertIn(ext_dep.name, str(ctx.exception))
+            self.assertIn(ext_dep.source, str(ctx.exception))
+            self.assertIn("Name or service not known", str(ctx.exception))
+
+    def test_connection_reset_raises_clean_runtime_error(self) -> None:
+        """Verify ConnectionResetError during download raises RuntimeError."""
+        ext_dep_file_path = os.path.join(test_dir, "conn_reset_ext_dep.json")
+        with open(ext_dep_file_path, "w+") as ext_dep_file:
+            ext_dep_file.write(json.dumps(single_file_extdep))
+
+        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep = WebDependency(ext_dep_descriptor)
+
+        with patch("edk2toolext.environment.extdeptypes.web_dependency.urllib.request.urlopen") as mock_urlopen:
+            mock_urlopen.side_effect = ConnectionResetError("Connection reset by peer")
+            with self.assertRaises(RuntimeError) as ctx:
+                ext_dep.fetch()
+
+            self.assertIn(ext_dep.name, str(ctx.exception))
+            self.assertIn(ext_dep.source, str(ctx.exception))
+            self.assertIn("Connection reset by peer", str(ctx.exception))
+
+    def test_http_error_raises_clean_runtime_error(self) -> None:
+        """Verify HTTPError during download raises RuntimeError with status code."""
+        ext_dep_file_path = os.path.join(test_dir, "http_error_ext_dep.json")
+        with open(ext_dep_file_path, "w+") as ext_dep_file:
+            ext_dep_file.write(json.dumps(single_file_extdep))
+
+        ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
+        ext_dep = WebDependency(ext_dep_descriptor)
+
+        with patch("edk2toolext.environment.extdeptypes.web_dependency.urllib.request.urlopen") as mock_urlopen:
+            mock_urlopen.side_effect = urllib.error.HTTPError(
+                url=ext_dep.source, code=404, msg="Not Found", hdrs=None, fp=None
+            )
+            with self.assertRaises(RuntimeError) as ctx:
+                ext_dep.fetch()
+
+            self.assertIn(ext_dep.name, str(ctx.exception))
+            self.assertIn("404", str(ctx.exception))
+            self.assertIn("Not Found", str(ctx.exception))
 
     @pytest.mark.skipif(platform == "win32", reason="Only Linux care about file attributes.")
     def test_unpack_zip_file_attr(self) -> None:

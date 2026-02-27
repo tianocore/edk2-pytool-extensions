@@ -136,7 +136,15 @@ class WebDependency(ExternalDependency):
                 out_file.write(response.read())
         except urllib.error.HTTPError as e:
             logging.error(f"ran into an issue when resolving ext_dep {self.name} at {self.source}")
-            raise e
+            raise RuntimeError(
+                f"Failed to download {self.name} from {self.source}: received HTTP {e.code} {e.reason}"
+            ) from e
+        except urllib.error.URLError as e:
+            logging.error(f"ran into an issue when resolving ext_dep {self.name} at {self.source}")
+            raise RuntimeError(f"Failed to download {self.name} from {self.source}: {e.reason}") from e
+        except OSError as e:
+            logging.error(f"ran into an issue when resolving ext_dep {self.name} at {self.source}")
+            raise RuntimeError(f"Failed to download {self.name} from {self.source}: {e}") from e
 
         # check if file hash is as expected, if it was provided in the ext_dep.json
         if self.sha256:
