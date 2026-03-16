@@ -67,7 +67,7 @@ docs = [
 ]
 openssl = [
     "pyopenssl",
-    "cryptography >= 39.0.1",
+    "cryptography >= 46.0.5",
 ]
 perf = [
     "wmi>=1.5.0; sys_platform=='win32'",
