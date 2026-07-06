@@ -422,11 +422,30 @@ class TestOmniCache(unittest.TestCase):
         remoteName = oc._LookupRemoteForUrl("https://github.com/tianocore/edk2-pytool-extensions.git")
         assert remoteName is not None
 
-        # verify that branches were fetched into the omnicache
-        assert len(os.listdir(os.path.join(testcache, "refs", "remotes", remoteName))) != 0
+        # verify that branches were fetched into the omnicache. Use git to enumerate the refs rather than inspecting
+        # the filesystem directly, since newer versions of git may store fetched refs in the packed-refs file instead
+        # of as loose ref files (in which case the refs/remotes/<remoteName> directory does not exist on disk).
+        # Verify that every output line is an actual ref under the expected namespace (the default for-each-ref
+        # output is "<oid> <type>\t<refname>"). This ensures the check fails if git returns 0 but writes an error
+        # (or anything unexpected) to the output stream instead of the refs we expect.
+        out = StringIO()
+        gitret = utility_functions.RunCmd(
+            "git", f"for-each-ref refs/remotes/{remoteName}", workingdir=testcache, outstream=out
+        )
+        assert gitret == 0
+        branches = out.getvalue().splitlines()
+        assert len(branches) != 0
+        assert all(line.split("\t")[-1].startswith(f"refs/remotes/{remoteName}/") for line in branches)
 
-        # verify that tags were fetched into the omnicache
-        assert len(os.listdir(os.path.join(testcache, "refs", "rtags", remoteName))) != 0
+        # verify that tags were fetched into the omnicache (see note above regarding packed-refs).
+        out = StringIO()
+        gitret = utility_functions.RunCmd(
+            "git", f"for-each-ref refs/rtags/{remoteName}", workingdir=testcache, outstream=out
+        )
+        assert gitret == 0
+        tags = out.getvalue().splitlines()
+        assert len(tags) != 0
+        assert all(line.split("\t")[-1].startswith(f"refs/rtags/{remoteName}/") for line in tags)
 
     def test_omnicache_list(self) -> None:
         """Test the list command of omnicache."""
