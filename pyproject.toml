@@ -57,7 +57,7 @@ publish = [
 docs = [
     "black==26.5.1",
     "mkdocs==1.6.1",
-    "mkdocs-material==9.7.1",
+    "mkdocs-material==9.7.7",
     "mkdocstrings[python]==1.0.6",
     "mkdocstrings-python==2.0.5",
     "markdown-include==0.8.1",
