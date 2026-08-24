@@ -37,6 +37,9 @@ class NugetDependency(ExternalDependency):
     # Env variable name for path to folder containing NuGet.exe
     NUGET_ENV_VAR_NAME = "NUGET_PATH"
 
+    # Mono is required to run NuGet.exe on non-Windows platforms.
+    MONO_INSTALL_INSTRUCTIONS_URL = "https://www.mono-project.com/download/stable/#download-lin"
+
     def __init__(self, descriptor: dict) -> None:
         """Inits a nuget dependency based off the provided descriptor."""
         super().__init__(descriptor)
@@ -57,9 +60,22 @@ class NugetDependency(ExternalDependency):
         Returns:
             (list): ["nuget.exe"] or ["mono", "/PATH/TO/nuget.exe"]
             (None): none was found
+
+        Raises:
+            (RuntimeError): Mono is required to run NuGet but is not installed.
         """
         cmd = []
         if GetHostInfo().os != "Windows":
+            if shutil.which("mono") is None:
+                logging.error(
+                    "Mono is required to run NuGet on non-Windows platforms but was not found on the PATH. "
+                    f"Follow the Mono install instructions at {cls.MONO_INSTALL_INSTRUCTIONS_URL} and also "
+                    "install ca-certificates-mono, which becomes available once those steps are completed."
+                )
+                raise RuntimeError(
+                    "Mono is required to run NuGet but was not found. "
+                    f"See install instructions: {cls.MONO_INSTALL_INSTRUCTIONS_URL}"
+                )
             cmd += ["mono"]
 
         nuget_path = os.getenv(cls.NUGET_ENV_VAR_NAME)
