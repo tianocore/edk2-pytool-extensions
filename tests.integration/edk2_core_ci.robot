@@ -45,7 +45,7 @@ One time setup
 
 Run Edk2 MdePkg CoreCI Debug
     [Documentation]  This Test will run X64 DEBUG build of Core CI on the MdePkg
-    [Tags]           CoreCI  Windows  VS2019  Compile  Edk2
+    [Tags]           CoreCI  Windows  VS2022  Compile  Edk2
 
     ${archs}=            Set Variable    X64
     ${targets}=          Set Variable    DEBUG
@@ -61,7 +61,7 @@ Run Edk2 MdePkg CoreCI Debug
 
 Run Edk2 SecurityPkg CoreCI Release
     [Documentation]  This Test will run IA32 RELEASE build of Core CI on the SecurityPkg
-    [Tags]           CoreCI  Windows  VS2019  Compile  Edk2
+    [Tags]           CoreCI  Windows  VS2022  Compile  Edk2
 
     ${archs}=            Set Variable    IA32
     ${targets}=          Set Variable    RELEASE
@@ -77,7 +77,7 @@ Run Edk2 SecurityPkg CoreCI Release
 
 Run Edk2 UefiCpuPkg CoreCI for No-Target
     [Documentation]  This Test will run NO-TARGET Core CI test on the UefiCpuPkg
-    [Tags]           CoreCI  Windows  VS2019  NO-TARGET  Edk2
+    [Tags]           CoreCI  Windows  VS2022  NO-TARGET  Edk2
 
     ${archs}=            Set Variable    X64,IA32,AARCH64
     ${targets}=          Set Variable    NO-TARGET
@@ -93,7 +93,7 @@ Run Edk2 UefiCpuPkg CoreCI for No-Target
 
 Run Edk2 MdeModulePkg CoreCI for NOOPT and HostTest
     [Documentation]  This Test will run NOOPT Core CI which includes Host-Tests on the MdeModulePkg
-    [Tags]           CoreCI  Windows  VS2019  NOOPT  HOST-TEST  Edk2
+    [Tags]           CoreCI  Windows  VS2022  NOOPT  HOST-TEST  Edk2
 
     ${archs}=            Set Variable    X64
     ${targets}=          Set Variable    NOOPT
