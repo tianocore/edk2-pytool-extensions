@@ -42,7 +42,7 @@ One time setup
 *** Test Cases ***
 Run Edk2 Ovmf PlatformCI
     [Documentation]  This Test will run Platform CI on the OvmfPkg X64
-    [Tags]           PlatformCI  OVMF  X64  VS2019  Windows  QEMU  Edk2
+    [Tags]           PlatformCI  OVMF  X64  VS2022  Windows  QEMU  Edk2
     ${arch}=             Set Variable    X64
     ${target}=           Set Variable    DEBUG
     ${package}=          Set Variable    OvmfPkg
@@ -59,7 +59,7 @@ Run Edk2 Ovmf PlatformCI
 
 Run Edk2 EmulatorPkg PlatformCI
     [Documentation]  This Test will run Platform CI on the EmulatorPkg X64
-    [Tags]           PlatformCI  X64  VS2019  Windows  EmulatorPkg  Edk2
+    [Tags]           PlatformCI  X64  VS2022  Windows  EmulatorPkg  QEMU  Edk2
     ${arch}=             Set Variable    X64
     ${target}=           Set Variable    NOOPT
     ${package}=          Set Variable    EmulatorPkg

@@ -83,7 +83,7 @@ Get default branch from remote
     # add the remote name.
     ${branch}=  Get Substring  ${result.stdout}  7
 
-    [Return]  ${branch}
+    RETURN  ${branch}
 
 Make new branch
     [Arguments]    ${name}  ${ws}
@@ -186,7 +186,7 @@ Stuart pr evaluation
     ...  cwd=${ws}  stdout=stdout.txt  stderr=stderr.txt
     Log Many  stdout: ${result.stdout}  stderr: ${result.stderr}
     Should Be Equal As Integers  ${result.rc}  0
-    Return From Keyword    ${result.stdout}
+    RETURN    ${result.stdout}
 
 ### Edk2 BaseTools Build operations ###
 Build BaseTools
