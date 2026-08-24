@@ -137,20 +137,27 @@ If you're using Linux (whether through WSL or natively), you'll need to add the
 proper sources to your relevant package manager for mono. As of time of writing,
 the Ubuntu mono packages are out of date.
 
-You can follow the instructions here:
+You must follow the official Mono installation instructions here:
 <https://www.mono-project.com/download/stable/#download-lin>
 
-Here are the instructions (as of time of writing):
+Following these instructions is important because it not only makes the latest
+`mono-devel` available to install, but also makes `ca-certificates-mono`
+available, which NuGet requires. This matters especially on Ubuntu 26.04, where
+`ca-certificates-mono` cannot be installed via `apt` without first adding the
+Mono source as described below.
+
+Here are the instructions for Ubuntu (as of time of writing):
 
 ``` bash
-sudo apt install gnupg ca-certificates
-sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-echo "deb https://download.mono-project.com/repo/ubuntu stable-bionic main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
+sudo apt install ca-certificates gnupg
+sudo gpg --homedir /tmp --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/mono-official-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+sudo chmod +r /usr/share/keyrings/mono-official-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/mono-official-archive-keyring.gpg] https://download.mono-project.com/repo/ubuntu stable-focal main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
 sudo apt update
 
 sudo apt upgrade (if mono is already installed)
 - or -
-sudo apt install mono-devel
+sudo apt install mono-devel ca-certificates-mono
 ```
 
 If you're running a different kind of package manager, or on a system without a

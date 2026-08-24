@@ -43,8 +43,12 @@ If using WSL, review
 
 1. Install Nuget and dependencies:
 
+    Set up Mono so NuGet external dependencies work on Linux by following the
+    [A note on NuGet on Linux](/features/extdep.md#a-note-on-nuget-on-linux)
+    instructions, then install `make`:
+
     ```cmd
-    sudo apt-get install mono-complete, nuget, make
+    sudo apt install make
     ```
 
 1. Install edk2-pytool-extensions:

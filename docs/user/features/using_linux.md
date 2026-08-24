@@ -83,7 +83,7 @@ install git to the required version:
 If you use the external dependency features of pytools, you'll need to update your mono to support NuGet on Linux.
 This applies to all Linux users, WSL or native.
 
-See more information in the using_extdep document [here](https://github.com/tianocore/edk2-pytool-extensions/blob/master/docs/usability/using_extdep.md).
+See more information in the [A note on NuGet on Linux](extdep.md#a-note-on-nuget-on-linux) section of the extdep document.
 
 ## Setting up other tools
 
