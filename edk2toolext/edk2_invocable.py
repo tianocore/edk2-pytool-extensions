@@ -108,14 +108,14 @@ class Edk2InvocableSettingsInterface:
         """
         return []
 
-    def GetActiveScopes(self) -> tuple[str]:
+    def GetActiveScopes(self) -> tuple[str, ...]:
         """Provides scopes that should be active for this process for SDE.
 
         !!! tip
             Optional Override in a subclass
 
         Returns:
-            (Tuple[str]): scopes
+            (tuple[str, ...]): scopes
         """
         return ()
 
@@ -157,14 +157,14 @@ class Edk2InvocableSettingsInterface:
             args (argparse.Namespace): argparser args namespace containing command line options
         """
 
-    def GetSkippedDirectories(self) -> tuple[str]:
+    def GetSkippedDirectories(self) -> tuple[str, ...]:
         """Returns a tuple containing workspace-relative directories to be skipped by SDE.
 
         !!! tip
             Optional override in a subclass
 
         Returns:
-            (Tuple[str]): directories to be skipped.
+            (tuple[str, ...]): directories to be skipped.
         """
         return ()
 
