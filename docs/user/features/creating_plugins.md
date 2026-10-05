@@ -6,9 +6,9 @@ repository can provide three commonly used plugin types:
 
 | Plugin type | Interface | How it is used |
 | --- | --- | --- |
-| CI build plugin | `ICiBuildPlugin` | `stuart_ci_build` runs it for each selected package and target that the plugin supports. |
+| CI build plugin | `ICiBuildPlugin` | `stuart_ci_build` runs it for each selected package and supported target. |
 | Build plugin | `IUefiBuildPlugin` | `stuart_build` calls its pre-build and post-build callbacks. |
-| Helper plugin | `IUefiHelperPlugin` | Stuart registers its functions on the helper object for build code and other plugins to call. |
+| Helper plugin | `IUefiHelperPlugin` | Stuart registers its functions on the helper object for other code to call. |
 
 ## Make a plugin discoverable
 
@@ -87,7 +87,7 @@ and for each target returned by `RunsOnTargetList()`. The inherited default is
 `["NO-TARGET"]`, which makes a target-independent plugin run once per package
 when `NO-TARGET` is selected.
 
-### Descriptor
+### CI plugin descriptor
 
 Create
 `.pytool/Plugin/RequiredFileCheck/RequiredFileCheck_plug_in.yaml`:
@@ -100,7 +100,7 @@ module: RequiredFileCheck
 
 Make sure `cibuild` is one of the active scopes in the CI settings file.
 
-### Python module
+### CI plugin module
 
 Create `.pytool/Plugin/RequiredFileCheck/RequiredFileCheck.py` next to the
 descriptor:
@@ -212,7 +212,7 @@ environment through `thebuilder.env`, path utilities through
 `thebuilder.edk2path`, registered helpers through `thebuilder.Helper`, and the
 other attributes and methods documented in the `UefiBuilder` API.
 
-### Descriptor
+### Build plugin descriptor
 
 Create
 `MyPlatformPkg/Plugins/BuildSummary/BuildSummary_plug_in.yaml`:
@@ -223,7 +223,7 @@ name: Build Summary
 module: BuildSummary
 ```
 
-### Python module
+### Build plugin module
 
 Create `MyPlatformPkg/Plugins/BuildSummary/BuildSummary.py` next to the
 descriptor:
@@ -285,7 +285,7 @@ A helper plugin subclasses
 and registers one or more callables. Stuart loads active helper plugins while
 initializing an invocable.
 
-### Descriptor
+### Helper plugin descriptor
 
 Create
 `MyPlatformPkg/Plugins/PlatformPathHelpers/PlatformPathHelpers_plug_in.yaml`:
@@ -296,7 +296,7 @@ name: Platform Path Helpers
 module: PlatformPathHelpers
 ```
 
-### Python module
+### Helper plugin module
 
 Create `MyPlatformPkg/Plugins/PlatformPathHelpers/PlatformPathHelpers.py` next
 to the descriptor:
