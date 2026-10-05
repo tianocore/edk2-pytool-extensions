@@ -88,8 +88,8 @@ afforded to you by EDK2 Pytools.
 So what has all of these commands been culminating to? They've all been working to prepare a
 [Self Describing Environment](/features/sde.md) for the `UefiBuilder` to operate in. The purpose of the
 `UefiBuilder` is to allow the platform to perform various tasks using this environment. Custom made
-[UefiBuildPlugins](/features/plugin_manager.md#types-of-plugins) will automatically be run Pre and Post build for
-all platforms while [UefiHelperPlugins](/features/plugin_manager.md#types-of-plugins) will be available to the
+[build plugins](/features/creating_plugins.md#build-plugins) will automatically be run Pre and Post build for
+all platforms while [helper plugins](/features/creating_plugins.md#helper-plugins) will be available to the
 developer to help create Platform specific Pre and Post build functionality. The `UefiBuilder` class has a lot to it, so
 let's take a look at each part.
 
@@ -194,7 +194,7 @@ FILE APPLICATION = PCD(gPcBdsPkgTokenSpaceGuid.PcdShellFile) {
 ### Pre / Post Build Customization
 
 Edk2 Pytools offer developers multiple ways to customize the build experience, both Pre and Post Build. The first way is
-through [UefiBuildPlugins](/features/plugin_manager.md#types-of-plugins) (executed automatically for all platforms)
+through [build plugins](/features/creating_plugins.md#build-plugins) (executed automatically for all platforms)
 which is discussed in [Create a Plugin](/features/creating_plugins.md) section, and through three methods to override in
 the `UefiBuilder` (specific to the platform) which will be the focus here.
 
@@ -220,11 +220,10 @@ callbacks mentioned above:
 
 #### Helper Plugins
 
-This is another type of plugin that is talked about in the [Create a Plugin](/features/creating_plugins.md)
-that allows the developers to add in extensions or helper methods to the build
-environment that are easy to access. You can easily access them through
-`self.Helper.<FunctionName>()`. As an example, if we made that helper called
-`YamlToBin(yaml_obj)`, then we could call it via `self.Helper.JsonToBin(yaml)`.
+[Helper plugins](/features/creating_plugins.md#helper-plugins) add reusable
+functions to the build environment. Registered functions are available through
+`self.Helper.<FunctionName>()`; the plugin guide shows the complete
+descriptor, registration, and call pattern.
 
 #### The Environment
 

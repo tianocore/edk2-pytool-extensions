@@ -76,7 +76,8 @@ be implemented.
 3. `UefiHelperPlugin` - Registers one or
    more functions that can called by any part of the build system.
 
-[Plugin Manager Documentation](features/plugin_manager.md)
+[Create plugins in a platform repository](features/creating_plugins.md), or
+read about the [plugin manager internals](features/plugin_manager.md).
 
 ### External Dependencies
 

@@ -9,7 +9,7 @@ These use cases will fit into our 'CI' tools category.
 ## Getting Started
 
 Our CI tools simplify the process of creating and running
-[CiBuildPlugins](/features/plugin_manager.md) on packages within any
+[CI build plugins](/features/creating_plugins.md#ci-build-plugins) on packages within any
 repository, not just a platform repository. We even provide a simple means to
 filter which packages are tested based off which files have been changed
 through `edk2_pr_eval.py`/`stuart_pr_eval.exe`. These packages do not need to
