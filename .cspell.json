@@ -106,6 +106,7 @@
         "nuget",
         "nupkg",
         "oemid",
+        "properdocs",
         "omnicache",
         "oprom",
         "ovmf",

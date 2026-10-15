@@ -132,11 +132,11 @@ as described below.
     markdownlint "**/*.md"
     ```
 
-7. Run mkdocs build
+7. Run ProperDocs build
    * Fix warnings and errors
 
     ```cmd
-    mkdocs build --strict
+    properdocs build --strict
     ```
 
 ### Githooks

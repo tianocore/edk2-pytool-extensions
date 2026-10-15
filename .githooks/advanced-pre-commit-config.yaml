@@ -29,9 +29,9 @@ repos:
         name: BasicDevTests
         language: system
         entry: python BasicDevTests.py
-    -   id: mkdocs-build
-        name: Build MkDocs site
-        entry: mkdocs build --strict
+    -   id: properdocs-build
+        name: Build ProperDocs site
+        entry: properdocs build --strict
         language: python
         always_run: true
         pass_filenames: false
