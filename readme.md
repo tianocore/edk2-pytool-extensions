@@ -167,7 +167,7 @@ following command from the root of the project:
 
 ```cmd
 pip install --upgrade -e .[docs]
-mkdocs serve
+properdocs serve
 ```
 
 The second is located at ```docs/contributor/``` and is documentation for

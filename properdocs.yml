@@ -78,7 +78,7 @@ markdown_extensions:
       permalink: true
 watch:
   - 'docs/user'
-  - 'mkdocs.yml'
+  - 'properdocs.yml'
   - 'edk2toolext/'
 
 nav:

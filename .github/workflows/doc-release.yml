@@ -37,7 +37,7 @@ jobs:
       
       - name: Build Documentation
         run: |
-          mkdocs build --strict
+          properdocs build --strict
       
       - name: Upload Github Pages Site Artifact
         uses: actions/upload-pages-artifact@v5
