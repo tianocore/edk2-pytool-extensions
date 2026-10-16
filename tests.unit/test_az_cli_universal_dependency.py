@@ -277,7 +277,7 @@ class TestAzCliUniversalDependency(unittest.TestCase):
 
         ext_dep_descriptor = EDF.ExternDepDescriptor(ext_dep_file_path).descriptor_contents
         ext_dep = AzureCliUniversalDependency(ext_dep_descriptor)
-        with self.assertRaises(Exception):
+        with self.assertRaises(RuntimeError):
             ext_dep.fetch()
 
     # bad case

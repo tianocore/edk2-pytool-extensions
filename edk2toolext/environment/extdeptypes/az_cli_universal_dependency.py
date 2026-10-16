@@ -157,7 +157,7 @@ class AzureCliUniversalDependency(ExternalDependency):
         ret = RunCmd(cmd[0], " ".join(cmd[1:]), outstream=results, environ=e)
         if ret != 0:
             results.seek(0)
-            raise Exception(f'\nCommand "{" ".join(cmd)}" failed with {ret}.\n\n{results.getvalue()}')
+            raise RuntimeError(f'\nCommand "{" ".join(cmd)}" failed with {ret}.\n\n{results.getvalue()}')
 
         # az tool returns json data that includes the downloaded version
         # lets check it to double confirm
