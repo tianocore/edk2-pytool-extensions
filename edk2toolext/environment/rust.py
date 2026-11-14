@@ -19,15 +19,16 @@ difficult to find.
 Note:
   - Individual tools can be opted out by setting the environment variable
     `RUST_ENV_CHECK_TOOL_EXCLUSIONS` with a comma separated list of the tools
-    to exclude. For example, "rustup, cargo tarpaulin" would not require that
+    to exclude. For example, "rustup, cargo llvm-cov" would not require that
     those tools be installed.
 """
 
 import logging
 import re
 from io import StringIO
-from typing import Callable, Dict, List, NamedTuple
+from typing import Callable, Dict, List, NamedTuple, Optional
 
+# RunCmd accepts text streams, but its upstream outstream annotation is str.
 from edk2toollib.utility_functions import RunCmd
 
 from edk2toolext.environment import shell_environment
@@ -39,17 +40,18 @@ class RustToolInfo(NamedTuple):
     """Represents information about a Rust tool.
 
     Attributes:
-        presence_cmd (tuple[str]): A tuple of command-line arguments to check
-            for the presence of the tool.
+        presence_cmd (tuple[str, ...]): The executable name and optional command-line
+            arguments to check for the tool's presence.
         install_help (str): Help text for installing the tool.
-        required_version (str): The required version of the tool.
-        regex (str): Regular expression pattern to match the tool's version.
+        required_version (Optional[str]): The required version of the tool, if any.
+        regex (Optional[str]): Regular expression pattern to match the tool's version.
+            Required when required_version is specified.
     """
 
-    presence_cmd: tuple[str]
+    presence_cmd: tuple[str, ...]
     install_help: str
-    required_version: str
-    regex: str
+    required_version: Optional[str]
+    regex: Optional[str]
 
 
 class RustToolChainInfo(NamedTuple):
@@ -58,11 +60,11 @@ class RustToolChainInfo(NamedTuple):
     Attributes:
         error (bool): Indicates whether an error occurred while retrieving the
             toolchain information.
-        toolchain (str): The name of the Rust toolchain.
+        toolchain (Optional[str]): The name of the Rust toolchain, if known.
     """
 
     error: bool
-    toolchain: str
+    toolchain: Optional[str]
 
 
 class CustomToolFilter(NamedTuple):
@@ -114,6 +116,9 @@ def _verify_cmd(tool: RustToolInfo, custom_filters: List[CustomToolFilter]) -> i
         int: 0 for success, 1 for missing tool, 2 for version mismatch,
         3 if a component is present but broken
         4 if a custom tool filter detected an error
+
+    Raises:
+        TypeError: A required version is specified without a regex.
     """
     cmd_output = StringIO()
     params = "--version"
@@ -138,6 +143,8 @@ def _verify_cmd(tool: RustToolInfo, custom_filters: List[CustomToolFilter]) -> i
     # If a specific version is required, check the version, returning
     # false if there is a version mismatch
     if tool.required_version:
+        if tool.regex is None:
+            raise TypeError("A version regex is required when a required version is specified.")
         match = re.search(tool.regex, cmd_output.getvalue())
         if match is None:
             logging.warning(f"Failed to verify version: {tool.required_version}")
@@ -177,13 +184,13 @@ def _verify_rust_src_component_is_installed() -> bool:
         bool: True if the rust-src component is installed for the default
         toolchain or the status could not be determined, otherwise, False.
     """
-    toolchain_version = get_workspace_toolchain_version()
-    if toolchain_version.error or not toolchain_version:
+    toolchain_info = get_workspace_toolchain_version()
+    if toolchain_info.error or not toolchain_info.toolchain:
         # If the file is not in an expected format, let that be handled
         # elsewhere and do not look further.
         return True
 
-    toolchain_version = toolchain_version.toolchain
+    toolchain_version = toolchain_info.toolchain
 
     rustc_output = StringIO()
     ret = RunCmd(
@@ -243,13 +250,13 @@ def verify_workspace_rust_toolchain_is_installed() -> RustToolChainInfo:
         RustToolChainInfo: A tuple that indicates if the toolchain is
             available and includes the toolchain version if found.
     """
-    toolchain_version = get_workspace_toolchain_version()
-    if toolchain_version.error or not toolchain_version:
+    toolchain_info = get_workspace_toolchain_version()
+    if toolchain_info.error or not toolchain_info.toolchain:
         # If the file is not in an expected format, let that be handled
         # elsewhere and do not look further.
         return RustToolChainInfo(error=False, toolchain=None)
 
-    toolchain_version = toolchain_version.toolchain
+    toolchain_version = toolchain_info.toolchain
 
     installed_toolchains = StringIO()
     ret = RunCmd(
@@ -364,15 +371,15 @@ def run(
             required_version=tool_ver.get("cargo-make"),
             regex=r"\d+\.\d+\.\d+",
         ),
-        "cargo tarpaulin": RustToolInfo(
-            presence_cmd=("cargo", "tarpaulin --version"),
+        "cargo llvm-cov": RustToolInfo(
+            presence_cmd=("cargo", "llvm-cov --version"),
             install_help=(
-                "  cargo binstall cargo-tarpaulin "
-                f"{('--version ' + tool_ver.get('cargo-tarpaulin', '')) if 'cargo-tarpaulin' in tool_ver else ''}"
+                "  cargo binstall cargo-llvm-cov "
+                f"{('--version ' + tool_ver.get('cargo-llvm-cov', '')) if 'cargo-llvm-cov' in tool_ver else ''}"
                 "\n\n"
                 "  Need to install cargo-binstall? Visit: https://github.com/cargo-bins/cargo-binstall?tab=readme-ov-file#installation\n"
             ),
-            required_version=tool_ver.get("cargo-tarpaulin"),
+            required_version=tool_ver.get("cargo-llvm-cov"),
             regex=r"\d+\.\d+\.\d+",
         ),
     }
