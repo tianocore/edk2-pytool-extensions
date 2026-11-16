@@ -2,6 +2,7 @@
 """Rust Environment module unit tests."""
 
 import unittest
+from io import StringIO
 from unittest.mock import MagicMock, mock_open, patch
 
 from edk2toolext.environment.rust import (
@@ -316,11 +317,22 @@ class RustEnvironmentTests(unittest.TestCase):
         result = _verify_rust_src_component_is_installed()
         self.assertTrue(result)
 
+    @patch("edk2toolext.environment.rust.RunCmd")
+    def test_verify_without_channel(self, mock_run_cmd: MagicMock) -> None:
+        """Test that an unspecified toolchain does not trigger toolchain or component checks."""
+        with patch("builtins.open", mock_open(read_data="[toolchain]\n")):
+            self.assertTrue(_verify_rust_src_component_is_installed())
+            self.assertEqual(
+                verify_workspace_rust_toolchain_is_installed(),
+                RustToolChainInfo(error=False, toolchain=None),
+            )
+        mock_run_cmd.assert_not_called()
+
     def test_get_required_tool_versions(self) -> None:
         """Test that _get_required_tool_versions() works as expected."""
         test_data = [
-            '[toolchain]\nchannel = "1.76.0"\n\n[tool]\ncargo-make = "0.37.9"\ncargo-tarpaulin = "0.27.3"',
-            '[toolchain]\nchannel = "1.76.0"\n\n[tools]\ncargo-make = "0.37.9"\ncargo-tarpaulin = "0.27.3"',
+            '[toolchain]\nchannel = "1.76.0"\n\n[tool]\ncargo-make = "0.37.9"\ncargo-llvm-cov = "0.6.9"',
+            '[toolchain]\nchannel = "1.76.0"\n\n[tools]\ncargo-make = "0.37.9"\ncargo-llvm-cov = "0.6.9"',
         ]
 
         for data in test_data:
@@ -328,7 +340,7 @@ class RustEnvironmentTests(unittest.TestCase):
                 tool_versions = _get_required_tool_versions()
                 assert tool_versions == {
                     "cargo-make": "0.37.9",
-                    "cargo-tarpaulin": "0.27.3",
+                    "cargo-llvm-cov": "0.6.9",
                 }
 
         # Test when the workspace toolchain file does not exist
@@ -404,6 +416,46 @@ class RustEnvironmentTests(unittest.TestCase):
             "Instructions:\nInstall custom_tool\n\n"
             'Ensure "custom_tool" can successfully be run from a terminal before trying again.'
         )
+
+    @patch("edk2toolext.environment.rust.shell_environment.GetEnvironment")
+    @patch("edk2toolext.environment.rust.logging")
+    @patch("edk2toolext.environment.rust.RunCmd")
+    def test_run_llvm_cov(self, mock_run_cmd: MagicMock, mock_logging: MagicMock, mock_environment: MagicMock) -> None:
+        """Test the llvm-cov command and matching or mismatched version pins."""
+        mock_environment.return_value.get_shell_var.return_value = None
+        for installed_version, expected_errors in [("0.6.9", 0), ("0.6.8", 1)]:
+            with self.subTest(installed_version=installed_version):
+                mock_run_cmd.reset_mock()
+                mock_logging.reset_mock()
+
+                def run_cmd(name: str, params: str, outstream: StringIO, logging_level: int) -> int:
+                    if (name, params) == ("cargo", "llvm-cov --version"):
+                        outstream.write(f"cargo-llvm-cov {installed_version}")
+                    return 0
+
+                mock_run_cmd.side_effect = run_cmd
+                with (
+                    patch("builtins.open", mock_open(read_data='[tools]\ncargo-llvm-cov = "0.6.9"\n')),
+                    patch(
+                        "edk2toolext.environment.rust.get_workspace_toolchain_version",
+                        return_value=RustToolChainInfo(error=True, toolchain=None),
+                    ),
+                ):
+                    self.assertEqual(run(), expected_errors)
+
+                self.assertIn(
+                    ("cargo", "llvm-cov --version"),
+                    [call.args for call in mock_run_cmd.call_args_list],
+                )
+                mock_logging.warning.assert_not_called()
+                if expected_errors:
+                    mock_logging.error.assert_called_once()
+                    message = mock_logging.error.call_args.args[0]
+                    self.assertIn("Rust Environment Failure: cargo llvm-cov version mismatch.", message)
+                    self.assertIn("cargo binstall cargo-llvm-cov --version 0.6.9", message)
+                    self.assertIn("Expected version: 0.6.9", message)
+                else:
+                    mock_logging.error.assert_not_called()
 
 
 if __name__ == "__main__":
