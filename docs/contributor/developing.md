@@ -77,6 +77,17 @@ as described below.
 
 > See [`pyproject.toml`](../../pyproject.toml) for the full list of development dependencies
 
+On Ubuntu, install Mono and its certificate trust store before running the tests:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y mono-devel ca-certificates-mono
+```
+
+If these packages are unavailable in your Ubuntu release's repositories, follow the
+[Mono installation instructions](https://www.mono-project.com/download/stable/#download-lin)
+to add the Mono repository first. The Linux unit-test workflow handles this automatically.
+
 1. Run a Basic Syntax/Lint Check (using ruff) and resolve any issues
 
     * Run ruff

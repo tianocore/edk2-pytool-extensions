@@ -37,11 +37,19 @@ jobs:
         python -m pip install --upgrade pip
         pip install --upgrade -e .[dev]
     
-    - name: Install mono
-      if: matrix.os == 'ubuntu-latest'
+    - name: Install Mono and certificates
+      if: runner.os == 'Linux'
+      shell: bash
       run: |
-        sudo apt-get update
-        sudo apt-get install -y mono-devel
+        sudo apt-get update --error-on=any
+        if ! apt-cache show ca-certificates-mono > /dev/null 2>&1; then
+          sudo apt-get install -y ca-certificates gnupg
+          sudo gpg --batch --homedir /tmp --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/mono-official-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+          sudo chmod +r /usr/share/keyrings/mono-official-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/mono-official-archive-keyring.gpg] https://download.mono-project.com/repo/ubuntu stable-focal main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
+          sudo apt-get update --error-on=any
+        fi
+        sudo apt-get install -y mono-devel ca-certificates-mono
     
     - name: Run Unit Tests
       run: coverage run -m pytest
